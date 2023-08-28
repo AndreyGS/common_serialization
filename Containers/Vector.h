@@ -31,7 +31,7 @@ namespace common_serialization
 {
 
 template<typename Vec>
-class const_vector_based_container_iterator
+class ConstVectorIterator
 {
 public:
     using value_type = typename Vec::value_type;
@@ -40,29 +40,31 @@ public:
     using const_reference = typename Vec::const_reference;
     using difference_type = typename Vec::difference_type;
 
-    const_vector_based_container_iterator(pointer p) : m_p(p) { }
-    const_vector_based_container_iterator(const const_vector_based_container_iterator& it) : m_p(it.m_p) { }
+    ConstVectorIterator(pointer p) : m_p(p) { }
+    ConstVectorIterator(const ConstVectorIterator& it) : m_p(it.m_p) { }
 
-    [[nodiscard]] constexpr inline bool operator==(const const_vector_based_container_iterator& rhs) const noexcept;
-    [[nodiscard]] constexpr inline bool operator!=(const const_vector_based_container_iterator& rhs) const noexcept;
-    [[nodiscard]] constexpr inline bool operator<(const const_vector_based_container_iterator& rhs) const noexcept;
-    [[nodiscard]] constexpr inline bool operator>=(const const_vector_based_container_iterator& rhs) const noexcept;
-    [[nodiscard]] constexpr inline bool operator>(const const_vector_based_container_iterator& rhs) const noexcept;
-    [[nodiscard]] constexpr inline bool operator<=(const const_vector_based_container_iterator& rhs) const noexcept;
+    [[nodiscard]] constexpr inline bool operator==(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr inline bool operator!=(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr inline bool operator<(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr inline bool operator>=(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr inline bool operator>(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr inline bool operator<=(const ConstVectorIterator& rhs) const noexcept;
     [[nodiscard]] constexpr inline const_reference operator*() const noexcept;
     [[nodiscard]] constexpr inline const_pointer operator->() const noexcept;
     [[nodiscard]] constexpr inline const_reference operator[](difference_type n) const noexcept;
-    constexpr inline const_vector_based_container_iterator operator++() noexcept;
-    constexpr inline const_vector_based_container_iterator operator++(int) noexcept;
-    constexpr inline const_vector_based_container_iterator operator--() noexcept;
-    constexpr inline const_vector_based_container_iterator operator--(int) noexcept;
-    constexpr inline const_vector_based_container_iterator operator+=(difference_type n) noexcept;
-    constexpr inline const_vector_based_container_iterator operator-=(difference_type n) noexcept;
+    constexpr inline ConstVectorIterator operator++() noexcept;
+    constexpr inline ConstVectorIterator operator++(int) noexcept;
+    constexpr inline ConstVectorIterator operator--() noexcept;
+    constexpr inline ConstVectorIterator operator--(int) noexcept;
+    constexpr inline ConstVectorIterator operator+=(difference_type n) noexcept;
+    constexpr inline ConstVectorIterator operator-=(difference_type n) noexcept;
     
-    [[nodiscard]] constexpr inline const_vector_based_container_iterator operator-(difference_type n) const noexcept;
-    [[nodiscard]] constexpr inline difference_type operator-(const_vector_based_container_iterator it) const noexcept;
+    [[nodiscard]] constexpr inline ConstVectorIterator operator-(difference_type n) const noexcept;
+    [[nodiscard]] constexpr inline difference_type operator-(ConstVectorIterator it) const noexcept;
 
-    [[nodiscard]] friend constexpr inline const_vector_based_container_iterator operator+(const_vector_based_container_iterator it, difference_type n) noexcept
+    [[nodiscard]] constexpr inline const_pointer getPointer() const noexcept;
+
+    [[nodiscard]] friend constexpr inline ConstVectorIterator operator+(ConstVectorIterator it, difference_type n) noexcept
     {
         return it.m_p + n;
     }
@@ -72,204 +74,218 @@ protected:
 };
 
 template<typename Vec>
-[[nodiscard]] constexpr inline bool const_vector_based_container_iterator<Vec>::operator==(const const_vector_based_container_iterator& rhs) const noexcept
+[[nodiscard]] constexpr inline bool ConstVectorIterator<Vec>::operator==(const ConstVectorIterator& rhs) const noexcept
 {
     return m_p == rhs.m_p;
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline bool const_vector_based_container_iterator<Vec>::operator!=(const const_vector_based_container_iterator& rhs) const noexcept
+[[nodiscard]] constexpr inline bool ConstVectorIterator<Vec>::operator!=(const ConstVectorIterator& rhs) const noexcept
 {
     return !operator==(rhs);
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline bool const_vector_based_container_iterator<Vec>::operator<(const const_vector_based_container_iterator& rhs) const noexcept
+[[nodiscard]] constexpr inline bool ConstVectorIterator<Vec>::operator<(const ConstVectorIterator& rhs) const noexcept
 {
     return rhs.m_p > m_p;
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline bool const_vector_based_container_iterator<Vec>::operator>=(const const_vector_based_container_iterator& rhs) const noexcept
+[[nodiscard]] constexpr inline bool ConstVectorIterator<Vec>::operator>=(const ConstVectorIterator& rhs) const noexcept
 {
     return !operator<(rhs);
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline bool const_vector_based_container_iterator<Vec>::operator>(const const_vector_based_container_iterator& rhs) const noexcept
+[[nodiscard]] constexpr inline bool ConstVectorIterator<Vec>::operator>(const ConstVectorIterator& rhs) const noexcept
 {
     return rhs.m_p < m_p;
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline bool const_vector_based_container_iterator<Vec>::operator<=(const const_vector_based_container_iterator& rhs) const noexcept
+[[nodiscard]] constexpr inline bool ConstVectorIterator<Vec>::operator<=(const ConstVectorIterator& rhs) const noexcept
 {
     return !operator>(rhs);
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline const_vector_based_container_iterator<Vec>::const_reference const_vector_based_container_iterator<Vec>::operator*() const noexcept
+[[nodiscard]] constexpr inline ConstVectorIterator<Vec>::const_reference ConstVectorIterator<Vec>::operator*() const noexcept
 {
     return *m_p;
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline const_vector_based_container_iterator<Vec>::const_pointer const_vector_based_container_iterator<Vec>::operator->() const noexcept
+[[nodiscard]] constexpr inline ConstVectorIterator<Vec>::const_pointer ConstVectorIterator<Vec>::operator->() const noexcept
 {
     return m_p;
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline const_vector_based_container_iterator<Vec>::const_reference const_vector_based_container_iterator<Vec>::operator[](difference_type n) const noexcept
+[[nodiscard]] constexpr inline ConstVectorIterator<Vec>::const_reference ConstVectorIterator<Vec>::operator[](difference_type n) const noexcept
 {
     return *(m_p + n);
 }
 
 template<typename Vec>
-constexpr inline const_vector_based_container_iterator<Vec> const_vector_based_container_iterator<Vec>::operator++() noexcept
+constexpr inline ConstVectorIterator<Vec> ConstVectorIterator<Vec>::operator++() noexcept
 {
     return ++m_p, * this;
 }
 
 template<typename Vec>
-constexpr inline const_vector_based_container_iterator<Vec> const_vector_based_container_iterator<Vec>::operator++(int) noexcept
+constexpr inline ConstVectorIterator<Vec> ConstVectorIterator<Vec>::operator++(int) noexcept
 {
-    return const_vector_based_container_iterator(m_p++);
+    return ConstVectorIterator(m_p++);
 }
 
 template<typename Vec>
-constexpr inline const_vector_based_container_iterator<Vec> const_vector_based_container_iterator<Vec>::operator--() noexcept
+constexpr inline ConstVectorIterator<Vec> ConstVectorIterator<Vec>::operator--() noexcept
 {
     return --m_p, * this;
 }
 
 template<typename Vec>
-constexpr inline const_vector_based_container_iterator<Vec> const_vector_based_container_iterator<Vec>::operator--(int) noexcept
+constexpr inline ConstVectorIterator<Vec> ConstVectorIterator<Vec>::operator--(int) noexcept
 {
-    return const_vector_based_container_iterator(m_p--);
+    return ConstVectorIterator(m_p--);
 }
 
 template<typename Vec>
-constexpr inline const_vector_based_container_iterator<Vec> const_vector_based_container_iterator<Vec>::operator+=(difference_type n) noexcept
+constexpr inline ConstVectorIterator<Vec> ConstVectorIterator<Vec>::operator+=(difference_type n) noexcept
 {
     return m_p += n, *this;
 }
 
 template<typename Vec>
-constexpr inline const_vector_based_container_iterator<Vec> const_vector_based_container_iterator<Vec>::operator-=(difference_type n) noexcept
+constexpr inline ConstVectorIterator<Vec> ConstVectorIterator<Vec>::operator-=(difference_type n) noexcept
 {
     return m_p -= n, *this;
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline const_vector_based_container_iterator<Vec> const_vector_based_container_iterator<Vec>::operator-(difference_type n) const noexcept
+[[nodiscard]] constexpr inline ConstVectorIterator<Vec> ConstVectorIterator<Vec>::operator-(difference_type n) const noexcept
 {
-    return const_vector_based_container_iterator(m_p - n);
+    return ConstVectorIterator(m_p - n);
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline const_vector_based_container_iterator<Vec>::difference_type const_vector_based_container_iterator<Vec>::operator-(const_vector_based_container_iterator it) const noexcept
+[[nodiscard]] constexpr inline ConstVectorIterator<Vec>::difference_type ConstVectorIterator<Vec>::operator-(ConstVectorIterator it) const noexcept
 {
     return m_p - it.m_p;
 }
 
 template<typename Vec>
-class vector_based_container_iterator : public const_vector_based_container_iterator<Vec>
+[[nodiscard]] constexpr inline ConstVectorIterator<Vec>::const_pointer ConstVectorIterator<Vec>::getPointer() const noexcept
 {
-    using Base = const_vector_based_container_iterator<Vec>;
+    return m_p;
+}
+
+template<typename Vec>
+class VectorIterator : public ConstVectorIterator<Vec>
+{
+    using Base = ConstVectorIterator<Vec>;
 public:
     using value_type = typename Vec::value_type;
     using pointer = typename Vec::pointer;   
     using reference = typename Vec::reference;
     using difference_type = typename Vec::difference_type;
 
-    vector_based_container_iterator(pointer p) : Base(p) { }
-    vector_based_container_iterator(const vector_based_container_iterator& it) : Base(it.m_p) { }
-    vector_based_container_iterator(const Base& it) : Base(it.m_p) { }
+    VectorIterator(pointer p) : Base(p) { }
+    VectorIterator(const VectorIterator& it) : Base(it.m_p) { }
+    VectorIterator(const Base& it) : Base(it.m_p) { }
 
     [[nodiscard]] constexpr inline reference operator*() const noexcept;
     [[nodiscard]] constexpr inline pointer operator->() const noexcept;
     [[nodiscard]] constexpr inline reference operator[](difference_type n) const noexcept;
-    constexpr inline vector_based_container_iterator operator++() noexcept;
-    constexpr inline vector_based_container_iterator operator++(int) noexcept;
-    constexpr inline vector_based_container_iterator operator--() noexcept;
-    constexpr inline vector_based_container_iterator operator--(int) noexcept;
-    constexpr inline vector_based_container_iterator operator+=(difference_type n) noexcept;
-    constexpr inline vector_based_container_iterator operator-=(difference_type n) noexcept;
+    constexpr inline VectorIterator operator++() noexcept;
+    constexpr inline VectorIterator operator++(int) noexcept;
+    constexpr inline VectorIterator operator--() noexcept;
+    constexpr inline VectorIterator operator--(int) noexcept;
+    constexpr inline VectorIterator operator+=(difference_type n) noexcept;
+    constexpr inline VectorIterator operator-=(difference_type n) noexcept;
 
-    constexpr inline difference_type operator-(vector_based_container_iterator n) const noexcept;
-    [[nodiscard]] constexpr inline vector_based_container_iterator operator-(difference_type n) const noexcept;
+    constexpr inline difference_type operator-(VectorIterator n) const noexcept;
+    [[nodiscard]] constexpr inline VectorIterator operator-(difference_type n) const noexcept;
 
-    [[nodiscard]] friend constexpr inline vector_based_container_iterator operator+(vector_based_container_iterator it, difference_type n) noexcept
+    [[nodiscard]] constexpr inline pointer getPointer() noexcept;
+
+    [[nodiscard]] friend constexpr inline VectorIterator operator+(VectorIterator it, difference_type n) noexcept
     {
         return it.m_p + n;
     }
 };
 
 template<typename Vec>
-[[nodiscard]] constexpr inline vector_based_container_iterator<Vec>::reference vector_based_container_iterator<Vec>::operator*() const noexcept
+[[nodiscard]] constexpr inline VectorIterator<Vec>::reference VectorIterator<Vec>::operator*() const noexcept
 {
     return const_cast<reference>(Base::operator*());
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline vector_based_container_iterator<Vec>::pointer vector_based_container_iterator<Vec>::operator->() const noexcept
+[[nodiscard]] constexpr inline VectorIterator<Vec>::pointer VectorIterator<Vec>::operator->() const noexcept
 {
     return const_cast<pointer>(Base::operator->());
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline vector_based_container_iterator<Vec>::reference vector_based_container_iterator<Vec>::operator[](difference_type n) const noexcept
+[[nodiscard]] constexpr inline VectorIterator<Vec>::reference VectorIterator<Vec>::operator[](difference_type n) const noexcept
 {
     return const_cast<reference>(Base::operator[](n));
 }
 
 template<typename Vec>
-constexpr inline vector_based_container_iterator<Vec> vector_based_container_iterator<Vec>::operator++() noexcept
+constexpr inline VectorIterator<Vec> VectorIterator<Vec>::operator++() noexcept
 {
     return ++this->m_p, * this;
 }
 
 template<typename Vec>
-constexpr inline vector_based_container_iterator<Vec> vector_based_container_iterator<Vec>::operator++(int) noexcept
+constexpr inline VectorIterator<Vec> VectorIterator<Vec>::operator++(int) noexcept
 {
-    return vector_based_container_iterator(this->m_p++);
+    return VectorIterator(this->m_p++);
 }
 
 template<typename Vec>
-constexpr inline vector_based_container_iterator<Vec> vector_based_container_iterator<Vec>::operator--() noexcept
+constexpr inline VectorIterator<Vec> VectorIterator<Vec>::operator--() noexcept
 {
     return --this->m_p, *this;
 }
 
 template<typename Vec>
-constexpr inline vector_based_container_iterator<Vec> vector_based_container_iterator<Vec>::operator--(int) noexcept
+constexpr inline VectorIterator<Vec> VectorIterator<Vec>::operator--(int) noexcept
 {
-    return vector_based_container_iterator(this->m_p--);
+    return VectorIterator(this->m_p--);
 }
 
 template<typename Vec>
-constexpr inline vector_based_container_iterator<Vec> vector_based_container_iterator<Vec>::operator+=(difference_type n) noexcept
+constexpr inline VectorIterator<Vec> VectorIterator<Vec>::operator+=(difference_type n) noexcept
 {
     return this->m_p += n, *this;
 }
 
 template<typename Vec>
-constexpr inline vector_based_container_iterator<Vec> vector_based_container_iterator<Vec>::operator-=(difference_type n) noexcept
+constexpr inline VectorIterator<Vec> VectorIterator<Vec>::operator-=(difference_type n) noexcept
 {
     return this->m_p -= n, *this;
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline vector_based_container_iterator<Vec> vector_based_container_iterator<Vec>::operator-(difference_type n) const noexcept
+[[nodiscard]] constexpr inline VectorIterator<Vec> VectorIterator<Vec>::operator-(difference_type n) const noexcept
 {
-    return vector_based_container_iterator(this->m_p - n);
+    return VectorIterator(this->m_p - n);
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr inline vector_based_container_iterator<Vec>::difference_type vector_based_container_iterator<Vec>::operator-(vector_based_container_iterator it) const noexcept
+[[nodiscard]] constexpr inline VectorIterator<Vec>::difference_type VectorIterator<Vec>::operator-(VectorIterator it) const noexcept
 {
     return this->m_p - it.m_p;
+}
+
+template<typename Vec>
+[[nodiscard]] constexpr inline VectorIterator<Vec>::pointer VectorIterator<Vec>::getPointer() noexcept
+{
+    return this->m_p;
 }
 
 
@@ -291,8 +307,8 @@ public:
     using reference = T&;
     using const_reference = const T&;
 
-    using iterator = vector_based_container_iterator<Vector<value_type, AllocatorHelper>>;
-    using const_iterator = const_vector_based_container_iterator<Vector<value_type, AllocatorHelper>>;
+    using iterator = VectorIterator<Vector<value_type, AllocatorHelper>>;
+    using const_iterator = ConstVectorIterator<Vector<value_type, AllocatorHelper>>;
 
     constexpr inline Vector() noexcept;
     constexpr inline Vector(const Vector& rhs);
@@ -301,29 +317,31 @@ public:
     constexpr Vector& operator=(Vector&& rhs) noexcept;
     constexpr inline ~Vector() noexcept;
 
-    constexpr inline bool reserve(size_t n);
+    constexpr inline bool reserve(size_type n);
     
-    constexpr Vector<T, AllocatorHelper>& push_back(const T& value);
-    constexpr Vector<T, AllocatorHelper>& push_back(T&& value);
-    constexpr Vector<T, AllocatorHelper>& push_back_n(const T* p, size_t n);
+    constexpr Vector& push_back(const T& value);
+    constexpr Vector& push_back(T&& value);
+    constexpr Vector& push_back_n(const T* p, size_type n);
 
-    constexpr size_t replace(size_t offset, const T* p, size_t n);
+    constexpr size_type replace(size_type offset, const T* p, size_type n);
 
-    constexpr size_t insert(size_t offset, const T* p, size_t n); 
+    constexpr size_type insert(size_type offset, const T* p, size_type n); 
     template<typename It_src>
-    constexpr iterator insert(iterator dest, It_src srcBegin, It_src srcEnd);
+    constexpr iterator insert(iterator destBegin, It_src srcBegin, It_src srcEnd);
 
-    constexpr size_t erase(size_t offset, size_t n);
+    constexpr size_type erase(size_type offset, size_type n);
     constexpr iterator erase(iterator destBegin, iterator destEnd);
+
+    //constexpr size_type copy_n(const T* p, size_type n, size_type offset);
 
     [[nodiscard]] constexpr inline T* data() noexcept;
     [[nodiscard]] constexpr inline const T* data() const noexcept;
-    [[nodiscard]] constexpr inline T& operator[](size_t offset);
-    [[nodiscard]] constexpr inline const T& operator[](size_t offset) const;
+    [[nodiscard]] constexpr inline T& operator[](size_type offset);
+    [[nodiscard]] constexpr inline const T& operator[](size_type offset) const;
 
-    [[nodiscard]] constexpr inline size_t size() const noexcept;
-    [[nodiscard]] constexpr inline size_t max_size() const noexcept;
-    [[nodiscard]] constexpr inline size_t capacity() const noexcept;
+    [[nodiscard]] constexpr inline size_type size() const noexcept;
+    [[nodiscard]] constexpr inline size_type max_size() const noexcept;
+    [[nodiscard]] constexpr inline size_type capacity() const noexcept;
 
     constexpr void clear() noexcept;
     constexpr void invalidate() noexcept;
@@ -335,16 +353,17 @@ public:
     [[nodiscard]] constexpr const_iterator cbegin() const noexcept;
     [[nodiscard]] constexpr const_iterator cend() const noexcept;
 
-    constexpr inline AllocatorHelper& get_allocator_helper();
+    constexpr inline AllocatorHelper& getAllocatorHelper() noexcept;
+    constexpr inline const AllocatorHelper& getAllocatorHelper() const noexcept;
 
 private:
-    constexpr bool reserveInternal(size_t n, bool strict);
-    constexpr inline bool addSpaceIfNeed(size_t n);
+    constexpr bool reserveInternal(size_type n, bool strict);
+    constexpr inline bool addSpaceIfNeed(size_type n);
     constexpr inline bool notEndIterator(iterator it) const noexcept;
 
     T* m_p = nullptr;
-    size_t m_dataSize = 0;
-    size_t m_allocatedSize = 0;
+    size_type m_dataSize = 0;
+    size_type m_allocatedSize = 0;
 
     AllocatorHelper m_allocatorHelper;
 };
@@ -432,13 +451,13 @@ constexpr void Vector<T, AllocatorHelper>::invalidate() noexcept
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr inline bool Vector<T, AllocatorHelper>::reserve(size_t n)
+constexpr inline bool Vector<T, AllocatorHelper>::reserve(size_type n)
 {
     return reserveInternal(n, true);
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr bool Vector<T, AllocatorHelper>::reserveInternal(size_t n, bool strict)
+constexpr bool Vector<T, AllocatorHelper>::reserveInternal(size_type n, bool strict)
 {
     bool success = true;
 
@@ -463,7 +482,7 @@ constexpr bool Vector<T, AllocatorHelper>::reserveInternal(size_t n, bool strict
 
 
 template<typename T, typename AllocatorHelper>
-constexpr inline bool Vector<T, AllocatorHelper>::addSpaceIfNeed(size_t n)
+constexpr inline bool Vector<T, AllocatorHelper>::addSpaceIfNeed(size_type n)
 {
     return m_dataSize + n >= m_dataSize
         ? m_dataSize + n > m_allocatedSize 
@@ -479,7 +498,13 @@ constexpr inline bool Vector<T, AllocatorHelper>::notEndIterator(iterator it) co
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr inline AllocatorHelper& Vector<T, AllocatorHelper>::get_allocator_helper()
+constexpr inline AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() noexcept
+{
+    return m_allocatorHelper;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr inline const AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() const noexcept
 {
     return m_allocatorHelper;
 }
@@ -509,7 +534,7 @@ constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::push_back(T&& 
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::push_back_n(const T* p, size_t n)
+constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::push_back_n(const T* p, size_type n)
 {
     if (p && addSpaceIfNeed(n))
     {
@@ -521,7 +546,7 @@ constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::push_back_n(co
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr size_t Vector<T, AllocatorHelper>::replace(size_t offset, const T* p, size_t n)
+constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::replace(size_type offset, const T* p, size_type n)
 {
     if (!p || !n)
         return offset;
@@ -566,7 +591,7 @@ constexpr size_t Vector<T, AllocatorHelper>::replace(size_t offset, const T* p, 
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr size_t Vector<T, AllocatorHelper>::insert(size_t offset, const T* p, size_t n)
+constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::insert(size_type offset, const T* p, size_type n)
 {
     if (!p || !n)
         return offset;
@@ -620,21 +645,21 @@ constexpr size_t Vector<T, AllocatorHelper>::insert(size_t offset, const T* p, s
 
 template<typename T, typename AllocatorHelper>
 template<typename It_src>
-constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::insert(iterator dest, It_src srcBegin, It_src srcEnd)
+constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::insert(iterator destBegin, It_src srcBegin, It_src srcEnd)
 {
-    if (!notEndIterator(dest))
+    if (!notEndIterator(destBegin))
         return end();
 
     Vector<T, AllocatorHelper> temp;
     size_type oldDataSize = m_dataSize;
-    size_type currentOffset = &*dest - m_p;
-    iterator it = dest;
+    size_type currentOffset = destBegin.getPointer() - m_p;
+    iterator it = destBegin;
 
     while (srcBegin != srcEnd)
     {
         if (currentOffset < m_allocatedSize || addSpaceIfNeed(1))
         {
-            pointer pCurrent = &*(m_p + currentOffset);
+            pointer pCurrent = m_p + currentOffset;
             if (m_dataSize > currentOffset)
             {
                 temp.push_back(std::move(*pCurrent));
@@ -655,7 +680,7 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::inser
         if (oldDataSize > currentOffset)
         {
             if constexpr (ConstructorAllocator<typename AllocatorHelper::allocator>)
-                for (size_t i = currentOffset; i < oldDataSize; ++i)
+                for (size_type i = currentOffset; i < oldDataSize; ++i)
                     temp.push_back(std::move(*(m_p + i)));
             else
                 temp.push_back_n(m_p + currentOffset, oldDataSize - currentOffset);
@@ -664,7 +689,7 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::inser
         if (addSpaceIfNeed(temp.size()))
         {
             
-            m_allocatorHelper.moveNoOverlap(&*(m_p + currentOffset), temp.data(), temp.size());
+            m_allocatorHelper.moveNoOverlap(m_p + currentOffset, temp.data(), temp.size());
             m_dataSize = currentOffset + temp.size();
         }
 
@@ -675,7 +700,7 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::inser
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr size_t Vector<T, AllocatorHelper>::erase(size_t offset, size_t n)
+constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::erase(size_type offset, size_type n)
 {
     if (!n)
         return offset;
@@ -712,17 +737,33 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::erase
 
     difference_type n = destEnd - destBegin;
 
-    m_allocatorHelper.destroyN(&*destBegin, n);
+    m_allocatorHelper.destroyN(destBegin.getPointer(), n);
 
     difference_type leftN = destBegin - begin();
     difference_type rightN = m_dataSize - n - leftN;
 
-    m_allocatorHelper.move(&*destBegin, &*destEnd, rightN);
+    m_allocatorHelper.move(destBegin.getPointer(), destEnd.getPointer(), rightN);
 
     m_dataSize = leftN + rightN;
 
     return m_p + leftN;
 }
+/*
+template<typename T, typename AllocatorHelper>
+constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::copy_n(const T* p, size_type n, size_type offset)
+{
+    if (!p || !n)
+        return offset;
+
+    if (offset >= m_dataSize)
+        return m_dataSize;
+
+    difference_type nReal = offset + n > m_dataSize ? m_dataSize - offset : n;
+
+    m_allocatorHelper.copy(p, m_p + offset, nReal);
+    return 0;
+}*/
+
 
 template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr inline T* Vector<T, AllocatorHelper>::data() noexcept
@@ -737,31 +778,31 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr inline T& Vector<T, AllocatorHelper>::operator[](size_t offset)
+[[nodiscard]] constexpr inline T& Vector<T, AllocatorHelper>::operator[](size_type offset)
 {
     return *(m_p + offset);
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr inline const T& Vector<T, AllocatorHelper>::operator[](size_t offset) const
+[[nodiscard]] constexpr inline const T& Vector<T, AllocatorHelper>::operator[](size_type offset) const
 {
     return *(m_p + offset);
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr inline size_t Vector<T, AllocatorHelper>::size() const noexcept
+[[nodiscard]] constexpr inline Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::size() const noexcept
 {
     return m_dataSize;
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr inline size_t Vector<T, AllocatorHelper>::max_size() const noexcept
+[[nodiscard]] constexpr inline Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::max_size() const noexcept
 {
     return m_allocatorHelper.max_size();
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr inline size_t Vector<T, AllocatorHelper>::capacity() const noexcept
+[[nodiscard]] constexpr inline Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::capacity() const noexcept
 {
     return m_allocatedSize;
 }
@@ -799,5 +840,7 @@ template<typename T, typename AllocatorHelper>
 {
     return m_p + m_dataSize;
 }
+
+using RawArray = Vector<uint8_t, StrategicAllocatorHelper<uint8_t, RawHeapAllocator>>;
 
 } // namespace common_serialization
