@@ -75,8 +75,8 @@ public:
         return m_offset = m_vector.insert(offset, p, n);
     }
 
-    template<typename It_src>
-    constexpr size_type insert(size_type offset, It_src srcBegin, It_src srcEnd)
+    template<typename ItSrc>
+    constexpr size_type insert(size_type offset, ItSrc srcBegin, ItSrc srcEnd)
     {
         return m_offset = m_vector.insert(m_vector.begin() + offset, srcBegin, srcEnd).getPointer() - m_vector.data();
     }
@@ -156,30 +156,38 @@ public:
         return m_vector;
     }
 
-    constexpr inline size_type getOffset() const noexcept
+    constexpr inline size_type tell() const noexcept
     {
         return m_offset;
     }
 
-    constexpr inline void setOffset(size_type offset) const noexcept
+    constexpr inline void seek(size_type offset) const noexcept
     {
         m_offset = offset;
     }
 
-    constexpr inline size_type write(const T* p, size_type n)
+    constexpr size_type write(const T* p, size_type n)
     {
-        return insert(m_offset, p, n);
+        size_type oldOffset = m_offset;
+        size_type m_offset = replace(m_offset, p, n);
+        return m_offset - oldOffset;
     }
 
-    template<typename It_src>
-    constexpr inline size_type write(It_src srcBegin, It_src srcEnd)
+    template<typename ItSrc>
+    constexpr size_type write(ItSrc srcBegin, ItSrc srcEnd)
     {
-        return insert(m_offset, srcBegin, srcEnd);
+        size_type oldSize = m_vector.size();
+        insert(m_offset, srcBegin, srcEnd);
+        size_type n = m_vector.size() - oldSize;
+        m_offset += n
+        return n;
+
     }
 
     constexpr inline size_type read(T* p, size_type n)
     {
-        return 0;// insert(m_offset, p, n);
+
+        return m_vector.copy_n(m_offset, n, p) - p;
     }
 
 private:

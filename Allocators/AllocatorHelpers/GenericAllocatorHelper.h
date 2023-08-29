@@ -51,6 +51,9 @@ protected:
     constexpr inline void copyImpl(T* dest, const T* src, size_t n) const;
     constexpr inline void copyNoOverlapImpl(T* dest, const T* src, size_t n) const;
 
+    constexpr inline void copyAssignImpl(T* dest, const T* src, size_t n) const;
+    constexpr inline void copyAssignNoOverlapImpl(T* dest, const T* src, size_t n) const;
+
     constexpr inline void moveImpl(T* dest, T* src, size_t n) const;
     constexpr inline void moveNoOverlapImpl(T* dest, T* src, size_t n) const;
 
@@ -139,6 +142,37 @@ constexpr inline void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>:
         for (size_t i = 0; i < n; ++i)
             Allocator().construct(dest + i, *(src + i));
     
+    else if constexpr (RawAllocator<Allocator>)
+        memcpy(dest, src, n * sizeof(T));
+}
+
+template<typename T, BasicAllocator Allocator, typename AllocatorHelper>
+constexpr inline void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyAssignImpl(T* dest, const T* src, size_t n) const
+{
+    assert(!n || dest && src);
+
+    if (helpers::areObjectsOverlap(dest, src, n) && dest > src)
+    {
+        if constexpr (ConstructorAllocator<Allocator>)
+            for (size_t i = n - 1; i != static_cast<size_t>(-1); --i)
+                *(dest + i) = *(src + i);
+        else if constexpr (RawAllocator<Allocator>)
+            memmove(dest, src, n * sizeof(T));
+    }
+    else
+        copyAssignNoOverlapImpl(dest, src, n);
+
+}
+
+template<typename T, BasicAllocator Allocator, typename AllocatorHelper>
+constexpr inline void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyAssignNoOverlapImpl(T* dest, const T* src, size_t n) const
+{
+    assert(!n || dest && src);
+
+    if constexpr (ConstructorAllocator<Allocator>)
+        for (size_t i = 0; i < n; ++i)
+            *(dest + i) = *(src + i);
+
     else if constexpr (RawAllocator<Allocator>)
         memcpy(dest, src, n * sizeof(T));
 }

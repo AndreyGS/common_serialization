@@ -15,8 +15,14 @@ using DefaultVectorAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoex
 
 struct NoMoveConstructible
 {
-    char* p;
-    size_t size;
+    char* p = nullptr;
+    size_t size = 0;
+
+    NoMoveConstructible() noexcept 
+    {
+        p = new char[1];
+        *p = 0;
+    }
 
     NoMoveConstructible(const char* in_p)
     {
@@ -32,10 +38,22 @@ struct NoMoveConstructible
         size = rhs.size;
     }
 
+    NoMoveConstructible& operator=(const NoMoveConstructible& rhs)
+    {
+        if (this != &rhs)
+        {
+            delete[] p;
+
+            p = new char[rhs.size + 1];
+            memcpy(p, rhs.p, rhs.size + 1);
+            size = rhs.size;
+        }
+        return *this;
+    }
+
     ~NoMoveConstructible()
     {
-        if (p)
-            delete[] p;
+        delete[] p;
     }
 
     bool operator==(const NoMoveConstructible& rhs) const noexcept
@@ -49,11 +67,15 @@ struct NoMoveConstructible
 
 struct PodStruct
 {
-    int i;
+    int i = 0;
+
+    PodStruct() noexcept { }
+
     PodStruct(const char* p) noexcept
     {
         i = *reinterpret_cast<const int*>(p);
     }
+
     bool operator ==(const PodStruct& rhs) const noexcept
     {
         return i == rhs.i;
@@ -764,6 +786,129 @@ TEST(VectorTest, EraseItPod)
     FEraseIt<PodStruct>();
 }
 
+template<typename T>
+void FCopyN()
+{
+    auto vec = getStringsFilledContainer<T>();
+
+    T another_data_array[3] = { T{}, T{}, T{} };
+
+    auto p = vec.copy_n(0, 3, another_data_array);
+
+    EXPECT_EQ(p, another_data_array + 3);
+
+    for (size_t i = 0; i < 3; ++i)
+        EXPECT_EQ(vec[i], another_data_array[i]);
+
+    p = vec.copy_n(1, 3, another_data_array);
+
+    EXPECT_EQ(p, another_data_array + 2);
+    EXPECT_EQ(vec[1], another_data_array[0]);
+    EXPECT_EQ(vec[2], another_data_array[1]);
+    EXPECT_EQ(vec[2], another_data_array[2]);
+
+    // copy more than vec has
+    p = vec.copy_n(0, 10, another_data_array);
+
+    EXPECT_EQ(p, another_data_array + 3);
+    for (size_t i = 0; i < 3; ++i)
+        EXPECT_EQ(vec[i], another_data_array[i]);
+
+    // copy zero elements
+    p = vec.copy_n(1, 0, another_data_array);
+
+    EXPECT_EQ(p, another_data_array);
+    for (size_t i = 0; i < 3; ++i)
+        EXPECT_EQ(vec[i], another_data_array[i]);
+
+    // try to copy with wrong offset
+    p = vec.copy_n(3, 1, another_data_array);
+
+    EXPECT_EQ(p, another_data_array);
+    for (size_t i = 0; i < 3; ++i)
+        EXPECT_EQ(vec[i], another_data_array[i]);
+
+    // try to copy with nullptr as destination
+    p = vec.copy_n(1, 3, nullptr);
+
+    EXPECT_EQ(p, nullptr);
+}
+
+TEST(VectorTest, CopyN)
+{
+    FCopyN<std::string>();
+}
+
+TEST(VectorTest, CopyNNoMove)
+{
+    FCopyN<NoMoveConstructible>();
+}
+
+TEST(VectorTest, CopyNPod)
+{
+    FCopyN<PodStruct>();
+}
+
+template<typename T>
+void FCopyNIt()
+{
+    auto vec = getStringsFilledContainer<T>();
+
+    T another_data_array[3] = { T{}, T{}, T{} };
+    std::list<T> l(another_data_array, another_data_array + 3);
+
+    auto it = vec.copy_n(vec.begin(), vec.end(), l.begin());
+   
+    EXPECT_EQ(it, l.end());
+    EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
+
+    it = vec.copy_n(vec.begin() + 1, vec.end(), l.begin());
+    
+    auto tempIt = ++l.begin();
+    EXPECT_EQ(it, ++tempIt);
+
+    tempIt = l.begin();
+    EXPECT_EQ(vec[1], *tempIt);
+    EXPECT_EQ(vec[2], *++tempIt);
+    EXPECT_EQ(vec[2], *++tempIt);
+    
+    // copy more than vec has
+    it = vec.copy_n(vec.begin(), vec.end() + 1, l.begin());
+
+    EXPECT_EQ(it, l.end());
+    EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
+
+    // copy zero elements
+    it = vec.copy_n(vec.begin(), vec.begin(), l.begin());
+
+    EXPECT_EQ(it, l.begin());
+    EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
+
+    // try to copy with wrong offset
+    it = vec.copy_n(vec.end(), vec.begin(), l.begin());
+    EXPECT_EQ(it, l.begin());
+    EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
+
+    it = vec.copy_n(vec.end(), vec.end(), l.begin());
+    EXPECT_EQ(it, l.begin());
+    EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
+}
+
+TEST(VectorTest, CopyNIt)
+{
+    FCopyNIt<std::string>();
+}
+
+TEST(VectorTest, CopyNItNoMove)
+{
+    FCopyNIt<NoMoveConstructible>();
+}
+
+TEST(VectorTest, CopyNItPod)
+{
+    FCopyNIt<PodStruct>();
+}
+
 TEST(VectorTest, Data)
 {
     Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec;
@@ -854,4 +999,3 @@ TEST(VectorTest, GetAllocatorHelper)
     EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(allocator)>, DefaultVectorAllocatorHelper<std::string>>));
     EXPECT_TRUE((std::is_lvalue_reference_v<decltype(vec.getAllocatorHelper())>));
 }
-

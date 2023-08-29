@@ -64,14 +64,28 @@ public:
         return static_cast<const AllocatorHelper*>(this)->constructNImpl(p, n, std::forward<Args>(args)...);
     }
 
+    // copy using copy constructor
     constexpr inline void copy(T* dest, const T* src, size_t n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyImpl(dest, src, n);
     }
 
+    // copy using copy constructor when dest and src not overlapping
     constexpr inline void copyNoOverlap(T* dest, const T* src, size_t n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyNoOverlapImpl(dest, src, n);
+    }
+
+    // copy using copy assignment
+    constexpr inline void copyAssign(T* dest, const T* src, size_t n) const
+    {
+        return static_cast<const AllocatorHelper*>(this)->copyAssignImpl(dest, src, n);
+    }
+
+    // copy using copy assignment when dest and src not overlapping
+    constexpr inline void copyAssignNoOverlap(T* dest, const T* src, size_t n) const
+    {
+        return static_cast<const AllocatorHelper*>(this)->copyAssignNoOverlapImpl(dest, src, n);
     }
 
     constexpr inline void move(T* dest, T* src, size_t n) const

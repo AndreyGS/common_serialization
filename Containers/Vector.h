@@ -26,6 +26,7 @@
 #include "Allocators/ConstructorNoexceptAllocator.h"
 #include "Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
 #include "Allocators/AllocatorHelpers/AllocatorHelperConcepts.h"
+#include "IteratorTagsDeclares.h"
 
 namespace common_serialization
 {
@@ -34,6 +35,9 @@ template<typename Vec>
 class ConstVectorIterator
 {
 public:
+    using iterator_concept = contiguous_iterator_tag;
+    using iterator_category = random_access_iterator_tag;
+
     using value_type = typename Vec::value_type;
     using pointer = typename Vec::pointer;
     using const_pointer = typename Vec::const_pointer;
@@ -186,6 +190,9 @@ class VectorIterator : public ConstVectorIterator<Vec>
 {
     using Base = ConstVectorIterator<Vec>;
 public:
+    using iterator_concept = contiguous_iterator_tag;
+    using iterator_category = random_access_iterator_tag;
+
     using value_type = typename Vec::value_type;
     using pointer = typename Vec::pointer;   
     using reference = typename Vec::reference;
@@ -288,7 +295,6 @@ template<typename Vec>
     return this->m_p;
 }
 
-
 /// <summary>
 /// Vector - is a container class that has contiguous array as data keeper
 /// </summary>
@@ -326,13 +332,18 @@ public:
     constexpr size_type replace(size_type offset, const T* p, size_type n);
 
     constexpr size_type insert(size_type offset, const T* p, size_type n); 
-    template<typename It_src>
-    constexpr iterator insert(iterator destBegin, It_src srcBegin, It_src srcEnd);
+    template<typename ItSrc>
+    constexpr iterator insert(iterator destBegin, ItSrc srcBegin, ItSrc srcEnd);
 
     constexpr size_type erase(size_type offset, size_type n);
     constexpr iterator erase(iterator destBegin, iterator destEnd);
 
-    //constexpr size_type copy_n(const T* p, size_type n, size_type offset);
+    // copy from Vector to p
+    constexpr T* copy_n(size_type offset, size_type n, T* p);
+
+    // copy from Vector to destBegin...
+    template<typename ItDest>
+    constexpr ItDest copy_n(iterator srcBegin, iterator srcEnd, ItDest destBegin);
 
     [[nodiscard]] constexpr inline T* data() noexcept;
     [[nodiscard]] constexpr inline const T* data() const noexcept;
@@ -644,8 +655,8 @@ constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::inse
 }
 
 template<typename T, typename AllocatorHelper>
-template<typename It_src>
-constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::insert(iterator destBegin, It_src srcBegin, It_src srcEnd)
+template<typename ItSrc>
+constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::insert(iterator destBegin, ItSrc srcBegin, ItSrc srcEnd)
 {
     if (!notEndIterator(destBegin))
         return end();
@@ -748,22 +759,35 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::erase
 
     return m_p + leftN;
 }
-/*
-template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::copy_n(const T* p, size_type n, size_type offset)
-{
-    if (!p || !n)
-        return offset;
 
-    if (offset >= m_dataSize)
-        return m_dataSize;
+template<typename T, typename AllocatorHelper>
+constexpr T* Vector<T, AllocatorHelper>::copy_n(size_type offset, size_type n, T* p)
+{
+    if (!p || !n || offset >= m_dataSize)
+        return p;
 
     difference_type nReal = offset + n > m_dataSize ? m_dataSize - offset : n;
 
-    m_allocatorHelper.copy(p, m_p + offset, nReal);
-    return 0;
-}*/
+    m_allocatorHelper.copyAssign(p, m_p + offset, nReal);
 
+    return p + nReal;
+}
+
+template<typename T, typename AllocatorHelper>
+template<typename ItDest>
+constexpr ItDest Vector<T, AllocatorHelper>::copy_n(iterator srcBegin, iterator srcEnd, ItDest destBegin)
+{
+    if (!notEndIterator(srcBegin) || srcBegin > srcEnd)
+        return destBegin;
+
+    if (srcEnd > end())
+        srcEnd = end();
+
+    while (srcBegin != srcEnd)
+        m_allocatorHelper.copyAssign(&*destBegin++, srcBegin++.getPointer(), 1);
+    
+    return destBegin;
+}
 
 template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr inline T* Vector<T, AllocatorHelper>::data() noexcept
