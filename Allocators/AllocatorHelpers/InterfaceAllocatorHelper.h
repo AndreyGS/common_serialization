@@ -37,88 +37,88 @@ public:
     using allocator = Allocator;
 
     template<typename... Args>
-    [[nodiscard]] constexpr inline T* allocateAndConstruct(size_t requestedN, size_t* allocatedN, Args&&... args) const
+    [[nodiscard]] constexpr T* allocateAndConstruct(size_t requestedN, size_t* allocatedN, Args&&... args) const
     {
         return static_cast<const AllocatorHelper*>(this)->allocateAndConstructImpl(requestedN, allocatedN, std::forward<Args>(args)...);
     }
 
-    [[nodiscard]] constexpr inline T* allocate(size_t requestedN, size_t* allocatedN) const
+    [[nodiscard]] constexpr T* allocate(size_t requestedN, size_t* allocatedN) const
     {
         return static_cast<const AllocatorHelper*>(this)->allocateImpl(requestedN, allocatedN);
     }
 
-    [[nodiscard]] constexpr inline T* allocateStrict(size_t n) const
+    [[nodiscard]] constexpr T* allocateStrict(size_t n) const
     {
         return static_cast<const AllocatorHelper*>(this)->allocateStrictImpl(n);
     }
 
     template<typename... Args>
-    constexpr inline void construct(T* p, Args&&... args) const
+    constexpr void construct(T* p, Args&&... args) const
     {
         return static_cast<const AllocatorHelper*>(this)->constructImpl(p, std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    constexpr inline void construct_n(T* p, size_t n, Args&&... args) const
+    constexpr void construct_n(T* p, size_t n, Args&&... args) const
     {
         return static_cast<const AllocatorHelper*>(this)->constructNImpl(p, n, std::forward<Args>(args)...);
     }
 
     // copy using copy constructor
-    constexpr inline void copy(T* dest, const T* src, size_t n) const
+    constexpr void copy(T* dest, const T* src, size_t n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyImpl(dest, src, n);
     }
 
     // copy using copy constructor when dest and src not overlapping
-    constexpr inline void copyNoOverlap(T* dest, const T* src, size_t n) const
+    constexpr void copyNoOverlap(T* dest, const T* src, size_t n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyNoOverlapImpl(dest, src, n);
     }
 
     // copy using copy assignment
-    constexpr inline void copyAssign(T* dest, const T* src, size_t n) const
+    constexpr void copyAssign(T* dest, const T* src, size_t n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyAssignImpl(dest, src, n);
     }
 
     // copy using copy assignment when dest and src not overlapping
-    constexpr inline void copyAssignNoOverlap(T* dest, const T* src, size_t n) const
+    constexpr void copyAssignNoOverlap(T* dest, const T* src, size_t n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyAssignNoOverlapImpl(dest, src, n);
     }
 
-    constexpr inline void move(T* dest, T* src, size_t n) const
+    constexpr void move(T* dest, T* src, size_t n) const
     {
         return static_cast<const AllocatorHelper*>(this)->moveImpl(dest, src, n);
     }
 
-    constexpr inline void moveNoOverlap(T* dest, T* src, size_t n) const
+    constexpr void moveNoOverlap(T* dest, T* src, size_t n) const
     {
         return static_cast<const AllocatorHelper*>(this)->moveNoOverlapImpl(dest, src, n);
     }
 
-    constexpr inline void destroyAndDeallocate(T* p, size_t n) const noexcept
+    constexpr void destroyAndDeallocate(T* p, size_t n) const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->destroyAndDeallocateImpl(p, n);
     }
 
-    constexpr inline void deallocate(T* p) const noexcept
+    constexpr void deallocate(T* p) const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->deallocateImpl(p);
     }
 
-    constexpr inline void destroy(T* p) const noexcept
+    constexpr void destroy(T* p) const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->destroyImpl(p);
     }
 
-    constexpr inline void destroyN(T* p, size_t n) const noexcept
+    constexpr void destroyN(T* p, size_t n) const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->destroyNImpl(p, n);
     }
 
-    constexpr inline size_t max_size() const noexcept
+    constexpr size_t max_size() const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->max_size_impl();
     }

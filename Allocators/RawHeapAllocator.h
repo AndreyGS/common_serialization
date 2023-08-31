@@ -41,10 +41,10 @@ public:
     [[nodiscard]] inline void* allocate(size_t data_size_in_bytes) const noexcept;
     inline void deallocate(void* p) const noexcept;
 
-    constexpr inline size_t max_size() const noexcept;
+    constexpr size_t max_size() const noexcept;
 };
 
-inline constexpr size_t RawHeapAllocator::max_size_v = static_cast<size_t>(-1);
+constexpr size_t RawHeapAllocator::max_size_v = static_cast<size_t>(-1);
 
 [[nodiscard]] inline void* RawHeapAllocator::allocate(size_t data_size_in_bytes) const noexcept
 {
@@ -56,7 +56,7 @@ inline void RawHeapAllocator::deallocate(void* p) const noexcept
     memory_management::raw_heap_deallocate(p);
 }
 
-constexpr inline size_t RawHeapAllocator::max_size() const noexcept
+constexpr size_t RawHeapAllocator::max_size() const noexcept
 {
     return RawHeapAllocator::max_size_v;
 }

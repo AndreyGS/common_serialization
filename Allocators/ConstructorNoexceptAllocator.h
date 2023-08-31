@@ -47,20 +47,20 @@ public:
     using value_type = T;
 
     template<typename... Args>
-    constexpr inline void construct(T* p, Args&&... args) const noexcept;
+    constexpr void construct(T* p, Args&&... args) const noexcept;
 
-    constexpr inline void destroy(T* p) const noexcept;
+    constexpr void destroy(T* p) const noexcept;
 };
 
 template<typename T, RawAllocator Allocator>
 template<typename... Args>
-constexpr inline void ConstructorNoexceptAllocator<T, Allocator>::construct(T* p, Args&&... args) const noexcept
+constexpr void ConstructorNoexceptAllocator<T, Allocator>::construct(T* p, Args&&... args) const noexcept
 {
     new ((void*)p) T(std::forward<Args>(args)...);
 }
 
 template<typename T, RawAllocator Allocator>
-constexpr inline void ConstructorNoexceptAllocator<T, Allocator>::destroy(T* p) const noexcept
+constexpr void ConstructorNoexceptAllocator<T, Allocator>::destroy(T* p) const noexcept
 {
     p->~T();
 }

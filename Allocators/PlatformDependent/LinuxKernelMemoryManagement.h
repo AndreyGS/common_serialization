@@ -39,18 +39,6 @@ inline void raw_heap_deallocate(void* p) noexcept
     return kfree(p);
 }
 
-template<typename T, typename... Args>
-constexpr inline void placement_new(T* p, Args&&... args) noexcept
-{
-    p->T::T(std::forward<Args>(args)...);
-}
-
-template<typename T>
-constexpr inline void destroy(T* p) noexcept
-{
-    p->~T();
-}
-
 } // namespace memory_management
 
 } // namespace common_serialization

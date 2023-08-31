@@ -38,40 +38,40 @@ template<typename T, BasicAllocator Allocator, typename AllocatorHelper>
 class StrategicAllocatorHelperImpl : public GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>
 {
 public:
-    [[nodiscard]] inline constexpr AllocationStrategy getAllocationStrategy() const noexcept;
-    inline constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept;
+    [[nodiscard]] constexpr AllocationStrategy getAllocationStrategy() const noexcept;
+    constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept;
 
 protected:
     friend InterfaceAllocatorHelper<T, Allocator, AllocatorHelper>;
 
-    inline constexpr StrategicAllocatorHelperImpl(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept;
+    constexpr StrategicAllocatorHelperImpl(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept;
 
-    [[nodiscard]] constexpr inline T* allocateImpl(size_t n, size_t* allocatedN) const;
+    [[nodiscard]] constexpr T* allocateImpl(size_t n, size_t* allocatedN) const;
 
 private:
     AllocationStrategy m_allocation_strategy;
 };
 
 template<typename T, BasicAllocator Allocator, typename AllocatorHelper>
-inline constexpr StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::StrategicAllocatorHelperImpl(AllocationStrategy allocationStrategy) noexcept
+constexpr StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::StrategicAllocatorHelperImpl(AllocationStrategy allocationStrategy) noexcept
     : GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>(), m_allocation_strategy(allocationStrategy)
 { }
 
 
 template<typename T, BasicAllocator Allocator, typename AllocatorHelper>
-[[nodiscard]] inline constexpr AllocationStrategy StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::getAllocationStrategy() const noexcept
+[[nodiscard]] constexpr AllocationStrategy StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::getAllocationStrategy() const noexcept
 {
     return m_allocation_strategy;
 }
 
 template<typename T, BasicAllocator Allocator, typename AllocatorHelper>
-inline constexpr void StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
+constexpr void StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
 {
     m_allocation_strategy = allocationStrategy;
 }
 
 template<typename T, BasicAllocator Allocator, typename AllocatorHelper>
-[[nodiscard]] constexpr inline T* StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateImpl(size_t requestedN, size_t* allocatedN) const
+[[nodiscard]] constexpr T* StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateImpl(size_t requestedN, size_t* allocatedN) const
 {
     T* p = nullptr;
 
@@ -97,7 +97,7 @@ template<typename T, BasicAllocator Allocator = ConstructorNoexceptAllocator<T, 
 class StrategicAllocatorHelper : public StrategicAllocatorHelperImpl<T, Allocator, StrategicAllocatorHelper<T, Allocator>>
 {
 public:
-    StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept
+    constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept
         : StrategicAllocatorHelperImpl<T, Allocator, StrategicAllocatorHelper<T, Allocator>>(allocationStrategy)
     { }
 };
