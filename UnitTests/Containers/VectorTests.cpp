@@ -46,8 +46,6 @@ auto getStringsFilledContainer<PodStruct>()
     return vec;
 }
 
-} // namespace anonymous
-
 TEST(VectorTest, Constructor)
 {
     Vector<int, DefaultVectorAllocatorHelper<int>> vec;
@@ -943,8 +941,10 @@ TEST(VectorTest, GetAllocatorHelper)
 {
     Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec;
 
-    auto allocator = vec.getAllocatorHelper();
+    auto& allocator = vec.getAllocatorHelper();
 
     EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(allocator)>, DefaultVectorAllocatorHelper<std::string>>));
-    EXPECT_TRUE((std::is_lvalue_reference_v<decltype(vec.getAllocatorHelper())>));
+    EXPECT_TRUE((std::is_lvalue_reference_v<decltype(allocator)>));
 }
+
+} // namespace anonymous

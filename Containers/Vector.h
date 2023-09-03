@@ -364,13 +364,13 @@ public:
     [[nodiscard]] constexpr const_iterator cbegin() const noexcept;
     [[nodiscard]] constexpr const_iterator cend() const noexcept;
 
-    constexpr AllocatorHelper& getAllocatorHelper() noexcept;
-    constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
+    [[nodiscard]] constexpr AllocatorHelper& getAllocatorHelper() noexcept;
+    [[nodiscard]] constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
 
 private:
-    constexpr bool reserveInternal(size_type n, bool strict);
-    constexpr bool addSpaceIfNeed(size_type n);
-    constexpr bool notEndIterator(iterator it) const noexcept;
+    [[nodiscard]] constexpr bool reserveInternal(size_type n, bool strict);
+    [[nodiscard]] constexpr bool addSpaceIfNeed(size_type n);
+    [[nodiscard]] constexpr bool notEndIterator(iterator it) const noexcept;
 
     T* m_p = nullptr;
     size_type m_dataSize = 0;
@@ -813,19 +813,19 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() noexcept
+[[nodiscard]] constexpr AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() noexcept
 {
     return m_allocatorHelper;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr const AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() const noexcept
+[[nodiscard]] constexpr const AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() const noexcept
 {
     return m_allocatorHelper;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr bool Vector<T, AllocatorHelper>::reserveInternal(size_type n, bool strict)
+[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::reserveInternal(size_type n, bool strict)
 {
     bool success = true;
 
@@ -850,21 +850,19 @@ constexpr bool Vector<T, AllocatorHelper>::reserveInternal(size_type n, bool str
 
 
 template<typename T, typename AllocatorHelper>
-constexpr bool Vector<T, AllocatorHelper>::addSpaceIfNeed(size_type n)
+[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::addSpaceIfNeed(size_type n)
 {
     return m_dataSize + n >= m_dataSize
         ? m_dataSize + n > m_allocatedSize
-        ? reserveInternal(m_dataSize + n, false)
-        : true
+            ? reserveInternal(m_dataSize + n, false)
+            : true
         : false; // overflow
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr bool Vector<T, AllocatorHelper>::notEndIterator(iterator it) const noexcept
+[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::notEndIterator(iterator it) const noexcept
 {
     return &*it >= m_p && &*it < m_p + m_dataSize;
 }
-
-using RawArray = Vector<uint8_t, StrategicAllocatorHelper<uint8_t, RawHeapAllocator>>;
 
 } // namespace common_serialization

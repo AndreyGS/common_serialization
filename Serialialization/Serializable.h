@@ -1,4 +1,4 @@
-#include "Containers/Vector.h"
+#include "Containers/Walker.h"
 
 namespace common_serialization
 {
@@ -7,8 +7,8 @@ template<typename T>
 class Serializable
 {
 public:
-    int serialize(RawArray& rawArray) const noexcept;
-    int deserialize(const RawArray& rawArray);
+    int serialize(RawData& rawData) const noexcept;
+    int deserialize(const RawData& rawData);
 };
 
 

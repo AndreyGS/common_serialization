@@ -56,7 +56,10 @@ public:
 
     constexpr size_type erase(size_type offset, size_type n);
     constexpr size_type erase(iterator destBegin, iterator destEnd);
-    
+
+    constexpr size_type write(const T* p, size_type n);
+    constexpr size_type read(T* p, size_type n);
+
     [[nodiscard]] constexpr T* data() noexcept;
     [[nodiscard]] constexpr const T* data() const noexcept;
     [[nodiscard]] constexpr T& operator[](size_type offset);
@@ -70,20 +73,14 @@ public:
     constexpr void invalidate() noexcept;
     [[nodiscard]] constexpr T* release() noexcept;
 
-    constexpr AllocatorHelper& getAllocatorHelper() noexcept;
-    constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
+    [[nodiscard]] constexpr AllocatorHelper& getAllocatorHelper() noexcept;
+    [[nodiscard]] constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
 
-    constexpr Vector<T, AllocatorHelper>& getVector() noexcept;
-    constexpr const Vector<T, AllocatorHelper>& getVector() const noexcept;
+    [[nodiscard]] constexpr Vector<T, AllocatorHelper>& getVector() noexcept;
+    [[nodiscard]] constexpr const Vector<T, AllocatorHelper>& getVector() const noexcept;
 
-    constexpr size_type tell() const noexcept;
+    [[nodiscard]] constexpr size_type tell() const noexcept;
     constexpr size_type seek(size_type offset) noexcept;
-
-    constexpr size_type write(const T* p, size_type n);
-    template<typename ItSrc>
-    constexpr size_type write(ItSrc srcBegin, ItSrc srcEnd);
-
-    constexpr inline size_type read(T* p, size_type n);
 
 private:
     Vector<T, AllocatorHelper> m_vector;
@@ -167,14 +164,14 @@ template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::replace(size_type offset, const T* p, size_type n)
 {
     m_offset = m_vector.replace(offset, p, n);
-    return m_offset - offset;
+    return offset > m_vector.size() ? 0 : m_offset - offset;
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::insert(size_type offset, const T* p, size_type n)
 {
     m_offset = m_vector.insert(offset, p, n);
-    return m_offset - offset;
+    return offset > m_vector.size() ? 0 : m_offset - offset;
 }
 
 template<typename T, typename AllocatorHelper>
@@ -182,7 +179,8 @@ template<typename ItSrc>
 constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::insert(iterator destBegin, ItSrc srcBegin, ItSrc srcEnd)
 {
     size_type oldSize = m_vector.size();
-    m_offset = m_vector.insert(destBegin, srcBegin, srcEnd).getPointer() - m_vector.data();
+    auto it = m_vector.insert(destBegin, srcBegin, srcEnd);
+    m_offset = it.getPointer() - m_vector.data();
     return m_vector.size() - oldSize;
 }
 
@@ -198,8 +196,23 @@ template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
 {
     size_type oldSize = m_vector.size();
-    m_offset = m_vector.erase(destBegin, destEnd).getPointer() - m_vector.data();;
+    auto it = m_vector.erase(destBegin, destEnd);
+    m_offset = it.getPointer() - m_vector.data();
     return oldSize - m_vector.size();
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::write(const T* p, size_type n)
+{
+    return replace(m_offset, p, n);
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::read(T* p, size_type n)
+{
+    size_type nReal = m_vector.copy_n(m_offset, n, p) - p;
+    m_offset += nReal;
+    return nReal;
 }
 
 template<typename T, typename AllocatorHelper>
@@ -261,35 +274,35 @@ constexpr void Walker<T, AllocatorHelper>::invalidate() noexcept
 template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr T* Walker<T, AllocatorHelper>::release() noexcept
 {
-    m_vector.release(), m_offset = 0;
+    return m_offset = 0, m_vector.release();
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr AllocatorHelper& Walker<T, AllocatorHelper>::getAllocatorHelper() noexcept
+[[nodiscard]] constexpr AllocatorHelper& Walker<T, AllocatorHelper>::getAllocatorHelper() noexcept
 {
     return m_vector.getAllocatorHelper();
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr const AllocatorHelper& Walker<T, AllocatorHelper>::getAllocatorHelper() const noexcept
+[[nodiscard]] constexpr const AllocatorHelper& Walker<T, AllocatorHelper>::getAllocatorHelper() const noexcept
 {
     return m_vector.getAllocatorHelper();
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>& Walker<T, AllocatorHelper>::getVector() noexcept
+[[nodiscard]] constexpr Vector<T, AllocatorHelper>& Walker<T, AllocatorHelper>::getVector() noexcept
 {
     return m_vector;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr const Vector<T, AllocatorHelper>& Walker<T, AllocatorHelper>::getVector() const noexcept
+[[nodiscard]] constexpr const Vector<T, AllocatorHelper>& Walker<T, AllocatorHelper>::getVector() const noexcept
 {
     return m_vector;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::tell() const noexcept
+[[nodiscard]] constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::tell() const noexcept
 {
     return m_offset;
 }
@@ -300,31 +313,6 @@ constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::seek
     return m_offset = offset <= m_vector.size() ? offset : m_vector.size();
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::write(const T* p, size_type n)
-{
-    size_type oldOffset = m_offset;
-    m_offset = replace(m_offset, p, n);
-    return m_offset - oldOffset;
-}
-
-template<typename T, typename AllocatorHelper>
-template<typename ItSrc>
-constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::write(ItSrc srcBegin, ItSrc srcEnd)
-{
-    size_type oldSize = m_vector.size();
-    insert(m_offset, srcBegin, srcEnd);
-    size_type n = m_vector.size() - oldSize;
-    m_offset += n;
-    return n;
-}
-
-template<typename T, typename AllocatorHelper>
-constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::read(T* p, size_type n)
-{
-    size_type nReal = m_vector.copy_n(m_offset, n, p) - p;
-    m_offset += nReal;
-    return nReal;
-}
+using RawData = Walker<uint8_t, StrategicAllocatorHelper<uint8_t, RawHeapAllocator>>;
 
 } // namespace common_serialization
