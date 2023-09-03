@@ -44,7 +44,7 @@ public:
     constexpr size_t max_size() const noexcept;
 };
 
-constexpr size_t RawHeapAllocator::max_size_v = static_cast<size_t>(-1);
+inline constexpr size_t RawHeapAllocator::max_size_v = static_cast<size_t>(-1);
 
 [[nodiscard]] inline void* RawHeapAllocator::allocate(size_t data_size_in_bytes) const noexcept
 {

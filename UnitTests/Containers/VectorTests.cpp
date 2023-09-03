@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
+#include "special_types.h"
 #include "Containers/Vector.h"
 #include "string"
 #include "list"
 
+using namespace special_types;
 using namespace common_serialization;
 
 namespace
@@ -13,74 +15,7 @@ namespace
 template<typename T>
 using DefaultVectorAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T, RawHeapAllocator>>;
 
-struct NoMoveConstructible
-{
-    char* p = nullptr;
-    size_t size = 0;
-
-    NoMoveConstructible() noexcept 
-    {
-        p = new char[1];
-        *p = 0;
-    }
-
-    NoMoveConstructible(const char* in_p)
-    {
-        size = strlen(in_p);
-        p = new char[size + 1];
-        memcpy(p, in_p, size + 1);
-    }
-
-    NoMoveConstructible(const NoMoveConstructible& rhs)
-    {
-        p = new char[rhs.size + 1];
-        memcpy(p, rhs.p, rhs.size + 1);
-        size = rhs.size;
-    }
-
-    NoMoveConstructible& operator=(const NoMoveConstructible& rhs)
-    {
-        if (this != &rhs)
-        {
-            delete[] p;
-
-            p = new char[rhs.size + 1];
-            memcpy(p, rhs.p, rhs.size + 1);
-            size = rhs.size;
-        }
-        return *this;
-    }
-
-    ~NoMoveConstructible()
-    {
-        delete[] p;
-    }
-
-    bool operator==(const NoMoveConstructible& rhs) const noexcept
-    {
-        if (p && rhs.p)
-            return size == rhs.size && memcmp(p, rhs.p, size) == 0;
-        else
-            return false;
-    }
-};
-
-struct PodStruct
-{
-    int i = 0;
-
-    PodStruct() noexcept { }
-
-    PodStruct(const char* p) noexcept
-    {
-        i = *reinterpret_cast<const int*>(p);
-    }
-
-    bool operator ==(const PodStruct& rhs) const noexcept
-    {
-        return i == rhs.i;
-    }
-};
+using size_type = typename Vector<int, DefaultVectorAllocatorHelper<int>>::size_type;
 
 template<typename T>
 T g_data_array[] = { "123", "456", "789" };
@@ -130,7 +65,7 @@ void FCopyConstructor()
 
     EXPECT_EQ(vec1.size(), vec2.size());
 
-    for (size_t i = 0; i < vec1.size(); ++i)
+    for (size_type i = 0; i < vec1.size(); ++i)
         EXPECT_EQ(vec1[i], vec2[i]);
 }
 
@@ -160,7 +95,7 @@ void FMoveConstructor()
     EXPECT_EQ(vec1.data(), nullptr);
 
     EXPECT_EQ(vec2.size(), 3);
-    for (size_t i = 0; i < vec2.size(); ++i)
+    for (size_type i = 0; i < vec2.size(); ++i)
         EXPECT_EQ(vec2[i], g_data_array<T>[i]);
 }
 
@@ -187,7 +122,7 @@ void FAssignmentCopyOperator()
 
     EXPECT_EQ(vec1.size(), vec2.size());
 
-    for (size_t i = 0; i < vec1.size(); ++i)
+    for (size_type i = 0; i < vec1.size(); ++i)
         EXPECT_EQ(vec1[i], vec2[i]);
 }
 
@@ -217,7 +152,7 @@ void FAssignmentMoveOperator()
     EXPECT_EQ(vec1.data(), nullptr);
 
     EXPECT_EQ(vec2.size(), 3);
-    for (size_t i = 0; i < vec2.size(); ++i)
+    for (size_type i = 0; i < vec2.size(); ++i)
         EXPECT_EQ(vec2[i], g_data_array<T>[i]);
 }
 
@@ -254,7 +189,7 @@ TEST(VectorTest, Reserve)
     EXPECT_EQ(vec[0], i);
 
     // test when memory couldn't be allocated
-    b = vec.reserve(static_cast<size_t>(-1));
+    b = vec.reserve(static_cast<size_type>(-1));
     EXPECT_FALSE(b);
 
     // Check that after false memory allocation container not lost its contents
@@ -332,14 +267,14 @@ void FPushBackN()
 
     EXPECT_EQ(vec.size(), 3);
 
-    for (size_t i = 0; i < vec.size(); ++i)
+    for (size_type i = 0; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i]);
 
     auto& vec_ref = vec.push_back_n(g_data_array<T>, 3);
     EXPECT_EQ(&vec_ref, &vec);
     EXPECT_EQ(vec.size(), 6);
 
-    for (size_t i = 0; i < vec.size(); ++i)
+    for (size_type i = 0; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i % 3]);
 
     // test with additional memory allocation
@@ -347,17 +282,17 @@ void FPushBackN()
     vec.push_back_n(another_data_array, 3);
     EXPECT_EQ(vec.size(), 9);
 
-    for (size_t i = 0; i < 6; ++i)
+    for (size_type i = 0; i < 6; ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i % 3]);
 
-    for (size_t i = 6; i < vec.size(); ++i)
+    for (size_type i = 6; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], another_data_array[i - 6]);
 
     // not valid data or data size tests
     vec.push_back_n(nullptr, 3);
     EXPECT_EQ(vec.size(), 9);
 
-    vec.push_back_n(g_data_array<T>, static_cast<size_t>(-1));
+    vec.push_back_n(g_data_array<T>, static_cast<size_type>(-1));
     EXPECT_EQ(vec.size(), 9);
 }
 
@@ -382,7 +317,7 @@ void FReplace()
     auto vec = getStringsFilledContainer<T>();
 
     // check that sparse construction is not allowed
-    size_t newOffset = vec.replace(5, g_data_array<T>, 3);
+    size_type newOffset = vec.replace(5, g_data_array<T>, 3);
     EXPECT_EQ(newOffset, 3);
     EXPECT_EQ(vec.size(), 3);
 
@@ -400,7 +335,7 @@ void FReplace()
     EXPECT_EQ(newOffset, 7);
     EXPECT_EQ(vec.size(), 7);
 
-    for (size_t i = 5; i < vec.size(); ++i)
+    for (size_type i = 5; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], another_data_array[i - 4]);
 }
 
@@ -425,7 +360,7 @@ void FInsert()
     auto vec = getStringsFilledContainer<T>();
 
     // check that sparse construction is not allowed
-    size_t newOffset = vec.insert(5, g_data_array<T>, 3);
+    size_type newOffset = vec.insert(5, g_data_array<T>, 3);
     EXPECT_EQ(newOffset, 3);
     EXPECT_EQ(vec.size(), 3);
 
@@ -435,10 +370,10 @@ void FInsert()
 
     EXPECT_EQ(newOffset, 3);
     EXPECT_EQ(vec.size(), 6);
-    for (size_t i = 0; i < 3; ++i)
+    for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
-    for (size_t i = 3; i < vec.size(); ++i)
+    for (size_type i = 3; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i - 3]);
 
     // test with additional memory allocation
@@ -448,15 +383,15 @@ void FInsert()
     EXPECT_EQ(newOffset, 5);
     EXPECT_EQ(vec.size(), 9);
 
-    for (size_t i = 0; i < 2; ++i)
+    for (size_type i = 0; i < 2; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
-    for (size_t i = 2; i < 5; ++i)
+    for (size_type i = 2; i < 5; ++i)
         EXPECT_EQ(vec[i], another_data_array2[i - 2]);
 
     EXPECT_EQ(vec[5], another_data_array[2]);
 
-    for (size_t i = 6; i < vec.size(); ++i)
+    for (size_type i = 6; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i - 6]);
 
     T another_data_array3[] = { "+++", "---", "***" };
@@ -466,18 +401,18 @@ void FInsert()
     EXPECT_EQ(newOffset, 11);
     EXPECT_EQ(vec.size(), 12);
 
-    for (size_t i = 0; i < 2; ++i)
+    for (size_type i = 0; i < 2; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
-    for (size_t i = 2; i < 5; ++i)
+    for (size_type i = 2; i < 5; ++i)
         EXPECT_EQ(vec[i], another_data_array2[i - 2]);
 
     EXPECT_EQ(vec[5], another_data_array[2]);
 
-    for (size_t i = 6; i < 8; ++i)
+    for (size_type i = 6; i < 8; ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i - 6]);
 
-    for (size_t i = 8; i < 11; ++i)
+    for (size_type i = 8; i < 11; ++i)
         EXPECT_EQ(vec[i], another_data_array3[i - 8]);
 
     EXPECT_EQ(vec[11], g_data_array<T>[2]);
@@ -533,10 +468,10 @@ void FInsertIt()
 
     EXPECT_EQ(*it, *(vec.begin() + 3));
     EXPECT_EQ(vec.size(), 6);
-    for (size_t i = 0; i < 3; ++i)
+    for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
-    for (size_t i = 3; i < vec.size(); ++i)
+    for (size_type i = 3; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i - 3]);
     
     // test with additional memory allocation
@@ -549,15 +484,15 @@ void FInsertIt()
     EXPECT_EQ(*it, *(vec.begin() + 5));
     EXPECT_EQ(vec.size(), 9);
 
-    for (size_t i = 0; i < 2; ++i)
+    for (size_type i = 0; i < 2; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
-    for (size_t i = 2; i < 5; ++i)
+    for (size_type i = 2; i < 5; ++i)
         EXPECT_EQ(vec[i], another_data_array2[i - 2]);
 
     EXPECT_EQ(vec[5], another_data_array[2]);
 
-    for (size_t i = 6; i < vec.size(); ++i)
+    for (size_type i = 6; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i - 6]);
 
     T another_data_array3[] = { "+++", "---", "***" };
@@ -569,18 +504,18 @@ void FInsertIt()
     EXPECT_EQ(*it, *(vec.begin() + 11));
     EXPECT_EQ(vec.size(), 12);
 
-    for (size_t i = 0; i < 2; ++i)
+    for (size_type i = 0; i < 2; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
-    for (size_t i = 2; i < 5; ++i)
+    for (size_type i = 2; i < 5; ++i)
         EXPECT_EQ(vec[i], another_data_array2[i - 2]);
 
     EXPECT_EQ(vec[5], another_data_array[2]);
 
-    for (size_t i = 6; i < 8; ++i)
+    for (size_type i = 6; i < 8; ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i - 6]);
 
-    for (size_t i = 8; i < 11; ++i)
+    for (size_type i = 8; i < 11; ++i)
         EXPECT_EQ(vec[i], another_data_array3[i - 8]);
 
     EXPECT_EQ(vec[11], g_data_array<T>[2]);
@@ -654,7 +589,7 @@ void FErase()
     EXPECT_EQ(newOffset, 4);
     EXPECT_EQ(vec.size(), 5);
 
-    for (size_t i = 0; i < 3; ++i)
+    for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i]);
 
     EXPECT_EQ(vec[3], another_data_array[0]);
@@ -682,6 +617,12 @@ void FErase()
     EXPECT_EQ(vec.size(), 1);
 
     EXPECT_EQ(vec[0], g_data_array<T>[0]);
+
+    // test extra big n
+    newOffset = vec.erase(0, static_cast<size_type>(-1));
+
+    EXPECT_EQ(newOffset, 0);
+    EXPECT_EQ(vec.size(), 0);
 }
 
 TEST(VectorTest, Erase)
@@ -741,7 +682,7 @@ void FEraseIt()
     EXPECT_EQ(it, vec.begin() + 4);
     EXPECT_EQ(vec.size(), 5);
 
-    for (size_t i = 0; i < 3; ++i)
+    for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i]);
 
     EXPECT_EQ(vec[3], another_data_array[0]);
@@ -797,7 +738,7 @@ void FCopyN()
 
     EXPECT_EQ(p, another_data_array + 3);
 
-    for (size_t i = 0; i < 3; ++i)
+    for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     p = vec.copy_n(1, 3, another_data_array);
@@ -811,21 +752,21 @@ void FCopyN()
     p = vec.copy_n(0, 10, another_data_array);
 
     EXPECT_EQ(p, another_data_array + 3);
-    for (size_t i = 0; i < 3; ++i)
+    for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     // copy zero elements
     p = vec.copy_n(1, 0, another_data_array);
 
     EXPECT_EQ(p, another_data_array);
-    for (size_t i = 0; i < 3; ++i)
+    for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     // try to copy with wrong offset
     p = vec.copy_n(3, 1, another_data_array);
 
     EXPECT_EQ(p, another_data_array);
-    for (size_t i = 0; i < 3; ++i)
+    for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     // try to copy with nullptr as destination
@@ -917,8 +858,16 @@ TEST(VectorTest, Data)
 
     vec.push_back_n(g_data_array<std::string>, 3);
 
-    for (size_t i = 0; i < vec.size(); ++i)
+    for (size_type i = 0; i < vec.size(); ++i)
         EXPECT_EQ(*(vec.data() + i), g_data_array<std::string>[i]);
+}
+
+TEST(VectorTest, OperatorAt)
+{
+    auto vec = getStringsFilledContainer<std::string>();
+
+    for (size_type i = 0; i < vec.size(); ++i)
+        EXPECT_EQ(vec[i], g_data_array<std::string>[i]);
 }
 
 TEST(VectorTest, Size)
@@ -956,7 +905,7 @@ TEST(VectorTest, Clear)
 {
     auto vec = getStringsFilledContainer<std::string>();
 
-    size_t old_capacity = vec.capacity();
+    size_type old_capacity = vec.capacity();
 
     vec.clear();
 

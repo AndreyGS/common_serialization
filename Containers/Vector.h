@@ -468,59 +468,6 @@ constexpr bool Vector<T, AllocatorHelper>::reserve(size_type n)
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr bool Vector<T, AllocatorHelper>::reserveInternal(size_type n, bool strict)
-{
-    bool success = true;
-
-    if (n > m_allocatedSize)
-    {
-        T* newMp = strict ? m_allocatorHelper.allocateStrict(n) : m_allocatorHelper.allocate(n, &m_allocatedSize);
-        if (newMp)
-        {
-            if (strict)
-                m_allocatedSize = n;
-
-            m_allocatorHelper.moveNoOverlap(newMp, m_p, m_dataSize);
-            m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);
-            m_p = newMp;
-        }
-        else
-            success = false;
-    }
-
-    return success;
-}
-
-
-template<typename T, typename AllocatorHelper>
-constexpr bool Vector<T, AllocatorHelper>::addSpaceIfNeed(size_type n)
-{
-    return m_dataSize + n >= m_dataSize
-        ? m_dataSize + n > m_allocatedSize 
-            ? reserveInternal(m_dataSize + n, false) 
-            : true
-        : false; // overflow
-}
-
-template<typename T, typename AllocatorHelper>
-constexpr bool Vector<T, AllocatorHelper>::notEndIterator(iterator it) const noexcept
-{
-    return &*it >= m_p && &*it < m_p + m_dataSize;
-}
-
-template<typename T, typename AllocatorHelper>
-constexpr AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() noexcept
-{
-    return m_allocatorHelper;
-}
-
-template<typename T, typename AllocatorHelper>
-constexpr const AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() const noexcept
-{
-    return m_allocatorHelper;
-}
-
-template<typename T, typename AllocatorHelper>
 constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::push_back(const T& value)
 {
     if (addSpaceIfNeed(1))
@@ -719,7 +666,7 @@ constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::eras
     if (offset > m_dataSize)
         return m_dataSize;
 
-    if (offset + n > m_dataSize)
+    if (offset + n > m_dataSize || offset + n < offset)
         n = m_dataSize - offset;
 
     m_allocatorHelper.destroyN(m_p + offset, n);
@@ -863,6 +810,59 @@ template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr Vector<T, AllocatorHelper>::const_iterator Vector<T, AllocatorHelper>::cend() const noexcept
 {
     return m_p + m_dataSize;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() noexcept
+{
+    return m_allocatorHelper;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr const AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() const noexcept
+{
+    return m_allocatorHelper;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr bool Vector<T, AllocatorHelper>::reserveInternal(size_type n, bool strict)
+{
+    bool success = true;
+
+    if (n > m_allocatedSize)
+    {
+        T* newMp = strict ? m_allocatorHelper.allocateStrict(n) : m_allocatorHelper.allocate(n, &m_allocatedSize);
+        if (newMp)
+        {
+            if (strict)
+                m_allocatedSize = n;
+
+            m_allocatorHelper.moveNoOverlap(newMp, m_p, m_dataSize);
+            m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);
+            m_p = newMp;
+        }
+        else
+            success = false;
+    }
+
+    return success;
+}
+
+
+template<typename T, typename AllocatorHelper>
+constexpr bool Vector<T, AllocatorHelper>::addSpaceIfNeed(size_type n)
+{
+    return m_dataSize + n >= m_dataSize
+        ? m_dataSize + n > m_allocatedSize
+        ? reserveInternal(m_dataSize + n, false)
+        : true
+        : false; // overflow
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr bool Vector<T, AllocatorHelper>::notEndIterator(iterator it) const noexcept
+{
+    return &*it >= m_p && &*it < m_p + m_dataSize;
 }
 
 using RawArray = Vector<uint8_t, StrategicAllocatorHelper<uint8_t, RawHeapAllocator>>;
