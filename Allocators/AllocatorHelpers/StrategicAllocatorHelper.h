@@ -38,6 +38,8 @@ template<typename T, BasicAllocator Allocator, typename AllocatorHelper>
 class StrategicAllocatorHelperImpl : public GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>
 {
 public:
+    using size_type = typename InterfaceAllocatorHelper<T, Allocator, AllocatorHelper>::size_type;
+
     [[nodiscard]] constexpr AllocationStrategy getAllocationStrategy() const noexcept;
     constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept;
 
@@ -97,6 +99,11 @@ template<typename T, BasicAllocator Allocator = ConstructorNoexceptAllocator<T, 
 class StrategicAllocatorHelper : public StrategicAllocatorHelperImpl<T, Allocator, StrategicAllocatorHelper<T, Allocator>>
 {
 public:
+    using value_type = typename InterfaceAllocatorHelper<T, Allocator, GenericAllocatorHelperImpl<T, Allocator, GenericAllocatorHelper<T, Allocator>>>::value_type;
+    using pointer = typename InterfaceAllocatorHelper<T, Allocator, GenericAllocatorHelperImpl<T, Allocator, GenericAllocatorHelper<T, Allocator>>>::pointer;
+    using size_type = typename StrategicAllocatorHelperImpl<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::size_type;
+    using difference_type = typename StrategicAllocatorHelperImpl<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::difference_type;
+
     constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept
         : StrategicAllocatorHelperImpl<T, Allocator, StrategicAllocatorHelper<T, Allocator>>(allocationStrategy)
     { }

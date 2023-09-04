@@ -43,13 +43,19 @@ template<typename T, RawAllocator Allocator>
 class ConstructorNoexceptAllocator : public Allocator
 {
 public:
-    using ForTrivialyCopyableTypes = std::false_type;
     using value_type = T;
+    using pointer = T*;
+    using size_type = typename Allocator::size_type;
+    using difference_type = typename Allocator::difference_type;
+
+    static constexpr size_type max_size_v = Allocator::max_size_v / sizeof(T);
 
     template<typename... Args>
     constexpr void construct(T* p, Args&&... args) const noexcept;
 
     constexpr void destroy(T* p) const noexcept;
+
+    constexpr size_type max_size() const noexcept;
 };
 
 template<typename T, RawAllocator Allocator>
@@ -63,6 +69,12 @@ template<typename T, RawAllocator Allocator>
 constexpr void ConstructorNoexceptAllocator<T, Allocator>::destroy(T* p) const noexcept
 {
     p->~T();
+}
+
+template<typename T, RawAllocator Allocator>
+constexpr ConstructorNoexceptAllocator<T, Allocator>::size_type ConstructorNoexceptAllocator<T, Allocator>::max_size() const noexcept
+{
+    return max_size_v;
 }
 
 } // namespace common_serialization

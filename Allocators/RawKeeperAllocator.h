@@ -1,5 +1,5 @@
 /**
- * @file AllocatorHelperConcepts.h
+ * @file RawKeeperAllocator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,16 +23,37 @@
 
 #pragma once
 
-#include "Allocators/AllocatorConcepts.h"
-
 namespace common_serialization
 {
 
-template<typename T>
-concept ConstructableAllocatorHelper = requires(T allocator_helper)
+class RawKeeperAllocator
 {
-    { allocator_helper.construct_n(nullptr, 0, 0) } -> std::same_as<void>;
-    { allocator_helper.destroyN(nullptr, 0) } -> std::same_as<void>;
+public:
+    using size_type = size_t;
+    using difference_type = ptrdiff_t;
+
+    [[nodiscard]] inline void* allocate(size_type data_size_in_bytes) const noexcept;
+    inline void deallocate(void* p) const noexcept;
+
+    constexpr size_type max_size() const noexcept;
+
+private:
+    void* m_p = nullptr;
+    size_type m_memorySize = 0;
 };
+
+[[nodiscard]] inline void* RawKeeperAllocator::allocate(size_type data_size_in_bytes) const noexcept
+{
+    return m_p;
+}
+
+inline void RawKeeperAllocator::deallocate(void* p) const noexcept
+{
+}
+
+constexpr RawKeeperAllocator::size_type RawKeeperAllocator::max_size() const noexcept
+{
+    return m_memorySize;
+}
 
 } // namespace common_serialization

@@ -29,8 +29,12 @@ namespace common_serialization
 template<typename T, BasicAllocator Allocator, typename AllocatorHelper>
 class InterfaceAllocatorHelper
 {
-protected:
-    InterfaceAllocatorHelper() { }
+public:
+    using value_type = T;   // we can't just use value_type from Allocator, cause it can be RawAllocator that doesn't have it (it's current architecture limitation)
+                            // one of possible solutions was to make RawAllocators as templates, but it's obviously not worth it
+    using pointer = T*;
+    using size_type = typename Allocator::size_type;
+    using difference_type = typename Allocator::difference_type;
 
 public:
     using value_type = T;
@@ -122,6 +126,22 @@ public:
     {
         return static_cast<const AllocatorHelper*>(this)->max_size_impl();
     }
+
+    constexpr Allocator& getAllocator() noexcept
+    {
+        return m_allocator;
+    }
+
+    constexpr const Allocator& getAllocator() const noexcept
+    {
+        return m_allocator;
+    }
+
+protected:
+    InterfaceAllocatorHelper() { }
+
+private:
+    Allocator m_allocator;
 };
 
 } // namespace common_serialization

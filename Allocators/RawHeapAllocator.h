@@ -35,18 +35,20 @@ namespace memory_management
 class RawHeapAllocator
 {
 public:
-    using ForTrivialyCopyableTypes = std::true_type;
-    static const size_t max_size_v;
+    using size_type = size_t;
+    using difference_type = ptrdiff_t;
 
-    [[nodiscard]] inline void* allocate(size_t data_size_in_bytes) const noexcept;
+    static constexpr size_type max_size_v = static_cast<size_type>(-1);
+
+    [[nodiscard]] inline void* allocate(size_type data_size_in_bytes) const noexcept;
     inline void deallocate(void* p) const noexcept;
 
-    constexpr size_t max_size() const noexcept;
+    // this method must be not virtual because if we casting any subclass object to RawHeapAllocator 
+    // its max_size must return the value that complies with RawHeapAllocator's semantics and vice versa
+    constexpr size_type max_size() const noexcept;
 };
 
-inline constexpr size_t RawHeapAllocator::max_size_v = static_cast<size_t>(-1);
-
-[[nodiscard]] inline void* RawHeapAllocator::allocate(size_t data_size_in_bytes) const noexcept
+[[nodiscard]] inline void* RawHeapAllocator::allocate(size_type data_size_in_bytes) const noexcept
 {
     return memory_management::raw_heap_allocate(data_size_in_bytes);
 }
@@ -56,9 +58,9 @@ inline void RawHeapAllocator::deallocate(void* p) const noexcept
     memory_management::raw_heap_deallocate(p);
 }
 
-constexpr size_t RawHeapAllocator::max_size() const noexcept
+constexpr RawHeapAllocator::size_type RawHeapAllocator::max_size() const noexcept
 {
-    return RawHeapAllocator::max_size_v;
+    return max_size_v;
 }
 
 } // namespace common_serialization

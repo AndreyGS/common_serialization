@@ -894,7 +894,7 @@ TEST(WalkerTest, MaxSize)
 {
     Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
 
-    EXPECT_EQ(walker.max_size(), RawHeapAllocator().max_size());
+    EXPECT_EQ(walker.max_size(), (ConstructorNoexceptAllocator<std::string, RawHeapAllocator>().max_size()));
 }
 
 TEST(WalkerTest, Capacity)
@@ -979,7 +979,6 @@ TEST(WalkerTest, Tell)
     walker.push_back_n(g_data_array<std::string>, 3);
     EXPECT_EQ(walker.tell(), 3);
 }
-
 
 TEST(WalkerTest, Seek)
 {

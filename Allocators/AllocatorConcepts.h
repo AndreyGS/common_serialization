@@ -29,21 +29,24 @@ namespace common_serialization
 template<typename T>
 concept BasicAllocator = requires(T a)
 {
-    typename T::ForTrivialyCopyableTypes;
+    typename T::size_type;
+    typename T::difference_type;
     T();
     { a.allocate(0) } -> std::same_as<void*>;
     { a.deallocate(nullptr) } -> std::same_as<void>;
     { a.max_size() } -> std::same_as<size_t>;
 };
 
-template<typename raw_allocator>
-concept RawAllocator = BasicAllocator<raw_allocator> && raw_allocator::ForTrivialyCopyableTypes::value;
-
 template<typename T>
-concept ConstructorAllocator = BasicAllocator<T> && !T::ForTrivialyCopyableTypes::value && requires(T a)
+concept ConstructorAllocator = BasicAllocator<T> && requires(T a)
 {
+    typename T::value_type;
+    typename T::pointer;
     { a.construct(nullptr, 1) } -> std::same_as<void>;
     { a.destroy(nullptr) } -> std::same_as<void>;
 };
+
+template<typename T>
+concept RawAllocator = BasicAllocator<T> && !ConstructorAllocator<T>;
 
 } // namespace common_serialization

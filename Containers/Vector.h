@@ -25,7 +25,6 @@
 
 #include "Allocators/ConstructorNoexceptAllocator.h"
 #include "Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
-#include "Allocators/AllocatorHelpers/AllocatorHelperConcepts.h"
 #include "IteratorTagsDeclares.h"
 
 namespace common_serialization
@@ -304,9 +303,11 @@ template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, Cons
 class Vector
 {
 public:
+    static_assert(std::is_same_v<T, typename AllocatorHelper::value_type>, "Types T and AllocatorHelper::value_type are not the same");
+
     using value_type = T;
-    using size_type = size_t;
-    using difference_type = std::ptrdiff_t;
+    using size_type = typename AllocatorHelper::size_type;
+    using difference_type = typename AllocatorHelper::difference_type;
 
     using pointer = T*;
     using const_pointer = const T*;

@@ -881,9 +881,13 @@ TEST(VectorTest, Size)
 
 TEST(VectorTest, MaxSize)
 {
-    Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec;
+    Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec1;
 
-    EXPECT_EQ(vec.max_size(), RawHeapAllocator().max_size());
+    EXPECT_EQ(vec1.max_size(), (ConstructorNoexceptAllocator<std::string, RawHeapAllocator>().max_size()));
+
+    Vector<std::string, StrategicAllocatorHelper<std::string, RawHeapAllocator>> vec2;
+
+    EXPECT_EQ(vec2.max_size(), RawHeapAllocator().max_size());
 }
 
 TEST(VectorTest, Capacity)
