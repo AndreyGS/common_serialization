@@ -832,11 +832,10 @@ template<typename T, typename AllocatorHelper>
 
     if (n > m_allocatedSize)
     {
-        T* newMp = strict ? m_allocatorHelper.allocateStrict(n) : m_allocatorHelper.allocate(n, &m_allocatedSize);
+        T* newMp = strict ? m_allocatorHelper.allocateStrict(n) : m_allocatorHelper.allocate(n, &n);
         if (newMp)
         {
-            if (strict)
-                m_allocatedSize = n;
+            m_allocatedSize = n;
 
             m_allocatorHelper.moveNoOverlap(newMp, m_p, m_dataSize);
             m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);

@@ -48,8 +48,6 @@ public:
     using size_type = typename Allocator::size_type;
     using difference_type = typename Allocator::difference_type;
 
-    static constexpr size_type max_size_v = Allocator::max_size_v / sizeof(T);
-
     template<typename... Args>
     constexpr void construct(T* p, Args&&... args) const noexcept;
 
@@ -74,7 +72,7 @@ constexpr void ConstructorNoexceptAllocator<T, Allocator>::destroy(T* p) const n
 template<typename T, RawAllocator Allocator>
 constexpr ConstructorNoexceptAllocator<T, Allocator>::size_type ConstructorNoexceptAllocator<T, Allocator>::max_size() const noexcept
 {
-    return max_size_v;
+    return Allocator::max_size() / sizeof(T);
 }
 
 } // namespace common_serialization

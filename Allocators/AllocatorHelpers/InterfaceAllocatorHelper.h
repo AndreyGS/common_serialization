@@ -138,7 +138,7 @@ public:
     }
 
 protected:
-    InterfaceAllocatorHelper() { }
+    constexpr InterfaceAllocatorHelper() { }
 
 private:
     Allocator m_allocator;

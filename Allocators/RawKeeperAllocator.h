@@ -32,6 +32,11 @@ public:
     using size_type = size_t;
     using difference_type = ptrdiff_t;
 
+    constexpr RawKeeperAllocator() noexcept {}
+    constexpr RawKeeperAllocator(void* p, size_type memorySize) noexcept;
+
+    constexpr void setStorage(void* p, size_type memorySize) noexcept;
+
     [[nodiscard]] inline void* allocate(size_type data_size_in_bytes) const noexcept;
     inline void deallocate(void* p) const noexcept;
 
@@ -42,9 +47,20 @@ private:
     size_type m_memorySize = 0;
 };
 
+constexpr RawKeeperAllocator::RawKeeperAllocator(void* p, size_type memorySize) noexcept
+    : m_p(p), m_memorySize(memorySize)
+{
+}
+
+constexpr void RawKeeperAllocator::setStorage(void* p, size_type memorySize) noexcept
+{
+    m_p = p;
+    m_memorySize = memorySize;
+}
+
 [[nodiscard]] inline void* RawKeeperAllocator::allocate(size_type data_size_in_bytes) const noexcept
 {
-    return m_p;
+    return data_size_in_bytes <= m_memorySize ? m_p : nullptr;
 }
 
 inline void RawKeeperAllocator::deallocate(void* p) const noexcept

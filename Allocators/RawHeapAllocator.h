@@ -38,7 +38,7 @@ public:
     using size_type = size_t;
     using difference_type = ptrdiff_t;
 
-    static constexpr size_type max_size_v = static_cast<size_type>(-1);
+    
 
     [[nodiscard]] inline void* allocate(size_type data_size_in_bytes) const noexcept;
     inline void deallocate(void* p) const noexcept;
@@ -46,6 +46,9 @@ public:
     // this method must be not virtual because if we casting any subclass object to RawHeapAllocator 
     // its max_size must return the value that complies with RawHeapAllocator's semantics and vice versa
     constexpr size_type max_size() const noexcept;
+
+private:
+    static constexpr size_type max_size_v = static_cast<size_type>(-1);
 };
 
 [[nodiscard]] inline void* RawHeapAllocator::allocate(size_type data_size_in_bytes) const noexcept

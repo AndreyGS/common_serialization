@@ -187,6 +187,17 @@ TEST(VectorTest, Reserve)
     EXPECT_EQ(vec[0], i);
 
     // test when memory couldn't be allocated
+    // 1
+    b = vec.reserve(static_cast<size_type>(-1));
+    EXPECT_FALSE(b);
+
+    // Check that after false memory allocation container not lost its contents
+    EXPECT_EQ(vec.capacity(), 100);
+    EXPECT_EQ(vec.size(), 1);
+    EXPECT_EQ(vec[0], i);
+
+    // 2
+    vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize);
     b = vec.reserve(static_cast<size_type>(-1));
     EXPECT_FALSE(b);
 
