@@ -26,6 +26,10 @@
 namespace std
 {
 
+// std::nothrow
+struct nothrow_t { };
+inline constexpr nothrow_t nothrow;
+
 // std::integral_constant<T, v>
 template<typename T, T v>
 struct integral_constant

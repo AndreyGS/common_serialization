@@ -26,7 +26,7 @@
 namespace common_serialization
 {
 
-template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T, RawHeapAllocator>>>
+template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>>
 class Walker
 {
 public:
@@ -313,6 +313,6 @@ constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::seek
     return m_offset = offset <= m_vector.size() ? offset : m_vector.size();
 }
 
-using RawData = Walker<uint8_t, StrategicAllocatorHelper<uint8_t, RawHeapAllocator>>;
+using RawData = Walker<uint8_t, StrategicAllocatorHelper<uint8_t, RawHeapAllocator<uint8_t>>>;
 
 } // namespace common_serialization

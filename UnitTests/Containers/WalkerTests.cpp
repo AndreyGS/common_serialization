@@ -13,7 +13,7 @@ namespace
 // Explicitly set default allocator helper so we wouldn't depend on 
 // possible future changes of default allocator helper of Vector
 template<typename T>
-using DefaultWalkerAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T, RawHeapAllocator>>;
+using DefaultWalkerAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>;
 
 using size_type = typename Walker<int, DefaultWalkerAllocatorHelper<int>>::size_type;
 
@@ -36,7 +36,7 @@ auto getStringsFilledContainer()
 template<>
 auto getStringsFilledContainer<PodStruct>()
 {
-    static Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator>> walker;
+    static Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator<PodStruct>>> walker;
 
     if (walker.size() == 0)
         walker.push_back_n(g_data_array<PodStruct>, 3);
@@ -250,7 +250,7 @@ TEST(WalkerTest, PushBackNoMove)
 
 TEST(WalkerTest, PushBackPod)
 {
-    Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator>> walker_pod;
+    Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator<PodStruct>>> walker_pod;
 
     // test l-value
     auto n = walker_pod.push_back("123");
@@ -894,7 +894,7 @@ TEST(WalkerTest, MaxSize)
 {
     Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
 
-    EXPECT_EQ(walker.max_size(), (ConstructorNoexceptAllocator<std::string, RawHeapAllocator>().max_size()));
+    EXPECT_EQ(walker.max_size(), (ConstructorNoexceptAllocator<std::string>().max_size()));
 }
 
 TEST(WalkerTest, Capacity)

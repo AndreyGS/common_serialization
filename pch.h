@@ -14,7 +14,6 @@
 #else // !USER_MODE
 
 #include "std_equivalents/std_equivalents.h"
-#include "std_equivalents/new.h"
 
 #ifdef LINUX_KERNEL
 
@@ -25,6 +24,8 @@
 #include "allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
 
 #endif // LINUX_KERNEL || WINDOWS_KERNEL
+
+#include "std_equivalents/new.h"
 
 #endif // USER_MODE
 

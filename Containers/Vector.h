@@ -299,7 +299,7 @@ template<typename Vec>
 /// </summary>
 /// <typeparam name="T">type of data stored in contiguous array</typeparam>
 /// <typeparam name="AllocatorHelper">class that implements InterfaceAllocatorHelper</typeparam>
-template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T, RawHeapAllocator>>>
+template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>>
 class Vector
 {
 public:
@@ -308,6 +308,7 @@ public:
     using value_type = T;
     using size_type = typename AllocatorHelper::size_type;
     using difference_type = typename AllocatorHelper::difference_type;
+    using constructor_allocator = typename AllocatorHelper::constructor_allocator;
 
     using pointer = T*;
     using const_pointer = const T*;
@@ -536,7 +537,7 @@ constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::repl
     }
     else if (newDataSize >= m_dataSize) // there is no overflow
     {
-        if constexpr (ConstructorAllocator<typename AllocatorHelper::allocator>)
+        if constexpr (constructor_allocator::value)
             m_allocatorHelper.destroyN(m_p + offset, n >= m_dataSize - offset ? m_dataSize - offset : n);
 
         m_allocatorHelper.copyNoOverlap(m_p + offset, p, n);
@@ -589,7 +590,7 @@ constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::inse
         if (offset != m_dataSize)
             m_allocatorHelper.move(m_p + offsetPlusN, m_p + offset, rightDataPartSize);
 
-        if constexpr (ConstructorAllocator<typename AllocatorHelper::allocator>)
+        if constexpr (constructor_allocator::value)
             m_allocatorHelper.destroyN(m_p + offset, n >= rightDataPartSize ? rightDataPartSize : n);
 
         m_allocatorHelper.copyNoOverlap(m_p + offset, p, n);
@@ -638,7 +639,7 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::inser
     {
         if (oldDataSize > currentOffset)
         {
-            if constexpr (ConstructorAllocator<typename AllocatorHelper::allocator>)
+            if constexpr (constructor_allocator::value)
                 for (size_type i = currentOffset; i < oldDataSize; ++i)
                     temp.push_back(std::move(*(m_p + i)));
             else

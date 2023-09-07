@@ -27,26 +27,22 @@ namespace common_serialization
 {
 
 template<typename T>
-concept BasicAllocator = requires(T a)
-{
-    typename T::size_type;
-    typename T::difference_type;
-    T();
-    { a.allocate(0) } -> std::same_as<void*>;
-    { a.deallocate(nullptr) } -> std::same_as<void>;
-    { a.max_size() } -> std::same_as<size_t>;
-};
-
-template<typename T>
-concept ConstructorAllocator = BasicAllocator<T> && requires(T a)
+concept AllocatorType = (std::is_same_v<std::true_type, typename T::constructor_allocator> || std::is_same_v<std::false_type, typename T::constructor_allocator>) && requires(T a)
 {
     typename T::value_type;
     typename T::pointer;
-    { a.construct(nullptr, 1) } -> std::same_as<void>;
-    { a.destroy(nullptr) } -> std::same_as<void>;
-};
+    typename T::size_type;
+    typename T::difference_type;
+    typename T::constructor_allocator;
+    T();
+    { a.allocate(0) } -> std::same_as<typename T::pointer>;
+    { a.deallocate(nullptr) } -> std::same_as<void>;
+    { a.deallocate(nullptr, 1) } -> std::same_as<void>;
 
-template<typename T>
-concept RawAllocator = BasicAllocator<T> && !ConstructorAllocator<T>;
+    { a.construct(nullptr) } -> std::same_as<void>;
+    { a.destroy(nullptr) } -> std::same_as<void>;
+
+    { a.max_size() } -> std::same_as<typename T::size_type>;
+};
 
 } // namespace common_serialization

@@ -36,7 +36,7 @@ namespace memory_management
 
 inline void raw_heap_deallocate(void* p) noexcept
 {
-    return ExFreePool(p);
+    ExFreePool(p);
 }
 
 } // namespace memory_management

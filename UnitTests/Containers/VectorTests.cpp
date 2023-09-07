@@ -13,7 +13,7 @@ namespace
 // Explicitly set default allocator helper so we wouldn't depend on 
 // possible future changes of default allocator helper of Vector
 template<typename T>
-using DefaultVectorAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T, RawHeapAllocator>>;
+using DefaultVectorAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>;
 
 using size_type = typename Vector<int, DefaultVectorAllocatorHelper<int>>::size_type;
 
@@ -36,7 +36,7 @@ auto getStringsFilledContainer()
 template<>
 auto getStringsFilledContainer<PodStruct>()
 {
-    static Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator>> vec;
+    static Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator<PodStruct>>> vec;
 
     if (vec.size() == 0)
         vec.push_back_n(g_data_array<PodStruct>, 3);
@@ -252,7 +252,7 @@ TEST(VectorTest, PushBackNoMove)
 
 TEST(VectorTest, PushBackPod)
 {
-    Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator>> vec_pod;
+    Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator<PodStruct>>> vec_pod;
 
     // test l-value
     auto& vec_ref1 = vec_pod.push_back("123");
@@ -894,11 +894,11 @@ TEST(VectorTest, MaxSize)
 {
     Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec1;
 
-    EXPECT_EQ(vec1.max_size(), (ConstructorNoexceptAllocator<std::string, RawHeapAllocator>().max_size()));
+    EXPECT_EQ(vec1.max_size(), (ConstructorNoexceptAllocator<std::string>().max_size()));
 
-    Vector<std::string, StrategicAllocatorHelper<std::string, RawHeapAllocator>> vec2;
+    Vector<uint8_t, StrategicAllocatorHelper<uint8_t, RawHeapAllocator<uint8_t>>> vec2;
 
-    EXPECT_EQ(vec2.max_size(), RawHeapAllocator().max_size());
+    EXPECT_EQ(vec2.max_size(), RawHeapAllocator<uint8_t>().max_size());
 }
 
 TEST(VectorTest, Capacity)

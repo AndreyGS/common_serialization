@@ -26,42 +26,64 @@
 namespace common_serialization
 {
 
-namespace memory_management
-{
-    [[nodiscard]] inline void* raw_heap_allocate(size_t data_size_in_bytes) noexcept;
-    inline void raw_heap_deallocate(void* p) noexcept;
-} // namespace memory_management
-
+template<typename T>
 class RawHeapAllocator
 {
 public:
+    using value_type = T;
+    using pointer = T*;
     using size_type = size_t;
     using difference_type = ptrdiff_t;
+    using constructor_allocator = std::false_type;
 
-    
+    constexpr RawHeapAllocator() noexcept {}
+    template <class R>
+    constexpr RawHeapAllocator(const RawHeapAllocator<R>&) noexcept {}
 
-    [[nodiscard]] inline void* allocate(size_type data_size_in_bytes) const noexcept;
-    inline void deallocate(void* p) const noexcept;
+    [[nodiscard]] inline T* allocate(size_type n) const noexcept;
+    inline void deallocate(T* p) const noexcept;
+    inline void deallocate(T* p, size_type n) const noexcept;
 
-    // this method must be not virtual because if we casting any subclass object to RawHeapAllocator 
-    // its max_size must return the value that complies with RawHeapAllocator's semantics and vice versa
+    constexpr void construct(T* p, value_type value = value_type{}) const noexcept;
+    constexpr void destroy(T* p) const noexcept;
+
     constexpr size_type max_size() const noexcept;
 
 private:
-    static constexpr size_type max_size_v = static_cast<size_type>(-1);
+    static constexpr size_type max_size_v = static_cast<size_type>(-1) / sizeof(value_type);
 };
 
-[[nodiscard]] inline void* RawHeapAllocator::allocate(size_type data_size_in_bytes) const noexcept
+template<typename T>
+[[nodiscard]] inline T* RawHeapAllocator<T>::allocate(size_type n) const noexcept
 {
-    return memory_management::raw_heap_allocate(data_size_in_bytes);
+    return reinterpret_cast<T*>(memory_management::raw_heap_allocate(n * sizeof(T)));
 }
 
-inline void RawHeapAllocator::deallocate(void* p) const noexcept
+template<typename T>
+inline void RawHeapAllocator<T>::deallocate(T* p) const noexcept
 {
     memory_management::raw_heap_deallocate(p);
 }
 
-constexpr RawHeapAllocator::size_type RawHeapAllocator::max_size() const noexcept
+template<typename T>
+inline void RawHeapAllocator<T>::deallocate(T* p, size_type n) const noexcept
+{
+    deallocate(p);
+}
+
+template<typename T>
+constexpr void RawHeapAllocator<T>::construct(T* p, value_type value) const noexcept
+{
+    *p = value;
+}
+
+template<typename T>
+constexpr void RawHeapAllocator<T>::destroy(T* p) const noexcept
+{
+}
+
+template<typename T>
+constexpr RawHeapAllocator<T>::size_type RawHeapAllocator<T>::max_size() const noexcept
 {
     return max_size_v;
 }

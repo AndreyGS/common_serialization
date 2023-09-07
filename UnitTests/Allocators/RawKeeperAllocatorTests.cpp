@@ -10,12 +10,12 @@ namespace
 {
 
 template<typename T>
-using ConstructorVectorAllocatorHelper = GenericAllocatorHelper<T, ConstructorNoexceptAllocator<T, RawKeeperAllocator>>;
+using ConstructorVectorAllocatorHelper = GenericAllocatorHelper<T, RawKeeperAllocator<T>>;
 
-using size_type = typename Vector<int, ConstructorVectorAllocatorHelper<int>>::size_type;
+using size_type = typename Vector<int, RawKeeperAllocator<int>>::size_type;
 
 constexpr size_t kArraySizeInBytes = 307;
-uint8_t g_array[kArraySizeInBytes] = { 0 };
+int g_array[kArraySizeInBytes] = { 0 };
 
 TEST(RawKeeperAllocatorTest, VectorWorkTest)
 {
@@ -26,10 +26,8 @@ TEST(RawKeeperAllocatorTest, VectorWorkTest)
     EXPECT_EQ(vec.max_size(), 0);
     EXPECT_EQ(vec.data(), nullptr);
 
-    constexpr size_type kExpectedMaxSize = kArraySizeInBytes / sizeof(int);
-
-    vec.getAllocatorHelper().getAllocator().setStorage(g_array, 307);
-    EXPECT_EQ(vec.max_size(), kExpectedMaxSize);
+    vec.getAllocatorHelper().getAllocator().setStorage(g_array, kArraySizeInBytes);
+    EXPECT_EQ(vec.max_size(), kArraySizeInBytes);
 
     vec.push_back(0);
     EXPECT_EQ(vec.size(), 1);
@@ -39,16 +37,44 @@ TEST(RawKeeperAllocatorTest, VectorWorkTest)
     vec.clear();
 
     // try to add more than we can hold
-    for (size_type i = 0; i < kExpectedMaxSize + 1; ++i)
+    for (int i = 0; i < kArraySizeInBytes + 1; ++i)
         vec.push_back(i);
     
-    EXPECT_EQ(vec.size(), kExpectedMaxSize);
-    EXPECT_EQ(vec.capacity(), kExpectedMaxSize);
+    EXPECT_EQ(vec.size(), kArraySizeInBytes);
+    EXPECT_EQ(vec.capacity(), kArraySizeInBytes);
 
-    for (size_type i = 0; i < kExpectedMaxSize; ++i)
+    for (int i = 0; i < kArraySizeInBytes; ++i)
         EXPECT_EQ(vec[i], i);
 }
 
+#include <vector>
 
+TEST(RawKeeperAllocatorTest, VectorWorkTest2)
+{
+    std::vector<std::string, ConstructorNoexceptAllocator<std::string>> str;
+    str.push_back("123");
+}
+
+
+/*
+constexpr auto getContainer()
+{
+    Vector<int, ConstructorVectorAllocatorHelper<int>> vec;
+    constexpr uint8_t localArray[35] = { 0 };
+    vec.getAllocatorHelper().getAllocator().setCStorage(localArray, 35);
+    for (int i = 0; i < 35; ++i)
+        vec.push_back(i);
+
+    return vec;
+}
+
+constexpr auto g_vec = getContainer();
+
+TEST(RawKeeperAllocatorTest, VectorWorkTest2)
+{
+    for (int i = 0; i < 35; ++i)
+        EXPECT_EQ(g_vec[i], i);
+}
+*/
 
 } // namespace anonymous

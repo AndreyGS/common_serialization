@@ -28,51 +28,69 @@
 namespace common_serialization
 {
 
-namespace memory_management
-{
-
-template<typename T, typename... Args>
-constexpr inline void placement_new(T* p, Args&&... args) noexcept;
-
 template<typename T>
-constexpr inline void destroy(T* p) noexcept;
-
-} // namespace memory_management
-
-template<typename T, RawAllocator Allocator>
-class ConstructorNoexceptAllocator : public Allocator
+class ConstructorNoexceptAllocator 
 {
 public:
     using value_type = T;
     using pointer = T*;
-    using size_type = typename Allocator::size_type;
-    using difference_type = typename Allocator::difference_type;
+    using size_type = size_t;
+    using difference_type = ptrdiff_t;
+    using constructor_allocator = std::true_type;
+
+    constexpr ConstructorNoexceptAllocator() noexcept {}
+    template <class R>
+    constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator<R>&) noexcept {}
+
+    [[nodiscard]] inline T* allocate(size_type n) const noexcept;
+    inline void deallocate(T* p) const noexcept;
+    inline void deallocate(T* p, size_type n) const noexcept;
 
     template<typename... Args>
     constexpr void construct(T* p, Args&&... args) const noexcept;
-
     constexpr void destroy(T* p) const noexcept;
 
     constexpr size_type max_size() const noexcept;
+
+private:
+    static constexpr size_type max_size_v = static_cast<size_type>(-1) / sizeof(T);
 };
 
-template<typename T, RawAllocator Allocator>
+template<typename T>
+[[nodiscard]] inline T* ConstructorNoexceptAllocator<T>::allocate(size_type n) const noexcept
+{
+    return reinterpret_cast<T*>(memory_management::raw_heap_allocate(n * sizeof(T)));
+}
+
+template<typename T>
+inline void ConstructorNoexceptAllocator<T>::deallocate(T* p) const noexcept
+{
+    memory_management::raw_heap_deallocate(p);
+}
+
+template<typename T>
+inline void ConstructorNoexceptAllocator<T>::deallocate(T* p, size_type n) const noexcept
+{
+    deallocate(p);
+}
+
+template<typename T>
 template<typename... Args>
-constexpr void ConstructorNoexceptAllocator<T, Allocator>::construct(T* p, Args&&... args) const noexcept
+constexpr void ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
     new ((void*)p) T(std::forward<Args>(args)...);
 }
 
-template<typename T, RawAllocator Allocator>
-constexpr void ConstructorNoexceptAllocator<T, Allocator>::destroy(T* p) const noexcept
+template<typename T>
+constexpr void ConstructorNoexceptAllocator<T>::destroy(T* p) const noexcept
 {
     p->~T();
 }
 
-template<typename T, RawAllocator Allocator>
-constexpr ConstructorNoexceptAllocator<T, Allocator>::size_type ConstructorNoexceptAllocator<T, Allocator>::max_size() const noexcept
+template<typename T>
+constexpr ConstructorNoexceptAllocator<T>::size_type ConstructorNoexceptAllocator<T>::max_size() const noexcept
 {
-    return Allocator::max_size() / sizeof(T);
+    return max_size_v;
 }
 
 } // namespace common_serialization
