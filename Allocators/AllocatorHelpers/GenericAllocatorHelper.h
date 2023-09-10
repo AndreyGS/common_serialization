@@ -96,7 +96,7 @@ template<typename T, AllocatorType Allocator, typename AllocatorHelper>
 template<typename T, AllocatorType Allocator, typename AllocatorHelper>
 [[nodiscard]] constexpr T* GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateStrictImpl(size_type n) const
 {
-    return reinterpret_cast<T*>(this->getAllocator().allocate(sizeof(T) * n));
+    return this->getAllocator().allocate(n);
 }
 
 template<typename T, AllocatorType Allocator, typename AllocatorHelper>

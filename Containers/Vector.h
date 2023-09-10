@@ -199,7 +199,6 @@ public:
 
     constexpr VectorIterator(pointer p) : Base(p) { }
     constexpr VectorIterator(const VectorIterator& it) : Base(it.m_p) { }
-    //constexpr VectorIterator(const Base& it) : Base(it.m_p) { }
 
     [[nodiscard]] constexpr reference operator*() const noexcept;
     [[nodiscard]] constexpr pointer operator->() const noexcept;
@@ -445,7 +444,7 @@ constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(Vect
 template<typename T, typename AllocatorHelper>
 constexpr Vector<T, AllocatorHelper>::~Vector() noexcept
 {
-    m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);
+    invalidate();
 }
 
 template<typename T, typename AllocatorHelper>
@@ -459,6 +458,7 @@ template<typename T, typename AllocatorHelper>
 constexpr void Vector<T, AllocatorHelper>::invalidate() noexcept
 {
     clear();
+    m_allocatorHelper.deallocate(m_p);
     m_p = nullptr;
     m_allocatedSize = 0;
 }

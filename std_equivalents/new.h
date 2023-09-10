@@ -24,25 +24,25 @@
 using namespace common_serialization::memory_management;
 
 // new
-[[nodiscard]] inline void* operator new(size_t data_size_in_bytes) noexcept
+[[nodiscard]] constexpr void* operator new(size_t data_size_in_bytes) noexcept
 {
     return raw_heap_allocate(data_size_in_bytes);
 }
 
 // new[]
-[[nodiscard]] inline void* operator new[](size_t data_size_in_bytes) noexcept
+[[nodiscard]] constexpr void* operator new[](size_t data_size_in_bytes) noexcept
 {
     return raw_heap_allocate(data_size_in_bytes);
 }
 
 // new nothrow
-[[nodiscard]] inline void* operator new(size_t data_size_in_bytes, const std::nothrow_t&) noexcept
+[[nodiscard]] constexpr void* operator new(size_t data_size_in_bytes, const std::nothrow_t&) noexcept
 {
     return raw_heap_allocate(data_size_in_bytes);
 }
 
 // new[] nothrow
-[[nodiscard]] inline void* operator new[](size_t data_size_in_bytes, const std::nothrow_t&) noexcept
+[[nodiscard]] constexpr void* operator new[](size_t data_size_in_bytes, const std::nothrow_t&) noexcept
 {
     return raw_heap_allocate(data_size_in_bytes);
 }
@@ -60,25 +60,25 @@ using namespace common_serialization::memory_management;
 }
 
 // delete
-inline void operator delete(void* p) noexcept
+constexpr void operator delete(void* p) noexcept
 {
     raw_heap_deallocate(p);
 }
 
 // delete[]
-inline void operator delete[](void* p) noexcept
+constexpr void operator delete[](void* p) noexcept
 {
     raw_heap_deallocate(p);
 }
 
 // delete nothrow
-inline void operator delete(void* p, const std::nothrow_t&) noexcept
+constexpr void operator delete(void* p, const std::nothrow_t&) noexcept
 {
     raw_heap_deallocate(p);
 }
 
 // delete[] nothrow
-inline void operator delete[](void* p, const std::nothrow_t&) noexcept
+constexpr void operator delete[](void* p, const std::nothrow_t&) noexcept
 {
     raw_heap_deallocate(p);
 }

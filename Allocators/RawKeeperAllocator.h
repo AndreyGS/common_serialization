@@ -42,6 +42,7 @@ public:
     constexpr RawKeeperAllocator(const RawKeeperAllocator<R>&) noexcept;
 
     constexpr void setStorage(T* p, size_type memorySize) noexcept;
+    //constexpr void setSCtorage(const T* p, size_type memorySize) noexcept;
 
     [[nodiscard]] constexpr T* allocate(size_type data_size_in_bytes) const noexcept;
     constexpr void deallocate(T* p) const noexcept;

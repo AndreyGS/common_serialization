@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "RawHeapAllocator.h"
+#include "RawNoexceptAllocator.h"
 
 namespace common_serialization
 {
@@ -42,9 +42,9 @@ public:
     template <class R>
     constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator<R>&) noexcept {}
 
-    [[nodiscard]] inline T* allocate(size_type n) const noexcept;
-    inline void deallocate(T* p) const noexcept;
-    inline void deallocate(T* p, size_type n) const noexcept;
+    [[nodiscard]] constexpr T* allocate(size_type n) const noexcept;
+    constexpr void deallocate(T* p) const noexcept;
+    constexpr void deallocate(T* p, size_type n) const noexcept;
 
     template<typename... Args>
     constexpr void construct(T* p, Args&&... args) const noexcept;
@@ -57,19 +57,19 @@ private:
 };
 
 template<typename T>
-[[nodiscard]] inline T* ConstructorNoexceptAllocator<T>::allocate(size_type n) const noexcept
+[[nodiscard]] constexpr T* ConstructorNoexceptAllocator<T>::allocate(size_type n) const noexcept
 {
-    return reinterpret_cast<T*>(memory_management::raw_heap_allocate(n * sizeof(T)));
+    return static_cast<T*>(memory_management::raw_heap_allocate(n * sizeof(T)));
 }
 
 template<typename T>
-inline void ConstructorNoexceptAllocator<T>::deallocate(T* p) const noexcept
+constexpr void ConstructorNoexceptAllocator<T>::deallocate(T* p) const noexcept
 {
     memory_management::raw_heap_deallocate(p);
 }
 
 template<typename T>
-inline void ConstructorNoexceptAllocator<T>::deallocate(T* p, size_type n) const noexcept
+constexpr void ConstructorNoexceptAllocator<T>::deallocate(T* p, size_type n) const noexcept
 {
     deallocate(p);
 }

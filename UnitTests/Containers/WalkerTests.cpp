@@ -36,7 +36,7 @@ auto getStringsFilledContainer()
 template<>
 auto getStringsFilledContainer<PodStruct>()
 {
-    static Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator<PodStruct>>> walker;
+    static Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> walker;
 
     if (walker.size() == 0)
         walker.push_back_n(g_data_array<PodStruct>, 3);
@@ -250,7 +250,7 @@ TEST(WalkerTest, PushBackNoMove)
 
 TEST(WalkerTest, PushBackPod)
 {
-    Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator<PodStruct>>> walker_pod;
+    Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> walker_pod;
 
     // test l-value
     auto n = walker_pod.push_back("123");

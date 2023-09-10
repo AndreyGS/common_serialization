@@ -36,7 +36,7 @@ auto getStringsFilledContainer()
 template<>
 auto getStringsFilledContainer<PodStruct>()
 {
-    static Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator<PodStruct>>> vec;
+    static Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> vec;
 
     if (vec.size() == 0)
         vec.push_back_n(g_data_array<PodStruct>, 3);
@@ -252,7 +252,7 @@ TEST(VectorTest, PushBackNoMove)
 
 TEST(VectorTest, PushBackPod)
 {
-    Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawHeapAllocator<PodStruct>>> vec_pod;
+    Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> vec_pod;
 
     // test l-value
     auto& vec_ref1 = vec_pod.push_back("123");
@@ -896,9 +896,9 @@ TEST(VectorTest, MaxSize)
 
     EXPECT_EQ(vec1.max_size(), (ConstructorNoexceptAllocator<std::string>().max_size()));
 
-    Vector<uint8_t, StrategicAllocatorHelper<uint8_t, RawHeapAllocator<uint8_t>>> vec2;
+    Vector<uint8_t, StrategicAllocatorHelper<uint8_t, RawNoexceptAllocator<uint8_t>>> vec2;
 
-    EXPECT_EQ(vec2.max_size(), RawHeapAllocator<uint8_t>().max_size());
+    EXPECT_EQ(vec2.max_size(), RawNoexceptAllocator<uint8_t>().max_size());
 }
 
 TEST(VectorTest, Capacity)

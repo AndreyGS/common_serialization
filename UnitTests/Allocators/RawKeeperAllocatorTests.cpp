@@ -47,34 +47,4 @@ TEST(RawKeeperAllocatorTest, VectorWorkTest)
         EXPECT_EQ(vec[i], i);
 }
 
-#include <vector>
-
-TEST(RawKeeperAllocatorTest, VectorWorkTest2)
-{
-    std::vector<std::string, ConstructorNoexceptAllocator<std::string>> str;
-    str.push_back("123");
-}
-
-
-/*
-constexpr auto getContainer()
-{
-    Vector<int, ConstructorVectorAllocatorHelper<int>> vec;
-    constexpr uint8_t localArray[35] = { 0 };
-    vec.getAllocatorHelper().getAllocator().setCStorage(localArray, 35);
-    for (int i = 0; i < 35; ++i)
-        vec.push_back(i);
-
-    return vec;
-}
-
-constexpr auto g_vec = getContainer();
-
-TEST(RawKeeperAllocatorTest, VectorWorkTest2)
-{
-    for (int i = 0; i < 35; ++i)
-        EXPECT_EQ(g_vec[i], i);
-}
-*/
-
 } // namespace anonymous

@@ -1,5 +1,5 @@
 /**
- * @file RawHeapAllocator.h
+ * @file RawNoexceptAllocator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -27,7 +27,7 @@ namespace common_serialization
 {
 
 template<typename T>
-class RawHeapAllocator
+class RawNoexceptAllocator
 {
 public:
     using value_type = T;
@@ -36,13 +36,13 @@ public:
     using difference_type = ptrdiff_t;
     using constructor_allocator = std::false_type;
 
-    constexpr RawHeapAllocator() noexcept {}
+    constexpr RawNoexceptAllocator() noexcept {}
     template <class R>
-    constexpr RawHeapAllocator(const RawHeapAllocator<R>&) noexcept {}
+    constexpr RawNoexceptAllocator(const RawNoexceptAllocator<R>&) noexcept {}
 
-    [[nodiscard]] inline T* allocate(size_type n) const noexcept;
-    inline void deallocate(T* p) const noexcept;
-    inline void deallocate(T* p, size_type n) const noexcept;
+    [[nodiscard]] constexpr T* allocate(size_type n) const noexcept;
+    constexpr void deallocate(T* p) const noexcept;
+    constexpr void deallocate(T* p, size_type n) const noexcept;
 
     constexpr void construct(T* p, value_type value = value_type{}) const noexcept;
     constexpr void destroy(T* p) const noexcept;
@@ -54,36 +54,36 @@ private:
 };
 
 template<typename T>
-[[nodiscard]] inline T* RawHeapAllocator<T>::allocate(size_type n) const noexcept
+[[nodiscard]] constexpr T* RawNoexceptAllocator<T>::allocate(size_type n) const noexcept
 {
     return reinterpret_cast<T*>(memory_management::raw_heap_allocate(n * sizeof(T)));
 }
 
 template<typename T>
-inline void RawHeapAllocator<T>::deallocate(T* p) const noexcept
+constexpr void RawNoexceptAllocator<T>::deallocate(T* p) const noexcept
 {
     memory_management::raw_heap_deallocate(p);
 }
 
 template<typename T>
-inline void RawHeapAllocator<T>::deallocate(T* p, size_type n) const noexcept
+constexpr void RawNoexceptAllocator<T>::deallocate(T* p, size_type n) const noexcept
 {
     deallocate(p);
 }
 
 template<typename T>
-constexpr void RawHeapAllocator<T>::construct(T* p, value_type value) const noexcept
+constexpr void RawNoexceptAllocator<T>::construct(T* p, value_type value) const noexcept
 {
     *p = value;
 }
 
 template<typename T>
-constexpr void RawHeapAllocator<T>::destroy(T* p) const noexcept
+constexpr void RawNoexceptAllocator<T>::destroy(T* p) const noexcept
 {
 }
 
 template<typename T>
-constexpr RawHeapAllocator<T>::size_type RawHeapAllocator<T>::max_size() const noexcept
+constexpr RawNoexceptAllocator<T>::size_type RawNoexceptAllocator<T>::max_size() const noexcept
 {
     return max_size_v;
 }

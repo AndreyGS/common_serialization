@@ -313,6 +313,6 @@ constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::seek
     return m_offset = offset <= m_vector.size() ? offset : m_vector.size();
 }
 
-using RawData = Walker<uint8_t, StrategicAllocatorHelper<uint8_t, RawHeapAllocator<uint8_t>>>;
+using RawData = Walker<uint8_t, StrategicAllocatorHelper<uint8_t, RawNoexceptAllocator<uint8_t>>>;
 
 } // namespace common_serialization
