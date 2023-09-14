@@ -377,7 +377,7 @@ private:
     size_type m_dataSize = 0;
     size_type m_allocatedSize = 0;
 
-    AllocatorHelper m_allocatorHelper;
+    mutable AllocatorHelper m_allocatorHelper;
 };
 
 template<typename T, typename AllocatorHelper>

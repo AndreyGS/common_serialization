@@ -1,8 +1,11 @@
 #include <gtest/gtest.h>
 #include "special_types.h"
 #include "Containers/Walker.h"
+#include "Containers/Vector.h"
 #include "string"
 #include "list"
+
+#include "Containers/RawData.h"
 
 using namespace special_types;
 using namespace common_serialization;
@@ -205,6 +208,37 @@ TEST(WalkerTest, Reserve)
     EXPECT_EQ(walker.capacity(), 100);
     EXPECT_EQ(walker.size(), 1);
     EXPECT_EQ(walker[0], i);
+}
+
+TEST(WalkerTest, ReserveFromCurrentOffset)
+{
+    Walker<int, DefaultWalkerAllocatorHelper<int>> walker;
+    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
+
+    int i = 1;
+    walker.push_back(i);
+    EXPECT_EQ(walker.capacity(), 1);
+
+    bool b = walker.reserve_from_current_offset(100);
+    EXPECT_TRUE(b);
+    EXPECT_EQ(walker.capacity(), 101);
+
+    // Check that previously added element in not gone after reallocating
+    EXPECT_EQ(walker.size(), 1);
+    EXPECT_EQ(walker[0], i);
+
+    // test when memory couldn't be allocated
+    b = walker.reserve(static_cast<size_type>(-1));
+    EXPECT_FALSE(b);
+
+    // Check that after false memory allocation container not lost its contents
+    EXPECT_EQ(walker.capacity(), 101);
+    EXPECT_EQ(walker.size(), 1);
+    EXPECT_EQ(walker[0], i);
+
+    Vector<int> ttt;
+    RawData rawData;
+    //ttt.serialize(rawData);
 }
 
 TEST(WalkerTest, PushBack)

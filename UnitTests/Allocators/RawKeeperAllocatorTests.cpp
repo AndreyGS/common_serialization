@@ -12,7 +12,7 @@ namespace
 template<typename T>
 using ConstructorVectorAllocatorHelper = GenericAllocatorHelper<T, RawKeeperAllocator<T>>;
 
-using size_type = typename Vector<int, RawKeeperAllocator<int>>::size_type;
+using size_type = typename Vector<int, ConstructorVectorAllocatorHelper<int>>::size_type;
 
 constexpr size_t kArraySizeInBytes = 307;
 int g_array[kArraySizeInBytes] = { 0 };

@@ -1,5 +1,5 @@
 /**
- * @file IteratorTagsDeclares.h
+ * @file SerializableConcepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,9 +23,22 @@
 
 #pragma once
 
-struct input_iterator_tag;
-struct output_iterator_tag;
-struct forward_iterator_tag;
-struct bidirectional_iterator_tag;
-struct random_access_iterator_tag;
-struct contiguous_iterator_tag;
+#include "SerializableDeclaration.h"
+
+namespace common_serialization
+{
+
+// There is some limitations of deducing the base of serializable class because of lack of std libs,
+// for instance, in kernel modes. So we need to add some additional concepts that indicate
+// that this instance Serializable<T> type or not.
+
+template<typename T>
+concept SerializableCompositeType = requires(T t) { typename T::composite_type; } && std::is_same_v<typename T::composite_type, std::true_type>;
+
+template<typename T>
+concept SerializableEmptyType = !SerializableCompositeType<T> && requires(T t) { typename T::empty_type; } && std::is_same_v<typename T::empty_type, std::true_type>;
+
+template<typename T>
+concept SerializableNotInheritedType = !SerializableCompositeType<T> && requires(T t) { typename T::serializable_not_inherited; } && std::is_same_v<typename T::serializable_not_inherited, std::true_type>;
+
+} // namespace common_serialization

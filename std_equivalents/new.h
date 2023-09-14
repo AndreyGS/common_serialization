@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 using namespace common_serialization::memory_management;
 
 // new

@@ -8,6 +8,7 @@
 #include <concepts>
 #include <type_traits>
 #include <limits>
+#include <unordered_map>
 
 #include "allocators/PlatformDependent/UserModeMemoryManagement.h"
 

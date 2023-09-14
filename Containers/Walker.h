@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include "Vector.h"
 
 namespace common_serialization
@@ -43,6 +45,7 @@ public:
     constexpr ~Walker() noexcept;
     
     constexpr bool reserve(size_type n);
+    constexpr bool reserve_from_current_offset(size_type n);
 
     constexpr size_type push_back(const T& value);
     constexpr size_type push_back(T&& value);
@@ -81,6 +84,9 @@ public:
 
     [[nodiscard]] constexpr size_type tell() const noexcept;
     constexpr size_type seek(size_type offset) noexcept;
+
+    [[nodiscard]] constexpr T* getOffsettedPointer() noexcept;
+    [[nodiscard]] constexpr const T* getOffsettedPointer() const noexcept;
 
 private:
     Vector<T, AllocatorHelper> m_vector;
@@ -131,6 +137,16 @@ template<typename T, typename AllocatorHelper>
 constexpr bool Walker<T, AllocatorHelper>::reserve(size_type n)
 {
     return m_vector.reserve(n);
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr bool Walker<T, AllocatorHelper>::reserve_from_current_offset(size_type n)
+{
+    // if overflow
+    if (m_offset + n < m_offset)
+        return false;
+    else
+        m_vector.reserve(m_offset + n);
 }
 
 template<typename T, typename AllocatorHelper>
@@ -313,6 +329,16 @@ constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::seek
     return m_offset = offset <= m_vector.size() ? offset : m_vector.size();
 }
 
-using RawData = Walker<uint8_t, StrategicAllocatorHelper<uint8_t, RawNoexceptAllocator<uint8_t>>>;
+template<typename T, typename AllocatorHelper>
+[[nodiscard]] constexpr T* Walker<T, AllocatorHelper>::getOffsettedPointer() noexcept
+{
+
+}
+
+template<typename T, typename AllocatorHelper>
+[[nodiscard]] constexpr const T* Walker<T, AllocatorHelper>::getOffsettedPointer() const noexcept
+{
+
+}
 
 } // namespace common_serialization

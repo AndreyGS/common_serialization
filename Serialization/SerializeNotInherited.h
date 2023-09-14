@@ -1,5 +1,5 @@
 /**
- * @file IteratorTagsDeclares.h
+ * @file SerializeNotInherited.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,9 +23,48 @@
 
 #pragma once
 
-struct input_iterator_tag;
-struct output_iterator_tag;
-struct forward_iterator_tag;
-struct bidirectional_iterator_tag;
-struct random_access_iterator_tag;
-struct contiguous_iterator_tag;
+#include "Serializable.h"
+
+namespace common_serialization
+{
+
+// common function for  types
+template<typename T>
+    requires std::is_arithmetic_v<T>
+int serialize(T value, RawData& output)
+{
+    if (!output.reserve_from_current_offset(sizeof(T)))
+        return ERROR_NO_MEMORY;
+
+
+}
+
+
+template<>
+int serialize(const Vector<T> RawData& output)
+{
+    size_type size = output.size();
+
+    if (output.reserve_from_current_offset(sizeof(size)))
+    {
+        *static_cast<size_type*>(static_cast<void*>(output.data() + output.tell())) = size;
+        output.seek(output.tell() + sizeof(size));
+
+        if constexpr (SerializableEmptyType<T>)
+        {
+            return 0;
+        }
+        else if constexpr (SerializableCompositeType<T>)
+            for (auto& value : *this)
+            {
+                if (value.serialize(output) <= 0)
+                    return 1;
+            }
+        else
+        {
+            output.write(*static_cast<uint8_t*>(static_cast<void*>(output.data())), size * sizeof(T));
+        }
+    }
+}
+
+} // common_serialization

@@ -1,5 +1,5 @@
 /**
- * @file IteratorTagsDeclares.h
+ * @file errors.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,9 +23,11 @@
 
 #pragma once
 
-struct input_iterator_tag;
-struct output_iterator_tag;
-struct forward_iterator_tag;
-struct bidirectional_iterator_tag;
-struct random_access_iterator_tag;
-struct contiguous_iterator_tag;
+namespace common_serialization
+{
+
+inline constexpr NO_ERROR = 0;
+inline constexpr ERROR_NO_MEMORY = 1;
+inline constexpr ERROR_OVERFLOW = 2;
+
+};
