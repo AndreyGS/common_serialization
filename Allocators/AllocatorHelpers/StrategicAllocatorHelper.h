@@ -34,7 +34,7 @@ enum class AllocationStrategy
     doubleOfDataSize
 };
 
-template<typename T, AllocatorType Allocator, typename AllocatorHelper>
+template<typename T, IAllocator Allocator, typename AllocatorHelper>
 class StrategicAllocatorHelperImpl : public GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>
 {
 public:
@@ -42,9 +42,9 @@ public:
     constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept;
 
 protected:
-    using constructor_allocator = typename InterfaceAllocatorHelper<T, Allocator, AllocatorHelper>::constructor_allocator;
+    using constructor_allocator = typename IAllocatorHelper<T, Allocator, AllocatorHelper>::constructor_allocator;
 
-    friend InterfaceAllocatorHelper<T, Allocator, AllocatorHelper>;
+    friend IAllocatorHelper<T, Allocator, AllocatorHelper>;
 
     constexpr StrategicAllocatorHelperImpl(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept;
 
@@ -54,25 +54,25 @@ private:
     AllocationStrategy m_allocation_strategy;
 };
 
-template<typename T, AllocatorType Allocator, typename AllocatorHelper>
+template<typename T, IAllocator Allocator, typename AllocatorHelper>
 constexpr StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::StrategicAllocatorHelperImpl(AllocationStrategy allocationStrategy) noexcept
     : GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>(), m_allocation_strategy(allocationStrategy)
 { }
 
 
-template<typename T, AllocatorType Allocator, typename AllocatorHelper>
+template<typename T, IAllocator Allocator, typename AllocatorHelper>
 [[nodiscard]] constexpr AllocationStrategy StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::getAllocationStrategy() const noexcept
 {
     return m_allocation_strategy;
 }
 
-template<typename T, AllocatorType Allocator, typename AllocatorHelper>
+template<typename T, IAllocator Allocator, typename AllocatorHelper>
 constexpr void StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
 {
     m_allocation_strategy = allocationStrategy;
 }
 
-template<typename T, AllocatorType Allocator, typename AllocatorHelper>
+template<typename T, IAllocator Allocator, typename AllocatorHelper>
 [[nodiscard]] constexpr T* StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateImpl(size_t requestedN, size_t* allocatedN) const
 {
     T* p = nullptr;
@@ -95,14 +95,14 @@ template<typename T, AllocatorType Allocator, typename AllocatorHelper>
     return p;
 }
 
-template<typename T, AllocatorType Allocator = ConstructorNoexceptAllocator<T>>
+template<typename T, IAllocator Allocator = ConstructorNoexceptAllocator<T>>
 class StrategicAllocatorHelper : public StrategicAllocatorHelperImpl<T, Allocator, StrategicAllocatorHelper<T, Allocator>>
 {
 public:
-    using value_type = typename InterfaceAllocatorHelper<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::value_type;
-    using size_type = typename InterfaceAllocatorHelper<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::size_type;
-    using difference_type = typename InterfaceAllocatorHelper<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::difference_type;
-    using constructor_allocator = typename InterfaceAllocatorHelper<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::constructor_allocator;
+    using value_type = typename IAllocatorHelper<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::value_type;
+    using size_type = typename IAllocatorHelper<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::size_type;
+    using difference_type = typename IAllocatorHelper<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::difference_type;
+    using constructor_allocator = typename IAllocatorHelper<T, Allocator, StrategicAllocatorHelper<T, Allocator>>::constructor_allocator;
 
     constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept
         : StrategicAllocatorHelperImpl<T, Allocator, StrategicAllocatorHelper<T, Allocator>>(allocationStrategy)

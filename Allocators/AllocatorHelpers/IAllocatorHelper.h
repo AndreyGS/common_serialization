@@ -1,5 +1,5 @@
 /**
- * @file InterfaceAllocatorHelper.h
+ * @file IAllocatorHelper.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,8 +26,8 @@
 namespace common_serialization
 {
 
-template<typename T, AllocatorType Allocator, typename AllocatorHelper>
-class InterfaceAllocatorHelper
+template<typename T, IAllocator Allocator, typename AllocatorHelper>
+class IAllocatorHelper
 {
 public:
     using value_type = typename Allocator::value_type;
@@ -135,7 +135,7 @@ public:
     }
 
 protected:
-    constexpr InterfaceAllocatorHelper() { }
+    constexpr IAllocatorHelper() { }
 
 private:
     Allocator m_allocator;

@@ -5,8 +5,6 @@
 #include "string"
 #include "list"
 
-#include "Containers/RawData.h"
-
 using namespace special_types;
 using namespace common_serialization;
 
@@ -235,10 +233,6 @@ TEST(WalkerTest, ReserveFromCurrentOffset)
     EXPECT_EQ(walker.capacity(), 101);
     EXPECT_EQ(walker.size(), 1);
     EXPECT_EQ(walker[0], i);
-
-    Vector<int> ttt;
-    RawData rawData;
-    //ttt.serialize(rawData);
 }
 
 TEST(WalkerTest, PushBack)

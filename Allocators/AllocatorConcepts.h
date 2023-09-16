@@ -27,7 +27,7 @@ namespace common_serialization
 {
 
 template<typename T>
-concept AllocatorType = (std::is_same_v<std::true_type, typename T::constructor_allocator> || std::is_same_v<std::false_type, typename T::constructor_allocator>) && requires(T a)
+concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_allocator> || std::is_same_v<std::false_type, typename T::constructor_allocator>) && requires(T a)
 {
     typename T::value_type;
     typename T::pointer;

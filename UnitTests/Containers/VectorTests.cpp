@@ -3,6 +3,7 @@
 #include "Containers/Vector.h"
 #include "string"
 #include "list"
+#include "Serialization/SerializableConcepts.h"
 
 using namespace special_types;
 using namespace common_serialization;
@@ -960,6 +961,18 @@ TEST(VectorTest, GetAllocatorHelper)
 
     EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(allocator)>, DefaultVectorAllocatorHelper<std::string>>));
     EXPECT_TRUE((std::is_lvalue_reference_v<decltype(allocator)>));
+}
+
+TEST(VectorTest, PushBackArithmeticValue)
+{
+    Vector<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vec;
+    vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize); // as a precaution
+
+    vec.pushBackArithmeticValue(5.);
+
+    EXPECT_EQ(*reinterpret_cast<double*>(vec.data()), 5.);
+    EXPECT_EQ(vec.size(), sizeof(double));
+    EXPECT_EQ(vec.capacity(), 2 * sizeof(double));
 }
 
 } // namespace anonymous

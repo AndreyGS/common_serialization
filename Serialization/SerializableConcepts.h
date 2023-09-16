@@ -23,22 +23,59 @@
 
 #pragma once
 
-#include "SerializableDeclaration.h"
-
 namespace common_serialization
 {
+
+namespace serializable_concepts
+{
+
+template<typename E>
+concept ISerializeCapableContainer
+    =  requires(E e)
+         {
+             typename E::value_type;
+             typename E::size_type;
+
+             { e.data() } -> std::same_as<typename E::value_type*>;
+             { e.size() } -> std::same_as<typename E::size_type>;
+             { e.capacity() } -> std::same_as<typename E::size_type>;
+
+             { e.reserve(1) } -> std::same_as<bool>;
+             { e.push_back_n(nullptr, 0) };
+             { e.pushBackArithmeticValue(1ll) };
+         } 
+    && std::is_same_v<typename E::value_type, uint8_t>;
+
+template<typename E>
+concept IDeserializeCapableContainer = true;
 
 // There is some limitations of deducing the base of serializable class because of lack of std libs,
 // for instance, in kernel modes. So we need to add some additional concepts that indicate
 // that this instance Serializable<T> type or not.
 
 template<typename T>
-concept SerializableCompositeType = requires(T t) { typename T::composite_type; } && std::is_same_v<typename T::composite_type, std::true_type>;
+concept SimpleAssignableAlignedToOneType
+    =  requires(T t) { typename T::simple_assignable; } 
+    && std::is_same_v<typename T::simple_assignable, std::true_type> 
+    && alignof(T) == 1 ;
 
 template<typename T>
-concept SerializableEmptyType = !SerializableCompositeType<T> && requires(T t) { typename T::empty_type; } && std::is_same_v<typename T::empty_type, std::true_type>;
+concept CompositeType 
+    =  requires(T t) { typename T::composite_type; } 
+    && std::is_same_v<typename T::composite_type, std::true_type>;
 
 template<typename T>
-concept SerializableNotInheritedType = !SerializableCompositeType<T> && requires(T t) { typename T::serializable_not_inherited; } && std::is_same_v<typename T::serializable_not_inherited, std::true_type>;
+concept EmptyType 
+    =  !CompositeType<T> 
+    && requires(T t) { typename T::empty_type; }
+    && std::is_same_v<typename T::empty_type, std::true_type>;
+
+template<typename T>
+concept NotInheritedFromSerializableType
+    =  !CompositeType<T>
+    && requires(T t) { typename T::not_inherited_from_serializable; } 
+    && std::is_same_v<typename T::not_inherited_from_serializable, std::true_type>;
+
+} // namespace serializable_concepts
 
 } // namespace common_serialization

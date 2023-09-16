@@ -23,7 +23,8 @@
 
 #pragma once
 
-#include "Containers/RawData.h"
+#include "Containers/Vector.h"
+#include "SerializableConcepts.h"
 
 #include <unordered_map> // temporary header
 
@@ -34,17 +35,23 @@ template<typename T>
 class Serializable
 {
 public:
-    ptrdiff_t serialize(RawData& output) const noexcept { return 0; }
-    ptrdiff_t deserialize(const RawData& input) { return 0; }
-    ptrdiff_t serialize_next(RawData& output, std::unordered_map<void*, void*>& pointersMap) const noexcept { return 0; }
-    ptrdiff_t deserialize_next(const RawData& input, std::unordered_map<void*, void*>& pointersMap) { return 0; }
+    using namespace serializable_concepts;
+
+    template<ISerializeCapableContainer S>
+    int serialize(S& output) const noexcept { return 0; }
+    template<ISerializeCapableContainer S>
+    int serialize_next(S& output, std::unordered_map<void*, void*>& pointersMap) const noexcept { return 0; }
+
+    template<IDeserializeCapableContainer D>
+    int deserialize(const D& input) { return 0; }
+    template<IDeserializeCapableContainer D>
+    int deserialize_next(const D& input, std::unordered_map<void*, void*>& pointersMap) { return 0; }
 
     [[nodiscard]] static constexpr Vector<uint64_t, StrategicAllocatorHelper<uint8_t, RawNoexceptAllocator<uint8_t>>>& getAncestors() noexcept;
     [[nodiscard]] static constexpr Vector<uint64_t, StrategicAllocatorHelper<uint8_t, RawNoexceptAllocator<uint8_t>>>& getMembers() noexcept;
     [[nodiscard]] static constexpr uint64_t getNameHash() noexcept;
     [[nodiscard]] static constexpr uint32_t getVersionThis() noexcept;
     [[nodiscard]] static constexpr uint32_t getVersionThisAndDependencies() noexcept;
-
 };
 
 template<typename T>

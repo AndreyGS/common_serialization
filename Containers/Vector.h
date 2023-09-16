@@ -297,7 +297,7 @@ template<typename Vec>
 /// Vector - is a container class that has contiguous array as data keeper
 /// </summary>
 /// <typeparam name="T">type of data stored in contiguous array</typeparam>
-/// <typeparam name="AllocatorHelper">class that implements InterfaceAllocatorHelper</typeparam>
+/// <typeparam name="AllocatorHelper">class that implements IAllocatorHelper</typeparam>
 template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>>
 class Vector
 {
@@ -367,6 +367,11 @@ public:
 
     [[nodiscard]] constexpr AllocatorHelper& getAllocatorHelper() noexcept;
     [[nodiscard]] constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
+
+    // this special method is using for eliminating redundant overhead on raw arrays
+    template<typename V>
+    Vector<T, AllocatorHelper>& pushBackArithmeticValue(V value) noexcept
+        requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>;
 
 private:
     [[nodiscard]] constexpr bool reserveInternal(size_type n, bool strict);
@@ -824,6 +829,20 @@ template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr const AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() const noexcept
 {
     return m_allocatorHelper;
+}
+
+template<typename T, typename AllocatorHelper>
+template<typename V>
+Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
+    requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>
+{
+    if (addSpaceIfNeed(sizeof(V)))
+    {
+        *static_cast<V*>(static_cast<void*>(m_p + m_dataSize)) = value;
+        m_dataSize += sizeof(V);
+    }
+
+    return *this;
 }
 
 template<typename T, typename AllocatorHelper>
