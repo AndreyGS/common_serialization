@@ -146,7 +146,7 @@ constexpr bool Walker<T, AllocatorHelper>::reserve_from_current_offset(size_type
     if (m_offset + n < m_offset)
         return false;
     else
-        m_vector.reserve(m_offset + n);
+        return m_vector.reserve(m_offset + n);
 }
 
 template<typename T, typename AllocatorHelper>

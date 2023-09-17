@@ -26,6 +26,9 @@
 namespace std
 {
 
+// std::nullptr_t
+using nullptr_t = decltype(nullptr);
+
 // std::nothrow
 struct nothrow_t { };
 inline constexpr nothrow_t nothrow;
@@ -63,9 +66,7 @@ inline constexpr bool is_same_v<T, T> = true;
 
 // std::is_same<X, Y>
 template<typename X, typename Y>
-struct is_same : bool_constant<is_same_v<X, Y>>
-{
-};
+struct is_same : bool_constant<is_same_v<X, Y>> {};
 
 // std::same_as<X, Y>
 template<typename X, typename Y>
@@ -108,6 +109,20 @@ template<typename T>
     return static_cast<remove_reference_t<T>&&>(t);
 }
 
+// std::forward
+template<typename T>
+[[nodiscard]] constexpr T&& forward(remove_reference_t<T>& t) noexcept
+{
+    return static_cast<T&&>(t);
+}
+
+template <class T>
+[[nodiscard]] constexpr T&& forward(remove_reference_t<T>&& t) noexcept
+{
+    static_assert(!is_lvalue_reference_v<T>, "illegal use of std::forward");
+    return static_cast<T&&>(t);
+}
+
 // std::is_lvalue_reference_v<T>
 template<typename>
 inline constexpr bool is_lvalue_reference_v = false;
@@ -119,7 +134,6 @@ template<typename T>
 struct is_lvalue_reference : bool_constant<is_lvalue_reference_v<T>>
 {
 };
-
 
 // std::remove_volatile
 template<typename T>
@@ -233,23 +247,170 @@ struct remove_pointer<T* const volatile>
 template<typename T>
 using remove_pointer_t = typename remove_pointer<T>::type;
 
-
-// std::forward
+// std::is_array
 template<typename T>
-[[nodiscard]] constexpr T&& forward(remove_reference_t<T>& t) noexcept
-{
-    return static_cast<T&&>(t);
-}
+struct is_array : std::false_type {};
 
-template <class T>
-[[nodiscard]] constexpr T&& forward(remove_reference_t<T>&& t) noexcept
-{
-    static_assert(!is_lvalue_reference_v<T>, "illegal use of std::forward");
-    return static_cast<T&&>(t);
-}
+template<typename T>
+struct is_array<T[]> : std::true_type {};
 
-// std::nothrow
-struct nothrow_t { };
-inline constexpr nothrow_t nothrow;
+template<typename T, size_t N>
+struct is_array<T[N]> : std::true_type {};
+
+// std::is_array_v
+template<typename T>
+inline constexpr bool is_array_v = is_array<T>::value;
+
+// std::is_bounded_array
+template<typename T>
+struct is_bounded_array : std::false_type {};
+
+template<typename T, size_t N>
+struct is_bounded_array<T[N]> : std::true_type {};
+
+// std::is_bounded_array_v
+template<typename T>
+inline constexpr bool is_bounded_array_v = is_bounded_array<T>::value;
+
+// std::is_unbounded_array
+template<typename T>
+struct is_unbounded_array : std::false_type {};
+
+template<typename T>
+struct is_unbounded_array<T[]> : std::true_type {};
+
+// std::is_unbounded_array_v
+template<typename T>
+inline constexpr bool is_unbounded_array_v = is_unbounded_array<T>::value;
+
+// std::is_reference
+template<typename T>
+struct is_reference : std::false_type {};
+
+template<typename T>
+struct is_reference<T&> : std::true_type {};
+
+template<typename T>
+struct is_reference<T&&> : std::true_type {};
+
+// std::is_reference_v
+template<typename T>
+inline constexpr bool is_reference_v = is_reference<T>::value;
+
+// std::is_const
+template<typename T>
+struct is_const : std::false_type {};
+
+template<typename T>
+struct is_const<const T> : std::true_type {};
+
+// std::is_const_v
+template<typename T>
+inline constexpr bool is_const_v = is_const<T>::value;
+
+// std::is_function
+template<typename T>
+struct is_function : std::integral_constant<bool, !std::is_const<const T>::value && !std::is_reference<T>::value> {};
+
+// std::is_function_v
+template<typename T>
+inline constexpr bool is_function_v = is_function<T>::value;
+
+// std::is_pointer
+template<typename T>
+struct is_pointer : std::false_type {};
+
+template<typename T>
+struct is_pointer<T*> : std::true_type {};
+
+template<typename T>
+struct is_pointer<T* const> : std::true_type {};
+
+template<typename T>
+struct is_pointer<T* volatile> : std::true_type {};
+
+template<typename T>
+struct is_pointer<T* const volatile> : std::true_type {};
+
+// std::is_pointer_v
+template<typename T>
+inline constexpr bool is_pointer_v = is_pointer<T>::value;
+
+// std::is_member_pointer
+template<typename T>
+struct is_member_pointer_helper : std::false_type {};
+
+template<typename T, typename U>
+struct is_member_pointer_helper<T U::*> : std::true_type {};
+
+template<typename T>
+struct is_member_pointer : is_member_pointer_helper<std::remove_cv_t<T>> {};
+
+// std::is_member_pointer_v
+template<typename T>
+inline constexpr bool is_member_pointer_v = is_member_pointer<T>::value;
+
+// std::is_member_function_pointer
+template<typename T>
+struct is_member_function_pointer_helper : std::false_type {};
+
+template<typename T, typename U>
+struct is_member_function_pointer_helper<T U::*> : std::is_function<T> {};
+
+template<typename T>
+struct is_member_function_pointer : is_member_function_pointer_helper<std::remove_cv_t<T>> {};
+
+// std::is_member_function_pointer_v
+template<typename T>
+inline constexpr bool is_member_function_pointer_v = is_member_function_pointer<T>::value;
+
+// std::is_enum
+template<typename T>
+struct is_enum : bool_constant<__is_enum(T)> {};
+
+// std::is_enum_v
+template<typename T>
+inline constexpr bool is_enum_v = __is_enum(T);
+
+// std::is_base_of
+template<typename Base, typename Derived>
+struct is_base_of : bool_constant<__is_base_of(Base, Derived)> {};
+
+// std::is_base_of_v
+template<typename Base, typename Derived>
+inline constexpr bool is_base_of_v = __is_base_of(Base, Derived);
+
+// std::is_union
+template<typename T>
+struct is_union : bool_constant<__is_union(T)> {};
+
+// std::is_union_v
+template<typename T>
+inline constexpr bool is_union_v = __is_union(T);
+
+// std::is_class
+template<typename T>
+struct is_class : bool_constant<__is_class(T)> {};
+
+// std::is_class_v
+template<typename T>
+inline constexpr bool is_class_v = __is_class(T);
+
+// std::conditional
+template<bool test, class T1, class T2>
+struct conditional
+{
+    using type = T1;
+};
+
+template <class _Ty1, class _Ty2>
+struct conditional<false, _Ty1, _Ty2>
+{
+    using type = T2;
+};
+
+// std::conditional_t
+template <bool test, class _Ty1, class _Ty2>
+using conditional_t = typename conditional<test, _Ty1, _Ty2>::type;
 
 } // namespace std

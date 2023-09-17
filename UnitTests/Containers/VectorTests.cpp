@@ -3,7 +3,9 @@
 #include "Containers/Vector.h"
 #include "string"
 #include "list"
-#include "Serialization/SerializableConcepts.h"
+#include "Serialization/ISerializable.h"
+#include "Serialization/SerializeSpecial.h"
+#include "Serialization/SerializableTemp.h"
 
 using namespace special_types;
 using namespace common_serialization;
@@ -973,6 +975,14 @@ TEST(VectorTest, PushBackArithmeticValue)
     EXPECT_EQ(*reinterpret_cast<double*>(vec.data()), 5.);
     EXPECT_EQ(vec.size(), sizeof(double));
     EXPECT_EQ(vec.capacity(), 2 * sizeof(double));
+
+
+    Vector<SerTInh, DefaultVectorAllocatorHelper<SerTInh>> vecTest;
+    vecTest.push_back(SerTInh());
+    vecTest.push_back(SerTInh());
+
+    Vector<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vecBin;
+    vecTest.serialize(vecBin);
 }
 
 } // namespace anonymous

@@ -23,8 +23,12 @@
 
 #pragma once
 
+#define NO_SERIALIZATION_NEED
+
 namespace common_serialization
 {
+
+struct Dummy {};
 
 namespace helpers
 {

@@ -30,7 +30,7 @@ namespace serializable_concepts
 {
 
 template<typename E>
-concept ISerializeCapableContainer
+concept ISerializationCapableContainer
     =  requires(E e)
          {
              typename E::value_type;
@@ -47,7 +47,7 @@ concept ISerializeCapableContainer
     && std::is_same_v<typename E::value_type, uint8_t>;
 
 template<typename E>
-concept IDeserializeCapableContainer = true;
+concept IDeserializationCapableContainer = true;
 
 // There is some limitations of deducing the base of serializable class because of lack of std libs,
 // for instance, in kernel modes. So we need to add some additional concepts that indicate
@@ -66,14 +66,12 @@ concept CompositeType
 
 template<typename T>
 concept EmptyType 
-    =  !CompositeType<T> 
-    && requires(T t) { typename T::empty_type; }
+    =  requires(T t) { typename T::empty_type; }
     && std::is_same_v<typename T::empty_type, std::true_type>;
 
 template<typename T>
 concept NotInheritedFromSerializableType
-    =  !CompositeType<T>
-    && requires(T t) { typename T::not_inherited_from_serializable; } 
+    =  requires(T t) { typename T::not_inherited_from_serializable; } 
     && std::is_same_v<typename T::not_inherited_from_serializable, std::true_type>;
 
 } // namespace serializable_concepts
