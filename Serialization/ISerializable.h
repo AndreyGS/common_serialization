@@ -36,6 +36,12 @@ template<typename T>
 class ISerializable
 {
 public:
+    enum class ProcessingFlags
+    {
+        kFastAndSimple = 0x00,
+        kCompatabilityMode = 0x01
+    };
+
     // first function to call on new serialize operation
     template<serializable_concepts::ISerializationCapableContainer S>
     constexpr int serialize(S& output) const noexcept;
@@ -53,15 +59,23 @@ public:
     [[nodiscard]] static constexpr uint64_t* getAncestors() noexcept;
     [[nodiscard]] static constexpr uint64_t* getMembers() noexcept;
     [[nodiscard]] static constexpr uint64_t getNameHash() noexcept;
-    [[nodiscard]] static constexpr uint32_t getVersionThis() noexcept;
-    [[nodiscard]] static constexpr uint32_t getVersionInterface() noexcept;
+    [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
+    [[nodiscard]] static constexpr uint32_t getInterfaceVersion() noexcept;
+
+    [[nodiscard]] static constexpr uint32_t getProtocolVersion() noexcept;
+
+private:
+    static constexpr uint8_t kProtocolVersion = 1;
+
+    uint32_t m_convertedFromVersion = 0;    // 0 is for "no coversion was performed"
 };
 
 template<typename T>
 template<serializable_concepts::ISerializationCapableContainer S>
 constexpr int ISerializable<T>::serialize(S& output) const noexcept
 {
-    output.pushBackArithmeticValue(getVersionInterface());
+    output.pushBackArithmeticValue(getProtocolVersion());   // here we don't add flags, because this function uses only kFastAndSimple
+    output.pushBackArithmeticValue(getInterfaceVersion());
     return serializeNext(output);
 }
 
@@ -69,37 +83,44 @@ template<typename T>
 template<serializable_concepts::ISerializationCapableContainer S>
 constexpr int ISerializable<T>::serializeNext(S& output) const noexcept
 {
+    output.pushBackArithmeticValue(getNameHash());
     return serializeThis(static_cast<const T&>(*this), output);
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint64_t* ISerializable<T>::getAncestors() noexcept
 {
-    return T::ancestors;
+    return T::kAncestors;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint64_t* ISerializable<T>::getMembers() noexcept
 {
-    return T::members;
+    return T::kMembers;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint64_t ISerializable<T>::getNameHash() noexcept
 {
-    return T::nameHash;
+    return T::kNameHash;
 }
 
 template<typename T>
-[[nodiscard]] constexpr uint32_t ISerializable<T>::getVersionThis() noexcept
+[[nodiscard]] constexpr uint32_t ISerializable<T>::getThisVersion() noexcept
 {
-    return T::versionThis;
+    return T::kVersionThis;
 }
 
 template<typename T>
-[[nodiscard]] constexpr uint32_t ISerializable<T>::getVersionInterface() noexcept
+[[nodiscard]] constexpr uint32_t ISerializable<T>::getInterfaceVersion() noexcept
 {
-    return T::versionInterface;
+    return T::kVersionInterface;
+}
+
+template<typename T>
+[[nodiscard]] constexpr uint32_t ISerializable<T>::getProtocolVersion() noexcept
+{
+    return kProtocolVersion;
 }
 
 } // namespace common_serialization

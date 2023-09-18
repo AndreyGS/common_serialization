@@ -977,9 +977,10 @@ TEST(VectorTest, PushBackArithmeticValue)
     EXPECT_EQ(vec.capacity(), 2 * sizeof(double));
 
 
-    Vector<SerTInh, DefaultVectorAllocatorHelper<SerTInh>> vecTest;
+    Vector<SerTInh<>, DefaultVectorAllocatorHelper<SerTInh<>>> vecTest;
     vecTest.push_back(SerTInh());
     vecTest.push_back(SerTInh());
+
 
     Vector<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vecBin;
     vecTest.serialize(vecBin);

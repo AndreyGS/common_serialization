@@ -388,8 +388,9 @@ private:
 private:
     friend ISerializable<Vector<T, AllocatorHelper>>;
 
-    static constexpr uint32_t versionThis = 0;
-    static constexpr uint32_t versionInterface = 0;
+    static constexpr uint32_t kVersionThis = 0;
+    static constexpr uint32_t kVersionInterface = 0;
+    static constexpr uint64_t kNameHash = 0;
 };
 
 template<typename T, typename AllocatorHelper>

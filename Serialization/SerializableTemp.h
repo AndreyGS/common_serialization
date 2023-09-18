@@ -34,156 +34,114 @@
 namespace common_serialization
 {
 
-template<typename T>
-class SerTImpl : public ISerializable<T>
+template<typename T = Dummy>
+class SerT : public ISerializable<SerT<T>>
 {
 private:
     int i = 5;
 
 private:
-    friend ISerializable<T>;
-    class SerT;
-    friend T;
-
+    friend ISerializable<SerT<T>>;
     template<serializable_concepts::ISerializationCapableContainer S>
-    friend int serializeThis(const SerT& value, S& output);
+    friend int serializeThis(const SerT<Dummy>& value, S& output);
 
-    static constexpr uint64_t ancestors[5] = { 0 };
-    static constexpr uint64_t members[5] = { 0 };
-    static constexpr uint64_t nameHash = 0;
-    static constexpr uint32_t versionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t versionInterface = 0;         // latest version among all dependable struct
+    using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerT<T>, T>;
+
+    static constexpr uint64_t kAncestors[5] = { 0 };
+    static constexpr uint64_t kMembers[5] = { 0 };
+    static constexpr uint64_t kNameHash = 0;
+    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable struct
 };
 
-class SerT : public SerTImpl<SerT>
+template<typename T = Dummy>
+class SerT2 : public ISerializable<SerT2<T>>
 {
 private:
-    template<serializable_concepts::ISerializationCapableContainer S>
-    friend int serializeThis(const SerT& value, S& output);
+    int k = 15;
 
-    int get_i() const { return i; }
+private:
+    friend ISerializable<SerT2<T>>;
+    template<serializable_concepts::ISerializationCapableContainer S>
+    friend int serializeThis(const SerT2<Dummy>& value, S& output);
+
+    using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerT2<T>, T>;
+
+    static constexpr uint64_t kAncestors[5] = { 0 };
+    static constexpr uint64_t kMembers[5] = { 0 };
+    static constexpr uint64_t kNameHash = 0;
+    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable struct
 };
 
-template<typename T>
-class SerTInhImpl : public SerTImpl<T>
+template<typename T = Dummy>
+class SerTInh : public SerT<T>, public SerT2<T>
 {
+public:
+    SerT<Dummy>& getSerT() noexcept
+    {
+        return *static_cast<SerT<Dummy>*>(static_cast<void*>(static_cast<SerT<T>*>(this)));
+    }
+
+    const SerT<Dummy>& getSerT() const noexcept
+    {
+        return *static_cast<const SerT<Dummy>*>(static_cast<const void*>(static_cast<const SerT<T>*>(this)));
+    }
+
+    SerT2<Dummy>& getSerT2() noexcept
+    {
+        return *static_cast<SerT2<Dummy>*>(static_cast<void*>(static_cast<SerT2<T>*>(this)));
+    }
+
+    const SerT2<Dummy>& getSerT2() const noexcept
+    {
+        return *static_cast<const SerT2<Dummy>*>(static_cast<const void*>(static_cast<const SerT2<T>*>(this)));
+    }
+
 private:
     int j = 10;
 
 private:
-    friend ISerializable<T>;
-    class SerTInh;
-    friend T;
-
-
-
-    static constexpr uint64_t ancestors[5] = { 0 };
-    static constexpr uint64_t members[5] = { 0 };
-    static constexpr uint64_t nameHash = 0;
-    static constexpr uint32_t versionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t versionInterface = 0;         // latest version among all dependable struct
-};
-
-class SerTInh : public SerTInhImpl<SerTInh>
-{
-private:
+    friend ISerializable<SerTInh<T>>;
     template<serializable_concepts::ISerializationCapableContainer S>
-    friend int serializeThis(const SerTInh& value, S& output);
+    friend int serializeThis(const SerTInh<Dummy>& value, S& output);
 
-    int get_j() const { return j; }
+    using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerTInh<T>, T>;
+
+    static constexpr uint64_t kAncestors[5] = { 0 };
+    static constexpr uint64_t kMembers[5] = { 0 };
+    static constexpr uint64_t kNameHash = 0;
+    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable struct
 };
 
 template<serializable_concepts::ISerializationCapableContainer S>
-int serializeThis(const SerT& value, S& output)
+int serializeThis(const SerT<>& value, S& output)
 {
-    serializeThis(value.get_i(), output);
+    serializeThis(value.i, output);
 
     return 0;
 }
 
+template<serializable_concepts::ISerializationCapableContainer S>
+int serializeThis(const SerT2<>& value, S& output)
+{
+    serializeThis(value.k, output);
+
+    return 0;
+}
 
 template<serializable_concepts::ISerializationCapableContainer S>
-int serializeThis(const SerTInh& value, S& output)
+int serializeThis(const SerTInh<>& value, S& output)
 {
-    serializeThis(*static_cast<const SerT*>(static_cast<const void*>(&value)), output);
-    serializeThis(value.get_j(), output);
+    serializeThis(value.getSerT(), output);
+    serializeThis(value.getSerT2(), output);
+    serializeThis(value.j, output);
 
     return 0;
 }
 
 /*
-template<typename T>
-ptrdiff_t serialize(const void* input, RawData& rawData)
-{
-
-}
-
-template<typename T>
-class SerTest_Version0Impl : public Serializable<T>
-{
-    friend SerTestImpl<SerTest>;
-public:
-    int GetI() const noexcept { return m_i; }
-    void SetI(int i) noexcept { m_i = i; }
-    std::string& GetS() noexcept { return m_s; }
-    const std::string& GetS() const noexcept { return m_s; }
-    void SetS(const std::string& s) { m_s = s; }
-
-protected:
-    static constexpr uint64_t ancestors[5] = { 0 };
-    static constexpr uint64_t members[5] = { 0 };           // should be represented by hash (thisStructTypeName + memberTypeName + fieldName) contain Type and offset
-    static constexpr uint64_t nameHash = 0;
-    static constexpr uint32_t versionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t versionInterface = 0;         // latest version among all dependable struct
-
-private:
-    mutable uint32_t m_convertedFromVersion = versionThis;  // versionInterface of struct from which this instance was converted by deserialization
-
-    int m_i{ 0 };
-    int[10] m_s = { 0 };
-};
-
-class SerTest_Version0 : public SerTest_Version0Impl<SerTest>
-{
-public:
-    using composite_type = std::true_type;
-};
-
-template<typename T>
-class SerTestImpl : public Serializable<T>
-{
-public:
-    int GetI() const noexcept { return m_i; }
-    void SetI(int i) noexcept { m_i = i; }
-    std::string& GetS() noexcept { return m_s; }
-    const std::string& GetS() const noexcept { return m_s; }
-    void SetS(const std::string& s) { m_s = s; }
-
-    void ConvertToOld(RawData& rawData) noexcept;
-    void ConvertToVersion0(RawData& rawData) noexcept;
-    void ConvertFromVersion0(const RawData& rawData) noexcept;
-
-protected:
-    static constexpr uint64_t ancestors[5] = { 0 };
-    static constexpr uint64_t members[5] = { 0 };           // should be represented by hash (thisStructTypeName + memberTypeName + fieldName) contain Type and offset
-    static constexpr uint64_t nameHash = 0;
-    static constexpr uint32_t versionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t versionInterface = 0;         // latest version among all dependable struct
-
-private:
-    mutable uint32_t m_convertedFromVersion = versionThis;  // versionInterface of struct from which this instance was converted by deserialization
-
-    IntWrapper<int> m_i; //int m_i{0};
-    Vector<int> m_s;
-};
-
-
-void f(const SerTestImpl& t, RawData& output)
-{
-    output.push_back_n(reinterpret_cast<uint8_t*>(&t.m_i), sizeof(t.m_i));
-
-}
-
 class SerTest : public SerTestImpl<SerTest>
 {
 public:
