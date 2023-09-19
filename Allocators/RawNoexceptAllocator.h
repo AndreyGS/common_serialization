@@ -27,6 +27,7 @@ namespace common_serialization
 {
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 class RawNoexceptAllocator
 {
 public:
@@ -56,24 +57,28 @@ private:
 };
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 [[nodiscard]] constexpr T* RawNoexceptAllocator<T>::allocate(size_type n) const noexcept
 {
     return reinterpret_cast<T*>(memory_management::raw_heap_allocate(n * sizeof(T)));
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr void RawNoexceptAllocator<T>::deallocate(T* p) const noexcept
 {
     memory_management::raw_heap_deallocate(p);
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr void RawNoexceptAllocator<T>::deallocate(T* p, size_type n) const noexcept
 {
     deallocate(p);
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 template<typename... Args>
 constexpr void RawNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
@@ -81,11 +86,13 @@ constexpr void RawNoexceptAllocator<T>::construct(T* p, Args&&... args) const no
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr void RawNoexceptAllocator<T>::destroy(T* p) const noexcept
 {
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr RawNoexceptAllocator<T>::size_type RawNoexceptAllocator<T>::max_size() const noexcept
 {
     return max_size_v;

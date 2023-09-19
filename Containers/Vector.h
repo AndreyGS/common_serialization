@@ -371,7 +371,7 @@ public:
 
     // this special method is using for eliminating redundant overhead on raw arrays
     template<typename V>
-    Vector<T, AllocatorHelper>& pushBackArithmeticValue(V value) noexcept
+    constexpr Vector<T, AllocatorHelper>& pushBackArithmeticValue(V value) noexcept
         requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>;
 
 private:
@@ -387,6 +387,8 @@ private:
 
 private:
     friend ISerializable<Vector<T, AllocatorHelper>>;
+    template<typename T, serializable_concepts::IDeserializationCapableContainer D>
+    friend int deserializeThis(const D& input, Vector<T>& value);
 
     static constexpr uint32_t kVersionThis = 0;
     static constexpr uint32_t kVersionInterface = 0;
@@ -841,7 +843,7 @@ template<typename T, typename AllocatorHelper>
 
 template<typename T, typename AllocatorHelper>
 template<typename V>
-Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
+constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
     requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>
 {
     if (addSpaceIfNeed(sizeof(V)))

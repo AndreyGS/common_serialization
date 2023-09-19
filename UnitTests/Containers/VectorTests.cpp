@@ -6,6 +6,10 @@
 #include "Serialization/ISerializable.h"
 #include "Serialization/SerializeSpecial.h"
 #include "Serialization/SerializableTemp.h"
+#include "Serialization/DeserializeSpecial.h"
+#include "Serialization/DeserializableTemp.h"
+
+#include "Containers/Walker.h"
 
 using namespace special_types;
 using namespace common_serialization;
@@ -970,11 +974,13 @@ TEST(VectorTest, PushBackArithmeticValue)
     Vector<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vec;
     vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize); // as a precaution
 
-    vec.pushBackArithmeticValue(5.);
+    constexpr double value = 5.;
 
-    EXPECT_EQ(*reinterpret_cast<double*>(vec.data()), 5.);
-    EXPECT_EQ(vec.size(), sizeof(double));
-    EXPECT_EQ(vec.capacity(), 2 * sizeof(double));
+    vec.pushBackArithmeticValue(value);
+
+    EXPECT_EQ(*reinterpret_cast<decltype(value)*>(vec.data()), value);
+    EXPECT_EQ(vec.size(), sizeof(value));
+    EXPECT_EQ(vec.capacity(), 2 * sizeof(value));
 
 
     Vector<SerTInh<>, DefaultVectorAllocatorHelper<SerTInh<>>> vecTest;
@@ -982,8 +988,14 @@ TEST(VectorTest, PushBackArithmeticValue)
     vecTest.push_back(SerTInh());
 
 
-    Vector<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vecBin;
+    Walker<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vecBin;
     vecTest.serialize(vecBin);
+    vecTest.clear();
+
+    vecBin.seek(0);
+    
+    Vector<SerTInh<>, DefaultVectorAllocatorHelper<SerTInh<>>> vecTest2;
+    vecTest2.deserialize(vecBin);
 }
 
 } // namespace anonymous

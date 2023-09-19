@@ -32,6 +32,7 @@ template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, Cons
 class Walker
 {
 public:
+    using value_type = typename Vector<T, AllocatorHelper>::value_type;
     using size_type = typename Vector<T, AllocatorHelper>::size_type;
 
     using iterator = VectorIterator<Vector<T, AllocatorHelper>>;
@@ -65,8 +66,8 @@ public:
 
     [[nodiscard]] constexpr T* data() noexcept;
     [[nodiscard]] constexpr const T* data() const noexcept;
-    [[nodiscard]] constexpr T& operator[](size_type offset);
-    [[nodiscard]] constexpr const T& operator[](size_type offset) const;
+    [[nodiscard]] constexpr T& operator[](size_type offset) noexcept;
+    [[nodiscard]] constexpr const T& operator[](size_type offset) const noexcept;
 
     [[nodiscard]] constexpr size_type size() const noexcept;
     [[nodiscard]] constexpr size_type max_size() const noexcept;
@@ -83,14 +84,19 @@ public:
     [[nodiscard]] constexpr const Vector<T, AllocatorHelper>& getVector() const noexcept;
 
     [[nodiscard]] constexpr size_type tell() const noexcept;
-    constexpr size_type seek(size_type offset) noexcept;
+    constexpr size_type seek(size_type offset) const noexcept;
 
-    [[nodiscard]] constexpr T* getOffsettedPointer() noexcept;
-    [[nodiscard]] constexpr const T* getOffsettedPointer() const noexcept;
+    template<typename V>
+    constexpr size_type pushBackArithmeticValue(V value) noexcept
+        requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>;
+
+    template<typename V>
+    constexpr size_type readArithmeticValue(V& value) const noexcept
+        requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>;
 
 private:
     Vector<T, AllocatorHelper> m_vector;
-    size_type m_offset = 0;
+    mutable size_type m_offset = 0;
 };
 
 template<typename T, typename AllocatorHelper>
@@ -244,14 +250,14 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr T& Walker<T, AllocatorHelper>::operator[](size_type offset)
-{
+[[nodiscard]] constexpr T& Walker<T, AllocatorHelper>::operator[](size_type offset) noexcept
+{ 
     m_offset = offset + 1;
     return m_vector[offset];
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const T& Walker<T, AllocatorHelper>::operator[](size_type offset) const
+[[nodiscard]] constexpr const T& Walker<T, AllocatorHelper>::operator[](size_type offset) const noexcept
 {
     m_offset = offset + 1;
     return m_vector[offset];
@@ -324,21 +330,37 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::seek(size_type offset) noexcept
+constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::seek(size_type offset) const noexcept
 {
     return m_offset = offset <= m_vector.size() ? offset : m_vector.size();
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr T* Walker<T, AllocatorHelper>::getOffsettedPointer() noexcept
+template<typename V>
+constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
+    requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>
 {
-
+    size_type oldSize = size();
+    m_vector.pushBackArithmeticValue(value);
+    m_offset = m_vector.size();
+    return m_offset - oldSize;
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const T* Walker<T, AllocatorHelper>::getOffsettedPointer() const noexcept
+template<typename V>
+constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::readArithmeticValue(V& value) const noexcept
+    requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>
 {
-
+    if (sizeof(V) + m_offset <= size())
+    {
+        value = *static_cast<const V*>(static_cast<const void*>(data() + m_offset));
+        m_offset += sizeof(V);
+        return sizeof(V);
+    }
+    else
+        return 0;
 }
+
+
 
 } // namespace common_serialization

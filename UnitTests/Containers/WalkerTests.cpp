@@ -1020,4 +1020,40 @@ TEST(WalkerTest, Seek)
     EXPECT_EQ(walker.tell(), 3);
 }
 
+TEST(WalkerTest, PushBackArithmeticValue)
+{
+    Walker<uint8_t, DefaultWalkerAllocatorHelper<uint8_t>> walker;
+    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize); // as a precaution
+
+    constexpr double value = 5.;
+
+    walker.pushBackArithmeticValue(value);
+
+    EXPECT_EQ(*reinterpret_cast<decltype(value)*>(walker.data()), value);
+    EXPECT_EQ(walker.size(), sizeof(value));
+    EXPECT_EQ(walker.capacity(), 2 * sizeof(value));
+    EXPECT_EQ(walker.tell(), sizeof(value));
+}
+
+TEST(WalkerTest, ReadArithmeticValue)
+{
+    Walker<std::uint8_t, DefaultWalkerAllocatorHelper<std::uint8_t>> walker;
+    walker.push_back(1);
+    walker.push_back(2);
+    walker.seek(0);
+
+    constexpr short test = 1 | (2 << 8);
+    short value = 0;
+
+    EXPECT_EQ(walker.readArithmeticValue(value), sizeof(value));
+    EXPECT_EQ(walker.tell(), 2);
+    EXPECT_EQ(value, test);
+
+    value = 0;
+
+    EXPECT_EQ(walker.readArithmeticValue(value), 0);
+    EXPECT_EQ(walker.tell(), 2);
+    EXPECT_EQ(value, 0);
+}
+
 } // namespace anonymous

@@ -53,6 +53,37 @@ constexpr int serializeThis(const T* value, size_t n, S& output)
     return 0;
 }
 
+template<typename T, serializable_concepts::ISerializationCapableContainer S>
+constexpr int serializeThis(const T* value, size_t n, SerializationFlags flags, S& output)
+{
+    static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
+        , "References on pointers and pointers on pointers are not supported");
+    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
+        , "References and pointers on functions are not allowed to be serialized");
+
+    if (
+           std::is_arithmetic_v<T>
+        || std::is_enum_v<T>
+        || !flags.sizeOfArithmeticTypesMayBeNotEqual 
+            && (serializable_concepts::SimpleAssignableAlignedToOneType<T> || serializable_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual))
+    {
+        size_t bytesSize = sizeof(T) * n;
+        assert((n == bytesSize / sizeof(T)));
+
+        if (flags.sizeOfArithmeticTypesMayBeNotEqual)
+            output.pushBackArithmeticValue(sizeof(T));
+
+        output.push_back_n(value, bytesSize);
+    }
+    else if constexpr (!serializable_concepts::EmptyType<T>)
+    {
+        for (size_t i = 0; i < n; ++i)
+            serializeThis(value[i], flags, output);
+    }
+
+    return 0;
+}
+
 // common function for arrays input
 template<typename T, size_t N, serializable_concepts::ISerializationCapableContainer S>
 constexpr int serializeThis(const T(&value)[N], S& output)
@@ -78,9 +109,49 @@ constexpr int serializeThis(const T(&value)[N], S& output)
     return 0;
 }
 
+template<typename T, size_t N, serializable_concepts::ISerializationCapableContainer S>
+constexpr int serializeThis(const T(&value)[N], SerializationFlags flags, S& output)
+{
+    static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
+        , "This type of struct cannot contain arrays of references or pointers");
+    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
+        , "Arrays of references or pointers on functions are not allowed to be serialized");
+
+    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T> || serializable_concepts::SimpleAssignableAlignedToOneType<T>)
+    {
+        constexpr size_t bytesSize = sizeof(T) * N;
+        static_assert(N == bytesSize / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array input of serializeThis");
+
+        output.push_back_n(value, bytesSize);
+    }
+    else if constexpr (!serializable_concepts::EmptyType<T>)
+    {
+        for (const auto& e : value)
+            serializeThis(e, output);
+    }
+
+    return 0;
+}
+
 // common function for scalar input
 template<typename T, serializable_concepts::ISerializationCapableContainer S>
 constexpr int serializeThis(T value, S& output)
+{
+    static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
+        , "This type of struct cannot contain references or pointers");
+    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
+        , "References and pointers on functions are not allowed to be serialized");
+
+    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
+        output.pushBackArithmeticValue(value);
+    else
+        static_assert(serializable_concepts::EmptyType<T>, "Type not supported");
+
+    return 0;
+}
+
+template<typename T, serializable_concepts::ISerializationCapableContainer S>
+constexpr int serializeThis(T value, SerializationFlags flags, S& output)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain references or pointers");

@@ -206,6 +206,14 @@ inline constexpr bool is_integral_v = is_same_v<remove_cv_t<T>, bool> || is_same
     || is_same_v<remove_cv_t<T>, unsigned long long> || is_same_v<remove_cv_t<T>, wchar_t> || is_same_v<remove_cv_t<T>, char8_t> || is_same_v<remove_cv_t<T>, char16_t>
     || is_same_v<remove_cv_t<T>, char32_t>;
 
+// std::is_integral_v
+template<typename T>
+inline constexpr bool is_integral_v = is_same_v<remove_cv_t<T>, bool> || is_same_v<remove_cv_t<T>, char> || is_same_v<remove_cv_t<T>, signed char>
+    || is_same_v<remove_cv_t<T>, unsigned char> || is_same_v<remove_cv_t<T>, short> || is_same_v<remove_cv_t<T>, unsigned short> || is_same_v<remove_cv_t<T>, int>
+    || is_same_v<remove_cv_t<T>, unsigned int> || is_same_v<remove_cv_t<T>, long> || is_same_v<remove_cv_t<T>, unsigned long> || is_same_v<remove_cv_t<T>, long long>
+    || is_same_v<remove_cv_t<T>, unsigned long long> || is_same_v<remove_cv_t<T>, wchar_t> || is_same_v<remove_cv_t<T>, char8_t> || is_same_v<remove_cv_t<T>, char16_t>
+    || is_same_v<remove_cv_t<T>, char32_t>;
+
 template<typename T>
 inline constexpr bool is_floating_point_v = is_same_v<remove_cv_t<T>, float> || is_same_v<remove_cv_t<T>, double> || is_same_v<remove_cv_t<T>, long double>;
 
@@ -397,20 +405,47 @@ template<typename T>
 inline constexpr bool is_class_v = __is_class(T);
 
 // std::conditional
-template<bool test, class T1, class T2>
-struct conditional
-{
-    using type = T1;
-};
+template<bool B, typename T, typename F>
+struct conditional { using type = T; };
 
-template <class _Ty1, class _Ty2>
-struct conditional<false, _Ty1, _Ty2>
+template<typename T, typename F>
+struct conditional<false, T, F>
 {
-    using type = T2;
+    using type = F;
 };
 
 // std::conditional_t
-template <bool test, class _Ty1, class _Ty2>
-using conditional_t = typename conditional<test, _Ty1, _Ty2>::type;
+template<bool B, class T, class F>
+using conditional_t = typename conditional<B, T, F>::type;
+
+// std::underlying_type
+template<typename T, bool = is_enum_v<T>>
+struct underlying_type
+{
+    using type = __underlying_type(T);
+};
+
+template<typename T>
+struct underlying_type<T, false> {};
+
+// std::underlying_type_t
+template<typename T>
+using underlying_type_t = typename underlying_type<T>::type;
+
+// std::is_trivially_copyable
+template<typename T>
+struct is_trivially_copyable : bool_constant<__is_trivially_copyable(T)> {};
+
+// std::is_trivially_copyable_v
+template<typename T>
+inline constexpr bool is_trivially_copyable_v = __is_trivially_copyable(T);
+
+// std::is_trivial
+template<typename T>
+struct is_trivial : bool_constant<__is_trivially_constructible(T) && __is_trivially_copyable(T)> {};
+
+// std::is_trivial_v
+template<typename T>
+inline constexpr bool is_trivial_v = __is_trivially_constructible(T) && __is_trivially_copyable(T);
 
 } // namespace std

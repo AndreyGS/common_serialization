@@ -1,5 +1,5 @@
 /**
- * @file DeserializeSpecial.h
+ * @file SerializationFlags.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,24 +23,23 @@
 
 #pragma once
 
-#include "DeserializeCommon.h"
-#include "Containers/Vector.h"
-
 namespace common_serialization
 {
 
-template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(const D& input, Vector<T>& value)
+struct SerializationFlags
 {
-    value.clear();
+    unsigned alignmentMayBeNotEqual                 : 1 = 0;
+    unsigned sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;
+    unsigned interfaceVersionsNotMatch              : 1 = 0;
+    unsigned checkOfCyclicReferences                : 1 = 0;
+    unsigned reserved                               :20 = 0;
+    unsigned doNotUse                               : 8 = 0;    // this bit-field shall have only 24 significant bits
+                                                                // 8 bits are using for serialization protocol version
 
-    typename Vector<T>::size_type size = 0;
-    deserializeThis(input, size);
-    value.reserve(size);
-    deserializeThis(input, size, value.data());
-    value.m_dataSize = size;
+    [[nodiscard]] constexpr operator bool() const noexcept
+    {
+        return *static_cast<const unsigned*>(static_cast<const void*>(this)) != 0;
+    }
+};
 
-    return 0;
 }
-
-} // common_serialization

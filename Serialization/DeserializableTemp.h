@@ -1,5 +1,5 @@
 /**
- * @file DeserializeSpecial.h
+ * @file DeserializableTemp.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,24 +23,36 @@
 
 #pragma once
 
-#include "DeserializeCommon.h"
-#include "Containers/Vector.h"
+#include "SerializableTemp.h"
+
 
 namespace common_serialization
 {
 
-template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(const D& input, Vector<T>& value)
+template<serializable_concepts::IDeserializationCapableContainer D>
+int deserializeThis(const D& input, SerT<>& value)
 {
-    value.clear();
-
-    typename Vector<T>::size_type size = 0;
-    deserializeThis(input, size);
-    value.reserve(size);
-    deserializeThis(input, size, value.data());
-    value.m_dataSize = size;
+    deserializeThis(input, value.i);
 
     return 0;
 }
 
-} // common_serialization
+template<serializable_concepts::IDeserializationCapableContainer D>
+int deserializeThis(const D& input, SerT2<>& value)
+{
+    deserializeThis(input, value.k);
+
+    return 0;
+}
+
+template<serializable_concepts::IDeserializationCapableContainer D>
+int deserializeThis(const D& input, SerTInh<>& value)
+{
+    deserializeThis(input, value.getSerT());
+    deserializeThis(input, value.getSerT2());
+    deserializeThis(input, value.j);
+
+    return 0;
+}
+
+} // namespace common_serialization

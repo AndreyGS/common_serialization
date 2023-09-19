@@ -47,7 +47,7 @@ constexpr int deserializeThis(const D& input, size_t n, T* value)
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
         for (size_t i = 0; i < n; ++i)
-            deserializeThis(input, value[i]);
+            deserializeThis(input, *(new (&value[i]) T));
     }
 
     return 0;

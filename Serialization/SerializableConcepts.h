@@ -29,35 +29,54 @@ namespace common_serialization
 namespace serializable_concepts
 {
 
-template<typename E>
+template<typename S>
 concept ISerializationCapableContainer
-    =  requires(E e)
+    =  requires(S e)
          {
-             typename E::value_type;
-             typename E::size_type;
+             typename S::value_type;
+             typename S::size_type;
 
-             { e.data() } -> std::same_as<typename E::value_type*>;
-             { e.size() } -> std::same_as<typename E::size_type>;
-             { e.capacity() } -> std::same_as<typename E::size_type>;
+             { e.data() } -> std::same_as<typename S::value_type*>;
+             { e.size() } -> std::same_as<typename S::size_type>;
+             { e.capacity() } -> std::same_as<typename S::size_type>;
 
              { e.reserve(1) } -> std::same_as<bool>;
              { e.push_back_n(nullptr, 0) };
              { e.pushBackArithmeticValue(1ll) };
          } 
-    && std::is_same_v<typename E::value_type, uint8_t>;
+    && std::is_same_v<typename S::value_type, uint8_t>;
 
-template<typename E>
-concept IDeserializationCapableContainer = true;
+template<typename D>
+concept IDeserializationCapableContainer
+    =  requires(D e)
+         {
+             typename D::value_type;
+             typename D::size_type;
 
-// There is some limitations of deducing the base of serializable class because of lack of std libs,
-// for instance, in kernel modes. So we need to add some additional concepts that indicate
-// that this instance Serializable<T> type or not.
+             { e.data() } -> std::same_as<typename D::value_type*>;
+             { e.size() } -> std::same_as<typename D::size_type>;
+
+             // the next two functions are questionable so far
+             { e.tell() } -> std::same_as<typename D::size_type>;
+             { e.seek(0) } -> std::same_as<typename D::size_type>;
+             
+             { e.read(nullptr, 0) };
+             { e.readArithmeticValue(*(new int)) };
+         } 
+    && std::is_same_v<typename D::value_type, uint8_t>;
 
 template<typename T>
-concept SimpleAssignableAlignedToOneType
+concept FixSizedArithmeticType
+    =  std::is_same_v<std::remove_cv_t<T>, char8_t> || std::is_same_v<std::remove_cv_t<T>, char16_t> || std::is_same_v<std::remove_cv_t<T>, char32_t>
+    || std::is_same_v<std::remove_cv_t<T>, float> || std::is_same_v<std::remove_cv_t<T>, double>;
+
+template<typename T>
+concept SimpleAssignableType
     =  requires(T t) { typename T::simple_assignable; } 
-    && std::is_same_v<typename T::simple_assignable, std::true_type> 
-    && alignof(T) == 1 ;
+    && std::is_same_v<typename T::simple_assignable, std::true_type>;
+
+template<typename T>
+concept SimpleAssignableAlignedToOneType = SimpleAssignableType<T> && alignof(T) == 1;
 
 template<typename T>
 concept CompositeType 

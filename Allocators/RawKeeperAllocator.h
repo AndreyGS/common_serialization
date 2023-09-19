@@ -27,6 +27,7 @@ namespace common_serialization
 {
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 class RawKeeperAllocator
 {
 public:
@@ -59,12 +60,14 @@ private:
 };
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr RawKeeperAllocator<T>::RawKeeperAllocator(T* p, size_type memorySize) noexcept
     : m_p(p), m_memorySize(memorySize)
 {
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 template <class R>
 constexpr RawKeeperAllocator<T>::RawKeeperAllocator(const RawKeeperAllocator<R>& rhs) noexcept
     : m_p(rhs.m_p), m_memorySize(rhs.memorySize * sizeof(R) / sizeof(T))
@@ -72,6 +75,7 @@ constexpr RawKeeperAllocator<T>::RawKeeperAllocator(const RawKeeperAllocator<R>&
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr void RawKeeperAllocator<T>::setStorage(T* p, size_type memorySize) noexcept
 {
     if (p && !memorySize || !p && memorySize)
@@ -82,33 +86,39 @@ constexpr void RawKeeperAllocator<T>::setStorage(T* p, size_type memorySize) noe
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 [[nodiscard]] constexpr T* RawKeeperAllocator<T>::allocate(size_type data_size_in_bytes) const noexcept
 {
     return data_size_in_bytes <= m_memorySize ? m_p : nullptr;
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr void RawKeeperAllocator<T>::deallocate(T* p) const noexcept
 {
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr void RawKeeperAllocator<T>::deallocate(T* p, size_type n) const noexcept
 {
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr void RawKeeperAllocator<T>::construct(T* p, value_type value) const noexcept
 {
     *p = value;
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr void RawKeeperAllocator<T>::destroy(T* p) const noexcept
 {
 }
 
 template<typename T>
+    requires std::is_trivially_copyable_v<T>
 constexpr RawKeeperAllocator<T>::size_type RawKeeperAllocator<T>::max_size() const noexcept
 {
     return m_memorySize;

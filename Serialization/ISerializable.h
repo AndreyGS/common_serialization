@@ -24,6 +24,7 @@
 #pragma once
 
 #include "Containers/Vector.h"
+#include "SerializationFlags.h"
 #include "SerializableConcepts.h"
 #include "SerializeCommon.h"
 
@@ -32,29 +33,27 @@
 namespace common_serialization
 {
 
+inline constexpr uint8_t kSerializationProtocolVersion = 1;
+
 template<typename T>
 class ISerializable
 {
 public:
-    enum class ProcessingFlags
-    {
-        kFastAndSimple = 0x00,
-        kCompatabilityMode = 0x01
-    };
+
 
     // first function to call on new serialize operation
     template<serializable_concepts::ISerializationCapableContainer S>
-    constexpr int serialize(S& output) const noexcept;
+    constexpr int serialize(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
 
     // calling in subsequent serializations of nested fields/types or if one need to serialize another struct
     // and there is no changes in interface version after previous serialize call
     template<serializable_concepts::ISerializationCapableContainer S>
-    constexpr int serializeNext(S& output) const noexcept;
+    constexpr int serializeNext(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
 
     template<serializable_concepts::IDeserializationCapableContainer D>
-    constexpr int deserialize(const D& input) { return 0; }
+    constexpr int deserialize(const D& input);
     template<serializable_concepts::IDeserializationCapableContainer D>
-    constexpr int deserializeNext(const D& input, std::unordered_map<void*, void*>& pointersMap) { return 0; }
+    constexpr int deserializeNext(const D& input, SerializationFlags flags);
     
     [[nodiscard]] static constexpr uint64_t* getAncestors() noexcept;
     [[nodiscard]] static constexpr uint64_t* getMembers() noexcept;
@@ -62,29 +61,67 @@ public:
     [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
     [[nodiscard]] static constexpr uint32_t getInterfaceVersion() noexcept;
 
-    [[nodiscard]] static constexpr uint32_t getProtocolVersion() noexcept;
-
 private:
-    static constexpr uint8_t kProtocolVersion = 1;
-
     uint32_t m_convertedFromVersion = 0;    // 0 is for "no coversion was performed"
 };
 
 template<typename T>
 template<serializable_concepts::ISerializationCapableContainer S>
-constexpr int ISerializable<T>::serialize(S& output) const noexcept
+constexpr int ISerializable<T>::serialize(S& output, SerializationFlags flags) const noexcept
 {
-    output.pushBackArithmeticValue(getProtocolVersion());   // here we don't add flags, because this function uses only kFastAndSimple
+    output.pushBackArithmeticValue(static_cast<uint32_t>(kSerializationProtocolVersion) | (static_cast<uint32_t>(flags) << 8));
     output.pushBackArithmeticValue(getInterfaceVersion());
-    return serializeNext(output);
+    return serializeNext(output, flags);
 }
 
 template<typename T>
 template<serializable_concepts::ISerializationCapableContainer S>
-constexpr int ISerializable<T>::serializeNext(S& output) const noexcept
+constexpr int ISerializable<T>::serializeNext(S& output, SerializationFlags flags) const noexcept
 {
     output.pushBackArithmeticValue(getNameHash());
-    return serializeThis(static_cast<const T&>(*this), output);
+
+    if (!flags)
+        return serializeThis(static_cast<const T&>(*this), output);
+    /*else if (flags != SerializationFlags::CheckOfCyclicReferences)
+        return serializeThis(static_cast<const T&>(*this), output, flags);*/
+    else
+    {
+        return 0;
+    }
+}
+
+template<typename T>
+template<serializable_concepts::IDeserializationCapableContainer D>
+constexpr int ISerializable<T>::deserialize(const D& input)
+{
+    uint32_t versionAndFlags = 0;
+    input.readArithmeticValue(versionAndFlags);
+    if ((versionAndFlags & 0xff) != kSerializationProtocolVersion)
+        return 1;
+
+    SerializationFlags flags(versionAndFlags >> 8);
+
+    uint32_t inputInterfaceVersion = 0;
+    input.readArithmeticValue(inputInterfaceVersion);
+    if (getInterfaceVersion() < inputInterfaceVersion)
+        return 1;
+    else if (getInterfaceVersion() > inputInterfaceVersion)
+        flags.interfaceVersionsNotMatch = true;
+
+    return deserializeNext(input, flags);
+}
+
+template<typename T>
+template<serializable_concepts::IDeserializationCapableContainer D>
+constexpr int ISerializable<T>::deserializeNext(const D& input, SerializationFlags flags)
+{
+    uint64_t inputNameHash = 0;
+    input.readArithmeticValue(inputNameHash);
+    if (getNameHash() != inputNameHash)
+        return 1;
+
+    if (!flags)
+        return deserializeThis(input, static_cast<T&>(*this));
 }
 
 template<typename T>
@@ -115,12 +152,6 @@ template<typename T>
 [[nodiscard]] constexpr uint32_t ISerializable<T>::getInterfaceVersion() noexcept
 {
     return T::kVersionInterface;
-}
-
-template<typename T>
-[[nodiscard]] constexpr uint32_t ISerializable<T>::getProtocolVersion() noexcept
-{
-    return kProtocolVersion;
 }
 
 } // namespace common_serialization
