@@ -51,9 +51,9 @@ public:
     constexpr int serializeNext(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
 
     template<serializable_concepts::IDeserializationCapableContainer D>
-    constexpr int deserialize(const D& input);
+    constexpr int deserialize(D& input);
     template<serializable_concepts::IDeserializationCapableContainer D>
-    constexpr int deserializeNext(const D& input, SerializationFlags flags);
+    constexpr int deserializeNext(D& input, SerializationFlags flags);
     
     [[nodiscard]] static constexpr uint64_t* getAncestors() noexcept;
     [[nodiscard]] static constexpr uint64_t* getMembers() noexcept;
@@ -92,7 +92,7 @@ constexpr int ISerializable<T>::serializeNext(S& output, SerializationFlags flag
 
 template<typename T>
 template<serializable_concepts::IDeserializationCapableContainer D>
-constexpr int ISerializable<T>::deserialize(const D& input)
+constexpr int ISerializable<T>::deserialize(D& input)
 {
     uint32_t versionAndFlags = 0;
     input.readArithmeticValue(versionAndFlags);
@@ -113,7 +113,7 @@ constexpr int ISerializable<T>::deserialize(const D& input)
 
 template<typename T>
 template<serializable_concepts::IDeserializationCapableContainer D>
-constexpr int ISerializable<T>::deserializeNext(const D& input, SerializationFlags flags)
+constexpr int ISerializable<T>::deserializeNext(D& input, SerializationFlags flags)
 {
     uint64_t inputNameHash = 0;
     input.readArithmeticValue(inputNameHash);

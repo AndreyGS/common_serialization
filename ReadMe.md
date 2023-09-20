@@ -2,13 +2,13 @@
 
 This library will introduce another yet serialization protocol for C++ projects 
 that are built for different environments including those where no standard library is present, such as Windows or Linux kernel. \
-So, also one of the milestones is to add fully functional containers to operate with data. \
+So, one of the milestones is to add fully functional containers to operate with data.
 
 Under development.
 
 ## License
 
-Copyright (c) 2023 Andrey Grabov-Smetankin
+Copyright (c) 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

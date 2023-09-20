@@ -30,7 +30,7 @@ namespace common_serialization
 {
 
 template<serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(const D& input, SerT<>& value)
+int deserializeThis(D& input, SerT<>& value)
 {
     deserializeThis(input, value.i);
 
@@ -38,7 +38,7 @@ int deserializeThis(const D& input, SerT<>& value)
 }
 
 template<serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(const D& input, SerT2<>& value)
+int deserializeThis(D& input, SerT2<>& value)
 {
     deserializeThis(input, value.k);
 
@@ -46,11 +46,12 @@ int deserializeThis(const D& input, SerT2<>& value)
 }
 
 template<serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(const D& input, SerTInh<>& value)
+int deserializeThis(D& input, SerTInh<>& value)
 {
     deserializeThis(input, value.getSerT());
     deserializeThis(input, value.getSerT2());
     deserializeThis(input, value.j);
+    deserializeThis(input, value.arr);
 
     return 0;
 }

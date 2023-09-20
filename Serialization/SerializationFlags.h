@@ -29,7 +29,8 @@ namespace common_serialization
 struct SerializationFlags
 {
     unsigned alignmentMayBeNotEqual                 : 1 = 0;
-    unsigned sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;
+    unsigned sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;    // this flag is very dangerous and it should never be used,
+                                                                // except you are really know what you are doing
     unsigned interfaceVersionsNotMatch              : 1 = 0;
     unsigned checkOfCyclicReferences                : 1 = 0;
     unsigned reserved                               :20 = 0;

@@ -84,19 +84,19 @@ public:
     [[nodiscard]] constexpr const Vector<T, AllocatorHelper>& getVector() const noexcept;
 
     [[nodiscard]] constexpr size_type tell() const noexcept;
-    constexpr size_type seek(size_type offset) const noexcept;
+    constexpr size_type seek(size_type offset) noexcept;
 
     template<typename V>
     constexpr size_type pushBackArithmeticValue(V value) noexcept
         requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>;
 
     template<typename V>
-    constexpr size_type readArithmeticValue(V& value) const noexcept
+    constexpr size_type readArithmeticValue(V& value) noexcept
         requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>;
 
 private:
     Vector<T, AllocatorHelper> m_vector;
-    mutable size_type m_offset = 0;
+    size_type m_offset = 0;
 };
 
 template<typename T, typename AllocatorHelper>
@@ -330,7 +330,7 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::seek(size_type offset) const noexcept
+constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::seek(size_type offset) noexcept
 {
     return m_offset = offset <= m_vector.size() ? offset : m_vector.size();
 }
@@ -348,7 +348,7 @@ constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::push
 
 template<typename T, typename AllocatorHelper>
 template<typename V>
-constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::readArithmeticValue(V& value) const noexcept
+constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::readArithmeticValue(V& value) noexcept
     requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>
 {
     if (sizeof(V) + m_offset <= size())

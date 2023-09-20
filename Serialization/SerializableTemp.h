@@ -45,7 +45,7 @@ private:
     template<serializable_concepts::ISerializationCapableContainer S>
     friend int serializeThis(const SerT<Dummy>& value, S& output);
     template<serializable_concepts::IDeserializationCapableContainer D>
-    friend int deserializeThis(const D& input, SerT<>& value);
+    friend int deserializeThis(D& input, SerT<>& value);
 
     using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerT<T>, T>;
 
@@ -67,7 +67,7 @@ private:
     template<serializable_concepts::ISerializationCapableContainer S>
     friend int serializeThis(const SerT2<Dummy>& value, S& output);
     template<serializable_concepts::IDeserializationCapableContainer D>
-    friend int deserializeThis(const D& input, SerT2<>& value);
+    friend int deserializeThis(D& input, SerT2<>& value);
 
     using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerT2<T>, T>;
 
@@ -101,16 +101,20 @@ public:
     {
         return *static_cast<const SerT2<Dummy>*>(static_cast<const void*>(static_cast<const SerT2<T>*>(this)));
     }
+    uint32_t arr[5] = { 0 };
+
+    //using simple_assignable = std::true_type;
 
 private:
     int j = 10;
+    
 
 private:
     friend ISerializable<SerTInh<T>>;
     template<serializable_concepts::ISerializationCapableContainer S>
     friend int serializeThis(const SerTInh<Dummy>& value, S& output);
     template<serializable_concepts::IDeserializationCapableContainer D>
-    friend int deserializeThis(const D& input, SerTInh<>& value);
+    friend int deserializeThis(D& input, SerTInh<>& value);
 
     using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerTInh<T>, T>;
 
@@ -143,6 +147,7 @@ int serializeThis(const SerTInh<>& value, S& output)
     serializeThis(value.getSerT(), output);
     serializeThis(value.getSerT2(), output);
     serializeThis(value.j, output);
+    serializeThis(value.arr, output);
 
     return 0;
 }

@@ -29,8 +29,8 @@
 namespace common_serialization
 {
 
-template<typename T, serializable_concepts::ISerializationCapableContainer S>
-int serializeThis(const Vector<T>& value, S& output)
+template<typename T, typename A, serializable_concepts::ISerializationCapableContainer S>
+int serializeThis(const Vector<T, A>& value, S& output)
 {
     serializeThis(value.size(), output);
     serializeThis(value.data(), value.size(), output);

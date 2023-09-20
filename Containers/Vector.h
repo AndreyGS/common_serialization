@@ -387,8 +387,8 @@ private:
 
 private:
     friend ISerializable<Vector<T, AllocatorHelper>>;
-    template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-    friend int deserializeThis(const D& input, Vector<T>& value);
+    template<typename T, typename A, serializable_concepts::IDeserializationCapableContainer D>
+    friend int deserializeThis(D& input, Vector<T, A>& value);
 
     static constexpr uint32_t kVersionThis = 0;
     static constexpr uint32_t kVersionInterface = 0;

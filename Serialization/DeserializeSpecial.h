@@ -29,12 +29,12 @@
 namespace common_serialization
 {
 
-template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(const D& input, Vector<T>& value)
+template<typename T, typename A, serializable_concepts::IDeserializationCapableContainer D>
+int deserializeThis(D& input, Vector<T, A>& value)
 {
     value.clear();
 
-    typename Vector<T>::size_type size = 0;
+    typename Vector<T, A>::size_type size = 0;
     deserializeThis(input, size);
     value.reserve(size);
     deserializeThis(input, size, value.data());
