@@ -325,27 +325,31 @@ public:
     constexpr Vector& operator=(Vector&& rhs) noexcept;
     constexpr ~Vector() noexcept;
 
-    constexpr bool reserve(size_type n);
+    constexpr Status reserve(size_type n);
     
-    constexpr Vector& push_back(const T& value);
-    constexpr Vector& push_back(T&& value);
-    constexpr Vector& push_back_n(const T* p, size_type n);
+    constexpr Status pushBack(const T& value);
+    constexpr Status pushBack(T&& value);
+    constexpr Status pushBackN(const T* p, size_type n);
+    // this special method is using for eliminating redundant overhead on raw arrays
+    template<typename V>
+    constexpr Status pushBackArithmeticValue(V value) noexcept
+        requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>;
 
-    constexpr size_type replace(size_type offset, const T* p, size_type n);
+    constexpr Status replace(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
 
-    constexpr size_type insert(size_type offset, const T* p, size_type n); 
+    constexpr Status insert(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
     template<typename ItSrc>
-    constexpr iterator insert(iterator destBegin, ItSrc srcBegin, ItSrc srcEnd);
+    constexpr Status insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd = nullptr);
 
-    constexpr size_type erase(size_type offset, size_type n);
-    constexpr iterator erase(iterator destBegin, iterator destEnd);
+    constexpr Status erase(size_type offset, size_type n);
+    constexpr Status erase(iterator destBegin, iterator destEnd);
 
     // copy from Vector to p
-    constexpr T* copy_n(size_type offset, size_type n, T* p);
+    constexpr Status copyN(size_type offset, size_type n, T* p, T** ppNew = nullptr);
 
     // copy from Vector to destBegin...
     template<typename ItDest>
-    constexpr ItDest copy_n(iterator srcBegin, iterator srcEnd, ItDest destBegin);
+    constexpr Status copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd = nullptr);
 
     [[nodiscard]] constexpr T* data() noexcept;
     [[nodiscard]] constexpr const T* data() const noexcept;
@@ -369,21 +373,16 @@ public:
     [[nodiscard]] constexpr AllocatorHelper& getAllocatorHelper() noexcept;
     [[nodiscard]] constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
 
-    // this special method is using for eliminating redundant overhead on raw arrays
-    template<typename V>
-    constexpr Vector<T, AllocatorHelper>& pushBackArithmeticValue(V value) noexcept
-        requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>;
-
 private:
-    [[nodiscard]] constexpr bool reserveInternal(size_type n, bool strict);
-    [[nodiscard]] constexpr bool addSpaceIfNeed(size_type n);
-    [[nodiscard]] constexpr bool notEndIterator(iterator it) const noexcept;
+    [[nodiscard]] constexpr Status reserveInternal(size_type n, bool strict);
+    [[nodiscard]] constexpr Status addSpaceIfNeed(size_type n);
+    [[nodiscard]] constexpr bool isEndIterator(iterator it) const noexcept;
 
     T* m_p = nullptr;
     size_type m_dataSize = 0;
     size_type m_allocatedSize = 0;
 
-    mutable AllocatorHelper m_allocatorHelper;
+    AllocatorHelper m_allocatorHelper;
 
 private:
     friend ISerializable<Vector<T, AllocatorHelper>>;
@@ -479,60 +478,74 @@ constexpr void Vector<T, AllocatorHelper>::invalidate() noexcept
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr bool Vector<T, AllocatorHelper>::reserve(size_type n)
+constexpr Status Vector<T, AllocatorHelper>::reserve(size_type n)
 {
     return reserveInternal(n, true);
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::push_back(const T& value)
+constexpr Status Vector<T, AllocatorHelper>::pushBack(const T& value)
 {
-    if (addSpaceIfNeed(1))
-    {
-        m_allocatorHelper.copyNoOverlap(m_p + m_dataSize, &value, 1);
-        ++m_dataSize;
-    }
+    RUN(addSpaceIfNeed(1));
 
-    return *this;
+    m_allocatorHelper.copyNoOverlap(m_p + m_dataSize, &value, 1);
+    ++m_dataSize;
+
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::push_back(T&& value)
+constexpr Status Vector<T, AllocatorHelper>::pushBack(T&& value)
 {
-    if (addSpaceIfNeed(1))
-    {
-        m_allocatorHelper.moveNoOverlap(m_p + m_dataSize, &value, 1);
-        ++m_dataSize;
-    }
+    RUN(addSpaceIfNeed(1));
 
-    return *this;
+    m_allocatorHelper.moveNoOverlap(m_p + m_dataSize, &value, 1);
+    ++m_dataSize;
+
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::push_back_n(const T* p, size_type n)
+constexpr Status Vector<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
 {
-    if (p && addSpaceIfNeed(n))
-    {
-        m_allocatorHelper.copyNoOverlap(m_p + m_dataSize, p, n);
-        m_dataSize += n;
-    }
+    if (p == nullptr)
+        return Status::kErrorInvalidArgument;
 
-    return *this;
+    RUN(addSpaceIfNeed(n));
+
+    m_allocatorHelper.copyNoOverlap(m_p + m_dataSize, p, n);
+    m_dataSize += n;
+
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::replace(size_type offset, const T* p, size_type n)
+template<typename V>
+constexpr Status Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
+    requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>
 {
-    if (!p || !n)
-        return offset;
+    Status status = Status::kNoError;
 
+    RUN(addSpaceIfNeed(sizeof(V)));
+
+    *static_cast<V*>(static_cast<void*>(m_p + m_dataSize)) = value;
+    m_dataSize += sizeof(V);
+
+    return Status::kNoError;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Status Vector<T, AllocatorHelper>::replace(const T* p, size_type n, size_type offset, size_type* pNewOffset)
+{
+    if (p == nullptr)
+        return Status::kErrorInvalidArgument;
+    
     // don't allow to create sparse array by this function
-    if (offset > m_dataSize)
-        return m_dataSize;
+    if (offset >= m_dataSize)
+        return Status::kErrorOverflow;
 
     size_type offsetPlusN = offset + n;
     size_type newDataSize = offsetPlusN > m_dataSize ? offsetPlusN : m_dataSize;
-    bool success = false;
 
     // if newDataSize <= m_allocatedSize there is no need to allocate memory or there is overflow
     if (newDataSize > m_allocatedSize)
@@ -547,8 +560,9 @@ constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::repl
             m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);
 
             m_p = newMp;
-            success = true;
         }
+        else
+            return Status::kErrorNoMemory;
     }
     else if (newDataSize >= m_dataSize) // there is no overflow
     {
@@ -556,29 +570,30 @@ constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::repl
             m_allocatorHelper.destroyN(m_p + offset, n >= m_dataSize - offset ? m_dataSize - offset : n);
 
         m_allocatorHelper.copyNoOverlap(m_p + offset, p, n);
-        success = true;
     }
 
-    if (success)
-        m_dataSize = newDataSize;
+    m_dataSize = newDataSize;
 
-    return success ? offsetPlusN : offset;
+    if (pNewOffset)
+        *pNewOffset = offsetPlusN;
+
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::insert(size_type offset, const T* p, size_type n)
+constexpr Status Vector<T, AllocatorHelper>::insert(const T* p, size_type n, size_type offset, size_type* pNewOffset)
 {
-    if (!p || !n)
-        return offset;
+    if (p == nullptr)
+        return Status::kErrorInvalidArgument;
 
     // don't allow to create sparse array by this function
     if (offset > m_dataSize)
-        return m_dataSize;
+        return Status::kErrorOverflow;
 
     size_type offsetPlusN = offset + n;
     size_type newDataSize = m_dataSize + n;
     size_type rightDataPartSize = m_dataSize - offset;
-    bool success = false;
+
 
     // if newDataSize <= m_allocatedSize there is no need to allocate memory or there is overflow
     if (newDataSize > m_allocatedSize)
@@ -597,8 +612,9 @@ constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::inse
             m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);
 
             m_p = newMp;
-            success = true;
         }
+        else
+            return Status::kErrorNoMemory;
     }
     else if (newDataSize > m_dataSize) // there is no overflow
     {
@@ -609,21 +625,22 @@ constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::inse
             m_allocatorHelper.destroyN(m_p + offset, n >= rightDataPartSize ? rightDataPartSize : n);
 
         m_allocatorHelper.copyNoOverlap(m_p + offset, p, n);
-        success = true;
     }
 
-    if (success)
-        m_dataSize = newDataSize;
+    m_dataSize = newDataSize;
 
-    return success ? offsetPlusN : offset;
+    if (pNewOffset)
+        *pNewOffset = offsetPlusN;
+
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
 template<typename ItSrc>
-constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::insert(iterator destBegin, ItSrc srcBegin, ItSrc srcEnd)
+constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
 {
-    if (!notEndIterator(destBegin))
-        return end();
+    if (isEndIterator(destBegin))
+        return Status::kErrorOverflow;
 
     Vector<T, AllocatorHelper> temp;
     size_type oldDataSize = m_dataSize;
@@ -632,12 +649,12 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::inser
 
     while (srcBegin != srcEnd)
     {
-        if (currentOffset < m_allocatedSize || addSpaceIfNeed(1))
+        if (currentOffset < m_allocatedSize)
         {
             pointer pCurrent = m_p + currentOffset;
             if (m_dataSize > currentOffset)
             {
-                temp.push_back(std::move(*pCurrent));
+                RUN(temp.pushBack(std::move(*pCurrent)));
                 m_allocatorHelper.destroy(pCurrent); // if T is not moveable we should destroying its objects explicitly
             }
             else
@@ -647,7 +664,7 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::inser
             ++currentOffset;
         }
         else
-            break;
+            RUN(reserveInternal(currentOffset, false));
     }
 
     if (temp.size())
@@ -656,32 +673,30 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::inser
         {
             if constexpr (constructor_allocator::value)
                 for (size_type i = currentOffset; i < oldDataSize; ++i)
-                    temp.push_back(std::move(*(m_p + i)));
+                    RUN(temp.pushBack(std::move(*(m_p + i))))
             else
-                temp.push_back_n(m_p + currentOffset, oldDataSize - currentOffset);
+                RUN(temp.pushBackN(m_p + currentOffset, oldDataSize - currentOffset));
         }
 
-        if (addSpaceIfNeed(temp.size()))
-        {
-            
-            m_allocatorHelper.moveNoOverlap(m_p + currentOffset, temp.data(), temp.size());
-            m_dataSize = currentOffset + temp.size();
-        }
+        RUN(addSpaceIfNeed(temp.size()));
+
+        m_allocatorHelper.moveNoOverlap(m_p + currentOffset, temp.data(), temp.size());
+        m_dataSize = currentOffset + temp.size();
 
         it = m_p + currentOffset;
     }
 
-    return it;
+    if (pDestEnd)
+        *pDestEnd = it;
+
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::erase(size_type offset, size_type n)
+constexpr Status Vector<T, AllocatorHelper>::erase(size_type offset, size_type n)
 {
-    if (!n)
-        return offset;
-
-    if (offset > m_dataSize)
-        return m_dataSize;
+    if (offset >= m_dataSize)
+        return Status::kErrorOverflow;
 
     if (offset + n > m_dataSize || offset + n < offset)
         n = m_dataSize - offset;
@@ -695,17 +710,17 @@ constexpr Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::eras
 
     m_dataSize = offset + rightN;
 
-    return offset;
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
+constexpr Status Vector<T, AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
 {
-    if (destBegin > destEnd || !notEndIterator(destBegin))
-        return end();
+    if (destBegin > destEnd)
+        return Status::kErrorOverflow;
 
-    if (destBegin == destEnd)
-        return destEnd;
+    if (isEndIterator(destBegin))
+        return Status::kErrorInvalidArgument;
 
     if (destEnd > end())
         destEnd = end();
@@ -721,36 +736,48 @@ constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::erase
 
     m_dataSize = leftN + rightN;
 
-    return m_p + leftN;
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr T* Vector<T, AllocatorHelper>::copy_n(size_type offset, size_type n, T* p)
+constexpr Status Vector<T, AllocatorHelper>::copyN(size_type offset, size_type n, T* p, T** ppNew)
 {
-    if (!p || !n || offset >= m_dataSize)
-        return p;
+    if (p == nullptr)
+        return Status::kErrorInvalidArgument;
+
+    if (offset >= m_dataSize)
+        return Status::kErrorOverflow;
 
     difference_type nReal = offset + n > m_dataSize ? m_dataSize - offset : n;
 
     m_allocatorHelper.copyAssign(p, m_p + offset, nReal);
 
-    return p + nReal;
+    if (ppNew)
+        *ppNew = p + nReal;
+
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
 template<typename ItDest>
-constexpr ItDest Vector<T, AllocatorHelper>::copy_n(iterator srcBegin, iterator srcEnd, ItDest destBegin)
+constexpr Status Vector<T, AllocatorHelper>::copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd)
 {
-    if (!notEndIterator(srcBegin) || srcBegin > srcEnd)
-        return destBegin;
+    if (isEndIterator(srcBegin))
+        return Status::kErrorInvalidArgument;
+
+    if (srcBegin > srcEnd)
+        return Status::kErrorOverflow;
 
     if (srcEnd > end())
         srcEnd = end();
 
     while (srcBegin != srcEnd)
         m_allocatorHelper.copyAssign(&*destBegin++, srcBegin++.getPointer(), 1);
+
+    if (pDestEnd)
+        *pDestEnd = destBegin;
     
-    return destBegin;
+    return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
@@ -842,24 +869,8 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-template<typename V>
-constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
-    requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>
+[[nodiscard]] constexpr Status Vector<T, AllocatorHelper>::reserveInternal(size_type n, bool strict)
 {
-    if (addSpaceIfNeed(sizeof(V)))
-    {
-        *static_cast<V*>(static_cast<void*>(m_p + m_dataSize)) = value;
-        m_dataSize += sizeof(V);
-    }
-
-    return *this;
-}
-
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::reserveInternal(size_type n, bool strict)
-{
-    bool success = true;
-
     if (n > m_allocatedSize)
     {
         T* newMp = strict ? m_allocatorHelper.allocateStrict(n) : m_allocatorHelper.allocate(n, &n);
@@ -872,27 +883,27 @@ template<typename T, typename AllocatorHelper>
             m_p = newMp;
         }
         else
-            success = false;
+            return Status::kErrorNoMemory;
     }
 
-    return success;
+    return Status::kNoError;
 }
 
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::addSpaceIfNeed(size_type n)
+[[nodiscard]] constexpr Status Vector<T, AllocatorHelper>::addSpaceIfNeed(size_type n)
 {
     return m_dataSize + n >= m_dataSize
         ? m_dataSize + n > m_allocatedSize
             ? reserveInternal(m_dataSize + n, false)
-            : true
-        : false; // overflow
+            : Status::kNoError
+        : Status::kErrorOverflow;
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::notEndIterator(iterator it) const noexcept
+[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::isEndIterator(iterator it) const noexcept
 {
-    return &*it >= m_p && &*it < m_p + m_dataSize;
+    return &*it < m_p || &*it >= m_p + m_dataSize;
 }
 
 } // namespace common_serialization

@@ -29,7 +29,7 @@ TEST(RawKeeperAllocatorTest, VectorWorkTest)
     vec.getAllocatorHelper().getAllocator().setStorage(g_array, kArraySizeInBytes);
     EXPECT_EQ(vec.max_size(), kArraySizeInBytes);
 
-    vec.push_back(0);
+    vec.pushBack(0);
     EXPECT_EQ(vec.size(), 1);
     EXPECT_EQ(vec.capacity(), 1);
     EXPECT_EQ(reinterpret_cast<void*>(vec.data()), reinterpret_cast<void*>(g_array));
@@ -38,7 +38,7 @@ TEST(RawKeeperAllocatorTest, VectorWorkTest)
 
     // try to add more than we can hold
     for (int i = 0; i < kArraySizeInBytes + 1; ++i)
-        vec.push_back(i);
+        vec.pushBack(i);
     
     EXPECT_EQ(vec.size(), kArraySizeInBytes);
     EXPECT_EQ(vec.capacity(), kArraySizeInBytes);

@@ -33,7 +33,7 @@ auto getStringsFilledContainer()
     static Vector<T, DefaultVectorAllocatorHelper<T>> vec;
     
     if (vec.size() == 0)
-        vec.push_back_n(g_data_array<T>, 3);
+        vec.pushBackN(g_data_array<T>, 3);
 
     EXPECT_EQ(vec.capacity(), 6); // check that nothing is changed in allocation strategy
 
@@ -46,7 +46,7 @@ auto getStringsFilledContainer<PodStruct>()
     static Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> vec;
 
     if (vec.size() == 0)
-        vec.push_back_n(g_data_array<PodStruct>, 3);
+        vec.pushBackN(g_data_array<PodStruct>, 3);
 
     EXPECT_EQ(vec.capacity(), 6); // check that nothing is changed in allocation strategy
 
@@ -182,11 +182,10 @@ TEST(VectorTest, Reserve)
     vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
     
     int i = 1;
-    vec.push_back(i);
+    vec.pushBack(i);
     EXPECT_EQ(vec.capacity(), 1);
 
-    bool b = vec.reserve(100);
-    EXPECT_TRUE(b);
+    EXPECT_EQ(vec.reserve(100), Status::kNoError);
     EXPECT_EQ(vec.capacity(), 100);
 
     // Check that previously added element in not gone after reallocating
@@ -195,8 +194,7 @@ TEST(VectorTest, Reserve)
 
     // test when memory couldn't be allocated
     // 1
-    b = vec.reserve(static_cast<size_type>(-1));
-    EXPECT_FALSE(b);
+    EXPECT_EQ(vec.reserve(static_cast<size_type>(-1)), Status::kErrorNoMemory);
 
     // Check that after false memory allocation container not lost its contents
     EXPECT_EQ(vec.capacity(), 100);
@@ -205,8 +203,7 @@ TEST(VectorTest, Reserve)
 
     // 2
     vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize);
-    b = vec.reserve(static_cast<size_type>(-1));
-    EXPECT_FALSE(b);
+    EXPECT_EQ(vec.reserve(static_cast<size_type>(-1)), Status::kErrorNoMemory);
 
     // Check that after false memory allocation container not lost its contents
     EXPECT_EQ(vec.capacity(), 100);
@@ -220,19 +217,14 @@ TEST(VectorTest, PushBack)
 
     // test l-value
     std::string str("123");
-    auto& vec_ref1 = vec.push_back(str);
+    EXPECT_EQ(vec.pushBack(str), Status::kNoError);
     EXPECT_EQ(vec[0], "123");
-    EXPECT_EQ(&vec_ref1, &vec);
     EXPECT_EQ(str.size(), 3);
 
     // test r-value
-    auto& vec_ref2 = vec.push_back(std::move(str));
-
+    EXPECT_EQ(vec.pushBack(std::move(str)), Status::kNoError);
     EXPECT_EQ(vec[1], "123");
-    EXPECT_EQ(&vec_ref2, &vec);
     EXPECT_EQ(str.size(), 0);
-
-    EXPECT_EQ(&vec_ref1, &vec_ref2);
 }
 
 TEST(VectorTest, PushBackNoMove)
@@ -241,20 +233,15 @@ TEST(VectorTest, PushBackNoMove)
 
     // test l-value
     NoMoveConstructible str("123");
-    auto& vec_ref1 = vec.push_back(str);
+    EXPECT_EQ(vec.pushBack(str), Status::kNoError);
     EXPECT_EQ(vec[0], "123");
-    EXPECT_EQ(&vec_ref1, &vec);
     EXPECT_EQ(str.size, 3);
 
     // test r-value
-    auto& vec_ref2 = vec.push_back(std::move(str));
-
+    EXPECT_EQ(vec.pushBack(std::move(str)), Status::kNoError);
     EXPECT_EQ(vec[1], "123");
-    EXPECT_EQ(&vec_ref2, &vec);
     EXPECT_EQ(str.size, 3);
     EXPECT_TRUE(str.p != nullptr);
-
-    EXPECT_EQ(&vec_ref1, &vec_ref2);
 }
 
 TEST(VectorTest, PushBackPod)
@@ -262,18 +249,14 @@ TEST(VectorTest, PushBackPod)
     Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> vec_pod;
 
     // test l-value
-    auto& vec_ref1 = vec_pod.push_back("123");
+    EXPECT_EQ(vec_pod.pushBack("123"), Status::kNoError);
     EXPECT_EQ(memcmp(vec_pod.data(), "123", sizeof(PodStruct)), 0);
-    EXPECT_EQ(&vec_ref1, &vec_pod);
 
     // test r-value
     PodStruct ps("456");
-    auto& vec_ref2 = vec_pod.push_back(std::move(ps));
 
+    EXPECT_EQ(vec_pod.pushBack(std::move(ps)), Status::kNoError);
     EXPECT_EQ(memcmp(vec_pod.data() + 1, "456", sizeof(PodStruct)), 0);
-    EXPECT_EQ(&vec_ref2, &vec_pod);
-
-    EXPECT_EQ(&vec_ref1, &vec_ref2);
 }
 
 template<typename T>
@@ -286,8 +269,7 @@ void FPushBackN()
     for (size_type i = 0; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], g_data_array<T>[i]);
 
-    auto& vec_ref = vec.push_back_n(g_data_array<T>, 3);
-    EXPECT_EQ(&vec_ref, &vec);
+    EXPECT_EQ(vec.pushBackN(g_data_array<T>, 3), Status::kNoError);
     EXPECT_EQ(vec.size(), 6);
 
     for (size_type i = 0; i < vec.size(); ++i)
@@ -295,7 +277,7 @@ void FPushBackN()
 
     // test with additional memory allocation
     T another_data_array[] = { "abc", "def", "ghi" };
-    vec.push_back_n(another_data_array, 3);
+    vec.pushBackN(another_data_array, 3);
     EXPECT_EQ(vec.size(), 9);
 
     for (size_type i = 0; i < 6; ++i)
@@ -305,10 +287,10 @@ void FPushBackN()
         EXPECT_EQ(vec[i], another_data_array[i - 6]);
 
     // not valid data or data size tests
-    vec.push_back_n(nullptr, 3);
+    EXPECT_EQ(vec.pushBackN(nullptr, 3), Status::kErrorInvalidArgument);
     EXPECT_EQ(vec.size(), 9);
 
-    vec.push_back_n(g_data_array<T>, static_cast<size_type>(-1));
+    EXPECT_EQ(vec.pushBackN(g_data_array<T>, static_cast<size_type>(-1)), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 9);
 }
 
@@ -327,32 +309,51 @@ TEST(VectorTest, PushBackNPod)
     FPushBackN<PodStruct>();
 }
 
+TEST(VectorTest, PushBackArithmeticValue)
+{
+    Vector<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vec;
+    vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize); // as a precaution
+
+    constexpr double value = 5.;
+
+    EXPECT_EQ(vec.pushBackArithmeticValue(value), Status::kNoError);
+    EXPECT_EQ(*reinterpret_cast<decltype(value)*>(vec.data()), value);
+    EXPECT_EQ(vec.size(), sizeof(value));
+    EXPECT_EQ(vec.capacity(), 2 * sizeof(value));
+}
+
 template<typename T>
 void FReplace()
 {
     auto vec = getStringsFilledContainer<T>();
 
     // check that sparse construction is not allowed
-    size_type newOffset = vec.replace(5, g_data_array<T>, 3);
-    EXPECT_EQ(newOffset, 3);
+    EXPECT_EQ(vec.replace(g_data_array<T>, 5, 3), Status::kErrorOverflow);
+    EXPECT_EQ(vec.size(), 3);
+
+    // check for invalid arguments
+    EXPECT_EQ(vec.replace(nullptr, 3, 5), Status::kErrorInvalidArgument);
     EXPECT_EQ(vec.size(), 3);
 
     T another_data_array[] = { "abc", "def", "ghi" };
 
-    newOffset = vec.replace(1, another_data_array, 1);
-
+    size_type newOffset = 0;
+    EXPECT_EQ(vec.replace(another_data_array, 1, 1, &newOffset), Status::kNoError);
     EXPECT_EQ(newOffset, 2);
     EXPECT_EQ(vec.size(), 3);
 
-    vec.push_back_n(another_data_array, 3);
+    EXPECT_EQ(vec.pushBackN(another_data_array, 3), Status::kNoError);
 
     // test with additional memory allocation
-    newOffset = vec.replace(5, &another_data_array[1], 2);
+    EXPECT_EQ(vec.replace(&another_data_array[1], 2, 5, &newOffset), Status::kNoError);;
     EXPECT_EQ(newOffset, 7);
     EXPECT_EQ(vec.size(), 7);
 
     for (size_type i = 5; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], another_data_array[i - 4]);
+
+    // try to not pass optional arg
+    EXPECT_EQ(vec.insert(another_data_array, 0, 0), Status::kNoError);
 }
 
 TEST(VectorTest, Replace)
@@ -376,14 +377,13 @@ void FInsert()
     auto vec = getStringsFilledContainer<T>();
 
     // check that sparse construction is not allowed
-    size_type newOffset = vec.insert(5, g_data_array<T>, 3);
-    EXPECT_EQ(newOffset, 3);
+    EXPECT_EQ(vec.insert(g_data_array<T>, 3, 5), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 3);
 
     T another_data_array[] = { "abc", "def", "ghi" };
 
-    newOffset = vec.insert(0, another_data_array, 3);
-
+    size_type newOffset = 0;
+    EXPECT_EQ(vec.insert(another_data_array, 3, 0, &newOffset), Status::kNoError);
     EXPECT_EQ(newOffset, 3);
     EXPECT_EQ(vec.size(), 6);
     for (size_type i = 0; i < 3; ++i)
@@ -395,7 +395,7 @@ void FInsert()
     // test with additional memory allocation
     T another_data_array2[] = { "###", "$$$", "%%%" };
 
-    newOffset = vec.insert(2, another_data_array2, 3);
+    EXPECT_EQ(vec.insert(another_data_array2, 3, 2, &newOffset), Status::kNoError);
     EXPECT_EQ(newOffset, 5);
     EXPECT_EQ(vec.size(), 9);
 
@@ -412,8 +412,7 @@ void FInsert()
 
     T another_data_array3[] = { "+++", "---", "***" };
 
-    newOffset = vec.insert(8, another_data_array3, 3);
-
+    EXPECT_EQ(vec.insert(another_data_array3, 3, 8, &newOffset), Status::kNoError);
     EXPECT_EQ(newOffset, 11);
     EXPECT_EQ(vec.size(), 12);
 
@@ -433,19 +432,20 @@ void FInsert()
 
     EXPECT_EQ(vec[11], g_data_array<T>[2]);
 
-    // test not valid values
-    newOffset = vec.insert(13, another_data_array3, 3);
+    // try to not pass optional arg
+    EXPECT_EQ(vec.insert(another_data_array3, 0, 0), Status::kNoError);
 
-    EXPECT_EQ(newOffset, 12);
-    EXPECT_EQ(vec.size(), 12);
-
-    newOffset = vec.insert(10, nullptr, 3);
-
+    // test zero items
+    EXPECT_EQ(vec.insert(another_data_array3, 0, 10, &newOffset), Status::kNoError);
     EXPECT_EQ(newOffset, 10);
     EXPECT_EQ(vec.size(), 12);
 
-    newOffset = vec.insert(10, another_data_array3, 0);
+    // test not valid values
+    EXPECT_EQ(vec.insert(another_data_array3, 3, 13, &newOffset), Status::kErrorOverflow);
+    EXPECT_EQ(newOffset, 10);
+    EXPECT_EQ(vec.size(), 12);
 
+    EXPECT_EQ(vec.insert(nullptr, 3, 10, &newOffset), Status::kErrorInvalidArgument);
     EXPECT_EQ(newOffset, 10);
     EXPECT_EQ(vec.size(), 12);
 }
@@ -471,8 +471,7 @@ void FInsertIt()
     auto vec = getStringsFilledContainer<T>();
 
     // check that sparse construction is not allowed
-    auto it = vec.insert(vec.begin() + 5, g_data_array<T>, g_data_array<T> + 3);
-    EXPECT_EQ(it, vec.end());
+    EXPECT_EQ(vec.insert(g_data_array<T>, g_data_array<T> + 3, vec.begin() + 5), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 3);
 
     T another_data_array[] = { "abc", "def", "ghi" };
@@ -480,8 +479,8 @@ void FInsertIt()
     std::list<T> l1;
     l1.insert(l1.begin(), another_data_array, another_data_array + 3);
 
-    it = vec.insert(vec.begin(), l1.begin(), l1.end());
-
+    auto it = vec.end();
+    EXPECT_EQ(vec.insert(l1.begin(), l1.end(), vec.begin(), &it), Status::kNoError);
     EXPECT_EQ(*it, *(vec.begin() + 3));
     EXPECT_EQ(vec.size(), 6);
     for (size_type i = 0; i < 3; ++i)
@@ -495,8 +494,7 @@ void FInsertIt()
     std::list<T> l2;
     l2.insert(l2.begin(), another_data_array2, another_data_array2 + 3);
 
-    it = vec.insert(vec.begin() + 2, l2.begin(), l2.end());
-
+    EXPECT_EQ(vec.insert(l2.begin(), l2.end(), vec.begin() + 2, &it), Status::kNoError);
     EXPECT_EQ(*it, *(vec.begin() + 5));
     EXPECT_EQ(vec.size(), 9);
 
@@ -515,8 +513,7 @@ void FInsertIt()
     std::list<T> l3;
     l3.insert(l3.begin(), another_data_array3, another_data_array3 + 3);
 
-    it = vec.insert(vec.begin() + 8, l3.begin(), l3.end());
-
+    EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.begin() + 8, &it), Status::kNoError);
     EXPECT_EQ(*it, *(vec.begin() + 11));
     EXPECT_EQ(vec.size(), 12);
 
@@ -536,20 +533,20 @@ void FInsertIt()
 
     EXPECT_EQ(vec[11], g_data_array<T>[2]);
 
+    // try to not pass optional arg
+    EXPECT_EQ(vec.insert(l3.begin(), l3.begin(), vec.begin()), Status::kNoError);
+
     // try to insert by not valid iterator
-    it = vec.insert(vec.end(), l3.begin(), l3.end());
-
-    EXPECT_EQ(it, vec.end());
+    EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.end(), &it), Status::kErrorOverflow);
+    EXPECT_EQ(it, vec.begin() + 11);
     EXPECT_EQ(vec.size(), 12);
 
-    it = vec.insert(vec.begin() - 1, l3.begin(), l3.end());
-
-    EXPECT_EQ(it, vec.end());
+    EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.begin() - 1, &it), Status::kErrorOverflow);
+    EXPECT_EQ(it, vec.begin() + 11);
     EXPECT_EQ(vec.size(), 12);
 
-    it = vec.insert(vec.end() + 1, l3.begin(), l3.end());
-
-    EXPECT_EQ(it, vec.end());
+    EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.end() + 1, &it), Status::kErrorOverflow);
+    EXPECT_EQ(it, vec.begin() + 11);
     EXPECT_EQ(vec.size(), 12);
 }
 
@@ -574,35 +571,24 @@ void FErase()
     auto vec = getStringsFilledContainer<T>();
 
     T another_data_array[] = { "abc", "def", "ghi" };
-    vec.push_back_n(another_data_array, 3);
+    vec.pushBackN(another_data_array, 3);
 
     EXPECT_EQ(vec.size(), 6);
 
     // try to erase by not valid offset
-    auto newOffset = vec.erase(vec.size() + 1, 1);
-
-    EXPECT_EQ(newOffset, vec.size());
+    EXPECT_EQ(vec.erase(vec.size() + 1, 1), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 6);
 
     // try to erase 0 elements
-    newOffset = vec.erase(1, 0);
-
-    EXPECT_EQ(newOffset, 1);
+    EXPECT_EQ(vec.erase(1, 0), Status::kNoError);
     EXPECT_EQ(vec.size(), 6);
 
-    newOffset = vec.erase(vec.size(), 1);
-
-    EXPECT_EQ(newOffset, vec.size());
-    EXPECT_EQ(vec.size(), 6);
-
-    newOffset = vec.erase(0, 0);
-
-    EXPECT_EQ(newOffset, 0);
+    // try to erase out of bounds element
+    EXPECT_EQ(vec.erase(vec.size(), 1), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 6);
 
     // main usage
-    newOffset = vec.erase(4, 1);
-    EXPECT_EQ(newOffset, 4);
+    EXPECT_EQ(vec.erase(4, 1), Status::kNoError);
     EXPECT_EQ(vec.size(), 5);
 
     for (size_type i = 0; i < 3; ++i)
@@ -611,33 +597,27 @@ void FErase()
     EXPECT_EQ(vec[3], another_data_array[0]);
     EXPECT_EQ(vec[4], another_data_array[2]);
 
-    newOffset = vec.erase(1, 2);
-    EXPECT_EQ(newOffset, 1);
+    EXPECT_EQ(vec.erase(1, 2), Status::kNoError);
     EXPECT_EQ(vec.size(), 3);
 
     EXPECT_EQ(vec[0], g_data_array<T>[0]);
     EXPECT_EQ(vec[1], another_data_array[0]);
     EXPECT_EQ(vec[2], another_data_array[2]);
 
-    newOffset = vec.erase(2, vec.size());
-    EXPECT_EQ(newOffset, 2);
+    EXPECT_EQ(vec.erase(2, vec.size()), Status::kNoError);
     EXPECT_EQ(vec.size(), 2);
 
     EXPECT_EQ(vec[0], g_data_array<T>[0]);
     EXPECT_EQ(vec[1], another_data_array[0]);
 
     // test that only right range is cut after last element
-    newOffset = vec.erase(1, 10);
-
-    EXPECT_EQ(newOffset, 1);
+    EXPECT_EQ(vec.erase(1, 10), Status::kNoError);
     EXPECT_EQ(vec.size(), 1);
 
     EXPECT_EQ(vec[0], g_data_array<T>[0]);
 
     // test extra big n
-    newOffset = vec.erase(0, static_cast<size_type>(-1));
-
-    EXPECT_EQ(newOffset, 0);
+    EXPECT_EQ(vec.erase(0, static_cast<size_type>(-1)), Status::kNoError);
     EXPECT_EQ(vec.size(), 0);
 }
 
@@ -662,40 +642,29 @@ void FEraseIt()
     auto vec = getStringsFilledContainer<T>();
 
     T another_data_array[] = { "abc", "def", "ghi" };
-    vec.push_back_n(another_data_array, 3);
+    vec.pushBackN(another_data_array, 3);
 
     EXPECT_EQ(vec.size(), 6);
 
     // try to erase by not valid iterator
-    auto it = vec.erase(vec.begin() - 1, vec.begin() + 1);
-
-    EXPECT_EQ(it, vec.end());
+    EXPECT_EQ(vec.erase(vec.begin() - 1, vec.begin() + 1), Status::kErrorInvalidArgument);
     EXPECT_EQ(vec.size(), 6);
 
-    it = vec.erase(vec.begin(), vec.begin() - 1);
-
-    EXPECT_EQ(it, vec.end());
+    EXPECT_EQ(vec.erase(vec.begin(), vec.begin() - 1), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 6);
 
-    it = vec.erase(vec.begin() + 1, vec.begin());
-
-    EXPECT_EQ(it, vec.end());
+    EXPECT_EQ(vec.erase(vec.begin() + 1, vec.begin()), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 6);
 
     // try to erase 0 elements
-    it = vec.erase(vec.end(), vec.end());
-
-    EXPECT_EQ(it, vec.end());
+    EXPECT_EQ(vec.erase(vec.end(), vec.end()), Status::kErrorInvalidArgument);
     EXPECT_EQ(vec.size(), 6);
 
-    it = vec.erase(vec.begin() + 1, vec.begin() + 1);
-
-    EXPECT_EQ(it, vec.begin() + 1);
+    EXPECT_EQ(vec.erase(vec.begin() + 1, vec.begin() + 1), Status::kNoError);
     EXPECT_EQ(vec.size(), 6);
 
     // main usage
-    it = vec.erase(vec.begin() + 4, vec.begin() + 5);
-    EXPECT_EQ(it, vec.begin() + 4);
+    EXPECT_EQ(vec.erase(vec.begin() + 4, vec.begin() + 5), Status::kNoError);
     EXPECT_EQ(vec.size(), 5);
 
     for (size_type i = 0; i < 3; ++i)
@@ -704,25 +673,21 @@ void FEraseIt()
     EXPECT_EQ(vec[3], another_data_array[0]);
     EXPECT_EQ(vec[4], another_data_array[2]);
 
-    it = vec.erase(vec.begin() + 1, vec.begin() + 3);
-    EXPECT_EQ(it, vec.begin() + 1);
+    EXPECT_EQ(vec.erase(vec.begin() + 1, vec.begin() + 3), Status::kNoError);
     EXPECT_EQ(vec.size(), 3);
 
     EXPECT_EQ(vec[0], g_data_array<T>[0]);
     EXPECT_EQ(vec[1], another_data_array[0]);
     EXPECT_EQ(vec[2], another_data_array[2]);
 
-    it = vec.erase(vec.begin() + 2, vec.end());
-    EXPECT_EQ(it, vec.begin() + 2);
+    EXPECT_EQ(vec.erase(vec.begin() + 2, vec.end()), Status::kNoError);
     EXPECT_EQ(vec.size(), 2);
 
     EXPECT_EQ(vec[0], g_data_array<T>[0]);
     EXPECT_EQ(vec[1], another_data_array[0]);
 
     // test that only right range is cut after end()
-    it = vec.erase(vec.begin() + 1, vec.end() + 10);
-
-    EXPECT_EQ(it, vec.end());
+    EXPECT_EQ(vec.erase(vec.begin() + 1, vec.end() + 10), Status::kNoError);
     EXPECT_EQ(vec.size(), 1);
 
     EXPECT_EQ(vec[0], g_data_array<T>[0]);
@@ -750,45 +715,44 @@ void FCopyN()
 
     T another_data_array[3] = { T{}, T{}, T{} };
 
-    auto p = vec.copy_n(0, 3, another_data_array);
-
+    T* p = nullptr;
+        
+    EXPECT_EQ(vec.copyN(0, 3, another_data_array, &p), Status::kNoError);
     EXPECT_EQ(p, another_data_array + 3);
 
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
-    p = vec.copy_n(1, 3, another_data_array);
-
+    EXPECT_EQ(vec.copyN(1, 3, another_data_array, &p), Status::kNoError);
     EXPECT_EQ(p, another_data_array + 2);
     EXPECT_EQ(vec[1], another_data_array[0]);
     EXPECT_EQ(vec[2], another_data_array[1]);
     EXPECT_EQ(vec[2], another_data_array[2]);
 
-    // copy more than vec has
-    p = vec.copy_n(0, 10, another_data_array);
+    // try to not pass optional arg
+    EXPECT_EQ(vec.copyN(0, 0, another_data_array), Status::kNoError);
 
+    // copy more than vec has
+    EXPECT_EQ(vec.copyN(0, 10, another_data_array, &p), Status::kNoError);
     EXPECT_EQ(p, another_data_array + 3);
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     // copy zero elements
-    p = vec.copy_n(1, 0, another_data_array);
-
+    EXPECT_EQ(vec.copyN(1, 0, another_data_array, &p), Status::kNoError);
     EXPECT_EQ(p, another_data_array);
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     // try to copy with wrong offset
-    p = vec.copy_n(3, 1, another_data_array);
-
+    EXPECT_EQ(vec.copyN(3, 1, another_data_array, &p), Status::kErrorOverflow);
     EXPECT_EQ(p, another_data_array);
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     // try to copy with nullptr as destination
-    p = vec.copy_n(1, 3, nullptr);
-
-    EXPECT_EQ(p, nullptr);
+    EXPECT_EQ(vec.copyN(1, 3, nullptr, &p), Status::kErrorInvalidArgument);
+    EXPECT_EQ(p, another_data_array);
 }
 
 TEST(VectorTest, CopyN)
@@ -814,13 +778,13 @@ void FCopyNIt()
     T another_data_array[3] = { T{}, T{}, T{} };
     std::list<T> l(another_data_array, another_data_array + 3);
 
-    auto it = vec.copy_n(vec.begin(), vec.end(), l.begin());
-   
+    auto it = l.end();
+
+    EXPECT_EQ(vec.copyN(vec.begin(), vec.end(), l.begin(), &it), Status::kNoError);
     EXPECT_EQ(it, l.end());
     EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
 
-    it = vec.copy_n(vec.begin() + 1, vec.end(), l.begin());
-    
+    EXPECT_EQ(vec.copyN(vec.begin() + 1, vec.end(), l.begin(), &it), Status::kNoError); 
     auto tempIt = ++l.begin();
     EXPECT_EQ(it, ++tempIt);
 
@@ -828,25 +792,28 @@ void FCopyNIt()
     EXPECT_EQ(vec[1], *tempIt);
     EXPECT_EQ(vec[2], *++tempIt);
     EXPECT_EQ(vec[2], *++tempIt);
-    
-    // copy more than vec has
-    it = vec.copy_n(vec.begin(), vec.end() + 1, l.begin());
 
+    // try to not pass optional arg
+    EXPECT_EQ(vec.copyN(vec.begin(), vec.begin(), l.begin()), Status::kNoError);
+
+    // copy more than vec has
+    EXPECT_EQ(vec.copyN(vec.begin(), vec.end() + 1, l.begin(), &it), Status::kNoError);
     EXPECT_EQ(it, l.end());
     EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
 
     // copy zero elements
-    it = vec.copy_n(vec.begin(), vec.begin(), l.begin());
-
+    it = l.begin();
+    EXPECT_EQ(vec.copyN(vec.begin(), vec.begin(), l.begin(), &it), Status::kNoError);
     EXPECT_EQ(it, l.begin());
     EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
 
-    // try to copy with wrong offset
-    it = vec.copy_n(vec.end(), vec.begin(), l.begin());
+    // try invalid range
+    EXPECT_EQ(vec.copyN(vec.begin() + 1, vec.begin(), l.begin(), &it), Status::kErrorOverflow);
     EXPECT_EQ(it, l.begin());
     EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
 
-    it = vec.copy_n(vec.end(), vec.end(), l.begin());
+    // try to copy with wrong start offset
+    EXPECT_EQ(vec.copyN(vec.end(), vec.end(), l.begin(), &it), Status::kErrorInvalidArgument);
     EXPECT_EQ(it, l.begin());
     EXPECT_TRUE(std::equal(vec.begin(), vec.end(), l.begin()));
 }
@@ -872,7 +839,7 @@ TEST(VectorTest, Data)
 
     EXPECT_EQ(vec.data(), nullptr);
 
-    vec.push_back_n(g_data_array<std::string>, 3);
+    vec.pushBackN(g_data_array<std::string>, 3);
 
     for (size_type i = 0; i < vec.size(); ++i)
         EXPECT_EQ(*(vec.data() + i), g_data_array<std::string>[i]);
@@ -892,7 +859,7 @@ TEST(VectorTest, Size)
 
     EXPECT_EQ(vec.size(), 0);
 
-    vec.push_back_n(g_data_array<std::string>, 3);
+    vec.pushBackN(g_data_array<std::string>, 3);
 
     EXPECT_EQ(vec.size(), 3);
 }
@@ -916,7 +883,7 @@ TEST(VectorTest, Capacity)
 
     vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
 
-    vec.push_back_n(g_data_array<std::string>, 3);
+    vec.pushBackN(g_data_array<std::string>, 3);
 
     EXPECT_EQ(vec.capacity(), 3);
 }
@@ -967,40 +934,6 @@ TEST(VectorTest, GetAllocatorHelper)
 
     EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(allocator)>, DefaultVectorAllocatorHelper<std::string>>));
     EXPECT_TRUE((std::is_lvalue_reference_v<decltype(allocator)>));
-}
-
-TEST(VectorTest, PushBackArithmeticValue)
-{
-    Vector<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vec;
-    vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize); // as a precaution
-
-    constexpr double value = 5.;
-
-    vec.pushBackArithmeticValue(value);
-
-    EXPECT_EQ(*reinterpret_cast<decltype(value)*>(vec.data()), value);
-    EXPECT_EQ(vec.size(), sizeof(value));
-    EXPECT_EQ(vec.capacity(), 2 * sizeof(value));
-
-
-    Vector<SerTInh<>, DefaultVectorAllocatorHelper<SerTInh<>>> vecTest;
-    vecTest.push_back(SerTInh());
-    vecTest.push_back(SerTInh());
-    vecTest[0].arr[1] = 1;
-    vecTest[0].arr[2] = 2;
-    vecTest[0].arr[3] = 3;
-    vecTest[0].arr[4] = 4;
-
-    vecTest[1].arr[4] = 6;
-
-    Walker<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vecBin;
-    vecTest.serialize(vecBin);
-    vecTest.clear();
-
-    vecBin.seek(0);
-    
-    //Vector<SerTInh<>, GenericAllocatorHelper<SerTInh<>, ConstructorNoexceptAllocator<SerTInh<>>>> vecTest2;
-    vecTest.deserialize(vecBin);
 }
 
 } // namespace anonymous

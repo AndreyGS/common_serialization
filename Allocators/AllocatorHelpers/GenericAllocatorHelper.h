@@ -78,7 +78,7 @@ template<typename... Args>
 
     if constexpr (constructor_allocator::value)
         if (p)
-            this->construct_n(p, requestedN, std::forward<Args>(args)...);
+            this->constructN(p, requestedN, std::forward<Args>(args)...);
 
     return p;
 }
@@ -121,6 +121,9 @@ constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyIm
 {
     assert(!n || dest && src);
 
+    if (dest == src)
+        return;
+
     if (helpers::areRegionsOverlap(dest, src, n) && dest > src)
     {
         if constexpr (constructor_allocator::value)
@@ -139,6 +142,9 @@ constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyNo
 {
     assert(!n || dest && src);
 
+    if (dest == src)
+        return;
+
     if constexpr (constructor_allocator::value)
         for (size_type i = 0; i < n; ++i)
             this->getAllocator().construct(dest + i, *(src + i));
@@ -151,6 +157,9 @@ template<typename T, IAllocator Allocator, typename AllocatorHelper>
 constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyAssignImpl(T* dest, const T* src, size_type n) const
 {
     assert(!n || dest && src);
+
+    if (dest == src)
+        return;
 
     if (helpers::areRegionsOverlap(dest, src, n) && dest > src)
     {
@@ -170,6 +179,9 @@ constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyAs
 {
     assert(!n || dest && src);
 
+    if (dest == src)
+        return;
+
     if constexpr (constructor_allocator::value)
         for (size_type i = 0; i < n; ++i)
             *(dest + i) = *(src + i);
@@ -182,6 +194,9 @@ template<typename T, IAllocator Allocator, typename AllocatorHelper>
 constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::moveImpl(T* dest, T* src, size_type n) const
 {
     assert(!n || dest && src);
+
+    if (dest == src)
+        return;
 
     if (helpers::areRegionsOverlap(dest, src, n) && dest > src)
     {
@@ -199,6 +214,9 @@ template<typename T, IAllocator Allocator, typename AllocatorHelper>
 constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::moveNoOverlapImpl(T* dest, T* src, size_type n) const
 {
     assert(!n || dest && src);
+
+    if (dest == src)
+        return;
 
     if constexpr (constructor_allocator::value)
         for (size_type i = 0; i < n; ++i)

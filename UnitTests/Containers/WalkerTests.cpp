@@ -27,7 +27,7 @@ auto getStringsFilledContainer()
     static Walker<T, DefaultWalkerAllocatorHelper<T>> walker;
 
     if (walker.size() == 0)
-        walker.push_back_n(g_data_array<T>, 3);
+        walker.pushBackN(g_data_array<T>, 3);
 
     EXPECT_EQ(walker.capacity(), 6); // check that nothing is changed in allocation strategy
 
@@ -40,7 +40,7 @@ auto getStringsFilledContainer<PodStruct>()
     static Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> walker;
 
     if (walker.size() == 0)
-        walker.push_back_n(g_data_array<PodStruct>, 3);
+        walker.pushBackN(g_data_array<PodStruct>, 3);
 
     EXPECT_EQ(walker.capacity(), 6); // check that nothing is changed in allocation strategy
 
@@ -187,7 +187,7 @@ TEST(WalkerTest, Reserve)
     walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
 
     int i = 1;
-    walker.push_back(i);
+    walker.pushBack(i);
     EXPECT_EQ(walker.capacity(), 1);
 
     bool b = walker.reserve(100);
@@ -214,7 +214,7 @@ TEST(WalkerTest, ReserveFromCurrentOffset)
     walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
 
     int i = 1;
-    walker.push_back(i);
+    walker.pushBack(i);
     EXPECT_EQ(walker.capacity(), 1);
 
     bool b = walker.reserve_from_current_offset(100);
@@ -241,14 +241,14 @@ TEST(WalkerTest, PushBack)
 
     // test l-value
     std::string str("123");
-    auto n = walker.push_back(str);
+    auto n = walker.pushBack(str);
     EXPECT_EQ(n, 1);
     EXPECT_EQ(walker[0], "123");
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(str.size(), 3);
 
     // test r-value
-    n = walker.push_back(std::move(str));
+    n = walker.pushBack(std::move(str));
     EXPECT_EQ(n, 1);
     EXPECT_EQ(walker[1], "123");
     EXPECT_EQ(walker.tell(), 2);
@@ -261,14 +261,14 @@ TEST(WalkerTest, PushBackNoMove)
 
     // test l-value
     NoMoveConstructible str("123");
-    auto n = walker.push_back(str);
+    auto n = walker.pushBack(str);
     EXPECT_EQ(n, 1);
     EXPECT_EQ(walker[0], "123");
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(str.size, 3);
 
     // test r-value
-    n = walker.push_back(std::move(str));
+    n = walker.pushBack(std::move(str));
     EXPECT_EQ(n, 1);
     EXPECT_EQ(walker[1], "123");
     EXPECT_EQ(walker.tell(), 2);
@@ -281,14 +281,14 @@ TEST(WalkerTest, PushBackPod)
     Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> walker_pod;
 
     // test l-value
-    auto n = walker_pod.push_back("123");
+    auto n = walker_pod.pushBack("123");
     EXPECT_EQ(n, 1);
     EXPECT_EQ(memcmp(walker_pod.data(), "123", sizeof(PodStruct)), 0);
     EXPECT_EQ(walker_pod.tell(), 1);
 
     // test r-value
     PodStruct ps("456");
-    n = walker_pod.push_back(std::move(ps));
+    n = walker_pod.pushBack(std::move(ps));
     EXPECT_EQ(n, 1);
     EXPECT_EQ(memcmp(walker_pod.data() + 1, "456", sizeof(PodStruct)), 0);
     EXPECT_EQ(walker_pod.tell(), 2);
@@ -304,7 +304,7 @@ void FPushBackN()
     for (size_type i = 0; i < walker.size(); ++i)
         EXPECT_EQ(walker[i], g_data_array<T>[i]);
 
-    auto n = walker.push_back_n(g_data_array<T>, 3);
+    auto n = walker.pushBackN(g_data_array<T>, 3);
     EXPECT_EQ(n, 3);
     EXPECT_EQ(walker.tell(), 6);
     EXPECT_EQ(walker.size(), 6);
@@ -314,7 +314,7 @@ void FPushBackN()
 
     // test with additional memory allocation
     T another_data_array[] = { "abc", "def", "ghi" };
-    walker.push_back_n(another_data_array, 3);
+    walker.pushBackN(another_data_array, 3);
     EXPECT_EQ(walker.size(), 9);
 
     for (size_type i = 0; i < 6; ++i)
@@ -324,10 +324,10 @@ void FPushBackN()
         EXPECT_EQ(walker[i], another_data_array[i - 6]);
 
     // not valid data or data size tests
-    walker.push_back_n(nullptr, 3);
+    walker.pushBackN(nullptr, 3);
     EXPECT_EQ(walker.size(), 9);
 
-    walker.push_back_n(g_data_array<T>, static_cast<size_type>(-1));
+    walker.pushBackN(g_data_array<T>, static_cast<size_type>(-1));
     EXPECT_EQ(walker.size(), 9);
 }
 
@@ -364,7 +364,7 @@ void FReplace()
     EXPECT_EQ(walker.tell(), 2);
     EXPECT_EQ(walker.size(), 3);
 
-    walker.push_back_n(another_data_array, 3);
+    walker.pushBackN(another_data_array, 3);
 
     // test with additional memory allocation
     n = walker.replace(5, &another_data_array[1], 2);
@@ -598,7 +598,7 @@ void FErase()
     auto walker = getStringsFilledContainer<T>();
 
     T another_data_array[] = { "abc", "def", "ghi" };
-    walker.push_back_n(another_data_array, 3);
+    walker.pushBackN(another_data_array, 3);
 
     EXPECT_EQ(walker.size(), 6);
 
@@ -689,7 +689,7 @@ void FEraseIt()
     auto walker = getStringsFilledContainer<T>();
 
     T another_data_array[] = { "abc", "def", "ghi" };
-    walker.push_back_n(another_data_array, 3);
+    walker.pushBackN(another_data_array, 3);
 
     EXPECT_EQ(walker.size(), 6);
 
@@ -786,7 +786,7 @@ void FWrite()
     EXPECT_EQ(walker.tell(), 2);
     EXPECT_EQ(walker.size(), 3);
 
-    walker.push_back_n(another_data_array, 3);
+    walker.pushBackN(another_data_array, 3);
 
     // test with additional memory allocation
     walker.seek(5);
@@ -893,7 +893,7 @@ TEST(WalkerTest, Data)
 
     EXPECT_EQ(walker.data(), nullptr);
 
-    walker.push_back_n(g_data_array<std::string>, 3);
+    walker.pushBackN(g_data_array<std::string>, 3);
 
     for (size_type i = 0; i < walker.size(); ++i)
         EXPECT_EQ(*(walker.data() + i), g_data_array<std::string>[i]);
@@ -913,7 +913,7 @@ TEST(WalkerTest, Size)
 
     EXPECT_EQ(walker.size(), 0);
 
-    walker.push_back_n(g_data_array<std::string>, 3);
+    walker.pushBackN(g_data_array<std::string>, 3);
 
     EXPECT_EQ(walker.size(), 3);
 }
@@ -933,7 +933,7 @@ TEST(WalkerTest, Capacity)
 
     walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
 
-    walker.push_back_n(g_data_array<std::string>, 3);
+    walker.pushBackN(g_data_array<std::string>, 3);
 
     EXPECT_EQ(walker.capacity(), 3);
 }
@@ -1004,14 +1004,14 @@ TEST(WalkerTest, Tell)
     Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
     EXPECT_EQ(walker.tell(), 0);
 
-    walker.push_back_n(g_data_array<std::string>, 3);
+    walker.pushBackN(g_data_array<std::string>, 3);
     EXPECT_EQ(walker.tell(), 3);
 }
 
 TEST(WalkerTest, Seek)
 {
     Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
-    walker.push_back_n(g_data_array<std::string>, 3);
+    walker.pushBackN(g_data_array<std::string>, 3);
     walker.seek(1);
     EXPECT_EQ(walker.tell(), 1);
 
@@ -1038,8 +1038,8 @@ TEST(WalkerTest, PushBackArithmeticValue)
 TEST(WalkerTest, ReadArithmeticValue)
 {
     Walker<std::uint8_t, DefaultWalkerAllocatorHelper<std::uint8_t>> walker;
-    walker.push_back(1);
-    walker.push_back(2);
+    walker.pushBack(1);
+    walker.pushBack(2);
     walker.seek(0);
 
     constexpr short test = 1 | (2 << 8);

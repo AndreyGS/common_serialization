@@ -42,7 +42,7 @@ constexpr int serializeThis(const T* p, size_t n, S& output)
         const typename S::size_type bytesSize = sizeof(T) * n;
         assert((n == bytesSize / sizeof(T)));
 
-        output.push_back_n(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize);
+        output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize);
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
@@ -83,7 +83,7 @@ constexpr int serializeThis(const T* p, size_t n, SerializationFlags flags, S& o
             output.pushBackArithmeticValue(sizeof(T));
         }
 
-        output.push_back_n(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize);
+        output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize);
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
@@ -108,7 +108,7 @@ constexpr int serializeThis(const T(&arr)[N], S& output)
         constexpr typename S::size_type bytesSize = sizeof(T) * N;
         static_assert(N == bytesSize / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array input of serializeThis");
 
-        output.push_back_n(static_cast<const uint8_t*>(static_cast<const void*>(arr)), bytesSize);
+        output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(arr)), bytesSize);
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
@@ -149,7 +149,7 @@ constexpr int serializeThis(const T(&arr)[N], SerializationFlags flags, S& outpu
             output.pushBackArithmeticValue(sizeof(T));
         }
 
-        output.push_back_n(static_cast<const uint8_t*>(static_cast<const void*>(arr)), bytesSize);
+        output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(arr)), bytesSize);
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {

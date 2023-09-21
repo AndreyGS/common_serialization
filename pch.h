@@ -1,8 +1,12 @@
 #pragma once
 
-
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 #include <cstdint>
+#endif // USER_MODE
+
+#include "Status.h"
+
+#ifdef USER_MODE // must be defined when c++ standard library is availible
 #include <cstdlib>
 #include <cassert>
 #include <concepts>

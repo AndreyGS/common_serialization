@@ -1,5 +1,5 @@
 /**
- * @file errors.h
+ * @file Status.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,8 +26,18 @@
 namespace common_serialization
 {
 
-inline constexpr NO_ERROR = 0;
-inline constexpr ERROR_NO_MEMORY = 1;
-inline constexpr ERROR_OVERFLOW = 2;
-
+enum class Status : int_fast32_t
+{
+    kNoError                                        = 0,
+    kErrorNoMemory                                  = -1,
+    kErrorOverflow                                  = -2,
+    kErrorInvalidArgument                           = -3
 };
+
+#define RUN(x)                                                                  \
+{                                                                               \
+    if (Status status = (x); status != common_serialization::Status::kNoError)    \
+        return status;                                                          \
+}
+
+} // namespace common_serialization

@@ -60,7 +60,7 @@ public:
     }
 
     template<typename... Args>
-    constexpr void construct_n(T* p, size_t n, Args&&... args) const
+    constexpr void constructN(T* p, size_t n, Args&&... args) const
     {
         return static_cast<const AllocatorHelper*>(this)->constructNImpl(p, n, std::forward<Args>(args)...);
     }
