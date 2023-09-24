@@ -9,6 +9,6 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(containers_tests "Containers/VectorTests.cpp" "Allocators/RawKeeperAllocatorTests.cpp" "Serialization/SerializeNoFlagsTests.cpp")
+add_executable(containers_tests "Containers/VectorTests.cpp" "Containers/WalkerTests.cpp" "Allocators/RawKeeperAllocatorTests.cpp" "Serialization/SerializeNoFlagsTests.cpp")
 target_link_libraries(containers_tests PUBLIC common_options PRIVATE gtest_main)
 target_include_directories(containers_tests PRIVATE "${PROJECT_SOURCE_DIR}")

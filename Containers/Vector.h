@@ -541,7 +541,7 @@ constexpr Status Vector<T, AllocatorHelper>::replace(const T* p, size_type n, si
         return Status::kErrorInvalidArgument;
     
     // don't allow to create sparse array by this function
-    if (offset >= m_dataSize)
+    if (offset > m_dataSize)
         return Status::kErrorOverflow;
 
     size_type offsetPlusN = offset + n;

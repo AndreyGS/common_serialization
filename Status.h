@@ -28,10 +28,10 @@ namespace common_serialization
 
 enum class Status : int_fast32_t
 {
-    kNoError                                        = 0,
-    kErrorNoMemory                                  = -1,
-    kErrorOverflow                                  = -2,
-    kErrorInvalidArgument                           = -3
+    kNoError                                        =        0,
+    kErrorNoMemory                                  =       -1,
+    kErrorOverflow                                  =       -2,
+    kErrorInvalidArgument                           =       -3
 };
 
 #define RUN(x)                                                                  \

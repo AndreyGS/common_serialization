@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "special_types.h"
 #include "Containers/Vector.h"
+#include "Allocators/RawKeeperAllocator.h"
 #include "string"
 #include "list"
 #include "Serialization/ISerializable.h"
@@ -214,15 +215,17 @@ TEST(VectorTest, Reserve)
 TEST(VectorTest, PushBack)
 {
     Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec;
+    std::string str("123");
 
     // test l-value
-    std::string str("123");
     EXPECT_EQ(vec.pushBack(str), Status::kNoError);
+    EXPECT_EQ(vec.size(), 1);
     EXPECT_EQ(vec[0], "123");
     EXPECT_EQ(str.size(), 3);
 
     // test r-value
     EXPECT_EQ(vec.pushBack(std::move(str)), Status::kNoError);
+    EXPECT_EQ(vec.size(), 2);
     EXPECT_EQ(vec[1], "123");
     EXPECT_EQ(str.size(), 0);
 }
@@ -257,6 +260,16 @@ TEST(VectorTest, PushBackPod)
 
     EXPECT_EQ(vec_pod.pushBack(std::move(ps)), Status::kNoError);
     EXPECT_EQ(memcmp(vec_pod.data() + 1, "456", sizeof(PodStruct)), 0);
+
+    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec_pod2;
+
+    // test l-value
+    EXPECT_EQ(vec_pod2.pushBack(ps), Status::kErrorNoMemory);
+    EXPECT_EQ(vec_pod2.size(), 0);
+
+    // test r-value
+    EXPECT_EQ(vec_pod2.pushBack(std::move(ps)), Status::kErrorNoMemory);
+    EXPECT_EQ(vec_pod2.size(), 0);
 }
 
 template<typename T>
@@ -277,7 +290,7 @@ void FPushBackN()
 
     // test with additional memory allocation
     T another_data_array[] = { "abc", "def", "ghi" };
-    vec.pushBackN(another_data_array, 3);
+    EXPECT_EQ(vec.pushBackN(another_data_array, 3), Status::kNoError);
     EXPECT_EQ(vec.size(), 9);
 
     for (size_type i = 0; i < 6; ++i)
@@ -307,6 +320,12 @@ TEST(VectorTest, PushBackNNoMove)
 TEST(VectorTest, PushBackNPod)
 {
     FPushBackN<PodStruct>();
+
+    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec_pod;
+    PodStruct ps("456");
+
+    EXPECT_EQ(vec_pod.pushBackN(&ps, 1), Status::kErrorNoMemory);
+    EXPECT_EQ(vec_pod.size(), 0);
 }
 
 TEST(VectorTest, PushBackArithmeticValue)
@@ -320,6 +339,11 @@ TEST(VectorTest, PushBackArithmeticValue)
     EXPECT_EQ(*reinterpret_cast<decltype(value)*>(vec.data()), value);
     EXPECT_EQ(vec.size(), sizeof(value));
     EXPECT_EQ(vec.capacity(), 2 * sizeof(value));
+
+    Vector<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> vec2;
+
+    EXPECT_EQ(vec2.pushBackArithmeticValue(value), Status::kErrorNoMemory);
+    EXPECT_EQ(vec2.size(), 0);
 }
 
 template<typename T>
@@ -328,11 +352,11 @@ void FReplace()
     auto vec = getStringsFilledContainer<T>();
 
     // check that sparse construction is not allowed
-    EXPECT_EQ(vec.replace(g_data_array<T>, 5, 3), Status::kErrorOverflow);
+    EXPECT_EQ(vec.replace(g_data_array<T>, 3, 4), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 3);
 
     // check for invalid arguments
-    EXPECT_EQ(vec.replace(nullptr, 3, 5), Status::kErrorInvalidArgument);
+    EXPECT_EQ(vec.replace(nullptr, 3, 4), Status::kErrorInvalidArgument);
     EXPECT_EQ(vec.size(), 3);
 
     T another_data_array[] = { "abc", "def", "ghi" };
@@ -345,15 +369,20 @@ void FReplace()
     EXPECT_EQ(vec.pushBackN(another_data_array, 3), Status::kNoError);
 
     // test with additional memory allocation
-    EXPECT_EQ(vec.replace(&another_data_array[1], 2, 5, &newOffset), Status::kNoError);;
+    EXPECT_EQ(vec.replace(&another_data_array[1], 2, 5, &newOffset), Status::kNoError);
     EXPECT_EQ(newOffset, 7);
     EXPECT_EQ(vec.size(), 7);
 
     for (size_type i = 5; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], another_data_array[i - 4]);
 
+    // test on offest == size
+    EXPECT_EQ(vec.replace(&another_data_array[1], 2, 7, &newOffset), Status::kNoError);
+    EXPECT_EQ(newOffset, 9);
+    EXPECT_EQ(vec.size(), 9);
+
     // try to not pass optional arg
-    EXPECT_EQ(vec.insert(another_data_array, 0, 0), Status::kNoError);
+    EXPECT_EQ(vec.replace(another_data_array, 0, 0), Status::kNoError);
 }
 
 TEST(VectorTest, Replace)
@@ -369,6 +398,11 @@ TEST(VectorTest, ReplaceNoMove)
 TEST(VectorTest, ReplacePod)
 {
     FReplace<PodStruct>();
+
+    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec_pod;
+    PodStruct psArr{ "456" };
+
+    EXPECT_EQ(vec_pod.replace(&psArr, 1, 0), Status::kErrorNoMemory);
 }
 
 template<typename T>
@@ -463,6 +497,12 @@ TEST(VectorTest, InsertNoMove)
 TEST(VectorTest, InsertPod)
 {
     FInsert<PodStruct>();
+
+    Vector<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> vec;
+    uint8_t i = 1;
+
+    EXPECT_EQ(vec.insert(&i, 1, 0), Status::kErrorNoMemory);
+    EXPECT_EQ(vec.size(), 0);
 }
 
 template<typename T>
@@ -563,6 +603,16 @@ TEST(VectorTest, InsertItNoMove)
 TEST(VectorTest, InsertItPod)
 {
     FInsertIt<PodStruct>();
+
+    Vector<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> vec;
+    uint8_t i = 0;
+    vec.getAllocatorHelper().getAllocator().setStorage(&i, 1);
+    vec.pushBack(i);
+
+    std::list<uint8_t> l1;
+    l1.push_back(i);
+    EXPECT_EQ(vec.insert(l1.begin(), l1.end(), vec.begin()), Status::kErrorNoMemory);
+    EXPECT_EQ(vec.size(), 1);
 }
 
 template<typename T>
@@ -576,15 +626,11 @@ void FErase()
     EXPECT_EQ(vec.size(), 6);
 
     // try to erase by not valid offset
-    EXPECT_EQ(vec.erase(vec.size() + 1, 1), Status::kErrorOverflow);
+    EXPECT_EQ(vec.erase(vec.size(), 1), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 6);
 
     // try to erase 0 elements
     EXPECT_EQ(vec.erase(1, 0), Status::kNoError);
-    EXPECT_EQ(vec.size(), 6);
-
-    // try to erase out of bounds element
-    EXPECT_EQ(vec.erase(vec.size(), 1), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 6);
 
     // main usage

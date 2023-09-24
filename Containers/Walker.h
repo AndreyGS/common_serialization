@@ -60,7 +60,7 @@ public:
 
     constexpr Status insert(const T* p, size_type n, size_type offset);
     template<typename ItSrc>
-    constexpr Status insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin);
+    constexpr Status insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd = nullptr);
 
     constexpr Status erase(size_type offset, size_type n);
     constexpr Status erase(iterator destBegin, iterator destEnd);
@@ -158,7 +158,7 @@ template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::pushBack(const T& value)
 {
     RUN(m_vector.pushBack(value));
-    m_offset = m_vector.size();
+    m_offset = size();
     return Status::kNoError;
 }
 
@@ -166,7 +166,7 @@ template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::pushBack(T&& value)
 {
     RUN(m_vector.pushBack(std::move(value)));
-    m_offset = m_vector.size();
+    m_offset = size();
     return Status::kNoError;
 }
 
@@ -174,7 +174,7 @@ template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
 {
     RUN(m_vector.pushBackN(p, n));
-    m_offset = m_vector.size();
+    m_offset = size();
     return Status::kNoError;
 }
 
@@ -184,13 +184,15 @@ constexpr Status Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value) no
     requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>
 {
     RUN(m_vector.pushBackArithmeticValue(value));
-    m_offset = m_vector.size();
+    m_offset = size();
     return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::replace(const T* p, size_type n, size_type offset)
 {
+    if (offset <= size())
+        m_offset = offset;
     RUN(m_vector.replace(p, n, offset));
     m_offset += n;
 
@@ -200,22 +202,26 @@ constexpr Status Walker<T, AllocatorHelper>::replace(const T* p, size_type n, si
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::insert(const T* p, size_type n, size_type offset)
 {
-    size_type oldSize = m_vector.size();
-
+    size_type oldSize = size();
+    if (offset <= size())
+        m_offset = offset;
     RUN(m_vector.insert(p, n, offset));
-    m_offset += m_vector.size() - oldSize;
+    m_offset += size() - oldSize;
 
     return Status::kNoError;
 }
 
 template<typename T, typename AllocatorHelper>
 template<typename ItSrc>
-constexpr Status Walker<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin)
+constexpr Status Walker<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
 {
-    size_type oldSize = m_vector.size();
-    
-    RUN(m_vector.insert(destBegin, srcBegin, srcEnd));
-    m_offset += m_vector.size() - oldSize;
+    size_type oldSize = size();
+    size_type newOffset = destBegin - m_vector.begin();
+    if (newOffset <= size())
+        m_offset = newOffset;
+
+    RUN(m_vector.insert(srcBegin, srcEnd, destBegin, pDestEnd));
+    m_offset += size() - oldSize;
 
     return Status::kNoError;
 }
@@ -223,19 +229,23 @@ constexpr Status Walker<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::erase(size_type offset, size_type n)
 {
+    if (offset <= size())
+        m_offset = offset;
     return m_vector.erase(offset, n);
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
 {
+    if (size_type offset = destBegin - m_vector.begin(); offset <= size())
+        m_offset = offset;
     return m_vector.erase(destBegin, destEnd);
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::write(const T* p, size_type n)
 {
-    return replace(m_offset, p, n);
+    return replace(p, n, m_offset);
 }
 
 template<typename T, typename AllocatorHelper>
@@ -364,7 +374,9 @@ template<typename T, typename AllocatorHelper>
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::seek(size_type offset) noexcept
 {
-    return (m_offset = offset) <= m_vector.size() ? Status::kNoError : Status::kErrorOverflow;
+    m_offset = offset < size() ? offset : size();
+
+    return offset <= size() ? Status::kNoError : Status::kErrorOverflow;
 }
 
 } // namespace common_serialization

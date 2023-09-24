@@ -87,9 +87,9 @@ constexpr void RawKeeperAllocator<T>::setStorage(T* p, size_type memorySize) noe
 
 template<typename T>
     requires std::is_trivially_copyable_v<T>
-[[nodiscard]] constexpr T* RawKeeperAllocator<T>::allocate(size_type data_size_in_bytes) const noexcept
+[[nodiscard]] constexpr T* RawKeeperAllocator<T>::allocate(size_type n) const noexcept
 {
-    return data_size_in_bytes <= m_memorySize ? m_p : nullptr;
+    return n <= m_memorySize ? m_p : nullptr;
 }
 
 template<typename T>

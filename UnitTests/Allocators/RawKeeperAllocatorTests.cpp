@@ -14,8 +14,8 @@ using ConstructorVectorAllocatorHelper = GenericAllocatorHelper<T, RawKeeperAllo
 
 using size_type = typename Vector<int, ConstructorVectorAllocatorHelper<int>>::size_type;
 
-constexpr size_t kArraySizeInBytes = 307;
-int g_array[kArraySizeInBytes] = { 0 };
+constexpr size_t kArraySize = 3;
+int g_array[kArraySize] = { 0 };
 
 TEST(RawKeeperAllocatorTest, VectorWorkTest)
 {
@@ -26,8 +26,8 @@ TEST(RawKeeperAllocatorTest, VectorWorkTest)
     EXPECT_EQ(vec.max_size(), 0);
     EXPECT_EQ(vec.data(), nullptr);
 
-    vec.getAllocatorHelper().getAllocator().setStorage(g_array, kArraySizeInBytes);
-    EXPECT_EQ(vec.max_size(), kArraySizeInBytes);
+    vec.getAllocatorHelper().getAllocator().setStorage(g_array, kArraySize);
+    EXPECT_EQ(vec.max_size(), kArraySize);
 
     vec.pushBack(0);
     EXPECT_EQ(vec.size(), 1);
@@ -37,13 +37,13 @@ TEST(RawKeeperAllocatorTest, VectorWorkTest)
     vec.clear();
 
     // try to add more than we can hold
-    for (int i = 0; i < kArraySizeInBytes + 1; ++i)
+    for (int i = 0; i < kArraySize + 1; ++i)
         vec.pushBack(i);
     
-    EXPECT_EQ(vec.size(), kArraySizeInBytes);
-    EXPECT_EQ(vec.capacity(), kArraySizeInBytes);
+    EXPECT_EQ(vec.size(), kArraySize);
+    EXPECT_EQ(vec.capacity(), kArraySize);
 
-    for (int i = 0; i < kArraySizeInBytes; ++i)
+    for (int i = 0; i < kArraySize; ++i)
         EXPECT_EQ(vec[i], i);
 }
 
