@@ -265,7 +265,7 @@ TEST(WalkerTest, PushBackNoMove)
     EXPECT_EQ(walker[1], "123");
     EXPECT_EQ(walker.tell(), 2);
     EXPECT_EQ(str.size, 3);
-    EXPECT_TRUE(str.p != nullptr);
+    EXPECT_EQ(str.p, nullptr);
 }
 
 TEST(WalkerTest, PushBackPod)

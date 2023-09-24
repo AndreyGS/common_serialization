@@ -24,6 +24,7 @@
 #pragma once
 
 #include "RawNoexceptAllocator.h"
+#include "CommonConcepts.h"
 
 namespace common_serialization
 {
@@ -47,7 +48,11 @@ public:
     constexpr void deallocate(T* p, size_type n) const noexcept;
 
     template<typename... Args>
-    constexpr void construct(T* p, Args&&... args) const noexcept;
+    constexpr Status construct(T* p, Args&&... args) const noexcept;
+    template<typename... Args>
+        requires Initable<T>
+    constexpr Status construct(T* p, Args&&... args) const noexcept;
+
     constexpr void destroy(T* p) const noexcept;
 
     constexpr size_type max_size() const noexcept;
@@ -76,9 +81,19 @@ constexpr void ConstructorNoexceptAllocator<T>::deallocate(T* p, size_type n) co
 
 template<typename T>
 template<typename... Args>
-constexpr void ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
+constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
     new ((void*)p) T(std::forward<Args>(args)...);
+    return Status::kNoError;
+}
+
+template<typename T>
+template<typename... Args>
+    requires Initable<T>
+constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
+{
+    new ((void*)p) T;
+    return p->Init(std::forward<Args>(args)...);
 }
 
 template<typename T>

@@ -47,7 +47,7 @@ public:
 
     // construct and destroy in this class are present only for compotability reasons
     template<typename... Args>
-    constexpr void construct(T* p, Args&&... args) const noexcept;
+    constexpr Status construct(T* p, Args&&... args) const noexcept;
     constexpr void destroy(T* p) const noexcept;
 
     constexpr size_type max_size() const noexcept;
@@ -80,9 +80,10 @@ constexpr void RawNoexceptAllocator<T>::deallocate(T* p, size_type n) const noex
 template<typename T>
     requires std::is_trivially_copyable_v<T>
 template<typename... Args>
-constexpr void RawNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
+constexpr Status RawNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
     new ((void*)p) T(std::forward<Args>(args)...);
+    return Status::kNoError;
 }
 
 template<typename T>

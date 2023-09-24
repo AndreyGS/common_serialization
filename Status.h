@@ -31,13 +31,10 @@ enum class Status : int_fast32_t
     kNoError                                        =        0,
     kErrorNoMemory                                  =       -1,
     kErrorOverflow                                  =       -2,
-    kErrorInvalidArgument                           =       -3
+    kErrorInvalidArgument                           =       -3,
+    kErrorInvalidHash                               =       -4
 };
 
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); status != common_serialization::Status::kNoError)    \
-        return status;                                                          \
-}
+#define ST_SUCCESS(x) (static_cast<int_fast32_t>(x) >= 0)
 
 } // namespace common_serialization

@@ -47,18 +47,15 @@ protected:
     [[nodiscard]] constexpr T* allocateStrictImpl(size_type n) const;
 
     template<typename... Args>
-    constexpr void constructImpl(T* p, Args&&... args) const;
+    constexpr Status constructImpl(T* p, Args&&... args) const;
     template<typename... Args>
-    constexpr void constructNImpl(T* p, size_type n, Args&&... args) const;
+    constexpr Status constructNImpl(T* p, T* pNError, size_type n, Args&&... args) const;
 
-    constexpr void copyImpl(T* dest, const T* src, size_type n) const;
-    constexpr void copyNoOverlapImpl(T* dest, const T* src, size_type n) const;
+    constexpr Status copyImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const;
+    constexpr Status copyNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const;
 
-    constexpr void copyAssignImpl(T* dest, const T* src, size_type n) const;
-    constexpr void copyAssignNoOverlapImpl(T* dest, const T* src, size_type n) const;
-
-    constexpr void moveImpl(T* dest, T* src, size_type n) const;
-    constexpr void moveNoOverlapImpl(T* dest, T* src, size_type n) const;
+    constexpr Status moveImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const;
+    constexpr Status moveNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const;
 
     constexpr void destroyAndDeallocateImpl(T* p, size_type n) const noexcept;
     constexpr void deallocateImpl(T* p) const noexcept;
@@ -78,7 +75,14 @@ template<typename... Args>
 
     if constexpr (constructor_allocator::value)
         if (p)
-            this->constructN(p, requestedN, std::forward<Args>(args)...);
+        {
+            T* pNError = nullptr;
+            if (Status status = this->constructN(p, &pNError, requestedN, std::forward<Args>(args)...); !ST_SUCCESS(status))
+            {
+                this->destroyN(p, pNError - p);
+                p = nullptr;
+            }
+        }
 
     return p;
 }
@@ -101,129 +105,142 @@ template<typename T, IAllocator Allocator, typename AllocatorHelper>
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
 template<typename... Args>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructImpl(T* p, Args&&... args) const
+constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructImpl(T* p, Args&&... args) const
 {
-    if (p)
-        this->getAllocator().construct(p, std::forward<Args>(args)...);
+    T* pNError = nullptr;
+    return this->constructNImpl(p, pNError, 1, std::forward<Args>(args)...);
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
 template<typename... Args>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructNImpl(T* p, size_type n, Args&&... args) const
+constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructNImpl(T* p, T* nError, size_type n, Args&&... args) const
 {
     if (p)
         for (size_type i = 0; i < n; ++i)
-            this->getAllocator().construct(p + i, args...);
+        {
+            Status status = this->getAllocator().construct(p++, std::forward<Args>(args)...);
+            if (!ST_SUCCESS(status))
+            {
+                nError = p + i;
+                return status;
+            }
+        }
+    else
+        return Status::kErrorInvalidArgument;
+
+    return Status::kNoError;
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyImpl(T* dest, const T* src, size_type n) const
+constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
 {
-    assert(!n || dest && src);
+    assert(!n || pDest && pSrc);
 
-    if (dest == src)
-        return;
+    if (pDest == pSrc)
+        return Status::kNoError;
 
-    if (helpers::areRegionsOverlap(dest, src, n) && dest > src)
+    if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
     {
         if constexpr (constructor_allocator::value)
-            for (size_type i = n - 1; i != static_cast<size_type>(-1); --i)
-                this->getAllocator().construct(dest + i, *(src + i));
+        {
+            size_type lastElementOffset = n - 1;
+            pDest += lastElementOffset;
+            pSrc += lastElementOffset;
+
+            for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
+            {
+                if (pDest < pDirtyMemoryFinish)
+                    this->getAllocator().destroy(pDest);
+
+                RUN(this->getAllocator().construct(pDest--, *pSrc--));
+            }
+        }
         else
-            memmove(dest, src, n * sizeof(T));
+            memmove(pDest, pSrc, n * sizeof(T));
     }
     else
-        copyNoOverlapImpl(dest, src, n);
+        copyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
 
+    return Status::kNoError;
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyNoOverlapImpl(T* dest, const T* src, size_type n) const
+constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
 {
-    assert(!n || dest && src);
+    assert(!n || pDest && pSrc);
 
-    if (dest == src)
-        return;
+    if (pDest == pSrc)
+        return Status::kNoError;
 
     if constexpr (constructor_allocator::value)
         for (size_type i = 0; i < n; ++i)
-            this->getAllocator().construct(dest + i, *(src + i));
-    
+        {
+            if (pDest < pDirtyMemoryFinish)
+                this->getAllocator().destroy(pDest);
+
+            RUN(this->getAllocator().construct(pDest++, *pSrc++));
+        }
     else
-        memcpy(dest, src, n * sizeof(T));
+        memcpy(pDest, pSrc, n * sizeof(T));
+
+    return Status::kNoError;
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyAssignImpl(T* dest, const T* src, size_type n) const
+constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::moveImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
 {
-    assert(!n || dest && src);
+    assert(!n || pDest && pSrc);
 
-    if (dest == src)
-        return;
+    if (pDest == pSrc)
+        return Status::kNoError;
 
-    if (helpers::areRegionsOverlap(dest, src, n) && dest > src)
+    if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
     {
         if constexpr (constructor_allocator::value)
-            for (size_type i = n - 1; i != static_cast<size_type>(-1); --i)
-                *(dest + i) = *(src + i);
+        {
+            size_type lastElementOffset = n - 1;
+            pDest += lastElementOffset;
+            pSrc += lastElementOffset;
+
+            for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
+            {
+                if (pDest < pDirtyMemoryFinish)
+                    this->getAllocator().destroy(pDest);
+
+                RUN(this->getAllocator().construct(pDest++, std::move(*pSrc)));
+                (pSrc++)->~T(); // as a precaution if T is not moveable
+            }
+        }
         else
-            memmove(dest, src, n * sizeof(T));
+            memmove(pDest, pSrc, n * sizeof(T));
     }
     else
-        copyAssignNoOverlapImpl(dest, src, n);
+        moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
 
+    return Status::kNoError;
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyAssignNoOverlapImpl(T* dest, const T* src, size_type n) const
+constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::moveNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
 {
-    assert(!n || dest && src);
+    assert(!n || pDest && pSrc);
 
-    if (dest == src)
-        return;
+    if (pDest == pSrc)
+        return Status::kNoError;
 
     if constexpr (constructor_allocator::value)
         for (size_type i = 0; i < n; ++i)
-            *(dest + i) = *(src + i);
+        {
+            if (pDest < pDirtyMemoryFinish)
+                this->getAllocator().destroy(pDest);
 
+            RUN(this->getAllocator().construct(pDest++, std::move(*pSrc)));
+            (pSrc++)->~T(); // as a precaution if T is not moveable
+        }
     else
-        memcpy(dest, src, n * sizeof(T));
-}
+        memcpy(pDest, pSrc, n * sizeof(T));
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::moveImpl(T* dest, T* src, size_type n) const
-{
-    assert(!n || dest && src);
-
-    if (dest == src)
-        return;
-
-    if (helpers::areRegionsOverlap(dest, src, n) && dest > src)
-    {
-        if constexpr (constructor_allocator::value)
-            for (size_type i = n - 1; i != static_cast<size_type>(-1); --i)
-                this->getAllocator().construct(dest + i, std::move(*(src + i)));
-        else
-            memmove(dest, src, n * sizeof(T));
-    }
-    else
-        moveNoOverlapImpl(dest, src, n);
-}
-
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::moveNoOverlapImpl(T* dest, T* src, size_type n) const
-{
-    assert(!n || dest && src);
-
-    if (dest == src)
-        return;
-
-    if constexpr (constructor_allocator::value)
-        for (size_type i = 0; i < n; ++i)
-            this->getAllocator().construct(dest + i, std::move(*(src + i)));
-
-    else
-        memcpy(dest, src, n * sizeof(T));
+    return Status::kNoError;
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>

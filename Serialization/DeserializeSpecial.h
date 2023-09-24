@@ -30,17 +30,17 @@ namespace common_serialization
 {
 
 template<typename T, typename A, serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(D& input, Vector<T, A>& value)
+Status deserializeThis(D& input, Vector<T, A>& value)
 {
     value.clear();
 
     typename Vector<T, A>::size_type size = 0;
-    deserializeThis(input, size);
-    value.reserve(size);
-    deserializeThis(input, size, value.data());
+    RUN(deserializeThis(input, size));
+    RUN(value.reserve(size));
+    RUN(deserializeThis(input, size, value.data()));
     value.m_dataSize = size;
 
-    return 0;
+    return Status::kNoError;
 }
 
 } // common_serialization

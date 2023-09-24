@@ -39,7 +39,7 @@ concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_all
     { a.deallocate(nullptr) } -> std::same_as<void>;
     { a.deallocate(nullptr, 1) } -> std::same_as<void>;
 
-    { a.construct(nullptr) } -> std::same_as<void>;
+    { a.construct(nullptr) } -> std::same_as<Status>;
     { a.destroy(nullptr) } -> std::same_as<void>;
 
     { a.max_size() } -> std::same_as<typename T::size_type>;

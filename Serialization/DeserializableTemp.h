@@ -30,30 +30,30 @@ namespace common_serialization
 {
 
 template<serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(D& input, SerT<>& value)
+Status deserializeThis(D& input, SerT<>& value)
 {
-    deserializeThis(input, value.i);
+    RUN(deserializeThis(input, value.i));
 
-    return 0;
+    return Status::kNoError;
 }
 
 template<serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(D& input, SerT2<>& value)
+Status deserializeThis(D& input, SerT2<>& value)
 {
-    deserializeThis(input, value.k);
+    RUN(deserializeThis(input, value.k));
 
-    return 0;
+    return Status::kNoError;
 }
 
 template<serializable_concepts::IDeserializationCapableContainer D>
-int deserializeThis(D& input, SerTInh<>& value)
+Status deserializeThis(D& input, SerTInh<>& value)
 {
-    deserializeThis(input, value.getSerT());
-    deserializeThis(input, value.getSerT2());
-    deserializeThis(input, value.j);
-    deserializeThis(input, value.arr);
+    RUN(deserializeThis(input, value.getSerT()));
+    RUN(deserializeThis(input, value.getSerT2()));
+    RUN(deserializeThis(input, value.j));
+    RUN(deserializeThis(input, value.arr));
 
-    return 0;
+    return Status::kNoError;
 }
 
 } // namespace common_serialization

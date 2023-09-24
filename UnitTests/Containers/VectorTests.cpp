@@ -243,8 +243,7 @@ TEST(VectorTest, PushBackNoMove)
     // test r-value
     EXPECT_EQ(vec.pushBack(std::move(str)), Status::kNoError);
     EXPECT_EQ(vec[1], "123");
-    EXPECT_EQ(str.size, 3);
-    EXPECT_TRUE(str.p != nullptr);
+    EXPECT_EQ(str.p, nullptr);
 }
 
 TEST(VectorTest, PushBackPod)
@@ -759,7 +758,7 @@ void FCopyN()
 {
     auto vec = getStringsFilledContainer<T>();
 
-    T another_data_array[3] = { T{}, T{}, T{} };
+    T* another_data_array = new T[3];
 
     T* p = nullptr;
         
@@ -767,13 +766,18 @@ void FCopyN()
     EXPECT_EQ(p, another_data_array + 3);
 
     for (size_type i = 0; i < 3; ++i)
+    {
         EXPECT_EQ(vec[i], another_data_array[i]);
+        another_data_array[i].~T();
+    }
 
     EXPECT_EQ(vec.copyN(1, 3, another_data_array, &p), Status::kNoError);
     EXPECT_EQ(p, another_data_array + 2);
     EXPECT_EQ(vec[1], another_data_array[0]);
     EXPECT_EQ(vec[2], another_data_array[1]);
-    EXPECT_EQ(vec[2], another_data_array[2]);
+
+    for (size_type i = 0; i < 2; ++i)
+        another_data_array[i].~T();
 
     // try to not pass optional arg
     EXPECT_EQ(vec.copyN(0, 0, another_data_array), Status::kNoError);

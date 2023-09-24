@@ -43,9 +43,9 @@ private:
 private:
     friend ISerializable<SerT<T>>;
     template<serializable_concepts::ISerializationCapableContainer S>
-    friend int serializeThis(const SerT<Dummy>& value, S& output);
+    friend Status serializeThis(const SerT<Dummy>& value, S& output);
     template<serializable_concepts::IDeserializationCapableContainer D>
-    friend int deserializeThis(D& input, SerT<>& value);
+    friend Status deserializeThis(D& input, SerT<>& value);
 
     using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerT<T>, T>;
 
@@ -65,9 +65,9 @@ private:
 private:
     friend ISerializable<SerT2<T>>;
     template<serializable_concepts::ISerializationCapableContainer S>
-    friend int serializeThis(const SerT2<Dummy>& value, S& output);
+    friend Status serializeThis(const SerT2<Dummy>& value, S& output);
     template<serializable_concepts::IDeserializationCapableContainer D>
-    friend int deserializeThis(D& input, SerT2<>& value);
+    friend Status deserializeThis(D& input, SerT2<>& value);
 
     using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerT2<T>, T>;
 
@@ -112,9 +112,9 @@ private:
 private:
     friend ISerializable<SerTInh<T>>;
     template<serializable_concepts::ISerializationCapableContainer S>
-    friend int serializeThis(const SerTInh<Dummy>& value, S& output);
+    friend Status serializeThis(const SerTInh<Dummy>& value, S& output);
     template<serializable_concepts::IDeserializationCapableContainer D>
-    friend int deserializeThis(D& input, SerTInh<>& value);
+    friend Status deserializeThis(D& input, SerTInh<>& value);
 
     using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerTInh<T>, T>;
 
@@ -126,30 +126,30 @@ private:
 };
 
 template<serializable_concepts::ISerializationCapableContainer S>
-int serializeThis(const SerT<>& value, S& output)
+Status serializeThis(const SerT<>& value, S& output)
 {
-    serializeThis(value.i, output);
+    RUN(serializeThis(value.i, output));
 
-    return 0;
+    return Status::kNoError;
 }
 
 template<serializable_concepts::ISerializationCapableContainer S>
-int serializeThis(const SerT2<>& value, S& output)
+Status serializeThis(const SerT2<>& value, S& output)
 {
-    serializeThis(value.k, output);
+    RUN(serializeThis(value.k, output));
 
-    return 0;
+    return Status::kNoError;
 }
 
 template<serializable_concepts::ISerializationCapableContainer S>
-int serializeThis(const SerTInh<>& value, S& output)
+Status serializeThis(const SerTInh<>& value, S& output)
 {
-    serializeThis(value.getSerT(), output);
-    serializeThis(value.getSerT2(), output);
-    serializeThis(value.j, output);
-    serializeThis(value.arr, output);
+    RUN(serializeThis(value.getSerT(), output));
+    RUN(serializeThis(value.getSerT2(), output));
+    RUN(serializeThis(value.j, output));
+    RUN(serializeThis(value.arr, output));
 
-    return 0;
+    return Status::kNoError;
 }
 
 /*

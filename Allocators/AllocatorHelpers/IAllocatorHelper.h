@@ -54,49 +54,58 @@ public:
     }
 
     template<typename... Args>
-    constexpr void construct(T* p, Args&&... args) const
+    constexpr Status construct(T* p, Args&&... args) const
     {
         return static_cast<const AllocatorHelper*>(this)->constructImpl(p, std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    constexpr void constructN(T* p, size_t n, Args&&... args) const
+    constexpr Status constructN(T* p, T* pNError, size_t n, Args&&... args) const
     {
-        return static_cast<const AllocatorHelper*>(this)->constructNImpl(p, n, std::forward<Args>(args)...);
+        return static_cast<const AllocatorHelper*>(this)->constructNImpl(p, pNError, n, std::forward<Args>(args)...);
     }
 
     // copy using copy constructor
-    constexpr void copy(T* dest, const T* src, size_t n) const
+    constexpr Status copy(T* pDest, const T* pSrc, size_t n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->copyImpl(dest, src, n);
+        return static_cast<const AllocatorHelper*>(this)->copyImpl(pDest, pDest, pSrc, n);
     }
 
     // copy using copy constructor when dest and src not overlapping
-    constexpr void copyNoOverlap(T* dest, const T* src, size_t n) const
+    constexpr Status copyNoOverlap(T* pDest, const T* pSrc, size_t n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->copyNoOverlapImpl(dest, src, n);
+        return static_cast<const AllocatorHelper*>(this)->copyNoOverlapImpl(pDest, pDest, pSrc, n);
     }
 
-    // copy using copy assignment
-    constexpr void copyAssign(T* dest, const T* src, size_t n) const
+    constexpr Status copyDirty(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_t n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->copyAssignImpl(dest, src, n);
+        return static_cast<const AllocatorHelper*>(this)->copyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
-    // copy using copy assignment when dest and src not overlapping
-    constexpr void copyAssignNoOverlap(T* dest, const T* src, size_t n) const
+    // copy using copy constructor when dest and src not overlapping
+    constexpr Status copyDirtyNoOverlap(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_t n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->copyAssignNoOverlapImpl(dest, src, n);
+        return static_cast<const AllocatorHelper*>(this)->copyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
-    constexpr void move(T* dest, T* src, size_t n) const
+    constexpr Status move(T* pDest, T* pSrc, size_t n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->moveImpl(dest, src, n);
+        return static_cast<const AllocatorHelper*>(this)->moveImpl(pDest, pDest, pSrc, n);
     }
 
-    constexpr void moveNoOverlap(T* dest, T* src, size_t n) const
+    constexpr Status moveNoOverlap(T* pDest, T* pSrc, size_t n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->moveNoOverlapImpl(dest, src, n);
+        return static_cast<const AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDest, pSrc, n);
+    }
+
+    constexpr Status moveDirty(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_t n) const
+    {
+        return static_cast<const AllocatorHelper*>(this)->moveImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+    }
+
+    constexpr Status moveDirtyNoOverlap(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_t n) const
+    {
+        return static_cast<const AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     constexpr void destroyAndDeallocate(T* p, size_t n) const noexcept

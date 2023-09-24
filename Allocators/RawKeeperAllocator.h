@@ -49,7 +49,9 @@ public:
     constexpr void deallocate(T* p) const noexcept;
     constexpr void deallocate(T* p, size_type n) const noexcept;
 
-    constexpr void construct(T* p, value_type value = value_type{}) const noexcept;
+    // construct and destroy in this class are present only for compotability reasons
+    template<typename... Args>
+    constexpr Status construct(T* p, Args&&... args) const noexcept;
     constexpr void destroy(T* p) const noexcept;
 
     constexpr size_type max_size() const noexcept;
@@ -106,9 +108,11 @@ constexpr void RawKeeperAllocator<T>::deallocate(T* p, size_type n) const noexce
 
 template<typename T>
     requires std::is_trivially_copyable_v<T>
-constexpr void RawKeeperAllocator<T>::construct(T* p, value_type value) const noexcept
+template<typename... Args>
+constexpr Status RawKeeperAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
-    *p = value;
+    new ((void*)p) T(std::forward<Args>(args)...);
+    return Status::kNoError;
 }
 
 template<typename T>

@@ -1,5 +1,5 @@
 /**
- * @file SerializeSpecial.h
+ * @file CommonConcepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,19 +23,15 @@
 
 #pragma once
 
-#include "SerializeCommon.h"
-#include "Containers/Vector.h"
+#include "Status.h"
 
 namespace common_serialization
 {
 
-template<typename T, typename A, serializable_concepts::ISerializationCapableContainer S>
-Status serializeThis(const Vector<T, A>& value, S& output)
+template<typename T>
+concept Initable = requires(T t)
 {
-    RUN(serializeThis(value.size(), output));
-    RUN(serializeThis(value.data(), value.size(), output));
-    
-    return Status::kNoError;
-}
+    { t.Init(*(new T)) } -> std::same_as<Status>;
+};
 
-} // common_serialization
+} // namespace common_serialization

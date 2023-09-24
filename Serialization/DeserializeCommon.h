@@ -30,7 +30,7 @@ namespace common_serialization
 
 // common function for pointers of known size
 template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-constexpr int deserializeThis(D& input, size_t n, T* p)
+constexpr Status deserializeThis(D& input, size_t n, T* p)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "References on pointers and pointers on pointers are not supported");
@@ -42,19 +42,19 @@ constexpr int deserializeThis(D& input, size_t n, T* p)
         const typename D::size_type bytesSize = sizeof(T) * n;
         assert((n == bytesSize / sizeof(T)));
 
-        input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize);
+        RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize));
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
         for (size_t i = 0; i < n; ++i)
-            deserializeThis(input, *(new (&p[i]) T));
+            RUN(deserializeThis(input, *(new (&p[i]) T)));
     }
 
-    return 0;
+    return Status::kNoError;
 }
 
 template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-constexpr int deserializeThis(D& input, size_t n, SerializationFlags flags, T* p)
+constexpr Status deserializeThis(D& input, size_t n, SerializationFlags flags, T* p)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "References on pointers and pointers on pointers are not supported");
@@ -75,30 +75,30 @@ constexpr int deserializeThis(D& input, size_t n, SerializationFlags flags, T* p
                 && flags.sizeOfArithmeticTypesMayBeNotEqual)
         {
             size_t originalTypeSize = 0;
-            input.readArithmeticValue(originalTypeSize);
+            RUN(input.readArithmeticValue(originalTypeSize));
             if (originalTypeSize != sizeof(T))
             {
                 for (size_t i = 0; i < n; ++i)
-                    deserializeThis<originalTypeSize>(input, p[i]);
+                    RUN(deserializeThis<originalTypeSize>(input, p[i]));
 
-                return 0;
+                return Status::kNoError;
             }
         }
 
-        input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize);
+        RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize));
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
         for (size_t i = 0; i < n; ++i)
-            deserializeThis(input, *(new (&p[i]) T));
+            RUN(deserializeThis(input, *(new (&p[i]) T)));
     }
 
-    return 0;
+    return Status::kNoError;
 }
 
 // common function for arrays input
 template<typename T, size_t N, serializable_concepts::IDeserializationCapableContainer D>
-constexpr int deserializeThis(D& input, T(&arr)[N])
+constexpr Status deserializeThis(D& input, T(&arr)[N])
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain arrays of references or pointers");
@@ -110,19 +110,19 @@ constexpr int deserializeThis(D& input, T(&arr)[N])
         constexpr typename D::size_type bytesSize = sizeof(T) * N;
         static_assert(N == bytesSize / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array output of deserializeThis");
 
-        input.read(static_cast<uint8_t*>(static_cast<void*>(arr)), bytesSize);
+        RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(arr)), bytesSize));
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
         for (const auto& e : arr)
-            deserializeThis(input, e);
+            RUN(deserializeThis(input, e));
     }
 
-    return 0;
+    return Status::kNoError;
 }
 
 template<typename T, size_t N, serializable_concepts::IDeserializationCapableContainer D>
-constexpr int deserializeThis(D& input, SerializationFlags flags, T(&arr)[N])
+constexpr Status deserializeThis(D& input, SerializationFlags flags, T(&arr)[N])
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain arrays of references or pointers");
@@ -143,30 +143,30 @@ constexpr int deserializeThis(D& input, SerializationFlags flags, T(&arr)[N])
                 && flags.sizeOfArithmeticTypesMayBeNotEqual)
         {
             size_t originalTypeSize = 0;
-            input.readArithmeticValue(originalTypeSize);
+            RUN(input.readArithmeticValue(originalTypeSize));
             if (originalTypeSize != sizeof(T))
             {
                 for (size_t i = 0; i < N; ++i)
-                    deserializeThis<originalTypeSize>(input, arr[i]);
+                    RUN(deserializeThis<originalTypeSize>(input, arr[i]));
 
-                return 0;
+                return Status::kNoError;
             }
         }
 
-        input.read(static_cast<uint8_t*>(static_cast<void*>(arr)), bytesSize);
+        RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(arr)), bytesSize));
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
         for (const auto& e : arr)
-            deserializeThis(input, e);
+            RUN(deserializeThis(input, e));
     }
 
-    return 0;
+    return Status::kNoError;
 }
 
 // common function for scalar input
 template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-constexpr int deserializeThis(D& input, T& value)
+constexpr Status deserializeThis(D& input, T& value)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain references or pointers");
@@ -174,15 +174,15 @@ constexpr int deserializeThis(D& input, T& value)
         , "References and pointers on functions are not allowed to be deserialized");
 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
-        input.readArithmeticValue(value);
+        RUN(input.readArithmeticValue(value))
     else
         static_assert(serializable_concepts::EmptyType<T>, "Type not supported");
 
-    return 0;
+    return Status::kNoError;
 }
 
 template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-constexpr int deserializeThis(D& input, SerializationFlags flags, T& value)
+constexpr Status deserializeThis(D& input, SerializationFlags flags, T& value)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain references or pointers");
@@ -196,35 +196,35 @@ constexpr int deserializeThis(D& input, SerializationFlags flags, T& value)
                 && flags.sizeOfArithmeticTypesMayBeNotEqual)
         {
             size_t originalTypeSize = 0;
-            input.readArithmeticValue(originalTypeSize);
+            RUN(input.readArithmeticValue(originalTypeSize));
             if (originalTypeSize != sizeof(T))
             {
-                deserializeThis<originalTypeSize>(input, value);
+                RUN(deserializeThis<originalTypeSize>(input, value));
                 
                 return 0;
             }
         }
 
-        input.readArithmeticValue(value);
+        RUN(input.readArithmeticValue(value));
     }
     else
         static_assert(serializable_concepts::EmptyType<T>, "Type not supported");
 
-    return 0;
+    return Status::kNoError;
 }
 
 template<size_t OriginalTypeSize, typename T, serializable_concepts::IDeserializationCapableContainer D>
-constexpr int deserializeThis(D& input, T& value)
+constexpr Status deserializeThis(D& input, T& value)
 {
     static_assert( std::is_arithmetic_v<T> && !serializable_concepts::FixSizedArithmeticType<T>
                 || std::is_enum_v<T> && !serializable_concepts::FixSizedArithmeticType<std::underlying_type_t<T>>
         , "Current deserializeThis function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
 
     uint8_t arr[OriginalTypeSize] = { 0 };
-    input.read(arr);
+    RUN(input.read(arr));
     value = *static_cast<T*>(static_cast<void*>(arr));
 
-    return 0;
+    return Status::kNoError;
 }
 
 } // common_serialization

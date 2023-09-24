@@ -44,6 +44,7 @@ struct NoMoveConstructible
     ~NoMoveConstructible()
     {
         delete[] p;
+        p = nullptr;
     }
 
     bool operator==(const NoMoveConstructible& rhs) const noexcept

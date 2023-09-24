@@ -28,18 +28,23 @@ namespace common_serialization
 
 struct SerializationFlags
 {
-    unsigned alignmentMayBeNotEqual                 : 1 = 0;
-    unsigned sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;    // this flag is very dangerous and it should never be used,
+    uint32_t alignmentMayBeNotEqual                 : 1 = 0;
+    uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;    // this flag is very dangerous and it should never be used,
                                                                 // except you are really know what you are doing
-    unsigned interfaceVersionsNotMatch              : 1 = 0;
-    unsigned checkOfCyclicReferences                : 1 = 0;
-    unsigned reserved                               :20 = 0;
-    unsigned doNotUse                               : 8 = 0;    // this bit-field shall have only 24 significant bits
+    uint32_t interfaceVersionsNotMatch              : 1 = 0;
+    uint32_t checkOfCyclicReferences                : 1 = 0;
+    uint32_t reserved                               :20 = 0;
+    uint32_t doNotUse                               : 8 = 0;    // this bit-field shall have only 24 significant bits
                                                                 // 8 bits are using for serialization protocol version
 
-    [[nodiscard]] constexpr operator bool() const noexcept
+    [[nodiscard]] constexpr explicit operator uint32_t() const noexcept
     {
-        return *static_cast<const unsigned*>(static_cast<const void*>(this)) != 0;
+        return (*static_cast<const uint32_t*>(static_cast<const void*>(this)) & 0xffffff);
+    }
+
+    [[nodiscard]] constexpr explicit operator bool() const noexcept
+    {
+        return static_cast<uint32_t>(*this) != 0;
     }
 };
 

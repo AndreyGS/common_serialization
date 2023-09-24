@@ -43,17 +43,17 @@ public:
 
     // first function to call on new serialize operation
     template<serializable_concepts::ISerializationCapableContainer S>
-    constexpr int serialize(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
+    constexpr Status serialize(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
 
     // calling in subsequent serializations of nested fields/types or if one need to serialize another struct
     // and there is no changes in interface version after previous serialize call
     template<serializable_concepts::ISerializationCapableContainer S>
-    constexpr int serializeNext(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
+    constexpr Status serializeNext(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
 
     template<serializable_concepts::IDeserializationCapableContainer D>
-    constexpr int deserialize(D& input);
+    constexpr Status deserialize(D& input);
     template<serializable_concepts::IDeserializationCapableContainer D>
-    constexpr int deserializeNext(D& input, SerializationFlags flags);
+    constexpr Status deserializeNext(D& input, SerializationFlags flags);
     
     [[nodiscard]] static constexpr uint64_t* getAncestors() noexcept;
     [[nodiscard]] static constexpr uint64_t* getMembers() noexcept;
@@ -67,18 +67,18 @@ private:
 
 template<typename T>
 template<serializable_concepts::ISerializationCapableContainer S>
-constexpr int ISerializable<T>::serialize(S& output, SerializationFlags flags) const noexcept
+constexpr Status ISerializable<T>::serialize(S& output, SerializationFlags flags) const noexcept
 {
-    output.pushBackArithmeticValue(static_cast<uint32_t>(kSerializationProtocolVersion) | (static_cast<uint32_t>(flags) << 8));
-    output.pushBackArithmeticValue(getInterfaceVersion());
+    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(kSerializationProtocolVersion) | (static_cast<uint32_t>(flags) << 8)));
+    RUN(output.pushBackArithmeticValue(getInterfaceVersion()));
     return serializeNext(output, flags);
 }
 
 template<typename T>
 template<serializable_concepts::ISerializationCapableContainer S>
-constexpr int ISerializable<T>::serializeNext(S& output, SerializationFlags flags) const noexcept
+constexpr Status ISerializable<T>::serializeNext(S& output, SerializationFlags flags) const noexcept
 {
-    output.pushBackArithmeticValue(getNameHash());
+    RUN(output.pushBackArithmeticValue(getNameHash()));
 
     if (!flags)
         return serializeThis(static_cast<const T&>(*this), output);
@@ -86,23 +86,23 @@ constexpr int ISerializable<T>::serializeNext(S& output, SerializationFlags flag
         return serializeThis(static_cast<const T&>(*this), output, flags);*/
     else
     {
-        return 0;
+        return Status::kNoError;
     }
 }
 
 template<typename T>
 template<serializable_concepts::IDeserializationCapableContainer D>
-constexpr int ISerializable<T>::deserialize(D& input)
+constexpr Status ISerializable<T>::deserialize(D& input)
 {
     uint32_t versionAndFlags = 0;
-    input.readArithmeticValue(versionAndFlags);
+    RUN(input.readArithmeticValue(versionAndFlags));
     if ((versionAndFlags & 0xff) != kSerializationProtocolVersion)
         return 1;
 
     SerializationFlags flags(versionAndFlags >> 8);
 
     uint32_t inputInterfaceVersion = 0;
-    input.readArithmeticValue(inputInterfaceVersion);
+    RUN(input.readArithmeticValue(inputInterfaceVersion));
     if (getInterfaceVersion() < inputInterfaceVersion)
         return 1;
     else if (getInterfaceVersion() > inputInterfaceVersion)
@@ -113,12 +113,12 @@ constexpr int ISerializable<T>::deserialize(D& input)
 
 template<typename T>
 template<serializable_concepts::IDeserializationCapableContainer D>
-constexpr int ISerializable<T>::deserializeNext(D& input, SerializationFlags flags)
+constexpr Status ISerializable<T>::deserializeNext(D& input, SerializationFlags flags)
 {
     uint64_t inputNameHash = 0;
-    input.readArithmeticValue(inputNameHash);
+    RUN(input.readArithmeticValue(inputNameHash));
     if (getNameHash() != inputNameHash)
-        return 1;
+        return Status::kErrorInvalidHash;
 
     if (!flags)
         return deserializeThis(input, static_cast<T&>(*this));
