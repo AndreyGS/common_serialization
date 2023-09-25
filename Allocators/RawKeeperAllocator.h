@@ -39,8 +39,23 @@ public:
 
     constexpr RawKeeperAllocator() noexcept {}
     constexpr RawKeeperAllocator(T* p, size_type memorySize) noexcept;
+
     template <class R>
-    constexpr RawKeeperAllocator(const RawKeeperAllocator<R>&) noexcept;
+    constexpr RawKeeperAllocator(const RawKeeperAllocator<R>& rhs) noexcept { operator=(rhs); }
+    constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { return operator=<T>(rhs); }
+
+
+    template <class R>
+    constexpr RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept;
+    constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept { operator=<T>(std::move(rhs)); }
+
+    template <class R>
+    constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<R>&) noexcept { return *this; }
+    constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator& rhs) noexcept { return operator=<T>(rhs); }
+
+    template <class R>
+    constexpr RawKeeperAllocator& operator=(RawKeeperAllocator<R>&& rhs) noexcept;
+    constexpr RawKeeperAllocator& operator=(RawKeeperAllocator&& rhs) noexcept { return operator=<T>(std::move(rhs)); }
 
     constexpr void setStorage(T* p, size_type memorySize) noexcept;
     //constexpr void setSCtorage(const T* p, size_type memorySize) noexcept;
@@ -57,8 +72,8 @@ public:
     constexpr size_type max_size() const noexcept;
 
 private:
-    T* m_p = nullptr;
-    size_type m_memorySize = 0;
+    T* m_p{ nullptr };
+    size_type m_memorySize{ 0 };
 };
 
 template<typename T>
@@ -71,9 +86,22 @@ constexpr RawKeeperAllocator<T>::RawKeeperAllocator(T* p, size_type memorySize) 
 template<typename T>
     requires std::is_trivially_copyable_v<T>
 template <class R>
-constexpr RawKeeperAllocator<T>::RawKeeperAllocator(const RawKeeperAllocator<R>& rhs) noexcept
-    : m_p(rhs.m_p), m_memorySize(rhs.memorySize * sizeof(R) / sizeof(T))
+constexpr RawKeeperAllocator<T>::RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept
 {
+    operator=(std::move(rhs));
+}
+
+template<typename T>
+    requires std::is_trivially_copyable_v<T>
+template <class R>
+constexpr RawKeeperAllocator<T>& RawKeeperAllocator<T>::operator=(RawKeeperAllocator<R>&& rhs) noexcept
+{
+    m_p = rhs.m_p;
+    rhs.m_p = nullptr;
+    m_memorySize = rhs.m_memorySize *sizeof(R) / sizeof(T);
+    rhs.m_memorySize = 0;
+
+    return *this;
 }
 
 template<typename T>

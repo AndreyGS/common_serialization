@@ -1,10 +1,12 @@
 #include <string>
+#include "Status.h"
 
 namespace special_types
 {
 
-struct NoMoveConstructible
+class NoMoveConstructible
 {
+public:
     char* p = nullptr;
     size_t size = 0;
 
@@ -72,5 +74,25 @@ struct PodStruct
         return i == rhs.i;
     }
 };
+
+class ErrorProne
+{
+public:
+    static uint32_t counter;
+    static uint32_t errorOnCounter;
+    static common_serialization::Status currentError;
+
+    common_serialization::Status Init(const ErrorProne&)
+    {
+        if (errorOnCounter == counter++)
+            return currentError;
+        else
+            return common_serialization::Status::kNoError;
+    }
+};
+
+inline uint32_t ErrorProne::counter = 0;
+inline uint32_t ErrorProne::errorOnCounter = 0;
+inline common_serialization::Status ErrorProne::currentError = common_serialization::Status::kNoError;
 
 } // namespace special_types

@@ -472,7 +472,7 @@ constexpr Status Vector<T, AllocatorHelper>::Init(Vector<T, AllocatorHelper>&& r
 
         m_dataSize = rhs.m_dataSize;
         m_allocatedSize = rhs.m_allocatedSize;
-        m_allocatorHelper = rhs.m_allocatorHelper;
+        m_allocatorHelper = std::move(rhs.m_allocatorHelper);
 
         m_p = rhs.release();
     }

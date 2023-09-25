@@ -1,0 +1,3 @@
+First of all
+1. Unit-tests on errors propagation from Init funcs.
+2. Unit-tests on Serialize/Deserialize without flags.

@@ -177,6 +177,107 @@ TEST(VectorTest, AssignmentMoveOperatorPod)
     FAssignmentMoveOperator<PodStruct>();
 }
 
+template<typename T>
+void FInit()
+{
+    auto vec1 = getStringsFilledContainer<T>();
+    decltype(vec1) vec2;
+
+    EXPECT_EQ(vec2.Init(vec1), Status::kNoError);
+
+    EXPECT_EQ(vec1.size(), vec2.size());
+
+    for (size_type i = 0; i < vec1.size(); ++i)
+        EXPECT_EQ(vec1[i], vec2[i]);
+
+    vec1.invalidate();
+
+    // Init by empty Vector
+    EXPECT_EQ(vec2.Init(vec1), Status::kNoError);
+    EXPECT_EQ(vec2.size(), 0);
+}
+
+TEST(VectorTest, Init)
+{
+    FInit<std::string>();
+}
+
+TEST(VectorTest, InitNoMove)
+{
+    FInit<NoMoveConstructible>();
+}
+
+TEST(VectorTest, InitPod)
+{
+    FInit<PodStruct>();
+
+    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec;
+    PodStruct ps[1] = { { } };
+    vec.getAllocatorHelper().getAllocator().setStorage(ps, 1);
+    vec.pushBack("123");
+
+    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec2;
+    EXPECT_EQ(vec2.Init(vec), Status::kErrorNoMemory);
+}
+
+TEST(VectorTest, InitErrorPropagation)
+{
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    ErrorProne::errorOnCounter = 100;
+    vec.pushBack(ErrorProne{});
+
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec2;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorOverflow;
+    
+    EXPECT_EQ(vec2.Init(vec), Status::kErrorOverflow);
+}
+
+template<typename T>
+void FInitMove()
+{
+    auto vec1 = getStringsFilledContainer<T>();
+    decltype(vec1) vec2;
+
+    EXPECT_EQ(vec2.Init(std::move(vec1)), Status::kNoError);
+
+    EXPECT_EQ(vec1.size(), 0);
+    EXPECT_EQ(vec1.capacity(), 0);
+    EXPECT_EQ(vec1.data(), nullptr);
+
+    EXPECT_EQ(vec2.size(), 3);
+    for (size_type i = 0; i < vec2.size(); ++i)
+        EXPECT_EQ(vec2[i], g_data_array<T>[i]);
+
+    // Init by empty Vector
+    EXPECT_EQ(vec2.Init(std::move(vec1)), Status::kNoError);
+    EXPECT_EQ(vec2.size(), 0);
+}
+
+TEST(VectorTest, InitMove)
+{
+    FInitMove<std::string>();
+}
+
+TEST(VectorTest, InitMoveNoMove)
+{
+    FInitMove<NoMoveConstructible>();
+}
+
+TEST(VectorTest, InitMovePod)
+{
+    FInitMove<PodStruct>();
+
+    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec;
+    PodStruct ps[1] = { { } };
+    vec.getAllocatorHelper().getAllocator().setStorage(ps, 1);
+    vec.pushBack("123");
+
+    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec2;
+    EXPECT_EQ(vec2.Init(std::move(vec)), Status::kNoError);
+}
+
 TEST(VectorTest, Reserve)
 {
     Vector<int, DefaultVectorAllocatorHelper<int>> vec;
@@ -210,6 +311,16 @@ TEST(VectorTest, Reserve)
     EXPECT_EQ(vec.capacity(), 100);
     EXPECT_EQ(vec.size(), 1);
     EXPECT_EQ(vec[0], i);
+
+    // Error propagation test
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vecE;
+    ErrorProne::errorOnCounter = 100;
+    vecE.pushBack(ErrorProne{});
+
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorNoMemory;
+    EXPECT_EQ(vecE.reserve(100), Status::kErrorNoMemory);
 }
 
 TEST(VectorTest, PushBack)
@@ -228,6 +339,20 @@ TEST(VectorTest, PushBack)
     EXPECT_EQ(vec.size(), 2);
     EXPECT_EQ(vec[1], "123");
     EXPECT_EQ(str.size(), 0);
+
+    // Error propagation test
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vecE;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorInvalidArgument;
+
+    // test l-value
+    ErrorProne ep{};
+    EXPECT_EQ(vecE.pushBack(ep), Status::kErrorInvalidArgument);
+
+    // test r-value
+    ErrorProne::counter = 0;
+    EXPECT_EQ(vecE.pushBack(ErrorProne{}), Status::kErrorInvalidArgument);
 }
 
 TEST(VectorTest, PushBackNoMove)
@@ -325,6 +450,18 @@ TEST(VectorTest, PushBackNPod)
 
     EXPECT_EQ(vec_pod.pushBackN(&ps, 1), Status::kErrorNoMemory);
     EXPECT_EQ(vec_pod.size(), 0);
+}
+
+TEST(VectorTest, PushBackNErrorPropagation)
+{
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    ErrorProne::errorOnCounter = 100;
+    ErrorProne ep[2] = {{}, {}};
+
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 1; // second item instantiation shall produce error
+    ErrorProne::currentError = Status::kErrorInvalidArgument;
+    EXPECT_EQ(vec.pushBackN(ep, 2), Status::kErrorInvalidArgument);
 }
 
 TEST(VectorTest, PushBackArithmeticValue)

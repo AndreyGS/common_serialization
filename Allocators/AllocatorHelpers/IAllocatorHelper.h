@@ -37,6 +37,28 @@ public:
     using constructor_allocator = typename Allocator::constructor_allocator;
     using allocator = Allocator;
 
+    IAllocatorHelper(const IAllocatorHelper& rhs) 
+    {
+        operator=(rhs);
+    }
+
+    IAllocatorHelper(IAllocatorHelper&& rhs) noexcept
+    {
+        operator=(std::move(rhs));
+    }
+
+    IAllocatorHelper& operator=(const IAllocatorHelper& rhs)
+    {
+        m_allocator = rhs.m_allocator;
+        return *this;
+    }
+
+    IAllocatorHelper& operator=(IAllocatorHelper&& rhs) noexcept
+    {
+        m_allocator = std::move(rhs.m_allocator);
+        return *this;
+    }
+
     template<typename... Args>
     [[nodiscard]] constexpr T* allocateAndConstruct(size_t requestedN, size_t* allocatedN, Args&&... args) const
     {
