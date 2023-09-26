@@ -347,10 +347,10 @@ public:
     constexpr Status erase(size_type offset, size_type n);
     constexpr Status erase(iterator destBegin, iterator destEnd);
 
-    // copy from Vector to p (destination must be not initialized)
+    // copy from Vector to p (destination must be initialized (for non pod-types))
     constexpr Status copyN(size_type offset, size_type n, T* p, T** ppNew = nullptr);
 
-    // copy from Vector to destBegin... (destination must be not initialized)
+    // copy from Vector to destBegin... (destination must be initialized (for non pod-types))
     template<typename ItDest>
     constexpr Status copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd = nullptr);
 
@@ -758,7 +758,7 @@ constexpr Status Vector<T, AllocatorHelper>::copyN(size_type offset, size_type n
 
     difference_type nReal = offset + n > m_dataSize ? m_dataSize - offset : n;
 
-    RUN(m_allocatorHelper.copy(p, m_p + offset, nReal));
+    RUN(m_allocatorHelper.copyDirty(p, p + offset, m_p + offset, nReal));
 
     if (ppNew)
         *ppNew = p + nReal;
@@ -780,7 +780,10 @@ constexpr Status Vector<T, AllocatorHelper>::copyN(iterator srcBegin, iterator s
         srcEnd = end();
 
     while (srcBegin != srcEnd)
-        RUN(m_allocatorHelper.copy(&*destBegin++, srcBegin++.getPointer(), 1));
+    {
+        RUN(m_allocatorHelper.copyDirty(&*destBegin, &*destBegin + 1, srcBegin++.getPointer(), 1));
+        ++destBegin;
+    }
 
     if (pDestEnd)
         *pDestEnd = destBegin;

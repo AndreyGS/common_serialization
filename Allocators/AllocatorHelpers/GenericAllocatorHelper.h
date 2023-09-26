@@ -51,8 +51,8 @@ protected:
     template<typename... Args>
     constexpr Status constructNImpl(T* p, T* pNError, size_type n, Args&&... args) const;
 
-    constexpr Status copyImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const;
-    constexpr Status copyNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const;
+    constexpr Status copyDirtyImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const;
+    constexpr Status copyDirtyNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const;
 
     constexpr Status moveImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const;
     constexpr Status moveNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const;
@@ -132,7 +132,7 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::cons
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
+constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyDirtyImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
 
@@ -159,13 +159,13 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copy
             memmove(pDest, pSrc, n * sizeof(T));
     }
     else
-        return copyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
 
     return Status::kNoError;
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
+constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyDirtyNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
 

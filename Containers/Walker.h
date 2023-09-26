@@ -69,6 +69,8 @@ public:
     constexpr Status erase(iterator destBegin, iterator destEnd);
 
     constexpr Status write(const T* p, size_type n);
+    
+    // destination (p) must be initialized (for non pod-types)
     constexpr Status read(T* p, size_type n, size_type* pNRead = nullptr);
 
     template<typename V>

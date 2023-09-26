@@ -1,2 +1,2 @@
 First of all
-1. Unit-tests on Serialize/Deserialize without flags.
+1. Unit-tests on Serialization/Deserialization without flags.
