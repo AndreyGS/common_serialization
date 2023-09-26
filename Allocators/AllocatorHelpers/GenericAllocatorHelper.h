@@ -159,7 +159,7 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copy
             memmove(pDest, pSrc, n * sizeof(T));
     }
     else
-        copyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return copyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
 
     return Status::kNoError;
 }
@@ -215,7 +215,7 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::move
             memmove(pDest, pSrc, n * sizeof(T));
     }
     else
-        moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
 
     return Status::kNoError;
 }

@@ -177,6 +177,20 @@ TEST(VectorTest, AssignmentMoveOperatorPod)
     FAssignmentMoveOperator<PodStruct>();
 }
 
+TEST(VectorTest, Destructor)
+{
+    auto vec = getStringsFilledContainer<std::string>();
+    EXPECT_EQ(vec.size(), 3);
+    EXPECT_TRUE(vec.capacity() >= 3);
+    EXPECT_TRUE(vec.data() != nullptr);
+
+    vec.~Vector();
+
+    EXPECT_EQ(vec.size(), 0);
+    EXPECT_EQ(vec.capacity(), 0);
+    EXPECT_EQ(vec.data(), nullptr);
+}
+
 template<typename T>
 void FInit()
 {
@@ -211,27 +225,27 @@ TEST(VectorTest, InitPod)
 {
     FInit<PodStruct>();
 
-    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec;
+    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec1;
     PodStruct ps[1] = { { } };
-    vec.getAllocatorHelper().getAllocator().setStorage(ps, 1);
-    vec.pushBack("123");
+    vec1.getAllocatorHelper().getAllocator().setStorage(ps, 1);
+    vec1.pushBack("123");
 
     Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec2;
-    EXPECT_EQ(vec2.Init(vec), Status::kErrorNoMemory);
+    EXPECT_EQ(vec2.Init(vec1), Status::kErrorNoMemory);
 }
 
 TEST(VectorTest, InitErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec1;
     ErrorProne::errorOnCounter = 100;
-    vec.pushBack(ErrorProne{});
+    vec1.pushBack(ErrorProne{});
 
     Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec2;
     ErrorProne::counter = 0;
     ErrorProne::errorOnCounter = 0;
     ErrorProne::currentError = Status::kErrorOverflow;
     
-    EXPECT_EQ(vec2.Init(vec), Status::kErrorOverflow);
+    EXPECT_EQ(vec2.Init(vec1), Status::kErrorOverflow);
 }
 
 template<typename T>
@@ -269,13 +283,13 @@ TEST(VectorTest, InitMovePod)
 {
     FInitMove<PodStruct>();
 
-    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec;
+    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec1;
     PodStruct ps[1] = { { } };
-    vec.getAllocatorHelper().getAllocator().setStorage(ps, 1);
-    vec.pushBack("123");
+    vec1.getAllocatorHelper().getAllocator().setStorage(ps, 1);
+    vec1.pushBack("123");
 
     Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec2;
-    EXPECT_EQ(vec2.Init(std::move(vec)), Status::kNoError);
+    EXPECT_EQ(vec2.Init(std::move(vec1)), Status::kNoError);
 }
 
 TEST(VectorTest, Reserve)
@@ -541,6 +555,19 @@ TEST(VectorTest, ReplacePod)
     EXPECT_EQ(vec_pod.replace(&psArr, 1, 0), Status::kErrorNoMemory);
 }
 
+TEST(VectorTest, ReplaceErrorPropagation)
+{
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    ErrorProne::errorOnCounter = 100;
+    vec.pushBack(ErrorProne{});
+
+    ErrorProne ep[2] = { {}, {} };
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorInvalidArgument;
+    EXPECT_EQ(vec.replace(ep, 1, 0), Status::kErrorInvalidArgument);
+}
+
 template<typename T>
 void FInsert()
 {
@@ -641,6 +668,19 @@ TEST(VectorTest, InsertPod)
     EXPECT_EQ(vec.size(), 0);
 }
 
+TEST(VectorTest, InsertErrorPropagation)
+{
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    ErrorProne::errorOnCounter = 100;
+    vec.pushBack(ErrorProne{});
+
+    ErrorProne ep[2] = { {}, {} };
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorInvalidArgument;
+    EXPECT_EQ(vec.insert(ep, 1, 0), Status::kErrorInvalidArgument);
+}
+
 template<typename T>
 void FInsertIt()
 {
@@ -709,21 +749,27 @@ void FInsertIt()
 
     EXPECT_EQ(vec[11], g_data_array<T>[2]);
 
+    // try to insert to the end
+    EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.end(), &it), Status::kNoError);
+    EXPECT_EQ(it, vec.begin() + 15);
+    EXPECT_EQ(vec.size(), 15);
+
+    for (size_type i = 12; i < 15; ++i)
+        EXPECT_EQ(vec[i], another_data_array3[i - 12]);
+
     // try to not pass optional arg
     EXPECT_EQ(vec.insert(l3.begin(), l3.begin(), vec.begin()), Status::kNoError);
 
-    // try to insert by not valid iterator
-    EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.end(), &it), Status::kErrorOverflow);
-    EXPECT_EQ(it, vec.begin() + 11);
-    EXPECT_EQ(vec.size(), 12);
+    it = vec.begin() + 14;
 
+    // try to insert to not valid iterators range
     EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.begin() - 1, &it), Status::kErrorOverflow);
-    EXPECT_EQ(it, vec.begin() + 11);
-    EXPECT_EQ(vec.size(), 12);
+    EXPECT_EQ(it, vec.begin() + 14);
+    EXPECT_EQ(vec.size(), 15);
 
     EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.end() + 1, &it), Status::kErrorOverflow);
-    EXPECT_EQ(it, vec.begin() + 11);
-    EXPECT_EQ(vec.size(), 12);
+    EXPECT_EQ(it, vec.begin() + 14);
+    EXPECT_EQ(vec.size(), 15);
 }
 
 TEST(VectorTest, InsertIt)
@@ -749,6 +795,21 @@ TEST(VectorTest, InsertItPod)
     l1.push_back(i);
     EXPECT_EQ(vec.insert(l1.begin(), l1.end(), vec.begin()), Status::kErrorNoMemory);
     EXPECT_EQ(vec.size(), 1);
+}
+
+TEST(VectorTest, InsertItErrorPropagation)
+{
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+
+    std::list<ErrorProne> list;
+    ErrorProne::errorOnCounter = 100;
+    list.push_back(ErrorProne{});
+
+    ErrorProne ep[2] = { {}, {} };
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorInvalidArgument;
+    EXPECT_EQ(vec.insert(list.begin(), list.end(), vec.begin()), Status::kErrorInvalidArgument);
 }
 
 template<typename T>
@@ -816,6 +877,20 @@ TEST(VectorTest, EraseNoMove)
 TEST(VectorTest, ErasePod)
 {
     FErase<PodStruct>();
+}
+
+TEST(VectorTest, EraseErrorPropagation)
+{
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    
+    ErrorProne::errorOnCounter = 100;
+    vec.pushBack(ErrorProne{});
+    vec.pushBack(ErrorProne{});
+
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorInvalidHash;
+    EXPECT_EQ(vec.erase(0, 1), Status::kErrorInvalidHash);
 }
 
 template<typename T>
@@ -890,6 +965,20 @@ TEST(VectorTest, EraseItPod)
     FEraseIt<PodStruct>();
 }
 
+TEST(VectorTest, EraseItErrorPropagation)
+{
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+
+    ErrorProne::errorOnCounter = 100;
+    vec.pushBack(ErrorProne{});
+    vec.pushBack(ErrorProne{});
+
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorInvalidHash;
+    EXPECT_EQ(vec.erase(vec.begin(), vec.begin() + 1), Status::kErrorInvalidHash);
+}
+
 template<typename T>
 void FCopyN()
 {
@@ -957,6 +1046,21 @@ TEST(VectorTest, CopyNPod)
     FCopyN<PodStruct>();
 }
 
+TEST(VectorTest, CopyNErrorPropagation)
+{
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+
+    ErrorProne::errorOnCounter = 100;
+    vec.pushBack(ErrorProne{});
+
+    ErrorProne ep[1] = { {} };
+
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorInvalidHash;
+    EXPECT_EQ(vec.copyN(0, 1, ep), Status::kErrorInvalidHash);
+}
+
 template<typename T>
 void FCopyNIt()
 {
@@ -1018,6 +1122,22 @@ TEST(VectorTest, CopyNItNoMove)
 TEST(VectorTest, CopyNItPod)
 {
     FCopyNIt<PodStruct>();
+}
+
+TEST(VectorTest, CopyNItErrorPropagation)
+{
+    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+
+    ErrorProne::errorOnCounter = 100;
+    vec.pushBack(ErrorProne{});
+
+    std::list<ErrorProne> list;
+    list.push_back(ErrorProne{});
+
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorInvalidHash;
+    EXPECT_EQ(vec.copyN(vec.begin(), vec.end(), list.begin()), Status::kErrorInvalidHash);
 }
 
 TEST(VectorTest, Data)

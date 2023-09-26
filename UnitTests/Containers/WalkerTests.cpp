@@ -181,6 +181,128 @@ TEST(WalkerTest, AssignmentMoveOperatorPod)
     FAssignmentMoveOperator<PodStruct>();
 }
 
+TEST(WalkerTest, Destructor)
+{
+    auto vec = getStringsFilledContainer<std::string>();
+    EXPECT_EQ(vec.size(), 3);
+    EXPECT_TRUE(vec.capacity() >= 3);
+    EXPECT_TRUE(vec.data() != nullptr);
+    EXPECT_EQ(vec.tell(), 3);
+
+    vec.~Walker();
+
+    EXPECT_EQ(vec.size(), 0);
+    EXPECT_EQ(vec.capacity(), 0);
+    EXPECT_EQ(vec.data(), nullptr);
+    EXPECT_EQ(vec.tell(), 0);
+}
+
+template<typename T>
+void FInit()
+{
+    auto walker1 = getStringsFilledContainer<T>();
+    decltype(walker1) walker2;
+
+    EXPECT_EQ(walker2.Init(walker1), Status::kNoError);
+
+    EXPECT_EQ(walker1.size(), walker2.size());
+    EXPECT_EQ(walker1.tell(), walker2.tell());
+
+    for (size_type i = 0; i < walker1.size(); ++i)
+        EXPECT_EQ(walker1[i], walker2[i]);
+
+    walker1.invalidate();
+
+    // Init by empty Vector
+    EXPECT_EQ(walker2.Init(walker1), Status::kNoError);
+    EXPECT_EQ(walker2.size(), 0);
+    EXPECT_EQ(walker2.tell(), 0);
+}
+
+TEST(WalkerTest, Init)
+{
+    FInit<std::string>();
+}
+
+TEST(WalkerTest, InitNoMove)
+{
+    FInit<NoMoveConstructible>();
+}
+
+TEST(WalkerTest, InitPod)
+{
+    FInit<PodStruct>();
+
+    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker1;
+    PodStruct ps[1] = { { } };
+    walker1.getAllocatorHelper().getAllocator().setStorage(ps, 1);
+    walker1.pushBack("123");
+
+    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker2;
+    EXPECT_EQ(walker2.Init(walker1), Status::kErrorNoMemory);
+}
+
+TEST(WalkerTest, InitErrorPropagation)
+{
+    Walker<ErrorProne, DefaultWalkerAllocatorHelper<ErrorProne>> walker1;
+    ErrorProne::errorOnCounter = 100;
+    walker1.pushBack(ErrorProne{});
+
+    Walker<ErrorProne, DefaultWalkerAllocatorHelper<ErrorProne>> walker2;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::kErrorOverflow;
+
+    EXPECT_EQ(walker2.Init(walker1), Status::kErrorOverflow);
+}
+
+template<typename T>
+void FInitMove()
+{
+    auto walker1 = getStringsFilledContainer<T>();
+    decltype(walker1) walker2;
+
+    EXPECT_EQ(walker2.Init(std::move(walker1)), Status::kNoError);
+
+    EXPECT_EQ(walker1.size(), 0);
+    EXPECT_EQ(walker1.capacity(), 0);
+    EXPECT_EQ(walker1.data(), nullptr);
+
+    EXPECT_EQ(walker2.size(), 3);
+    EXPECT_EQ(walker2.tell(), 3);
+
+    for (size_type i = 0; i < walker2.size(); ++i)
+        EXPECT_EQ(walker2[i], g_data_array<T>[i]);
+
+    // Init by empty Vector
+    EXPECT_EQ(walker2.Init(std::move(walker1)), Status::kNoError);
+    EXPECT_EQ(walker2.size(), 0);
+    EXPECT_EQ(walker2.tell(), 0);
+}
+
+TEST(WalkerTest, InitMove)
+{
+    FInitMove<std::string>();
+}
+
+TEST(WalkerTest, InitMoveNoMove)
+{
+    FInitMove<NoMoveConstructible>();
+}
+
+TEST(WalkerTest, InitMovePod)
+{
+    FInitMove<PodStruct>();
+
+    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker1;
+    PodStruct ps[1] = { { } };
+    walker1.getAllocatorHelper().getAllocator().setStorage(ps, 1);
+    walker1.pushBack("123");
+
+    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker2;
+    EXPECT_EQ(walker2.Init(std::move(walker1)), Status::kNoError);
+}
+
 TEST(WalkerTest, Reserve)
 {
     Walker<int, DefaultWalkerAllocatorHelper<int>> walker;
@@ -223,6 +345,7 @@ TEST(WalkerTest, ReserveFromCurrentOffset)
     EXPECT_EQ(walker[0], i);
 
     // test when memory couldn't be allocated
+    walker.seek(1);
     EXPECT_EQ(walker.reserve_from_current_offset(static_cast<size_type>(-1)), Status::kErrorOverflow);
 
     // Check that after false memory allocation container not lost its contents
@@ -239,13 +362,13 @@ TEST(WalkerTest, PushBack)
     // test l-value
     EXPECT_EQ(walker.pushBack(str), Status::kNoError);
     EXPECT_EQ(walker[0], "123");
-    EXPECT_EQ(walker.tell(), 1);
+    EXPECT_EQ(walker.tell(), 0);
     EXPECT_EQ(str.size(), 3);
 
     // test r-value
     EXPECT_EQ(walker.pushBack(std::move(str)), Status::kNoError);
     EXPECT_EQ(walker[1], "123");
-    EXPECT_EQ(walker.tell(), 2);
+    EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(str.size(), 0);
 }
 
@@ -257,13 +380,13 @@ TEST(WalkerTest, PushBackNoMove)
     NoMoveConstructible str("123");
     EXPECT_EQ(walker.pushBack(str), Status::kNoError);
     EXPECT_EQ(walker[0], "123");
-    EXPECT_EQ(walker.tell(), 1);
+    EXPECT_EQ(walker.tell(), 0);
     EXPECT_EQ(str.size, 3);
 
     // test r-value
     EXPECT_EQ(walker.pushBack(std::move(str)), Status::kNoError);
     EXPECT_EQ(walker[1], "123");
-    EXPECT_EQ(walker.tell(), 2);
+    EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(str.size, 3);
     EXPECT_EQ(str.p, nullptr);
 }
@@ -503,7 +626,7 @@ void FInsert()
 
     // test not valid values
     EXPECT_EQ(walker.insert(another_data_array3, 3, 13), Status::kErrorOverflow);
-    EXPECT_EQ(walker.tell(), 10);
+    EXPECT_EQ(walker.tell(), 12);
     EXPECT_EQ(walker.size(), 12);
 
     EXPECT_EQ(walker.insert(nullptr, 3, 10), Status::kErrorInvalidArgument);
@@ -605,24 +728,29 @@ void FInsertIt()
 
     EXPECT_EQ(walker[11], g_data_array<T>[2]);
 
+    // try to insert to the end
+    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().end(), &it), Status::kNoError);
+    EXPECT_EQ(it, walker.getVector().begin() + 15);
+    EXPECT_EQ(walker.size(), 15);
+
+    for (size_type i = 12; i < 15; ++i)
+        EXPECT_EQ(walker[i], another_data_array3[i - 12]);
+
     // try to not pass optional arg
     EXPECT_EQ(walker.insert(l3.begin(), l3.begin(), walker.getVector().begin()), Status::kNoError);
 
-    // try to insert by not valid iterator
-    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().end(), &it), Status::kErrorOverflow);
-    EXPECT_EQ(it, walker.getVector().begin() + 11);
-    EXPECT_EQ(walker.size(), 12);
-    EXPECT_EQ(walker.tell(), 12);
+    it = walker.getVector().begin() + 14;
 
+    // try to insert by not valid iterator
     EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().begin() - 1, &it), Status::kErrorOverflow);
-    EXPECT_EQ(it, walker.getVector().begin() + 11);
-    EXPECT_EQ(walker.size(), 12);
-    EXPECT_EQ(walker.tell(), 12);
+    EXPECT_EQ(it, walker.getVector().begin() + 14);
+    EXPECT_EQ(walker.size(), 15);
+    EXPECT_EQ(walker.tell(), 15);
 
     EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().end() + 1, &it), Status::kErrorOverflow);
-    EXPECT_EQ(it, walker.getVector().begin() + 11);
-    EXPECT_EQ(walker.size(), 12);
-    EXPECT_EQ(walker.tell(), 12);
+    EXPECT_EQ(it, walker.getVector().begin() + 14);
+    EXPECT_EQ(walker.size(), 15);
+    EXPECT_EQ(walker.tell(), 15);
 }
 
 TEST(WalkerTest, InsertIt)

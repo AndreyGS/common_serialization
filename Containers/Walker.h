@@ -44,6 +44,9 @@ public:
     constexpr Walker& operator=(const Walker& rhs);
     constexpr Walker& operator=(Walker&& rhs) noexcept;
     constexpr ~Walker() noexcept;
+
+    constexpr Status Init(const Walker& rhs);
+    constexpr Status Init(Walker&& rhs) noexcept;
     
     constexpr Status reserve(size_type n);
     constexpr Status reserve_from_current_offset(size_type n);
@@ -95,8 +98,10 @@ public:
     constexpr Status seek(size_type offset) noexcept;
 
 private:
+    void setValidOffset(size_type offset) noexcept;
+
     Vector<T, AllocatorHelper> m_vector;
-    size_type m_offset = 0;
+    size_type m_offset{ 0 };
 };
 
 template<typename T, typename AllocatorHelper>
@@ -104,40 +109,57 @@ constexpr Walker<T, AllocatorHelper>::Walker() noexcept { };
 
 template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>::Walker(const Walker& rhs)
-    : m_vector(rhs.m_vector), m_offset(rhs.m_offset)
-{ }
+{
+    Init(rhs);
+}
 
 template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>::Walker(Walker&& rhs) noexcept
-    : m_vector(std::move(rhs.m_vector)), m_offset(std::move(rhs.m_offset))
-{ }
+{ 
+    Init(std::move(rhs));
+}
 
 template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>& Walker<T, AllocatorHelper>::operator=(const Walker& rhs)
 {
-    if (this != &rhs)
-    {
-        m_vector = rhs.m_vector;
-        m_offset = rhs.m_offset;
-    }
-
+    Init(rhs);
     return *this;
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>& Walker<T, AllocatorHelper>::operator=(Walker&& rhs) noexcept
 {
-    if (this != &rhs)
-    {
-        m_vector = std::move(rhs.m_vector);
-        m_offset = std::move(rhs.m_offset);
-    }
-
+    Init(std::move(rhs));
     return *this;
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Walker<T, AllocatorHelper>::~Walker() noexcept { }
+constexpr Walker<T, AllocatorHelper>::~Walker() noexcept { m_offset = 0; }
+
+template<typename T, typename AllocatorHelper>
+constexpr Status Walker<T, AllocatorHelper>::Init(const Walker& rhs)
+{
+    if (this != &rhs)
+    {
+        RUN(m_vector.Init(rhs.m_vector));
+        m_offset = rhs.m_offset;
+    }
+
+    return Status::kNoError;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Status Walker<T, AllocatorHelper>::Init(Walker&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        RUN(m_vector.Init(std::move(rhs.m_vector)));
+        m_offset = rhs.m_offset;
+        rhs.m_offset = 0;
+    }
+
+    return Status::kNoError;
+}
 
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::reserve(size_type n)
@@ -191,8 +213,7 @@ constexpr Status Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value) no
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::replace(const T* p, size_type n, size_type offset)
 {
-    if (offset <= size())
-        m_offset = offset;
+    setValidOffset(offset);
     RUN(m_vector.replace(p, n, offset));
     m_offset += n;
 
@@ -203,8 +224,8 @@ template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::insert(const T* p, size_type n, size_type offset)
 {
     size_type oldSize = size();
-    if (offset <= size())
-        m_offset = offset;
+    setValidOffset(offset);
+
     RUN(m_vector.insert(p, n, offset));
     m_offset += size() - oldSize;
 
@@ -217,8 +238,7 @@ constexpr Status Walker<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
 {
     size_type oldSize = size();
     size_type newOffset = destBegin - m_vector.begin();
-    if (newOffset <= size())
-        m_offset = newOffset;
+    setValidOffset(newOffset);
 
     RUN(m_vector.insert(srcBegin, srcEnd, destBegin, pDestEnd));
     m_offset += size() - oldSize;
@@ -229,16 +249,15 @@ constexpr Status Walker<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::erase(size_type offset, size_type n)
 {
-    if (offset <= size())
-        m_offset = offset;
+    setValidOffset(offset);
     return m_vector.erase(offset, n);
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
 {
-    if (size_type offset = destBegin - m_vector.begin(); offset <= size())
-        m_offset = offset;
+    size_type offset = destBegin - m_vector.begin();
+    setValidOffset(offset);
     return m_vector.erase(destBegin, destEnd);
 }
 
@@ -294,14 +313,14 @@ template<typename T, typename AllocatorHelper>
 template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr T& Walker<T, AllocatorHelper>::operator[](size_type offset) noexcept
 { 
-    m_offset = offset + 1;
+    setValidOffset(offset);
     return m_vector[offset];
 }
 
 template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr const T& Walker<T, AllocatorHelper>::operator[](size_type offset) const noexcept
 {
-    m_offset = offset + 1;
+    setValidOffset(offset);
     return m_vector[offset];
 }
 
@@ -374,9 +393,14 @@ template<typename T, typename AllocatorHelper>
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::seek(size_type offset) noexcept
 {
-    m_offset = offset < size() ? offset : size();
-
+    setValidOffset(offset);
     return offset <= size() ? Status::kNoError : Status::kErrorOverflow;
+}
+
+template<typename T, typename AllocatorHelper>
+void Walker<T, AllocatorHelper>::setValidOffset(size_type offset) noexcept
+{
+    m_offset = offset < size() ? offset : size();
 }
 
 } // namespace common_serialization

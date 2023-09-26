@@ -74,7 +74,7 @@ public:
     }
 
 protected:
-    pointer m_p = nullptr;
+    pointer m_p{ nullptr };
 };
 
 template<typename Vec>
@@ -356,6 +356,7 @@ public:
 
     [[nodiscard]] constexpr T* data() noexcept;
     [[nodiscard]] constexpr const T* data() const noexcept;
+
     [[nodiscard]] constexpr T& operator[](size_type offset);
     [[nodiscard]] constexpr const T& operator[](size_type offset) const;
 
@@ -379,11 +380,11 @@ public:
 private:
     [[nodiscard]] constexpr Status reserveInternal(size_type n, bool strict);
     [[nodiscard]] constexpr Status addSpaceIfNeed(size_type n);
-    [[nodiscard]] constexpr bool isEndIterator(iterator it) const noexcept;
+    [[nodiscard]] constexpr bool isIteratorNotDereferenceable(iterator it) const noexcept;
 
-    T* m_p = nullptr;
-    size_type m_dataSize = 0;
-    size_type m_allocatedSize = 0;
+    T* m_p{ nullptr };
+    size_type m_dataSize{ 0 };
+    size_type m_allocatedSize{ 0 };
 
     AllocatorHelper m_allocatorHelper;
 
@@ -392,9 +393,9 @@ private:
     template<typename T, typename A, serializable_concepts::IDeserializationCapableContainer D>
     friend int deserializeThis(D& input, Vector<T, A>& value);
 
-    static constexpr uint32_t kVersionThis = 0;
-    static constexpr uint32_t kVersionInterface = 0;
-    static constexpr uint64_t kNameHash = 0;
+    static constexpr uint32_t kVersionThis{ 0 };
+    static constexpr uint32_t kVersionInterface{ 0 };
+    static constexpr uint64_t kNameHash{ 0 };
 };
 
 template<typename T, typename AllocatorHelper>
@@ -402,19 +403,19 @@ constexpr Vector<T, AllocatorHelper>::Vector() noexcept
 { }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::Vector(const Vector<T, AllocatorHelper>& rhs)
+constexpr Vector<T, AllocatorHelper>::Vector(const Vector& rhs)
 {
     Init(rhs);
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::Vector(Vector<T, AllocatorHelper>&& rhs) noexcept
+constexpr Vector<T, AllocatorHelper>::Vector(Vector&& rhs) noexcept
 {
     Init(std::move(rhs));
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(const Vector<T, AllocatorHelper>& rhs)
+constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(const Vector& rhs)
 {
     Init(rhs);
 
@@ -422,7 +423,7 @@ constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(cons
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(Vector<T, AllocatorHelper>&& rhs) noexcept
+constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(Vector&& rhs) noexcept
 {
     Init(std::move(rhs));
 
@@ -436,7 +437,7 @@ constexpr Vector<T, AllocatorHelper>::~Vector() noexcept
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::Init(const Vector<T, AllocatorHelper>& rhs)
+constexpr Status Vector<T, AllocatorHelper>::Init(const Vector& rhs)
 {
     if (this != &rhs)
     {
@@ -464,7 +465,7 @@ constexpr Status Vector<T, AllocatorHelper>::Init(const Vector<T, AllocatorHelpe
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::Init(Vector<T, AllocatorHelper>&& rhs) noexcept
+constexpr Status Vector<T, AllocatorHelper>::Init(Vector&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -640,13 +641,12 @@ template<typename T, typename AllocatorHelper>
 template<typename ItSrc>
 constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
 {
-    if (isEndIterator(destBegin))
+    if (isIteratorNotDereferenceable(destBegin) && destBegin != end())
         return Status::kErrorOverflow;
 
     Vector<T, AllocatorHelper> temp;
     size_type oldDataSize = m_dataSize;
     size_type currentOffset = destBegin.getPointer() - m_p;
-    iterator it = destBegin;
 
     while (srcBegin != srcEnd)
     {
@@ -657,15 +657,15 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
             {
                 RUN(temp.pushBack(std::move(*pCurrent)));
                 m_allocatorHelper.destroy(pCurrent); // if T is not moveable we should destroying its objects explicitly
+                ++currentOffset;
             }
             else
-                m_dataSize = currentOffset;
+                m_dataSize = ++currentOffset;
 
             RUN(m_allocatorHelper.copyNoOverlap(pCurrent, &*srcBegin++, 1));
-            ++currentOffset;
         }
         else
-            RUN(reserveInternal(currentOffset, false));
+            RUN(reserveInternal(currentOffset + 1, false));
     }
 
     if (temp.size())
@@ -687,12 +687,10 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
 
         RUN(m_allocatorHelper.moveNoOverlap(m_p + currentOffset, temp.data(), temp.size()));
         m_dataSize = currentOffset + temp.size();
-
-        it = m_p + currentOffset;
     }
 
     if (pDestEnd)
-        *pDestEnd = it;
+        *pDestEnd = m_p + currentOffset;
 
     return Status::kNoError;
 }
@@ -726,7 +724,7 @@ constexpr Status Vector<T, AllocatorHelper>::erase(iterator destBegin, iterator 
 {
     if (destBegin > destEnd)
         return Status::kErrorOverflow;
-    else if (isEndIterator(destBegin))
+    else if (isIteratorNotDereferenceable(destBegin))
         return Status::kErrorInvalidArgument;
     else if (destBegin == destEnd)
         return Status::kNoError;
@@ -772,7 +770,7 @@ template<typename T, typename AllocatorHelper>
 template<typename ItDest>
 constexpr Status Vector<T, AllocatorHelper>::copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd)
 {
-    if (isEndIterator(srcBegin))
+    if (isIteratorNotDereferenceable(srcBegin))
         return Status::kErrorInvalidArgument;
 
     if (srcBegin > srcEnd)
@@ -927,7 +925,7 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::isEndIterator(iterator it) const noexcept
+[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::isIteratorNotDereferenceable(iterator it) const noexcept
 {
     return &*it < m_p || &*it >= m_p + m_dataSize;
 }
