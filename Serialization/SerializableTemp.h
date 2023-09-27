@@ -47,7 +47,7 @@ private:
     template<serializable_concepts::IDeserializationCapableContainer D>
     friend Status deserializeThis(D& input, SerT<>& value);
 
-    using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerT<T>, T>;
+    using instance_type = std::conditional_t<std::is_same_v<T, Dummy>, SerT<T>, T>;
 
     static constexpr uint64_t kAncestors[5] = { 0 };
     static constexpr uint64_t kMembers[5] = { 0 };
@@ -69,7 +69,7 @@ private:
     template<serializable_concepts::IDeserializationCapableContainer D>
     friend Status deserializeThis(D& input, SerT2<>& value);
 
-    using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerT2<T>, T>;
+    using instance_type = std::conditional_t<std::is_same_v<T, Dummy>, SerT2<T>, T>;
 
     static constexpr uint64_t kAncestors[5] = { 0 };
     static constexpr uint64_t kMembers[5] = { 0 };
@@ -116,7 +116,7 @@ private:
     template<serializable_concepts::IDeserializationCapableContainer D>
     friend Status deserializeThis(D& input, SerTInh<>& value);
 
-    using instanceType = std::conditional_t<std::is_same_v<T, Dummy>, SerTInh<T>, T>;
+    using instance_type = std::conditional_t<std::is_same_v<T, Dummy>, SerTInh<T>, T>;
 
     static constexpr uint64_t kAncestors[5] = { 0 };
     static constexpr uint64_t kMembers[5] = { 0 };

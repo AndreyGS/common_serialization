@@ -164,7 +164,7 @@ constexpr Status deserializeThis(D& input, SerializationFlags flags, T(&arr)[N])
     return Status::kNoError;
 }
 
-// common function for scalar input
+// common function for scalar and simple assignable types output without flags provided
 template<typename T, serializable_concepts::IDeserializationCapableContainer D>
 constexpr Status deserializeThis(D& input, T& value)
 {
@@ -175,12 +175,18 @@ constexpr Status deserializeThis(D& input, T& value)
 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
         RUN(input.readArithmeticValue(value))
+    else if constexpr (serializable_concepts::SimpleAssignableType<T>)
+    {
+        // for simple assignable types with no flags provided it is preferable to read a whole struct at a time
+        RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T)));
+    }
     else
         static_assert(serializable_concepts::EmptyType<T>, "Type not supported");
 
     return Status::kNoError;
 }
 
+// common function for scalar output with flags provided
 template<typename T, serializable_concepts::IDeserializationCapableContainer D>
 constexpr Status deserializeThis(D& input, SerializationFlags flags, T& value)
 {

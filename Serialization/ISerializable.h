@@ -27,6 +27,7 @@
 #include "SerializationFlags.h"
 #include "SerializableConcepts.h"
 #include "SerializeCommon.h"
+#include "DeserializeCommon.h"
 
 #include <unordered_map> // temporary header
 
@@ -35,12 +36,13 @@ namespace common_serialization
 
 inline constexpr uint8_t kSerializationProtocolVersion = 1;
 
+// ISerializable base must have permanent size regardless of platform alignment
+#pragma pack(push, 1)
+
 template<typename T>
 class ISerializable
 {
 public:
-
-
     // first function to call on new serialize operation
     template<serializable_concepts::ISerializationCapableContainer S>
     constexpr Status serialize(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
@@ -64,6 +66,8 @@ public:
 private:
     uint32_t m_convertedFromVersion = 0;    // 0 is for "no coversion was performed"
 };
+
+#pragma pack(pop)
 
 template<typename T>
 template<serializable_concepts::ISerializationCapableContainer S>
@@ -97,14 +101,14 @@ constexpr Status ISerializable<T>::deserialize(D& input)
     uint32_t versionAndFlags = 0;
     RUN(input.readArithmeticValue(versionAndFlags));
     if ((versionAndFlags & 0xff) != kSerializationProtocolVersion)
-        return 1;
+        return Status::kErrorInvalidProtocolVersion;
 
     SerializationFlags flags(versionAndFlags >> 8);
 
     uint32_t inputInterfaceVersion = 0;
     RUN(input.readArithmeticValue(inputInterfaceVersion));
     if (getInterfaceVersion() < inputInterfaceVersion)
-        return 1;
+        return Status::kErrorInvalidInterfaceVersion;
     else if (getInterfaceVersion() > inputInterfaceVersion)
         flags.interfaceVersionsNotMatch = true;
 
@@ -122,6 +126,9 @@ constexpr Status ISerializable<T>::deserializeNext(D& input, SerializationFlags 
 
     if (!flags)
         return deserializeThis(input, static_cast<T&>(*this));
+
+    // temporary dummy
+    return Status::kErrorInvalidArgument;
 }
 
 template<typename T>

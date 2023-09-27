@@ -32,7 +32,9 @@ enum class Status : int_fast32_t
     kErrorNoMemory                                  =       -1,
     kErrorOverflow                                  =       -2,
     kErrorInvalidArgument                           =       -3,
-    kErrorInvalidHash                               =       -4
+    kErrorInvalidProtocolVersion                    =       -4,
+    kErrorInvalidInterfaceVersion                   =       -5,
+    kErrorInvalidHash                               =       -6
 };
 
 #define ST_SUCCESS(x) (static_cast<int_fast32_t>(x) >= 0)

@@ -160,7 +160,7 @@ constexpr Status serializeThis(const T(&arr)[N], SerializationFlags flags, S& ou
     return Status::kNoError;
 }
 
-// common function for scalar input
+// common function for scalar and simple assignable types input without flags provided
 template<typename T, serializable_concepts::ISerializationCapableContainer S>
 constexpr Status serializeThis(T value, S& output)
 {
@@ -171,12 +171,18 @@ constexpr Status serializeThis(T value, S& output)
 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
         RUN(output.pushBackArithmeticValue(value))
+    else if constexpr (serializable_concepts::SimpleAssignableType<T>)
+    {
+        // for simple assignable types with no flags provided it is preferable to add a whole struct at a time
+        RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), sizeof(T)));
+    }
     else
         static_assert(serializable_concepts::EmptyType<T>, "Type not supported");
 
     return Status::kNoError;
 }
 
+// common function for scalar input with flags provided
 template<typename T, serializable_concepts::ISerializationCapableContainer S>
 constexpr Status serializeThis(T value, SerializationFlags flags, S& output)
 {

@@ -26,7 +26,7 @@
 #include "Allocators/ConstructorNoexceptAllocator.h"
 #include "Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
 #include "IteratorTagsDeclares.h"
-#include "Serialization/ISerializable.h"
+#include "Serialization/SerializableConcepts.h"
 
 namespace common_serialization
 {
@@ -300,7 +300,7 @@ template<typename Vec>
 /// <typeparam name="T">type of data stored in contiguous array</typeparam>
 /// <typeparam name="AllocatorHelper">class that implements IAllocatorHelper</typeparam>
 template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>>
-class Vector : public ISerializable<Vector<T, AllocatorHelper>>
+class Vector
 {
 public:
     static_assert(std::is_same_v<T, typename AllocatorHelper::value_type>, "Types T and AllocatorHelper::value_type are not the same");
@@ -389,13 +389,8 @@ private:
     AllocatorHelper m_allocatorHelper;
 
 private:
-    friend ISerializable<Vector<T, AllocatorHelper>>;
     template<typename T, typename A, serializable_concepts::IDeserializationCapableContainer D>
     friend int deserializeThis(D& input, Vector<T, A>& value);
-
-    static constexpr uint32_t kVersionThis{ 0 };
-    static constexpr uint32_t kVersionInterface{ 0 };
-    static constexpr uint64_t kNameHash{ 0 };
 };
 
 template<typename T, typename AllocatorHelper>

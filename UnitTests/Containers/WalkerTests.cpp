@@ -11,12 +11,7 @@ using namespace common_serialization;
 namespace
 {
 
-// Explicitly set default allocator helper so we wouldn't depend on 
-// possible future changes of default allocator helper of Vector
-template<typename T>
-using DefaultWalkerAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>;
-
-using size_type = typename Walker<int, DefaultWalkerAllocatorHelper<int>>::size_type;
+using size_type = typename Walker<int, DefaultAllocatorHelper<int>>::size_type;
 
 template<typename T>
 T g_data_array[] = { "123", "456", "789" };
@@ -24,7 +19,7 @@ T g_data_array[] = { "123", "456", "789" };
 template<typename T>
 auto getStringsFilledContainer()
 {
-    static Walker<T, DefaultWalkerAllocatorHelper<T>> walker;
+    static Walker<T, DefaultAllocatorHelper<T>> walker;
 
     if (walker.size() == 0)
         walker.pushBackN(g_data_array<T>, 3);
@@ -49,7 +44,7 @@ auto getStringsFilledContainer<PodStruct>()
 
 TEST(WalkerTest, Constructor)
 {
-    Walker<int, DefaultWalkerAllocatorHelper<int>> walker;
+    Walker<int, DefaultAllocatorHelper<int>> walker;
 
     EXPECT_EQ(walker.size(), 0);
     EXPECT_EQ(walker.capacity(), 0);
@@ -244,11 +239,11 @@ TEST(WalkerTest, InitPod)
 
 TEST(WalkerTest, InitErrorPropagation)
 {
-    Walker<ErrorProne, DefaultWalkerAllocatorHelper<ErrorProne>> walker1;
+    Walker<ErrorProne, DefaultAllocatorHelper<ErrorProne>> walker1;
     ErrorProne::errorOnCounter = 100;
     walker1.pushBack(ErrorProne{});
 
-    Walker<ErrorProne, DefaultWalkerAllocatorHelper<ErrorProne>> walker2;
+    Walker<ErrorProne, DefaultAllocatorHelper<ErrorProne>> walker2;
     ErrorProne::counter = 0;
     ErrorProne::errorOnCounter = 0;
     ErrorProne::currentError = Status::kErrorOverflow;
@@ -305,7 +300,7 @@ TEST(WalkerTest, InitMovePod)
 
 TEST(WalkerTest, Reserve)
 {
-    Walker<int, DefaultWalkerAllocatorHelper<int>> walker;
+    Walker<int, DefaultAllocatorHelper<int>> walker;
     walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
 
     int i = 1;
@@ -330,7 +325,7 @@ TEST(WalkerTest, Reserve)
 
 TEST(WalkerTest, ReserveFromCurrentOffset)
 {
-    Walker<int, DefaultWalkerAllocatorHelper<int>> walker;
+    Walker<int, DefaultAllocatorHelper<int>> walker;
     walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
 
     int i = 1;
@@ -356,7 +351,7 @@ TEST(WalkerTest, ReserveFromCurrentOffset)
 
 TEST(WalkerTest, PushBack)
 {
-    Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
+    Walker<std::string, DefaultAllocatorHelper<std::string>> walker;
     std::string str("123");
 
     // test l-value
@@ -374,7 +369,7 @@ TEST(WalkerTest, PushBack)
 
 TEST(WalkerTest, PushBackNoMove)
 {
-    Walker<NoMoveConstructible, DefaultWalkerAllocatorHelper<NoMoveConstructible>> walker;
+    Walker<NoMoveConstructible, DefaultAllocatorHelper<NoMoveConstructible>> walker;
 
     // test l-value
     NoMoveConstructible str("123");
@@ -478,7 +473,7 @@ TEST(WalkerTest, PushBackNPod)
 
 TEST(WalkerTest, PushBackArithmeticValue)
 {
-    Walker<uint8_t, DefaultWalkerAllocatorHelper<uint8_t>> walker;
+    Walker<uint8_t, DefaultAllocatorHelper<uint8_t>> walker;
     walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize); // as a precaution
 
     constexpr double value = 5.;
@@ -1064,7 +1059,7 @@ TEST(WalkerTest, ReadPod)
 
 TEST(WalkerTest, ReadArithmeticValue)
 {
-    Walker<std::uint8_t, DefaultWalkerAllocatorHelper<std::uint8_t>> walker;
+    Walker<std::uint8_t, DefaultAllocatorHelper<std::uint8_t>> walker;
     walker.pushBack(1);
     walker.pushBack(2);
     walker.seek(0);
@@ -1085,7 +1080,7 @@ TEST(WalkerTest, ReadArithmeticValue)
 
 TEST(WalkerTest, Data)
 {
-    Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
+    Walker<std::string, DefaultAllocatorHelper<std::string>> walker;
 
     EXPECT_EQ(walker.data(), nullptr);
 
@@ -1105,7 +1100,7 @@ TEST(VectorTest, OperatorAt)
 
 TEST(WalkerTest, Size)
 {
-    Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
+    Walker<std::string, DefaultAllocatorHelper<std::string>> walker;
 
     EXPECT_EQ(walker.size(), 0);
 
@@ -1116,14 +1111,14 @@ TEST(WalkerTest, Size)
 
 TEST(WalkerTest, MaxSize)
 {
-    Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
+    Walker<std::string, DefaultAllocatorHelper<std::string>> walker;
 
     EXPECT_EQ(walker.max_size(), (ConstructorNoexceptAllocator<std::string>().max_size()));
 }
 
 TEST(WalkerTest, Capacity)
 {
-    Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
+    Walker<std::string, DefaultAllocatorHelper<std::string>> walker;
 
     EXPECT_EQ(walker.capacity(), 0);
 
@@ -1177,27 +1172,27 @@ TEST(WalkerTest, Release)
 
 TEST(WalkerTest, GetAllocatorHelper)
 {
-    Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
+    Walker<std::string, DefaultAllocatorHelper<std::string>> walker;
 
     auto& allocator = walker.getAllocatorHelper();
 
-    EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(allocator)>, DefaultWalkerAllocatorHelper<std::string>>));
+    EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(allocator)>, DefaultAllocatorHelper<std::string>>));
     EXPECT_TRUE((std::is_lvalue_reference_v<decltype(allocator)>));
 }
 
 TEST(WalkerTest, GetVector)
 {
-    Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
+    Walker<std::string, DefaultAllocatorHelper<std::string>> walker;
 
     auto& vector = walker.getVector();
 
-    EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(vector)>, Vector<std::string, DefaultWalkerAllocatorHelper<std::string>>>));
+    EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(vector)>, Vector<std::string, DefaultAllocatorHelper<std::string>>>));
     EXPECT_TRUE((std::is_lvalue_reference_v<decltype(vector)>));
 }
 
 TEST(WalkerTest, Tell)
 {
-    Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
+    Walker<std::string, DefaultAllocatorHelper<std::string>> walker;
     EXPECT_EQ(walker.tell(), 0);
 
     walker.pushBackN(g_data_array<std::string>, 3);
@@ -1206,7 +1201,7 @@ TEST(WalkerTest, Tell)
 
 TEST(WalkerTest, Seek)
 {
-    Walker<std::string, DefaultWalkerAllocatorHelper<std::string>> walker;
+    Walker<std::string, DefaultAllocatorHelper<std::string>> walker;
     walker.pushBackN(g_data_array<std::string>, 3);
     walker.seek(1);
     EXPECT_EQ(walker.tell(), 1);

@@ -21,9 +21,9 @@ namespace
 // Explicitly set default allocator helper so we wouldn't depend on 
 // possible future changes of default allocator helper of Vector
 template<typename T>
-using DefaultVectorAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>;
+using DefaultAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>;
 
-using size_type = typename Vector<int, DefaultVectorAllocatorHelper<int>>::size_type;
+using size_type = typename Vector<int, DefaultAllocatorHelper<int>>::size_type;
 
 template<typename T>
 T g_data_array[] = { "123", "456", "789" };
@@ -31,7 +31,7 @@ T g_data_array[] = { "123", "456", "789" };
 template<typename T>
 auto getStringsFilledContainer()
 {
-    static Vector<T, DefaultVectorAllocatorHelper<T>> vec;
+    static Vector<T, DefaultAllocatorHelper<T>> vec;
     
     if (vec.size() == 0)
         vec.pushBackN(g_data_array<T>, 3);
@@ -56,7 +56,7 @@ auto getStringsFilledContainer<PodStruct>()
 
 TEST(VectorTest, Constructor)
 {
-    Vector<int, DefaultVectorAllocatorHelper<int>> vec;
+    Vector<int, DefaultAllocatorHelper<int>> vec;
 
     EXPECT_EQ(vec.size(), 0);
     EXPECT_EQ(vec.capacity(), 0);
@@ -236,11 +236,11 @@ TEST(VectorTest, InitPod)
 
 TEST(VectorTest, InitErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec1;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec1;
     ErrorProne::errorOnCounter = 100;
     vec1.pushBack(ErrorProne{});
 
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec2;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec2;
     ErrorProne::counter = 0;
     ErrorProne::errorOnCounter = 0;
     ErrorProne::currentError = Status::kErrorOverflow;
@@ -294,7 +294,7 @@ TEST(VectorTest, InitMovePod)
 
 TEST(VectorTest, Reserve)
 {
-    Vector<int, DefaultVectorAllocatorHelper<int>> vec;
+    Vector<int, DefaultAllocatorHelper<int>> vec;
     vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
     
     int i = 1;
@@ -327,7 +327,7 @@ TEST(VectorTest, Reserve)
     EXPECT_EQ(vec[0], i);
 
     // Error propagation test
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vecE;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vecE;
     ErrorProne::errorOnCounter = 100;
     vecE.pushBack(ErrorProne{});
 
@@ -339,7 +339,7 @@ TEST(VectorTest, Reserve)
 
 TEST(VectorTest, PushBack)
 {
-    Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec;
+    Vector<std::string, DefaultAllocatorHelper<std::string>> vec;
     std::string str("123");
 
     // test l-value
@@ -355,7 +355,7 @@ TEST(VectorTest, PushBack)
     EXPECT_EQ(str.size(), 0);
 
     // Error propagation test
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vecE;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vecE;
     ErrorProne::counter = 0;
     ErrorProne::errorOnCounter = 0;
     ErrorProne::currentError = Status::kErrorInvalidArgument;
@@ -371,7 +371,7 @@ TEST(VectorTest, PushBack)
 
 TEST(VectorTest, PushBackNoMove)
 {
-    Vector<NoMoveConstructible, DefaultVectorAllocatorHelper<NoMoveConstructible>> vec;
+    Vector<NoMoveConstructible, DefaultAllocatorHelper<NoMoveConstructible>> vec;
 
     // test l-value
     NoMoveConstructible str("123");
@@ -468,7 +468,7 @@ TEST(VectorTest, PushBackNPod)
 
 TEST(VectorTest, PushBackNErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec;
     ErrorProne::errorOnCounter = 100;
     ErrorProne ep[2] = {{}, {}};
 
@@ -480,7 +480,7 @@ TEST(VectorTest, PushBackNErrorPropagation)
 
 TEST(VectorTest, PushBackArithmeticValue)
 {
-    Vector<uint8_t, DefaultVectorAllocatorHelper<uint8_t>> vec;
+    Vector<uint8_t, DefaultAllocatorHelper<uint8_t>> vec;
     vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize); // as a precaution
 
     constexpr double value = 5.;
@@ -557,7 +557,7 @@ TEST(VectorTest, ReplacePod)
 
 TEST(VectorTest, ReplaceErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec;
     ErrorProne::errorOnCounter = 100;
     vec.pushBack(ErrorProne{});
 
@@ -670,7 +670,7 @@ TEST(VectorTest, InsertPod)
 
 TEST(VectorTest, InsertErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec;
     ErrorProne::errorOnCounter = 100;
     vec.pushBack(ErrorProne{});
 
@@ -799,7 +799,7 @@ TEST(VectorTest, InsertItPod)
 
 TEST(VectorTest, InsertItErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec;
 
     std::list<ErrorProne> list;
     ErrorProne::errorOnCounter = 100;
@@ -881,7 +881,7 @@ TEST(VectorTest, ErasePod)
 
 TEST(VectorTest, EraseErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec;
     
     ErrorProne::errorOnCounter = 100;
     vec.pushBack(ErrorProne{});
@@ -967,7 +967,7 @@ TEST(VectorTest, EraseItPod)
 
 TEST(VectorTest, EraseItErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec;
 
     ErrorProne::errorOnCounter = 100;
     vec.pushBack(ErrorProne{});
@@ -1042,7 +1042,7 @@ TEST(VectorTest, CopyNPod)
 
 TEST(VectorTest, CopyNErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec;
 
     ErrorProne::errorOnCounter = 100;
     vec.pushBack(ErrorProne{});
@@ -1120,7 +1120,7 @@ TEST(VectorTest, CopyNItPod)
 
 TEST(VectorTest, CopyNItErrorPropagation)
 {
-    Vector<ErrorProne, DefaultVectorAllocatorHelper<ErrorProne>> vec;
+    Vector<ErrorProne, DefaultAllocatorHelper<ErrorProne>> vec;
 
     ErrorProne::errorOnCounter = 100;
     vec.pushBack(ErrorProne{});
@@ -1136,7 +1136,7 @@ TEST(VectorTest, CopyNItErrorPropagation)
 
 TEST(VectorTest, Data)
 {
-    Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec;
+    Vector<std::string, DefaultAllocatorHelper<std::string>> vec;
 
     EXPECT_EQ(vec.data(), nullptr);
 
@@ -1156,7 +1156,7 @@ TEST(VectorTest, OperatorAt)
 
 TEST(VectorTest, Size)
 {
-    Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec;
+    Vector<std::string, DefaultAllocatorHelper<std::string>> vec;
 
     EXPECT_EQ(vec.size(), 0);
 
@@ -1167,7 +1167,7 @@ TEST(VectorTest, Size)
 
 TEST(VectorTest, MaxSize)
 {
-    Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec1;
+    Vector<std::string, DefaultAllocatorHelper<std::string>> vec1;
 
     EXPECT_EQ(vec1.max_size(), (ConstructorNoexceptAllocator<std::string>().max_size()));
 
@@ -1178,7 +1178,7 @@ TEST(VectorTest, MaxSize)
 
 TEST(VectorTest, Capacity)
 {
-    Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec;
+    Vector<std::string, DefaultAllocatorHelper<std::string>> vec;
 
     EXPECT_EQ(vec.capacity(), 0);
 
@@ -1229,11 +1229,11 @@ TEST(VectorTest, Release)
 
 TEST(VectorTest, GetAllocatorHelper)
 {
-    Vector<std::string, DefaultVectorAllocatorHelper<std::string>> vec;
+    Vector<std::string, DefaultAllocatorHelper<std::string>> vec;
 
     auto& allocator = vec.getAllocatorHelper();
 
-    EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(allocator)>, DefaultVectorAllocatorHelper<std::string>>));
+    EXPECT_TRUE((std::is_same_v<std::decay_t<decltype(allocator)>, DefaultAllocatorHelper<std::string>>));
     EXPECT_TRUE((std::is_lvalue_reference_v<decltype(allocator)>));
 }
 
