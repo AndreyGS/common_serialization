@@ -79,27 +79,27 @@ private:
 };
 
 template<typename T = Dummy>
-class SerTInh : public SerT<T>, public SerT2<T>
+class SerTInh : public SerT<SerTInh<T>>, public SerT2<SerTInh<T>>
 {
 public:
     SerT<Dummy>& getSerT() noexcept
     {
-        return *static_cast<SerT<Dummy>*>(static_cast<void*>(static_cast<SerT<T>*>(this)));
+        return *static_cast<SerT<Dummy>*>(static_cast<void*>(static_cast<SerT<SerTInh<T>>*>(this)));
     }
 
     const SerT<Dummy>& getSerT() const noexcept
     {
-        return *static_cast<const SerT<Dummy>*>(static_cast<const void*>(static_cast<const SerT<T>*>(this)));
+        return *static_cast<const SerT<Dummy>*>(static_cast<const void*>(static_cast<const SerT<SerTInh<T>>*>(this)));
     }
 
     SerT2<Dummy>& getSerT2() noexcept
     {
-        return *static_cast<SerT2<Dummy>*>(static_cast<void*>(static_cast<SerT2<T>*>(this)));
+        return *static_cast<SerT2<Dummy>*>(static_cast<void*>(static_cast<SerT2<SerTInh<T>>*>(this)));
     }
 
     const SerT2<Dummy>& getSerT2() const noexcept
     {
-        return *static_cast<const SerT2<Dummy>*>(static_cast<const void*>(static_cast<const SerT2<T>*>(this)));
+        return *static_cast<const SerT2<Dummy>*>(static_cast<const void*>(static_cast<const SerT2<SerTInh<T>>*>(this)));
     }
     uint32_t arr[5] = { 0 };
 

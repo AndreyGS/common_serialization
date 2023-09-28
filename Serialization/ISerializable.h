@@ -85,7 +85,7 @@ constexpr Status ISerializable<T>::serializeNext(S& output, SerializationFlags f
     RUN(output.pushBackArithmeticValue(getNameHash()));
 
     if (!flags)
-        return serializeThis(static_cast<const T&>(*this), output);
+        return serializeThis(static_cast<const typename T::instance_type&>(*this), output);
     /*else if (flags != SerializationFlags::CheckOfCyclicReferences)
         return serializeThis(static_cast<const T&>(*this), output, flags);*/
     else
@@ -125,7 +125,7 @@ constexpr Status ISerializable<T>::deserializeNext(D& input, SerializationFlags 
         return Status::kErrorInvalidHash;
 
     if (!flags)
-        return deserializeThis(input, static_cast<T&>(*this));
+        return deserializeThis(input, static_cast<typename T::instance_type&>(*this));
 
     // temporary dummy
     return Status::kErrorInvalidArgument;
@@ -134,31 +134,31 @@ constexpr Status ISerializable<T>::deserializeNext(D& input, SerializationFlags 
 template<typename T>
 [[nodiscard]] constexpr uint64_t* ISerializable<T>::getAncestors() noexcept
 {
-    return T::kAncestors;
+    return T::instance_type::kAncestors;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint64_t* ISerializable<T>::getMembers() noexcept
 {
-    return T::kMembers;
+    return T::instance_type::kMembers;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint64_t ISerializable<T>::getNameHash() noexcept
 {
-    return T::kNameHash;
+    return T::instance_type::kNameHash;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint32_t ISerializable<T>::getThisVersion() noexcept
 {
-    return T::kVersionThis;
+    return T::instance_type::kVersionThis;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint32_t ISerializable<T>::getInterfaceVersion() noexcept
 {
-    return T::kVersionInterface;
+    return T::instance_type::kVersionInterface;
 }
 
 } // namespace common_serialization
