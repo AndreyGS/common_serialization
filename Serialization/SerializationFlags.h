@@ -48,4 +48,4 @@ struct SerializationFlags
     }
 };
 
-}
+} // namespace common_serialization

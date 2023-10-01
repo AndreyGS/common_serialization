@@ -22,17 +22,11 @@
  */
 
 #include <gtest/gtest.h>
-#include "SpecialTypes.h"
+#include "TypesForTest/SpecialTypes.h"
 #include "Containers/Vector.h"
 #include "Allocators/RawKeeperAllocator.h"
 #include "string"
 #include "list"
-#include "Serialization/ISerializable.h"
-#include "Serialization/SerializeSpecial.h"
-#include "Serialization/SerializableTemp.h"
-#include "Serialization/DeserializeSpecial.h"
-#include "Serialization/DeserializableTemp.h"
-
 #include "Containers/Walker.h"
 
 namespace
@@ -464,6 +458,9 @@ void FPushBackN()
     EXPECT_EQ(vec.pushBackN(nullptr, 3), Status::kErrorInvalidArgument);
     EXPECT_EQ(vec.size(), 9);
 
+    EXPECT_EQ(vec.pushBackN(nullptr, 0), Status::kNoError);
+    EXPECT_EQ(vec.size(), 9);
+
     EXPECT_EQ(vec.pushBackN(g_data_array<T>, static_cast<size_type>(-1)), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 9);
 }
@@ -523,18 +520,26 @@ template<typename T>
 void FReplace()
 {
     auto vec = getStringsFilledContainer<T>();
+    size_type newOffset = 0;
 
     // check that sparse construction is not allowed
-    EXPECT_EQ(vec.replace(g_data_array<T>, 3, 4), Status::kErrorOverflow);
+    EXPECT_EQ(vec.replace(g_data_array<T>, 3, 4, &newOffset), Status::kErrorOverflow);
+    EXPECT_EQ(newOffset, 0);
     EXPECT_EQ(vec.size(), 3);
 
     // check for invalid arguments
-    EXPECT_EQ(vec.replace(nullptr, 3, 4), Status::kErrorInvalidArgument);
+    EXPECT_EQ(vec.replace(nullptr, 3, 4, &newOffset), Status::kErrorInvalidArgument);
+    EXPECT_EQ(newOffset, 0);
+    EXPECT_EQ(vec.size(), 3);
+
+    // check for valid nullptr
+    EXPECT_EQ(vec.replace(nullptr, 0, 3, &newOffset), Status::kNoError);
+    EXPECT_EQ(newOffset, 3);
     EXPECT_EQ(vec.size(), 3);
 
     T another_data_array[] = { "abc", "def", "ghi" };
 
-    size_type newOffset = 0;
+    
     EXPECT_EQ(vec.replace(another_data_array, 1, 1, &newOffset), Status::kNoError);
     EXPECT_EQ(newOffset, 2);
     EXPECT_EQ(vec.size(), 3);
@@ -657,6 +662,10 @@ void FInsert()
 
     // test zero items
     EXPECT_EQ(vec.insert(another_data_array3, 0, 10, &newOffset), Status::kNoError);
+    EXPECT_EQ(newOffset, 10);
+    EXPECT_EQ(vec.size(), 12);
+
+    EXPECT_EQ(vec.insert(nullptr, 0, 10, &newOffset), Status::kNoError);
     EXPECT_EQ(newOffset, 10);
     EXPECT_EQ(vec.size(), 12);
 
@@ -849,6 +858,9 @@ void FErase()
     EXPECT_EQ(vec.erase(vec.size(), 1), Status::kErrorOverflow);
     EXPECT_EQ(vec.size(), 6);
 
+    EXPECT_EQ(vec.erase(vec.size(), 0), Status::kNoError);
+    EXPECT_EQ(vec.size(), 6);
+
     // try to erase 0 elements
     EXPECT_EQ(vec.erase(1, 0), Status::kNoError);
     EXPECT_EQ(vec.size(), 6);
@@ -1010,7 +1022,6 @@ void FCopyN()
     T* another_data_array = new T[3];
 
     T* p = nullptr;
-        
     EXPECT_EQ(vec.copyN(0, 3, another_data_array, &p), Status::kNoError);
     EXPECT_EQ(p, another_data_array + 3);
 
@@ -1023,29 +1034,48 @@ void FCopyN()
     EXPECT_EQ(vec[2], another_data_array[1]);
 
     // try to not pass optional arg
+    p = nullptr;
     EXPECT_EQ(vec.copyN(0, 0, another_data_array), Status::kNoError);
 
     // copy more than vec has
+    p = nullptr;
     EXPECT_EQ(vec.copyN(0, 10, another_data_array, &p), Status::kNoError);
     EXPECT_EQ(p, another_data_array + 3);
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     // copy zero elements
+    p = nullptr;
     EXPECT_EQ(vec.copyN(1, 0, another_data_array, &p), Status::kNoError);
     EXPECT_EQ(p, another_data_array);
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
+    p = reinterpret_cast<T*>(1ll);
+    EXPECT_EQ(vec.copyN(1, 0, nullptr, &p), Status::kNoError);
+    EXPECT_EQ(p, nullptr);
+
     // try to copy with wrong offset
+    p = nullptr;
     EXPECT_EQ(vec.copyN(3, 1, another_data_array, &p), Status::kErrorOverflow);
-    EXPECT_EQ(p, another_data_array);
+    EXPECT_EQ(p, nullptr);
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array[i]);
 
-    // try to copy with nullptr as destination
-    EXPECT_EQ(vec.copyN(1, 3, nullptr, &p), Status::kErrorInvalidArgument);
+    // copy offset > size && n == 0
+    p = nullptr;
+    EXPECT_EQ(vec.copyN(4, 0, another_data_array, &p), Status::kErrorOverflow);
+    EXPECT_EQ(p, nullptr);
+
+    // copy offset == size && n == 0
+    p = nullptr;
+    EXPECT_EQ(vec.copyN(3, 0, another_data_array, &p), Status::kNoError);
     EXPECT_EQ(p, another_data_array);
+
+    // try to copy with nullptr as destination
+    p = nullptr;
+    EXPECT_EQ(vec.copyN(1, 3, nullptr, &p), Status::kErrorInvalidArgument);
+    EXPECT_EQ(p, nullptr);
 }
 
 TEST(VectorTest, CopyN)

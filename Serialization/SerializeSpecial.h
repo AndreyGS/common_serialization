@@ -38,4 +38,4 @@ Status serializeThis(const Vector<T, A>& value, S& output)
     return Status::kNoError;
 }
 
-} // common_serialization
+} // namespace common_serialization

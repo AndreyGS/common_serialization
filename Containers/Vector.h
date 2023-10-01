@@ -377,6 +377,23 @@ public:
     [[nodiscard]] constexpr AllocatorHelper& getAllocatorHelper() noexcept;
     [[nodiscard]] constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
 
+    [[nodiscard]] constexpr bool operator==(const Vector& rhs) const
+    {
+        if (size() != rhs.size())
+            return false;
+
+        for (size_type i = 0; i < size(); ++i)
+            if (m_p[i] != rhs.m_p[i])
+                return false;
+
+        return true;
+    }
+
+    [[nodiscard]] constexpr bool operator!=(const Vector& rhs) const
+    {
+        return !operator==(rhs);
+    }
+
 private:
     [[nodiscard]] constexpr Status reserveInternal(size_type n, bool strict);
     [[nodiscard]] constexpr Status addSpaceIfNeed(size_type n);
@@ -390,7 +407,7 @@ private:
 
 private:
     template<typename T, typename A, serializable_concepts::IDeserializationCapableContainer D>
-    friend int deserializeThis(D& input, Vector<T, A>& value);
+    friend Status deserializeThis(D& input, Vector<T, A>& value);
 };
 
 template<typename T, typename AllocatorHelper>
@@ -507,7 +524,7 @@ constexpr Status Vector<T, AllocatorHelper>::pushBack(T&& value)
 template<typename T, typename AllocatorHelper>
 constexpr Status Vector<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
 {
-    if (p == nullptr)
+    if (p == nullptr && n != 0)
         return Status::kErrorInvalidArgument;
 
     RUN(addSpaceIfNeed(n));
@@ -536,7 +553,7 @@ constexpr Status Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value) no
 template<typename T, typename AllocatorHelper>
 constexpr Status Vector<T, AllocatorHelper>::replace(const T* p, size_type n, size_type offset, size_type* pNewOffset)
 {
-    if (p == nullptr)
+    if (p == nullptr && n != 0)
         return Status::kErrorInvalidArgument;
     
     // don't allow to create sparse array by this function
@@ -582,7 +599,7 @@ constexpr Status Vector<T, AllocatorHelper>::replace(const T* p, size_type n, si
 template<typename T, typename AllocatorHelper>
 constexpr Status Vector<T, AllocatorHelper>::insert(const T* p, size_type n, size_type offset, size_type* pNewOffset)
 {
-    if (p == nullptr)
+    if (p == nullptr && n != 0)
         return Status::kErrorInvalidArgument;
 
     // don't allow to create sparse array by this function
@@ -693,7 +710,7 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
 template<typename T, typename AllocatorHelper>
 constexpr Status Vector<T, AllocatorHelper>::erase(size_type offset, size_type n)
 {
-    if (offset >= m_dataSize)
+    if (offset > m_dataSize || offset == m_dataSize && n != 0)
         return Status::kErrorOverflow;
     else if (n == 0)
         return Status::kNoError;
@@ -745,10 +762,10 @@ constexpr Status Vector<T, AllocatorHelper>::erase(iterator destBegin, iterator 
 template<typename T, typename AllocatorHelper>
 constexpr Status Vector<T, AllocatorHelper>::copyN(size_type offset, size_type n, T* p, T** ppNew)
 {
-    if (p == nullptr)
+    if (p == nullptr && n != 0)
         return Status::kErrorInvalidArgument;
 
-    if (offset >= m_dataSize)
+    if (offset > m_dataSize || offset == m_dataSize && n != 0)
         return Status::kErrorOverflow;
 
     difference_type nReal = offset + n > m_dataSize ? m_dataSize - offset : n;

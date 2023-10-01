@@ -4,8 +4,6 @@
 #include <cstdint>
 #endif // USER_MODE
 
-#include "helpers.h"
-
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 #include <cstdlib>
 #include <cassert>
@@ -33,5 +31,7 @@
 #include "std_equivalents/new.h"
 
 #endif // USER_MODE
+
+#include "helpers.h"
 
 #include "Allocators/AllocatorConcepts.h"

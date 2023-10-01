@@ -43,4 +43,4 @@ Status deserializeThis(D& input, Vector<T, A>& value)
     return Status::kNoError;
 }
 
-} // common_serialization
+} // namespace common_serialization

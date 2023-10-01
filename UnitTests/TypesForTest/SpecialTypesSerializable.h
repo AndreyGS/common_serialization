@@ -1,0 +1,442 @@
+/**
+ * @file SpecialTypesSerializable.h
+ * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ *
+ * @section LICENSE
+ *
+ * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
+ * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+ * THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
+#pragma once
+
+#include "Status.h"
+#include "Serialization/ISerializable.h"
+#include "SerializationForwardDeclarationsGenerated.h"
+
+namespace special_types
+{
+
+using namespace common_serialization;
+
+struct EmptyTypeNotSerializable
+{
+    using empty_type = std::true_type;
+};
+
+template<typename T = Dummy>
+class EmptyTypeSerializable : public ISerializable<GetCrtpMainType<EmptyTypeSerializable<T>, T>>
+{
+public:
+    using instance_type = GetCrtpMainType<EmptyTypeSerializable<T>, T>;
+    using empty_type = std::true_type;
+
+    static constexpr uint64_t kNameHash = 0;
+    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable structs
+};
+
+#pragma pack(push, 1)
+
+struct SimpleAssignableAlignedToOneNotSerializable
+{
+    using simple_assignable = std::true_type;
+
+    uint16_t a{ 0 };
+    uint8_t s{ 0 };
+
+    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneNotSerializable& rhs) const noexcept
+    {
+        return a == rhs.a && s == rhs.s;
+    }
+};
+
+template<typename T = Dummy>
+class SimpleAssignableAlignedToOneSerializable : public ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable<T>, T>>
+{
+public:
+    using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable<T>, T>;
+    using simple_assignable = std::true_type;
+
+    static constexpr uint64_t kNameHash = 1;
+    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+
+    [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
+    [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
+    [[nodiscard]] uint8_t& getY()                 noexcept { return m_y; }
+    [[nodiscard]] const uint8_t& getY()     const noexcept { return m_y; }
+
+    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable& rhs) const noexcept
+    {
+        return m_x == rhs.m_x && m_y == rhs.m_y;
+    }
+
+private:
+    uint8_t m_x{ 0 };
+    uint8_t m_y{ 0 };
+};
+
+#pragma pack(pop)
+
+struct SimpleAssignableNotSerializable
+{
+    using simple_assignable = std::true_type;
+
+    uint16_t q{ 0 };
+    uint64_t w{ 0 };
+
+    [[nodiscard]] bool operator==(const SimpleAssignableNotSerializable& rhs) const noexcept
+    {
+        return q == rhs.q && w == rhs.w;
+    }
+};
+
+template<typename T = Dummy>
+class SimpleAssignableSerializable : public ISerializable<GetCrtpMainType<SimpleAssignableSerializable<T>, T>>
+{
+public:
+    using instance_type = GetCrtpMainType<SimpleAssignableSerializable<T>, T>;
+    using simple_assignable = std::true_type;
+
+    static constexpr uint64_t kNameHash = 2;
+    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable structs
+
+    [[nodiscard]] uint8_t& getI()                                                                 noexcept { return m_i; }
+    [[nodiscard]] const uint8_t& getI()                                                     const noexcept { return m_i; }
+    [[nodiscard]] uint16_t& getJ()                                                                noexcept { return m_j; }
+    [[nodiscard]] const uint16_t& getJ()                                                    const noexcept { return m_j; }
+    [[nodiscard]] SimpleAssignableAlignedToOneSerializable<>& getSaaToS()                         noexcept { return m_saaToS; }
+    [[nodiscard]] const SimpleAssignableAlignedToOneSerializable<>& getSaaToS()             const noexcept { return m_saaToS; }
+    [[nodiscard]] SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()                       noexcept { return m_saaToNS; }
+    [[nodiscard]] const SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()           const noexcept { return m_saaToNS; }
+    [[nodiscard]] SimpleAssignableNotSerializable& getSaNS()                                      noexcept { return m_saNS; }
+    [[nodiscard]] const SimpleAssignableNotSerializable& getSaNS()                          const noexcept { return m_saNS; }
+
+    [[nodiscard]] uint32_t* getArrI32()                                                           noexcept { return m_arrI32; }
+    [[nodiscard]] const uint32_t* getArrI32()                                               const noexcept { return m_arrI32; }
+    [[nodiscard]] size_t getSizeOfArrI32()                                                  const noexcept { return sizeof(m_arrI32); }
+
+    [[nodiscard]] SimpleAssignableAlignedToOneSerializable<>* getArrSaaToS()                      noexcept { return m_arrSaaTos; }
+    [[nodiscard]] const SimpleAssignableAlignedToOneSerializable<>* getArrSaaToS()          const noexcept { return m_arrSaaTos; }
+    [[nodiscard]] size_t getSizeOfArrSaaToS()                                               const noexcept { return sizeof(m_arrSaaTos); }
+
+    [[nodiscard]] SimpleAssignableAlignedToOneNotSerializable* getArrSaaToNS()                    noexcept { return m_arrSaaToNS; }
+    [[nodiscard]] const SimpleAssignableAlignedToOneNotSerializable* getArrSaaToNS()        const noexcept { return m_arrSaaToNS; }
+    [[nodiscard]] size_t getSizeOfArrSaaToNS()                                              const noexcept { return sizeof(m_arrSaaToNS); }
+
+    [[nodiscard]] SimpleAssignableNotSerializable* getArrSaNS()                                   noexcept { return m_arrSaNS; }
+    [[nodiscard]] const SimpleAssignableNotSerializable* getArrSaNS()                       const noexcept { return m_arrSaNS; }
+
+    [[nodiscard]] bool operator==(const SimpleAssignableSerializable& rhs)                  const noexcept
+    {
+        return 
+               m_i == rhs.m_i
+            && m_j == rhs.m_j
+            && m_saaToS == rhs.m_saaToS
+            && m_saaToNS == rhs.m_saaToNS
+            && m_saNS == rhs.m_saNS
+
+            && memcmp(m_arrI32, rhs.m_arrI32, getSizeOfArrI32()) == 0
+            && memcmp(m_arrSaaTos, rhs.m_arrSaaTos, getSizeOfArrSaaToS()) == 0
+            && memcmp(m_arrSaaToNS, rhs.m_arrSaaToNS, getSizeOfArrSaaToNS()) == 0
+
+            && m_arrSaNS[0] == rhs.m_arrSaNS[0]
+            && m_arrSaNS[1] == rhs.m_arrSaNS[1]
+            && m_arrSaNS[2] == rhs.m_arrSaNS[2];
+    }
+
+private:
+    uint8_t m_i{ 0 };
+    uint16_t m_j{ 0 };
+    EmptyTypeSerializable<> m_et;
+    EmptyTypeNotSerializable m_et2;
+    SimpleAssignableAlignedToOneSerializable<> m_saaToS;
+    SimpleAssignableAlignedToOneNotSerializable m_saaToNS;
+    SimpleAssignableNotSerializable m_saNS;
+
+    uint32_t m_arrI32[3]{ 0 };
+    EmptyTypeSerializable<> m_arrEtS[3]{};
+    EmptyTypeNotSerializable m_arrEtNS[3]{};
+    SimpleAssignableAlignedToOneSerializable<> m_arrSaaTos[3]{};
+    SimpleAssignableAlignedToOneNotSerializable m_arrSaaToNS[3]{};
+    SimpleAssignableNotSerializable m_arrSaNS[3]{};
+};
+
+template<typename T = Dummy>
+struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializable<GetCrtpMainType<SimpleAssignableDescendantSerializable<T>, T>>
+{
+    using instance_type = GetCrtpMainType<SimpleAssignableDescendantSerializable<T>, T>;
+    using simple_assignable = std::true_type;
+
+    static constexpr uint64_t kNameHash = 3;
+    static constexpr uint32_t kVersionThis = 0;
+    static constexpr uint32_t kVersionInterface = 0;
+
+    uint32_t v{ 0 };
+    
+    [[nodiscard]] operator SimpleAssignableSerializable<>& () noexcept
+    {
+        return  *static_cast<SimpleAssignableSerializable<>*>(
+                    static_cast<void*>(
+                        static_cast<SimpleAssignableSerializable<instance_type>*>(this)));
+    }
+
+    [[nodiscard]] operator const SimpleAssignableSerializable<>& () const noexcept
+    {
+        return  *static_cast<const SimpleAssignableSerializable<>*>(
+                    static_cast<const void*>(
+                        static_cast<const SimpleAssignableSerializable<instance_type>*>(this)));
+    }
+    
+    [[nodiscard]] bool operator==(const SimpleAssignableDescendantSerializable& rhs) const noexcept
+    {
+        return v == rhs.v && SimpleAssignableSerializable<instance_type>::operator==(rhs);
+    }
+};
+
+class DynamicPolymorphicNotSerializable
+{
+public:
+    virtual ~DynamicPolymorphicNotSerializable() {}
+
+    static constexpr uint64_t kNameHash = 4;
+    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+
+    [[nodiscard]] uint8_t& getR()                 noexcept { return m_r; }    // getters here are only need for testing proposes
+    [[nodiscard]] const uint8_t& getR()     const noexcept { return m_r; }    // (not required for serialization itself)
+    [[nodiscard]] uint8_t* getArrR()                 noexcept { return m_arrR; }
+    [[nodiscard]] const uint8_t* getArrR()     const noexcept { return m_arrR; }
+    [[nodiscard]] size_t getSizeOfArrR()       const noexcept { return sizeof(m_arrR); }
+
+    [[nodiscard]] bool operator==(const DynamicPolymorphicNotSerializable& rhs) const noexcept
+    {
+        return m_r == rhs.m_r && memcmp(m_arrR, rhs.m_arrR, sizeof(m_arrR)) == 0;
+    }
+
+private:
+    uint8_t m_r{ 0 };
+    uint8_t m_arrR[3]{ 0 };
+
+    template<serializable_concepts::ISerializationCapableContainer S>
+    friend constexpr Status common_serialization::serializeThis(const DynamicPolymorphicNotSerializable& value, S& output);
+    template<serializable_concepts::IDeserializationCapableContainer D>
+    friend constexpr Status common_serialization::deserializeThis(D& input, DynamicPolymorphicNotSerializable& value);
+};
+
+template<typename T = Dummy>
+class DynamicPolymorphicSerializable : public ISerializable<GetCrtpMainType<DynamicPolymorphicSerializable<T>, T>>
+{
+public:
+    using instance_type = GetCrtpMainType<DynamicPolymorphicSerializable<T>, T>;
+
+    virtual ~DynamicPolymorphicSerializable() {}
+
+    static constexpr uint64_t kNameHash = 5;
+    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+
+    [[nodiscard]] uint8_t& getO()                 noexcept { return m_o; }    // getters here are only need for testing proposes
+    [[nodiscard]] const uint8_t& getO()     const noexcept { return m_o; }    // (not required for serialization itself)
+    [[nodiscard]] uint8_t* getArrO()                 noexcept { return m_arrO; }
+    [[nodiscard]] const uint8_t* getArrO()     const noexcept { return m_arrO; }
+    [[nodiscard]] size_t getSizeOfArrO()       const noexcept { return sizeof(m_arrO); }
+
+    [[nodiscard]] DynamicPolymorphicNotSerializable& getDpNS()                 noexcept { return m_dpNS; }
+    [[nodiscard]] const DynamicPolymorphicNotSerializable& getDpNS()     const noexcept { return m_dpNS; }
+    [[nodiscard]] DynamicPolymorphicNotSerializable* getArrDpNS()              noexcept { return m_arrDpNS; }
+    [[nodiscard]] const DynamicPolymorphicNotSerializable* getArrDpNS()  const noexcept { return m_arrDpNS; }
+
+    [[nodiscard]] bool operator==(const DynamicPolymorphicSerializable& rhs) const noexcept
+    {
+        return 
+               m_o == rhs.m_o 
+            && memcmp(m_arrO, rhs.m_arrO, sizeof(m_arrO)) == 0 
+            && m_dpNS == rhs.m_dpNS 
+            && m_arrDpNS[0] == rhs.m_arrDpNS[0]
+            && m_arrDpNS[1] == rhs.m_arrDpNS[1]
+            && m_arrDpNS[2] == rhs.m_arrDpNS[2];
+    }
+
+private:
+    uint8_t m_o{ 0 };
+    DynamicPolymorphicNotSerializable m_dpNS{};
+
+    uint8_t m_arrO[3]{ 0 };
+    DynamicPolymorphicNotSerializable m_arrDpNS[3]{};
+
+    template<typename T, serializable_concepts::ISerializationCapableContainer S>
+    friend constexpr Status common_serialization::serializeThis(const DynamicPolymorphicSerializable<T>& value, S& output);
+    template<typename T, serializable_concepts::IDeserializationCapableContainer D>
+    friend constexpr Status common_serialization::deserializeThis(D& input, DynamicPolymorphicSerializable<T>& value);
+};
+
+template<typename T>
+struct TemplateNotSerializable
+{
+    static constexpr uint64_t kNameHash = 6;
+    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+
+    [[nodiscard]] bool operator==(const TemplateNotSerializable& rhs) const noexcept
+    {
+        return m_f == rhs.m_f && m_g == rhs.m_g;
+    }
+
+    uint8_t m_f{ 0 };
+    T m_g{ 0 };
+
+private:
+    template<typename T, serializable_concepts::ISerializationCapableContainer S>
+    friend constexpr Status common_serialization::serializeThis(const TemplateNotSerializable<T>& value, S& output);
+    template<typename T, serializable_concepts::IDeserializationCapableContainer D>
+    friend constexpr Status common_serialization::deserializeThis(D& input, TemplateNotSerializable<T>& value);
+};
+
+template<typename X, typename T = Dummy>
+class TemplateSerializable : public ISerializable<GetCrtpMainType<TemplateSerializable<X, T>, T>>
+{
+public:
+    using instance_type = GetCrtpMainType<TemplateSerializable<T>, T>;
+
+    static constexpr uint64_t kNameHash = 7;
+    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+
+    [[nodiscard]] uint8_t& getC()                 noexcept { return m_c; }    // getters here are only need for testing proposes
+    [[nodiscard]] const uint8_t& getC()     const noexcept { return m_c; }    // (not required for serialization itself)
+    [[nodiscard]] uint8_t& getV()                 noexcept { return m_v; }
+    [[nodiscard]] const uint8_t& getV()     const noexcept { return m_v; }
+
+    [[nodiscard]] TemplateNotSerializable<X>& getTNS()              noexcept { return m_tNS; }
+    [[nodiscard]] const TemplateNotSerializable<X>& getTNS()  const noexcept { return m_tNS; }
+
+    [[nodiscard]] bool operator==(const TemplateSerializable& rhs) const noexcept
+    {
+        return m_c == rhs.m_c && m_v == rhs.m_v && m_tNS == rhs.m_tNS;
+    }
+
+private:
+    uint8_t m_c{ 0 };
+    uint8_t m_v{ 0 };
+    TemplateNotSerializable<X> m_tNS{};
+
+    template<typename X, typename T, serializable_concepts::ISerializationCapableContainer S>
+    friend constexpr Status common_serialization::serializeThis(const TemplateSerializable<X, T>& value, S& output);
+    template<typename X, typename T, serializable_concepts::IDeserializationCapableContainer D>
+    friend constexpr Status common_serialization::deserializeThis(D& input, TemplateSerializable<X, T>& value);
+};
+
+struct DiamondBaseNotSerializable
+{
+    [[nodiscard]] bool operator==(const DiamondBaseNotSerializable& rhs) const noexcept
+    {
+        return m_d0 == rhs.m_d0;
+    }
+
+    uint32_t m_d0{ 0 };
+
+    template<serializable_concepts::ISerializationCapableContainer S>
+    friend constexpr Status common_serialization::serializeThis(const DiamondBaseNotSerializable& value, S& output);
+    template<serializable_concepts::IDeserializationCapableContainer D>
+    friend constexpr Status common_serialization::deserializeThis(D& input, DiamondBaseNotSerializable& value);
+};
+
+struct DiamondEdge1NotSerializable : virtual public DiamondBaseNotSerializable
+{
+    [[nodiscard]] bool operator==(const DiamondEdge1NotSerializable& rhs) const noexcept
+    {
+        return m_d1 == rhs.m_d1;
+    }
+
+    uint32_t m_d1{ 0 };
+
+    template<serializable_concepts::ISerializationCapableContainer S>
+    friend constexpr Status common_serialization::serializeThis(const DiamondEdge1NotSerializable& value, S& output);
+    template<serializable_concepts::IDeserializationCapableContainer D>
+    friend constexpr Status common_serialization::deserializeThis(D& input, DiamondEdge1NotSerializable& value);
+};
+
+struct DiamondEdge2NotSerializable : virtual public DiamondBaseNotSerializable
+{
+    [[nodiscard]] bool operator==(const DiamondEdge2NotSerializable& rhs) const noexcept
+    {
+        return m_d2 == rhs.m_d2;
+    }
+
+    uint32_t m_d2{ 0 };
+
+    template<serializable_concepts::ISerializationCapableContainer S>
+    friend constexpr Status common_serialization::serializeThis(const DiamondEdge2NotSerializable& value, S& output);
+    template<serializable_concepts::IDeserializationCapableContainer D>
+    friend constexpr Status common_serialization::deserializeThis(D& input, DiamondEdge2NotSerializable& value);
+};
+
+template<typename T = Dummy>
+class DiamondSerializable 
+    : public ISerializable<GetCrtpMainType<DiamondSerializable<T>, T >>
+    , public DiamondEdge1NotSerializable
+    , public DiamondEdge2NotSerializable
+{
+public:
+    using instance_type = GetCrtpMainType<DiamondSerializable<T>, T>;
+
+    static constexpr uint64_t kNameHash = 8;
+    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+
+    [[nodiscard]] bool operator==(const DiamondSerializable& rhs) const noexcept
+    {
+        return m_d0 == rhs.m_d0 && m_d1 == rhs.m_d1 && m_d2 == rhs.m_d2;
+    }
+
+private:
+    template<typename T, serializable_concepts::ISerializationCapableContainer S>
+    friend constexpr Status common_serialization::serializeThis(const DiamondSerializable<T>& value, S& output);
+    template<typename T, serializable_concepts::IDeserializationCapableContainer D>
+    friend constexpr Status common_serialization::deserializeThis(D& input, DiamondSerializable<T>& value);
+};
+
+template<typename X, typename T = Dummy>
+class SpecialProcessingTypeContainSerializable : public ISerializable<GetCrtpMainType<SpecialProcessingTypeContainSerializable<X, T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<SpecialProcessingTypeContainSerializable<X, T>, T>;
+
+    static constexpr uint64_t kNameHash = 9;
+    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+
+    [[nodiscard]] Vector<X>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
+    [[nodiscard]] const Vector<X>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)
+
+    [[nodiscard]] bool operator==(const SpecialProcessingTypeContainSerializable& rhs) const noexcept
+    {
+        return m_vec == rhs.m_vec;
+    }
+
+private:
+    Vector<X> m_vec;
+
+    template<typename X, typename T, serializable_concepts::ISerializationCapableContainer S>
+    friend constexpr Status common_serialization::serializeThis(const SpecialProcessingTypeContainSerializable<X, T>& value, S& output);
+    template<typename X, typename T, serializable_concepts::IDeserializationCapableContainer D>
+    friend constexpr Status common_serialization::deserializeThis(D& input, SpecialProcessingTypeContainSerializable<X, T>& value);
+};
+
+} // namespace special_types

@@ -22,7 +22,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "SpecialTypes.h"
+#include "TypesForTest/SpecialTypes.h"
 #include "Containers/Vector.h"
 #include "Allocators/RawKeeperAllocator.h"
 

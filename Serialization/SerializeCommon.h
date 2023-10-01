@@ -208,4 +208,4 @@ constexpr Status serializeThis(T value, SerializationFlags flags, S& output)
     return Status::kNoError;
 }
 
-} // common_serialization
+} // namespace common_serialization

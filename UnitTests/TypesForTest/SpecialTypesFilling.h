@@ -1,5 +1,5 @@
 /**
- * @file FillingSpecialTypes.h
+ * @file SpecialTypesFilling.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,8 @@
 
 #pragma once
 
-#include "SpecialTypes.h"
+#include "SerializeGenerated.h"
+#include "DeserializeGenerated.h"
 
 namespace special_types
 {
@@ -74,12 +75,88 @@ void _SimpleAssignableSerializable(SimpleAssignableSerializable<>& output)
 
 void _SimpleAssignableDescendantSerializable(SimpleAssignableDescendantSerializable<>& output)
 {
-    _SimpleAssignableSerializable(output.getSimpleAssignableSerializable());
+    _SimpleAssignableSerializable(output);
     output.v = 9;
 }
 
+void _DynamicPolymorphicNotSerializable(DynamicPolymorphicNotSerializable& output)
+{
+    output.getR() = 10;
+    memcpy(output.getArrR(), "abc", output.getSizeOfArrR());
+}
 
+void _DynamicPolymorphicSerializable(DynamicPolymorphicSerializable<>& output)
+{
+    output.getO() = 11;
+    _DynamicPolymorphicNotSerializable(output.getDpNS());
 
+    memcpy(output.getArrO(), "def", output.getSizeOfArrO());
+
+    _DynamicPolymorphicNotSerializable(*output.getArrDpNS());
+
+    output.getArrDpNS()[1].getR() = 12;
+    memcpy(output.getArrDpNS()[1].getArrR(), "ghi", output.getArrDpNS()[1].getSizeOfArrR());
+    output.getArrDpNS()[2].getR() = 13;
+    memcpy(output.getArrDpNS()[2].getArrR(), "jkl", output.getArrDpNS()[2].getSizeOfArrR());
+}
+
+template<typename T>
+void _TemplateNotSerializable(TemplateNotSerializable<T>& output)
+{
+    output.m_f = 14;
+    output.m_g = 15;
+}
+
+template<typename T>
+void _TemplateSerializable(TemplateSerializable<T>& output)
+{
+    output.getC() = 16;
+    output.getV() = 17;
+    _TemplateNotSerializable(output.getTNS());
+}
+
+void _DiamondBaseNotSerializable(DiamondBaseNotSerializable& output)
+{
+    output.m_d0 = 18;
+}
+
+void _DiamondEdge1NotSerializable(DiamondEdge1NotSerializable& output)
+{
+    _DiamondBaseNotSerializable(output);
+    output.m_d1 = 19;
+}
+
+void _DiamondEdge2NotSerializable(DiamondEdge2NotSerializable& output)
+{
+    _DiamondBaseNotSerializable(output);
+    output.m_d2 = 20;
+}
+
+void _DiamondSerializable(DiamondSerializable<>& output)
+{
+    _DiamondEdge1NotSerializable(output);
+    _DiamondEdge2NotSerializable(output);
+}
+
+void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeContainSerializable<uint16_t>& output)
+{
+    output.getVec().pushBack(21);
+    output.getVec().pushBack(22);
+}
+
+void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeContainSerializable<DiamondSerializable<>>& output)
+{
+    DiamondSerializable ds1;
+    _DiamondSerializable(ds1);
+    output.getVec().pushBack(ds1);
+
+    DiamondSerializable ds2;
+    ds2.m_d0 = 23;
+    ds2.m_d0 = 24;
+    ds2.m_d0 = 25;
+
+    output.getVec().pushBack(ds2);
+}
 
 } // namespace filling
 

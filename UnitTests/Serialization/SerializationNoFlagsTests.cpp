@@ -22,15 +22,13 @@
  */
 
 #include <gtest/gtest.h>
-#include "FillingSpecialTypes.h"
-#include "Serialization/ISerializable.h"
+#include "TypesForTest/SpecialTypesFilling.h"
 #include "Containers/Walker.h"
 
 namespace
 {
 
 using namespace special_types;
-using namespace common_serialization;
 
 TEST(SerializeNoFlagsTest, EmptyTypeT)
 {
@@ -39,7 +37,7 @@ TEST(SerializeNoFlagsTest, EmptyTypeT)
     EXPECT_EQ(etSerIn.serialize(bin.getVector()), Status::kNoError);
 
     EmptyTypeSerializable etSerOut;
-    EXPECT_EQ(etSerIn.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(etSerOut.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 }
 
@@ -86,6 +84,78 @@ TEST(SerializeNoFlagsTest, SimpleAssignableDescendantT)
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_TRUE(saSDIn == saSDOut);
+}
+
+TEST(SerializeNoFlagsTest, DynamicPolymorphicT)
+{
+    DynamicPolymorphicSerializable dpsIn;
+    filling::_DynamicPolymorphicSerializable(dpsIn);
+
+    Walker<uint8_t> bin;
+    EXPECT_EQ(dpsIn.serialize(bin.getVector()), Status::kNoError);
+
+    DynamicPolymorphicSerializable dpsOut;
+    EXPECT_EQ(dpsOut.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(bin.tell(), bin.size());
+
+    EXPECT_TRUE(dpsIn == dpsOut);
+}
+
+TEST(SerializeNoFlagsTest, TemplateSerializableT)
+{
+    TemplateSerializable<uint16_t> tsIn;
+    filling::_TemplateSerializable(tsIn);
+
+    Walker<uint8_t> bin;
+    EXPECT_EQ(tsIn.serialize(bin.getVector()), Status::kNoError);
+
+    TemplateSerializable<uint16_t> tsOut;
+    EXPECT_EQ(tsOut.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(bin.tell(), bin.size());
+
+    EXPECT_TRUE(tsIn == tsOut);
+}
+
+TEST(SerializeNoFlagsTest, DiamondT)
+{
+    DiamondSerializable dIn;
+    filling::_DiamondSerializable(dIn);
+
+    Walker<uint8_t> bin;
+    EXPECT_EQ(dIn.serialize(bin.getVector()), Status::kNoError);
+
+    DiamondSerializable dOut;
+    EXPECT_EQ(dOut.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(bin.tell(), bin.size());
+
+    EXPECT_TRUE(dIn == dOut);
+}
+
+TEST(SerializeNoFlagsTest, SpecialT)
+{
+    SpecialProcessingTypeContainSerializable<DiamondSerializable<>> sptcsDsIn;
+    filling::_SpecialProcessingTypeContainSerializable(sptcsDsIn);
+
+    Walker<uint8_t> bin;
+    EXPECT_EQ(sptcsDsIn.serialize(bin.getVector()), Status::kNoError);
+
+    SpecialProcessingTypeContainSerializable<DiamondSerializable<>> sptcsDsOut;
+    EXPECT_EQ(sptcsDsOut.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(bin.tell(), bin.size());
+
+    EXPECT_TRUE(sptcsDsIn == sptcsDsOut);
+
+    SpecialProcessingTypeContainSerializable<uint16_t> sptcsUint16In;
+    filling::_SpecialProcessingTypeContainSerializable(sptcsDsIn);
+
+    bin.clear();
+    EXPECT_EQ(sptcsUint16In.serialize(bin.getVector()), Status::kNoError);
+
+    SpecialProcessingTypeContainSerializable<uint16_t> sptcsUint16Out;
+    EXPECT_EQ(sptcsUint16Out.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(bin.tell(), bin.size());
+
+    EXPECT_TRUE(sptcsUint16In == sptcsUint16Out);
 }
 
 } // namespace anonymous

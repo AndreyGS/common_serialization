@@ -114,7 +114,7 @@ constexpr Status deserializeThis(D& input, T(&arr)[N])
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
-        for (const auto& e : arr)
+        for (auto& e : arr)
             RUN(deserializeThis(input, e));
     }
 
@@ -157,7 +157,7 @@ constexpr Status deserializeThis(D& input, SerializationFlags flags, T(&arr)[N])
     }
     else if constexpr (!serializable_concepts::EmptyType<T>)
     {
-        for (const auto& e : arr)
+        for (auto& e : arr)
             RUN(deserializeThis(input, e));
     }
 
@@ -233,4 +233,4 @@ constexpr Status deserializeThis(D& input, T& value)
     return Status::kNoError;
 }
 
-} // common_serialization
+} // namespace common_serialization

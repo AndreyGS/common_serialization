@@ -43,6 +43,8 @@ template<typename T>
 class ISerializable
 {
 public:
+    using instance_type = T;
+
     // first function to call on new serialize operation
     template<serializable_concepts::ISerializationCapableContainer S>
     constexpr Status serialize(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
@@ -62,9 +64,6 @@ public:
     [[nodiscard]] static constexpr uint64_t getNameHash() noexcept;
     [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
     [[nodiscard]] static constexpr uint32_t getInterfaceVersion() noexcept;
-
-private:
-    uint32_t m_convertedFromVersion = 0;    // 0 is for "no coversion was performed"
 };
 
 #pragma pack(pop)
@@ -85,7 +84,7 @@ constexpr Status ISerializable<T>::serializeNext(S& output, SerializationFlags f
     RUN(output.pushBackArithmeticValue(getNameHash()));
 
     if (!flags)
-        return serializeThis(static_cast<const typename T::instance_type&>(*this), output);
+        return serializeThis(static_cast<const T&>(*this), output);
     /*else if (flags != SerializationFlags::CheckOfCyclicReferences)
         return serializeThis(static_cast<const T&>(*this), output, flags);*/
     else
@@ -125,7 +124,7 @@ constexpr Status ISerializable<T>::deserializeNext(D& input, SerializationFlags 
         return Status::kErrorInvalidHash;
 
     if (!flags)
-        return deserializeThis(input, static_cast<typename T::instance_type&>(*this));
+        return deserializeThis(input, static_cast<T&>(*this));
 
     // temporary dummy
     return Status::kErrorInvalidArgument;
@@ -134,31 +133,31 @@ constexpr Status ISerializable<T>::deserializeNext(D& input, SerializationFlags 
 template<typename T>
 [[nodiscard]] constexpr uint64_t* ISerializable<T>::getAncestors() noexcept
 {
-    return T::instance_type::kAncestors;
+    return T::kAncestors;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint64_t* ISerializable<T>::getMembers() noexcept
 {
-    return T::instance_type::kMembers;
+    return T::kMembers;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint64_t ISerializable<T>::getNameHash() noexcept
 {
-    return T::instance_type::kNameHash;
+    return T::kNameHash;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint32_t ISerializable<T>::getThisVersion() noexcept
 {
-    return T::instance_type::kVersionThis;
+    return T::kVersionThis;
 }
 
 template<typename T>
 [[nodiscard]] constexpr uint32_t ISerializable<T>::getInterfaceVersion() noexcept
 {
-    return T::instance_type::kVersionInterface;
+    return T::kVersionInterface;
 }
 
 } // namespace common_serialization

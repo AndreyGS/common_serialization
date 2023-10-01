@@ -35,7 +35,7 @@ namespace common_serialization
 {
 
 template<typename T = Dummy>
-class SerT : public ISerializable<SerT<T>>
+class SerT : public ISerializable<GetCrtpMainType<SerT<T>, T>>
 {
 private:
     int i = 5;
@@ -57,7 +57,7 @@ private:
 };
 
 template<typename T = Dummy>
-class SerT2 : public ISerializable<SerT2<T>>
+class SerT2 : public ISerializable<GetCrtpMainType<SerT2<T>, T>>
 {
 private:
     int k = 15;

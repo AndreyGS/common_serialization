@@ -22,7 +22,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "SpecialTypes.h"
+#include "TypesForTest/SpecialTypes.h"
 #include "Containers/Walker.h"
 #include "Allocators/RawKeeperAllocator.h"
 #include "string"
@@ -527,6 +527,16 @@ void FReplace()
 
     // check for invalid arguments
     EXPECT_EQ(walker.replace(nullptr, 3, 4), Status::kErrorInvalidArgument);
+    EXPECT_EQ(walker.tell(), 3);
+    EXPECT_EQ(walker.size(), 3);
+
+    // check for valid nullptr
+    EXPECT_EQ(walker.replace(nullptr, 0, 3), Status::kNoError);
+    EXPECT_EQ(walker.tell(), 3);
+    EXPECT_EQ(walker.size(), 3);
+
+    // check for invalid arguments
+    EXPECT_EQ(walker.replace(nullptr, 3, 4), Status::kErrorInvalidArgument);
     EXPECT_EQ(walker.size(), 3);
 
     T another_data_array[] = { "abc", "def", "ghi" };
@@ -639,6 +649,10 @@ void FInsert()
 
     // test zero items
     EXPECT_EQ(walker.insert(another_data_array3, 0, 10), Status::kNoError);
+    EXPECT_EQ(walker.tell(), 10);
+    EXPECT_EQ(walker.size(), 12);
+
+    EXPECT_EQ(walker.insert(nullptr, 0, 10), Status::kNoError);
     EXPECT_EQ(walker.tell(), 10);
     EXPECT_EQ(walker.size(), 12);
 
@@ -1009,8 +1023,8 @@ void FRead()
 
     T another_data_array[3] = { T{}, T{}, T{} };
     
-    walker.seek(0);
     size_type nRead = 0;
+    walker.seek(0);
     EXPECT_EQ(walker.read(another_data_array, 3, &nRead), Status::kNoError);
     EXPECT_EQ(nRead, 3);
     EXPECT_EQ(walker.tell(), 3);
@@ -1018,6 +1032,7 @@ void FRead()
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(walker[i], another_data_array[i]);
 
+    nRead = 10;
     walker.seek(1);
     EXPECT_EQ(walker.read(another_data_array, 3, &nRead), Status::kNoError);
     EXPECT_EQ(nRead, 2);
@@ -1028,6 +1043,7 @@ void FRead()
     EXPECT_EQ(walker[2], another_data_array[2]);
 
     // copy more than walker has
+    nRead = 10;
     walker.seek(0);
     EXPECT_EQ(walker.read(another_data_array, 10, &nRead), Status::kNoError);
     EXPECT_EQ(nRead, 3);
@@ -1037,6 +1053,7 @@ void FRead()
         EXPECT_EQ(walker[i], another_data_array[i]);
 
     // copy zero elements
+    nRead = 10;
     walker.seek(1);
     EXPECT_EQ(walker.read(another_data_array, 0, &nRead), Status::kNoError);
     EXPECT_EQ(nRead, 0);
@@ -1045,22 +1062,30 @@ void FRead()
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(walker[i], another_data_array[i]);
 
+    nRead = 10;
+    EXPECT_EQ(walker.read(nullptr, 0, &nRead), Status::kNoError);
+    EXPECT_EQ(nRead, 0);
+    EXPECT_EQ(walker.tell(), 2);
+
     // try to copy with wrong offset
+    nRead = 10;
     walker.seek(3);
     EXPECT_EQ(walker.read(another_data_array, 1, &nRead), Status::kErrorOverflow);
-    EXPECT_EQ(nRead, 0);
+    EXPECT_EQ(nRead, 10);
     EXPECT_EQ(walker.tell(), 3);
 
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(walker[i], another_data_array[i]);
 
     // try to copy with nullptr as destination
+    nRead = 10;
     walker.seek(1);
     EXPECT_EQ(walker.read(nullptr, 3, &nRead), Status::kErrorInvalidArgument);
-    EXPECT_EQ(nRead, 0);
+    EXPECT_EQ(nRead, 10);
     EXPECT_EQ(walker.tell(), 1);
 
     // try to not pass optional arg
+    nRead = 10;
     walker.seek(0);
     EXPECT_EQ(walker.read(another_data_array, 3), Status::kNoError);
 }

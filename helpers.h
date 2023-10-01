@@ -38,6 +38,9 @@ namespace common_serialization
 
 struct Dummy {};
 
+template<typename X, typename T>
+using GetCrtpMainType = std::conditional_t<std::is_same_v<T, common_serialization::Dummy>, X, T>;
+
 namespace helpers
 {
 
