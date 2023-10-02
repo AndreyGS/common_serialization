@@ -72,8 +72,8 @@ public:
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 1;
-    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kVersionThis = 2;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kVersionInterface = 2;            // latest version among all dependable structs
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
@@ -114,7 +114,7 @@ public:
 
     static constexpr uint64_t kNameHash = 2;
     static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable structs
+    static constexpr uint32_t kVersionInterface = 2;         // latest version among all dependable structs
 
     [[nodiscard]] uint8_t& getI()                                                                 noexcept { return m_i; }
     [[nodiscard]] const uint8_t& getI()                                                     const noexcept { return m_i; }
@@ -185,7 +185,7 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
 
     static constexpr uint64_t kNameHash = 3;
     static constexpr uint32_t kVersionThis = 0;
-    static constexpr uint32_t kVersionInterface = 0;
+    static constexpr uint32_t kVersionInterface = 2;
 
     uint32_t v{ 0 };
     
