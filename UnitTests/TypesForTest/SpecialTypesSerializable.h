@@ -45,8 +45,8 @@ public:
     using empty_type = std::true_type;
 
     static constexpr uint64_t kNameHash = 0;
-    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
 };
 
 #pragma pack(push, 1)
@@ -72,8 +72,11 @@ public:
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 1;
-    static constexpr uint32_t kVersionThis = 2;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 2;            // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 2;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 2;            // latest version among all dependable structs
+
+    static constexpr uint32_t kVersionsHierarchySize = 3;
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[kVersionsHierarchySize] = { { 11, 0 }, { 10, 1 }, { 1, 2 } };
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
@@ -113,8 +116,8 @@ public:
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 2;
-    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 2;         // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 2;         // latest version among all dependable structs
 
     [[nodiscard]] uint8_t& getI()                                                                 noexcept { return m_i; }
     [[nodiscard]] const uint8_t& getI()                                                     const noexcept { return m_i; }
@@ -184,8 +187,8 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 3;
-    static constexpr uint32_t kVersionThis = 0;
-    static constexpr uint32_t kVersionInterface = 2;
+    static constexpr uint32_t kThisVersion = 0;
+    static constexpr uint32_t kInterfaceVersion = 2;
 
     uint32_t v{ 0 };
     
@@ -215,8 +218,8 @@ public:
     virtual ~DynamicPolymorphicNotSerializable() {}
 
     static constexpr uint64_t kNameHash = 4;
-    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
 
     [[nodiscard]] uint8_t& getR()                 noexcept { return m_r; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getR()     const noexcept { return m_r; }    // (not required for serialization itself)
@@ -248,8 +251,8 @@ public:
     virtual ~DynamicPolymorphicSerializable() {}
 
     static constexpr uint64_t kNameHash = 5;
-    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
 
     [[nodiscard]] uint8_t& getO()                 noexcept { return m_o; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getO()     const noexcept { return m_o; }    // (not required for serialization itself)
@@ -290,8 +293,8 @@ template<typename T>
 struct TemplateNotSerializable
 {
     static constexpr uint64_t kNameHash = 6;
-    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
 
     [[nodiscard]] bool operator==(const TemplateNotSerializable& rhs) const noexcept
     {
@@ -315,8 +318,8 @@ public:
     using instance_type = GetCrtpMainType<TemplateSerializable<T>, T>;
 
     static constexpr uint64_t kNameHash = 7;
-    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
 
     [[nodiscard]] uint8_t& getC()                 noexcept { return m_c; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getC()     const noexcept { return m_c; }    // (not required for serialization itself)
@@ -397,8 +400,8 @@ public:
     using instance_type = GetCrtpMainType<DiamondSerializable<T>, T>;
 
     static constexpr uint64_t kNameHash = 8;
-    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
 
     [[nodiscard]] bool operator==(const DiamondSerializable& rhs) const noexcept
     {
@@ -419,8 +422,8 @@ public:
     using instance_type = GetCrtpMainType<SpecialProcessingTypeContainSerializable<X, T>, T>;
 
     static constexpr uint64_t kNameHash = 9;
-    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
 
     [[nodiscard]] Vector<X>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
     [[nodiscard]] const Vector<X>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)

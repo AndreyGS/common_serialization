@@ -336,7 +336,7 @@ public:
     // this special method is using for eliminating redundant overhead on raw arrays
     template<typename V>
     constexpr Status pushBackArithmeticValue(V value) noexcept
-        requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>;
+        requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
     constexpr Status replace(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
 
@@ -538,7 +538,7 @@ constexpr Status Vector<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
 template<typename T, typename AllocatorHelper>
 template<typename V>
 constexpr Status Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
-    requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>
+    requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
 {
     Status status = Status::kNoError;
 

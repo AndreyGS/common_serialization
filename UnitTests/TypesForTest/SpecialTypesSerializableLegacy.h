@@ -31,22 +31,22 @@ namespace special_types
 using namespace common_serialization;
 
 template<typename T = Dummy>
-class SimpleAssignableAlignedToOneSerializable_Legacy1 : public ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Legacy1<T>, T>>
+class SimpleAssignableAlignedToOneSerializable_Version1 : public ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Legacy1<T>, T>;
+    using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>;
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 10;
-    static constexpr uint32_t kVersionThis = 1;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 1;            // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 1;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
     [[nodiscard]] uint8_t& getY()                 noexcept { return m_y; }
     [[nodiscard]] const uint8_t& getY()     const noexcept { return m_y; }
 
-    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Legacy0& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Version1& rhs) const noexcept
     {
         return m_x == rhs.m_x && m_y == rhs.m_y;
     }
@@ -63,17 +63,17 @@ struct TwoInts
 };
 
 template<typename T = Dummy>
-class SimpleAssignableAlignedToOneSerializable_Legacy0 : public ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Legacy0<T>, T>>
+class SimpleAssignableAlignedToOneSerializable_Version0 : public ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version0<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Legacy0<T>, T>;
+    using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version0<T>, T>;
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 11;
-    static constexpr uint32_t kVersionThis = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
 
-    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Legacy0& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Version0& rhs) const noexcept
     {
         return m_ti == rhs.m_ti;
     }

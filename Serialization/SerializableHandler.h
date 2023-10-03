@@ -22,27 +22,109 @@
  */
 
 #include "ISerializable.h"
+#include "Containers/Walker.h"
+
+#include <unordered_map> // temporary header
+#include <semaphore> // temporary header
 
 namespace common_serialization
 {
 
-template<typename In, typename Out>
-class SerializableHandler
+class SerializableHandlerBase;
+
+class SerializableHandlersDb
 {
 public:
+    static Status addHandler(uint64_t structNameHash, SerializableHandlerBase* handlerInstance)
+    {
+        handlersLock.acquire();
+        if (!serializableHandlers.contains(structNameHash))
+            serializableHandlers[structNameHash] = handlerInstance;
+        handlersLock.release();
+    }
+
+private:
+    static std::unordered_map<uint64_t, SerializableHandlerBase*> serializableHandlers;
+    static std::binary_semaphore handlersLock;
+};
+
+std::binary_semaphore SerializableHandlersDb::handlersLock{ 1 };
+
+class SerializableHandlerBase
+{
+public:
+    SerializableHandlerBase(uint64_t structNameHash, uint32_t structVersionThis, uint32_t structVersionInterface)
+    {
+        SerializableHandlersDb::addHandler(structNameHash, this);
+    }
+
+    uint32_t getStructVersionThis() { return m_structVersionThis; }
+    uint32_t getStructVersionInterface() { return m_structVersionInterface; }
+
+    virtual Status processCommon(uint8_t protocolVersion, SerializationFlags flags, uint32_t interfaceVersion, Walker<uint8_t>& input, Vector<uint8_t>& output) = 0;
+    /*
     template<serializable_concepts::IDeserializationCapableContainer D, serializable_concepts::ISerializationCapableContainer S>
     Status EnterHandler(D& input, SerializationFlags flags, S& output)
     {
         In inStruct;
-        RUN(inStruct.deserializeNext(input, flags));
+        RUN(inStruct.deserializeData(input, flags));
         Out outStruct;
         RUN(this->Process(inStruct, outStruct));
         
-        return outStruct.serializeNext(output, flags);
+        return outStruct.serializeData(output, flags);
+    }*/
+private:
+    uint64_t m_structNameHash{ 0 };
+    uint32_t m_structVersionThis{ 0 };
+    uint32_t m_structVersionInterface{ 0 };
+
+
+    //virtual Status Process(const In& inStruct, Out& outStruct) = 0;
+};
+
+template<uint32_t MinimumSupportedInterfaceVersion, typename In, typename Out>
+class SerializableHandler : public SerializableHandlerBase
+{
+public:
+    SerializableHandler()
+        : SerializableHandlerBase(ISerializable<In>::getThisVersion())
+    {
+
+    }
+
+    uint64_t getThisVersion() const noexcept override
+    {
+        return ISerializable<In>::getThisVersion();
+    }
+    /*
+    Status processCommon(uint8_t protocolVersion, SerializationFlags flags, uint32_t interfaceVersion, Walker<uint8_t>& input, Vector<uint8_t>& output) override
+    {
+        output.clear();
+        if (MinimumSupportedInterfaceVersion > interfaceVersion)
+        {
+            output
+        }
+            return Status::kErrorNotSupportedSerializationInterfaceVersion;
+        else if (getStructVersionInterface() > interfaceVersion && !flags.interfaceVersionsNotMatch)
+        {
+
+        }
+        
+    }*/
+    /*
+    template<serializable_concepts::IDeserializationCapableContainer D, serializable_concepts::ISerializationCapableContainer S>
+    Status EnterHandler(D& input, SerializationFlags flags, S& output)
+    {
+        In inStruct;
+        RUN(inStruct.deserializeData(input, flags));
+        Out outStruct;
+        RUN(this->Process(inStruct, outStruct));
+        
+        return outStruct.serializeData(output, flags);
     }
 
     template<serializable_concepts::ISerializationCapableContainer S>
-    virtual Status Process(const In& inStruct, Out& outStruct) = 0;
+    virtual Status Process(const In& inStruct, Out& outStruct) = 0;*/
 };
 
 } // namespace common_serialization

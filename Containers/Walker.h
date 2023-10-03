@@ -75,7 +75,7 @@ public:
 
     template<typename V>
     constexpr Status readArithmeticValue(V& value) noexcept
-        requires std::is_same_v<T, uint8_t> && std::is_arithmetic_v<V>;
+        requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
     [[nodiscard]] constexpr T* data() noexcept;
     [[nodiscard]] constexpr const T* data() const noexcept;
@@ -288,7 +288,7 @@ constexpr Status Walker<T, AllocatorHelper>::read(T* p, size_type n, size_type* 
 template<typename T, typename AllocatorHelper>
 template<typename V>
 constexpr Status Walker<T, AllocatorHelper>::readArithmeticValue(V& value) noexcept
-    requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>
+    requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
 {
     if (sizeof(V) + m_offset <= size())
     {

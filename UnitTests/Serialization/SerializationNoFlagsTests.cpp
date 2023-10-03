@@ -24,6 +24,7 @@
 #include <gtest/gtest.h>
 #include "TypesForTest/SpecialTypesFilling.h"
 #include "Containers/Walker.h"
+#include "Serialization/SerializableHandler.h"
 
 namespace
 {

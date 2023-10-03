@@ -33,9 +33,25 @@ struct SerializationFlags
                                                                 // except you are really know what you are doing
     uint32_t interfaceVersionsNotMatch              : 1 = 0;
     uint32_t checkOfCyclicReferences                : 1 = 0;
-    uint32_t reserved                               :20 = 0;
+    uint32_t transactionalMessage                   : 1 = 0;
+    uint32_t reserved                               :19 = 0;
     uint32_t doNotUse                               : 8 = 0;    // this bit-field shall have only 24 significant bits
                                                                 // 8 bits are using for serialization protocol version
+
+    SerializationFlags() noexcept {}
+
+    explicit SerializationFlags(uint32_t value) noexcept
+    {
+        operator=(value);
+    }
+
+    SerializationFlags& operator=(uint32_t value) noexcept
+    {
+        return *static_cast<SerializationFlags*>
+                    (static_cast<void*>(
+                        &(*static_cast<uint32_t*>(
+                            static_cast<void*>(this)) = value)));
+    }
 
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept
     {

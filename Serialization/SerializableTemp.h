@@ -52,8 +52,8 @@ private:
     static constexpr uint64_t kAncestors[5] = { 0 };
     static constexpr uint64_t kMembers[5] = { 0 };
     static constexpr uint64_t kNameHash = 0;
-    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable struct
+    static constexpr uint32_t kThisVersion = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable struct
 };
 
 template<typename T = Dummy>
@@ -74,8 +74,8 @@ private:
     static constexpr uint64_t kAncestors[5] = { 0 };
     static constexpr uint64_t kMembers[5] = { 0 };
     static constexpr uint64_t kNameHash = 0;
-    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable struct
+    static constexpr uint32_t kThisVersion = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable struct
 };
 
 template<typename T = Dummy>
@@ -121,8 +121,8 @@ private:
     static constexpr uint64_t kAncestors[5] = { 0 };
     static constexpr uint64_t kMembers[5] = { 0 };
     static constexpr uint64_t kNameHash = 0;
-    static constexpr uint32_t kVersionThis = 0;              // in which version of interface definition of this struct changed
-    static constexpr uint32_t kVersionInterface = 0;         // latest version among all dependable struct
+    static constexpr uint32_t kThisVersion = 0;              // in which version of interface definition of this struct changed
+    static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable struct
 };
 
 template<serializable_concepts::ISerializationCapableContainer S>
