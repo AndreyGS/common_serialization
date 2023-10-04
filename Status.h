@@ -37,7 +37,9 @@ enum class Status : int_fast32_t
     kErrorInvalidHash                               =       -6,
     kErrorInvalidTypeConversion                     =       -7,
     kErrorMismatchOfSerializationProtocolVersions   =       -8,
-    kErrorMismatchOfSerializationInterfaceVersions  =       -9
+    kErrorMismatchOfSerializationInterfaceVersions  =       -9,
+    kErrorMismatchOfStructNameHash                  =       -10,
+    kErrorNoSuchHandler                             =       -11
 };
 
 #define ST_SUCCESS(x) (static_cast<int_fast32_t>(x) >= 0)

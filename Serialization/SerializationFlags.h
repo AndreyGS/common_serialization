@@ -31,10 +31,11 @@ struct SerializationFlags
     uint32_t alignmentMayBeNotEqual                 : 1 = 0;
     uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;    // this flag is very dangerous and it should never be used,
                                                                 // except you are really know what you are doing
-    uint32_t interfaceVersionsNotMatch              : 1 = 0;
+    uint32_t interfaceVersionsNotMatch              : 1 = 0;    // when this flag is set, it's indicates that
+                                                                // serialized data would include version for every serialized struct
+                                                                // to allow it properly deserialized
     uint32_t checkOfCyclicReferences                : 1 = 0;
-    uint32_t transactionalMessage                   : 1 = 0;
-    uint32_t reserved                               :19 = 0;
+    uint32_t reserved                               :20 = 0;
     uint32_t doNotUse                               : 8 = 0;    // this bit-field shall have only 24 significant bits
                                                                 // 8 bits are using for serialization protocol version
 

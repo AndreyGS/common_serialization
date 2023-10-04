@@ -30,6 +30,39 @@
 namespace common_serialization
 {
 
+struct SerializableHandlerFlags
+{
+    uint32_t transactionalMessage               :  1 = 0;
+    uint32_t reserved                           : 23 = 0;
+    uint32_t doNotUse                           :  8 = 0;   // this bit-field shall have only 24 significant bits
+                                                            // 8 bits are using for serialization protocol version
+};
+
+// Handler header format
+//
+//  {
+//      uint8_t protocolVersion;
+//      SerializableHandlerFlags flags;
+//      uint32_t transactionNumber; // optional
+//      SerilizableHandlerMessageType messageType;
+//  }
+//
+
+enum class SerilizableHandlerMessageType : uint_fast32_t
+{
+    kData = 0x0,                            // message body format:
+                                            // 
+                                            // {
+                                            //     uint8_t serializedData[anysize];
+                                            // } 
+                                            //
+    kStatus = 0x1,                          // message body format:
+                                            // 
+                                            // {
+                                            //     Status lastMessageProcessingStatus;
+                                            // }                               
+};
+
 class SerializableHandlerBase;
 
 class SerializableHandlersDb

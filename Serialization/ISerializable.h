@@ -35,59 +35,46 @@ namespace common_serialization
 // ISerializable base must have permanent size regardless of platform alignment
 #pragma pack(push, 1)
 
-enum class SerializableMessageType
+enum class SerializableMessageType : uint_fast32_t
 {
     kData = 0x0,                            // default message type
                                             //
-                                            // message format:
+                                            // message body format:
                                             //
                                             // {
-                                            //     uint64_t transactionId;  // if SerializationFlags::transactionalMessage is set
-                                            //     uint64_t structHashName; // must be present first in every data message 
-                                            //                              // to find primary handler that shall process it
+                                            //     uint32_t interfaceVersion;
+                                            //     uint64_t structNameHash;
                                             //     uint8_t serializedData[anysize]; // rest of the data varies by SerializationFlags that was set
                                             //                                      // and data that was serialized
                                             // }
                                             //
-    kProtocolNotSupported = 0x1,            // returns from handler when serialization protocol is not supported
+    kNotSupportedProtocol = 0x1,            // sends when serialization protocol is not supported
                                             //
-                                            // message format:
+                                            // message body format:
                                             //
                                             // {
-                                            //     uint64_t transactionId; // if SerializationFlags::transactionalMessage is set
                                             //     uint8_t supportedProtocolsVersionsSize;
                                             //     uint8_t supportedProtocolsVersions[supportedProtocolsVersionsSize];
                                             // }
                                             //
-    kNoSuchHandler = 0x2,                   // returns from handlers database when there is no object to handle request
-                                            //
-                                            // message format:
+    kNotSupportedInterfaceVersion = 0x2,    // sends when low supported version is bigger or
+                                            // high version is lesser than in serialized data
+                                            // 
+                                            // message body format:
                                             // 
                                             // {
-                                            //     uint64_t transactionId; // if SerializationFlags::transactionalMessage is set
-                                            //     uint64_t structHashName;
-                                            // }
-                                            //
-    kInterfaceVersionNotSupported = 0x3,    // returns from handler when its minimal version is bigger or
-                                            // maximal version is lesser than in serialized data
-                                            // 
-                                            // message format:
-                                            // 
-                                            // {
-                                            //     uint64_t transactionId; // if SerializationFlags::transactionalMessage is set
-                                            //     uint64_t structHashName;
-                                            //     uint32_t supportedVersionsNum;
-                                            //     uint32_t versions[supportedVersionsNum];
+                                            //     uint64_t structNameHash;
+                                            //     uint32_t minimumSupportedInterfaceVersion;
+                                            //     uint32_t maximalSupportedInterfaceVersion;
                                             // }
                                             // 
-    kDifferentInterfaceHandlerVersion = 0x4,// returns from handler when its primal (latest) version not
+    kMismatchOfInterfaceVersions = 0x2,     // sends when its primal (latest) version not
                                             // equal to version of input data, but version of input data
                                             // is supported and SerializationFlags::interfaceVersionsNotMatch is false
                                             // 
-                                            // message format
+                                            // message body format
                                             // 
                                             // {
-                                            //     uint64_t transactionId; // if SerializationFlags::transactionalMessage is set
                                             //     uint64_t structHashName;
                                             // }
                                             //                                      
@@ -206,6 +193,7 @@ template<serializable_concepts::ISerializationCapableContainer S>
 constexpr Status ISerializable<T>::serializeData(S& output, SerializationFlags flags) const noexcept
 {
     RUN(output.pushBackArithmeticValue(getInterfaceVersion()));
+    RUN(output.pushBackArithmeticValue(getNameHash()));
 
     if (!flags)
         return serializeThis(static_cast<const T&>(*this), output);
@@ -306,6 +294,12 @@ constexpr Status ISerializable<T>::deserializeData(D& input, SerializationFlags 
 
     if (getInterfaceVersion() != inputInterfaceVersion)
         return Status::kErrorMismatchOfSerializationInterfaceVersions;
+
+    uint64_t nameHash = 0;
+    RUN(input.readArithmeticValue(nameHash));
+
+    if (getNameHash() != nameHash)
+        return Status::kErrorMismatchOfStructNameHash;
 
     if (!flags)
         return deserializeThis(input, static_cast<T&>(*this));
