@@ -1,5 +1,5 @@
 /**
- * @file SerializeSpecial.h
+ * @file SerializationSpecialStructs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,19 +23,33 @@
 
 #pragma once
 
-#include "SerializeCommon.h"
-#include "Containers/Vector.h"
+#include "SerializationProcessor.h"
 
 namespace common_serialization
 {
 
-template<typename T, typename A, serializable_concepts::ISerializationCapableContainer S>
-Status serializeThis(const Vector<T, A>& value, S& output)
+template<typename T, typename A, serialization_concepts::ISerializationCapableContainer S>
+Status serializeData(const Vector<T, A>& value, S& output)
 {
-    RUN(serializeThis(value.size(), output));
-    RUN(serializeThis(value.data(), value.size(), output));
+    RUN(SerializationProcessor::serializeData(value.size(), output));
+    RUN(SerializationProcessor::serializeData(value.data(), value.size(), output));
     
     return Status::kNoError;
 }
+
+template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D>
+Status deserializeData(D& input, Vector<T, A>& value)
+{
+    value.clear();
+
+    typename Vector<T, A>::size_type size = 0;
+    RUN(SerializationProcessor::deserializeData(input, size));
+    RUN(value.reserve(size));
+    RUN(SerializationProcessor::deserializeData(input, size, value.data()));
+    value.m_dataSize = size;
+
+    return Status::kNoError;
+}
+
 
 } // namespace common_serialization

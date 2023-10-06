@@ -79,7 +79,7 @@ public:
     }
 
 private:
-    TwoInts m_ti{ 0 }
+    TwoInts m_ti{ 0 };
 };
 
 } // namespace special_types

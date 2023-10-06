@@ -96,7 +96,7 @@ public:
 
     virtual Status processCommon(uint8_t protocolVersion, SerializationFlags flags, uint32_t interfaceVersion, Walker<uint8_t>& input, Vector<uint8_t>& output) = 0;
     /*
-    template<serializable_concepts::IDeserializationCapableContainer D, serializable_concepts::ISerializationCapableContainer S>
+    template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::ISerializationCapableContainer S>
     Status EnterHandler(D& input, SerializationFlags flags, S& output)
     {
         In inStruct;
@@ -145,7 +145,7 @@ public:
         
     }*/
     /*
-    template<serializable_concepts::IDeserializationCapableContainer D, serializable_concepts::ISerializationCapableContainer S>
+    template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::ISerializationCapableContainer S>
     Status EnterHandler(D& input, SerializationFlags flags, S& output)
     {
         In inStruct;
@@ -156,7 +156,7 @@ public:
         return outStruct.serializeData(output, flags);
     }
 
-    template<serializable_concepts::ISerializationCapableContainer S>
+    template<serialization_concepts::ISerializationCapableContainer S>
     virtual Status Process(const In& inStruct, Out& outStruct) = 0;*/
 };
 

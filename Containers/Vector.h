@@ -26,7 +26,7 @@
 #include "Allocators/ConstructorNoexceptAllocator.h"
 #include "Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
 #include "IteratorTagsDeclares.h"
-#include "Serialization/SerializableConcepts.h"
+#include "Serialization/Include/SerializationConcepts.h"
 
 namespace common_serialization
 {
@@ -406,8 +406,8 @@ private:
     AllocatorHelper m_allocatorHelper;
 
 private:
-    template<typename T, typename A, serializable_concepts::IDeserializationCapableContainer D>
-    friend Status deserializeThis(D& input, Vector<T, A>& value);
+    template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D>
+    friend Status deserializeData(D& input, Vector<T, A>& value);
 };
 
 template<typename T, typename AllocatorHelper>

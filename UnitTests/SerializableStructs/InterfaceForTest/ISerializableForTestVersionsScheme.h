@@ -1,5 +1,5 @@
 /**
- * @file DeserializableTemp.h
+ * @file ISerializableForTestVersionsScheme.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,37 +23,29 @@
 
 #pragma once
 
-#include "SerializableTemp.h"
-
-
-namespace common_serialization
+namespace special_types
 {
 
-template<serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, SerT<>& value)
+#pragma pack(push, 1)
+
+struct ISerializableForTestVersionsScheme
 {
-    RUN(deserializeThis(input, value.i));
+    uint16_t minorV{ 0 };
+    uint16_t majorV{ 0 };
 
-    return Status::kNoError;
-}
+    constexpr IForTestVersionsScheme() noexcept {}
 
-template<serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, SerT2<>& value)
-{
-    RUN(deserializeThis(input, value.k));
+    constexpr explicit IForTestVersionsScheme(uint32_t value) noexcept
+    {
+        *static_cast<uint32_t*>(static_cast<void*>(this)) = value;
+    }
 
-    return Status::kNoError;
-}
+    [[nodiscard]] constexpr explicit operator uint32_t() noexcept const
+    {
+        return *static_cast<const uint32_t*>(static_cast<const void*>(this));
+    }
+};
 
-template<serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, SerTInh<>& value)
-{
-    RUN(deserializeThis(input, value.getSerT()));
-    RUN(deserializeThis(input, value.getSerT2()));
-    RUN(deserializeThis(input, value.j));
-    RUN(deserializeThis(input, value.arr));
+#pragma pack(pop)
 
-    return Status::kNoError;
-}
-
-} // namespace common_serialization
+} // namespace special_types

@@ -23,9 +23,7 @@
 
 #pragma once
 
-#include "Status.h"
-#include "Serialization/ISerializable.h"
-#include "SerializationForwardDeclarationsGenerated.h"
+#include "CsSerialization.h"
 
 namespace special_types
 {
@@ -236,10 +234,7 @@ private:
     uint8_t m_r{ 0 };
     uint8_t m_arrR[3]{ 0 };
 
-    template<serializable_concepts::ISerializationCapableContainer S>
-    friend constexpr Status common_serialization::serializeThis(const DynamicPolymorphicNotSerializable& value, S& output);
-    template<serializable_concepts::IDeserializationCapableContainer D>
-    friend constexpr Status common_serialization::deserializeThis(D& input, DynamicPolymorphicNotSerializable& value);
+    friend SerializationProcessor;
 };
 
 template<typename T = Dummy>
@@ -283,66 +278,7 @@ private:
     uint8_t m_arrO[3]{ 0 };
     DynamicPolymorphicNotSerializable m_arrDpNS[3]{};
 
-    template<typename T, serializable_concepts::ISerializationCapableContainer S>
-    friend constexpr Status common_serialization::serializeThis(const DynamicPolymorphicSerializable<T>& value, S& output);
-    template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-    friend constexpr Status common_serialization::deserializeThis(D& input, DynamicPolymorphicSerializable<T>& value);
-};
-
-template<typename T>
-struct TemplateNotSerializable
-{
-    static constexpr uint64_t kNameHash = 6;
-    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-
-    [[nodiscard]] bool operator==(const TemplateNotSerializable& rhs) const noexcept
-    {
-        return m_f == rhs.m_f && m_g == rhs.m_g;
-    }
-
-    uint8_t m_f{ 0 };
-    T m_g{ 0 };
-
-private:
-    template<typename T, serializable_concepts::ISerializationCapableContainer S>
-    friend constexpr Status common_serialization::serializeThis(const TemplateNotSerializable<T>& value, S& output);
-    template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-    friend constexpr Status common_serialization::deserializeThis(D& input, TemplateNotSerializable<T>& value);
-};
-
-template<typename X, typename T = Dummy>
-class TemplateSerializable : public ISerializable<GetCrtpMainType<TemplateSerializable<X, T>, T>>
-{
-public:
-    using instance_type = GetCrtpMainType<TemplateSerializable<T>, T>;
-
-    static constexpr uint64_t kNameHash = 7;
-    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
-    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-
-    [[nodiscard]] uint8_t& getC()                 noexcept { return m_c; }    // getters here are only need for testing proposes
-    [[nodiscard]] const uint8_t& getC()     const noexcept { return m_c; }    // (not required for serialization itself)
-    [[nodiscard]] uint8_t& getV()                 noexcept { return m_v; }
-    [[nodiscard]] const uint8_t& getV()     const noexcept { return m_v; }
-
-    [[nodiscard]] TemplateNotSerializable<X>& getTNS()              noexcept { return m_tNS; }
-    [[nodiscard]] const TemplateNotSerializable<X>& getTNS()  const noexcept { return m_tNS; }
-
-    [[nodiscard]] bool operator==(const TemplateSerializable& rhs) const noexcept
-    {
-        return m_c == rhs.m_c && m_v == rhs.m_v && m_tNS == rhs.m_tNS;
-    }
-
-private:
-    uint8_t m_c{ 0 };
-    uint8_t m_v{ 0 };
-    TemplateNotSerializable<X> m_tNS{};
-
-    template<typename X, typename T, serializable_concepts::ISerializationCapableContainer S>
-    friend constexpr Status common_serialization::serializeThis(const TemplateSerializable<X, T>& value, S& output);
-    template<typename X, typename T, serializable_concepts::IDeserializationCapableContainer D>
-    friend constexpr Status common_serialization::deserializeThis(D& input, TemplateSerializable<X, T>& value);
+    friend SerializationProcessor;
 };
 
 struct DiamondBaseNotSerializable
@@ -354,10 +290,7 @@ struct DiamondBaseNotSerializable
 
     uint32_t m_d0{ 0 };
 
-    template<serializable_concepts::ISerializationCapableContainer S>
-    friend constexpr Status common_serialization::serializeThis(const DiamondBaseNotSerializable& value, S& output);
-    template<serializable_concepts::IDeserializationCapableContainer D>
-    friend constexpr Status common_serialization::deserializeThis(D& input, DiamondBaseNotSerializable& value);
+    friend SerializationProcessor;
 };
 
 struct DiamondEdge1NotSerializable : virtual public DiamondBaseNotSerializable
@@ -369,10 +302,7 @@ struct DiamondEdge1NotSerializable : virtual public DiamondBaseNotSerializable
 
     uint32_t m_d1{ 0 };
 
-    template<serializable_concepts::ISerializationCapableContainer S>
-    friend constexpr Status common_serialization::serializeThis(const DiamondEdge1NotSerializable& value, S& output);
-    template<serializable_concepts::IDeserializationCapableContainer D>
-    friend constexpr Status common_serialization::deserializeThis(D& input, DiamondEdge1NotSerializable& value);
+    friend SerializationProcessor;
 };
 
 struct DiamondEdge2NotSerializable : virtual public DiamondBaseNotSerializable
@@ -384,10 +314,7 @@ struct DiamondEdge2NotSerializable : virtual public DiamondBaseNotSerializable
 
     uint32_t m_d2{ 0 };
 
-    template<serializable_concepts::ISerializationCapableContainer S>
-    friend constexpr Status common_serialization::serializeThis(const DiamondEdge2NotSerializable& value, S& output);
-    template<serializable_concepts::IDeserializationCapableContainer D>
-    friend constexpr Status common_serialization::deserializeThis(D& input, DiamondEdge2NotSerializable& value);
+    friend SerializationProcessor;
 };
 
 template<typename T = Dummy>
@@ -409,24 +336,21 @@ public:
     }
 
 private:
-    template<typename T, serializable_concepts::ISerializationCapableContainer S>
-    friend constexpr Status common_serialization::serializeThis(const DiamondSerializable<T>& value, S& output);
-    template<typename T, serializable_concepts::IDeserializationCapableContainer D>
-    friend constexpr Status common_serialization::deserializeThis(D& input, DiamondSerializable<T>& value);
+    friend SerializationProcessor;
 };
 
-template<typename X, typename T = Dummy>
-class SpecialProcessingTypeContainSerializable : public ISerializable<GetCrtpMainType<SpecialProcessingTypeContainSerializable<X, T>, T >>
+template<typename T = Dummy>
+class SpecialProcessingTypeContainSerializable : public ISerializable<GetCrtpMainType<SpecialProcessingTypeContainSerializable<T>, T >>
 {
 public:
-    using instance_type = GetCrtpMainType<SpecialProcessingTypeContainSerializable<X, T>, T>;
+    using instance_type = GetCrtpMainType<SpecialProcessingTypeContainSerializable<T>, T>;
 
     static constexpr uint64_t kNameHash = 9;
     static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
 
-    [[nodiscard]] Vector<X>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
-    [[nodiscard]] const Vector<X>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)
+    [[nodiscard]] Vector<DiamondSerializable<>>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
+    [[nodiscard]] const Vector<DiamondSerializable<>>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)
 
     [[nodiscard]] bool operator==(const SpecialProcessingTypeContainSerializable& rhs) const noexcept
     {
@@ -434,12 +358,9 @@ public:
     }
 
 private:
-    Vector<X> m_vec;
+    Vector<DiamondSerializable<>> m_vec;
 
-    template<typename X, typename T, serializable_concepts::ISerializationCapableContainer S>
-    friend constexpr Status common_serialization::serializeThis(const SpecialProcessingTypeContainSerializable<X, T>& value, S& output);
-    template<typename X, typename T, serializable_concepts::IDeserializationCapableContainer D>
-    friend constexpr Status common_serialization::deserializeThis(D& input, SpecialProcessingTypeContainSerializable<X, T>& value);
+    friend SerializationProcessor;
 };
 
 } // namespace special_types

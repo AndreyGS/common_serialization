@@ -26,7 +26,6 @@
 #include <string>
 #include "Status.h"
 #include "Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
-#include "Serialization/ISerializable.h"
 
 namespace special_types
 {

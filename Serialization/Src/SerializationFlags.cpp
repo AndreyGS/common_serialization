@@ -1,5 +1,5 @@
 /**
- * @file DeserializableTemp.h
+ * @file SerializationFlags.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,39 +21,34 @@
  *
  */
 
-#pragma once
-
-#include "SerializableTemp.h"
-
+#include "../Include/SerializationFlags.h"
 
 namespace common_serialization
 {
 
-template<serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, SerT<>& value)
-{
-    RUN(deserializeThis(input, value.i));
+constexpr SerializationFlags::SerializationFlags() noexcept {}
 
-    return Status::kNoError;
+constexpr SerializationFlags::SerializationFlags(uint32_t value) noexcept
+{
+    operator=(value);
 }
 
-template<serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, SerT2<>& value)
+constexpr SerializationFlags& SerializationFlags::operator=(uint32_t value) noexcept
 {
-    RUN(deserializeThis(input, value.k));
-
-    return Status::kNoError;
+    return *static_cast<SerializationFlags*>
+                (static_cast<void*>(
+                    &(*static_cast<uint32_t*>(
+                        static_cast<void*>(this)) = value)));
 }
 
-template<serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, SerTInh<>& value)
+[[nodiscard]] constexpr SerializationFlags::operator uint32_t() const noexcept
 {
-    RUN(deserializeThis(input, value.getSerT()));
-    RUN(deserializeThis(input, value.getSerT2()));
-    RUN(deserializeThis(input, value.j));
-    RUN(deserializeThis(input, value.arr));
+    return (*static_cast<const uint32_t*>(static_cast<const void*>(this)) & 0xffffff);
+}
 
-    return Status::kNoError;
+[[nodiscard]] constexpr SerializationFlags::operator bool() const noexcept
+{
+    return static_cast<uint32_t>(*this) != 0;
 }
 
 } // namespace common_serialization

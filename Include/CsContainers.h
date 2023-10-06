@@ -1,5 +1,5 @@
 /**
- * @file DeserializableTemp.h
+ * @file CsSerialization.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,37 +23,4 @@
 
 #pragma once
 
-#include "SerializableTemp.h"
-
-
-namespace common_serialization
-{
-
-template<serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, SerT<>& value)
-{
-    RUN(deserializeThis(input, value.i));
-
-    return Status::kNoError;
-}
-
-template<serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, SerT2<>& value)
-{
-    RUN(deserializeThis(input, value.k));
-
-    return Status::kNoError;
-}
-
-template<serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, SerTInh<>& value)
-{
-    RUN(deserializeThis(input, value.getSerT()));
-    RUN(deserializeThis(input, value.getSerT2()));
-    RUN(deserializeThis(input, value.j));
-    RUN(deserializeThis(input, value.arr));
-
-    return Status::kNoError;
-}
-
-} // namespace common_serialization
+#include "Containers/Walker.h"

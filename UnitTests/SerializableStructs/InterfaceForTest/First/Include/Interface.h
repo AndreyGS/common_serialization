@@ -1,5 +1,5 @@
 /**
- * @file DeserializeSpecial.h
+ * @file Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,26 +21,7 @@
  *
  */
 
-#pragma once
-
-#include "DeserializeCommon.h"
-#include "Containers/Vector.h"
-
-namespace common_serialization
-{
-
-template<typename T, typename A, serializable_concepts::IDeserializationCapableContainer D>
-Status deserializeThis(D& input, Vector<T, A>& value)
-{
-    value.clear();
-
-    typename Vector<T, A>::size_type size = 0;
-    RUN(deserializeThis(input, size));
-    RUN(value.reserve(size));
-    RUN(deserializeThis(input, size, value.data()));
-    value.m_dataSize = size;
-
-    return Status::kNoError;
-}
-
-} // namespace common_serialization
+#include "SpecialTypesSerializable.h"
+#include "Legacy/SpecialTypesSerializableLegacy.h"
+#include "SerializeGenerated.h"
+#include "DeserializeGenerated.h"

@@ -39,30 +39,38 @@ struct SerializationFlags
     uint32_t doNotUse                               : 8 = 0;    // this bit-field shall have only 24 significant bits
                                                                 // 8 bits are using for serialization protocol version
 
-    SerializationFlags() noexcept {}
+    constexpr SerializationFlags() noexcept;
+    explicit constexpr SerializationFlags(uint32_t value) noexcept;
 
-    explicit SerializationFlags(uint32_t value) noexcept
-    {
-        operator=(value);
-    }
+    constexpr SerializationFlags& operator=(uint32_t value) noexcept;
 
-    SerializationFlags& operator=(uint32_t value) noexcept
-    {
-        return *static_cast<SerializationFlags*>
-                    (static_cast<void*>(
-                        &(*static_cast<uint32_t*>(
-                            static_cast<void*>(this)) = value)));
-    }
-
-    [[nodiscard]] constexpr explicit operator uint32_t() const noexcept
-    {
-        return (*static_cast<const uint32_t*>(static_cast<const void*>(this)) & 0xffffff);
-    }
-
-    [[nodiscard]] constexpr explicit operator bool() const noexcept
-    {
-        return static_cast<uint32_t>(*this) != 0;
-    }
+    [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
+    [[nodiscard]] constexpr explicit operator bool() const noexcept;
 };
+
+constexpr SerializationFlags::SerializationFlags() noexcept {}
+
+constexpr SerializationFlags::SerializationFlags(uint32_t value) noexcept
+{
+    operator=(value);
+}
+
+constexpr SerializationFlags& SerializationFlags::operator=(uint32_t value) noexcept
+{
+    return *static_cast<SerializationFlags*>
+        (static_cast<void*>(
+            &(*static_cast<uint32_t*>(
+                static_cast<void*>(this)) = value)));
+}
+
+[[nodiscard]] constexpr SerializationFlags::operator uint32_t() const noexcept
+{
+    return (*static_cast<const uint32_t*>(static_cast<const void*>(this)) & 0xffffff);
+}
+
+[[nodiscard]] constexpr SerializationFlags::operator bool() const noexcept
+{
+    return static_cast<uint32_t>(*this) != 0;
+}
 
 } // namespace common_serialization

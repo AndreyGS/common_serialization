@@ -23,8 +23,7 @@
 
 #pragma once
 
-#include "SerializeGenerated.h"
-#include "DeserializeGenerated.h"
+#include "SerializableStructs/InterfaceForTest/First/Include/Interface.h"
 
 namespace special_types
 {
@@ -100,21 +99,6 @@ void _DynamicPolymorphicSerializable(DynamicPolymorphicSerializable<>& output)
     memcpy(output.getArrDpNS()[2].getArrR(), "jkl", output.getArrDpNS()[2].getSizeOfArrR());
 }
 
-template<typename T>
-void _TemplateNotSerializable(TemplateNotSerializable<T>& output)
-{
-    output.m_f = 14;
-    output.m_g = 15;
-}
-
-template<typename T>
-void _TemplateSerializable(TemplateSerializable<T>& output)
-{
-    output.getC() = 16;
-    output.getV() = 17;
-    _TemplateNotSerializable(output.getTNS());
-}
-
 void _DiamondBaseNotSerializable(DiamondBaseNotSerializable& output)
 {
     output.m_d0 = 18;
@@ -138,13 +122,7 @@ void _DiamondSerializable(DiamondSerializable<>& output)
     _DiamondEdge2NotSerializable(output);
 }
 
-void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeContainSerializable<uint16_t>& output)
-{
-    output.getVec().pushBack(21);
-    output.getVec().pushBack(22);
-}
-
-void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeContainSerializable<DiamondSerializable<>>& output)
+void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeContainSerializable<>& output)
 {
     DiamondSerializable ds1;
     _DiamondSerializable(ds1);

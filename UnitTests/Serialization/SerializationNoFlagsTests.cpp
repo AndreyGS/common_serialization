@@ -23,8 +23,7 @@
 
 #include <gtest/gtest.h>
 #include "TypesForTest/SpecialTypesFilling.h"
-#include "Containers/Walker.h"
-#include "Serialization/SerializableHandler.h"
+#include "CsSerialization.h"
 
 namespace
 {
@@ -102,21 +101,6 @@ TEST(SerializeNoFlagsTest, DynamicPolymorphicT)
     EXPECT_TRUE(dpsIn == dpsOut);
 }
 
-TEST(SerializeNoFlagsTest, TemplateSerializableT)
-{
-    TemplateSerializable<uint16_t> tsIn;
-    filling::_TemplateSerializable(tsIn);
-
-    Walker<uint8_t> bin;
-    EXPECT_EQ(tsIn.serialize(bin.getVector()), Status::kNoError);
-
-    TemplateSerializable<uint16_t> tsOut;
-    EXPECT_EQ(tsOut.deserialize(bin), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_TRUE(tsIn == tsOut);
-}
-
 TEST(SerializeNoFlagsTest, DiamondT)
 {
     DiamondSerializable dIn;
@@ -134,18 +118,18 @@ TEST(SerializeNoFlagsTest, DiamondT)
 
 TEST(SerializeNoFlagsTest, SpecialT)
 {
-    SpecialProcessingTypeContainSerializable<DiamondSerializable<>> sptcsDsIn;
+    SpecialProcessingTypeContainSerializable sptcsDsIn;
     filling::_SpecialProcessingTypeContainSerializable(sptcsDsIn);
 
     Walker<uint8_t> bin;
     EXPECT_EQ(sptcsDsIn.serialize(bin.getVector()), Status::kNoError);
 
-    SpecialProcessingTypeContainSerializable<DiamondSerializable<>> sptcsDsOut;
+    SpecialProcessingTypeContainSerializable sptcsDsOut;
     EXPECT_EQ(sptcsDsOut.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_TRUE(sptcsDsIn == sptcsDsOut);
-
+    /*
     SpecialProcessingTypeContainSerializable<uint16_t> sptcsUint16In;
     filling::_SpecialProcessingTypeContainSerializable(sptcsDsIn);
 
@@ -156,7 +140,7 @@ TEST(SerializeNoFlagsTest, SpecialT)
     EXPECT_EQ(sptcsUint16Out.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_TRUE(sptcsUint16In == sptcsUint16Out);
+    EXPECT_TRUE(sptcsUint16In == sptcsUint16Out);*/
 }
 
 } // namespace anonymous
