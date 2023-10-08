@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "Status.h"
+#include "../CsStatus.h"
 
 namespace common_serialization
 {

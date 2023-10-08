@@ -1,2 +1,3 @@
 First of all
-1. Unit-tests on Serialization/Deserialization without flags.
+1. Unit-tests on operator== of Vector and Walker
+2. Add Init Vector and Walker by pointer, size, allocatedSize[, offset]

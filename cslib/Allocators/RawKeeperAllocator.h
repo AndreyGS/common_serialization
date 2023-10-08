@@ -44,7 +44,6 @@ public:
     constexpr RawKeeperAllocator(const RawKeeperAllocator<R>& rhs) noexcept { operator=(rhs); }
     constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { return operator=<T>(rhs); }
 
-
     template <class R>
     constexpr RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept;
     constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept { operator=<T>(std::move(rhs)); }

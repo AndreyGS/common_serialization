@@ -1,5 +1,5 @@
 /**
- * @file CommonConcepts.h
+ * @file CsHelpers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,33 @@
 
 #pragma once
 
-#include "Status.h"
+#include "CsStatus.h"
+
+#define NO_SERIALIZATION_NEED
+
+#define RUN(x)                                                                  \
+{                                                                               \
+    if (Status status = (x); !ST_SUCCESS(status))                               \
+        return status;                                                          \
+}
 
 namespace common_serialization
 {
 
-template<typename T>
-concept Initable = requires(T t)
+struct Dummy {};
+
+template<typename X, typename T>
+using GetCrtpMainType = std::conditional_t<std::is_same_v<T, common_serialization::Dummy>, X, T>;
+
+namespace helpers
 {
-    { t.Init(*(new T)) } -> std::same_as<Status>;
-};
+
+template<typename T>
+constexpr inline bool areRegionsOverlap(const T* objs1, const T* objs2, size_t n)
+{
+    return objs1 >= objs2 && objs1 < objs2 + n || objs1 <= objs2 && objs1 + n > objs2;
+}
+
+} // namespace helpers
 
 } // namespace common_serialization

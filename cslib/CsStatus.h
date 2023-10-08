@@ -1,5 +1,5 @@
 /**
- * @file SerializationFlags.cpp
+ * @file CsStatus.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,34 +21,27 @@
  *
  */
 
-#include "../Include/SerializationFlags.h"
+#pragma once
 
 namespace common_serialization
 {
 
-constexpr SerializationFlags::SerializationFlags() noexcept {}
-
-constexpr SerializationFlags::SerializationFlags(uint32_t value) noexcept
+enum class Status : int_fast32_t
 {
-    operator=(value);
-}
+    kNoError                                        =        0,
+    kErrorNoMemory                                  =       -1,
+    kErrorOverflow                                  =       -2,
+    kErrorInvalidArgument                           =       -3,
+    kErrorNotSupportedSerializationProtocolVersion  =       -4,
+    kErrorNotSupportedSerializationInterfaceVersion =       -5,
+    kErrorInvalidHash                               =       -6,
+    kErrorInvalidTypeConversion                     =       -7,
+    kErrorMismatchOfSerializationProtocolVersions   =       -8,
+    kErrorMismatchOfSerializationInterfaceVersions  =       -9,
+    kErrorMismatchOfStructNameHash                  =       -10,
+    kErrorNoSuchHandler                             =       -11
+};
 
-constexpr SerializationFlags& SerializationFlags::operator=(uint32_t value) noexcept
-{
-    return *static_cast<SerializationFlags*>
-                (static_cast<void*>(
-                    &(*static_cast<uint32_t*>(
-                        static_cast<void*>(this)) = value)));
-}
-
-[[nodiscard]] constexpr SerializationFlags::operator uint32_t() const noexcept
-{
-    return (*static_cast<const uint32_t*>(static_cast<const void*>(this)) & 0xffffff);
-}
-
-[[nodiscard]] constexpr SerializationFlags::operator bool() const noexcept
-{
-    return static_cast<uint32_t>(*this) != 0;
-}
+#define ST_SUCCESS(x) (static_cast<int_fast32_t>((x)) >= 0)
 
 } // namespace common_serialization

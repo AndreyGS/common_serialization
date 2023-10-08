@@ -24,7 +24,6 @@
 #pragma once
 
 #include "SpecialTypesSerializableLegacy.h"
-#include "Serialization/SerializableHandler.h"
 
 namespace special_types
 {

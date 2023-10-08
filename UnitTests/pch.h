@@ -1,5 +1,5 @@
 /**
- * @file Status.h
+ * @file pch.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,25 +23,8 @@
 
 #pragma once
 
-namespace common_serialization
-{
-
-enum class Status : int_fast32_t
-{
-    kNoError                                        =        0,
-    kErrorNoMemory                                  =       -1,
-    kErrorOverflow                                  =       -2,
-    kErrorInvalidArgument                           =       -3,
-    kErrorNotSupportedSerializationProtocolVersion  =       -4,
-    kErrorNotSupportedSerializationInterfaceVersion =       -5,
-    kErrorInvalidHash                               =       -6,
-    kErrorInvalidTypeConversion                     =       -7,
-    kErrorMismatchOfSerializationProtocolVersions   =       -8,
-    kErrorMismatchOfSerializationInterfaceVersions  =       -9,
-    kErrorMismatchOfStructNameHash                  =       -10,
-    kErrorNoSuchHandler                             =       -11
-};
-
-#define ST_SUCCESS(x) (static_cast<int_fast32_t>(x) >= 0)
-
-} // namespace common_serialization
+#include <gtest/gtest.h>
+#include "common_serialization.h";
+#include <string>
+#include <list>
+#include "TypesForTest/SpecialTypes.h"

@@ -21,13 +21,6 @@
  *
  */
 
-#include <gtest/gtest.h>
-#include "TypesForTest/SpecialTypes.h"
-#include "Containers/Walker.h"
-#include "Allocators/RawKeeperAllocator.h"
-#include "string"
-#include "list"
-
 namespace
 {
 

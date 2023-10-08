@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "Allocators/ConstructorNoexceptAllocator.h"
+#include "../Allocators/ConstructorNoexceptAllocator.h"
 #include "IAllocatorHelper.h"
-#include "helpers.h"
+#include "../CsHelpers.h"
 
 namespace common_serialization
 {

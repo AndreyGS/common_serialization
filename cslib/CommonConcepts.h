@@ -1,5 +1,5 @@
 /**
- * @file CsSerialization.h
+ * @file CommonConcepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,5 +23,15 @@
 
 #pragma once
 
-#include "Serialization/Include/ISerializable.h"
-#include "Serialization/Include/SerializationSpecialStructs.h"
+#include "CsStatus.h"
+
+namespace common_serialization
+{
+
+template<typename T>
+concept Initable = requires(T t)
+{
+    { t.Init(*(new T)) } -> std::same_as<Status>;
+};
+
+} // namespace common_serialization

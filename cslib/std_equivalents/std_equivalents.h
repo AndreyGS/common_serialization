@@ -23,6 +23,8 @@
 
 #pragma once
 
+using int_fast32_t = int;
+
 namespace std
 {
 
@@ -102,6 +104,18 @@ struct remove_reference<T&&>
 template<typename T>
 using remove_reference_t = typename remove_reference<T>::type;
 
+// std::is_lvalue_reference_v<T>
+template<typename>
+inline constexpr bool is_lvalue_reference_v = false;
+
+template<typename T>
+inline constexpr bool is_lvalue_reference_v<T&> = true;
+
+template<typename T>
+struct is_lvalue_reference : bool_constant<is_lvalue_reference_v<T>>
+{
+};
+
 // std::move
 template<typename T>
 [[nodiscard]] constexpr remove_reference_t<T>&& move(T&& t) noexcept
@@ -122,18 +136,6 @@ template <class T>
     static_assert(!is_lvalue_reference_v<T>, "illegal use of std::forward");
     return static_cast<T&&>(t);
 }
-
-// std::is_lvalue_reference_v<T>
-template<typename>
-inline constexpr bool is_lvalue_reference_v = false;
-
-template<typename T>
-inline constexpr bool is_lvalue_reference_v<T&> = true;
-
-template<typename T>
-struct is_lvalue_reference : bool_constant<is_lvalue_reference_v<T>>
-{
-};
 
 // std::remove_volatile
 template<typename T>
@@ -206,14 +208,6 @@ inline constexpr bool is_integral_v = is_same_v<remove_cv_t<T>, bool> || is_same
     || is_same_v<remove_cv_t<T>, unsigned long long> || is_same_v<remove_cv_t<T>, wchar_t> || is_same_v<remove_cv_t<T>, char8_t> || is_same_v<remove_cv_t<T>, char16_t>
     || is_same_v<remove_cv_t<T>, char32_t>;
 
-// std::is_integral_v
-template<typename T>
-inline constexpr bool is_integral_v = is_same_v<remove_cv_t<T>, bool> || is_same_v<remove_cv_t<T>, char> || is_same_v<remove_cv_t<T>, signed char>
-    || is_same_v<remove_cv_t<T>, unsigned char> || is_same_v<remove_cv_t<T>, short> || is_same_v<remove_cv_t<T>, unsigned short> || is_same_v<remove_cv_t<T>, int>
-    || is_same_v<remove_cv_t<T>, unsigned int> || is_same_v<remove_cv_t<T>, long> || is_same_v<remove_cv_t<T>, unsigned long> || is_same_v<remove_cv_t<T>, long long>
-    || is_same_v<remove_cv_t<T>, unsigned long long> || is_same_v<remove_cv_t<T>, wchar_t> || is_same_v<remove_cv_t<T>, char8_t> || is_same_v<remove_cv_t<T>, char16_t>
-    || is_same_v<remove_cv_t<T>, char32_t>;
-
 template<typename T>
 inline constexpr bool is_floating_point_v = is_same_v<remove_cv_t<T>, float> || is_same_v<remove_cv_t<T>, double> || is_same_v<remove_cv_t<T>, long double>;
 
@@ -224,7 +218,7 @@ inline constexpr bool is_arithmetic_v = is_integral_v<T> || is_floating_point_v<
 template<typename T>
 struct remove_pointer
 {
-    using type = _Ty;
+    using type = T;
 };
 
 template<typename T>

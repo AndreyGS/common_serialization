@@ -21,9 +21,7 @@
  *
  */
 
-#include <gtest/gtest.h>
 #include "TypesForTest/SpecialTypesFilling.h"
-#include "CsSerialization.h"
 
 namespace
 {

@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "Allocators/ConstructorNoexceptAllocator.h"
-#include "Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
+#include "../Allocators/ConstructorNoexceptAllocator.h"
+#include "../Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
 #include "IteratorTagsDeclares.h"
-#include "Serialization/Include/SerializationConcepts.h"
+#include "../Serialization/SerializationConcepts.h"
 
 namespace common_serialization
 {

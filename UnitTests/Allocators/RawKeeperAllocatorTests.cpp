@@ -21,11 +21,6 @@
  *
  */
 
-#include <gtest/gtest.h>
-#include "TypesForTest/SpecialTypes.h"
-#include "Containers/Vector.h"
-#include "Allocators/RawKeeperAllocator.h"
-
 using namespace special_types;
 using namespace common_serialization;
 

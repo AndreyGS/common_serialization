@@ -1,5 +1,5 @@
 /**
- * @file helpers.h
+ * @file common_serialization.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,33 +23,38 @@
 
 #pragma once
 
-#include "Status.h"
+#ifdef USER_MODE // must be defined when c++ standard library is availible
+#include <cstdint>
+#include <cstdlib>
+#include <cassert>
+#include <concepts>
+#include <type_traits>
+#include <limits>
+#include <unordered_map>
 
-#define NO_SERIALIZATION_NEED
+#include "../Allocators/PlatformDependent/UserModeMemoryManagement.h"
 
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !ST_SUCCESS(status))                               \
-        return status;                                                          \
-}
+#else // !USER_MODE
 
-namespace common_serialization
-{
+#include "../std_equivalents/std_equivalents.h"
 
-struct Dummy {};
+#ifdef LINUX_KERNEL
 
-template<typename X, typename T>
-using GetCrtpMainType = std::conditional_t<std::is_same_v<T, common_serialization::Dummy>, X, T>;
+#include "../Allocators/PlatformDependent/LinuxKernelMemoryManagement.h"
 
-namespace helpers
-{
+#elif defined WINDOWS_KERNEL
 
-template<typename T>
-constexpr inline bool areRegionsOverlap(const T* objs1, const T* objs2, size_t n)
-{
-    return objs1 >= objs2 && objs1 < objs2 + n || objs1 <= objs2 && objs1 + n > objs2;
-}
+#include "../Allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
 
-} // namespace helpers
+#endif // LINUX_KERNEL || WINDOWS_KERNEL
 
-} // namespace common_serialization
+//#include "../std_equivalents/new.h"
+
+#endif // USER_MODE
+
+#include "../CsHelpers.h"
+#include "../Allocators/AllocatorConcepts.h"
+#include "../Allocators/RawKeeperAllocator.h"
+#include "../Containers/Walker.h"
+#include "../Serialization/ISerializable.h"
+#include "../Serialization/SerializationSpecialStructs.h"

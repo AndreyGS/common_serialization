@@ -119,26 +119,35 @@ class ISerializable : public SerializableVersionsTraits
 public:
     using instance_type = T;
 
-    static constexpr Status serializeHeader(Vector<uint8_t>& output, SerializationFlags flags = SerializationFlags{}, SerializableMessageType messageType = SerializableMessageType::kData) noexcept;
+    template<serialization_concepts::ISerializationCapableContainer S>
+    static constexpr Status serializeHeader(S& output, SerializationFlags flags = SerializationFlags{}, SerializableMessageType messageType = SerializableMessageType::kData) noexcept;
 
     // first function to call on new serialize operation
-    constexpr Status serialize(Vector<uint8_t>& output, SerializationFlags flags = SerializationFlags{}, SerializableMessageType messageType = SerializableMessageType::kData) const noexcept;
+    template<serialization_concepts::ISerializationCapableContainer S>
+    constexpr Status serialize(S& output, SerializationFlags flags = SerializationFlags{}, SerializableMessageType messageType = SerializableMessageType::kData) const noexcept;
 
     // first function to call on new serialize operation
-    //constexpr Status serializeCompat(uint32_t compatVersionProtocol, uint32_t compatVersionInterface, Vector<uint8_t>& output, SerializationFlags flags) const noexcept;
+    //constexpr Status serializeCompat(uint32_t compatVersionProtocol, uint32_t compatVersionInterface, S& output, SerializationFlags flags) const noexcept;
 
     // calling in subsequent serializations of nested fields/types or if one need to serialize another struct
     // and there is no changes in interface version after previous serialize call
-    constexpr Status serializeData(Vector<uint8_t>& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
+    template<serialization_concepts::ISerializationCapableContainer S>
+    constexpr Status serializeData(S& output, SerializationFlags flags = SerializationFlags{}) const noexcept;
 
-    static constexpr Status deserializeHeader(Walker<uint8_t>& input, SerializationFlags& flags, SerializableMessageType& messageType) noexcept;
-    static constexpr Status deserializeHeaderCompat(Walker<uint8_t>& input, uint8_t& foreignProtocolVersion, SerializationFlags& flags, SerializableMessageType& messageType) noexcept;
+    template<serialization_concepts::IDeserializationCapableContainer D>
+    static constexpr Status deserializeHeader(D& input, SerializationFlags& flags, SerializableMessageType& messageType) noexcept;
+    template<serialization_concepts::IDeserializationCapableContainer D>
+    static constexpr Status deserializeHeaderCompat(D& input, uint8_t& foreignProtocolVersion, SerializationFlags& flags, SerializableMessageType& messageType) noexcept;
 
-    constexpr Status deserialize(Walker<uint8_t>& input);
-    constexpr Status deserializeCompat(Walker<uint8_t>& input, uint8_t minimumSupportedProtocolVersion, uint32_t minimumSupportedInterfaceVersion);
+    template<serialization_concepts::IDeserializationCapableContainer D>
+    constexpr Status deserialize(D& input);
+    template<serialization_concepts::IDeserializationCapableContainer D>
+    constexpr Status deserializeCompat(D& input, uint8_t minimumSupportedProtocolVersion, uint32_t minimumSupportedInterfaceVersion);
 
-    constexpr Status deserializeData(Walker<uint8_t>& input, SerializationFlags flags);
-    constexpr Status deserializeDataCompat(Walker<uint8_t>& input, SerializationFlags flags, uint32_t minimumSupportedInterfaceVersion);
+    template<serialization_concepts::IDeserializationCapableContainer D>
+    constexpr Status deserializeData(D& input, SerializationFlags flags);
+    template<serialization_concepts::IDeserializationCapableContainer D>
+    constexpr Status deserializeDataCompat(D& input, SerializationFlags flags, uint32_t minimumSupportedInterfaceVersion);
     
     [[nodiscard]] static constexpr uint64_t* getAncestors() noexcept;
     [[nodiscard]] static constexpr uint64_t* getMembers() noexcept;
@@ -152,7 +161,8 @@ public:
 #pragma pack(pop)
 
 template<typename T>
-constexpr Status ISerializable<T>::serializeHeader(Vector<uint8_t>& output, SerializationFlags flags, SerializableMessageType messageType) noexcept
+template<serialization_concepts::ISerializationCapableContainer S>
+constexpr Status ISerializable<T>::serializeHeader(S& output, SerializationFlags flags, SerializableMessageType messageType) noexcept
 {
     RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(kSupportedProtocolVersions[0]) | (static_cast<uint32_t>(flags) << 8)));
     RUN(output.pushBackArithmeticValue(messageType));
@@ -161,7 +171,8 @@ constexpr Status ISerializable<T>::serializeHeader(Vector<uint8_t>& output, Seri
 }
 
 template<typename T>
-constexpr Status ISerializable<T>::serialize(Vector<uint8_t>& output, SerializationFlags flags, SerializableMessageType messageType) const noexcept
+template<serialization_concepts::ISerializationCapableContainer S>
+constexpr Status ISerializable<T>::serialize(S& output, SerializationFlags flags, SerializableMessageType messageType) const noexcept
 {
     RUN(serializeHeader(output, flags, messageType));
 
@@ -172,7 +183,8 @@ constexpr Status ISerializable<T>::serialize(Vector<uint8_t>& output, Serializat
 }
 
 template<typename T>
-constexpr Status ISerializable<T>::serializeData(Vector<uint8_t>& output, SerializationFlags flags) const noexcept
+template<serialization_concepts::ISerializationCapableContainer S>
+constexpr Status ISerializable<T>::serializeData(S& output, SerializationFlags flags) const noexcept
 {
     RUN(output.pushBackArithmeticValue(getInterfaceVersion()));
     RUN(output.pushBackArithmeticValue(getNameHash()));
@@ -188,7 +200,8 @@ constexpr Status ISerializable<T>::serializeData(Vector<uint8_t>& output, Serial
 }
 
 template<typename T>
-constexpr Status ISerializable<T>::deserializeHeader(Walker<uint8_t>& input, SerializationFlags& flags, SerializableMessageType& messageType) noexcept
+template<serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status ISerializable<T>::deserializeHeader(D& input, SerializationFlags& flags, SerializableMessageType& messageType) noexcept
 {
     uint32_t versionAndFlags = 0;
     RUN(input.readArithmeticValue(versionAndFlags));
@@ -204,7 +217,8 @@ constexpr Status ISerializable<T>::deserializeHeader(Walker<uint8_t>& input, Ser
 }
 
 template<typename T>
-constexpr Status ISerializable<T>::deserializeHeaderCompat(Walker<uint8_t>& input, uint8_t& foreignProtocolVersion, SerializationFlags& flags, SerializableMessageType& messageType) noexcept
+template<serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status ISerializable<T>::deserializeHeaderCompat(D& input, uint8_t& foreignProtocolVersion, SerializationFlags& flags, SerializableMessageType& messageType) noexcept
 {
     uint32_t versionAndFlags = 0;
     RUN(input.readArithmeticValue(versionAndFlags));
@@ -227,7 +241,8 @@ constexpr Status ISerializable<T>::deserializeHeaderCompat(Walker<uint8_t>& inpu
 }
 
 template<typename T>
-constexpr Status ISerializable<T>::deserialize(Walker<uint8_t>& input)
+template<serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status ISerializable<T>::deserialize(D& input)
 {
     SerializationFlags flags{ 0 };
     SerializableMessageType messageType{ 0 };
@@ -241,7 +256,8 @@ constexpr Status ISerializable<T>::deserialize(Walker<uint8_t>& input)
 }
 
 template<typename T>
-constexpr Status ISerializable<T>::deserializeCompat(Walker<uint8_t>& input, uint8_t minimumSupportedProtocolVersion, uint32_t minimumSupportedInterfaceVersion)
+template<serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status ISerializable<T>::deserializeCompat(D& input, uint8_t minimumSupportedProtocolVersion, uint32_t minimumSupportedInterfaceVersion)
 {
     uint8_t foreignProtocolVersion{ 0 };
     SerializationFlags flags{ 0 };
@@ -264,7 +280,8 @@ constexpr Status ISerializable<T>::deserializeCompat(Walker<uint8_t>& input, uin
 }
 
 template<typename T>
-constexpr Status ISerializable<T>::deserializeData(Walker<uint8_t>& input, SerializationFlags flags)
+template<serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status ISerializable<T>::deserializeData(D& input, SerializationFlags flags)
 {
     uint32_t inputInterfaceVersion = 0;
     RUN(input.readArithmeticValue(inputInterfaceVersion));
@@ -286,7 +303,8 @@ constexpr Status ISerializable<T>::deserializeData(Walker<uint8_t>& input, Seria
 }
 
 template<typename T>
-constexpr Status ISerializable<T>::deserializeDataCompat(Walker<uint8_t>& input, SerializationFlags flags, uint32_t minimumSupportedInterfaceVersion)
+template<serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status ISerializable<T>::deserializeDataCompat(D& input, SerializationFlags flags, uint32_t minimumSupportedInterfaceVersion)
 {
     uint32_t inputInterfaceVersion = 0;
     RUN(input.readArithmeticValue(inputInterfaceVersion));
