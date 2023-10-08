@@ -24,7 +24,6 @@
 #pragma once
 
 #include "SpecialTypesSerializableLegacy.h"
-#include "Serialization/SerializableHandler.h"
 
 namespace special_types
 {
@@ -36,23 +35,23 @@ class SerializableVersionConverter
     , public SerializableHandler<SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableAlignedToOneSerializable_Version1<>>
 {
 public:
-    template<serializable_concepts::IDeserializationCapableContainer D, serializable_concepts::ISerializationCapableContainer S>
+    template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::ISerializationCapableContainer S>
     Status convertUp(D& input, S& output)
 
-    template<serializable_concepts::ISerializationCapableContainer S>
+    template<serialization_concepts::ISerializationCapableContainer S>
     Status Process(const SimpleAssignableAlignedToOneSerializable_Legacy0<>& inStruct, SimpleAssignableAlignedToOneSerializable_Legacy1<>& outStruct) override
     {
         return Status::kNoError;
     }
 
-    template<serializable_concepts::ISerializationCapableContainer S>
+    template<serialization_concepts::ISerializationCapableContainer S>
     Status Process(const SimpleAssignableAlignedToOneSerializable_Legacy1<>& inStruct, SimpleAssignableAlignedToOneSerializable_Legacy0<>& outStruct) override
     {
         return Status::kNoError;
     }
 };*/
 
-template<typename OutType, serializable_concepts::IDeserializationCapableContainer D>
+template<typename OutType, serialization_concepts::IDeserializationCapableContainer D>
 Status convertThis(D& input, bool isUpConversion, OutType& outStuct)
 {
 
