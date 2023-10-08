@@ -22,6 +22,6 @@
  */
 
 #include "SpecialTypesSerializable.h"
-#include "Legacy/SpecialTypesSerializableLegacy.h"
+#include "SpecialTypesSerializableLegacy.h"
 #include "SerializeGenerated.h"
 #include "DeserializeGenerated.h"

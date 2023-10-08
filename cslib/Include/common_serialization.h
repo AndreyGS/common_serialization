@@ -39,7 +39,8 @@
 #include <concepts>
 #include <type_traits>
 #include <limits>
-#include <unordered_map>
+#include <unordered_map>    // temporary header, shall be replaced by internal map implementation
+                            // to support environments without std libs, like OSes kernel modes
 
 #include "../Allocators/PlatformDependent/UserModeMemoryManagement.h"
 

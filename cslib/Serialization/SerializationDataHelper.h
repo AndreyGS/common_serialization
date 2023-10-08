@@ -26,110 +26,117 @@
 namespace common_serialization
 {
 
-template<typename T>
-constexpr Status serializeDataHelper(const T* p, size_t n, Vector<uint8_t>& output)
+template<typename T, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status serializeDataHelper(const T* p, size_t n, S& output)
 {
     return SerializationProcessor::serializeData(p, n, output);
 }
 
-template<typename T>
-constexpr Status serializeDataHelper(const T* p, size_t n, SerializationFlags flags, Vector<uint8_t>& output)
+template<typename T, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status serializeDataHelper(const T* p, size_t n, SerializationFlags flags, S& output)
 {
     return SerializationProcessor::serializeData(p, n, flags, output);
 }
 
-template<typename T, size_t N>
-constexpr Status serializeDataHelper(const T(&arr)[N], Vector<uint8_t>& output)
+template<typename T, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status serializeDataCompatHelper(const T* p, size_t n, SerializationFlags flags, uint32_t compatVersionInterface
+    , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
+{
+    return SerializationProcessor::serializeDataCompat(p, n, flags, compatVersionInterface, mapOfPointers, output);
+}
+
+template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status serializeDataHelper(const T(&arr)[N], S& output)
 {
     return SerializationProcessor::serializeData(arr, output);
 }
 
-template<typename T, size_t N>
-constexpr Status serializeDataHelper(const T(&arr)[N], SerializationFlags flags, Vector<uint8_t>& output)
+template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status serializeDataHelper(const T(&arr)[N], SerializationFlags flags, S& output)
 {
     return SerializationProcessor::serializeData(arr, flags, output);
 }
 
-template<typename T>
-concept HasFreeSerializeProcessorFunction = requires(T t)
+template<typename T, typename S>
+concept HasFreeSerializeProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(T t)
 {
-    { ::serializeData(t, *(new Vector<uint8_t>)) } -> std::same_as<Status>;
+    { serializeData(t, *(new S)) } -> std::same_as<Status>;
 };
 
-template<typename T>
-constexpr Status serializeDataHelper(T value, Vector<uint8_t>& output)
+template<typename T, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status serializeDataHelper(T value, S& output)
 {
-    if constexpr (HasFreeSerializeProcessorFunction<T>)
-        return ::serializeData(value, output);
+    if constexpr (HasFreeSerializeProcessorFunction<T, S>)
+        return serializeData(value, output);
     else
         return SerializationProcessor::serializeData(value, output);
 }
 
-template<typename T>
-concept HasFreeSerializeWithFlagsProcessorFunction = requires(T t)
+template<typename T, typename S>
+concept HasFreeSerializeWithFlagsProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(T t)
 {
-    { ::serializeData(t, *(new SerializationFlags), *(new Vector<uint8_t>)) } -> std::same_as<Status>;
+    { serializeData(t, *(new SerializationFlags), *(new S)) } -> std::same_as<Status>;
 };
 
-template<typename T>
-constexpr Status serializeDataHelper(T value, SerializationFlags flags, Vector<uint8_t>& output)
+template<typename T, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status serializeDataHelper(T value, SerializationFlags flags, S& output)
 {
-    if constexpr (HasFreeSerializeWithFlagsProcessorFunction<T>)
-        return ::serializeData(value, flags, output);
+    if constexpr (HasFreeSerializeWithFlagsProcessorFunction<T, S>)
+        return serializeData(value, flags, output);
     else
         return SerializationProcessor::serializeData(value, flags, output);
 }
 
-template<typename T>
-constexpr Status deserializeDataHelper(Walker<uint8_t>& input, size_t n, T* p)
+template<typename T, serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status deserializeDataHelper(D& input, size_t n, T* p)
 {
     return SerializationProcessor::deserializeData(input, n, p);
 }
 
-template<typename T>
-constexpr Status deserializeDataHelper(Walker<uint8_t>& input, size_t n, SerializationFlags flags, T* p)
+template<typename T, serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status deserializeDataHelper(D& input, size_t n, SerializationFlags flags, T* p)
 {
     return SerializationProcessor::deserializeData(input, n, flags, p);
 }
 
-template<typename T, size_t N>
-constexpr Status deserializeDataHelper(Walker<uint8_t>& input, T(&arr)[N])
+template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status deserializeDataHelper(D& input, T(&arr)[N])
 {
     return SerializationProcessor::deserializeData(input, arr);
 }
 
-template<typename T, size_t N>
-constexpr Status deserializeDataHelper(Walker<uint8_t>& input, SerializationFlags flags, T(&arr)[N])
+template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status deserializeDataHelper(D& input, SerializationFlags flags, T(&arr)[N])
 {
     return SerializationProcessor::deserializeData(input, flags, arr);
 }
 
-template<typename T>
-concept HasFreeDeserializeProcessorFunction = requires(T t)
+template<typename T, typename D>
+concept HasFreeDeserializeProcessorFunction = serialization_concepts::IDeserializationCapableContainer<D> && requires(T t)
 {
-    { ::deserializeData(*(new Walker<uint8_t>), t) } -> std::same_as<Status>;
+    { deserializeData(*(new D), t) } -> std::same_as<Status>;
 };
 
-template<typename T>
-constexpr Status deserializeDataHelper(Walker<uint8_t>& input, T& value)
+template<typename T, serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status deserializeDataHelper(D& input, T& value)
 {
-    if constexpr (HasFreeDeserializeProcessorFunction<T>)
-        return ::deserializeData(input, value);
+    if constexpr (HasFreeDeserializeProcessorFunction<T, D>)
+        return deserializeData(input, value);
     else
         return SerializationProcessor::deserializeData(input, value);
 }
 
-template<typename T>
-concept HasFreeDeserializeWithFlagsProcessorFunction = requires(T t)
+template<typename T, typename D>
+concept HasFreeDeserializeWithFlagsProcessorFunction = serialization_concepts::IDeserializationCapableContainer<D> && requires(T t)
 {
-    { ::deserializeData(*(new Walker<uint8_t>), t) } -> std::same_as<Status>;
+    { deserializeData(*(new D), t) } -> std::same_as<Status>;
 };
 
-template<typename T>
-constexpr Status deserializeDataHelper(Walker<uint8_t>& input, SerializationFlags flags, T& value)
+template<typename T, serialization_concepts::IDeserializationCapableContainer D>
+constexpr Status deserializeDataHelper(D& input, SerializationFlags flags, T& value)
 {
-    if constexpr (HasFreeDeserializeWithFlagsProcessorFunction<T>)
-        return ::deserializeData(input, flags, value);
+    if constexpr (HasFreeDeserializeWithFlagsProcessorFunction<T, D>)
+        return deserializeData(input, flags, value);
     else
         return SerializationProcessor::deserializeData(input, flags, value);
 }

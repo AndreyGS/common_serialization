@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "SerializableStructs/InterfaceForTest/Base/Include/Interface.h"
+#include "SerializableStructs/InterfaceForTest/Base/Interface.h"
 
 namespace special_types
 {

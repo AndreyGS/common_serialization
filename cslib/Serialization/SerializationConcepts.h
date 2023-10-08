@@ -28,6 +28,8 @@
 namespace common_serialization
 {
 
+template<typename> class ISerializable;
+
 namespace serialization_concepts
 {
 
@@ -91,6 +93,9 @@ template<typename T>
 concept EmptyType 
     =  requires(T t) { typename T::empty_type; }
     && std::is_same_v<typename T::empty_type, std::true_type>;
+
+template<typename T>
+concept IsISerializableBased = std::is_base_of_v<ISerializable<T>, T>;
 
 } // namespace serialization_concepts
 
