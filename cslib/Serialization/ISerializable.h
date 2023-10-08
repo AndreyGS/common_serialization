@@ -149,7 +149,7 @@ public:
     template<serialization_concepts::IDeserializationCapableContainer D>
     constexpr Status deserializeDataCompat(D& input, SerializationFlags flags, uint32_t minimumSupportedInterfaceVersion);
     
-    [[nodiscard]] static constexpr uint64_t* getAncestors() noexcept;
+    [[nodiscard]] static constexpr uint64_t* getThisVersionHistory() noexcept;
     [[nodiscard]] static constexpr uint64_t* getMembers() noexcept;
     [[nodiscard]] static constexpr uint64_t getNameHash() noexcept;
     [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
@@ -191,12 +191,10 @@ constexpr Status ISerializable<T>::serializeData(S& output, SerializationFlags f
 
     if (!flags)
         return SerializationProcessor::serializeData(static_cast<const T&>(*this), output);
-    /*else if (flags != SerializationFlags::CheckOfCyclicReferences)
-        return serializeThis(static_cast<const T&>(*this), output, flags);*/
+    /*else if (!flags.checkOfCyclicReferences)
+        return SerializationProcessor::serializeData(static_cast<const T&>(*this), flags, output);*/
     else
-    {
         return Status::kErrorInvalidArgument;
-    }
 }
 
 template<typename T>
@@ -332,7 +330,7 @@ constexpr Status ISerializable<T>::deserializeDataCompat(D& input, Serialization
 }
 
 template<typename T>
-[[nodiscard]] constexpr uint64_t* ISerializable<T>::getAncestors() noexcept
+[[nodiscard]] constexpr uint64_t* ISerializable<T>::getThisVersionHistory() noexcept
 {
     return T::kAncestors;
 }

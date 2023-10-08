@@ -27,12 +27,6 @@
 
 #define NO_SERIALIZATION_NEED
 
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !ST_SUCCESS(status))                               \
-        return status;                                                          \
-}
-
 namespace common_serialization
 {
 

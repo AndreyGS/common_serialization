@@ -21,7 +21,16 @@
  *
  */
 
+ // After cmake support of modules will be not experemental (with 3.28.0)
+ // this header should be transformed to module, with respective lib changes
+
 #pragma once
+
+#define RUN(x)                                                                  \
+{                                                                               \
+    if (Status status = (x); !ST_SUCCESS(status))                               \
+        return status;                                                          \
+}
 
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 #include <cstdint>
@@ -58,3 +67,5 @@
 #include "../Containers/Walker.h"
 #include "../Serialization/ISerializable.h"
 #include "../Serialization/SerializationSpecialStructs.h"
+
+#undef RUN

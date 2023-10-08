@@ -23,6 +23,12 @@
 
 #pragma once
 
+#define RUN(x)                                                                  \
+{                                                                               \
+    if (Status status = (x); !ST_SUCCESS(status))                               \
+        return status;                                                          \
+}
+
 #include "SpecialTypesSerializable.h"
 
 namespace common_serialization
@@ -93,3 +99,5 @@ Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_t
 }
 
 } // namespace common_serialization
+
+#undef RUN
