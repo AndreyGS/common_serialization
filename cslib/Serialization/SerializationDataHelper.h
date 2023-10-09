@@ -39,10 +39,10 @@ constexpr Status serializeDataHelper(const T* p, size_t n, SerializationFlags fl
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status serializeDataCompatHelper(const T* p, size_t n, SerializationFlags flags, uint32_t compatVersionInterface
+constexpr Status serializeDataCompatHelper(const T* p, size_t n, SerializationFlags flags, uint32_t interfaceVersionCompat
     , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
 {
-    return SerializationProcessor::serializeDataCompat(p, n, flags, compatVersionInterface, mapOfPointers, output);
+    return SerializationProcessor::serializeDataCompat(p, n, flags, interfaceVersionCompat, mapOfPointers, output);
 }
 
 template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
@@ -57,8 +57,15 @@ constexpr Status serializeDataHelper(const T(&arr)[N], SerializationFlags flags,
     return SerializationProcessor::serializeData(arr, flags, output);
 }
 
+template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status serializeDataCompatHelper(const T(&arr)[N], SerializationFlags flags, uint32_t interfaceVersionCompat
+    , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
+{
+    return SerializationProcessor::serializeDataCompat(arr, flags, interfaceVersionCompat, mapOfPointers, output);
+}
+
 template<typename T, typename S>
-concept HasFreeSerializeProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(T t)
+concept HasFreeSerializeProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(const T& t)
 {
     { serializeData(t, *(new S)) } -> std::same_as<Status>;
 };
@@ -73,7 +80,7 @@ constexpr Status serializeDataHelper(T value, S& output)
 }
 
 template<typename T, typename S>
-concept HasFreeSerializeWithFlagsProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(T t)
+concept HasFreeSerializeWithFlagsProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(const T& t)
 {
     { serializeData(t, *(new SerializationFlags), *(new S)) } -> std::same_as<Status>;
 };
@@ -82,6 +89,22 @@ template<typename T, serialization_concepts::ISerializationCapableContainer S>
 constexpr Status serializeDataHelper(T value, SerializationFlags flags, S& output)
 {
     if constexpr (HasFreeSerializeWithFlagsProcessorFunction<T, S>)
+        return serializeData(value, flags, output);
+    else
+        return SerializationProcessor::serializeData(value, flags, output);
+}
+
+template<typename T, typename S>
+concept HasFreeSerializeCompatProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(const T& t)
+{
+    { serializeData(t, *(new SerializationFlags), *(new uint32_t), *(new std::unordered_map<void*, size_t>), *(new S)) } -> std::same_as<Status>;
+};
+
+template<typename T, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status serializeDataCompatHelper(T value, SerializationFlags flags, uint32_t interfaceVersionCompat
+    , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
+{
+    if constexpr (HasFreeSerializeCompatProcessorFunction<T, S>)
         return serializeData(value, flags, output);
     else
         return SerializationProcessor::serializeData(value, flags, output);

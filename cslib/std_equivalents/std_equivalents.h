@@ -442,4 +442,12 @@ struct is_trivial : bool_constant<__is_trivially_constructible(T) && __is_trivia
 template<typename T>
 inline constexpr bool is_trivial_v = __is_trivially_constructible(T) && __is_trivially_copyable(T);
 
+// std::size
+template <typename T, std::size_t N>
+std::size_t size(T(&)[N])
+{
+    return N;
+}
+
+
 } // namespace std

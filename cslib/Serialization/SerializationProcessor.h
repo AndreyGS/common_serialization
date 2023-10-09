@@ -37,7 +37,7 @@ public:
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
     static constexpr Status serializeData(const T* p, size_t n, SerializationFlags flags, S& output);
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeDataCompat(const T* p, size_t n, SerializationFlags flags, uint32_t compatVersionInterface
+    static constexpr Status serializeDataCompat(const T* p, size_t n, SerializationFlags flags, uint32_t interfaceVersionCompat
         , std::unordered_map<void*, size_t>& mapOfPointers, S& output);
 
     template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
@@ -45,7 +45,7 @@ public:
     template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
     static constexpr Status serializeData(const T(&arr)[N], SerializationFlags flags, S& output);
     template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeDataCompat(const T(&arr)[N], SerializationFlags flags, uint32_t compatVersionInterface
+    static constexpr Status serializeDataCompat(const T(&arr)[N], SerializationFlags flags, uint32_t interfaceVersionCompat
         , std::unordered_map<void*, size_t>& mapOfPointers, S& output);
 
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
@@ -53,7 +53,7 @@ public:
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
     static constexpr Status serializeData(const T& value, SerializationFlags flags, S& output);
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeDataCompat(const T& value, SerializationFlags flags, uint32_t compatVersionInterface
+    static constexpr Status serializeDataCompat(const T& value, SerializationFlags flags, uint32_t interfaceVersionCompat
         , std::unordered_map<void*, size_t>& mapOfPointers, S& output);
 
     template<typename T, serialization_concepts::IDeserializationCapableContainer D>
@@ -77,6 +77,14 @@ public:
 private:
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
     static constexpr Status addPointerToMap(const T* p, std::unordered_map<void*, size_t>& mapOfPointers, S& output, bool& newPointer);
+
+    template<typename T, serialization_concepts::ISerializationCapableContainer S>
+    static constexpr Status convertStructToOldIfNeed(const T& value, SerializationFlags flags, uint32_t interfaceVersionCompat
+        , std::unordered_map<void*, size_t>& mapOfPointers, S& output) noexcept;
+
+    template<typename T, serialization_concepts::ISerializationCapableContainer S>
+    static constexpr Status convertStructToOld(const T& value, SerializationFlags flags, uint32_t thisVersionCompat
+        , uint32_t interfaceVersionCompat, std::unordered_map<void*, size_t>& mapOfPointers, S& output) noexcept;
 };
 
 } // namespace common_serialization
@@ -153,7 +161,7 @@ constexpr Status SerializationProcessor::serializeData(const T* p, size_t n, Ser
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeDataCompat(const T* p, size_t n, SerializationFlags flags, uint32_t compatVersionInterface
+constexpr Status SerializationProcessor::serializeDataCompat(const T* p, size_t n, SerializationFlags flags, uint32_t interfaceVersionCompat
     , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
 {
     static_assert(!std::is_reference_v<T>
@@ -199,7 +207,7 @@ constexpr Status SerializationProcessor::serializeDataCompat(const T* p, size_t 
                     continue;
             }
 
-            RUN(serializeDataHelper(p[i], flags, compatVersionInterface, mapOfPointers, output));
+            RUN(serializeDataHelper(p[i], flags, interfaceVersionCompat, mapOfPointers, output));
         }
     }
 
@@ -273,7 +281,7 @@ constexpr Status SerializationProcessor::serializeData(const T(&arr)[N], Seriali
 }
 
 template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeDataCompat(const T(&arr)[N], SerializationFlags flags, uint32_t compatVersionInterface
+constexpr Status SerializationProcessor::serializeDataCompat(const T(&arr)[N], SerializationFlags flags, uint32_t interfaceVersionCompat
     , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
 {
     static_assert(!std::is_reference_v<T>
@@ -319,7 +327,7 @@ constexpr Status SerializationProcessor::serializeDataCompat(const T(&arr)[N], S
                     continue;
             }
 
-            RUN(serializeDataHelper(e, flags, compatVersionInterface, mapOfPointers, output));
+            RUN(serializeDataHelper(e, flags, interfaceVersionCompat, mapOfPointers, output));
         }
     }
 
@@ -376,7 +384,7 @@ constexpr Status SerializationProcessor::serializeData(const T& value, Serializa
 
 // common function for scalar input with flags provided
 template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeDataCompat(const T& value, SerializationFlags flags, uint32_t compatVersionInterface
+constexpr Status SerializationProcessor::serializeDataCompat(const T& value, SerializationFlags flags, uint32_t interfaceVersionCompat
     , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
 {
     static_assert(!std::is_reference_v<T>
@@ -407,7 +415,7 @@ constexpr Status SerializationProcessor::serializeDataCompat(const T& value, Ser
                 return Status::kNoError;
         }
 
-        RUN(serializeDataCompat(*value, flags, compatVersionInterface, mapOfPointers, output));
+        RUN(serializeDataCompatHelper(*value, flags, interfaceVersionCompat, mapOfPointers, output));
     }
     else
         static_assert(!(std::is_arithmetic_v<T> || std::is_enum_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>), "Type not supported");
@@ -642,6 +650,24 @@ constexpr Status SerializationProcessor::addPointerToMap(const T* p, std::unorde
             RUN(output.pushBackArithmeticValue(it.second));
         }
     }
+}
+
+template<typename T, serialization_concepts::ISerializationCapableContainer S>
+constexpr Status SerializationProcessor::convertStructToOldIfNeed(const T& value, SerializationFlags flags
+    , uint32_t interfaceVersionCompat, std::unordered_map<void*, size_t>& mapOfPointers, S& output) noexcept
+{
+    uint32_t thisVersionCompat = value.getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), interfaceVersionCompat);
+
+    if (thisVersionCompat == value.getThisVersion())
+    {
+        RUN(output.pushBackArithmeticValue(value.getVersionsHierarchy()[0].nameHash));
+        return Status::kNoError;
+    }
+    // Normaly, next condition shall never succeed
+    else if (thisVersionCompat == value.kInterfaceVersionMax)
+        return Status::kErrorNotSupportedSerializationInterfaceVersion;
+    else
+        return convertStructToOld(value, flags, thisVersionCompat, interfaceVersionCompat, mapOfPointers, output);
 }
 
 } // namespace common_serialization

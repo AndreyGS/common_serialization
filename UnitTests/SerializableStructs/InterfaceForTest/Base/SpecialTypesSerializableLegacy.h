@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "SpecialTypesSerializable.h"
-
 namespace special_types
 {
 
@@ -40,6 +38,7 @@ public:
     static constexpr uint64_t kNameHash = 10;
     static constexpr uint32_t kThisVersion = 1;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 10, 1 }, { 11, 0 } };
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
@@ -54,6 +53,8 @@ public:
 private:
     uint8_t m_x{ 0 };
     uint16_t m_y{ 0 };
+
+    friend SerializationProcessor;
 };
 
 struct TwoInts
@@ -72,6 +73,7 @@ public:
     static constexpr uint64_t kNameHash = 11;
     static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 11, 0 } };
 
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Version0& rhs) const noexcept
     {
@@ -80,6 +82,8 @@ public:
 
 private:
     TwoInts m_ti{ 0 };
+
+    friend SerializationProcessor;
 };
 
 } // namespace special_types

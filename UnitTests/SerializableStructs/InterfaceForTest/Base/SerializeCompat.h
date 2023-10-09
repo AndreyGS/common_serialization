@@ -1,5 +1,5 @@
 /**
- * @file common_serialization.h
+ * @file SerializeCompat.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,22 +21,10 @@
  *
  */
 
- // After cmake support of modules will be not experemental (with 3.28.0)
- // this header should be transformed to module, with respective lib changes
-
 #pragma once
 
-#ifdef USER_MODE // must be defined when c++ standard library is availible
-#include <cstdint>
-#include <cstdlib>
-#include <cassert>
-#include <concepts>
-#include <type_traits>
-#include <limits>
-#include <unordered_map>    // temporary header, shall be replaced by internal map implementation
-                            // to support environments without std libs, like OSes kernel modes
-#endif // USER_MODE
-
+#include "SpecialTypesSerializable.h"
+#include "SpecialTypesSerializableLegacy.h"
 
 #define RUN(x)                                                                  \
 {                                                                               \
@@ -44,33 +32,36 @@
         return status;                                                          \
 }
 
-#ifdef USER_MODE // must be defined when c++ standard library is availible
+namespace common_serialization
+{
 
-#include "../Allocators/PlatformDependent/UserModeMemoryManagement.h"
+template<>
+constexpr Status SerializationProcessor::convertStructToOld(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, SerializationFlags flags, uint32_t thisVersionCompat
+    , uint32_t interfaceVersionCompat, std::unordered_map<void*, size_t>& mapOfPointers, Vector<uint8_t>& output) noexcept
+{
+    // If value version is the same as thisVersionCompat there is a programmatic error
+    assert(value.getThisVersion() != thisVersionCompat);
 
-#else // !USER_MODE
+    if (thisVersionCompat == 0)
+    {
+        special_types::SimpleAssignableAlignedToOneSerializable_Version0<> compatVersion;
+        compatVersion.m_ti.x = value.m_x;
+        compatVersion.m_ti.y = value.m_y;
 
-#include "../std_equivalents/std_equivalents.h"
+        RUN(serializeDataCompat(value, flags, interfaceVersionCompat, mapOfPointers, output));
+    }
+    else if (thisVersionCompat == 1)
+    {
+        special_types::SimpleAssignableAlignedToOneSerializable_Version1<> compatVersion;
+        compatVersion.m_x = value.m_x;
+        compatVersion.m_y = value.m_y;
 
-#ifdef LINUX_KERNEL
+        RUN(serializeDataCompat(value, flags, interfaceVersionCompat, mapOfPointers, output));
+    }
 
-#include "../Allocators/PlatformDependent/LinuxKernelMemoryManagement.h"
+    return Status::kNoFurtherProcessingRequired;
+}
 
-#elif defined WINDOWS_KERNEL
-
-#include "../Allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
-
-#endif // LINUX_KERNEL || WINDOWS_KERNEL
-
-//#include "../std_equivalents/new.h"
-
-#endif // USER_MODE
-
-#include "../CsHelpers.h"
-#include "../Allocators/AllocatorConcepts.h"
-#include "../Allocators/RawKeeperAllocator.h"
-#include "../Containers/Walker.h"
-#include "../Serialization/ISerializable.h"
-#include "../Serialization/SerializationSpecialStructs.h"
+} // namespace common_serialization
 
 #undef RUN

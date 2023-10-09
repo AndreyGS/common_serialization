@@ -77,7 +77,7 @@ template<typename... Args>
         if (p)
         {
             T* pNError = nullptr;
-            if (Status status = this->constructN(p, &pNError, requestedN, std::forward<Args>(args)...); !ST_SUCCESS(status))
+            if (Status status = this->constructN(p, &pNError, requestedN, std::forward<Args>(args)...); !statusSuccess(status))
             {
                 this->destroyN(p, pNError - p);
                 p = nullptr;
@@ -119,7 +119,7 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::cons
         for (size_type i = 0; i < n; ++i)
         {
             Status status = this->getAllocator().construct(p++, std::forward<Args>(args)...);
-            if (!ST_SUCCESS(status))
+            if (!statusSuccess(status))
             {
                 nError = p + i;
                 return status;

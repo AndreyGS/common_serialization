@@ -23,13 +23,13 @@
 
 #pragma once
 
+#include "SpecialTypesSerializable.h"
+
 #define RUN(x)                                                                  \
 {                                                                               \
-    if (Status status = (x); !ST_SUCCESS(status))                               \
+    if (Status status = (x); !statusSuccess(status))                               \
         return status;                                                          \
 }
-
-#include "SpecialTypesSerializable.h"
 
 namespace common_serialization
 {

@@ -23,16 +23,42 @@
 
 #pragma once
 
+#include "SpecialTypesSerializable.h"
+
 #define RUN(x)                                                                  \
 {                                                                               \
-    if (Status status = (x); !ST_SUCCESS(status))                               \
+    if (Status status = (x); !statusSuccess(status))                               \
         return status;                                                          \
 }
 
-#include "SpecialTypesSerializable.h"
-
 namespace common_serialization
 {
+
+template<>
+Status SerializationProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, Vector<uint8_t>& output)
+{
+    RUN(serializeDataHelper(value.m_x, output));
+    RUN(serializeDataHelper(value.m_y, output));
+
+    return Status::kNoError;
+}
+
+template<>
+Status SerializationProcessor::serializeDataCompat(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, SerializationFlags flags
+    , uint32_t interfaceVersionCompat, std::unordered_map<void*, size_t>& mapOfPointers, Vector<uint8_t>& output)
+{
+    Status status = convertStructToOldIfNeed(value, flags, interfaceVersionCompat, mapOfPointers, output);
+
+    if (status == Status::kNoFurtherProcessingRequired)
+        return Status::kNoError;
+    else if (!statusSuccess(status))
+        return status;
+
+    RUN(serializeDataHelper(value.m_x, output));
+    RUN(serializeDataHelper(value.m_y, output));
+
+    return Status::kNoError;
+}
 
 template<>
 Status SerializationProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value, Vector<uint8_t>& output)

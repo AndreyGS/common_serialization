@@ -70,9 +70,7 @@ public:
     static constexpr uint64_t kNameHash = 1;
     static constexpr uint32_t kThisVersion = 2;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 2;            // latest version among all dependable structs
-
-    static constexpr uint32_t kVersionsHierarchySize = 3;
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[kVersionsHierarchySize] = { { 11, 0 }, { 10, 1 }, { 1, 2 } };
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 1, 2 }, { 10, 1 }, { 11, 0 } };
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
@@ -87,6 +85,8 @@ public:
 private:
     uint8_t m_x{ 0 };
     uint8_t m_y{ 0 };
+
+    friend SerializationProcessor;
 };
 
 #pragma pack(pop)

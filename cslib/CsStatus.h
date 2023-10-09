@@ -28,7 +28,13 @@ namespace common_serialization
 
 enum class Status : int_fast32_t
 {
+    // No error
     kNoError                                        =        0,
+
+    // Info messages
+    kNoFurtherProcessingRequired                    =        1,
+
+    // Errors
     kErrorNoMemory                                  =       -1,
     kErrorOverflow                                  =       -2,
     kErrorInvalidArgument                           =       -3,
@@ -38,10 +44,13 @@ enum class Status : int_fast32_t
     kErrorInvalidTypeConversion                     =       -7,
     kErrorMismatchOfSerializationProtocolVersions   =       -8,
     kErrorMismatchOfSerializationInterfaceVersions  =       -9,
-    kErrorMismatchOfStructNameHash                  =       -10,
-    kErrorNoSuchHandler                             =       -11
+    kErrorMismatchOfStructNameHash                  =      -10,
+    kErrorNoSuchHandler                             =      -11
 };
 
-#define ST_SUCCESS(x) (static_cast<int_fast32_t>((x)) >= 0)
+constexpr bool statusSuccess(Status status)
+{
+    return static_cast<int_fast32_t>(status) >= 0;
+}
 
 } // namespace common_serialization

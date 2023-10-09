@@ -25,3 +25,4 @@
 #include "SpecialTypesSerializableLegacy.h"
 #include "SerializeGenerated.h"
 #include "DeserializeGenerated.h"
+#include "SerializeCompat.h"
