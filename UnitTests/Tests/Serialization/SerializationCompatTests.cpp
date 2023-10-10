@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file SerializationCompatTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,17 +21,25 @@
  *
  */
 
-#pragma once
+#include "TypesForTest/SpecialTypesFilling.h"
 
-#include "SpecialTypesSerializable.h"
-#include "SpecialTypesSerializableLegacy.h"
+namespace
+{
 
-#include "Generated/SerializeData.h"
-#include "Generated/SerializeDataWithFlags.h"
-#include "Generated/SerializeDataCompat.h"
-#include "Generated/SerializeDataCompatLegacy.h"
-#include "Generated/DeserializeData.h"
-#include "Generated/DeserializeDataWithFlags.h"
-#include "Generated/DeserializeDataCompat.h"
+using namespace special_types;
 
-#include "ConvertToOldStruct.h"
+TEST(SerializationCompatTests, First)
+{
+    SimpleAssignableAlignedToOneSerializable saaToSIn;
+    filling::_SimpleAssignableAlignedToOneSerializable(saaToSIn);
+
+    Walker<uint8_t> bin;
+    CsProtocolFlags flags;
+    flags.interfaceVersionsNotMatch = true;
+
+    EXPECT_EQ(saaToSIn.serializeCompat(bin.getVector(), flags, saaToSIn.getLatestProtocolVersion(), 1), Status::kNoError);
+
+    
+}
+
+} // namespace anonymous

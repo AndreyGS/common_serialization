@@ -24,7 +24,7 @@
 #pragma once
 
 #include "SerializationConcepts.h"
-#include "SerializationFlags.h"
+#include "CsProtocolFlags.h"
 
 namespace common_serialization
 {
@@ -35,56 +35,68 @@ public:
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
     static constexpr Status serializeData(const T* p, size_t n, S& output);
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeData(const T* p, size_t n, SerializationFlags flags, S& output);
-    template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeDataCompat(const T* p, size_t n, SerializationFlags flags, uint32_t interfaceVersionCompat
-        , std::unordered_map<void*, size_t>& mapOfPointers, S& output);
+    static constexpr Status serializeData(const T* p, size_t n, CsProtocolFlags flags, S& output);
+    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+    static constexpr Status serializeDataCompat(const T* p, size_t n, CsProtocolFlags flags, uint32_t protocolVersionCompat
+        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output);
 
     template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
     static constexpr Status serializeData(const T(&arr)[N], S& output);
     template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeData(const T(&arr)[N], SerializationFlags flags, S& output);
-    template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeDataCompat(const T(&arr)[N], SerializationFlags flags, uint32_t interfaceVersionCompat
-        , std::unordered_map<void*, size_t>& mapOfPointers, S& output);
+    static constexpr Status serializeData(const T(&arr)[N], CsProtocolFlags flags, S& output);
+    template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+    static constexpr Status serializeDataCompat(const T(&arr)[N], CsProtocolFlags flags, uint32_t protocolVersionCompat
+        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output);
 
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
     static constexpr Status serializeData(const T& value, S& output);
     template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeData(const T& value, SerializationFlags flags, S& output);
-    template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeDataCompat(const T& value, SerializationFlags flags, uint32_t interfaceVersionCompat
-        , std::unordered_map<void*, size_t>& mapOfPointers, S& output);
+    static constexpr Status serializeData(const T& value, CsProtocolFlags flags, S& output);
+    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+    static constexpr Status serializeDataCompat(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
+        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output);
+    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+    static constexpr Status serializeDataCompatLegacy(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
+        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output);
 
     template<typename T, serialization_concepts::IDeserializationCapableContainer D>
     static constexpr Status deserializeData(D& input, size_t n, T* p);
     template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-    static constexpr Status deserializeData(D& input, size_t n, SerializationFlags flags, T* p);
+    static constexpr Status deserializeData(D& input, size_t n, CsProtocolFlags flags, T* p);
+    template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+    static constexpr Status deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+        , uint32_t interfaceVersionCompat, PM& pointersMap, T* p);
 
     template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
     static constexpr Status deserializeData(D& input, T(&arr)[N]);
     template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
-    static constexpr Status deserializeData(D& input, SerializationFlags flags, T(&arr)[N]);
+    static constexpr Status deserializeData(D& input, CsProtocolFlags flags, T(&arr)[N]);
+    template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+    static constexpr Status deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+        , uint32_t interfaceVersionCompat, PM& pointersMap, T(&arr)[N]);
 
     template<typename T, serialization_concepts::IDeserializationCapableContainer D>
     static constexpr Status deserializeData(D& input, T& value);
     template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-    static constexpr Status deserializeData(D& input, SerializationFlags flags, T& value);
+    static constexpr Status deserializeData(D& input, CsProtocolFlags flags, T& value);
+    template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+    static constexpr Status deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+        , uint32_t interfaceVersionCompat, PM& pointersMap, T& value);
 
     template<size_t OriginalTypeSize, typename T, serialization_concepts::IDeserializationCapableContainer D>
     static constexpr Status deserializeData(D& input, T& value);
 
 private:
-    template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status addPointerToMap(const T* p, std::unordered_map<void*, size_t>& mapOfPointers, S& output, bool& newPointer);
+    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+    static constexpr Status addPointerToMap(const T* p, PM& pointersMap, S& output, bool& newPointer);
 
-    template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status convertStructToOldIfNeed(const T& value, SerializationFlags flags, uint32_t interfaceVersionCompat
-        , std::unordered_map<void*, size_t>& mapOfPointers, S& output) noexcept;
+    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+    static constexpr Status convertStructToOldIfNeed(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
+        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output) noexcept;
 
-    template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status convertStructToOld(const T& value, SerializationFlags flags, uint32_t thisVersionCompat
-        , uint32_t interfaceVersionCompat, std::unordered_map<void*, size_t>& mapOfPointers, S& output) noexcept;
+    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+    static constexpr Status convertToOldStruct(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
+        , uint32_t thisVersionCompat, uint32_t interfaceVersionCompat, PM& pointersMap, S& output) noexcept;
 };
 
 } // namespace common_serialization
@@ -120,7 +132,7 @@ constexpr Status SerializationProcessor::serializeData(const T* p, size_t n, S& 
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeData(const T* p, size_t n, SerializationFlags flags, S& output)
+constexpr Status SerializationProcessor::serializeData(const T* p, size_t n, CsProtocolFlags flags, S& output)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "References on pointers and pointers on pointers are not supported");
@@ -160,9 +172,9 @@ constexpr Status SerializationProcessor::serializeData(const T* p, size_t n, Ser
     return Status::kNoError;
 }
 
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeDataCompat(const T* p, size_t n, SerializationFlags flags, uint32_t interfaceVersionCompat
-    , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
+template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+constexpr Status SerializationProcessor::serializeDataCompat(const T* p, size_t n, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output)
 {
     static_assert(!std::is_reference_v<T>
         , "Pointers on references are not allowed");
@@ -201,13 +213,13 @@ constexpr Status SerializationProcessor::serializeDataCompat(const T* p, size_t 
             if (flags.extendedPointerProcessing)
             {
                 bool newPointer = false;
-                RUN(addPointerToMap(&p[i], mapOfPointers, output, newPointer));
+                RUN(addPointerToMap(&p[i], pointersMap, output, newPointer));
 
                 if (!newPointer)
                     continue;
             }
 
-            RUN(serializeDataHelper(p[i], flags, interfaceVersionCompat, mapOfPointers, output));
+            RUN(serializeDataHelper(p[i], flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
         }
     }
 
@@ -240,7 +252,7 @@ constexpr Status SerializationProcessor::serializeData(const T(&arr)[N], S& outp
 }
 
 template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeData(const T(&arr)[N], SerializationFlags flags, S& output)
+constexpr Status SerializationProcessor::serializeData(const T(&arr)[N], CsProtocolFlags flags, S& output)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain arrays of references or pointers");
@@ -280,9 +292,9 @@ constexpr Status SerializationProcessor::serializeData(const T(&arr)[N], Seriali
     return Status::kNoError;
 }
 
-template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeDataCompat(const T(&arr)[N], SerializationFlags flags, uint32_t interfaceVersionCompat
-    , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
+template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+constexpr Status SerializationProcessor::serializeDataCompat(const T(&arr)[N], CsProtocolFlags flags, uint32_t protocolVersionCompat
+    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output)
 {
     static_assert(!std::is_reference_v<T>
         , "Arrays of references are not allowed");
@@ -321,13 +333,13 @@ constexpr Status SerializationProcessor::serializeDataCompat(const T(&arr)[N], S
             if (flags.extendedPointerProcessing)
             {
                 bool newPointer = false;
-                RUN(addPointerToMap(&e, mapOfPointers, output, newPointer));
+                RUN(addPointerToMap(&e, pointersMap, output, newPointer));
 
                 if (!newPointer)
                     continue;
             }
 
-            RUN(serializeDataHelper(e, flags, interfaceVersionCompat, mapOfPointers, output));
+            RUN(serializeDataHelper(e, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
         }
     }
 
@@ -358,7 +370,7 @@ constexpr Status SerializationProcessor::serializeData(const T& value, S& output
 
 // common function for scalar input with flags provided
 template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeData(const T& value, SerializationFlags flags, S& output)
+constexpr Status SerializationProcessor::serializeData(const T& value, CsProtocolFlags flags, S& output)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain references or pointers");
@@ -383,9 +395,9 @@ constexpr Status SerializationProcessor::serializeData(const T& value, Serializa
 }
 
 // common function for scalar input with flags provided
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeDataCompat(const T& value, SerializationFlags flags, uint32_t interfaceVersionCompat
-    , std::unordered_map<void*, size_t>& mapOfPointers, S& output)
+template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+constexpr Status SerializationProcessor::serializeDataCompat(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output)
 {
     static_assert(!std::is_reference_v<T>
         , "References are not allowed to be serialized");
@@ -394,11 +406,16 @@ constexpr Status SerializationProcessor::serializeDataCompat(const T& value, Ser
 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
     {
-        if ((std::is_arithmetic_v<T> && !serialization_concepts::FixSizedArithmeticType<T>
-            || std::is_enum_v<T> && !serialization_concepts::FixSizedArithmeticType<std::underlying_type_t<T>>)
-            && flags.sizeOfArithmeticTypesMayBeNotEqual)
+        static_assert(!std::is_enum_v<T>, "xxx");
+        if constexpr (std::is_arithmetic_v<T> && !serialization_concepts::FixSizedArithmeticType<T>)
         {
-            RUN(output.pushBackArithmeticValue(sizeof(T)));
+            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
+                RUN(output.pushBackArithmeticValue(sizeof(T)));
+        }
+        else if constexpr (std::is_enum_v<T> && !serialization_concepts::FixSizedArithmeticType<std::underlying_type_t<T>>)
+        {
+            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
+                RUN(output.pushBackArithmeticValue(sizeof(T)));
         }
 
         RUN(output.pushBackArithmeticValue(value));
@@ -409,13 +426,13 @@ constexpr Status SerializationProcessor::serializeDataCompat(const T& value, Ser
         if (flags.extendedPointerProcessing)
         {
             bool newPointer = false;
-            RUN(addPointerToMap(&value, mapOfPointers, output, newPointer));
+            RUN(addPointerToMap(&value, pointersMap, output, newPointer));
 
             if (!newPointer)
                 return Status::kNoError;
         }
 
-        RUN(serializeDataCompatHelper(*value, flags, interfaceVersionCompat, mapOfPointers, output));
+        RUN(serializeDataCompatHelper(*value, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
     }
     else
         static_assert(!(std::is_arithmetic_v<T> || std::is_enum_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>), "Type not supported");
@@ -449,7 +466,7 @@ constexpr Status SerializationProcessor::deserializeData(D& input, size_t n, T* 
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status SerializationProcessor::deserializeData(D& input, size_t n, SerializationFlags flags, T* p)
+constexpr Status SerializationProcessor::deserializeData(D& input, size_t n, CsProtocolFlags flags, T* p)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "References on pointers and pointers on pointers are not supported");
@@ -491,6 +508,13 @@ constexpr Status SerializationProcessor::deserializeData(D& input, size_t n, Ser
     return Status::kNoError;
 }
 
+template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+static constexpr Status SerializationProcessor::deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    , uint32_t interfaceVersionCompat, PM& pointersMap, T* p)
+{
+    return Status::kNoError;
+}
+
 // common function for arrays input
 template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
 constexpr Status SerializationProcessor::deserializeData(D& input, T(&arr)[N])
@@ -517,7 +541,7 @@ constexpr Status SerializationProcessor::deserializeData(D& input, T(&arr)[N])
 }
 
 template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status SerializationProcessor::deserializeData(D& input, SerializationFlags flags, T(&arr)[N])
+constexpr Status SerializationProcessor::deserializeData(D& input, CsProtocolFlags flags, T(&arr)[N])
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain arrays of references or pointers");
@@ -559,6 +583,13 @@ constexpr Status SerializationProcessor::deserializeData(D& input, Serialization
     return Status::kNoError;
 }
 
+template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+static constexpr Status SerializationProcessor::deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    , uint32_t interfaceVersionCompat, PM& pointersMap, T(&arr)[N])
+{
+    return Status::kNoError;
+}
+
 // common function for scalar and simple assignable types output without flags provided
 template<typename T, serialization_concepts::IDeserializationCapableContainer D>
 constexpr Status SerializationProcessor::deserializeData(D& input, T& value)
@@ -583,7 +614,7 @@ constexpr Status SerializationProcessor::deserializeData(D& input, T& value)
 
 // common function for scalar output with flags provided
 template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status SerializationProcessor::deserializeData(D& input, SerializationFlags flags, T& value)
+constexpr Status SerializationProcessor::deserializeData(D& input, CsProtocolFlags flags, T& value)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain references or pointers");
@@ -614,6 +645,13 @@ constexpr Status SerializationProcessor::deserializeData(D& input, Serialization
     return Status::kNoError;
 }
 
+template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+static constexpr Status SerializationProcessor::deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    , uint32_t interfaceVersionCompat, PM& pointersMap, T& value)
+{
+    return Status::kNoError;
+}
+
 template<size_t OriginalTypeSize, typename T, serialization_concepts::IDeserializationCapableContainer D>
 constexpr Status SerializationProcessor::deserializeData(D& input, T& value)
 {
@@ -628,8 +666,8 @@ constexpr Status SerializationProcessor::deserializeData(D& input, T& value)
     return Status::kNoError;
 }
 
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::addPointerToMap(const T* p, std::unordered_map<void*, size_t>& mapOfPointers, S& output, bool& newPointer)
+template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+constexpr Status SerializationProcessor::addPointerToMap(const T* p, PM& pointersMap, S& output, bool& newPointer)
 {
     if (!p)
     {
@@ -638,23 +676,23 @@ constexpr Status SerializationProcessor::addPointerToMap(const T* p, std::unorde
     }
     else
     {
-        if (auto it = mapOfPointers.find(p); it == mapOfPointers.end())
+        if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
             newPointer = true;
-            mapOfPointers[p] = output.size() + sizeof(size_t);
+            pointersMap[p] = output.size() + sizeof(size_t);
             RUN(output.pushBackArithmeticValue(static_cast<size_t>(-1)));
         }
         else
         {
             newPointer = false;
-            RUN(output.pushBackArithmeticValue(it.second));
+            RUN(output.pushBackArithmeticValue(it->second));
         }
     }
 }
 
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::convertStructToOldIfNeed(const T& value, SerializationFlags flags
-    , uint32_t interfaceVersionCompat, std::unordered_map<void*, size_t>& mapOfPointers, S& output) noexcept
+template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+constexpr Status SerializationProcessor::convertStructToOldIfNeed(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output) noexcept
 {
     uint32_t thisVersionCompat = value.getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), interfaceVersionCompat);
 
@@ -667,7 +705,7 @@ constexpr Status SerializationProcessor::convertStructToOldIfNeed(const T& value
     else if (thisVersionCompat == value.kInterfaceVersionMax)
         return Status::kErrorNotSupportedSerializationInterfaceVersion;
     else
-        return convertStructToOld(value, flags, thisVersionCompat, interfaceVersionCompat, mapOfPointers, output);
+        return convertToOldStruct(value, flags, protocolVersionCompat, thisVersionCompat, interfaceVersionCompat, pointersMap, output);
 }
 
 } // namespace common_serialization

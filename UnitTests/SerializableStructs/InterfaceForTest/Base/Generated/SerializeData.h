@@ -1,5 +1,5 @@
 /**
- * @file SerializeGenerated.h
+ * @file SerializeData.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -27,7 +27,7 @@
 
 #define RUN(x)                                                                  \
 {                                                                               \
-    if (Status status = (x); !statusSuccess(status))                               \
+    if (Status status = (x); !statusSuccess(status))                            \
         return status;                                                          \
 }
 
@@ -35,7 +35,7 @@ namespace common_serialization
 {
 
 template<>
-Status SerializationProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, Vector<uint8_t>& output)
+constexpr Status SerializationProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, Vector<uint8_t>& output)
 {
     RUN(serializeDataHelper(value.m_x, output));
     RUN(serializeDataHelper(value.m_y, output));
@@ -44,24 +44,7 @@ Status SerializationProcessor::serializeData(const special_types::SimpleAssignab
 }
 
 template<>
-Status SerializationProcessor::serializeDataCompat(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, SerializationFlags flags
-    , uint32_t interfaceVersionCompat, std::unordered_map<void*, size_t>& mapOfPointers, Vector<uint8_t>& output)
-{
-    Status status = convertStructToOldIfNeed(value, flags, interfaceVersionCompat, mapOfPointers, output);
-
-    if (status == Status::kNoFurtherProcessingRequired)
-        return Status::kNoError;
-    else if (!statusSuccess(status))
-        return status;
-
-    RUN(serializeDataHelper(value.m_x, output));
-    RUN(serializeDataHelper(value.m_y, output));
-
-    return Status::kNoError;
-}
-
-template<>
-Status SerializationProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value, Vector<uint8_t>& output)
+constexpr Status SerializationProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value, Vector<uint8_t>& output)
 {
     RUN(serializeDataHelper(value.m_r, output));
     RUN(serializeDataHelper(value.m_arrR, output));
@@ -70,7 +53,7 @@ Status SerializationProcessor::serializeData(const special_types::DynamicPolymor
 }
 
 template<>
-Status SerializationProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value, Vector<uint8_t>& output)
+constexpr Status SerializationProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value, Vector<uint8_t>& output)
 {
     RUN(serializeDataHelper(value.m_o, output));
     RUN(serializeDataHelper(value.m_dpNS, output));
@@ -82,7 +65,7 @@ Status SerializationProcessor::serializeData(const special_types::DynamicPolymor
 }
 
 template<>
-Status SerializationProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value, Vector<uint8_t>& output)
+constexpr Status SerializationProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value, Vector<uint8_t>& output)
 {
     RUN(serializeDataHelper(value.m_d0, output));
 
@@ -90,7 +73,7 @@ Status SerializationProcessor::serializeData(const special_types::DiamondBaseNot
 }
 
 template<>
-Status SerializationProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value, Vector<uint8_t>& output)
+constexpr Status SerializationProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value, Vector<uint8_t>& output)
 {
     RUN(serializeDataHelper(static_cast<const special_types::DiamondBaseNotSerializable&>(value), output));
     RUN(serializeDataHelper(value.m_d1, output));
@@ -99,7 +82,7 @@ Status SerializationProcessor::serializeData(const special_types::DiamondEdge1No
 }
 
 template<>
-Status SerializationProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value, Vector<uint8_t>& output)
+constexpr Status SerializationProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value, Vector<uint8_t>& output)
 {
     RUN(serializeDataHelper(static_cast<const special_types::DiamondBaseNotSerializable&>(value), output));
     RUN(serializeDataHelper(value.m_d2, output));
@@ -108,7 +91,7 @@ Status SerializationProcessor::serializeData(const special_types::DiamondEdge2No
 }
 
 template<>
-Status SerializationProcessor::serializeData(const special_types::DiamondSerializable<>& value, Vector<uint8_t>& output)
+constexpr Status SerializationProcessor::serializeData(const special_types::DiamondSerializable<>& value, Vector<uint8_t>& output)
 {
     RUN(serializeDataHelper(static_cast<const special_types::DiamondEdge1NotSerializable&>(value), output));
     RUN(serializeDataHelper(static_cast<const special_types::DiamondEdge2NotSerializable&>(value), output));
@@ -117,7 +100,7 @@ Status SerializationProcessor::serializeData(const special_types::DiamondSeriali
 }
 
 template<>
-Status SerializationProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value, Vector<uint8_t>& output)
+constexpr Status SerializationProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value, Vector<uint8_t>& output)
 {
     RUN(serializeDataHelper(value.m_vec, output));
 

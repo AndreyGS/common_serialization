@@ -1,5 +1,5 @@
 /**
- * @file SerializationFlags.h
+ * @file CsProtocolFlags.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,7 +26,7 @@
 namespace common_serialization
 {
 
-struct SerializationFlags
+struct CsProtocolFlags
 {
     uint32_t alignmentMayBeNotEqual                 : 1 = 0;
     uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;    // this flag is very dangerous and it should never be used,
@@ -39,36 +39,36 @@ struct SerializationFlags
     uint32_t doNotUse                               : 8 = 0;    // this bit-field shall have only 24 significant bits
                                                                 // 8 bits are using for serialization protocol version
 
-    constexpr SerializationFlags() noexcept;
-    explicit constexpr SerializationFlags(uint32_t value) noexcept;
+    constexpr CsProtocolFlags() noexcept;
+    explicit constexpr CsProtocolFlags(uint32_t value) noexcept;
 
-    constexpr SerializationFlags& operator=(uint32_t value) noexcept;
+    constexpr CsProtocolFlags& operator=(uint32_t value) noexcept;
 
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
 };
 
-constexpr SerializationFlags::SerializationFlags() noexcept {}
+constexpr CsProtocolFlags::CsProtocolFlags() noexcept {}
 
-constexpr SerializationFlags::SerializationFlags(uint32_t value) noexcept
+constexpr CsProtocolFlags::CsProtocolFlags(uint32_t value) noexcept
 {
     operator=(value);
 }
 
-constexpr SerializationFlags& SerializationFlags::operator=(uint32_t value) noexcept
+constexpr CsProtocolFlags& CsProtocolFlags::operator=(uint32_t value) noexcept
 {
-    return *static_cast<SerializationFlags*>
+    return *static_cast<CsProtocolFlags*>
         (static_cast<void*>(
             &(*static_cast<uint32_t*>(
                 static_cast<void*>(this)) = value)));
 }
 
-[[nodiscard]] constexpr SerializationFlags::operator uint32_t() const noexcept
+[[nodiscard]] constexpr CsProtocolFlags::operator uint32_t() const noexcept
 {
     return (*static_cast<const uint32_t*>(static_cast<const void*>(this)) & 0xffffff);
 }
 
-[[nodiscard]] constexpr SerializationFlags::operator bool() const noexcept
+[[nodiscard]] constexpr CsProtocolFlags::operator bool() const noexcept
 {
     return static_cast<uint32_t>(*this) != 0;
 }

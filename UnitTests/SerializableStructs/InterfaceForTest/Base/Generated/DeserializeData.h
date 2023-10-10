@@ -1,5 +1,5 @@
 /**
- * @file DeserializeGenerated.h
+ * @file DeserializeData.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -27,7 +27,7 @@
 
 #define RUN(x)                                                                  \
 {                                                                               \
-    if (Status status = (x); !statusSuccess(status))                               \
+    if (Status status = (x); !statusSuccess(status))                            \
         return status;                                                          \
 }
 
@@ -35,7 +35,7 @@ namespace common_serialization
 {
 
 template<>
-Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DynamicPolymorphicNotSerializable& value)
+constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DynamicPolymorphicNotSerializable& value)
 {
     RUN(deserializeDataHelper(input, value.m_r));
     RUN(deserializeDataHelper(input, value.m_arrR));
@@ -44,7 +44,7 @@ Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_t
 }
 
 template<>
-Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DynamicPolymorphicSerializable<>& value)
+constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DynamicPolymorphicSerializable<>& value)
 {
     RUN(deserializeDataHelper(input, value.m_o));
     RUN(deserializeDataHelper(input, value.m_dpNS));
@@ -56,7 +56,7 @@ Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_t
 }
 
 template<>
-Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondBaseNotSerializable& value)
+constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondBaseNotSerializable& value)
 {
     RUN(deserializeDataHelper(input, value.m_d0));
 
@@ -64,7 +64,7 @@ Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_t
 }
 
 template<>
-Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondEdge1NotSerializable& value)
+constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondEdge1NotSerializable& value)
 {
     RUN(deserializeDataHelper(input, static_cast<special_types::DiamondBaseNotSerializable&>(value)));
     RUN(deserializeDataHelper(input, value.m_d1));
@@ -73,7 +73,7 @@ Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_t
 }
 
 template<>
-Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondEdge2NotSerializable& value)
+constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondEdge2NotSerializable& value)
 {
     RUN(deserializeDataHelper(input, static_cast<special_types::DiamondBaseNotSerializable&>(value)));
     RUN(deserializeDataHelper(input, value.m_d2));
@@ -82,7 +82,7 @@ Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_t
 }
 
 template<>
-Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondSerializable<>& value)
+constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondSerializable<>& value)
 {
     RUN(deserializeDataHelper(input, static_cast<special_types::DiamondEdge1NotSerializable&>(value)));
     RUN(deserializeDataHelper(input, static_cast<special_types::DiamondEdge2NotSerializable&>(value)));
@@ -91,7 +91,7 @@ Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_t
 }
 
 template<>
-Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::SpecialProcessingTypeContainSerializable<>& value)
+constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::SpecialProcessingTypeContainSerializable<>& value)
 {
     RUN(deserializeDataHelper(input, value.m_vec));
 

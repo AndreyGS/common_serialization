@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file SerializeDataCompatLegacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,27 @@
 
 #pragma once
 
-#include "SpecialTypesSerializable.h"
 #include "SpecialTypesSerializableLegacy.h"
 
-#include "Generated/SerializeData.h"
-#include "Generated/SerializeDataWithFlags.h"
-#include "Generated/SerializeDataCompat.h"
-#include "Generated/SerializeDataCompatLegacy.h"
-#include "Generated/DeserializeData.h"
-#include "Generated/DeserializeDataWithFlags.h"
-#include "Generated/DeserializeDataCompat.h"
+#define RUN(x)                                                                  \
+{                                                                               \
+    if (Status status = (x); !statusSuccess(status))                            \
+        return status;                                                          \
+}
 
-#include "ConvertToOldStruct.h"
+namespace common_serialization
+{
+
+template<>
+constexpr Status SerializationProcessor::serializeDataCompatLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    , uint32_t interfaceVersionCompat, std::unordered_map<const void*, size_t>& pointersMap, Vector<uint8_t>& output)
+{
+    RUN(serializeDataCompatHelper(value.m_x, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
+    RUN(serializeDataCompatHelper(value.m_y, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
+
+    return Status::kNoError;
+}
+
+} // namespace common_serialization
+
+#undef RUN

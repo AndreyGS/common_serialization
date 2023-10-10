@@ -31,26 +31,26 @@ namespace special_types
 namespace filling
 {
 
-void _SimpleAssignableAlignedToOneNotSerializable(SimpleAssignableAlignedToOneNotSerializable& output)
+inline void _SimpleAssignableAlignedToOneNotSerializable(SimpleAssignableAlignedToOneNotSerializable& output)
 {
     output.a = 1;
     output.s = 2;
 }
 
-void _SimpleAssignableAlignedToOneSerializable(SimpleAssignableAlignedToOneSerializable<>& output)
+inline void _SimpleAssignableAlignedToOneSerializable(SimpleAssignableAlignedToOneSerializable<>& output)
 {
     output.getX() = 3;
     output.getY() = 4;
 }
 
-void _SimpleAssignableNotSerializable(SimpleAssignableNotSerializable& output)
+inline void _SimpleAssignableNotSerializable(SimpleAssignableNotSerializable& output)
 {
     output.q = 5;
     output.w = 6;
 }
 
 
-void _SimpleAssignableSerializable(SimpleAssignableSerializable<>& output)
+inline void _SimpleAssignableSerializable(SimpleAssignableSerializable<>& output)
 {
     output.getI() = 7;
     output.getJ() = 8;
@@ -72,19 +72,19 @@ void _SimpleAssignableSerializable(SimpleAssignableSerializable<>& output)
     output.getArrSaNS()[2].w = 012;
 }
 
-void _SimpleAssignableDescendantSerializable(SimpleAssignableDescendantSerializable<>& output)
+inline void _SimpleAssignableDescendantSerializable(SimpleAssignableDescendantSerializable<>& output)
 {
     _SimpleAssignableSerializable(output);
     output.v = 9;
 }
 
-void _DynamicPolymorphicNotSerializable(DynamicPolymorphicNotSerializable& output)
+inline void _DynamicPolymorphicNotSerializable(DynamicPolymorphicNotSerializable& output)
 {
     output.getR() = 10;
     memcpy(output.getArrR(), "abc", output.getSizeOfArrR());
 }
 
-void _DynamicPolymorphicSerializable(DynamicPolymorphicSerializable<>& output)
+inline void _DynamicPolymorphicSerializable(DynamicPolymorphicSerializable<>& output)
 {
     output.getO() = 11;
     _DynamicPolymorphicNotSerializable(output.getDpNS());
@@ -99,30 +99,30 @@ void _DynamicPolymorphicSerializable(DynamicPolymorphicSerializable<>& output)
     memcpy(output.getArrDpNS()[2].getArrR(), "jkl", output.getArrDpNS()[2].getSizeOfArrR());
 }
 
-void _DiamondBaseNotSerializable(DiamondBaseNotSerializable& output)
+inline void _DiamondBaseNotSerializable(DiamondBaseNotSerializable& output)
 {
     output.m_d0 = 18;
 }
 
-void _DiamondEdge1NotSerializable(DiamondEdge1NotSerializable& output)
+inline void _DiamondEdge1NotSerializable(DiamondEdge1NotSerializable& output)
 {
     _DiamondBaseNotSerializable(output);
     output.m_d1 = 19;
 }
 
-void _DiamondEdge2NotSerializable(DiamondEdge2NotSerializable& output)
+inline void _DiamondEdge2NotSerializable(DiamondEdge2NotSerializable& output)
 {
     _DiamondBaseNotSerializable(output);
     output.m_d2 = 20;
 }
 
-void _DiamondSerializable(DiamondSerializable<>& output)
+inline void _DiamondSerializable(DiamondSerializable<>& output)
 {
     _DiamondEdge1NotSerializable(output);
     _DiamondEdge2NotSerializable(output);
 }
 
-void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeContainSerializable<>& output)
+inline void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeContainSerializable<>& output)
 {
     DiamondSerializable ds1;
     _DiamondSerializable(ds1);

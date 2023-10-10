@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file DederializeDataWithFlags.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -22,16 +22,3 @@
  */
 
 #pragma once
-
-#include "SpecialTypesSerializable.h"
-#include "SpecialTypesSerializableLegacy.h"
-
-#include "Generated/SerializeData.h"
-#include "Generated/SerializeDataWithFlags.h"
-#include "Generated/SerializeDataCompat.h"
-#include "Generated/SerializeDataCompatLegacy.h"
-#include "Generated/DeserializeData.h"
-#include "Generated/DeserializeDataWithFlags.h"
-#include "Generated/DeserializeDataCompat.h"
-
-#include "ConvertToOldStruct.h"

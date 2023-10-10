@@ -28,7 +28,7 @@
 
 #define RUN(x)                                                                  \
 {                                                                               \
-    if (Status status = (x); !statusSuccess(status))                               \
+    if (Status status = (x); !statusSuccess(status))                            \
         return status;                                                          \
 }
 
@@ -36,8 +36,8 @@ namespace common_serialization
 {
 
 template<>
-constexpr Status SerializationProcessor::convertStructToOld(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, SerializationFlags flags, uint32_t thisVersionCompat
-    , uint32_t interfaceVersionCompat, std::unordered_map<void*, size_t>& mapOfPointers, Vector<uint8_t>& output) noexcept
+constexpr Status SerializationProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    , uint32_t thisVersionCompat, uint32_t interfaceVersionCompat, std::unordered_map<const void*, size_t>& pointersMap, Vector<uint8_t>& output) noexcept
 {
     // If value version is the same as thisVersionCompat there is a programmatic error
     assert(value.getThisVersion() != thisVersionCompat);
@@ -48,7 +48,7 @@ constexpr Status SerializationProcessor::convertStructToOld(const special_types:
         compatVersion.m_ti.x = value.m_x;
         compatVersion.m_ti.y = value.m_y;
 
-        RUN(serializeDataCompat(value, flags, interfaceVersionCompat, mapOfPointers, output));
+        /*RUN(serializeDataCompatLegacy(compatVersion, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));*/
     }
     else if (thisVersionCompat == 1)
     {
@@ -56,7 +56,7 @@ constexpr Status SerializationProcessor::convertStructToOld(const special_types:
         compatVersion.m_x = value.m_x;
         compatVersion.m_y = value.m_y;
 
-        RUN(serializeDataCompat(value, flags, interfaceVersionCompat, mapOfPointers, output));
+        RUN(serializeDataCompatLegacy(compatVersion, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
     }
 
     return Status::kNoFurtherProcessingRequired;

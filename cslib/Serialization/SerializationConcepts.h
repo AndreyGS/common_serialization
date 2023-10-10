@@ -69,6 +69,19 @@ concept IDeserializationCapableContainer
          } 
     && std::is_same_v<typename D::value_type, uint8_t>;
 
+template<typename PM>
+concept IPointersMap
+    = requires(PM pm)
+        {
+            typename PM::key_type;
+            typename PM::mapped_type;
+
+            { pm.find(*(new typename PM::key_type)) };
+            { pm.end() };
+            { pm[*(new typename PM::key_type)] } -> std::same_as<typename PM::mapped_type&>;
+        }
+    && std::is_same_v<typename PM::key_type, const void*> && std::is_same_v<typename PM::mapped_type, size_t>;
+
 template<typename T>
 concept FixSizedArithmeticType
     =  std::is_same_v<std::remove_cv_t<T>, char8_t> || std::is_same_v<std::remove_cv_t<T>, char16_t> || std::is_same_v<std::remove_cv_t<T>, char32_t>
