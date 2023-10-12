@@ -24,20 +24,20 @@
 #pragma once
 
 #include "SerializationProcessor.h"
+#include "SerializationDataHelper.h"
 
 namespace common_serialization
 {
 
-template<typename T, typename A, serialization_concepts::ISerializationCapableContainer S>
-Status serializeData(const Vector<T, A>& value, S& output)
+template<typename T, typename A, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+Status serializeData(const Vector<T, A>& value, CspContextSerializeData<S, PM>& context)
 {
-    RUN(SerializationProcessor::serializeData(value.size(), output));
-    RUN(SerializationProcessor::serializeData(value.data(), value.size(), output));
+    RUN(SerializationProcessor::serializeData(value.data(), value.size(), context));
     
     return Status::kNoError;
 }
 
-template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D>
+template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
 Status deserializeData(D& input, Vector<T, A>& value)
 {
     value.clear();

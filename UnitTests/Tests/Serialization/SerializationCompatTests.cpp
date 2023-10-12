@@ -34,12 +34,12 @@ TEST(SerializationCompatTests, First)
     filling::_SimpleAssignableAlignedToOneSerializable(saaToSIn);
 
     Walker<uint8_t> bin;
-    CsProtocolFlags flags;
+    CspFlags flags;
     flags.interfaceVersionsNotMatch = true;
-
-    EXPECT_EQ(saaToSIn.serializeCompat(bin.getVector(), flags, saaToSIn.getLatestProtocolVersion(), 1), Status::kNoError);
-
+    CspContextSerializeData context(bin.getVector(), flags, saaToSIn.getLatestProtocolVersion(), 1);
     
+
+    EXPECT_EQ(saaToSIn.serialize(context), Status::kNoError);
 }
 
 } // namespace anonymous

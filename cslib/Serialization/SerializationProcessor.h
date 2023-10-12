@@ -24,7 +24,7 @@
 #pragma once
 
 #include "SerializationConcepts.h"
-#include "CsProtocolFlags.h"
+#include "CspContext.h"
 
 namespace common_serialization
 {
@@ -32,55 +32,40 @@ namespace common_serialization
 class SerializationProcessor
 {
 public:
-    template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeData(const T* p, size_t n, S& output);
-    template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeData(const T* p, size_t n, CsProtocolFlags flags, S& output);
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    static constexpr Status serializeDataCompat(const T* p, size_t n, CsProtocolFlags flags, uint32_t protocolVersionCompat
-        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output);
+    static constexpr Status serializeData(const T* p, typename S::size_type n, CspContextSerializeData<S, PM>& context);
 
-    template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeData(const T(&arr)[N], S& output);
-    template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeData(const T(&arr)[N], CsProtocolFlags flags, S& output);
-    template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    static constexpr Status serializeDataCompat(const T(&arr)[N], CsProtocolFlags flags, uint32_t protocolVersionCompat
-        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output);
+    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM, typename S::size_type N>
+    static constexpr Status serializeData(const T(&arr)[N], CspContextSerializeData<S, PM>& context);
 
-    template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeData(const T& value, S& output);
-    template<typename T, serialization_concepts::ISerializationCapableContainer S>
-    static constexpr Status serializeData(const T& value, CsProtocolFlags flags, S& output);
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    static constexpr Status serializeDataCompat(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
-        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output);
+    static constexpr Status serializeData(const T& value, CspContextSerializeData<S, PM>& context);
+
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    static constexpr Status serializeDataCompatLegacy(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
-        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output);
+    static constexpr Status serializeDataLegacy(const T& value, CspContextSerializeData<S, PM>& context);
 
     template<typename T, serialization_concepts::IDeserializationCapableContainer D>
     static constexpr Status deserializeData(D& input, size_t n, T* p);
     template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-    static constexpr Status deserializeData(D& input, size_t n, CsProtocolFlags flags, T* p);
+    static constexpr Status deserializeData(D& input, size_t n, CspFlags flags, T* p);
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-    static constexpr Status deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    static constexpr Status deserializeDataCompat(D& input, CspFlags flags, uint32_t protocolVersionCompat
         , uint32_t interfaceVersionCompat, PM& pointersMap, T* p);
 
     template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
     static constexpr Status deserializeData(D& input, T(&arr)[N]);
     template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
-    static constexpr Status deserializeData(D& input, CsProtocolFlags flags, T(&arr)[N]);
+    static constexpr Status deserializeData(D& input, CspFlags flags, T(&arr)[N]);
     template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-    static constexpr Status deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    static constexpr Status deserializeDataCompat(D& input, CspFlags flags, uint32_t protocolVersionCompat
         , uint32_t interfaceVersionCompat, PM& pointersMap, T(&arr)[N]);
 
     template<typename T, serialization_concepts::IDeserializationCapableContainer D>
     static constexpr Status deserializeData(D& input, T& value);
     template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-    static constexpr Status deserializeData(D& input, CsProtocolFlags flags, T& value);
+    static constexpr Status deserializeData(D& input, CspFlags flags, T& value);
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-    static constexpr Status deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+    static constexpr Status deserializeDataCompat(D& input, CspFlags flags, uint32_t protocolVersionCompat
         , uint32_t interfaceVersionCompat, PM& pointersMap, T& value);
 
     template<size_t OriginalTypeSize, typename T, serialization_concepts::IDeserializationCapableContainer D>
@@ -88,15 +73,13 @@ public:
 
 private:
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    static constexpr Status addPointerToMap(const T* p, PM& pointersMap, S& output, bool& newPointer);
+    static constexpr Status addPointerToMap(const T* p, CspContextSerializeData<S, PM>& context, bool& newPointer);
 
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    static constexpr Status convertStructToOldIfNeed(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
-        , uint32_t interfaceVersionCompat, PM& pointersMap, S& output) noexcept;
+    static constexpr Status convertStructToOldIfNeed(const T& value, CspContextSerializeData<S, PM>& context) noexcept;
 
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    static constexpr Status convertToOldStruct(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
-        , uint32_t thisVersionCompat, uint32_t interfaceVersionCompat, PM& pointersMap, S& output) noexcept;
+    static constexpr Status convertToOldStruct(const T& value, uint32_t thisVersionCompat, CspContextSerializeData<S, PM>& context) noexcept;
 };
 
 } // namespace common_serialization
@@ -106,336 +89,114 @@ private:
 namespace common_serialization
 {
 
-// common function for pointers of known size
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeData(const T* p, size_t n, S& output)
+template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+constexpr Status SerializationProcessor::serializeData(const T* p, typename S::size_type n, CspContextSerializeData<S, PM>& context)
 {
-    static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
-        , "References on pointers and pointers on pointers are not supported");
+    static_assert(!std::is_reference_v<T>
+                    , "Pointers on references are not allowed");
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
-        , "References and pointers on functions are not allowed to be serialized");
+                    , "References and pointers on functions are not allowed to be serialized");
 
-    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T> || serialization_concepts::SimpleAssignableType<T>)
+    S& output = context.getOutput();
+    CspContextDataExtension<PM>& extension = context.getExtension();
+    const CspFlags flags = extension.getFlags();
+
+    RUN(output.pushBackArithmeticValue(n));
+
+    if (
+           std::is_arithmetic_v<T> 
+        || std::is_enum_v<T>
+        || !flags.sizeOfArithmeticTypesMayBeNotEqual
+            && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
+    )
     {
         const typename S::size_type bytesSize = sizeof(T) * n;
         assert((n == bytesSize / sizeof(T)));
+
+        if constexpr (!serialization_concepts::FixSizedArithmeticType<T> && !serialization_concepts::FixSizedEnumType<T>)
+            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
+            {
+                RUN(output.pushBackArithmeticValue(sizeof(T)));
+            }
 
         RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
     }
     else if constexpr (!serialization_concepts::EmptyType<T>)
     {
         for (size_t i = 0; i < n; ++i)
-            RUN(serializeDataHelper(p[i], output));
-    }
+        {
+            if (flags.extendedPointersProcessing)
+            {
+                bool newPointer = false;
+                RUN(addPointerToMap(&p[i], context, newPointer));
 
-    return Status::kNoError;
+                if (!newPointer)
+                    continue;
+            }
+
+            RUN(serializeDataHelper(p[i], context));
+        }
+    }
 }
 
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeData(const T* p, size_t n, CsProtocolFlags flags, S& output)
+template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM, typename S::size_type N>
+constexpr Status SerializationProcessor::serializeData(const T(&arr)[N], CspContextSerializeData<S, PM>& context)
 {
-    static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
-        , "References on pointers and pointers on pointers are not supported");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
-        , "References and pointers on functions are not allowed to be serialized");
+    static_assert(N == sizeof(T) * N / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array input of serializeThis");
 
-    // In mode with checked flags we may serialize a whole block pointed by p as one big chunk if one of the following is true.
-    // 
-    // Type on which p points is arithmetic or enum,
-    // or if it is a struct that is simple assignable and aligned to one or a struct that simple assignable but
-    // alignment shall be preserved, and for both this (struct) cases there must not be the flag that indicates
-    // that some of arithmetic types may be not equal (cause we don't know contain this struct some of them or not)
-    if (
-        std::is_arithmetic_v<T>
-        || std::is_enum_v<T>
-        || (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
-            && !flags.sizeOfArithmeticTypesMayBeNotEqual)
-    {
-        const typename S::size_type bytesSize = sizeof(T) * n;
-        assert((n == bytesSize / sizeof(T)));
-
-        if ((std::is_arithmetic_v<T> && !serialization_concepts::FixSizedArithmeticType<T>
-            || std::is_enum_v<T> && !serialization_concepts::FixSizedArithmeticType<std::underlying_type_t<T>>)
-            && flags.sizeOfArithmeticTypesMayBeNotEqual)
-        {
-            RUN(output.pushBackArithmeticValue(sizeof(T)));
-        }
-
-        RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
-    }
-    else if constexpr (!serialization_concepts::EmptyType<T>)
-    {
-        for (size_t i = 0; i < n; ++i)
-            RUN(serializeDataHelper(p[i], flags, output));
-    }
-
-    return Status::kNoError;
+    return serializeData(arr, N, context);
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status SerializationProcessor::serializeDataCompat(const T* p, size_t n, CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output)
+constexpr Status SerializationProcessor::serializeData(const T& value, CspContextSerializeData<S, PM>& context)
 {
     static_assert(!std::is_reference_v<T>
         , "Pointers on references are not allowed");
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
         , "References and pointers on functions are not allowed to be serialized");
 
-    // In mode with checked flags we may serialize a whole block pointed by p as one big chunk if one of the following is true.
-    // 
-    // Type on which p points is arithmetic or enum,
-    // or if it is a struct that is simple assignable and aligned to one or a struct that simple assignable but
-    // alignment shall be preserved, and for both this (struct) cases there must not be the flag that indicates
-    // that some of arithmetic types may be not equal (cause we don't know contain this struct some of them or not)
-    if (
-        std::is_arithmetic_v<T>
-        || std::is_enum_v<T>
-        || !serialization_concepts::IsISerializableBased<T>
-            && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
-            && !flags.sizeOfArithmeticTypesMayBeNotEqual)
-    {
-        const typename S::size_type bytesSize = sizeof(T) * n;
-        assert((n == bytesSize / sizeof(T)));
-
-        if ((std::is_arithmetic_v<T> && !serialization_concepts::FixSizedArithmeticType<T>
-            || std::is_enum_v<T> && !serialization_concepts::FixSizedArithmeticType<std::underlying_type_t<T>>)
-            && flags.sizeOfArithmeticTypesMayBeNotEqual)
-        {
-            RUN(output.pushBackArithmeticValue(sizeof(T)));
-        }
-
-        RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
-    }
-    else
-    {
-        for (size_t i = 0; i < n; ++i)
-        {
-            if (flags.extendedPointerProcessing)
-            {
-                bool newPointer = false;
-                RUN(addPointerToMap(&p[i], pointersMap, output, newPointer));
-
-                if (!newPointer)
-                    continue;
-            }
-
-            RUN(serializeDataHelper(p[i], flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
-        }
-    }
-
-    return Status::kNoError;
-}
-
-// common function for arrays input
-template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeData(const T(&arr)[N], S& output)
-{
-    static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
-        , "This type of struct cannot contain arrays of references or pointers");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
-        , "Arrays of references or pointers on functions are not allowed to be serialized");
-
-    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T> || serialization_concepts::SimpleAssignableType<T>)
-    {
-        constexpr typename S::size_type bytesSize = sizeof(T) * N;
-        static_assert(N == bytesSize / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array input of serializeThis");
-
-        RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(arr)), bytesSize));
-    }
-    else if constexpr (!serialization_concepts::EmptyType<T>)
-    {
-        for (const auto& e : arr)
-            RUN(serializeDataHelper(e, output));
-    }
-
-    return Status::kNoError;
-}
-
-template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeData(const T(&arr)[N], CsProtocolFlags flags, S& output)
-{
-    static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
-        , "This type of struct cannot contain arrays of references or pointers");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
-        , "Arrays of references or pointers on functions are not allowed to be serialized");
-
-    // In mode with checked flags we may serialize a whole array as one big chunk if one of the following is true.
-    // 
-    // Type of units in arr is arithmetic or enum,
-    // or if it is a struct that is simple assignable and aligned to one or a struct that simple assignable but
-    // alignment shall be preserved, and for both this (struct) cases there must not be the flag that indicates
-    // that some of arithmetic types may be not equal (cause we don't know contain this struct some of them or not)
-    if (
-        std::is_arithmetic_v<T>
-        || std::is_enum_v<T>
-        || (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
-            && !flags.sizeOfArithmeticTypesMayBeNotEqual)
-    {
-        constexpr typename S::size_type bytesSize = sizeof(T) * N;
-        static_assert(N == bytesSize / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array input of serializeThis");
-
-        if ((std::is_arithmetic_v<T> && !serialization_concepts::FixSizedArithmeticType<T>
-            || std::is_enum_v<T> && !serialization_concepts::FixSizedArithmeticType<std::underlying_type_t<T>>)
-            && flags.sizeOfArithmeticTypesMayBeNotEqual)
-        {
-            RUN(output.pushBackArithmeticValue(sizeof(T)));
-        }
-
-        RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(arr)), bytesSize));
-    }
-    else if constexpr (!serialization_concepts::EmptyType<T>)
-    {
-        for (const auto& e : arr)
-            serializeDataHelper(e, flags, output);
-    }
-
-    return Status::kNoError;
-}
-
-template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status SerializationProcessor::serializeDataCompat(const T(&arr)[N], CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output)
-{
-    static_assert(!std::is_reference_v<T>
-        , "Arrays of references are not allowed");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
-        , "Arrays of references or pointers on functions are not allowed to be serialized");
-
-    // In mode with checked flags we may serialize a whole array as one big chunk if one of the following is true.
-    // 
-    // Type of units in arr is arithmetic or enum,
-    // or if it is a struct that is simple assignable and aligned to one or a struct that simple assignable but
-    // alignment shall be preserved, and for both this (struct) cases there must not be the flag that indicates
-    // that some of arithmetic types may be not equal (cause we don't know contain this struct some of them or not)
-    if (
-        std::is_arithmetic_v<T>
-        || std::is_enum_v<T>
-        || !serialization_concepts::IsISerializableBased<T>
-            && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
-            && !flags.sizeOfArithmeticTypesMayBeNotEqual)
-    {
-        constexpr typename S::size_type bytesSize = sizeof(T) * N;
-        static_assert(N == bytesSize / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array input of serializeThis");
-
-        if ((std::is_arithmetic_v<T> && !serialization_concepts::FixSizedArithmeticType<T>
-            || std::is_enum_v<T> && !serialization_concepts::FixSizedArithmeticType<std::underlying_type_t<T>>)
-            && flags.sizeOfArithmeticTypesMayBeNotEqual)
-        {
-            RUN(output.pushBackArithmeticValue(sizeof(T)));
-        }
-
-        RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(arr)), bytesSize));
-    }
-    else
-    {
-        for (const auto& e : arr)
-        {
-            if (flags.extendedPointerProcessing)
-            {
-                bool newPointer = false;
-                RUN(addPointerToMap(&e, pointersMap, output, newPointer));
-
-                if (!newPointer)
-                    continue;
-            }
-
-            RUN(serializeDataHelper(e, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
-        }
-    }
-
-    return Status::kNoError;
-}
-
-// common function for scalar and simple assignable types input without flags provided
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeData(const T& value, S& output)
-{
-    static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
-        , "This type of struct cannot contain references or pointers");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
-        , "References and pointers on functions are not allowed to be serialized");
+    S& output = context.getOutput();
+    CspContextDataExtension<PM>& extension = context.getExtension();
+    const CspFlags flags = extension.getFlags();
 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
+    {
+        if constexpr (!serialization_concepts::FixSizedArithmeticType<T> && !serialization_concepts::FixSizedEnumType<T>)
+            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
+            {
+                RUN(output.pushBackArithmeticValue(sizeof(T)));
+            }
+
         RUN(output.pushBackArithmeticValue(value))
-    else if constexpr (serialization_concepts::SimpleAssignableType<T>)
-    {
-        // for simple assignable types with no flags provided it is preferable to add a whole struct at a time
-        RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), sizeof(T)));
     }
-    else
-        static_assert(serialization_concepts::EmptyType<T>, "Type not supported");
-
-    return Status::kNoError;
-}
-
-// common function for scalar input with flags provided
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status SerializationProcessor::serializeData(const T& value, CsProtocolFlags flags, S& output)
-{
-    static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
-        , "This type of struct cannot contain references or pointers");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
-        , "References and pointers on functions are not allowed to be serialized");
-
-    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
+    else if constexpr (std::is_pointer_v<T> || std::is_member_pointer_v<T>)
     {
-        if ((std::is_arithmetic_v<T> && !serialization_concepts::FixSizedArithmeticType<T>
-            || std::is_enum_v<T> && !serialization_concepts::FixSizedArithmeticType<std::underlying_type_t<T>>)
-            && flags.sizeOfArithmeticTypesMayBeNotEqual)
-        {
-            RUN(output.pushBackArithmeticValue(sizeof(T)));
-        }
-
-        RUN(output.pushBackArithmeticValue(value));
-    }
-    else
-        static_assert(serialization_concepts::EmptyType<T>, "Type not supported");
-
-    return Status::kNoError;
-}
-
-// common function for scalar input with flags provided
-template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status SerializationProcessor::serializeDataCompat(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output)
-{
-    static_assert(!std::is_reference_v<T>
-        , "References are not allowed to be serialized");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
-        , "References and pointers on functions are not allowed to be serialized");
-
-    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
-    {
-        static_assert(!std::is_enum_v<T>, "xxx");
-        if constexpr (std::is_arithmetic_v<T> && !serialization_concepts::FixSizedArithmeticType<T>)
-        {
-            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
-                RUN(output.pushBackArithmeticValue(sizeof(T)));
-        }
-        else if constexpr (std::is_enum_v<T> && !serialization_concepts::FixSizedArithmeticType<std::underlying_type_t<T>>)
-        {
-            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
-                RUN(output.pushBackArithmeticValue(sizeof(T)));
-        }
-
-        RUN(output.pushBackArithmeticValue(value));
-    }
-    else 
-    if constexpr (std::is_pointer_v<T> || std::is_member_pointer_v<T>)
-    {
-        if (flags.extendedPointerProcessing)
+        if (flags.extendedPointersProcessing)
         {
             bool newPointer = false;
-            RUN(addPointerToMap(&value, pointersMap, output, newPointer));
+            RUN(addPointerToMap(&value, context, newPointer));
 
             if (!newPointer)
                 return Status::kNoError;
         }
 
-        RUN(serializeDataCompatHelper(*value, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
+        RUN(serializeDataCompatHelper(*value, context));
+    }
+    else if constexpr (serialization_concepts::SimpleAssignableType<T> || serialization_concepts::SimpleAssignableAlignedToOneType<T>)
+    {
+        if (
+            !flags.sizeOfArithmeticTypesMayBeNotEqual
+            && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
+        )
+        {
+            // for simple assignable types it is preferable to add a whole struct at a time
+            RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), sizeof(T)));
+        }
+        else
+            assert(false);
     }
     else
-        static_assert(!(std::is_arithmetic_v<T> || std::is_enum_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>), "Type not supported");
+        static_assert(serialization_concepts::EmptyType<T>, "Type not supported");
 
     return Status::kNoError;
 }
@@ -466,7 +227,7 @@ constexpr Status SerializationProcessor::deserializeData(D& input, size_t n, T* 
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status SerializationProcessor::deserializeData(D& input, size_t n, CsProtocolFlags flags, T* p)
+constexpr Status SerializationProcessor::deserializeData(D& input, size_t n, CspFlags flags, T* p)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "References on pointers and pointers on pointers are not supported");
@@ -509,7 +270,7 @@ constexpr Status SerializationProcessor::deserializeData(D& input, size_t n, CsP
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-static constexpr Status SerializationProcessor::deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+static constexpr Status SerializationProcessor::deserializeDataCompat(D& input, CspFlags flags, uint32_t protocolVersionCompat
     , uint32_t interfaceVersionCompat, PM& pointersMap, T* p)
 {
     return Status::kNoError;
@@ -541,7 +302,7 @@ constexpr Status SerializationProcessor::deserializeData(D& input, T(&arr)[N])
 }
 
 template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status SerializationProcessor::deserializeData(D& input, CsProtocolFlags flags, T(&arr)[N])
+constexpr Status SerializationProcessor::deserializeData(D& input, CspFlags flags, T(&arr)[N])
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain arrays of references or pointers");
@@ -584,7 +345,7 @@ constexpr Status SerializationProcessor::deserializeData(D& input, CsProtocolFla
 }
 
 template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-static constexpr Status SerializationProcessor::deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+static constexpr Status SerializationProcessor::deserializeDataCompat(D& input, CspFlags flags, uint32_t protocolVersionCompat
     , uint32_t interfaceVersionCompat, PM& pointersMap, T(&arr)[N])
 {
     return Status::kNoError;
@@ -614,7 +375,7 @@ constexpr Status SerializationProcessor::deserializeData(D& input, T& value)
 
 // common function for scalar output with flags provided
 template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status SerializationProcessor::deserializeData(D& input, CsProtocolFlags flags, T& value)
+constexpr Status SerializationProcessor::deserializeData(D& input, CspFlags flags, T& value)
 {
     static_assert(!(std::is_reference_v<T> || std::is_pointer_v<T> || std::is_member_pointer_v<T>)
         , "This type of struct cannot contain references or pointers");
@@ -646,7 +407,7 @@ constexpr Status SerializationProcessor::deserializeData(D& input, CsProtocolFla
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-static constexpr Status SerializationProcessor::deserializeDataCompat(D& input, CsProtocolFlags flags, uint32_t protocolVersionCompat
+static constexpr Status SerializationProcessor::deserializeDataCompat(D& input, CspFlags flags, uint32_t protocolVersionCompat
     , uint32_t interfaceVersionCompat, PM& pointersMap, T& value)
 {
     return Status::kNoError;
@@ -667,8 +428,10 @@ constexpr Status SerializationProcessor::deserializeData(D& input, T& value)
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status SerializationProcessor::addPointerToMap(const T* p, PM& pointersMap, S& output, bool& newPointer)
+constexpr Status SerializationProcessor::addPointerToMap(const T* p, CspContextSerializeData<S, PM>& context, bool& newPointer)
 {
+    S& output = context.getOutput();
+
     if (!p)
     {
         newPointer = false;
@@ -676,6 +439,8 @@ constexpr Status SerializationProcessor::addPointerToMap(const T* p, PM& pointer
     }
     else
     {
+        PM& pointersMap = *context.getExtension().getPointersMap();
+
         if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
             newPointer = true;
@@ -691,21 +456,28 @@ constexpr Status SerializationProcessor::addPointerToMap(const T* p, PM& pointer
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status SerializationProcessor::convertStructToOldIfNeed(const T& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output) noexcept
+constexpr Status SerializationProcessor::convertStructToOldIfNeed(const T& value, CspContextSerializeData<S, PM>& context) noexcept
 {
-    uint32_t thisVersionCompat = value.getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), interfaceVersionCompat);
+    CspContextDataExtension<PM>& extension = context.getExtension();
 
-    if (thisVersionCompat == value.getThisVersion())
+    if (const CspFlags flags = extension.getFlags(); flags.interfaceVersionsNotMatch)
     {
-        RUN(output.pushBackArithmeticValue(value.getVersionsHierarchy()[0].nameHash));
-        return Status::kNoError;
+        uint32_t thisVersionCompat = value.getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), extension.getInterfaceVersion());
+
+        if (thisVersionCompat == value.getThisVersion())
+        {
+            S& output = context.getOutput();
+            RUN(output.pushBackArithmeticValue(value.getVersionsHierarchy()[0].nameHash));
+            return Status::kNoError;
+        }
+        // Normaly, next condition shall never succeed
+        else if (thisVersionCompat == value.kInterfaceVersionMax)
+            return Status::kErrorNotSupportedSerializationInterfaceVersion;
+        else
+            return convertToOldStruct(value, thisVersionCompat, context);
     }
-    // Normaly, next condition shall never succeed
-    else if (thisVersionCompat == value.kInterfaceVersionMax)
-        return Status::kErrorNotSupportedSerializationInterfaceVersion;
     else
-        return convertToOldStruct(value, flags, protocolVersionCompat, thisVersionCompat, interfaceVersionCompat, pointersMap, output);
+        return Status::kNoError;
 }
 
 } // namespace common_serialization

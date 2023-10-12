@@ -1,5 +1,5 @@
 /**
- * @file DeserializeDataCompat.h
+ * @file Walker.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -22,3 +22,22 @@
  */
 
 #pragma once
+
+namespace common_serialization
+{
+
+// Stub HashMap (shall be switched to normal container)
+class HashMap
+{
+public:
+    using key_type = const void*;
+    using mapped_type = size_t;
+
+    void find(key_type) {}
+    void end() {}
+    mapped_type& operator [](key_type) { return i; }
+
+    size_t i{ 0 };
+};
+
+} // namespace common_serialization

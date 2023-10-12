@@ -75,8 +75,8 @@ concept IPointersMap
         {
             typename PM::key_type;
             typename PM::mapped_type;
-
-            { pm.find(*(new typename PM::key_type)) };
+            
+            { pm.find(nullptr) };
             { pm.end() };
             { pm[*(new typename PM::key_type)] } -> std::same_as<typename PM::mapped_type&>;
         }
@@ -86,6 +86,9 @@ template<typename T>
 concept FixSizedArithmeticType
     =  std::is_same_v<std::remove_cv_t<T>, char8_t> || std::is_same_v<std::remove_cv_t<T>, char16_t> || std::is_same_v<std::remove_cv_t<T>, char32_t>
     || std::is_same_v<std::remove_cv_t<T>, float> || std::is_same_v<std::remove_cv_t<T>, double>;
+
+template<typename T>
+concept FixSizedEnumType = std::is_enum_v<T> && FixSizedArithmeticType<std::underlying_type_t<T>>;
 
 // can be copied with memcpy (if alignments are the same and arithmetic types in are fixed length)
 template<typename T>

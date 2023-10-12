@@ -27,11 +27,8 @@
 #include "SpecialTypesSerializableLegacy.h"
 
 #include "Generated/SerializeData.h"
-#include "Generated/SerializeDataWithFlags.h"
-#include "Generated/SerializeDataCompat.h"
-#include "Generated/SerializeDataCompatLegacy.h"
+#include "Generated/SerializeDataLegacy.h"
 #include "Generated/DeserializeData.h"
-#include "Generated/DeserializeDataWithFlags.h"
-#include "Generated/DeserializeDataCompat.h"
+#include "Generated/DeserializeDataLegacy.h"
 
 #include "ConvertToOldStruct.h"

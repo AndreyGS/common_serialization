@@ -1,5 +1,5 @@
 /**
- * @file CsProtocolFlags.h
+ * @file CspFlags.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,49 +26,51 @@
 namespace common_serialization
 {
 
-struct CsProtocolFlags
+struct CspFlags
 {
+    uint32_t protocolVersionsNotMatch               : 1 = 0;
+    uint32_t interfaceVersionsNotMatch              : 1 = 0;    // when this flag is set, it's also indicates that
+                                                                // serialized data would include version for every serialized struct
+                                                                // to allow it properly deserialized
     uint32_t alignmentMayBeNotEqual                 : 1 = 0;
     uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;    // this flag is very dangerous and it should never be used,
                                                                 // except you are really know what you are doing
-    uint32_t interfaceVersionsNotMatch              : 1 = 0;    // when this flag is set, it's indicates that
-                                                                // serialized data would include version for every serialized struct
-                                                                // to allow it properly deserialized
-    uint32_t extendedPointerProcessing                : 1 = 0;
-    uint32_t reserved                               :20 = 0;
+    
+    uint32_t extendedPointersProcessing             : 1 = 0;
+    uint32_t reserved                               :19 = 0;
     uint32_t doNotUse                               : 8 = 0;    // this bit-field shall have only 24 significant bits
                                                                 // 8 bits are using for serialization protocol version
 
-    constexpr CsProtocolFlags() noexcept;
-    explicit constexpr CsProtocolFlags(uint32_t value) noexcept;
+    constexpr CspFlags() noexcept;
+    explicit constexpr CspFlags(uint32_t value) noexcept;
 
-    constexpr CsProtocolFlags& operator=(uint32_t value) noexcept;
+    constexpr CspFlags& operator=(uint32_t value) noexcept;
 
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
 };
 
-constexpr CsProtocolFlags::CsProtocolFlags() noexcept {}
+constexpr CspFlags::CspFlags() noexcept {}
 
-constexpr CsProtocolFlags::CsProtocolFlags(uint32_t value) noexcept
+constexpr CspFlags::CspFlags(uint32_t value) noexcept
 {
     operator=(value);
 }
 
-constexpr CsProtocolFlags& CsProtocolFlags::operator=(uint32_t value) noexcept
+constexpr CspFlags& CspFlags::operator=(uint32_t value) noexcept
 {
-    return *static_cast<CsProtocolFlags*>
+    return *static_cast<CspFlags*>
         (static_cast<void*>(
             &(*static_cast<uint32_t*>(
                 static_cast<void*>(this)) = value)));
 }
 
-[[nodiscard]] constexpr CsProtocolFlags::operator uint32_t() const noexcept
+[[nodiscard]] constexpr CspFlags::operator uint32_t() const noexcept
 {
     return (*static_cast<const uint32_t*>(static_cast<const void*>(this)) & 0xffffff);
 }
 
-[[nodiscard]] constexpr CsProtocolFlags::operator bool() const noexcept
+[[nodiscard]] constexpr CspFlags::operator bool() const noexcept
 {
     return static_cast<uint32_t>(*this) != 0;
 }

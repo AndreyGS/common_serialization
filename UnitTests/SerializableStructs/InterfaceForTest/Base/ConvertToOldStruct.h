@@ -36,8 +36,8 @@ namespace common_serialization
 {
 
 template<>
-constexpr Status SerializationProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t thisVersionCompat, uint32_t interfaceVersionCompat, std::unordered_map<const void*, size_t>& pointersMap, Vector<uint8_t>& output) noexcept
+constexpr Status SerializationProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
+    , uint32_t thisVersionCompat, CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context) noexcept
 {
     // If value version is the same as thisVersionCompat there is a programmatic error
     assert(value.getThisVersion() != thisVersionCompat);
@@ -56,9 +56,8 @@ constexpr Status SerializationProcessor::convertToOldStruct(const special_types:
         compatVersion.m_x = value.m_x;
         compatVersion.m_y = value.m_y;
 
-        RUN(serializeDataCompatLegacy(compatVersion, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
+        RUN(serializeDataLegacy(compatVersion, context));
     }
-
     return Status::kNoFurtherProcessingRequired;
 }
 

@@ -43,6 +43,8 @@ public:
     static constexpr uint64_t kNameHash = 0;
     static constexpr uint32_t kThisVersion = 0;              // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
+
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 0, 0 } };
 };
 
 #pragma pack(push, 1)
@@ -114,6 +116,7 @@ public:
     static constexpr uint64_t kNameHash = 2;
     static constexpr uint32_t kThisVersion = 0;              // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 2;         // latest version among all dependable structs
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 2, 0 } };
 
     [[nodiscard]] uint8_t& getI()                                                                 noexcept { return m_i; }
     [[nodiscard]] const uint8_t& getI()                                                     const noexcept { return m_i; }
@@ -185,6 +188,7 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
     static constexpr uint64_t kNameHash = 3;
     static constexpr uint32_t kThisVersion = 0;
     static constexpr uint32_t kInterfaceVersion = 2;
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 3, 0 } };
 
     uint32_t v{ 0 };
     
@@ -216,6 +220,7 @@ public:
     static constexpr uint64_t kNameHash = 4;
     static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 4, 0 } };
 
     [[nodiscard]] uint8_t& getR()                 noexcept { return m_r; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getR()     const noexcept { return m_r; }    // (not required for serialization itself)
@@ -246,6 +251,7 @@ public:
     static constexpr uint64_t kNameHash = 5;
     static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 5, 0 } };
 
     [[nodiscard]] uint8_t& getO()                 noexcept { return m_o; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getO()     const noexcept { return m_o; }    // (not required for serialization itself)
@@ -327,6 +333,7 @@ public:
     static constexpr uint64_t kNameHash = 8;
     static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 8, 0 } };
 
     [[nodiscard]] bool operator==(const DiamondSerializable& rhs) const noexcept
     {
@@ -346,6 +353,7 @@ public:
     static constexpr uint64_t kNameHash = 9;
     static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 9, 0 } };
 
     [[nodiscard]] Vector<DiamondSerializable<>>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
     [[nodiscard]] const Vector<DiamondSerializable<>>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)

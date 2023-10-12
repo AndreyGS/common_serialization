@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "SpecialTypesSerializable.h"
+#include "../SpecialTypesSerializable.h"
 
 #define RUN(x)                                                                  \
 {                                                                               \

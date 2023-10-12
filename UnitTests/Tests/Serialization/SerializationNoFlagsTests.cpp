@@ -90,7 +90,10 @@ TEST(SerializeNoFlagsTest, DynamicPolymorphicT)
     filling::_DynamicPolymorphicSerializable(dpsIn);
 
     Walker<uint8_t> bin;
-    EXPECT_EQ(dpsIn.serialize(bin.getVector()), Status::kNoError);
+    CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>> 
+        context(bin.getVector(), CspFlags{}, dpsIn.getLatestProtocolVersion(), 1);
+
+    EXPECT_EQ(dpsIn.serialize(context), Status::kNoError);
 
     DynamicPolymorphicSerializable dpsOut;
     EXPECT_EQ(dpsOut.deserialize(bin), Status::kNoError);

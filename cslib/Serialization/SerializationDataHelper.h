@@ -23,91 +23,39 @@
 
 #pragma once
 
+#include "ISerializable.h"
+
 namespace common_serialization
 {
 
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status serializeDataHelper(const T* p, size_t n, S& output)
-{
-    return SerializationProcessor::serializeData(p, n, output);
-}
-
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status serializeDataHelper(const T* p, size_t n, CsProtocolFlags flags, S& output)
-{
-    return SerializationProcessor::serializeData(p, n, flags, output);
-}
-
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status serializeDataCompatHelper(const T* p, size_t n, CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output)
+constexpr Status serializeDataHelper(const T* p, size_t n, CspContextSerializeData<S, PM>& context)
 {
-    return SerializationProcessor::serializeDataCompat(p, n, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output);
+    return SerializationProcessor::serializeData(p, n, context);
 }
 
-template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status serializeDataHelper(const T(&arr)[N], S& output)
+template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+constexpr Status serializeDataHelper(const T(&arr)[N], CspContextSerializeData<S, PM>& output)
 {
     return SerializationProcessor::serializeData(arr, output);
 }
 
-template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status serializeDataHelper(const T(&arr)[N], CsProtocolFlags flags, S& output)
-{
-    return SerializationProcessor::serializeData(arr, flags, output);
-}
-
-template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status serializeDataCompatHelper(const T(&arr)[N], CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output)
-{
-    return SerializationProcessor::serializeDataCompat(arr, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output);
-}
-
-template<typename T, typename S>
-concept HasFreeSerializeProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(const T& t)
-{
-    { serializeData(t, *(new S)) } -> std::same_as<Status>;
-};
-
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status serializeDataHelper(T value, S& output)
-{
-    if constexpr (HasFreeSerializeProcessorFunction<T, S>)
-        return serializeData(value, output);
-    else
-        return SerializationProcessor::serializeData(value, output);
-}
-
-template<typename T, typename S>
-concept HasFreeSerializeWithFlagsProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(const T& t)
-{
-    { serializeData(t, *(new CsProtocolFlags), *(new S)) } -> std::same_as<Status>;
-};
-
-template<typename T, serialization_concepts::ISerializationCapableContainer S>
-constexpr Status serializeDataHelper(T value, CsProtocolFlags flags, S& output)
-{
-    if constexpr (HasFreeSerializeWithFlagsProcessorFunction<T, S>)
-        return serializeData(value, flags, output);
-    else
-        return SerializationProcessor::serializeData(value, flags, output);
-}
-
 template<typename T, typename S, typename PM>
-concept HasFreeSerializeCompatProcessorFunction = serialization_concepts::ISerializationCapableContainer<S> && requires(const T& t)
+concept HasFreeSerializeProcessorFunction 
+    = serialization_concepts::ISerializationCapableContainer<S> 
+    && serialization_concepts::IPointersMap<PM>
+    && requires(const T& t)
 {
-    { serializeDataCompat(t, *(new CsProtocolFlags), *(new uint32_t), *(new PM), *(new S)) } -> std::same_as<Status>;
+    { serializeData(t, *(new CspContextSerializeData<S, PM>(*(new S)))) } -> std::same_as<Status>;
 };
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status serializeDataCompatHelper(T value, CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t interfaceVersionCompat, PM& pointersMap, S& output)
+constexpr Status serializeDataHelper(const T& value, CspContextSerializeData<S, PM>& context)
 {
-    if constexpr (HasFreeSerializeCompatProcessorFunction<T, S, PM>)
-        return serializeDataCompat(value, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output);
+    if constexpr (HasFreeSerializeProcessorFunction<T, S, PM>)
+        return serializeData(value, context);
     else
-        return SerializationProcessor::serializeDataCompat(value, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output);
+        return SerializationProcessor::serializeData(value, context);
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D>
@@ -117,7 +65,7 @@ constexpr Status deserializeDataHelper(D& input, size_t n, T* p)
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeDataHelper(D& input, size_t n, CsProtocolFlags flags, T* p)
+constexpr Status deserializeDataHelper(D& input, size_t n, CspFlags flags, T* p)
 {
     return SerializationProcessor::deserializeData(input, n, flags, p);
 }
@@ -129,7 +77,7 @@ constexpr Status deserializeDataHelper(D& input, T(&arr)[N])
 }
 
 template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeDataHelper(D& input, CsProtocolFlags flags, T(&arr)[N])
+constexpr Status deserializeDataHelper(D& input, CspFlags flags, T(&arr)[N])
 {
     return SerializationProcessor::deserializeData(input, flags, arr);
 }
@@ -156,7 +104,7 @@ concept HasFreeDeserializeWithFlagsProcessorFunction = serialization_concepts::I
 };
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeDataHelper(D& input, CsProtocolFlags flags, T& value)
+constexpr Status deserializeDataHelper(D& input, CspFlags flags, T& value)
 {
     if constexpr (HasFreeDeserializeWithFlagsProcessorFunction<T, D>)
         return deserializeData(input, flags, value);
