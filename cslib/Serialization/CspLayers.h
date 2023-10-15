@@ -1,5 +1,5 @@
 /**
- * @file SerializationSpecialStructs.h
+ * @file CspLayers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,33 +23,14 @@
 
 #pragma once
 
-#include "SerializationDataHelper.h"
-
 namespace common_serialization
 {
 
-template<typename T, typename A, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-Status serializeData(const Vector<T, A>& value, CspContextSerializeData<S, PM>& context)
+enum class CspLayers
 {
-    RUN(serializeDataHelper(value.size(), context));
-    RUN(serializeDataHelper(value.data(), value.size(), context));
-    
-    return Status::kNoError;
-}
-
-template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeData(D& input, Vector<T, A>& value)
-{
-    value.clear();
-
-    typename Vector<T, A>::size_type size = 0;
-    RUN(SerializationProcessor::deserializeData(input, size));
-    RUN(value.reserve(size));
-    RUN(SerializationProcessor::deserializeData(input, size, value.data()));
-    value.m_dataSize = size;
-
-    return Status::kNoError;
-}
-
+    kHeader                 = 0,
+    kMessageSpecific        = 1,
+    KData                   = 2
+};
 
 } // namespace common_serialization

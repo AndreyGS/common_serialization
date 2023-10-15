@@ -41,7 +41,6 @@ public:
     using empty_type = std::true_type;
 
     static constexpr uint64_t kNameHash = 0;
-    static constexpr uint32_t kThisVersion = 0;              // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
 
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 0, 0 } };
@@ -70,7 +69,6 @@ public:
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 1;
-    static constexpr uint32_t kThisVersion = 2;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 2;            // latest version among all dependable structs
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 1, 2 }, { 10, 1 }, { 11, 0 } };
 
@@ -114,7 +112,6 @@ public:
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 2;
-    static constexpr uint32_t kThisVersion = 0;              // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 2;         // latest version among all dependable structs
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 2, 0 } };
 
@@ -186,7 +183,6 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 3;
-    static constexpr uint32_t kThisVersion = 0;
     static constexpr uint32_t kInterfaceVersion = 2;
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 3, 0 } };
 
@@ -218,7 +214,6 @@ public:
     virtual ~DynamicPolymorphicNotSerializable() {}
 
     static constexpr uint64_t kNameHash = 4;
-    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 4, 0 } };
 
@@ -249,7 +244,6 @@ public:
     virtual ~DynamicPolymorphicSerializable() {}
 
     static constexpr uint64_t kNameHash = 5;
-    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 5, 0 } };
 
@@ -331,7 +325,6 @@ public:
     using instance_type = GetCrtpMainType<DiamondSerializable<T>, T>;
 
     static constexpr uint64_t kNameHash = 8;
-    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 8, 0 } };
 
@@ -351,7 +344,6 @@ public:
     using instance_type = GetCrtpMainType<SpecialProcessingTypeContainSerializable<T>, T>;
 
     static constexpr uint64_t kNameHash = 9;
-    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 9, 0 } };
 

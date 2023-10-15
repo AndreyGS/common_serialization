@@ -99,9 +99,7 @@ constexpr Status SerializationProcessor::serializeData(const T* p, typename S::s
 
     S& output = context.getOutput();
     CspContextDataExtension<PM>& extension = context.getExtension();
-    const CspFlags flags = extension.getFlags();
-
-    RUN(output.pushBackArithmeticValue(n));
+    const CspFlags& flags = extension.getFlags();
 
     if (
            std::is_arithmetic_v<T> 
@@ -137,6 +135,8 @@ constexpr Status SerializationProcessor::serializeData(const T* p, typename S::s
             RUN(serializeDataHelper(p[i], context));
         }
     }
+
+    return Status::kNoError;
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM, typename S::size_type N>
@@ -157,7 +157,7 @@ constexpr Status SerializationProcessor::serializeData(const T& value, CspContex
 
     S& output = context.getOutput();
     CspContextDataExtension<PM>& extension = context.getExtension();
-    const CspFlags flags = extension.getFlags();
+    const CspFlags& flags = extension.getFlags();
 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
     {
@@ -452,6 +452,8 @@ constexpr Status SerializationProcessor::addPointerToMap(const T* p, CspContextS
             newPointer = false;
             RUN(output.pushBackArithmeticValue(it->second));
         }
+
+        return Status::kNoError;
     }
 }
 
@@ -460,7 +462,7 @@ constexpr Status SerializationProcessor::convertStructToOldIfNeed(const T& value
 {
     CspContextDataExtension<PM>& extension = context.getExtension();
 
-    if (const CspFlags flags = extension.getFlags(); flags.interfaceVersionsNotMatch)
+    if (const CspFlags& flags = extension.getFlags(); flags.interfaceVersionsNotMatch)
     {
         uint32_t thisVersionCompat = value.getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), extension.getInterfaceVersion());
 

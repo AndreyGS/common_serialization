@@ -97,19 +97,4 @@ constexpr Status deserializeDataHelper(D& input, T& value)
         return SerializationProcessor::deserializeData(input, value);
 }
 
-template<typename T, typename D>
-concept HasFreeDeserializeWithFlagsProcessorFunction = serialization_concepts::IDeserializationCapableContainer<D> && requires(T t)
-{
-    { deserializeData(*(new D), t) } -> std::same_as<Status>;
-};
-
-template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeDataHelper(D& input, CspFlags flags, T& value)
-{
-    if constexpr (HasFreeDeserializeWithFlagsProcessorFunction<T, D>)
-        return deserializeData(input, flags, value);
-    else
-        return SerializationProcessor::deserializeData(input, flags, value);
-}
-
 } // namespace common_serialization

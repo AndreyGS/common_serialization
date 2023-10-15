@@ -36,7 +36,6 @@ public:
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 10;
-    static constexpr uint32_t kThisVersion = 1;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 10, 1 }, { 11, 0 } };
 
@@ -71,7 +70,6 @@ public:
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 11;
-    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 11, 0 } };
 

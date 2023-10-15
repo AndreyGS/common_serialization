@@ -32,15 +32,25 @@
 namespace common_serialization
 {
 
-class CspContextHeader
+namespace csp
 {
-public:
-    constexpr CspContextHeader() noexcept {}
-    constexpr CspContextHeader(CspFlags flags, CspMessageType messageType, uint8_t protocolVersion) noexcept
-        : m_flags(flags), m_messageType(messageType), m_protocolVersion(protocolVersion)
+
+namespace context
+{
+
+template<typename Container>
+    requires serialization_concepts::ISerializationCapableContainer<Container>
+            || serialization_concepts::IDeserializationCapableContainer<Container>
+class Context
+{
+protected:
+    constexpr Context(Container& dataContainer, uint8_t protocolVersion, CspFlags flags, CspMessageType messageType) noexcept
+        : m_dataContainer(dataContainer), m_protocolVersion(protocolVersion), m_flags(flags), m_messageType(messageType)
     { }
 
-    constexpr CspFlags getFlags() const noexcept { return m_flags; }
+public:
+    constexpr CspFlags& getFlags() noexcept { return m_flags; }
+    constexpr const CspFlags& getFlags() const noexcept { return m_flags; }
     constexpr void setFlags(CspFlags flags) { m_flags = flags; }
 
     constexpr CspMessageType getMessageType() const noexcept { return m_messageType; }
@@ -50,12 +60,14 @@ public:
     constexpr void setProtocolVersion(uint8_t protocolVersion) { m_protocolVersion = protocolVersion; }
 
 private:
+    Container& m_dataContainer;
+    uint8_t m_protocolVersion{ CspTraits::getLatestProtocolVersion() };
     CspFlags m_flags;
     CspMessageType m_messageType = CspMessageType::kData;
-    uint8_t m_protocolVersion{ CspTraits::getLatestProtocolVersion() };
 };
 
-template<serialization_concepts::IPointersMap PM = HashMap>
+// unordered_map shall be replaced by common_serialization::HashMap when it would be ready
+template<serialization_concepts::IPointersMap PM = std::unordered_map<const void*, size_t>>
 class CspContextDataExtension : public CspContextHeader
 {
 public:
@@ -86,7 +98,7 @@ private:
     PM* m_pPointersMap{ nullptr };
 };
 
-template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM = HashMap>
+template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM = std::unordered_map<const void*, size_t>>
 class CspContextSerializeData
 {
 public:
@@ -113,7 +125,7 @@ private:
     CspContextDataExtension<PM> m_extension;
 };
 
-template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM = HashMap>
+template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM = std::unordered_map<const void*, size_t>>
 class CspContextDeserializeData
 {
 public:
@@ -139,5 +151,9 @@ private:
     D& m_input;
     CspContextDataExtension<PM> m_extension;
 };
+
+} // namespace context
+
+} // namespace csp
 
 } // namespace common_serialization
