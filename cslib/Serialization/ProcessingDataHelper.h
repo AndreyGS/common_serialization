@@ -23,21 +23,25 @@
 
 #pragma once
 
-#include "ISerializable.h"
-
 namespace common_serialization
 {
 
-template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status serializeDataHelper(const T* p, size_t n, CspContextSerializeData<S, PM>& context)
+namespace csp
 {
-    return SerializationProcessor::serializeData(p, n, context);
+
+namespace processing
+{
+
+template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
+constexpr Status serializeDataHelper(const T* p, size_t n, context::Data<S, PM>& context)
+{
+    return DataProcessor::serializeData(p, n, context);
 }
 
 template<typename T, size_t N, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status serializeDataHelper(const T(&arr)[N], CspContextSerializeData<S, PM>& output)
+constexpr Status serializeDataHelper(const T(&arr)[N], context::Data<S, PM>& output)
 {
-    return SerializationProcessor::serializeData(arr, output);
+    return DataProcessor::serializeData(arr, output);
 }
 
 template<typename T, typename S, typename PM>
@@ -46,55 +50,50 @@ concept HasFreeSerializeProcessorFunction
     && serialization_concepts::IPointersMap<PM>
     && requires(const T& t)
 {
-    { serializeData(t, *(new CspContextSerializeData<S, PM>(*(new S)))) } -> std::same_as<Status>;
+    { serializeData(t, *(new context::Data<S, PM>())) } -> std::same_as<Status>;
 };
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status serializeDataHelper(const T& value, CspContextSerializeData<S, PM>& context)
+constexpr Status serializeDataHelper(const T& value, context::Data<S, PM>& context)
 {
     if constexpr (HasFreeSerializeProcessorFunction<T, S, PM>)
         return serializeData(value, context);
     else
-        return SerializationProcessor::serializeData(value, context);
+        return DataProcessor::serializeData(value, context);
 }
 
-template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeDataHelper(D& input, size_t n, T* p)
+template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+constexpr Status deserializeDataHelper(context::Data<D, PM>& context, size_t n, T* p)
 {
-    return SerializationProcessor::deserializeData(input, n, p);
+    return DataProcessor::deserializeData(context, n, p);
 }
 
-template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeDataHelper(D& input, size_t n, CspFlags flags, T* p)
+template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+constexpr Status deserializeDataHelper(context::Data<D, PM>& context, T(&arr)[N])
 {
-    return SerializationProcessor::deserializeData(input, n, flags, p);
+    return DataProcessor::deserializeData(context, arr);
 }
 
-template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeDataHelper(D& input, T(&arr)[N])
+template<typename T, typename D, typename PM>
+concept HasFreeDeserializeProcessorFunction 
+    = serialization_concepts::IDeserializationCapableContainer<D> 
+    && serialization_concepts::IPointersMap<PM>
+    && requires(const T& t)
 {
-    return SerializationProcessor::deserializeData(input, arr);
-}
-
-template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeDataHelper(D& input, CspFlags flags, T(&arr)[N])
-{
-    return SerializationProcessor::deserializeData(input, flags, arr);
-}
-
-template<typename T, typename D>
-concept HasFreeDeserializeProcessorFunction = serialization_concepts::IDeserializationCapableContainer<D> && requires(T t)
-{
-    { deserializeData(*(new D), t) } -> std::same_as<Status>;
+    { deserializeData(t, *(new context::Data<D, PM>())) } -> std::same_as<Status>;
 };
 
-template<typename T, serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeDataHelper(D& input, T& value)
+template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+constexpr Status deserializeDataHelper(context::Data<D, PM>& context, T& value)
 {
-    if constexpr (HasFreeDeserializeProcessorFunction<T, D>)
-        return deserializeData(input, value);
+    if constexpr (HasFreeDeserializeProcessorFunction<T, D, PM>)
+        return deserializeData(context, value);
     else
-        return SerializationProcessor::deserializeData(input, value);
+        return DataProcessor::deserializeData(context, value);
 }
+
+} // namespace processing
+
+} // namespace csp
 
 } // namespace common_serialization

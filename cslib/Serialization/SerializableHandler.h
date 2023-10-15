@@ -96,10 +96,10 @@ public:
     uint32_t getStructVersionThis() { return m_structVersionThis; }
     uint32_t getStructVersionInterface() { return m_structVersionInterface; }
 
-    virtual Status processCommon(uint8_t protocolVersion, CspFlags flags, uint32_t interfaceVersion, Walker<uint8_t>& input, Vector<uint8_t>& output) = 0;
+    virtual Status processCommon(uint8_t protocolVersion, Flags flags, uint32_t interfaceVersion, Walker<uint8_t>& input, Vector<uint8_t>& output) = 0;
     /*
     template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::ISerializationCapableContainer S>
-    Status EnterHandler(D& input, CspFlags flags, S& output)
+    Status EnterHandler(D& input, Flags flags, S& output)
     {
         In inStruct;
         RUN(inStruct.deserializeData(input, flags));
@@ -132,14 +132,14 @@ public:
         return ISerializable<In>::getThisVersion();
     }
     /*
-    Status processCommon(uint8_t protocolVersion, CspFlags flags, uint32_t interfaceVersion, Walker<uint8_t>& input, Vector<uint8_t>& output) override
+    Status processCommon(uint8_t protocolVersion, Flags flags, uint32_t interfaceVersion, Walker<uint8_t>& input, Vector<uint8_t>& output) override
     {
         output.clear();
         if (MinimumSupportedInterfaceVersion > interfaceVersion)
         {
             output
         }
-            return Status::kErrorNotSupportedSerializationInterfaceVersion;
+            return Status::kErrorNotSupportedInterfaceVersion;
         else if (getStructVersionInterface() > interfaceVersion && !flags.interfaceVersionsNotMatch)
         {
 
@@ -148,7 +148,7 @@ public:
     }*/
     /*
     template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::ISerializationCapableContainer S>
-    Status EnterHandler(D& input, CspFlags flags, S& output)
+    Status EnterHandler(D& input, Flags flags, S& output)
     {
         In inStruct;
         RUN(inStruct.deserializeData(input, flags));

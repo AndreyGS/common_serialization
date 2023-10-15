@@ -44,9 +44,15 @@
 namespace common_serialization
 {
 
+namespace csp
+{
+
+namespace processing
+{
+
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
+    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
 {
     CONVERT_TO_OLD_IF_NEED(value, context);
 
@@ -57,8 +63,8 @@ constexpr Status SerializationProcessor::serializeData(const special_types::Simp
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value
-    , CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value
+    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
 {
     RUN(serializeDataHelper(value.m_r, context));
     RUN(serializeDataHelper(value.m_arrR, context));
@@ -67,8 +73,8 @@ constexpr Status SerializationProcessor::serializeData(const special_types::Dyna
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value
-    , CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value
+    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
 {
     RUN(serializeDataHelper(value.m_o, context));
     RUN(serializeDataHelper(value.m_dpNS, context));
@@ -80,8 +86,8 @@ constexpr Status SerializationProcessor::serializeData(const special_types::Dyna
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value
-    , CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+constexpr Status DataProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value
+    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
 {
     RUN(serializeDataHelper(value.m_d0, context));
 
@@ -89,8 +95,8 @@ constexpr Status SerializationProcessor::serializeData(const special_types::Diam
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value
-    , CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value
+    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
 {
     RUN(serializeDataHelper(static_cast<const special_types::DiamondBaseNotSerializable&>(value), context));
     RUN(serializeDataHelper(value.m_d1, context));
@@ -99,8 +105,8 @@ constexpr Status SerializationProcessor::serializeData(const special_types::Diam
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value
-    , CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value
+    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
 {
     RUN(serializeDataHelper(static_cast<const special_types::DiamondBaseNotSerializable&>(value), context));
     RUN(serializeDataHelper(value.m_d2, context));
@@ -109,8 +115,8 @@ constexpr Status SerializationProcessor::serializeData(const special_types::Diam
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DiamondSerializable<>& value
-    , CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+constexpr Status DataProcessor::serializeData(const special_types::DiamondSerializable<>& value
+    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
 {
     RUN(serializeDataHelper(static_cast<const special_types::DiamondEdge1NotSerializable&>(value), context));
     RUN(serializeDataHelper(static_cast<const special_types::DiamondEdge2NotSerializable&>(value), context));
@@ -119,13 +125,17 @@ constexpr Status SerializationProcessor::serializeData(const special_types::Diam
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value
-    , CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+constexpr Status DataProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value
+    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
 {
     RUN(serializeDataHelper(value.m_vec, context));
 
     return Status::kNoError;
 }
+
+} // namespace processing
+
+} // namespace csp
 
 } // namespace common_serialization
 

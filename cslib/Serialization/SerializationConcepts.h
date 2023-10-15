@@ -46,7 +46,7 @@ concept ISerializationCapableContainer
 
              { e.reserve(1) } -> std::same_as<Status>;
              { e.pushBackN(nullptr, 0) } -> std::same_as<Status>;
-             { e.pushBackArithmeticValue(1ll) } -> std::same_as<Status>;
+             { e.pushBackArithmeticValue(1ull) } -> std::same_as<Status>;
          } 
     && std::is_same_v<typename S::value_type, uint8_t>;
 
@@ -65,12 +65,12 @@ concept IDeserializationCapableContainer
              { e.seek(0) } -> std::same_as<Status>;
              
              { e.read(nullptr, 0) } -> std::same_as<Status>;
-             { e.readArithmeticValue(*(new int)) } -> std::same_as<Status>;
+             { e.readArithmeticValue(*(new unsigned)) } -> std::same_as<Status>;
          } 
     && std::is_same_v<typename D::value_type, uint8_t>;
 
 template<typename PM>
-concept IPointersMap
+concept ISerializationPointersMap
     = requires(PM pm)
         {
             typename PM::key_type;
@@ -81,6 +81,22 @@ concept IPointersMap
             { pm[*(new typename PM::key_type)] } -> std::same_as<typename PM::mapped_type&>;
         }
     && std::is_same_v<typename PM::key_type, const void*> && std::is_same_v<typename PM::mapped_type, size_t>;
+
+template<typename PM>
+concept IDeserializationPointersMap
+    = requires(PM pm)
+        {
+            typename PM::key_type;
+            typename PM::mapped_type;
+            
+            { pm.find(1) };
+            { pm.end() };
+            { pm[*(new typename PM::key_type)] } -> std::same_as<typename PM::mapped_type&>;
+        }
+    && std::is_same_v<typename PM::key_type, size_t> && std::is_same_v<typename PM::mapped_type, const void*>;
+
+template<typename PM>
+concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;
 
 template<typename T>
 concept FixSizedArithmeticType

@@ -23,52 +23,38 @@
 
 #pragma once
 
-#include "SerializationProcessor.h"
-#include "CspBase.h"
-#include "CspLayers.h"
+#include "Processing.h"
+#include "ProcessingDataProcessor.h"
 
 namespace common_serialization
+{
+
+namespace csp
 {
 
 // ISerializable base must have permanent size regardless of platform alignment
 #pragma pack(push, 1)
 
 template<typename T>
-class ISerializable : public CspBase
+class ISerializable
 {
 public:
     using instance_type = T;
 
-
-    // first function to call on new serialize operation
     template<serialization_concepts::ISerializationCapableContainer S>
     constexpr Status serialize(S& output) const noexcept;
-    // first function to call on new serialize operation
     template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    constexpr Status serialize(CspContextSerializeData<S, PM>& context) const noexcept;
-
-    // calling in subsequent serializations of nested fields/types or if one need to serialize another struct
-    // and there must be no changes in header relative fields after previous serialize call
-    template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    constexpr Status serializeMessageData(CspContextSerializeData<S, PM>& context) const noexcept;
+    constexpr Status serialize(context::Data<S, PM>& context) const noexcept;
 
     template<serialization_concepts::IDeserializationCapableContainer D>
     constexpr Status deserialize(D& input);
-
     template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-    constexpr Status deserialize(CspContextDeserializeData<D, PM>& context, CspLayers maxLayerToProcess);
+    constexpr Status deserialize(context::Data<D, PM>& context);
 
-    template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-    constexpr Status deserializeMessageData(CspContextDeserializeData<D, PM>& context, CspLayers maxLayerToProcess);
-    
-    template<serialization_concepts::IDeserializationCapableContainer D>
-    constexpr Status deserializeDataCompat(D& input, CspFlags flags, uint8_t foreignProtocolVersion, uint32_t minimumSupportedInterfaceVersion);
-    
-    [[nodiscard]] static constexpr uint64_t* getMembers() noexcept;
     [[nodiscard]] static constexpr uint64_t getNameHash() noexcept;
     [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
     [[nodiscard]] static constexpr uint32_t getInterfaceVersion() noexcept;
-    [[nodiscard]] static constexpr const StructNameHashAndVersion* getVersionsHierarchy() noexcept;
+    [[nodiscard]] static constexpr const traits::NameHashAndVersion* getVersionsHierarchy() noexcept;
     [[nodiscard]] static constexpr uint32_t getVersionsHierarchySize() noexcept;
 };
 
@@ -78,149 +64,43 @@ template<typename T>
 template<serialization_concepts::ISerializationCapableContainer S>
 constexpr Status ISerializable<T>::serialize(S& output) const noexcept
 {
-    CspContextSerializeData<S> context(output);
+    context::Data<S> context(output);
 
     return serialize(context);
 }
 
 template<typename T>
 template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status ISerializable<T>::serialize(CspContextSerializeData<S, PM>& context) const noexcept
+constexpr Status ISerializable<T>::serialize(context::Data<S, PM>& context) const noexcept
 {
-    RUN(serializeHeader(context.getOutput(), static_cast<const CspContextHeader&>(context.getExtension())));
+    RUN(processing::serializeHeaderContext(context));
+    RUN(processing::serializeDataContext<T>(context));
 
-    return serializeData(context);
-}
-
-template<typename T>
-template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status ISerializable<T>::serializeMessageData(CspContextSerializeData<S, PM>& context) const noexcept
-{
-    S& output = context.getOutput();
-
-    if (CspContextDataExtension<PM>& contextExtension = context.getExtension(); contextExtension)
-    {
-        const CspFlags& flags = contextExtension.getFlags();
-
-        if (flags.interfaceVersionsNotMatch
-            && isInterfaceVersionSupported(contextExtension.getInterfaceVersion()
-                , getVersionsHierarchy()[getVersionsHierarchySize() - 1].thisVersion, getVersionsHierarchy()[0].thisVersion))
-        {
-            return Status::kErrorNotSupportedSerializationInterfaceVersion;
-        }
-
-        if (flags.extendedPointersProcessing && contextExtension.getPointersMap() == nullptr)
-            return Status::kErrorInvalidArgument;
-    }
-
-    RUN(output.pushBackArithmeticValue(getInterfaceVersion()));
-    RUN(output.pushBackArithmeticValue(getNameHash()));
-
-    return serializeDataHelper(static_cast<const T&>(*this), context);
+    return processing::serializeDataHelper(static_cast<const T&>(*this), context);
 }
 
 template<typename T>
 template<serialization_concepts::IDeserializationCapableContainer D>
 constexpr Status ISerializable<T>::deserialize(D& input)
 {
-    CspContextDeserializeData<D> context(input);
+    context::Data<D> context(input);
 
-    return deserialize(context)
+    return deserialize(context);
 }
 
 template<typename T>
 template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-constexpr Status ISerializable<T>::deserialize(CspContextDeserializeData<D, PM>& context, CspLayers maxLayerToProcess)
+constexpr Status ISerializable<T>::deserialize(context::Data<D, PM>& context)
 {
-    CspContextDataExtension& extension = context.getExtension();
-
-    uint8_t minimalProtocolVersion = extension.getProtocolVersion();
-
-    RUN(deserializeHeader(context.getInput(), static_cast<const CspContextHeader&>(extension)));
-
-    if (minimalProtocolVersion > extension.getProtocolVersion())
-        return Status::kErrorNotSupportedSerializationProtocolVersion;
-    else if (!isProtocolVersionSameAsLatestOur(extension.getProtocolVersion))
-        extension.getFlags().protocolVersionsNotMatch = true;
-
-    if (maxLayerToProcess == CspLayers::kHeader)
-        return Status::kNoError;
-
-    if (messageType == CspMessageType::kData)
-        return deserializeData(input, context);
-    else
-        return Status::kErrorInvalidArgument;
-}
-
-template<typename T>
-template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-constexpr Status ISerializable<T>::deserializeMessageData(CspContextDeserializeData<D, PM>& context, CspLayers maxLayerToProcess)
-{
-    CspContextDataExtension& extension = context.getExtension();
-    const CspFlags& flags = extension.getFlags();
+    RUN(processing::deserializeHeaderContext(context));
 
     uint64_t nameHash = 0;
-    RUN(input.readArithmeticValue(nameHash));
+    uint32_t minimumInterfaceVersion = context.getInterfaceVersion();
 
-    if (getNameHash() != nameHash)
-        return Status::kErrorMismatchOfStructNameHash;
-
-    uint32_t minimalInterfaceVersion = extension.getInterfaceVersion();
-    uint32_t inputInterfaceVersion = 0;
-
-    RUN(input.readArithmeticValue(inputInterfaceVersion));
-
-    extension.setInterfaceVersion(inputInterfaceVersion);
-
-    if (!isInterfaceVersionSupported(extension.getInterfaceVersion(), minimalInterfaceVersion, getInterfaceVersion()))
-        return Status::kErrorNotSupportedSerializationInterfaceVersion;
-    else if (extension.getInterfaceVersion() != getInterfaceVersion() && !flags.interfaceVersionsNotMatch)
-        return Status::kErrorMismatchOfSerializationInterfaceVersions;
-            
+    RUN(processing::deserializeDataContext(context, nameHash));
+    RUN(processing::deserializeDataContextPostprocess<T>(context, nameHash, minimumInterfaceVersion));
     
-
-    if (!flags)
-        return SerializationProcessor::deserializeData(input, static_cast<T&>(*this));
-
-    // temporary dummy
-    return Status::kErrorInvalidArgument;
-}
-
-template<typename T>
-template<serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status ISerializable<T>::deserializeDataCompat(D& input, CspFlags flags, uint8_t foreignProtocolVersion, uint32_t minimumSupportedInterfaceVersion)
-{
-    uint32_t foreignInterfaceVersion = 0;
-    RUN(input.readArithmeticValue(foreignInterfaceVersion));
-
-    if (getInterfaceVersion() != foreignInterfaceVersion)
-    {
-        if (!isInterfaceVersionCompat(getInterfaceVersion(), minimumSupportedInterfaceVersion, foreignInterfaceVersion))
-            return Status::kErrorNotSupportedSerializationInterfaceVersion;
-
-        if (!flags.interfaceVersionsNotMatch)
-            return Status::kErrorMismatchOfSerializationInterfaceVersions;
-
-        return SerializationProcessor::deserializeDataCompat(input, flags, foreignProtocolVersion, foreignInterfaceVersion, static_cast<T&>(*this));
-    }
-
-    /*
-    if (getInterfaceVersion() < inputInterfaceVersion)
-        return Status::kErrorNotSupportedSerializationInterfaceVersion;
-    else if (getInterfaceVersion() > inputInterfaceVersion)
-        flags.interfaceVersionsNotMatch = true;*/
-
-    if (!flags)
-        return SerializationProcessor::deserializeData(input, static_cast<T&>(*this));
-
-    // temporary dummy
-    return Status::kErrorInvalidArgument;
-}
-
-template<typename T>
-[[nodiscard]] constexpr uint64_t* ISerializable<T>::getMembers() noexcept
-{
-    return T::kMembers;
+    return processing::deserializeDataHelper(context, static_cast<T&>(*this));
 }
 
 template<typename T>
@@ -242,7 +122,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr const StructNameHashAndVersion* ISerializable<T>::getVersionsHierarchy() noexcept
+[[nodiscard]] constexpr const traits::NameHashAndVersion* ISerializable<T>::getVersionsHierarchy() noexcept
 {
     return T::kVersionsHierarchy;
 }
@@ -252,5 +132,7 @@ template<typename T>
 {
     return std::size(T::kVersionsHierarchy);
 }
+
+} // namespace csp
 
 } // namespace common_serialization

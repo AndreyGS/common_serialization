@@ -31,6 +31,18 @@
 namespace common_serialization
 {
 
+namespace csp
+{
+
+namespace processing
+{
+
+class DataProcessor;
+
+}
+
+}
+
 template<typename Vec>
 class ConstVectorIterator
 {
@@ -406,8 +418,7 @@ private:
     AllocatorHelper m_allocatorHelper;
 
 private:
-    template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D>
-    friend Status deserializeData(D& input, Vector<T, A>& value);
+    friend class csp::processing::DataProcessor;
 };
 
 template<typename T, typename AllocatorHelper>

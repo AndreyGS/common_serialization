@@ -1,5 +1,5 @@
 /**
- * @file SerializationSpecialStructs.h
+ * @file ProcessingSpecial.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,13 +23,17 @@
 
 #pragma once
 
-#include "SerializationDataHelper.h"
-
 namespace common_serialization
 {
 
+namespace csp
+{
+
+namespace processing
+{
+
 template<typename T, typename A, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-Status serializeData(const Vector<T, A>& value, CspContextSerializeData<S, PM>& context)
+Status serializeData(const Vector<T, A>& value, context::Data<S, PM>& context)
 {
     RUN(serializeDataHelper(value.size(), context));
     RUN(serializeDataHelper(value.data(), value.size(), context));
@@ -37,19 +41,22 @@ Status serializeData(const Vector<T, A>& value, CspContextSerializeData<S, PM>& 
     return Status::kNoError;
 }
 
-template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeData(D& input, Vector<T, A>& value)
+template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
+Status deserializeData(context::Data<D, PM>& input, Vector<T, A>& value)
 {
     value.clear();
 
     typename Vector<T, A>::size_type size = 0;
-    RUN(SerializationProcessor::deserializeData(input, size));
+    RUN(deserializeDataHelper(input, size));
     RUN(value.reserve(size));
-    RUN(SerializationProcessor::deserializeData(input, size, value.data()));
+    RUN(deserializeDataHelper(input, size, value.data()));
     value.m_dataSize = size;
 
     return Status::kNoError;
 }
 
+} // namespace processing
+
+} // namespace csp
 
 } // namespace common_serialization

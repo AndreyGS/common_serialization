@@ -1,5 +1,5 @@
 /**
- * @file CspTraits.h
+ * @file Traits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,50 +23,43 @@
 
 #pragma once
 
-#include "CspContext.h"
+#include "Context.h"
 
 namespace common_serialization
 {
 
-struct StructNameHashAndVersion
+namespace csp
+{
+
+namespace traits
+{
+
+struct NameHashAndVersion
 {
     uint64_t nameHash{ 0 };
     uint32_t thisVersion{ 0 };
 };
 
-class CspTraits
-{
-public:
-    static constexpr uint8_t kProtocolVersions[] = { 1 };
-    static constexpr uint8_t kProtocolVersionMax = 0xff;
-    static constexpr uint32_t kInterfaceVersionMax = 0xffffffff;
+inline constexpr uint8_t kProtocolVersions[] = { 1 };
+inline constexpr uint8_t kProtocolVersionMax = 0xff;
+inline constexpr uint32_t kInterfaceVersionMax = 0xffffffff;
 
-    static constexpr uint8_t getLatestProtocolVersion();
-    static constexpr bool isProtocolVersionSameAsLatestOur(uint8_t foreignProtocolVersion);
-    static constexpr uint8_t getProtocolVersionsCount();
-    static constexpr bool isProtocolVersionSupported(uint8_t foreignProtocolVersion) noexcept;
-    static constexpr bool isInterfaceVersionSupported(uint32_t version, uint32_t minVersion, uint32_t maxVersion) noexcept;
-    // Used to find version of struct to which we shall serialize when we are in compat mode
-    static constexpr uint32_t getBestCompatInterfaceVersion(const StructNameHashAndVersion* supportedInterfaceVersions
-        , uint32_t supportedInterfaceVersionsSize, uint32_t compatInterfaceVersion) noexcept;
-};
-
-constexpr uint8_t CspTraits::getLatestProtocolVersion()
+constexpr uint8_t getLatestProtocolVersion()
 {
     return kProtocolVersions[0];
 }
 
-constexpr bool CspTraits::isProtocolVersionSameAsLatestOur(uint8_t foreignProtocolVersion)
+constexpr bool isProtocolVersionSameAsLatestOur(uint8_t foreignProtocolVersion)
 {
     return getLatestProtocolVersion() == foreignProtocolVersion;
 }
 
-constexpr uint8_t CspTraits::getProtocolVersionsCount()
+constexpr uint8_t getProtocolVersionsCount()
 {
     return std::size(kProtocolVersions);
 }
 
-constexpr bool CspTraits::isProtocolVersionSupported(uint8_t foreignProtocolVersion) noexcept
+constexpr bool isProtocolVersionSupported(uint8_t foreignProtocolVersion) noexcept
 {
     for (uint8_t i = 0; i < getProtocolVersionsCount(); ++i)
         if (foreignProtocolVersion == kProtocolVersions[i])
@@ -75,13 +68,13 @@ constexpr bool CspTraits::isProtocolVersionSupported(uint8_t foreignProtocolVers
     return false;
 }
 
-constexpr bool CspTraits::isInterfaceVersionSupported(uint32_t version, uint32_t minVersion, uint32_t maxVersion) noexcept
+constexpr bool isInterfaceVersionSupported(uint32_t version, uint32_t minVersion, uint32_t maxVersion) noexcept
 {
     return maxVersion >= version && version <= minVersion;
 }
 
 // Used to find version of struct to which we shall serialize when we are in compat mode
-constexpr uint32_t CspTraits::getBestCompatInterfaceVersion(const StructNameHashAndVersion* supportedInterfaceVersions
+constexpr uint32_t getBestCompatInterfaceVersion(const NameHashAndVersion* supportedInterfaceVersions
     , uint32_t supportedInterfaceVersionsSize, uint32_t compatInterfaceVersion) noexcept
 {
     for (uint32_t i = 0; i < supportedInterfaceVersionsSize; ++i)
@@ -90,5 +83,9 @@ constexpr uint32_t CspTraits::getBestCompatInterfaceVersion(const StructNameHash
 
     return kInterfaceVersionMax;
 }
+
+} // namespace traits
+
+} // namespace csp
 
 } // namespace common_serialization

@@ -449,5 +449,18 @@ std::size_t size(T(&)[N])
     return N;
 }
 
+template <bool Test, class T1, class T2>
+struct conditional
+{
+    using type = T1;
+};
+
+template <class T1, class T2>
+struct conditional<false, T1, T2> {
+    using type = T2;
+};
+
+template <bool Test, class T1, class T2>
+using conditional_t = typename conditional<Test, T1, T2>::type;
 
 } // namespace std

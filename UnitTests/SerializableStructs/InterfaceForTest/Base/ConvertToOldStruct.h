@@ -35,9 +35,15 @@
 namespace common_serialization
 {
 
+namespace csp
+{
+
+namespace processing
+{
+
 template<>
-constexpr Status SerializationProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , uint32_t thisVersionCompat, CspContextSerializeData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context) noexcept
+constexpr Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
+    , uint32_t thisVersionCompat, context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context) noexcept
 {
     // If value version is the same as thisVersionCompat there is a programmatic error
     assert(value.getThisVersion() != thisVersionCompat);
@@ -56,10 +62,14 @@ constexpr Status SerializationProcessor::convertToOldStruct(const special_types:
         compatVersion.m_x = value.m_x;
         compatVersion.m_y = value.m_y;
 
-        RUN(serializeDataLegacy(compatVersion, context));
+        RUN(serializeDataLegacy(value, context));
     }
     return Status::kNoFurtherProcessingRequired;
 }
+
+} // namespace processing
+
+} // namespace csp
 
 } // namespace common_serialization
 

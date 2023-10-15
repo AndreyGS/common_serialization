@@ -1,5 +1,5 @@
 /**
- * @file CspMessageType.h
+ * @file ContextMessage.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,29 +23,63 @@
 
 #pragma once
 
-enum class CspMessageType : uint_fast32_t
+namespace common_serialization
+{
+
+namespace csp
+{
+
+namespace context
+{
+
+enum class Message : uint_fast32_t
 {
     kData = 0x0,                            // default message type
                                             //
-                                            // message body format:
+                                            // message format:
                                             //
                                             // {
-                                            //     uint32_t interfaceVersion;
-                                            //     uint64_t structNameHash;
-                                            //     uint8_t serializedData[anysize]; // rest of the data varies by CspFlags that was set
-                                            //                                      // and data that was serialized
+                                            //     struct
+                                            //     {
+                                            //         uint64_t structNameHash;
+                                            //         uint32_t interfaceVersion;
+                                            //     } dataSpecificHeader;
+                                            //     
+                                            //     struct
+                                            //     {
+                                            //         uint8_t serializedData[anysize];
+                                            //     } binaryData; // varies by Flags that was set and struct that was serialized
                                             // }
                                             //
-    kNotSupportedProtocol = 0x1,            // sends when serialization protocol is not supported
+    kStatus = 0x1                           // format of message depends on status code
                                             //
-                                            // message body format:
+                                            // {
+                                            //     struct
+                                            //     {
+                                            //         Status status;
+                                            //     } dataSpecificHeader;
+                                            // 
+                                            //     struct
+                                            //     {
+                                            //         uint8_t serializedData[anysize];
+                                            //     } binaryData; // varies by Flags that was set and struct that was serialized
+                                            // }
+                                            // 
+                                            //
+                                            // Status == kErrorNotSupportedProtocolVersion
+                                            //
+                                            // sends when serialization protocol is not supported
+                                            //
+                                            // message binaryData format:
                                             //
                                             // {
                                             //     uint8_t supportedProtocolsVersionsSize;
                                             //     uint8_t supportedProtocolsVersions[supportedProtocolsVersionsSize];
                                             // }
+                                            // 
+                                            // Status == kNotSupportedInterfaceVersion
                                             //
-    kNotSupportedInterfaceVersion = 0x2,    // sends when low supported version is bigger or
+                                            // sends when low supported version is bigger or
                                             // high version is lesser than in serialized data
                                             // 
                                             // message body format:
@@ -56,9 +90,11 @@ enum class CspMessageType : uint_fast32_t
                                             //     uint32_t maximalSupportedInterfaceVersion;
                                             // }
                                             // 
-    kMismatchOfInterfaceVersions = 0x2,     // sends when its primal (latest) version not
+                                            // Status == kMismatchOfInterfaceVersions
+                                            // 
+                                            // sends when its primal (latest) version not
                                             // equal to version of input data, but version of input data
-                                            // is supported and CspFlags::interfaceVersionsNotMatch is false
+                                            // is supported and Flags::interfaceVersionsNotMatch is false
                                             // 
                                             // message body format
                                             // 
@@ -67,4 +103,12 @@ enum class CspMessageType : uint_fast32_t
                                             // }
                                             //                                      
 };
+
+}
+
+}
+
+}
+
+
 

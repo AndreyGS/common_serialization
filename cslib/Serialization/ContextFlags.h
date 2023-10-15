@@ -1,5 +1,5 @@
 /**
- * @file CspFlags.h
+ * @file ContextFlags.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,7 +26,13 @@
 namespace common_serialization
 {
 
-struct CspFlags
+namespace csp
+{
+    
+namespace context
+{
+
+struct Flags
 {
     uint32_t protocolVersionsNotMatch               : 1 = 0;
     uint32_t interfaceVersionsNotMatch              : 1 = 0;    // when this flag is set, it's also indicates that
@@ -37,42 +43,44 @@ struct CspFlags
                                                                 // except you are really know what you are doing
     
     uint32_t extendedPointersProcessing             : 1 = 0;
-    uint32_t reserved                               :19 = 0;
-    uint32_t doNotUse                               : 8 = 0;    // this bit-field shall have only 24 significant bits
-                                                                // 8 bits are using for serialization protocol version
+    uint32_t reserved                               :27 = 0;
 
-    constexpr CspFlags() noexcept;
-    explicit constexpr CspFlags(uint32_t value) noexcept;
+    constexpr Flags() noexcept;
+    explicit constexpr Flags(uint32_t value) noexcept;
 
-    constexpr CspFlags& operator=(uint32_t value) noexcept;
+    constexpr Flags& operator=(uint32_t value) noexcept;
 
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
 };
 
-constexpr CspFlags::CspFlags() noexcept {}
+constexpr Flags::Flags() noexcept {}
 
-constexpr CspFlags::CspFlags(uint32_t value) noexcept
+constexpr Flags::Flags(uint32_t value) noexcept
 {
     operator=(value);
 }
 
-constexpr CspFlags& CspFlags::operator=(uint32_t value) noexcept
+constexpr Flags& Flags::operator=(uint32_t value) noexcept
 {
-    return *static_cast<CspFlags*>
+    return *static_cast<Flags*>
         (static_cast<void*>(
             &(*static_cast<uint32_t*>(
                 static_cast<void*>(this)) = value)));
 }
 
-[[nodiscard]] constexpr CspFlags::operator uint32_t() const noexcept
+[[nodiscard]] constexpr Flags::operator uint32_t() const noexcept
 {
     return (*static_cast<const uint32_t*>(static_cast<const void*>(this)) & 0xffffff);
 }
 
-[[nodiscard]] constexpr CspFlags::operator bool() const noexcept
+[[nodiscard]] constexpr Flags::operator bool() const noexcept
 {
     return static_cast<uint32_t>(*this) != 0;
 }
+
+} // namespace context
+
+} // namespace csp
 
 } // namespace common_serialization

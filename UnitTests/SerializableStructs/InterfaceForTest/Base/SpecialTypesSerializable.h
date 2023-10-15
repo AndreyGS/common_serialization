@@ -34,7 +34,7 @@ struct EmptyTypeNotSerializable
 };
 
 template<typename T = Dummy>
-class EmptyTypeSerializable : public ISerializable<GetCrtpMainType<EmptyTypeSerializable<T>, T>>
+class EmptyTypeSerializable : public csp::ISerializable<GetCrtpMainType<EmptyTypeSerializable<T>, T>>
 {
 public:
     using instance_type = GetCrtpMainType<EmptyTypeSerializable<T>, T>;
@@ -43,7 +43,7 @@ public:
     static constexpr uint64_t kNameHash = 0;
     static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
 
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 0, 0 } };
+    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 0, 0 } };
 };
 
 #pragma pack(push, 1)
@@ -62,7 +62,7 @@ struct SimpleAssignableAlignedToOneNotSerializable
 };
 
 template<typename T = Dummy>
-class SimpleAssignableAlignedToOneSerializable : public ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable<T>, T>>
+class SimpleAssignableAlignedToOneSerializable : public csp::ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable<T>, T>>
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable<T>, T>;
@@ -70,7 +70,7 @@ public:
 
     static constexpr uint64_t kNameHash = 1;
     static constexpr uint32_t kInterfaceVersion = 2;            // latest version among all dependable structs
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 1, 2 }, { 10, 1 }, { 11, 0 } };
+    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 1, 2 }, { 10, 1 }, { 11, 0 } };
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
@@ -86,7 +86,7 @@ private:
     uint8_t m_x{ 0 };
     uint8_t m_y{ 0 };
 
-    friend SerializationProcessor;
+    friend csp::processing::DataProcessor;
 };
 
 #pragma pack(pop)
@@ -105,7 +105,7 @@ struct SimpleAssignableNotSerializable
 };
 
 template<typename T = Dummy>
-class SimpleAssignableSerializable : public ISerializable<GetCrtpMainType<SimpleAssignableSerializable<T>, T>>
+class SimpleAssignableSerializable : public csp::ISerializable<GetCrtpMainType<SimpleAssignableSerializable<T>, T>>
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableSerializable<T>, T>;
@@ -113,7 +113,7 @@ public:
 
     static constexpr uint64_t kNameHash = 2;
     static constexpr uint32_t kInterfaceVersion = 2;         // latest version among all dependable structs
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 2, 0 } };
+    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 2, 0 } };
 
     [[nodiscard]] uint8_t& getI()                                                                 noexcept { return m_i; }
     [[nodiscard]] const uint8_t& getI()                                                     const noexcept { return m_i; }
@@ -184,7 +184,7 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
 
     static constexpr uint64_t kNameHash = 3;
     static constexpr uint32_t kInterfaceVersion = 2;
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 3, 0 } };
+    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 3, 0 } };
 
     uint32_t v{ 0 };
     
@@ -215,7 +215,7 @@ public:
 
     static constexpr uint64_t kNameHash = 4;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 4, 0 } };
+    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 4, 0 } };
 
     [[nodiscard]] uint8_t& getR()                 noexcept { return m_r; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getR()     const noexcept { return m_r; }    // (not required for serialization itself)
@@ -232,11 +232,11 @@ private:
     uint8_t m_r{ 0 };
     uint8_t m_arrR[3]{ 0 };
 
-    friend SerializationProcessor;
+    friend csp::processing::DataProcessor;
 };
 
 template<typename T = Dummy>
-class DynamicPolymorphicSerializable : public ISerializable<GetCrtpMainType<DynamicPolymorphicSerializable<T>, T>>
+class DynamicPolymorphicSerializable : public csp::ISerializable<GetCrtpMainType<DynamicPolymorphicSerializable<T>, T>>
 {
 public:
     using instance_type = GetCrtpMainType<DynamicPolymorphicSerializable<T>, T>;
@@ -245,7 +245,7 @@ public:
 
     static constexpr uint64_t kNameHash = 5;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 5, 0 } };
+    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 5, 0 } };
 
     [[nodiscard]] uint8_t& getO()                 noexcept { return m_o; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getO()     const noexcept { return m_o; }    // (not required for serialization itself)
@@ -276,7 +276,7 @@ private:
     uint8_t m_arrO[3]{ 0 };
     DynamicPolymorphicNotSerializable m_arrDpNS[3]{};
 
-    friend SerializationProcessor;
+    friend csp::processing::DataProcessor;
 };
 
 struct DiamondBaseNotSerializable
@@ -287,8 +287,6 @@ struct DiamondBaseNotSerializable
     }
 
     uint32_t m_d0{ 0 };
-
-    friend SerializationProcessor;
 };
 
 struct DiamondEdge1NotSerializable : virtual public DiamondBaseNotSerializable
@@ -300,7 +298,7 @@ struct DiamondEdge1NotSerializable : virtual public DiamondBaseNotSerializable
 
     uint32_t m_d1{ 0 };
 
-    friend SerializationProcessor;
+    friend csp::processing::DataProcessor;
 };
 
 struct DiamondEdge2NotSerializable : virtual public DiamondBaseNotSerializable
@@ -312,12 +310,12 @@ struct DiamondEdge2NotSerializable : virtual public DiamondBaseNotSerializable
 
     uint32_t m_d2{ 0 };
 
-    friend SerializationProcessor;
+    friend csp::processing::DataProcessor;
 };
 
 template<typename T = Dummy>
 class DiamondSerializable 
-    : public ISerializable<GetCrtpMainType<DiamondSerializable<T>, T >>
+    : public csp::ISerializable<GetCrtpMainType<DiamondSerializable<T>, T >>
     , public DiamondEdge1NotSerializable
     , public DiamondEdge2NotSerializable
 {
@@ -326,7 +324,7 @@ public:
 
     static constexpr uint64_t kNameHash = 8;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 8, 0 } };
+    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 8, 0 } };
 
     [[nodiscard]] bool operator==(const DiamondSerializable& rhs) const noexcept
     {
@@ -334,18 +332,18 @@ public:
     }
 
 private:
-    friend SerializationProcessor;
+    friend csp::processing::DataProcessor;
 };
 
 template<typename T = Dummy>
-class SpecialProcessingTypeContainSerializable : public ISerializable<GetCrtpMainType<SpecialProcessingTypeContainSerializable<T>, T >>
+class SpecialProcessingTypeContainSerializable : public csp::ISerializable<GetCrtpMainType<SpecialProcessingTypeContainSerializable<T>, T >>
 {
 public:
     using instance_type = GetCrtpMainType<SpecialProcessingTypeContainSerializable<T>, T>;
 
     static constexpr uint64_t kNameHash = 9;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 9, 0 } };
+    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 9, 0 } };
 
     [[nodiscard]] Vector<DiamondSerializable<>>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
     [[nodiscard]] const Vector<DiamondSerializable<>>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)
@@ -358,7 +356,7 @@ public:
 private:
     Vector<DiamondSerializable<>> m_vec;
 
-    friend SerializationProcessor;
+    friend csp::processing::DataProcessor;
 };
 
 } // namespace special_types

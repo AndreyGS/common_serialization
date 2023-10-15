@@ -34,69 +34,79 @@
 namespace common_serialization
 {
 
-template<>
-constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DynamicPolymorphicNotSerializable& value)
+namespace csp
 {
-    RUN(deserializeDataHelper(input, value.m_r));
-    RUN(deserializeDataHelper(input, value.m_arrR));
+
+namespace processing
+{
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::Data<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& context, special_types::DynamicPolymorphicNotSerializable& value)
+{
+    RUN(deserializeDataHelper(context, value.m_r));
+    RUN(deserializeDataHelper(context, value.m_arrR));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DynamicPolymorphicSerializable<>& value)
+constexpr Status DataProcessor::deserializeData(context::Data<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& context, special_types::DynamicPolymorphicSerializable<>& value)
 {
-    RUN(deserializeDataHelper(input, value.m_o));
-    RUN(deserializeDataHelper(input, value.m_dpNS));
+    RUN(deserializeDataHelper(context, value.m_o));
+    RUN(deserializeDataHelper(context, value.m_dpNS));
 
-    RUN(deserializeDataHelper(input, value.m_arrO));
-    RUN(deserializeDataHelper(input, value.m_arrDpNS));
+    RUN(deserializeDataHelper(context, value.m_arrO));
+    RUN(deserializeDataHelper(context, value.m_arrDpNS));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondBaseNotSerializable& value)
+constexpr Status DataProcessor::deserializeData(context::Data<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& context, special_types::DiamondBaseNotSerializable& value)
 {
-    RUN(deserializeDataHelper(input, value.m_d0));
+    RUN(deserializeDataHelper(context, value.m_d0));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondEdge1NotSerializable& value)
+constexpr Status DataProcessor::deserializeData(context::Data<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& context, special_types::DiamondEdge1NotSerializable& value)
 {
-    RUN(deserializeDataHelper(input, static_cast<special_types::DiamondBaseNotSerializable&>(value)));
-    RUN(deserializeDataHelper(input, value.m_d1));
+    RUN(deserializeDataHelper(context, static_cast<special_types::DiamondBaseNotSerializable&>(value)));
+    RUN(deserializeDataHelper(context, value.m_d1));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondEdge2NotSerializable& value)
+constexpr Status DataProcessor::deserializeData(context::Data<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& context, special_types::DiamondEdge2NotSerializable& value)
 {
-    RUN(deserializeDataHelper(input, static_cast<special_types::DiamondBaseNotSerializable&>(value)));
-    RUN(deserializeDataHelper(input, value.m_d2));
+    RUN(deserializeDataHelper(context, static_cast<special_types::DiamondBaseNotSerializable&>(value)));
+    RUN(deserializeDataHelper(context, value.m_d2));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::DiamondSerializable<>& value)
+constexpr Status DataProcessor::deserializeData(context::Data<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& context, special_types::DiamondSerializable<>& value)
 {
-    RUN(deserializeDataHelper(input, static_cast<special_types::DiamondEdge1NotSerializable&>(value)));
-    RUN(deserializeDataHelper(input, static_cast<special_types::DiamondEdge2NotSerializable&>(value)));
+    RUN(deserializeDataHelper(context, static_cast<special_types::DiamondEdge1NotSerializable&>(value)));
+    RUN(deserializeDataHelper(context, static_cast<special_types::DiamondEdge2NotSerializable&>(value)));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::deserializeData(Walker<uint8_t>& input, special_types::SpecialProcessingTypeContainSerializable<>& value)
+constexpr Status DataProcessor::deserializeData(context::Data<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& context, special_types::SpecialProcessingTypeContainSerializable<>& value)
 {
-    RUN(deserializeDataHelper(input, value.m_vec));
+    RUN(deserializeDataHelper(context, value.m_vec));
 
     return Status::kNoError;
 }
+
+} // namespace processing
+
+} // namespace csp
 
 } // namespace common_serialization
 
