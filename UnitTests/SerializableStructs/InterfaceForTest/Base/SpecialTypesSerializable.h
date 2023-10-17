@@ -43,7 +43,7 @@ public:
     static constexpr uint64_t kNameHash = 0;
     static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
 
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 0, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 };
 
 #pragma pack(push, 1)
@@ -70,7 +70,7 @@ public:
 
     static constexpr uint64_t kNameHash = 1;
     static constexpr uint32_t kInterfaceVersion = 2;            // latest version among all dependable structs
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 1, 2 }, { 10, 1 }, { 11, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 2, 1, 0 };
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
@@ -113,7 +113,7 @@ public:
 
     static constexpr uint64_t kNameHash = 2;
     static constexpr uint32_t kInterfaceVersion = 2;         // latest version among all dependable structs
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 2, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] uint8_t& getI()                                                                 noexcept { return m_i; }
     [[nodiscard]] const uint8_t& getI()                                                     const noexcept { return m_i; }
@@ -184,7 +184,7 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
 
     static constexpr uint64_t kNameHash = 3;
     static constexpr uint32_t kInterfaceVersion = 2;
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 3, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     uint32_t v{ 0 };
     
@@ -215,7 +215,7 @@ public:
 
     static constexpr uint64_t kNameHash = 4;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 4, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] uint8_t& getR()                 noexcept { return m_r; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getR()     const noexcept { return m_r; }    // (not required for serialization itself)
@@ -245,7 +245,7 @@ public:
 
     static constexpr uint64_t kNameHash = 5;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 5, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] uint8_t& getO()                 noexcept { return m_o; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getO()     const noexcept { return m_o; }    // (not required for serialization itself)
@@ -324,7 +324,7 @@ public:
 
     static constexpr uint64_t kNameHash = 8;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 8, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const DiamondSerializable& rhs) const noexcept
     {
@@ -343,7 +343,7 @@ public:
 
     static constexpr uint64_t kNameHash = 9;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 9, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] Vector<DiamondSerializable<>>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
     [[nodiscard]] const Vector<DiamondSerializable<>>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)

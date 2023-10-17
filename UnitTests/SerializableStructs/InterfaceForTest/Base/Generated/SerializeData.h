@@ -31,9 +31,15 @@
         return status;                                                          \
 }
 
-#define CONVERT_TO_OLD_IF_NEED(value, context)                                  \
+#define SERIALIZE_THIS(field, ctx)                                                                                              \
+{                                                                                                                               \
+    if (Status status = serializeData(*const_cast<std::remove_cv_t<decltype(&field)>>(&field), (ctx)); !statusSuccess(status))  \
+        return status;                                                                                                          \
+}
+
+#define CONVERT_TO_OLD_IF_NEED(value, ctx)                                      \
 {                                                                               \
-    Status status = convertStructToOldIfNeed((value), (context));               \
+    Status status = convertToOldStructIfNeed((value), (ctx));                   \
                                                                                 \
     if (status == Status::kNoFurtherProcessingRequired)                         \
         return Status::kNoError;                                                \
@@ -52,83 +58,89 @@ namespace processing
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    CONVERT_TO_OLD_IF_NEED(value, context);
+    CONVERT_TO_OLD_IF_NEED(value, ctx);
 
-    RUN(serializeDataHelper(value.m_x, context));
-    RUN(serializeDataHelper(value.m_y, context));
+    SERIALIZE_THIS(value.m_x, ctx);
+    SERIALIZE_THIS(value.m_y, ctx);
 
     return Status::kNoError;
 }
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value
-    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(value.m_r, context));
-    RUN(serializeDataHelper(value.m_arrR, context));
+    RUN(serializeData(value.m_r, ctx));
+    RUN(serializeData(value.m_arrR, ctx));
 
     return Status::kNoError;
 }
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value
-    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(value.m_o, context));
-    RUN(serializeDataHelper(value.m_dpNS, context));
+    CONVERT_TO_OLD_IF_NEED(value, ctx);
 
-    RUN(serializeDataHelper(value.m_arrO, context));
-    RUN(serializeDataHelper(value.m_arrDpNS, context));
+    RUN(serializeData(value.m_o, ctx));
+    RUN(serializeData(value.m_dpNS, ctx));
+
+    RUN(serializeData(value.m_arrO, ctx));
+    RUN(serializeData(value.m_arrDpNS, ctx));
 
     return Status::kNoError;
 }
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value
-    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(value.m_d0, context));
+    RUN(serializeData(value.m_d0, ctx));
 
     return Status::kNoError;
 }
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value
-    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(static_cast<const special_types::DiamondBaseNotSerializable&>(value), context));
-    RUN(serializeDataHelper(value.m_d1, context));
+    RUN(serializeData(static_cast<const special_types::DiamondBaseNotSerializable&>(value), ctx));
+    RUN(serializeData(value.m_d1, ctx));
 
     return Status::kNoError;
 }
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value
-    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(static_cast<const special_types::DiamondBaseNotSerializable&>(value), context));
-    RUN(serializeDataHelper(value.m_d2, context));
+    RUN(serializeData(static_cast<const special_types::DiamondBaseNotSerializable&>(value), ctx));
+    RUN(serializeData(value.m_d2, ctx));
 
     return Status::kNoError;
 }
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DiamondSerializable<>& value
-    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(static_cast<const special_types::DiamondEdge1NotSerializable&>(value), context));
-    RUN(serializeDataHelper(static_cast<const special_types::DiamondEdge2NotSerializable&>(value), context));
+    CONVERT_TO_OLD_IF_NEED(value, ctx);
+
+    RUN(serializeData(static_cast<const special_types::DiamondEdge1NotSerializable&>(value), ctx));
+    RUN(serializeData(static_cast<const special_types::DiamondEdge2NotSerializable&>(value), ctx));
 
     return Status::kNoError;
 }
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value
-    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(value.m_vec, context));
+    CONVERT_TO_OLD_IF_NEED(value, ctx);
+
+    RUN(serializeData(value.m_vec, ctx));
 
     return Status::kNoError;
 }

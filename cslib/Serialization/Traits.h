@@ -34,12 +34,6 @@ namespace csp
 namespace traits
 {
 
-struct NameHashAndVersion
-{
-    uint64_t nameHash{ 0 };
-    uint32_t thisVersion{ 0 };
-};
-
 inline constexpr uint8_t kProtocolVersions[] = { 1 };
 inline constexpr uint8_t kProtocolVersionMax = 0xff;
 inline constexpr uint32_t kInterfaceVersionMax = 0xffffffff;
@@ -74,12 +68,12 @@ constexpr bool isInterfaceVersionSupported(uint32_t version, uint32_t minVersion
 }
 
 // Used to find version of struct to which we shall serialize when we are in compat mode
-constexpr uint32_t getBestCompatInterfaceVersion(const NameHashAndVersion* supportedInterfaceVersions
-    , uint32_t supportedInterfaceVersionsSize, uint32_t compatInterfaceVersion) noexcept
+constexpr uint32_t getBestCompatInterfaceVersion(const uint32_t* pVersionsHierarchy
+    , uint32_t versionsHierarchySize, uint32_t compatInterfaceVersion) noexcept
 {
-    for (uint32_t i = 0; i < supportedInterfaceVersionsSize; ++i)
-        if (supportedInterfaceVersions[i].thisVersion <= compatInterfaceVersion)
-            return supportedInterfaceVersions[i].thisVersion;
+    for (uint32_t i = 0; i < versionsHierarchySize; ++i)
+        if (pVersionsHierarchy[i] <= compatInterfaceVersion)
+            return pVersionsHierarchy[i];
 
     return kInterfaceVersionMax;
 }

@@ -43,18 +43,18 @@ public:
 
     template<serialization_concepts::ISerializationCapableContainer S>
     constexpr Status serialize(S& output) const noexcept;
-    template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-    constexpr Status serialize(context::Data<S, PM>& context) const noexcept;
+    template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    constexpr Status serialize(context::SData<S, PM>& ctx) const noexcept;
 
     template<serialization_concepts::IDeserializationCapableContainer D>
     constexpr Status deserialize(D& input);
-    template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-    constexpr Status deserialize(context::Data<D, PM>& context);
+    template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    constexpr Status deserialize(context::DData<D, PM>& ctx);
 
     [[nodiscard]] static constexpr uint64_t getNameHash() noexcept;
     [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
     [[nodiscard]] static constexpr uint32_t getInterfaceVersion() noexcept;
-    [[nodiscard]] static constexpr const traits::NameHashAndVersion* getVersionsHierarchy() noexcept;
+    [[nodiscard]] static constexpr const uint32_t* getVersionsHierarchy() noexcept;
     [[nodiscard]] static constexpr uint32_t getVersionsHierarchySize() noexcept;
 };
 
@@ -64,43 +64,43 @@ template<typename T>
 template<serialization_concepts::ISerializationCapableContainer S>
 constexpr Status ISerializable<T>::serialize(S& output) const noexcept
 {
-    context::Data<S> context(output);
+    context::SData<S> ctx(output);
 
-    return serialize(context);
+    return serialize(ctx);
 }
 
 template<typename T>
-template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status ISerializable<T>::serialize(context::Data<S, PM>& context) const noexcept
+template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const noexcept
 {
-    RUN(processing::serializeHeaderContext(context));
-    RUN(processing::serializeDataContext<T>(context));
+    RUN(processing::serializeHeaderContext(ctx));
+    RUN(processing::serializeDataContext<T>(ctx));
 
-    return processing::serializeDataHelper(static_cast<const T&>(*this), context);
+    return processing::DataProcessor::serializeData(static_cast<const T&>(*this), ctx);
 }
 
 template<typename T>
 template<serialization_concepts::IDeserializationCapableContainer D>
 constexpr Status ISerializable<T>::deserialize(D& input)
 {
-    context::Data<D> context(input);
+    context::DData<D> ctx(input);
 
-    return deserialize(context);
+    return deserialize(ctx);
 }
 
 template<typename T>
-template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-constexpr Status ISerializable<T>::deserialize(context::Data<D, PM>& context)
+template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 {
-    RUN(processing::deserializeHeaderContext(context));
+    RUN(processing::deserializeHeaderContext(ctx));
 
     uint64_t nameHash = 0;
-    uint32_t minimumInterfaceVersion = context.getInterfaceVersion();
+    uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion();
 
-    RUN(processing::deserializeDataContext(context, nameHash));
-    RUN(processing::deserializeDataContextPostprocess<T>(context, nameHash, minimumInterfaceVersion));
+    RUN(processing::deserializeDataContext(ctx, nameHash));
+    RUN(processing::deserializeDataContextPostprocess<T>(ctx, nameHash, minimumInterfaceVersion));
     
-    return processing::deserializeDataHelper(context, static_cast<T&>(*this));
+    return processing::DataProcessor::deserializeData(ctx, static_cast<T&>(*this));
 }
 
 template<typename T>
@@ -112,7 +112,7 @@ template<typename T>
 template<typename T>
 [[nodiscard]] constexpr uint32_t ISerializable<T>::getThisVersion() noexcept
 {
-    return T::kVersionsHierarchy[0].thisVersion;
+    return T::kVersionsHierarchy[0];
 }
 
 template<typename T>
@@ -122,7 +122,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr const traits::NameHashAndVersion* ISerializable<T>::getVersionsHierarchy() noexcept
+[[nodiscard]] constexpr const uint32_t* ISerializable<T>::getVersionsHierarchy() noexcept
 {
     return T::kVersionsHierarchy;
 }

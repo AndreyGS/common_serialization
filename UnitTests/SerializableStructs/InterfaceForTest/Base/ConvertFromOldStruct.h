@@ -1,5 +1,5 @@
 /**
- * @file DeserializeDataLegacy.h
+ * @file ConvertFromOldStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,8 @@
 
 #pragma once
 
-#include "../SpecialTypesSerializableLegacy.h"
+#include "SpecialTypesSerializable.h"
+#include "SpecialTypesSerializableLegacy.h"
 
 #define RUN(x)                                                                  \
 {                                                                               \
@@ -41,13 +42,30 @@ namespace processing
 {
 
 template<>
-constexpr Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& ctx
-    , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value)
+constexpr Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& ctx
+    , uint32_t thisVersionCompat, special_types::SimpleAssignableAlignedToOneSerializable<>& value)
 {
-    RUN(deserializeData(ctx, value.m_x));
-    RUN(deserializeData(ctx, value.m_y));
+    // If value version is the same as thisVersionCompat there is a programmatic error
+    assert(value.getThisVersion() != thisVersionCompat);
 
-    return Status::kNoError;
+    if (thisVersionCompat == 0)
+    {
+        special_types::SimpleAssignableAlignedToOneSerializable_Version0<> compatVersion;
+        compatVersion.m_ti.x = value.m_x;
+        compatVersion.m_ti.y = value.m_y;
+
+        /*RUN(serializeDataCompatLegacy(compatVersion, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));*/
+    }
+    else if (thisVersionCompat == 1)
+    {
+        special_types::SimpleAssignableAlignedToOneSerializable_Version1<> compatVersion;
+        RUN(deserializeDataLegacy(ctx, compatVersion));
+
+        value.m_x = compatVersion.m_x;
+        value.m_y = compatVersion.m_y;
+    }
+
+    return Status::kNoFurtherProcessingRequired;
 }
 
 } // namespace processing

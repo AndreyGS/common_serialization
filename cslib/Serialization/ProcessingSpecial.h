@@ -32,24 +32,24 @@ namespace csp
 namespace processing
 {
 
-template<typename T, typename A, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-Status serializeData(const Vector<T, A>& value, context::Data<S, PM>& context)
+template<typename T, typename A, typename X>
+Status serializeData(const Vector<T, A>& value, X& ctx)
 {
-    RUN(serializeDataHelper(value.size(), context));
-    RUN(serializeDataHelper(value.data(), value.size(), context));
+    RUN(DataProcessor::serializeData(value.size(), ctx));
+    RUN(DataProcessor::serializeData(value.data(), value.size(), ctx));
     
     return Status::kNoError;
 }
 
-template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-Status deserializeData(context::Data<D, PM>& input, Vector<T, A>& value)
+template<typename T, typename A, typename X>
+Status deserializeData(X& ctx, Vector<T, A>& value)
 {
     value.clear();
 
     typename Vector<T, A>::size_type size = 0;
-    RUN(deserializeDataHelper(input, size));
+    RUN(DataProcessor::deserializeData(ctx, size));
     RUN(value.reserve(size));
-    RUN(deserializeDataHelper(input, size, value.data()));
+    RUN(DataProcessor::deserializeData(ctx, size, value.data()));
     value.m_dataSize = size;
 
     return Status::kNoError;

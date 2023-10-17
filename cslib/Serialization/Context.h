@@ -69,8 +69,8 @@ private:
 };
 
 // unordered_map shall be replaced by common_serialization::HashMap when it would be ready
-template<typename Container, serialization_concepts::IPointersMap PM 
-        = std::conditional_t<serialization_concepts::ISerializationCapableContainer<Container>, std::unordered_map<const void*, size_t>, std::unordered_map<size_t, const void*>>>
+template<typename Container, bool serialize = true, serialization_concepts::IPointersMap PM 
+        = std::conditional_t<serialize, std::unordered_map<const void*, size_t>, std::unordered_map<size_t, const void*>>>
     requires   serialization_concepts::ISerializationCapableContainer<Container>
             || serialization_concepts::IDeserializationCapableContainer<Container>
 class Data : public Common<Container>
@@ -84,7 +84,7 @@ public:
         : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), common.getFlags(), Message::kData)
     { }
 
-    constexpr Data(const Data<Container, PM>& rhs) noexcept
+    constexpr Data(const Data<Container, serialize, PM>& rhs) noexcept
         : Common<Container>(rhs.getBinaryData(), rhs.getProtocolVersion(), rhs.getFlags(), Message::kData)
         , m_interfaceVersion(rhs.m_interfaceVersion), m_pPointersMap(rhs.m_pPointersMap)
     { }
@@ -103,6 +103,12 @@ private:
     uint32_t m_interfaceVersion{ traits::kInterfaceVersionMax };
     PM* m_pPointersMap{ nullptr };
 };
+
+template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM = std::unordered_map<const void*, size_t>>
+using SData = Data<S, true, PM>;
+
+template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM = std::unordered_map<size_t, const void*>>
+using DData = Data<D, false, PM>;
 
 } // namespace context
 

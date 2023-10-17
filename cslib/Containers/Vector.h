@@ -31,17 +31,21 @@
 namespace common_serialization
 {
 
+// serialization functions forward declarations
+template<typename,typename> class Vector;
 namespace csp
 {
-
 namespace processing
 {
 
-class DataProcessor;
+template<typename T, typename A, typename X>
+Status serializeData(const Vector<T, A>& value, X& ctx);
 
-}
+template<typename T, typename A, typename X>
+Status deserializeData(X& ctx, Vector<T, A>& value);
 
-}
+} // namespace processing
+} // namespace csp
 
 template<typename Vec>
 class ConstVectorIterator
@@ -418,7 +422,8 @@ private:
     AllocatorHelper m_allocatorHelper;
 
 private:
-    friend class csp::processing::DataProcessor;
+    template<typename T, typename A, typename X>
+    friend Status csp::processing::deserializeData(X& ctx, Vector<T, A>& value);
 };
 
 template<typename T, typename AllocatorHelper>

@@ -32,3 +32,5 @@
 #include "Generated/DeserializeDataLegacy.h"
 
 #include "ConvertToOldStruct.h"
+#include "ConvertFromOldStruct.h"
+

@@ -42,10 +42,10 @@ namespace processing
 
 template<>
 constexpr Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
-    , context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeData(value.m_x, context));
-    RUN(serializeData(value.m_y, context));
+    RUN(serializeData(value.m_x, ctx));
+    RUN(serializeData(value.m_y, ctx));
 
     return Status::kNoError;
 }

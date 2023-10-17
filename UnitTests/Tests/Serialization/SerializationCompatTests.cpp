@@ -27,19 +27,28 @@ namespace
 {
 
 using namespace special_types;
-/*
+
 TEST(SerializationCompatTests, First)
 {
     SimpleAssignableAlignedToOneSerializable saaToSIn;
     filling::_SimpleAssignableAlignedToOneSerializable(saaToSIn);
 
     Walker<uint8_t> bin;
-    Flags flags;
+    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
+    csp::context::Flags flags;
     flags.interfaceVersionsNotMatch = true;
-    CspContextSerializeData context(bin.getVector(), flags, saaToSIn.getLatestProtocolVersion(), 1);
-    
+    ctxIn.setFlags(flags);
+    ctxIn.setInterfaceVersion(1);
 
-    EXPECT_EQ(saaToSIn.serialize(context), Status::kNoError);
-}*/
+    EXPECT_EQ(saaToSIn.serialize(ctxIn), Status::kNoError);
+
+    csp::context::DData<Walker<uint8_t>> ctx2(bin);
+    
+    SimpleAssignableAlignedToOneSerializable saaToSOut;
+
+    EXPECT_EQ(saaToSOut.deserialize(ctx2), Status::kNoError);
+
+    EXPECT_TRUE(saaToSIn == saaToSOut);
+}
 
 } // namespace anonymous

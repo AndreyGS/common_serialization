@@ -35,103 +35,103 @@ namespace processing
 {
 
 template<serialization_concepts::ISerializationCapableContainer S>
-constexpr Status serializeHeaderContext(context::Common<S>& context) noexcept
+constexpr Status serializeHeaderContext(context::Common<S>& ctx) noexcept
 {
-    S& output = context.getBinaryData();
+    S& output = ctx.getBinaryData();
 
-    if (!traits::isProtocolVersionSupported(context.getProtocolVersion()))
+    if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
         return Status::kErrorNotSupportedProtocolVersion;
 
-    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(context.getProtocolVersion())));
-    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(context.getFlags())));
-    RUN(output.pushBackArithmeticValue(context.getMessageType()));
+    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getProtocolVersion())));
+    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getFlags())));
+    RUN(output.pushBackArithmeticValue(ctx.getMessageType()));
 
     return Status::kNoError;
 }
 
 template<serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status deserializeHeaderContext(context::Common<D>& context) noexcept
+constexpr Status deserializeHeaderContext(context::Common<D>& ctx) noexcept
 {
-    D& input = context.getBinaryData();
+    D& input = ctx.getBinaryData();
 
     uint32_t version = 0;
     RUN(input.readArithmeticValue(version));
-    uint8_t minimumSupportedVersion = context.getProtocolVersion();
-    context.setProtocolVersion(static_cast<uint8_t>(version));
+    uint8_t minimumSupportedVersion = ctx.getProtocolVersion();
+    ctx.setProtocolVersion(static_cast<uint8_t>(version));
 
-    if (minimumSupportedVersion > context.getProtocolVersion() || traits::getLatestProtocolVersion() < context.getProtocolVersion())
+    if (minimumSupportedVersion > ctx.getProtocolVersion() || traits::getLatestProtocolVersion() < ctx.getProtocolVersion())
         return Status::kErrorNotSupportedProtocolVersion;
 
     uint32_t intFlags = 0;
     RUN(input.readArithmeticValue(intFlags));
     context::Flags flags(intFlags);
 
-    if (!traits::isProtocolVersionSameAsLatestOur(context.getProtocolVersion()))
+    if (!traits::isProtocolVersionSameAsLatestOur(ctx.getProtocolVersion()))
         flags.protocolVersionsNotMatch = true;
 
-    context.setFlags(flags);
+    ctx.setFlags(flags);
 
     context::Message messageType = context::Message::kData;
     RUN(input.readArithmeticValue(messageType));
 
-    context.setMessageType(messageType);
+    ctx.setMessageType(messageType);
 
     return Status::kNoError;
 }
 
-template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status serializeDataContext(context::Data<S, PM>& context) noexcept
+template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 {
-    S& output = context.getBinaryData();
+    S& output = ctx.getBinaryData();
 
     RUN(output.pushBackArithmeticValue(T::getNameHash()));
 
-    const context::Flags flags = context.getFlags();
+    const context::Flags flags = ctx.getFlags();
 
     if (flags)
     {
         if (flags.interfaceVersionsNotMatch
-            && traits::isInterfaceVersionSupported(context.getInterfaceVersion()
-                , T::getVersionsHierarchy()[T::getVersionsHierarchySize() - 1].thisVersion, T::getVersionsHierarchy()[0].thisVersion))
+            && traits::isInterfaceVersionSupported(ctx.getInterfaceVersion()
+                , T::getVersionsHierarchy()[T::getVersionsHierarchySize() - 1], T::getVersionsHierarchy()[0]))
         {
             return Status::kErrorNotSupportedInterfaceVersion;
         }
 
-        if (flags.extendedPointersProcessing && context.getPointersMap() == nullptr)
+        if (flags.extendedPointersProcessing && ctx.getPointersMap() == nullptr)
             return Status::kErrorInvalidArgument;    
     }
 
     if (flags.interfaceVersionsNotMatch)
-        RUN(output.pushBackArithmeticValue(context.getInterfaceVersion()))
+        RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
     else
         RUN(output.pushBackArithmeticValue(T::getInterfaceVersion()));
     
     return Status::kNoError;
 }
 
-template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-constexpr Status deserializeDataContext(context::Data<D, PM>& context, uint64_t& nameHash)
+template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, uint64_t& nameHash)
 {
-    D& input = context.getBinaryData();
+    D& input = ctx.getBinaryData();
 
     RUN(input.readArithmeticValue(nameHash));
 
     uint32_t inputInterfaceVersion = 0;
     RUN(input.readArithmeticValue(inputInterfaceVersion));
-    context.setInterfaceVersion(inputInterfaceVersion);
+    ctx.setInterfaceVersion(inputInterfaceVersion);
 
     return Status::kNoError;
 }
 
-template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IPointersMap PM>
-constexpr Status deserializeDataContextPostprocess(context::Data<D, PM>& context, uint64_t nameHash, uint32_t minimumSupportedInterfaceVersion)
+template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, uint64_t nameHash, uint32_t minimumSupportedInterfaceVersion)
 {
     if (T::getNameHash() != nameHash)
         return Status::kErrorMismatchOfStructNameHash;
 
-    if (!traits::isInterfaceVersionSupported(context.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterfaceVersion()))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterfaceVersion()))
         return Status::kErrorNotSupportedInterfaceVersion;
-    else if (context.getInterfaceVersion() != T::getInterfaceVersion() && !context.getFlags().interfaceVersionsNotMatch)
+    else if (ctx.getInterfaceVersion() != T::getInterfaceVersion() && !ctx.getFlags().interfaceVersionsNotMatch)
         return Status::kErrorMismatchOfInterfaceVersions;
 
     return Status::kNoError;

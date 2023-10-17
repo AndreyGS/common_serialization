@@ -1,5 +1,5 @@
 /**
- * @file SerializeCompat.h
+ * @file ConvertToOldStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -43,7 +43,7 @@ namespace processing
 
 template<>
 constexpr Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , uint32_t thisVersionCompat, context::Data<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& context) noexcept
+    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
     // If value version is the same as thisVersionCompat there is a programmatic error
     assert(value.getThisVersion() != thisVersionCompat);
@@ -62,8 +62,9 @@ constexpr Status DataProcessor::convertToOldStruct(const special_types::SimpleAs
         compatVersion.m_x = value.m_x;
         compatVersion.m_y = value.m_y;
 
-        RUN(serializeDataLegacy(value, context));
+        RUN(serializeDataLegacy(compatVersion, ctx));
     }
+
     return Status::kNoFurtherProcessingRequired;
 }
 

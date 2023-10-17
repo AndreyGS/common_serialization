@@ -37,7 +37,7 @@ public:
 
     static constexpr uint64_t kNameHash = 10;
     static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 10, 1 }, { 11, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 1, 0 };
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
@@ -71,7 +71,7 @@ public:
 
     static constexpr uint64_t kNameHash = 11;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr csp::traits::NameHashAndVersion kVersionsHierarchy[] = { { 11, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Version0& rhs) const noexcept
     {
