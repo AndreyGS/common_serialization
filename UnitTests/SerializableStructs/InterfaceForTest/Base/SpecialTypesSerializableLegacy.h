@@ -29,16 +29,15 @@ namespace special_types
 using namespace common_serialization;
 
 template<typename T = Dummy>
-class SimpleAssignableAlignedToOneSerializable_Version1 : public ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>>
+class SimpleAssignableAlignedToOneSerializable_Version1 : public csp::ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>>
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>;
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 10;
-    static constexpr uint32_t kThisVersion = 1;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 10, 1 }, { 11, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 1, 0 };
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
@@ -54,7 +53,7 @@ private:
     uint8_t m_x{ 0 };
     uint16_t m_y{ 0 };
 
-    friend SerializationProcessor;
+    friend csp::processing::DataProcessor;
 };
 
 struct TwoInts
@@ -64,16 +63,15 @@ struct TwoInts
 };
 
 template<typename T = Dummy>
-class SimpleAssignableAlignedToOneSerializable_Version0 : public ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version0<T>, T>>
+class SimpleAssignableAlignedToOneSerializable_Version0 : public csp::ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version0<T>, T>>
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version0<T>, T>;
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 11;
-    static constexpr uint32_t kThisVersion = 0;                 // in which version of interface definition of this struct changed
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr StructNameHashAndVersion kVersionsHierarchy[] = { { 11, 0 } };
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Version0& rhs) const noexcept
     {
@@ -83,7 +81,7 @@ public:
 private:
     TwoInts m_ti{ 0 };
 
-    friend SerializationProcessor;
+    friend csp::processing::DataProcessor;
 };
 
 } // namespace special_types

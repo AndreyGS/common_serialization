@@ -35,6 +35,21 @@ struct Dummy {};
 template<typename X, typename T>
 using GetCrtpMainType = std::conditional_t<std::is_same_v<T, common_serialization::Dummy>, X, T>;
 
+template<typename T>
+struct remove_member_pointer
+{
+    using type = T;
+};
+
+template<typename C, typename T>
+struct remove_member_pointer<T C::*>
+{
+    using type = T;
+};
+
+template<typename T>
+using remove_member_pointer_t = typename remove_member_pointer<T>::type;
+
 namespace helpers
 {
 

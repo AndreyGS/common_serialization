@@ -38,14 +38,16 @@ enum class Status : int_fast32_t
     kErrorNoMemory                                  =       -1,
     kErrorOverflow                                  =       -2,
     kErrorInvalidArgument                           =       -3,
-    kErrorNotSupportedSerializationProtocolVersion  =       -4,
-    kErrorNotSupportedSerializationInterfaceVersion =       -5,
+    kErrorNotSupportedProtocolVersion               =       -4,
+    kErrorNotSupportedInterfaceVersion              =       -5,
     kErrorInvalidHash                               =       -6,
     kErrorInvalidTypeConversion                     =       -7,
-    kErrorMismatchOfSerializationProtocolVersions   =       -8,
-    kErrorMismatchOfSerializationInterfaceVersions  =       -9,
+    kErrorMismatchOfProtocolVersions                =       -8,
+    kErrorMismatchOfInterfaceVersions               =       -9,
     kErrorMismatchOfStructNameHash                  =      -10,
-    kErrorNoSuchHandler                             =      -11
+    kErrorNoSuchHandler                             =      -11,
+    KErrorInternal                                  =      -12,
+    kErrorNotSupportedSerializationSettingsForStruct=      -13
 };
 
 constexpr bool statusSuccess(Status status)

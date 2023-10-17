@@ -134,6 +134,8 @@ inline void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeConta
     ds2.m_d0 = 25;
 
     output.getVec().pushBack(ds2);
+    _SimpleAssignableAlignedToOneNotSerializable(output.getSaaToNS());
+    _SimpleAssignableNotSerializable(output.getSaNS());
 }
 
 } // namespace filling

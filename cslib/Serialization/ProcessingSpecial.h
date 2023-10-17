@@ -1,5 +1,5 @@
 /**
- * @file SerializationSpecialStructs.h
+ * @file ProcessingSpecial.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,33 +23,40 @@
 
 #pragma once
 
-#include "SerializationProcessor.h"
-
 namespace common_serialization
 {
 
-template<typename T, typename A, serialization_concepts::ISerializationCapableContainer S>
-Status serializeData(const Vector<T, A>& value, S& output)
+namespace csp
 {
-    RUN(SerializationProcessor::serializeData(value.size(), output));
-    RUN(SerializationProcessor::serializeData(value.data(), value.size(), output));
+
+namespace processing
+{
+
+template<typename T, typename A, typename X>
+Status serializeData(const Vector<T, A>& value, X& ctx)
+{
+    RUN(DataProcessor::serializeData(value.size(), ctx));
+    RUN(DataProcessor::serializeData(value.data(), value.size(), ctx));
     
     return Status::kNoError;
 }
 
-template<typename T, typename A, serialization_concepts::IDeserializationCapableContainer D>
-Status deserializeData(D& input, Vector<T, A>& value)
+template<typename T, typename A, typename X>
+Status deserializeData(X& ctx, Vector<T, A>& value)
 {
     value.clear();
 
     typename Vector<T, A>::size_type size = 0;
-    RUN(SerializationProcessor::deserializeData(input, size));
+    RUN(DataProcessor::deserializeData(ctx, size));
     RUN(value.reserve(size));
-    RUN(SerializationProcessor::deserializeData(input, size, value.data()));
+    RUN(DataProcessor::deserializeData(ctx, size, value.data()));
     value.m_dataSize = size;
 
     return Status::kNoError;
 }
 
+} // namespace processing
+
+} // namespace csp
 
 } // namespace common_serialization

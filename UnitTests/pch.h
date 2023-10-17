@@ -28,3 +28,4 @@
 #include <string>
 #include <list>
 #include "TypesForTest/SpecialTypes.h"
+#include "TypesForTest/SpecialTypesFilling.h"

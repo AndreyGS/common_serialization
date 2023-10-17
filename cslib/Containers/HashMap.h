@@ -1,5 +1,5 @@
 /**
- * @file SerializeDataCompatLegacy.h
+ * @file Walker.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,27 +23,21 @@
 
 #pragma once
 
-#include "SpecialTypesSerializableLegacy.h"
-
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !statusSuccess(status))                            \
-        return status;                                                          \
-}
-
 namespace common_serialization
 {
 
-template<>
-constexpr Status SerializationProcessor::serializeDataCompatLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value, CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t interfaceVersionCompat, std::unordered_map<const void*, size_t>& pointersMap, Vector<uint8_t>& output)
+// Stub HashMap (shall be switched to normal container)
+class HashMap
 {
-    RUN(serializeDataCompatHelper(value.m_x, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
-    RUN(serializeDataCompatHelper(value.m_y, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));
+public:
+    using key_type = const void*;
+    using mapped_type = size_t;
 
-    return Status::kNoError;
-}
+    void find(key_type) {}
+    void end() {}
+    mapped_type& operator [](key_type) { return i; }
+
+    size_t i{ 0 };
+};
 
 } // namespace common_serialization
-
-#undef RUN

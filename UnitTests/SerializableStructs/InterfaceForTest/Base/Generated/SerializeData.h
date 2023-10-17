@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "SpecialTypesSerializable.h"
+#include "../SpecialTypesSerializable.h"
 
 #define RUN(x)                                                                  \
 {                                                                               \
@@ -31,82 +31,134 @@
         return status;                                                          \
 }
 
+#define SERIALIZE_COMMON(value, ctx)                                                    \
+{                                                                                       \
+    if (const context::Flags flags = ctx.getFlags(); flags.interfaceVersionsNotMatch)   \
+    {                                                                                   \
+        Status status = convertToOldStructIfNeed((value), (ctx));                       \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (!statusSuccess(status))                                                \
+            return status;                                                              \
+    }                                                                                   \
+    else if constexpr (serialization_concepts::SimpleAssignableType<decltype(value)>    \
+        || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
+    {                                                                                   \
+        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
+        if (status == Status::kNoError)                                                 \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* than we should serialize it field-by-field */                                \
+    }                                                                                   \
+}
+
 namespace common_serialization
 {
 
-template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value, Vector<uint8_t>& output)
+namespace csp
 {
-    RUN(serializeDataHelper(value.m_x, output));
-    RUN(serializeDataHelper(value.m_y, output));
+
+namespace processing
+{
+
+template<>
+constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_x, ctx));
+    RUN(serializeData(value.m_y, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value, Vector<uint8_t>& output)
+constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(value.m_r, output));
-    RUN(serializeDataHelper(value.m_arrR, output));
+    RUN(serializeData(value.m_r, ctx));
+    RUN(serializeData(value.m_arrR, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value, Vector<uint8_t>& output)
+constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(value.m_o, output));
-    RUN(serializeDataHelper(value.m_dpNS, output));
+    SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeDataHelper(value.m_arrO, output));
-    RUN(serializeDataHelper(value.m_arrDpNS, output));
+    RUN(serializeData(value.m_o, ctx));
+    RUN(serializeData(value.m_dpNS, ctx));
+
+    RUN(serializeData(value.m_arrO, ctx));
+    RUN(serializeData(value.m_arrDpNS, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value, Vector<uint8_t>& output)
+constexpr Status DataProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(value.m_d0, output));
+    RUN(serializeData(value.m_d0, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value, Vector<uint8_t>& output)
+constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(static_cast<const special_types::DiamondBaseNotSerializable&>(value), output));
-    RUN(serializeDataHelper(value.m_d1, output));
+    RUN(serializeData(static_cast<const special_types::DiamondBaseNotSerializable&>(value), ctx));
+    RUN(serializeData(value.m_d1, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value, Vector<uint8_t>& output)
+constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(static_cast<const special_types::DiamondBaseNotSerializable&>(value), output));
-    RUN(serializeDataHelper(value.m_d2, output));
+    RUN(serializeData(static_cast<const special_types::DiamondBaseNotSerializable&>(value), ctx));
+    RUN(serializeData(value.m_d2, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::DiamondSerializable<>& value, Vector<uint8_t>& output)
+constexpr Status DataProcessor::serializeData(const special_types::DiamondSerializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(static_cast<const special_types::DiamondEdge1NotSerializable&>(value), output));
-    RUN(serializeDataHelper(static_cast<const special_types::DiamondEdge2NotSerializable&>(value), output));
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(static_cast<const special_types::DiamondEdge1NotSerializable&>(value), ctx));
+    RUN(serializeData(static_cast<const special_types::DiamondEdge2NotSerializable&>(value), ctx));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status SerializationProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value, Vector<uint8_t>& output)
+constexpr Status DataProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    RUN(serializeDataHelper(value.m_vec, output));
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_vec, ctx));
+    RUN(serializeData(value.m_saaToNS, ctx));
+    RUN(serializeData(value.m_saNS, ctx));
 
     return Status::kNoError;
 }
+
+} // namespace processing
+
+} // namespace csp
 
 } // namespace common_serialization
+
+#undef SERIALIZE_COMMON
 
 #undef RUN

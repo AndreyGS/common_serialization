@@ -23,52 +23,38 @@
 
 #pragma once
 
-#include "SerializationProcessor.h"
-#include "CsProtocol.h"
+#include "Processing.h"
+#include "ProcessingDataProcessor.h"
 
 namespace common_serialization
+{
+
+namespace csp
 {
 
 // ISerializable base must have permanent size regardless of platform alignment
 #pragma pack(push, 1)
 
 template<typename T>
-class ISerializable : public CsProtocol
+class ISerializable
 {
 public:
     using instance_type = T;
 
-    // first function to call on new serialize operation
     template<serialization_concepts::ISerializationCapableContainer S>
-    constexpr Status serialize(S& output, CsProtocolFlags flags = CsProtocolFlags{}, CsProtocolMessageType messageType = CsProtocolMessageType::kData) const noexcept;
-    // first function to call on new serialize operation
-    template<serialization_concepts::ISerializationCapableContainer S>
-    constexpr Status serializeCompat(S& output, CsProtocolFlags flags, uint32_t protocolVersionCompat, uint32_t interfaceVersionCompat
-        , CsProtocolMessageType messageType = CsProtocolMessageType::kData) const noexcept;
-
-    // calling in subsequent serializations of nested fields/types or if one need to serialize another struct
-    // and there is no changes in interface version after previous serialize call
-    template<serialization_concepts::ISerializationCapableContainer S>
-    constexpr Status serializeData(S& output, CsProtocolFlags flags = CsProtocolFlags{}) const noexcept;
-    // IPointersMap default type is temporary - later there will be common_serialization map container
-    template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM = std::unordered_map<const void*, size_t>>
-    constexpr Status serializeDataCompat(S& output, CsProtocolFlags flags, uint32_t protocolVersionCompat, uint32_t interfaceVersionCompat) const noexcept;
+    constexpr Status serialize(S& output) const noexcept;
+    template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    constexpr Status serialize(context::SData<S, PM>& ctx) const noexcept;
 
     template<serialization_concepts::IDeserializationCapableContainer D>
     constexpr Status deserialize(D& input);
-    template<serialization_concepts::IDeserializationCapableContainer D>
-    constexpr Status deserializeCompat(D& input, uint8_t minimumSupportedProtocolVersion, uint32_t minimumSupportedInterfaceVersion);
+    template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    constexpr Status deserialize(context::DData<D, PM>& ctx);
 
-    template<serialization_concepts::IDeserializationCapableContainer D>
-    constexpr Status deserializeData(D& input, CsProtocolFlags flags);
-    template<serialization_concepts::IDeserializationCapableContainer D>
-    constexpr Status deserializeDataCompat(D& input, CsProtocolFlags flags, uint8_t foreignProtocolVersion, uint32_t minimumSupportedInterfaceVersion);
-    
-    [[nodiscard]] static constexpr uint64_t* getMembers() noexcept;
     [[nodiscard]] static constexpr uint64_t getNameHash() noexcept;
     [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
     [[nodiscard]] static constexpr uint32_t getInterfaceVersion() noexcept;
-    [[nodiscard]] static constexpr const StructNameHashAndVersion* getVersionsHierarchy() noexcept;
+    [[nodiscard]] static constexpr const uint32_t* getVersionsHierarchy() noexcept;
     [[nodiscard]] static constexpr uint32_t getVersionsHierarchySize() noexcept;
 };
 
@@ -76,150 +62,45 @@ public:
 
 template<typename T>
 template<serialization_concepts::ISerializationCapableContainer S>
-constexpr Status ISerializable<T>::serialize(S& output, CsProtocolFlags flags, CsProtocolMessageType messageType) const noexcept
+constexpr Status ISerializable<T>::serialize(S& output) const noexcept
 {
-    RUN(serializeHeader(output, flags, messageType));
+    context::SData<S> ctx(output);
 
-    if (messageType == CsProtocolMessageType::kData)
-        return serializeData(output, flags);
-    else
-        return Status::kErrorInvalidArgument;
+    return serialize(ctx);
 }
 
 template<typename T>
-template<serialization_concepts::ISerializationCapableContainer S>
-constexpr Status ISerializable<T>::serializeCompat(S& output, CsProtocolFlags flags, uint32_t protocolVersionCompat
-    , uint32_t interfaceVersionCompat, CsProtocolMessageType messageType) const noexcept
+template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const noexcept
 {
-    RUN(serializeHeaderCompat(output, flags, protocolVersionCompat, messageType));
+    RUN(processing::serializeHeaderContext(ctx));
+    RUN(processing::serializeDataContext<T>(ctx));
 
-    if (messageType == CsProtocolMessageType::kData)
-        return serializeDataCompat(output, flags, protocolVersionCompat, interfaceVersionCompat);
-    else
-        return Status::kErrorInvalidArgument;
-}
-
-template<typename T>
-template<serialization_concepts::ISerializationCapableContainer S>
-constexpr Status ISerializable<T>::serializeData(S& output, CsProtocolFlags flags) const noexcept
-{
-    RUN(output.pushBackArithmeticValue(getInterfaceVersion()));
-    RUN(output.pushBackArithmeticValue(getNameHash()));
-
-    if (!flags)
-        return SerializationProcessor::serializeData(static_cast<const T&>(*this), output);
-    /*else if (!flags.extendedPointerProcessing)
-        return SerializationProcessor::serializeData(static_cast<const T&>(*this), flags, output);*/
-    else
-        return Status::kErrorInvalidArgument;
-}
-
-template<typename T>
-template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::IPointersMap PM>
-constexpr Status ISerializable<T>::serializeDataCompat(S& output, CsProtocolFlags flags, uint32_t protocolVersionCompat, uint32_t interfaceVersionCompat) const noexcept
-{
-    if (interfaceVersionCompat > getInterfaceVersion() || interfaceVersionCompat < getVersionsHierarchy()[getVersionsHierarchySize()-1].thisVersion)
-        return Status::kErrorNotSupportedSerializationInterfaceVersion;
-    else if (interfaceVersionCompat != getInterfaceVersion() && !flags.interfaceVersionsNotMatch)
-        return Status::kErrorInvalidArgument;
-
-    RUN(output.pushBackArithmeticValue(getInterfaceVersion()));
-    RUN(output.pushBackArithmeticValue(getNameHash()));
-
-    PM pointersMap;
-
-    return SerializationProcessor::serializeDataCompat(static_cast<const T&>(*this), flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output);
+    return processing::DataProcessor::serializeData(static_cast<const T&>(*this), ctx);
 }
 
 template<typename T>
 template<serialization_concepts::IDeserializationCapableContainer D>
 constexpr Status ISerializable<T>::deserialize(D& input)
 {
-    CsProtocolFlags flags{ 0 };
-    CsProtocolMessageType messageType{ 0 };
+    context::DData<D> ctx(input);
 
-    RUN(deserializeHeader(input, flags, messageType));
-
-    if (messageType == CsProtocolMessageType::kData)
-        return deserializeData(input, flags);
-    else
-        return Status::kErrorInvalidArgument;
+    return deserialize(ctx);
 }
 
 template<typename T>
-template<serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status ISerializable<T>::deserializeCompat(D& input, uint8_t minimumSupportedProtocolVersion, uint32_t minimumSupportedInterfaceVersion)
+template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 {
-    uint8_t foreignProtocolVersion{ 0 };
-    CsProtocolFlags flags{ 0 };
-    CsProtocolMessageType messageType{ 0 };
-
-    RUN(deserializeHeaderCompat(input, foreignProtocolVersion, flags, messageType));
-
-    if (messageType == CsProtocolMessageType::kData)
-        return SerializationProcessor::deserializeDataCompat(input, flags, foreignProtocolVersion, minimumSupportedInterfaceVersion);
-    else
-        return Status::kErrorInvalidArgument;
-}
-
-template<typename T>
-template<serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status ISerializable<T>::deserializeData(D& input, CsProtocolFlags flags)
-{
-    uint32_t inputInterfaceVersion = 0;
-    RUN(input.readArithmeticValue(inputInterfaceVersion));
-
-    if (getInterfaceVersion() != inputInterfaceVersion)
-        return Status::kErrorMismatchOfSerializationInterfaceVersions;
+    RUN(processing::deserializeHeaderContext(ctx));
 
     uint64_t nameHash = 0;
-    RUN(input.readArithmeticValue(nameHash));
+    uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion();
 
-    if (getNameHash() != nameHash)
-        return Status::kErrorMismatchOfStructNameHash;
-
-    if (!flags)
-        return SerializationProcessor::deserializeData(input, static_cast<T&>(*this));
-
-    // temporary dummy
-    return Status::kErrorInvalidArgument;
-}
-
-template<typename T>
-template<serialization_concepts::IDeserializationCapableContainer D>
-constexpr Status ISerializable<T>::deserializeDataCompat(D& input, CsProtocolFlags flags, uint8_t foreignProtocolVersion, uint32_t minimumSupportedInterfaceVersion)
-{
-    uint32_t foreignInterfaceVersion = 0;
-    RUN(input.readArithmeticValue(foreignInterfaceVersion));
-
-    if (getInterfaceVersion() != foreignInterfaceVersion)
-    {
-        if (!isInterfaceVersionCompat(getInterfaceVersion(), minimumSupportedInterfaceVersion, foreignInterfaceVersion))
-            return Status::kErrorNotSupportedSerializationInterfaceVersion;
-
-        if (!flags.interfaceVersionsNotMatch)
-            return Status::kErrorMismatchOfSerializationInterfaceVersions;
-
-        return SerializationProcessor::deserializeDataCompat(input, flags, foreignProtocolVersion, foreignInterfaceVersion, static_cast<T&>(*this));
-    }
-
-    /*
-    if (getInterfaceVersion() < inputInterfaceVersion)
-        return Status::kErrorNotSupportedSerializationInterfaceVersion;
-    else if (getInterfaceVersion() > inputInterfaceVersion)
-        flags.interfaceVersionsNotMatch = true;*/
-
-    if (!flags)
-        return SerializationProcessor::deserializeData(input, static_cast<T&>(*this));
-
-    // temporary dummy
-    return Status::kErrorInvalidArgument;
-}
-
-template<typename T>
-[[nodiscard]] constexpr uint64_t* ISerializable<T>::getMembers() noexcept
-{
-    return T::kMembers;
+    RUN(processing::deserializeDataContext(ctx, nameHash));
+    RUN(processing::deserializeDataContextPostprocess<T>(ctx, nameHash, minimumInterfaceVersion));
+    
+    return processing::DataProcessor::deserializeData(ctx, static_cast<T&>(*this));
 }
 
 template<typename T>
@@ -231,7 +112,7 @@ template<typename T>
 template<typename T>
 [[nodiscard]] constexpr uint32_t ISerializable<T>::getThisVersion() noexcept
 {
-    return T::kThisVersion;
+    return T::kVersionsHierarchy[0];
 }
 
 template<typename T>
@@ -241,7 +122,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr const StructNameHashAndVersion* ISerializable<T>::getVersionsHierarchy() noexcept
+[[nodiscard]] constexpr const uint32_t* ISerializable<T>::getVersionsHierarchy() noexcept
 {
     return T::kVersionsHierarchy;
 }
@@ -251,5 +132,7 @@ template<typename T>
 {
     return std::size(T::kVersionsHierarchy);
 }
+
+} // namespace csp
 
 } // namespace common_serialization

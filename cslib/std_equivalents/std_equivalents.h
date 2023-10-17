@@ -318,6 +318,19 @@ struct is_function : std::integral_constant<bool, !std::is_const<const T>::value
 template<typename T>
 inline constexpr bool is_function_v = is_function<T>::value;
 
+// std::is_array
+template<class T>
+struct is_array : std::false_type {};
+
+template<class T>
+struct is_array<T[]> : std::true_type {};
+
+template<class T, std::size_t N>
+struct is_array<T[N]> : std::true_type {};
+
+template< class T >
+inline constexpr bool is_array_v = is_array<T>::value;
+
 // std::is_pointer
 template<typename T>
 struct is_pointer : std::false_type {};
@@ -449,5 +462,18 @@ std::size_t size(T(&)[N])
     return N;
 }
 
+template <bool Test, class T1, class T2>
+struct conditional
+{
+    using type = T1;
+};
+
+template <class T1, class T2>
+struct conditional<false, T1, T2> {
+    using type = T2;
+};
+
+template <bool Test, class T1, class T2>
+using conditional_t = typename conditional<Test, T1, T2>::type;
 
 } // namespace std

@@ -1,5 +1,5 @@
 /**
- * @file DederializeDataWithFlags.h
+ * @file DeserializeDataLegacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -22,3 +22,38 @@
  */
 
 #pragma once
+
+#include "../SpecialTypesSerializableLegacy.h"
+
+#define RUN(x)                                                                  \
+{                                                                               \
+    if (Status status = (x); !statusSuccess(status))                            \
+        return status;                                                          \
+}
+
+namespace common_serialization
+{
+
+namespace csp
+{
+
+namespace processing
+{
+
+template<>
+constexpr Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& ctx
+    , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value)
+{
+    RUN(deserializeData(ctx, value.m_x));
+    RUN(deserializeData(ctx, value.m_y));
+
+    return Status::kNoError;
+}
+
+} // namespace processing
+
+} // namespace csp
+
+} // namespace common_serialization
+
+#undef RUN
