@@ -46,7 +46,8 @@ enum class Status : int_fast32_t
     kErrorMismatchOfInterfaceVersions               =       -9,
     kErrorMismatchOfStructNameHash                  =      -10,
     kErrorNoSuchHandler                             =      -11,
-    KErrorInternal                                  =      -12
+    KErrorInternal                                  =      -12,
+    kErrorNotSupportedSerializationSettingsForStruct=      -13
 };
 
 constexpr bool statusSuccess(Status status)

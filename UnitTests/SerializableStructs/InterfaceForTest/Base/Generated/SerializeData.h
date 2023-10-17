@@ -31,20 +31,26 @@
         return status;                                                          \
 }
 
-#define SERIALIZE_THIS(field, ctx)                                                                                              \
-{                                                                                                                               \
-    if (Status status = serializeData(*const_cast<std::remove_cv_t<decltype(&field)>>(&field), (ctx)); !statusSuccess(status))  \
-        return status;                                                                                                          \
-}
-
-#define CONVERT_TO_OLD_IF_NEED(value, ctx)                                      \
-{                                                                               \
-    Status status = convertToOldStructIfNeed((value), (ctx));                   \
-                                                                                \
-    if (status == Status::kNoFurtherProcessingRequired)                         \
-        return Status::kNoError;                                                \
-    else if (!statusSuccess(status))                                            \
-        return status;                                                          \
+#define SERIALIZE_COMMON(value, ctx)                                                    \
+{                                                                                       \
+    if (const context::Flags flags = ctx.getFlags(); flags.interfaceVersionsNotMatch)   \
+    {                                                                                   \
+        Status status = convertToOldStructIfNeed((value), (ctx));                       \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (!statusSuccess(status))                                                \
+            return status;                                                              \
+    }                                                                                   \
+    else if constexpr (serialization_concepts::SimpleAssignableType<decltype(value)>    \
+        || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
+    {                                                                                   \
+        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
+        if (status == Status::kNoError)                                                 \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* than we should serialize it field-by-field */                                \
+    }                                                                                   \
 }
 
 namespace common_serialization
@@ -60,10 +66,10 @@ template<>
 constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    CONVERT_TO_OLD_IF_NEED(value, ctx);
+    SERIALIZE_COMMON(value, ctx);
 
-    SERIALIZE_THIS(value.m_x, ctx);
-    SERIALIZE_THIS(value.m_y, ctx);
+    RUN(serializeData(value.m_x, ctx));
+    RUN(serializeData(value.m_y, ctx));
 
     return Status::kNoError;
 }
@@ -82,7 +88,7 @@ template<>
 constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    CONVERT_TO_OLD_IF_NEED(value, ctx);
+    SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_o, ctx));
     RUN(serializeData(value.m_dpNS, ctx));
@@ -126,7 +132,7 @@ template<>
 constexpr Status DataProcessor::serializeData(const special_types::DiamondSerializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    CONVERT_TO_OLD_IF_NEED(value, ctx);
+    SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(static_cast<const special_types::DiamondEdge1NotSerializable&>(value), ctx));
     RUN(serializeData(static_cast<const special_types::DiamondEdge2NotSerializable&>(value), ctx));
@@ -138,9 +144,11 @@ template<>
 constexpr Status DataProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
 {
-    CONVERT_TO_OLD_IF_NEED(value, ctx);
+    SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_vec, ctx));
+    RUN(serializeData(value.m_saaToNS, ctx));
+    RUN(serializeData(value.m_saNS, ctx));
 
     return Status::kNoError;
 }
@@ -151,6 +159,6 @@ constexpr Status DataProcessor::serializeData(const special_types::SpecialProces
 
 } // namespace common_serialization
 
-#undef CONVERT_TO_OLD_IF_NEED
+#undef SERIALIZE_COMMON
 
 #undef RUN

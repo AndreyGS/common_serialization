@@ -348,6 +348,11 @@ public:
     [[nodiscard]] Vector<DiamondSerializable<>>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
     [[nodiscard]] const Vector<DiamondSerializable<>>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)
 
+    [[nodiscard]] SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()                       noexcept { return m_saaToNS; }
+    [[nodiscard]] const SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()           const noexcept { return m_saaToNS; }
+    [[nodiscard]] SimpleAssignableNotSerializable& getSaNS()                                      noexcept { return m_saNS; }
+    [[nodiscard]] const SimpleAssignableNotSerializable& getSaNS()                          const noexcept { return m_saNS; }
+
     [[nodiscard]] bool operator==(const SpecialProcessingTypeContainSerializable& rhs) const noexcept
     {
         return m_vec == rhs.m_vec;
@@ -355,6 +360,8 @@ public:
 
 private:
     Vector<DiamondSerializable<>> m_vec;
+    SimpleAssignableAlignedToOneNotSerializable m_saaToNS;
+    SimpleAssignableNotSerializable m_saNS;
 
     friend csp::processing::DataProcessor;
 };
