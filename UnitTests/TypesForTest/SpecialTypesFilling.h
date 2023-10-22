@@ -136,6 +136,15 @@ inline void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeConta
     output.getVec().pushBack(ds2);
     _SimpleAssignableAlignedToOneNotSerializable(output.getSaaToNS());
     _SimpleAssignableNotSerializable(output.getSaNS());
+
+    output.getPVec() = new Vector<DiamondSerializable<>>;
+    *output.getPVec() = output.getVec();
+    output.getPInt() = new int;
+    *const_cast<int*&>(output.getPInt()) = 64984561;
+
+    output.getPpInt() = new const int*;
+    *output.getPpInt() = new int;
+    **const_cast<int**&>(output.getPpInt()) = 548505248;
 }
 
 } // namespace filling

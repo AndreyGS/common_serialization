@@ -149,6 +149,9 @@ constexpr Status DataProcessor::serializeData(const special_types::SpecialProces
     RUN(serializeData(value.m_vec, ctx));
     RUN(serializeData(value.m_saaToNS, ctx));
     RUN(serializeData(value.m_saNS, ctx));
+    RUN(serializeData(value.m_pVec, ctx));
+    RUN(serializeData(value.m_pInt, ctx));
+    RUN(serializeData(value.m_ppInt, ctx));
 
     return Status::kNoError;
 }

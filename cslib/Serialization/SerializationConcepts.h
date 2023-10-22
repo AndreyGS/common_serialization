@@ -93,7 +93,7 @@ concept IDeserializationPointersMap
             { pm.end() };
             { pm[*(new typename PM::key_type)] } -> std::same_as<typename PM::mapped_type&>;
         }
-    && std::is_same_v<typename PM::key_type, size_t> && std::is_same_v<typename PM::mapped_type, const void*>;
+    && std::is_same_v<typename PM::key_type, size_t> && std::is_same_v<typename PM::mapped_type, void*>;
 
 template<typename PM>
 concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;

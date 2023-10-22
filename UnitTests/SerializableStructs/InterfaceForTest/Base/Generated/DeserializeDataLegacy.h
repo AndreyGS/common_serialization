@@ -41,7 +41,7 @@ namespace processing
 {
 
 template<>
-constexpr Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& ctx
+constexpr Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value)
 {
     RUN(deserializeData(ctx, value.m_x));

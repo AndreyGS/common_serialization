@@ -352,16 +352,29 @@ public:
     [[nodiscard]] const SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()           const noexcept { return m_saaToNS; }
     [[nodiscard]] SimpleAssignableNotSerializable& getSaNS()                                      noexcept { return m_saNS; }
     [[nodiscard]] const SimpleAssignableNotSerializable& getSaNS()                          const noexcept { return m_saNS; }
+    [[nodiscard]] Vector<DiamondSerializable<>>*& getPVec()                                       noexcept { return m_pVec; }
+    [[nodiscard]] const Vector<DiamondSerializable<>>*& getPVec()                           const noexcept { return m_pVec; }
+    [[nodiscard]] const int*& getPInt()                                                           noexcept { return m_pInt; }
+    [[nodiscard]] const int* const & getPInt()                                              const noexcept { return m_pInt; }
+    [[nodiscard]] const int**& getPpInt()                                                         noexcept { return m_ppInt; }
+    [[nodiscard]] const int* const *& getPpInt()                                            const noexcept { return m_ppInt; }
 
     [[nodiscard]] bool operator==(const SpecialProcessingTypeContainSerializable& rhs) const noexcept
     {
-        return m_vec == rhs.m_vec;
+        return m_vec == rhs.m_vec
+            && m_saaToNS == rhs.m_saaToNS
+            && m_saNS == rhs.m_saNS
+            && *m_pVec == *rhs.m_pVec   // this claass only for testing proposes, so there is no redundant nullptr checks
+            && **m_ppInt == **m_ppInt;
     }
 
 private:
     Vector<DiamondSerializable<>> m_vec;
     SimpleAssignableAlignedToOneNotSerializable m_saaToNS;
     SimpleAssignableNotSerializable m_saNS;
+    Vector<DiamondSerializable<>>* m_pVec = nullptr;
+    const int* m_pInt = nullptr;
+    const int** m_ppInt = nullptr;
 
     friend csp::processing::DataProcessor;
 };

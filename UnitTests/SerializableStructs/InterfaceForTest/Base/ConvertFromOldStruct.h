@@ -42,7 +42,7 @@ namespace processing
 {
 
 template<>
-constexpr Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<size_t, const void*>>& ctx
+constexpr Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
     , uint32_t thisVersionCompat, special_types::SimpleAssignableAlignedToOneSerializable<>& value)
 {
     // If value version is the same as thisVersionCompat there is a programmatic error

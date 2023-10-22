@@ -68,9 +68,9 @@ private:
     static constexpr Status deserializeDataLegacy(context::DData<D, PM>& ctx, T& value);
 
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
-    static constexpr Status addPointerToMap(const T* p, context::SData<S, PM>& ctx, bool& newPointer);
+    static constexpr Status addPointerToMap(const T p, context::SData<S, PM>& ctx, bool& newPointer);
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-    static constexpr Status getPointerFromMap(context::DData<D, PM>& ctx, T* p, bool& newPointer);
+    static constexpr Status getPointerFromMap(context::DData<D, PM>& ctx, T p, bool& newPointer);
 
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx);
@@ -160,7 +160,7 @@ template<typename T, serialization_concepts::ISerializationCapableContainer S, s
 constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, PM>& ctx)
 {
     static_assert(!std::is_reference_v<T>
-        , "Pointers on references are not allowed");
+        , "References are not allowed");
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
         , "References and pointers on functions are not allowed to be serialized");
 
@@ -177,7 +177,7 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
 
         RUN(output.pushBackArithmeticValue(value))
     }
-    else if constexpr (std::is_pointer_v<T> || std::is_member_pointer_v<T>)
+    else if constexpr (std::is_pointer_v<T>)
     {
         if (flags.extendedPointersProcessing)
         {
@@ -258,7 +258,7 @@ template<typename T, serialization_concepts::IDeserializationCapableContainer D,
 constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& value)
 {
     static_assert(!std::is_reference_v<T>
-        , "Pointers on references are not allowed");
+        , "References are not allowed");
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
         , "References and pointers on functions are not allowed to be serialized");
 
@@ -280,9 +280,9 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
                 }
             }
 
-        RUN(input.readArithmeticValue(value));
+        RUN(input.readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
     }
-    else if constexpr (std::is_pointer_v<T> || std::is_member_pointer_v<T>)
+    else if constexpr (std::is_pointer_v<T>)
     {
         if (flags.extendedPointersProcessing)
         {
@@ -294,10 +294,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         }
 
         // think about replace this with some Allocator function
-        if constexpr (std::is_pointer_v<T>)
-            value = new std::remove_pointer_t<T>;
-        else
-            value = new remove_member_pointer_t<T>;
+        value = new std::remove_const_t<std::remove_pointer_t<T>>;
 
         RUN(deserializeData(ctx, *value));
     }
@@ -307,7 +304,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         if (
             !flags.sizeOfArithmeticTypesMayBeNotEqual
             && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
-            )
+        )
         {
             // for simple assignable types it is preferable to get a whole struct at a time
             RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T)));
@@ -330,7 +327,7 @@ constexpr Status DataProcessor::deserializeData(size_t originalTypeSize, context
 
     uint8_t arr[64] = { 0 };
     RUN(ctx.getBinaryData().read(arr, originalTypeSize));
-    value = *static_cast<T*>(static_cast<void*>(arr));
+    const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
 
     return Status::kNoError;
 }
@@ -349,7 +346,7 @@ static constexpr Status DataProcessor::serializeDataSimpleAssignable(const T& va
         context::Flags flags = ctx.getFlags();
         !flags.sizeOfArithmeticTypesMayBeNotEqual
         && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
-        )
+    )
     {
         // for simple assignable types it is preferable to get a whole struct at a time
         RUN(ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), sizeof(T)));
@@ -362,7 +359,7 @@ static constexpr Status DataProcessor::serializeDataSimpleAssignable(const T& va
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
-constexpr Status DataProcessor::addPointerToMap(const T* p, context::SData<S, PM>& ctx, bool& newPointer)
+constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>& ctx, bool& newPointer)
 {
     S& output = ctx.getBinaryData();
 
@@ -392,13 +389,13 @@ constexpr Status DataProcessor::addPointerToMap(const T* p, context::SData<S, PM
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T* p, bool& newPointer)
+constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T p, bool& newPointer)
 {
-    D& input = ctx.getBinary();
+    D& input = ctx.getBinaryData();
 
     size_t offset = 0;
 
-    RUN(input.readArithmeticValue(static_cast<size_t>(offset)));
+    RUN(input.readArithmeticValue(offset));
 
     if (!offset)
     {
@@ -407,7 +404,7 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T*
     }
     else
     {
-        PM& pointersMap = ctx.getPointersMap();
+        PM& pointersMap = *ctx.getPointersMap();
 
         if (auto it = pointersMap.find(offset); it == pointersMap.end())
             newPointer = true;
@@ -417,7 +414,7 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T*
             if (offset >= input.tell())
                 return Status::KErrorInternal;
 
-            p = pointersMap[offset];
+            p = static_cast<T>(pointersMap[offset]);
         }
     }
 

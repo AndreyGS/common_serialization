@@ -70,7 +70,7 @@ private:
 
 // unordered_map shall be replaced by common_serialization::HashMap when it would be ready
 template<typename Container, bool serialize = true, serialization_concepts::IPointersMap PM 
-        = std::conditional_t<serialize, std::unordered_map<const void*, size_t>, std::unordered_map<size_t, const void*>>>
+        = std::conditional_t<serialize, std::unordered_map<const void*, size_t>, std::unordered_map<size_t, void*>>>
     requires   serialization_concepts::ISerializationCapableContainer<Container>
             || serialization_concepts::IDeserializationCapableContainer<Container>
 class Data : public Common<Container>
@@ -107,7 +107,7 @@ private:
 template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM = std::unordered_map<const void*, size_t>>
 using SData = Data<S, true, PM>;
 
-template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM = std::unordered_map<size_t, const void*>>
+template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM = std::unordered_map<size_t, void*>>
 using DData = Data<D, false, PM>;
 
 } // namespace context
