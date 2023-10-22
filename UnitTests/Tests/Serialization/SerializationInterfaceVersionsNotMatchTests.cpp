@@ -1,5 +1,5 @@
 /**
- * @file SerializationCompatTests.cpp
+ * @file SerializationInterfaceVersionsNotMatchTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -28,7 +28,7 @@ namespace
 
 using namespace special_types;
 
-TEST(SerializationCompatTests, First)
+TEST(SerializationInterfaceVersionsNotMatchTests, TopStruct)
 {
     SimpleAssignableAlignedToOneSerializable saaToSIn;
     filling::_SimpleAssignableAlignedToOneSerializable(saaToSIn);
@@ -38,17 +38,48 @@ TEST(SerializationCompatTests, First)
     csp::context::Flags flags;
     flags.interfaceVersionsNotMatch = true;
     ctxIn.setFlags(flags);
-    ctxIn.setInterfaceVersion(1);
+    ctxIn.setInterfaceVersion(0);
 
     EXPECT_EQ(saaToSIn.serialize(ctxIn), Status::kNoError);
 
     csp::context::DData<Walker<uint8_t>> ctx2(bin);
-    
     SimpleAssignableAlignedToOneSerializable saaToSOut;
 
     EXPECT_EQ(saaToSOut.deserialize(ctx2), Status::kNoError);
 
     EXPECT_TRUE(saaToSIn == saaToSOut);
 }
+
+TEST(SerializationInterfaceVersionsNotMatchTests, MemberStruct)
+{
+    SimpleAssignableSerializable sasIn;
+    filling::_SimpleAssignableSerializable(sasIn);
+
+    Walker<uint8_t> bin;
+    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
+    csp::context::Flags flags;
+    flags.interfaceVersionsNotMatch = true;
+    ctxIn.setFlags(flags);
+    ctxIn.setInterfaceVersion(1);
+
+    EXPECT_EQ(sasIn.serialize(ctxIn), Status::kNoError);
+
+    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
+    SimpleAssignableSerializable sasOut;
+
+    // test minimum interface version that is higher than in serialized data
+    ctxOut.setInterfaceVersion(2);
+    EXPECT_EQ(sasOut.deserialize(ctxOut), Status::kErrorNotSupportedInterfaceVersion);
+
+    ctxOut.getBinaryData().seek(0);
+    ctxOut.resetToDefaultsAllExceptData();
+
+    EXPECT_EQ(sasOut.deserialize(ctxOut), Status::kNoError);
+
+    EXPECT_TRUE(sasIn == sasOut);
+}
+
+// need to add test for interface versions that are not matched 
+// and flags.interfaceVersionsNotMatch is not set
 
 } // namespace anonymous

@@ -54,6 +54,7 @@ public:
     [[nodiscard]] static constexpr uint64_t getNameHash() noexcept;
     [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
     [[nodiscard]] static constexpr uint32_t getInterfaceVersion() noexcept;
+    [[nodiscard]] static constexpr uint32_t getMinimumInterfaceVersion() noexcept;
     [[nodiscard]] static constexpr const uint32_t* getVersionsHierarchy() noexcept;
     [[nodiscard]] static constexpr uint32_t getVersionsHierarchySize() noexcept;
 };
@@ -95,7 +96,7 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
     RUN(processing::deserializeHeaderContext(ctx));
 
     uint64_t nameHash = 0;
-    uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion();
+    uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionMax ? getMinimumInterfaceVersion() : ctx.getInterfaceVersion();
 
     RUN(processing::deserializeDataContext(ctx, nameHash));
     RUN(processing::deserializeDataContextPostprocess<T>(ctx, nameHash, minimumInterfaceVersion));
@@ -119,6 +120,12 @@ template<typename T>
 [[nodiscard]] constexpr uint32_t ISerializable<T>::getInterfaceVersion() noexcept
 {
     return T::kInterfaceVersion;
+}
+
+template<typename T>
+[[nodiscard]] constexpr uint32_t ISerializable<T>::getMinimumInterfaceVersion() noexcept
+{
+    return getVersionsHierarchy()[getVersionsHierarchySize() - 1];
 }
 
 template<typename T>

@@ -30,6 +30,13 @@ namespace common_serialization
 
 template<typename> class ISerializable;
 
+namespace csp
+{
+
+template<typename> class ISerializable;
+
+}
+
 namespace serialization_concepts
 {
 
@@ -79,6 +86,7 @@ concept ISerializationPointersMap
             { pm.find(nullptr) };
             { pm.end() };
             { pm[*(new typename PM::key_type)] } -> std::same_as<typename PM::mapped_type&>;
+            { pm.clear() };
         }
     && std::is_same_v<typename PM::key_type, const void*> && std::is_same_v<typename PM::mapped_type, size_t>;
 
@@ -92,6 +100,7 @@ concept IDeserializationPointersMap
             { pm.find(1) };
             { pm.end() };
             { pm[*(new typename PM::key_type)] } -> std::same_as<typename PM::mapped_type&>;
+            { pm.clear() };
         }
     && std::is_same_v<typename PM::key_type, size_t> && std::is_same_v<typename PM::mapped_type, void*>;
 
@@ -127,7 +136,10 @@ concept EmptyType
     && std::is_same_v<typename T::empty_type, std::true_type>;
 
 template<typename T>
-concept IsISerializableBased = std::is_base_of_v<ISerializable<T>, T>;
+concept IsISerializableBased = std::is_base_of_v<csp::ISerializable<T>, T>;
+
+template<typename T>
+concept IsNotISerializableBased = !IsISerializableBased<T>;
 
 } // namespace serialization_concepts
 

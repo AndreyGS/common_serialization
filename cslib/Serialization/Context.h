@@ -61,6 +61,13 @@ public:
     constexpr uint8_t getProtocolVersion() const noexcept { return m_protocolVersion; }
     constexpr void setProtocolVersion(uint8_t protocolVersion) { m_protocolVersion = protocolVersion; }
 
+    void resetToDefaultsAllExceptData() noexcept
+    {
+        m_protocolVersion = traits::getLatestProtocolVersion();
+        m_flags = Flags{};
+        m_messageType = Message::kData;
+    }
+
 private:
     Container& m_binaryData;
     uint8_t m_protocolVersion{ traits::getLatestProtocolVersion() };
@@ -98,6 +105,14 @@ public:
 
     constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
     constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
+
+    void resetToDefaultsAllExceptData() noexcept
+    {
+        Common<Container>::resetToDefaultsAllExceptData();
+        m_interfaceVersion = traits::kInterfaceVersionMax;
+        if (m_pPointersMap)
+            m_pPointersMap->clear();
+    }
 
 private:
     uint32_t m_interfaceVersion{ traits::kInterfaceVersionMax };

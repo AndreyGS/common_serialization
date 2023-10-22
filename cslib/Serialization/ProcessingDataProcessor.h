@@ -46,8 +46,8 @@ public:
     static constexpr Status serializeData(const T& value, context::SData<S, PM>& ctx);
 
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-    static constexpr Status deserializeData(context::DData<D, PM>& ctx, size_t n, T* p);
-    template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    static constexpr Status deserializeData(context::DData<D, PM>& ctx, typename D::size_type n, T* p);
+    template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM, typename D::size_type N>
     static constexpr Status deserializeData(context::DData<D, PM>& ctx, T(&arr)[N]);
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     static constexpr Status deserializeData(context::DData<D, PM>& ctx, T& value);
@@ -57,10 +57,15 @@ public:
 private:
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status serializeDataSimpleAssignable(const T& value, context::SData<S, PM>& ctx);
-
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
         requires serialization_concepts::SimpleAssignableType<T> || serialization_concepts::SimpleAssignableAlignedToOneType<T>
     static constexpr Status serializeDataSimpleAssignable(const T& value, context::SData<S, PM>& ctx);
+
+    template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    static constexpr Status deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value);
+    template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+        requires serialization_concepts::SimpleAssignableType<T> || serialization_concepts::SimpleAssignableAlignedToOneType<T>
+    static constexpr Status deserializeDataSimpleAssignable(context::DData<D, PM>&ctx, T & value);
 
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status serializeDataLegacy(const T& value, context::SData<S, PM>& ctx);
@@ -75,10 +80,18 @@ private:
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx);
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+        requires serialization_concepts::IsNotISerializableBased<T>
+    static constexpr Status convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx);
+
+    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status convertToOldStruct(const T& value, uint32_t thisVersionCompat, context::SData<S, PM>& ctx);
 
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     static constexpr Status convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value);
+    template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+        requires serialization_concepts::IsNotISerializableBased<T>
+    static constexpr Status convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value);
+
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     static constexpr Status convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t thisVersionCompat, T& value);
 };
@@ -200,7 +213,7 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
 
 // common function for pointers of known size
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, size_t n, T* p)
+constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, typename D::size_type n, T* p)
 {
     static_assert(!std::is_reference_v<T>
         , "Pointers on references are not allowed");
@@ -245,7 +258,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, size
 }
 
 // common function for arrays
-template<typename T, size_t N, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM, typename D::size_type N>
 constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T(&arr)[N])
 {
     static_assert(N == sizeof(T) * N / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array input of serializeData");
@@ -300,18 +313,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
     }
     // this is for types that are not ISerializable
     else if constexpr (serialization_concepts::SimpleAssignableType<T> || serialization_concepts::SimpleAssignableAlignedToOneType<T>)
-    {
-        if (
-            !flags.sizeOfArithmeticTypesMayBeNotEqual
-            && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
-        )
-        {
-            // for simple assignable types it is preferable to get a whole struct at a time
-            RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T)));
-        }
-        else
-            assert(false);
-    }
+        RUN(deserializeDataSimpleAssignable(ctx, value))
     else if constexpr (!serialization_concepts::EmptyType<T>)
         RUN(processing::deserializeData(ctx, value));
 
@@ -351,11 +353,35 @@ static constexpr Status DataProcessor::serializeDataSimpleAssignable(const T& va
         // for simple assignable types it is preferable to get a whole struct at a time
         RUN(ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), sizeof(T)));
 
-        return Status::kNoError;
+        return Status::kNoFurtherProcessingRequired;
+    }
+    else
+        return Status::kErrorNotSupportedSerializationSettingsForStruct;       
+}
+
+template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value)
+{
+    return Status::kNoError;
+}
+
+template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    requires serialization_concepts::SimpleAssignableType<T> || serialization_concepts::SimpleAssignableAlignedToOneType<T>
+constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value)
+{
+    if (
+        context::Flags flags = ctx.getFlags();
+        !flags.sizeOfArithmeticTypesMayBeNotEqual
+        && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
+    )
+    {
+        // for simple assignable types it is preferable to get a whole struct at a time
+        RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T)));
+
+        return Status::kNoFurtherProcessingRequired;
     }
     else
         return Status::kErrorNotSupportedSerializationSettingsForStruct;
-        
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
@@ -443,6 +469,13 @@ constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context
         return Status::kNoError;
 }
 
+template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    requires serialization_concepts::IsNotISerializableBased<T>
+static constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
+{
+    return Status::kNoError;
+}
+
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
 static constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
 {
@@ -461,6 +494,13 @@ static constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData
     }
     else
         return Status::kNoError;
+}
+
+template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    requires serialization_concepts::IsNotISerializableBased<T>
+constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
+{
+    return Status::kNoError;
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>

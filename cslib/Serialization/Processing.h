@@ -91,8 +91,8 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     if (flags)
     {
         if (flags.interfaceVersionsNotMatch
-            && traits::isInterfaceVersionSupported(ctx.getInterfaceVersion()
-                , T::getVersionsHierarchy()[T::getVersionsHierarchySize() - 1], T::getVersionsHierarchy()[0]))
+            && !traits::isInterfaceVersionSupported(ctx.getInterfaceVersion()
+                , T::getMinimumInterfaceVersion(), T::getInterfaceVersion()))
         {
             return Status::kErrorNotSupportedInterfaceVersion;
         }
@@ -129,6 +129,9 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, u
     if (T::getNameHash() != nameHash)
         return Status::kErrorMismatchOfStructNameHash;
 
+    // minimumSupportedInterfaceVersion should be getMinimumInterfaceVersion value by default
+    // however for some special subscribers of data struct you may override it by
+    // value that is higher than minimum defined in interface version
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterfaceVersion()))
         return Status::kErrorNotSupportedInterfaceVersion;
     else if (ctx.getInterfaceVersion() != T::getInterfaceVersion() && !ctx.getFlags().interfaceVersionsNotMatch)

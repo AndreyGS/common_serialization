@@ -42,7 +42,6 @@ public:
 
     static constexpr uint64_t kNameHash = 0;
     static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
-
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 };
 
@@ -174,6 +173,8 @@ private:
     SimpleAssignableAlignedToOneSerializable<> m_arrSaaTos[3]{};
     SimpleAssignableAlignedToOneNotSerializable m_arrSaaToNS[3]{};
     SimpleAssignableNotSerializable m_arrSaNS[3]{};
+
+    friend csp::processing::DataProcessor;
 };
 
 template<typename T = Dummy>

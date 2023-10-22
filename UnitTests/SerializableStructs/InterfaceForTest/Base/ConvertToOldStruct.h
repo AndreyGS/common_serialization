@@ -54,7 +54,7 @@ constexpr Status DataProcessor::convertToOldStruct(const special_types::SimpleAs
         compatVersion.m_ti.x = value.m_x;
         compatVersion.m_ti.y = value.m_y;
 
-        /*RUN(serializeDataCompatLegacy(compatVersion, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));*/
+        RUN(serializeDataLegacy(compatVersion, ctx));
     }
     else if (thisVersionCompat == 1)
     {

@@ -64,7 +64,7 @@ constexpr bool isProtocolVersionSupported(uint8_t foreignProtocolVersion) noexce
 
 constexpr bool isInterfaceVersionSupported(uint32_t version, uint32_t minVersion, uint32_t maxVersion) noexcept
 {
-    return maxVersion >= version && version <= minVersion;
+    return maxVersion >= version && version >= minVersion;
 }
 
 // Used to find version of struct to which we shall serialize when we are in compat mode

@@ -60,6 +60,8 @@ struct TwoInts
 {
     uint8_t x{ 0 };
     uint16_t y{ 0 };
+
+    using simple_assignable = std::true_type;
 };
 
 template<typename T = Dummy>

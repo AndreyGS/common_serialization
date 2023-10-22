@@ -51,10 +51,10 @@ constexpr Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8
     if (thisVersionCompat == 0)
     {
         special_types::SimpleAssignableAlignedToOneSerializable_Version0<> compatVersion;
-        compatVersion.m_ti.x = value.m_x;
-        compatVersion.m_ti.y = value.m_y;
+        RUN(deserializeDataLegacy(ctx, compatVersion));
 
-        /*RUN(serializeDataCompatLegacy(compatVersion, flags, protocolVersionCompat, interfaceVersionCompat, pointersMap, output));*/
+        value.m_x = compatVersion.m_ti.x;
+        value.m_y = compatVersion.m_ti.y;
     }
     else if (thisVersionCompat == 1)
     {

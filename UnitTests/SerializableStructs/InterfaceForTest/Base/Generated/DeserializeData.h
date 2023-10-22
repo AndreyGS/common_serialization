@@ -31,14 +31,29 @@
         return status;                                                          \
 }
 
-#define CONVERT_FROM_OLD_IF_NEED(ctx, value)                                    \
-{                                                                               \
-    Status status = convertFromOldStructIfNeed((ctx), (value));                 \
-                                                                                \
-    if (status == Status::kNoFurtherProcessingRequired)                         \
-        return Status::kNoError;                                                \
-    else if (!statusSuccess(status))                                            \
-        return status;                                                          \
+#define DESERIALIZE_COMMON(ctx, value)                                                  \
+{                                                                                       \
+    if (const context::Flags flags = ctx.getFlags(); flags.interfaceVersionsNotMatch)   \
+    {                                                                                   \
+        Status status = convertFromOldStructIfNeed((ctx), (value));                     \
+                                                                                        \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (!statusSuccess(status))                                                \
+            return status;                                                              \
+    }                                                                                   \
+    else if constexpr (serialization_concepts::SimpleAssignableType<std::remove_reference_t<decltype(value)>>    \
+        || serialization_concepts::SimpleAssignableAlignedToOneType<std::remove_reference_t<decltype(value)>>)   \
+    {                                                                                   \
+        Status status = deserializeDataSimpleAssignable((ctx), (value));                \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (!statusSuccess(status) && status != Status::kErrorNotSupportedSerializationSettingsForStruct)   \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* than we should deserialize it field-by-field */                              \
+   }                                                                                    \
 }
 
 namespace common_serialization
@@ -54,10 +69,34 @@ template<>
 constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable<>& value)
 {
-    CONVERT_FROM_OLD_IF_NEED(ctx, value);
+    DESERIALIZE_COMMON(ctx, value);
 
-    deserializeData(ctx, value.m_x);
-    deserializeData(ctx, value.m_y);
+    RUN(deserializeData(ctx, value.m_x));
+    RUN(deserializeData(ctx, value.m_y));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
+    , special_types::SimpleAssignableSerializable<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_i));
+    RUN(deserializeData(ctx, value.m_j));
+    RUN(deserializeData(ctx, value.m_et));
+    RUN(deserializeData(ctx, value.m_et2));
+    RUN(deserializeData(ctx, value.m_saaToS));
+    RUN(deserializeData(ctx, value.m_saaToNS));
+    RUN(deserializeData(ctx, value.m_saNS));
+
+    RUN(deserializeData(ctx, value.m_arrI32));
+    RUN(deserializeData(ctx, value.m_arrEtS));
+    RUN(deserializeData(ctx, value.m_arrEtNS));
+    RUN(deserializeData(ctx, value.m_arrSaaTos));
+    RUN(deserializeData(ctx, value.m_arrSaaToNS));
+    RUN(deserializeData(ctx, value.m_arrSaNS));
 
     return Status::kNoError;
 }
@@ -65,6 +104,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DynamicPolymorphicNotSerializable& value)
 {
+    DESERIALIZE_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, value.m_r));
     RUN(deserializeData(ctx, value.m_arrR));
 
@@ -74,6 +115,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DynamicPolymorphicSerializable<>& value)
 {
+    DESERIALIZE_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, value.m_o));
     RUN(deserializeData(ctx, value.m_dpNS));
 
@@ -86,6 +129,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DiamondBaseNotSerializable& value)
 {
+    DESERIALIZE_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, value.m_d0));
 
     return Status::kNoError;
@@ -94,6 +139,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DiamondEdge1NotSerializable& value)
 {
+    DESERIALIZE_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, static_cast<special_types::DiamondBaseNotSerializable&>(value)));
     RUN(deserializeData(ctx, value.m_d1));
 
@@ -103,6 +150,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DiamondEdge2NotSerializable& value)
 {
+    DESERIALIZE_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, static_cast<special_types::DiamondBaseNotSerializable&>(value)));
     RUN(deserializeData(ctx, value.m_d2));
 
@@ -112,6 +161,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DiamondSerializable<>& value)
 {
+    DESERIALIZE_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, static_cast<special_types::DiamondEdge1NotSerializable&>(value)));
     RUN(deserializeData(ctx, static_cast<special_types::DiamondEdge2NotSerializable&>(value)));
 
@@ -121,6 +172,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::SpecialProcessingTypeContainSerializable<>& value)
 {
+    DESERIALIZE_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, value.m_vec));
     RUN(deserializeData(ctx, value.m_saaToNS));
     RUN(deserializeData(ctx, value.m_saNS));
