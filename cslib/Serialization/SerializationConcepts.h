@@ -47,6 +47,7 @@ concept ISerializationCapableContainer
              typename S::value_type;
              typename S::size_type;
 
+             { e.clear() };
              { e.data() } -> std::same_as<typename S::value_type*>;
              { e.size() } -> std::same_as<typename S::size_type>;
              { e.capacity() } -> std::same_as<typename S::size_type>;
@@ -64,6 +65,7 @@ concept IDeserializationCapableContainer
              typename D::value_type;
              typename D::size_type;
 
+             { e.clear() };
              { e.data() } -> std::same_as<typename D::value_type*>;
              { e.size() } -> std::same_as<typename D::size_type>;
 
@@ -115,11 +117,14 @@ concept FixSizedArithmeticType
 template<typename T>
 concept FixSizedEnumType = std::is_enum_v<T> && FixSizedArithmeticType<std::underlying_type_t<T>>;
 
+template<typename T>
+using normalize_t = std::remove_const_t<std::remove_reference_t<T>>;
+
 // can be copied with memcpy (if alignments are the same and arithmetic types in are fixed length)
 template<typename T>
 concept SimpleAssignableType
-    =  requires(T t) { typename T::simple_assignable; } 
-    && std::is_same_v<typename T::simple_assignable, std::true_type>;
+    =  requires(T t) { typename normalize_t<T>::simple_assignable; }
+    && std::is_same_v<typename normalize_t<T>::simple_assignable, std::true_type>;
 
 // can be copied with memcpy (if all arithmetic types in are fixed length)
 template<typename T>
@@ -127,16 +132,16 @@ concept SimpleAssignableAlignedToOneType = SimpleAssignableType<T> && alignof(T)
 
 template<typename T>
 concept CompositeType 
-    =  requires(T t) { typename T::composite_type; } 
-    && std::is_same_v<typename T::composite_type, std::true_type>;
+    =  requires(T t) { typename normalize_t<T>::composite_type; }
+    && std::is_same_v<typename normalize_t<T>::composite_type, std::true_type>;
 
 template<typename T>
 concept EmptyType 
-    =  requires(T t) { typename T::empty_type; }
-    && std::is_same_v<typename T::empty_type, std::true_type>;
+    =  requires(T t) { typename normalize_t<T>::empty_type; }
+    && std::is_same_v<typename normalize_t<T>::empty_type, std::true_type>;
 
 template<typename T>
-concept IsISerializableBased = std::is_base_of_v<csp::ISerializable<T>, T>;
+concept IsISerializableBased = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;
 
 template<typename T>
 concept IsNotISerializableBased = !IsISerializableBased<T>;

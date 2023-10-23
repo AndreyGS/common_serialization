@@ -122,4 +122,51 @@ inline uint32_t ErrorProne::counter = 0;
 inline uint32_t ErrorProne::errorOnCounter = 0;
 inline Status ErrorProne::currentError = Status::kNoError;
 
+#pragma pack(push, 1)
+
+struct AlignedToOneSimilarType1
+{
+    char j;
+    int k;
+
+    using simple_assignable = std::true_type;
+};
+
+struct AlignedToOneSimilarType2
+{
+    char j;
+    short k;
+
+    using simple_assignable = std::true_type;
+};
+
+#pragma pack(pop)
+
+struct SimilarType1
+{
+    char j;
+    int k;
+
+    using simple_assignable = std::true_type;
+};
+
+struct SimilarType2
+{
+    char j;
+    short k;
+
+    using simple_assignable = std::true_type;
+};
+
+struct SimpleAssignableTypeWithoutTypeUsing
+{
+    char j;
+    short k;
+};
+
+struct EmptyTypeWithoutTypeUsing
+{
+
+};
+
 } // namespace special_types

@@ -33,7 +33,9 @@
 
 #define DESERIALIZE_COMMON(ctx, value)                                                  \
 {                                                                                       \
-    if (const context::Flags flags = ctx.getFlags(); flags.interfaceVersionsNotMatch)   \
+    if (                                                                                \
+           serialization_concepts::IsISerializableBased<decltype(value)>                \
+        && ctx.getFlags().interfaceVersionsNotMatch)                                    \
     {                                                                                   \
         Status status = convertFromOldStructIfNeed((ctx), (value));                     \
                                                                                         \
@@ -42,13 +44,16 @@
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
     }                                                                                   \
-    else if constexpr (serialization_concepts::SimpleAssignableType<std::remove_reference_t<decltype(value)>>    \
-        || serialization_concepts::SimpleAssignableAlignedToOneType<std::remove_reference_t<decltype(value)>>)   \
+    else if constexpr (serialization_concepts::SimpleAssignableType<decltype(value)>    \
+        || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
     {                                                                                   \
         Status status = deserializeDataSimpleAssignable((ctx), (value));                \
         if (status == Status::kNoFurtherProcessingRequired)                             \
             return Status::kNoError;                                                    \
-        else if (!statusSuccess(status) && status != Status::kErrorNotSupportedSerializationSettingsForStruct)   \
+        else if (                                                                       \
+                   !statusSuccess(status)                                               \
+                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
+        )                                                                               \
             return status;                                                              \
                                                                                         \
         /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
@@ -67,12 +72,36 @@ namespace processing
 
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
+    , special_types::SimpleAssignableAlignedToOneNotSerializable& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.a));
+    RUN(deserializeData(ctx, value.s));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_x));
     RUN(deserializeData(ctx, value.m_y));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
+    , special_types::SimpleAssignableNotSerializable& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.q));
+    RUN(deserializeData(ctx, value.w));
 
     return Status::kNoError;
 }

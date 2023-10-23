@@ -54,7 +54,7 @@ public:
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     static constexpr Status deserializeData(size_t originalTypeSize, context::DData<D, PM>& ctx, T& value);
 
-private:
+protected:
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status serializeDataSimpleAssignable(const T& value, context::SData<S, PM>& ctx);
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
@@ -114,8 +114,8 @@ namespace processing
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
 constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type n, context::SData<S, PM>& ctx)
 {
-    static_assert(!std::is_reference_v<T>
-                    , "Pointers on references are not allowed");
+    static_assert(!std::is_reference_v<T> || !std::is_member_pointer_v<T>
+                    , "Pointers on references and member_pointers are not allowed");
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
                     , "References and pointers on functions are not allowed to be serialized");
 
@@ -172,8 +172,8 @@ constexpr Status DataProcessor::serializeData(const T(&arr)[N], context::SData<S
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
 constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, PM>& ctx)
 {
-    static_assert(!std::is_reference_v<T>
-        , "References are not allowed");
+    static_assert(!std::is_reference_v<T> || !std::is_member_pointer_v<T>
+        , "References and member pointers not allowed");
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
         , "References and pointers on functions are not allowed to be serialized");
 
@@ -215,8 +215,8 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
 constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, typename D::size_type n, T* p)
 {
-    static_assert(!std::is_reference_v<T>
-        , "Pointers on references are not allowed");
+    static_assert(!std::is_reference_v<T> || !std::is_member_pointer_v<T>
+        , "Pointers on references and member_pointers are not allowed");
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
         , "References and pointers on functions are not allowed to be serialized");
 
@@ -270,8 +270,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T(&a
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
 constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& value)
 {
-    static_assert(!std::is_reference_v<T>
-        , "References are not allowed");
+    static_assert(!std::is_reference_v<T> || !std::is_member_pointer_v<T>
+        , "References and member pointers not allowed");
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
         , "References and pointers on functions are not allowed to be serialized");
 
@@ -337,7 +337,7 @@ constexpr Status DataProcessor::deserializeData(size_t originalTypeSize, context
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
 static constexpr Status DataProcessor::serializeDataSimpleAssignable(const T& value, context::SData<S, PM>& ctx)
 {
-    return Status::kNoError;
+    return Status::kErrorInvalidType;
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
@@ -362,7 +362,7 @@ static constexpr Status DataProcessor::serializeDataSimpleAssignable(const T& va
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
 constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value)
 {
-    return Status::kNoError;
+    return Status::kErrorInvalidType;
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
@@ -450,30 +450,25 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
 constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
 {
-    if (const context::Flags flags = ctx.getFlags(); flags.interfaceVersionsNotMatch)
-    {
-        uint32_t thisVersionCompat = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
+    uint32_t thisVersionCompat = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
 
-        S& output = ctx.getBinaryData();
-        RUN(output.pushBackArithmeticValue(thisVersionCompat));
+    S& output = ctx.getBinaryData();
+    RUN(output.pushBackArithmeticValue(thisVersionCompat));
 
-        if (thisVersionCompat == value.getThisVersion())
-            return Status::kNoError;
-        // Normaly, next condition shall never succeed
-        else if (thisVersionCompat == traits::kInterfaceVersionMax)
-            return Status::kErrorNotSupportedInterfaceVersion;
-        else
-            return convertToOldStruct(value, thisVersionCompat, ctx);
-    }
-    else
+    if (thisVersionCompat == value.getThisVersion())
         return Status::kNoError;
+    // Normaly, next condition shall never succeed
+    else if (thisVersionCompat == traits::kInterfaceVersionMax)
+        return Status::kErrorNotSupportedInterfaceVersion;
+    else
+        return convertToOldStruct(value, thisVersionCompat, ctx);
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     requires serialization_concepts::IsNotISerializableBased<T>
 static constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
 {
-    return Status::kNoError;
+    return Status::kErrorInvalidType;
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
@@ -500,19 +495,19 @@ template<typename T, serialization_concepts::IDeserializationCapableContainer D,
     requires serialization_concepts::IsNotISerializableBased<T>
 constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
 {
-    return Status::kNoError;
+    return Status::kErrorInvalidType;
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
 constexpr Status DataProcessor::convertToOldStruct(const T& value, uint32_t thisVersionCompat, context::SData<S, PM>& ctx)
 {
-    return Status::kErrorInvalidTypeConversion;
+    return Status::kErrorNoSuchHandler;
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
 static constexpr Status DataProcessor::convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t thisVersionCompat, T& value)
 {
-    return Status::kErrorInvalidTypeConversion;
+    return Status::kErrorNoSuchHandler;
 }
 
 } // namespace processing

@@ -61,11 +61,19 @@ public:
     constexpr uint8_t getProtocolVersion() const noexcept { return m_protocolVersion; }
     constexpr void setProtocolVersion(uint8_t protocolVersion) { m_protocolVersion = protocolVersion; }
 
-    void resetToDefaultsAllExceptData() noexcept
+    void resetToDefaultsExceptDataContents() noexcept
     {
+        if constexpr (serialization_concepts::IDeserializationCapableContainer<Container>)
+            m_binaryData.seek(0);
         m_protocolVersion = traits::getLatestProtocolVersion();
         m_flags = Flags{};
         m_messageType = Message::kData;
+    }
+
+    void clear() noexcept
+    {
+        resetToDefaultsExceptDataContents();
+        m_binaryData.clear();
     }
 
 private:
@@ -106,9 +114,17 @@ public:
     constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
     constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
 
-    void resetToDefaultsAllExceptData() noexcept
+    void resetToDefaultsExceptDataContents() noexcept
     {
-        Common<Container>::resetToDefaultsAllExceptData();
+        Common<Container>::resetToDefaultsExceptDataContents();
+        m_interfaceVersion = traits::kInterfaceVersionMax;
+        if (m_pPointersMap)
+            m_pPointersMap->clear();
+    }
+
+    void clear() noexcept
+    {
+        Common<Container>::clear();
         m_interfaceVersion = traits::kInterfaceVersionMax;
         if (m_pPointersMap)
             m_pPointersMap->clear();
