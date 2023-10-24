@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../../../Base/src/SpecialTypesSerializableLegacy.h"
+#include "../../../Base/include/SpecialTypesSerializableLegacy.h"
 
 namespace common_serialization
 {

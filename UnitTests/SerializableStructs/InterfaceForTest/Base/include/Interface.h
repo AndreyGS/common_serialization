@@ -25,13 +25,13 @@
 
 #include "common_serialization.h"
 
-#include "../../Base/src/SpecialTypesSerializable.h"
-#include "../../Base/src/SpecialTypesSerializableLegacy.h"
+#include "../../Base/include/SpecialTypesSerializable.h"
+#include "../../Base/include/SpecialTypesSerializableLegacy.h"
 
-#include "../../Base/src/Generated/SerializeData.h"
-#include "../../Base/src/Generated/SerializeDataLegacy.h"
-#include "../../Base/src/Generated/DeserializeData.h"
-#include "../../Base/src/Generated/DeserializeDataLegacy.h"
+#include "../../Base/include/Generated/SerializeData.h"
+#include "../../Base/include/Generated/SerializeDataLegacy.h"
+#include "../../Base/include/Generated/DeserializeData.h"
+#include "../../Base/include/Generated/DeserializeDataLegacy.h"
 
-#include "../../Base/src/ConvertToOldStruct.h"
-#include "../../Base/src/ConvertFromOldStruct.h"
+#include "../../Base/include/ConvertToOldStruct.h"
+#include "../../Base/include/ConvertFromOldStruct.h"

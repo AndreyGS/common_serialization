@@ -24,4 +24,4 @@
 #pragma once
 
 #include "common_serialization.h"
-#include "../../TypesForTests/src/SpecialTypesFillingStruct.h"
+#include "../../TypesForTests/include/SpecialTypesFillingStruct.h"

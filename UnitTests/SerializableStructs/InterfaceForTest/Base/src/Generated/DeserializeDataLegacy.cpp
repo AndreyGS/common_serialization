@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "DeserializeDataLegacy.h"
+#include "Generated/DeserializeDataLegacy.h"
 
 #define RUN(x)                                                                  \
 {                                                                               \

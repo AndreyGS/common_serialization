@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "SpecialTypes.h"
+#include "../../TypesForTests/include/SpecialTypes.h"
 #include "../../SerializableStructs/InterfaceForTest/Base/Include/Interface.h"
 
 namespace special_types

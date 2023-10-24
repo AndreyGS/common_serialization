@@ -46,31 +46,31 @@
 
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 
-#include "../../cslib/src/Allocators/PlatformDependent/UserModeMemoryManagement.h"
+#include "../../cslib/include/Allocators/PlatformDependent/UserModeMemoryManagement.h"
 
 #else // !USER_MODE
 
-#include "../../cslib/src/std_equivalents/std_equivalents.h"
+#include "../../cslib/include/std_equivalents/std_equivalents.h"
 
 #ifdef LINUX_KERNEL
 
-#include "../../cslib/src/Allocators/PlatformDependent/LinuxKernelMemoryManagement.h"
+#include "../../cslib/include/Allocators/PlatformDependent/LinuxKernelMemoryManagement.h"
 
 #elif defined WINDOWS_KERNEL
 
-#include "../../cslib/src/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
+#include "../../cslib/include/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
 
 #endif // LINUX_KERNEL || WINDOWS_KERNEL
 
-#include "../../cslib/src/std_equivalents/new.h"
+#include "../../cslib/include/std_equivalents/new.h"
 
 #endif // USER_MODE
 
-#include "../../cslib/src/CsHelpers.h"
-#include "../../cslib/src/Allocators/AllocatorConcepts.h"
-#include "../../cslib/src/Allocators/RawKeeperAllocator.h"
-#include "../../cslib/src/Containers/Walker.h"
-#include "../../cslib/src/Serialization/ISerializable.h"
-#include "../../cslib/src/Serialization/ProcessingSpecial.h"
+#include "../../cslib/include/CsHelpers.h"
+#include "../../cslib/include/Allocators/AllocatorConcepts.h"
+#include "../../cslib/include/Allocators/RawKeeperAllocator.h"
+#include "../../cslib/include/Containers/Walker.h"
+#include "../../cslib/include/Serialization/ISerializable.h"
+#include "../../cslib/include/Serialization/ProcessingSpecial.h"
 
 #undef RUN

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "SerializeData.h"
+#include "Generated/SerializeData.h"
 
 #define RUN(x)                                                                  \
 {                                                                               \
