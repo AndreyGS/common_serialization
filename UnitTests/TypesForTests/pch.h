@@ -1,5 +1,5 @@
 /**
- * @file DeserializeDataLegacy.h
+ * @file pch.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,46 +23,4 @@
 
 #pragma once
 
-#include "../SpecialTypesSerializableLegacy.h"
-
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !statusSuccess(status))                            \
-        return status;                                                          \
-}
-
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
-{
-
-template<>
-constexpr Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value)
-{
-    RUN(deserializeData(ctx, value.m_ti));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value)
-{
-    RUN(deserializeData(ctx, value.m_x));
-    RUN(deserializeData(ctx, value.m_y));
-
-    return Status::kNoError;
-}
-
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
-
-#undef RUN
+#include "common_serialization.h";

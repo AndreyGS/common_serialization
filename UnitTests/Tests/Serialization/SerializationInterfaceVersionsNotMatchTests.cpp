@@ -28,8 +28,8 @@ using namespace special_types;
 
 TEST(SerializationInterfaceVersionsNotMatchTests, TopStruct)
 {
-    SimpleAssignableAlignedToOneSerializable saaToSIn;
-    filling::_SimpleAssignableAlignedToOneSerializable(saaToSIn);
+    SimpleAssignableAlignedToOneSerializable input;
+    fillingStruct(input);
 
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
@@ -38,20 +38,20 @@ TEST(SerializationInterfaceVersionsNotMatchTests, TopStruct)
     ctxIn.setFlags(flags);
     ctxIn.setInterfaceVersion(0);
 
-    EXPECT_EQ(saaToSIn.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
     csp::context::DData<Walker<uint8_t>> ctx2(bin);
-    SimpleAssignableAlignedToOneSerializable saaToSOut;
+    SimpleAssignableAlignedToOneSerializable output;
 
-    EXPECT_EQ(saaToSOut.deserialize(ctx2), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctx2), Status::kNoError);
 
-    EXPECT_TRUE(saaToSIn == saaToSOut);
+    EXPECT_TRUE(input == output);
 }
 
 TEST(SerializationInterfaceVersionsNotMatchTests, MemberStruct)
 {
-    SimpleAssignableSerializable sasIn;
-    filling::_SimpleAssignableSerializable(sasIn);
+    SimpleAssignableSerializable input;
+    fillingStruct(input);
 
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
@@ -60,21 +60,21 @@ TEST(SerializationInterfaceVersionsNotMatchTests, MemberStruct)
     ctxIn.setFlags(flags);
     ctxIn.setInterfaceVersion(1);
 
-    EXPECT_EQ(sasIn.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
     csp::context::DData<Walker<uint8_t>> ctxOut(bin);
-    SimpleAssignableSerializable sasOut;
+    SimpleAssignableSerializable output;
 
     // test minimum interface version that is higher than in serialized data
     ctxOut.setInterfaceVersion(2);
-    EXPECT_EQ(sasOut.deserialize(ctxOut), Status::kErrorNotSupportedInterfaceVersion);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::kErrorNotSupportedInterfaceVersion);
 
     ctxOut.resetToDefaultsExceptDataContents();
 
     // normal deserialization
-    EXPECT_EQ(sasOut.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
 
-    EXPECT_TRUE(sasIn == sasOut);
+    EXPECT_TRUE(input == output);
 }
 
 // need to add test for interface versions that are not matched 

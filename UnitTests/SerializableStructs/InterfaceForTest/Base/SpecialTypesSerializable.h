@@ -41,7 +41,7 @@ public:
     using empty_type = std::true_type;
 
     static constexpr uint64_t kNameHash = 0;
-    static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
+    static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 };
 
@@ -68,7 +68,7 @@ public:
     using simple_assignable = std::true_type;
 
     static constexpr uint64_t kNameHash = 1;
-    static constexpr uint32_t kInterfaceVersion = 2;            // latest version among all dependable structs
+    static constexpr uint32_t kInterfaceVersion = 2;
     static constexpr uint32_t kVersionsHierarchy[] = { 2, 1, 0 };
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
@@ -215,7 +215,7 @@ public:
     virtual ~DynamicPolymorphicNotSerializable() {}
 
     static constexpr uint64_t kNameHash = 4;
-    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] uint8_t& getR()                 noexcept { return m_r; }    // getters here are only need for testing proposes
@@ -245,7 +245,7 @@ public:
     virtual ~DynamicPolymorphicSerializable() {}
 
     static constexpr uint64_t kNameHash = 5;
-    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] uint8_t& getO()                 noexcept { return m_o; }    // getters here are only need for testing proposes
@@ -343,7 +343,7 @@ public:
     using instance_type = GetCrtpMainType<SpecialProcessingTypeContainSerializable<T>, T>;
 
     static constexpr uint64_t kNameHash = 9;
-    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] Vector<DiamondSerializable<>>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
@@ -379,5 +379,155 @@ private:
 
     friend csp::processing::DataProcessor;
 };
+
+#pragma pack(push, 1)
+
+template<typename T = Dummy>
+class SimpleAssignableAlignedToOneSimilarType1Serializable : public csp::ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1Serializable<T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1Serializable<T>, T>;
+    using simple_assignable = std::true_type;
+
+    static constexpr uint64_t kNameHash = 1001; // hash is same as in SimpleAssignableAlignedToOneSimilarType2Serializable (need for tests)
+    static constexpr uint32_t kInterfaceVersion = 0;
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
+    [[nodiscard]] char getJ()           const noexcept { return m_j; }
+
+    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
+    [[nodiscard]] int  getK()           const noexcept { return m_k; }
+
+private:
+    char m_j{ 0 };
+    int m_k{ 0 };
+
+    friend csp::processing::DataProcessor;
+};
+
+template<typename T = Dummy>
+class SimpleAssignableAlignedToOneSimilarType2Serializable : public csp::ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2Serializable<T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2Serializable<T>, T>;
+    using simple_assignable = std::true_type;
+
+    static constexpr uint64_t kNameHash = 1001; // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
+    static constexpr uint32_t kInterfaceVersion = 0;
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+    
+    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
+    [[nodiscard]] char getJ()           const noexcept { return m_j; }
+    
+    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
+    [[nodiscard]] int  getK()           const noexcept { return m_k; }
+
+private:
+    char m_j{ 0 };
+    short m_k{ 0 };
+
+    friend csp::processing::DataProcessor;
+};
+
+#pragma pack(pop)
+
+template<typename T = Dummy>
+class SimpleAssignableSimilarType1Serializable : public csp::ISerializable<GetCrtpMainType<SimpleAssignableSimilarType1Serializable<T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<SimpleAssignableSimilarType1Serializable<T>, T>;
+    using simple_assignable = std::true_type;
+
+    static constexpr uint64_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType2Serializable (need for tests)
+    static constexpr uint32_t kInterfaceVersion = 0;
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
+    [[nodiscard]] char getJ()           const noexcept { return m_j; }
+
+    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
+    [[nodiscard]] int  getK()           const noexcept { return m_k; }
+
+private:
+    char m_j{ 0 };
+    int m_k{ 0 };
+
+    friend csp::processing::DataProcessor;
+};
+
+template<typename T = Dummy>
+class SimpleAssignableSimilarType2Serializable : public csp::ISerializable<GetCrtpMainType<SimpleAssignableSimilarType2Serializable<T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<SimpleAssignableSimilarType2Serializable<T>, T>;
+    using simple_assignable = std::true_type;
+
+    static constexpr uint64_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType1Serializable (need for tests)
+    static constexpr uint32_t kInterfaceVersion = 0;
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+
+    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
+    [[nodiscard]] char getJ()           const noexcept { return m_j; }
+
+    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
+    [[nodiscard]] int  getK()           const noexcept { return m_k; }
+
+private:
+    char m_j{ 0 };
+    short m_k{ 0 };
+
+    friend csp::processing::DataProcessor;
+};
+
+template<typename T = Dummy>
+class SimilarType1Serializable : public csp::ISerializable<GetCrtpMainType<SimilarType1Serializable<T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<SimilarType1Serializable<T>, T>;
+
+    static constexpr uint64_t kNameHash = 1003; // hash is same as in SimilarType2Serializable (need for tests)
+    static constexpr uint32_t kInterfaceVersion = 0;
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
+    [[nodiscard]] char getJ()           const noexcept { return m_j; }
+
+    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
+    [[nodiscard]] int  getK()           const noexcept { return m_k; }
+
+private:
+    char m_j{ 0 };
+    int m_k{ 0 };
+
+    friend csp::processing::DataProcessor;
+};
+
+template<typename T = Dummy>
+class SimilarType2Serializable : public csp::ISerializable<GetCrtpMainType<SimilarType2Serializable<T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<SimilarType2Serializable<T>, T>;
+
+    static constexpr uint64_t kNameHash = 1003; // hash is same as in SimilarType1Serializable (need for tests)
+    static constexpr uint32_t kInterfaceVersion = 0;
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+
+    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
+    [[nodiscard]] char getJ()           const noexcept { return m_j; }
+
+    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
+    [[nodiscard]] int  getK()           const noexcept { return m_k; }
+
+private:
+    char m_j{ 0 };
+    short m_k{ 0 };
+
+    friend csp::processing::DataProcessor;
+};
+
 
 } // namespace special_types

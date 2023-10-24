@@ -124,25 +124,17 @@ inline Status ErrorProne::currentError = Status::kNoError;
 
 #pragma pack(push, 1)
 
-struct AlignedToOneSimilarType1
+struct SimpleAssignableAlignedToOneNotInterfaceType
 {
     char j;
     int k;
-
-    using simple_assignable = std::true_type;
-};
-
-struct AlignedToOneSimilarType2
-{
-    char j;
-    short k;
 
     using simple_assignable = std::true_type;
 };
 
 #pragma pack(pop)
 
-struct SimilarType1
+struct SimpleAssignableNotInterfaceType
 {
     char j;
     int k;
@@ -150,21 +142,13 @@ struct SimilarType1
     using simple_assignable = std::true_type;
 };
 
-struct SimilarType2
-{
-    char j;
-    short k;
-
-    using simple_assignable = std::true_type;
-};
-
-struct SimpleAssignableTypeWithoutTypeUsing
+struct SimpleAssignableTypeWithoutTypeUsingNotInterfaceType
 {
     char j;
     short k;
 };
 
-struct EmptyTypeWithoutTypeUsing
+struct EmptyTypeWithoutTypeUsingNotInterfaceType
 {
 
 };

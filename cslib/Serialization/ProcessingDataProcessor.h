@@ -136,7 +136,7 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
         if constexpr (!serialization_concepts::FixSizedArithmeticType<T> && !serialization_concepts::FixSizedEnumType<T>)
             if (flags.sizeOfArithmeticTypesMayBeNotEqual)
             {
-                RUN(output.pushBackArithmeticValue(sizeof(T)));
+                RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
             }
 
         RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
@@ -185,7 +185,7 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
         if constexpr (!serialization_concepts::FixSizedArithmeticType<T> && !serialization_concepts::FixSizedEnumType<T>)
             if (flags.sizeOfArithmeticTypesMayBeNotEqual)
             {
-                RUN(output.pushBackArithmeticValue(sizeof(T)));
+                RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
             }
 
         RUN(output.pushBackArithmeticValue(value))
@@ -237,7 +237,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
         if constexpr (!serialization_concepts::FixSizedArithmeticType<T> && !serialization_concepts::FixSizedEnumType<T>)
             if (flags.sizeOfArithmeticTypesMayBeNotEqual)
             {
-                size_t originalTypeSize = 0;
+                uint8_t originalTypeSize = 0;
                 RUN(input.readArithmeticValue(originalTypeSize));
                 if (originalTypeSize != sizeof(T))
                 {
@@ -283,7 +283,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         if constexpr (!serialization_concepts::FixSizedArithmeticType<T> && !serialization_concepts::FixSizedEnumType<T>)
             if (flags.sizeOfArithmeticTypesMayBeNotEqual)
             {
-                size_t originalTypeSize = 0;
+                uint8_t originalTypeSize = 0;
                 RUN(input.readArithmeticValue(originalTypeSize));
                 if (originalTypeSize != sizeof(T))
                 {
@@ -392,7 +392,7 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
     if (!p)
     {
         newPointer = false;
-        RUN(output.pushBackArithmeticValue(static_cast<size_t>(0)));
+        RUN(output.pushBackArithmeticValue(static_cast<uint64_t>(0)));
     }
     else
     {
@@ -401,8 +401,8 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
         if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
             newPointer = true;
-            pointersMap[p] = output.size() + sizeof(size_t);
-            RUN(output.pushBackArithmeticValue(static_cast<size_t>(-1)));
+            pointersMap[p] = output.size() + sizeof(uint64_t);
+            RUN(output.pushBackArithmeticValue(static_cast<uint64_t>(-1)));
         }
         else
         {
@@ -419,7 +419,7 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T 
 {
     D& input = ctx.getBinaryData();
 
-    size_t offset = 0;
+    uint64_t offset = 0;
 
     RUN(input.readArithmeticValue(offset));
 

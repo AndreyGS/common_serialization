@@ -27,5 +27,4 @@
 #include "common_serialization.h";
 #include <string>
 #include <list>
-#include "TypesForTest/SpecialTypes.h"
-#include "TypesForTest/SpecialTypesFilling.h"
+#include "TypesForTests/SpecialTypesFilling.h"

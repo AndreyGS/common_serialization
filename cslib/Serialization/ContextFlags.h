@@ -41,7 +41,6 @@ struct Flags
     uint32_t alignmentMayBeNotEqual                 : 1 = 0;
     uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;    // this flag is very dangerous and it should never be used,
                                                                 // except you are really know what you are doing
-    
     uint32_t extendedPointersProcessing             : 1 = 0;
     uint32_t reserved                               :27 = 0;
 

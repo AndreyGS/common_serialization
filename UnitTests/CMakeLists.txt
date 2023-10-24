@@ -21,8 +21,14 @@ target_link_libraries(allocators_tests PRIVATE cslib PRIVATE gtest_main)
 target_include_directories(allocators_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_precompile_headers(allocators_tests PRIVATE pch.h)
 
-add_executable(serialization_tests "Tests/Serialization/SerializationNoFlagsTests.cpp" "Tests/Serialization/SerializationInterfaceVersionsNotMatchTests.cpp" "Tests/Serialization/SerializationAlignmentMayBeNotEqualTests.cpp")
+add_executable(serialization_tests
+    "Tests/Serialization/SerializationNoFlagsTests.cpp"
+    "Tests/Serialization/SerializationInterfaceVersionsNotMatchTests.cpp"
+    "Tests/Serialization/SerializationAlignmentMayBeNotEqualTests.cpp"
+    "Tests/Serialization/SerializationSizeOfArithmeticTypesMayBeNotEqualTests.cpp"
+)
 target_compile_definitions(serialization_tests PRIVATE USER_MODE)
-target_link_libraries(serialization_tests PRIVATE cslib PRIVATE gtest_main)
+add_subdirectory(TypesForTests)
+target_link_libraries(serialization_tests PRIVATE cslib types4tests gtest_main)
 target_include_directories(serialization_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_precompile_headers(serialization_tests PRIVATE pch.h)

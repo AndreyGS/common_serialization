@@ -35,7 +35,8 @@
 {                                                                                       \
     if (                                                                                \
            serialization_concepts::IsISerializableBased<decltype(value)>                \
-        && ctx.getFlags().interfaceVersionsNotMatch)                                    \
+        && ctx.getFlags().interfaceVersionsNotMatch                                     \
+    )                                                                                   \
     {                                                                                   \
         Status status = convertFromOldStructIfNeed((ctx), (value));                     \
                                                                                         \
@@ -71,7 +72,7 @@ namespace processing
 {
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::SimpleAssignableAlignedToOneNotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -83,7 +84,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -95,7 +96,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::SimpleAssignableNotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -107,7 +108,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::SimpleAssignableSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -131,7 +132,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DynamicPolymorphicNotSerializable& value)
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::DynamicPolymorphicNotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
 
@@ -142,7 +144,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DynamicPolymorphicSerializable<>& value)
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::DynamicPolymorphicSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
 
@@ -156,7 +159,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DiamondBaseNotSerializable& value)
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::DiamondBaseNotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
 
@@ -166,7 +170,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DiamondEdge1NotSerializable& value)
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::DiamondEdge1NotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
 
@@ -177,7 +182,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DiamondEdge2NotSerializable& value)
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::DiamondEdge2NotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
 
@@ -188,7 +194,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::DiamondSerializable<>& value)
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::DiamondSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
 
@@ -199,7 +206,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<size_t, void*>>& ctx, special_types::SpecialProcessingTypeContainSerializable<>& value)
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SpecialProcessingTypeContainSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
 
@@ -209,6 +217,78 @@ constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, 
     RUN(deserializeData(ctx, value.m_pVec));
     RUN(deserializeData(ctx, value.m_pInt));
     RUN(deserializeData(ctx, value.m_ppInt));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SimpleAssignableAlignedToOneSimilarType1Serializable<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_j));
+    RUN(deserializeData(ctx, value.m_k));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SimpleAssignableAlignedToOneSimilarType2Serializable<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_j));
+    RUN(deserializeData(ctx, value.m_k));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SimpleAssignableSimilarType1Serializable<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_j));
+    RUN(deserializeData(ctx, value.m_k));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SimpleAssignableSimilarType2Serializable<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_j));
+    RUN(deserializeData(ctx, value.m_k));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SimilarType1Serializable<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_j));
+    RUN(deserializeData(ctx, value.m_k));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SimilarType2Serializable<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_j));
+    RUN(deserializeData(ctx, value.m_k));
 
     return Status::kNoError;
 }

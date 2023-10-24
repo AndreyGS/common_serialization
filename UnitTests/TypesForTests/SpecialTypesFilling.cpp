@@ -1,5 +1,5 @@
 /**
- * @file SpecialTypesFilling.h
+ * @file SpecialTypesFilling.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,43 +21,41 @@
  *
  */
 
-#pragma once
-
-#include "SerializableStructs/InterfaceForTest/Base/Interface.h"
+#include "SpecialTypesFilling.h"
 
 namespace special_types
 {
 
-namespace filling
-{
-
-inline void _SimpleAssignableAlignedToOneNotSerializable(SimpleAssignableAlignedToOneNotSerializable& output)
+template<>
+void fillingStruct(SimpleAssignableAlignedToOneNotSerializable& output)
 {
     output.a = 1;
     output.s = 2;
 }
 
-inline void _SimpleAssignableAlignedToOneSerializable(SimpleAssignableAlignedToOneSerializable<>& output)
+template<>
+void fillingStruct(SimpleAssignableAlignedToOneSerializable<>& output)
 {
     output.getX() = 3;
     output.getY() = 4;
 }
 
-inline void _SimpleAssignableNotSerializable(SimpleAssignableNotSerializable& output)
+template<>
+void fillingStruct(SimpleAssignableNotSerializable& output)
 {
     output.q = 5;
     output.w = 6;
 }
 
-
-inline void _SimpleAssignableSerializable(SimpleAssignableSerializable<>& output)
+template<>
+void fillingStruct(SimpleAssignableSerializable<>& output)
 {
     output.getI() = 7;
     output.getJ() = 8;
 
-    _SimpleAssignableAlignedToOneSerializable(output.getSaaToS());
-    _SimpleAssignableAlignedToOneNotSerializable(output.getSaaToNS());
-    _SimpleAssignableNotSerializable(output.getSaNS());
+    fillingStruct(output.getSaaToS());
+    fillingStruct(output.getSaaToNS());
+    fillingStruct(output.getSaNS());
 
     memcpy(output.getArrI32(), "123456789012", output.getSizeOfArrI32());
     memcpy(output.getArrSaaToS(), "00001000034000056", output.getSizeOfArrSaaToS());
@@ -72,26 +70,29 @@ inline void _SimpleAssignableSerializable(SimpleAssignableSerializable<>& output
     output.getArrSaNS()[2].w = 012;
 }
 
-inline void _SimpleAssignableDescendantSerializable(SimpleAssignableDescendantSerializable<>& output)
+template<>
+void fillingStruct(SimpleAssignableDescendantSerializable<>& output)
 {
-    _SimpleAssignableSerializable(output);
+    fillingStruct<SimpleAssignableSerializable<>>(output);
     output.v = 9;
 }
 
-inline void _DynamicPolymorphicNotSerializable(DynamicPolymorphicNotSerializable& output)
+template<>
+void fillingStruct(DynamicPolymorphicNotSerializable& output)
 {
     output.getR() = 10;
     memcpy(output.getArrR(), "abc", output.getSizeOfArrR());
 }
 
-inline void _DynamicPolymorphicSerializable(DynamicPolymorphicSerializable<>& output)
+template<>
+void fillingStruct(DynamicPolymorphicSerializable<>& output)
 {
     output.getO() = 11;
-    _DynamicPolymorphicNotSerializable(output.getDpNS());
+    fillingStruct(output.getDpNS());
 
     memcpy(output.getArrO(), "def", output.getSizeOfArrO());
 
-    _DynamicPolymorphicNotSerializable(*output.getArrDpNS());
+    fillingStruct(*output.getArrDpNS());
 
     output.getArrDpNS()[1].getR() = 12;
     memcpy(output.getArrDpNS()[1].getArrR(), "ghi", output.getArrDpNS()[1].getSizeOfArrR());
@@ -99,33 +100,38 @@ inline void _DynamicPolymorphicSerializable(DynamicPolymorphicSerializable<>& ou
     memcpy(output.getArrDpNS()[2].getArrR(), "jkl", output.getArrDpNS()[2].getSizeOfArrR());
 }
 
-inline void _DiamondBaseNotSerializable(DiamondBaseNotSerializable& output)
+template<>
+void fillingStruct(DiamondBaseNotSerializable& output)
 {
     output.m_d0 = 18;
 }
 
-inline void _DiamondEdge1NotSerializable(DiamondEdge1NotSerializable& output)
+template<>
+void fillingStruct(DiamondEdge1NotSerializable& output)
 {
-    _DiamondBaseNotSerializable(output);
+    fillingStruct<DiamondBaseNotSerializable>(output);
     output.m_d1 = 19;
 }
 
-inline void _DiamondEdge2NotSerializable(DiamondEdge2NotSerializable& output)
+template<>
+void fillingStruct(DiamondEdge2NotSerializable& output)
 {
-    _DiamondBaseNotSerializable(output);
+    fillingStruct<DiamondBaseNotSerializable>(output);
     output.m_d2 = 20;
 }
 
-inline void _DiamondSerializable(DiamondSerializable<>& output)
+template<>
+void fillingStruct(DiamondSerializable<>& output)
 {
-    _DiamondEdge1NotSerializable(output);
-    _DiamondEdge2NotSerializable(output);
+    fillingStruct<DiamondEdge1NotSerializable>(output);
+    fillingStruct<DiamondEdge2NotSerializable>(output);
 }
 
-inline void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeContainSerializable<>& output)
+template<>
+void fillingStruct(SpecialProcessingTypeContainSerializable<>& output)
 {
     DiamondSerializable ds1;
-    _DiamondSerializable(ds1);
+    fillingStruct(ds1);
     output.getVec().pushBack(ds1);
 
     DiamondSerializable ds2;
@@ -134,8 +140,8 @@ inline void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeConta
     ds2.m_d0 = 25;
 
     output.getVec().pushBack(ds2);
-    _SimpleAssignableAlignedToOneNotSerializable(output.getSaaToNS());
-    _SimpleAssignableNotSerializable(output.getSaNS());
+    fillingStruct(output.getSaaToNS());
+    fillingStruct(output.getSaNS());
 
     output.getPVec() = new Vector<DiamondSerializable<>>;
     *output.getPVec() = output.getVec();
@@ -147,6 +153,46 @@ inline void _SpecialProcessingTypeContainSerializable(SpecialProcessingTypeConta
     **const_cast<int**&>(output.getPpInt()) = 548505248;
 }
 
-} // namespace filling
+template<>
+void fillingStruct(SimpleAssignableAlignedToOneSimilarType1Serializable<>& output)
+{
+    output.setJ(99);
+    output.setK(98352739);
+}
+
+template<>
+void fillingStruct(SimpleAssignableAlignedToOneSimilarType2Serializable<>& output)
+{
+    output.setJ(100);
+    output.setK(15456);
+}
+
+template<>
+void fillingStruct(SimpleAssignableSimilarType1Serializable<>& output)
+{
+    output.setJ(101);
+    output.setK(8582727);
+}
+
+template<>
+void fillingStruct(SimpleAssignableSimilarType2Serializable<>& output)
+{
+    output.setJ(100);
+    output.setK(8374);
+}
+
+template<>
+void fillingStruct(SimilarType1Serializable<>& output)
+{
+    output.setJ(101);
+    output.setK(8582727);
+}
+
+template<>
+void fillingStruct(SimilarType2Serializable<>& output)
+{
+    output.setJ(100);
+    output.setK(8374);
+}
 
 } // namespace special_types

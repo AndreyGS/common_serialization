@@ -43,7 +43,7 @@ namespace processing
 
 template<>
 constexpr Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     // If value version is the same as thisVersionCompat there is a programmatic error
     assert(value.getThisVersion() != thisVersionCompat);

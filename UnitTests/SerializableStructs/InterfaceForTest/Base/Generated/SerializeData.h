@@ -35,7 +35,8 @@
 {                                                                                       \
     if (                                                                                \
            serialization_concepts::IsISerializableBased<decltype(value)>                \
-        && ctx.getFlags().interfaceVersionsNotMatch)                                    \
+        && ctx.getFlags().interfaceVersionsNotMatch                                     \
+    )                                                                                   \
     {                                                                                   \
         Status status = convertToOldStructIfNeed((value), (ctx));                       \
         if (status == Status::kNoFurtherProcessingRequired)                             \
@@ -71,7 +72,7 @@ namespace processing
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneNotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -83,7 +84,7 @@ constexpr Status DataProcessor::serializeData(const special_types::SimpleAssigna
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -96,7 +97,7 @@ constexpr Status DataProcessor::serializeData(const special_types::SimpleAssigna
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableNotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -108,7 +109,7 @@ constexpr Status DataProcessor::serializeData(const special_types::SimpleAssigna
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -132,7 +133,7 @@ constexpr Status DataProcessor::serializeData(const special_types::SimpleAssigna
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -144,7 +145,7 @@ constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymo
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -159,7 +160,7 @@ constexpr Status DataProcessor::serializeData(const special_types::DynamicPolymo
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -170,7 +171,7 @@ constexpr Status DataProcessor::serializeData(const special_types::DiamondBaseNo
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -182,7 +183,7 @@ constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge1N
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -194,7 +195,7 @@ constexpr Status DataProcessor::serializeData(const special_types::DiamondEdge2N
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::DiamondSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -206,7 +207,7 @@ constexpr Status DataProcessor::serializeData(const special_types::DiamondSerial
 
 template<>
 constexpr Status DataProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, size_t>>& ctx)
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -216,6 +217,78 @@ constexpr Status DataProcessor::serializeData(const special_types::SpecialProces
     RUN(serializeData(value.m_pVec, ctx));
     RUN(serializeData(value.m_pInt, ctx));
     RUN(serializeData(value.m_ppInt, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSimilarType1Serializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_j, ctx));
+    RUN(serializeData(value.m_k, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSimilarType2Serializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_j, ctx));
+    RUN(serializeData(value.m_k, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableSimilarType1Serializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_j, ctx));
+    RUN(serializeData(value.m_k, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const special_types::SimpleAssignableSimilarType2Serializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_j, ctx));
+    RUN(serializeData(value.m_k, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const special_types::SimilarType1Serializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_j, ctx));
+    RUN(serializeData(value.m_k, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const special_types::SimilarType2Serializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_j, ctx));
+    RUN(serializeData(value.m_k, ctx));
 
     return Status::kNoError;
 }

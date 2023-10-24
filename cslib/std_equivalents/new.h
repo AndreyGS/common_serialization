@@ -50,13 +50,13 @@ using namespace common_serialization::memory_management;
 }
 
 // placement new
-[[nodiscard]] constexpr inline void* operator new(size_t, void* p) noexcept
+[[nodiscard]] constexpr inline void* operator new(uint64_t, void* p) noexcept
 {
     return p;
 }
 
 // placement new[]
-[[nodiscard]] constexpr inline void* operator new[](size_t, void* p) noexcept
+[[nodiscard]] constexpr inline void* operator new[](uint64_t, void* p) noexcept
 {
     return p;
 }

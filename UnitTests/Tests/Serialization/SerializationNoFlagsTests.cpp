@@ -21,7 +21,7 @@
  *
  */
 
-#include "TypesForTest/SpecialTypesFilling.h"
+#include "TypesForTests/SpecialTypesFilling.h"
 
 namespace
 {
@@ -30,103 +30,103 @@ using namespace special_types;
 
 TEST(SerializeNoFlagsTest, EmptyTypeT)
 {
-    EmptyTypeSerializable etSerIn;
+    EmptyTypeSerializable input;
     Walker<uint8_t> bin;
-    EXPECT_EQ(etSerIn.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
-    EmptyTypeSerializable etSerOut;
-    EXPECT_EQ(etSerOut.deserialize(bin), Status::kNoError);
+    EmptyTypeSerializable output;
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 }
 
 TEST(SerializeNoFlagsTest, SimpleAssignableAlignedToOneT)
 {
-    SimpleAssignableAlignedToOneSerializable saaToSIn;
-    filling::_SimpleAssignableAlignedToOneSerializable(saaToSIn);
+    SimpleAssignableAlignedToOneSerializable input;
+    fillingStruct(input);
 
     Walker<uint8_t> bin;
-    EXPECT_EQ(saaToSIn.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
-    SimpleAssignableAlignedToOneSerializable saaToSOut;
-    EXPECT_EQ(saaToSOut.deserialize(bin), Status::kNoError);
+    SimpleAssignableAlignedToOneSerializable output;
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_TRUE(saaToSIn == saaToSOut);
+    EXPECT_TRUE(input == output);
 }
 
 TEST(SerializeNoFlagsTest, SimpleAssignableT)
 {
-    SimpleAssignableSerializable saSIn;
-    filling::_SimpleAssignableSerializable(saSIn);
+    SimpleAssignableSerializable input;
+    fillingStruct(input);
 
     Walker<uint8_t> bin;
-    EXPECT_EQ(saSIn.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
-    SimpleAssignableSerializable saSOut;
-    EXPECT_EQ(saSOut.deserialize(bin), Status::kNoError);
+    SimpleAssignableSerializable output;
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_TRUE(saSIn == saSOut);
+    EXPECT_TRUE(input == output);
 }
 
 TEST(SerializeNoFlagsTest, SimpleAssignableDescendantT)
 {
-    SimpleAssignableDescendantSerializable saSDIn;
-    filling::_SimpleAssignableDescendantSerializable(saSDIn);
+    SimpleAssignableDescendantSerializable input;
+    fillingStruct(input);
 
     Walker<uint8_t> bin;
-    EXPECT_EQ(saSDIn.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
-    SimpleAssignableDescendantSerializable saSDOut;
-    EXPECT_EQ(saSDOut.deserialize(bin), Status::kNoError);
+    SimpleAssignableDescendantSerializable output;
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_TRUE(saSDIn == saSDOut);
+    EXPECT_TRUE(input == output);
 }
 
 TEST(SerializeNoFlagsTest, DynamicPolymorphicT)
 {
-    DynamicPolymorphicSerializable dpsIn;
-    filling::_DynamicPolymorphicSerializable(dpsIn);
+    DynamicPolymorphicSerializable input;
+    fillingStruct(input);
 
     Walker<uint8_t> bin;
-    EXPECT_EQ(dpsIn.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
-    DynamicPolymorphicSerializable dpsOut;
-    EXPECT_EQ(dpsOut.deserialize(bin), Status::kNoError);
+    DynamicPolymorphicSerializable output;
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_TRUE(dpsIn == dpsOut);
+    EXPECT_TRUE(input == output);
 }
 
 TEST(SerializeNoFlagsTest, DiamondT)
 {
-    DiamondSerializable dIn;
-    filling::_DiamondSerializable(dIn);
+    DiamondSerializable input;
+    fillingStruct(input);
 
     Walker<uint8_t> bin;
-    EXPECT_EQ(dIn.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
-    DiamondSerializable dOut;
-    EXPECT_EQ(dOut.deserialize(bin), Status::kNoError);
+    DiamondSerializable output;
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_TRUE(dIn == dOut);
+    EXPECT_TRUE(input == output);
 }
 
 TEST(SerializeNoFlagsTest, SpecialT)
 {
-    SpecialProcessingTypeContainSerializable sptcsDsIn;
-    filling::_SpecialProcessingTypeContainSerializable(sptcsDsIn);
+    SpecialProcessingTypeContainSerializable input;
+    fillingStruct(input);
 
     Walker<uint8_t> bin;
-    EXPECT_EQ(sptcsDsIn.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
-    SpecialProcessingTypeContainSerializable sptcsDsOut;
-    EXPECT_EQ(sptcsDsOut.deserialize(bin), Status::kNoError);
+    SpecialProcessingTypeContainSerializable output;
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_TRUE(sptcsDsIn == sptcsDsOut);
+    EXPECT_TRUE(input == output);
 }
 
 } // namespace anonymous

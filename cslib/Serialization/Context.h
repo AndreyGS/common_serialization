@@ -46,7 +46,10 @@ class Common
 protected:
     constexpr Common(Container& binaryData, uint8_t protocolVersion, Flags flags, Message messageType) noexcept
         : m_binaryData(binaryData), m_protocolVersion(protocolVersion), m_flags(flags), m_messageType(messageType)
-    { }
+    {
+        if constexpr (serialization_concepts::ISerializationCapableContainer<Container>)
+            m_binaryData.reserve(256);
+    }
 
 public:
     constexpr Container& getBinaryData() noexcept { return m_binaryData; }
@@ -85,7 +88,7 @@ private:
 
 // unordered_map shall be replaced by common_serialization::HashMap when it would be ready
 template<typename Container, bool serialize = true, serialization_concepts::IPointersMap PM 
-        = std::conditional_t<serialize, std::unordered_map<const void*, size_t>, std::unordered_map<size_t, void*>>>
+        = std::conditional_t<serialize, std::unordered_map<const void*, uint64_t>, std::unordered_map<uint64_t, void*>>>
     requires   serialization_concepts::ISerializationCapableContainer<Container>
             || serialization_concepts::IDeserializationCapableContainer<Container>
 class Data : public Common<Container>
@@ -135,10 +138,10 @@ private:
     PM* m_pPointersMap{ nullptr };
 };
 
-template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM = std::unordered_map<const void*, size_t>>
+template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM = std::unordered_map<const void*, uint64_t>>
 using SData = Data<S, true, PM>;
 
-template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM = std::unordered_map<size_t, void*>>
+template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM = std::unordered_map<uint64_t, void*>>
 using DData = Data<D, false, PM>;
 
 } // namespace context

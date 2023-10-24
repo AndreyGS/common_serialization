@@ -1,5 +1,5 @@
 /**
- * @file SerializationAlignmentMayBeNotEqualTests.cpp
+ * @file SerializationSizeOfArithmeticTypesMayBeNotEqualTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,73 +21,82 @@
  *
  */
 
+// In most of this tests we are simulating difference in arithmetic sizes by using
+// distinct structs for serialization and deserialization
+// (to accomplish that we set their name hashes to the same value)
+
 namespace
 {
 
 using namespace special_types;
 
-using size_type = typename Vector<uint8_t>::size_type;
-
-template<typename T>
+template<typename TS, typename TD>
 void mainTest()
 {
-    T input;
+    TS input;
     fillingStruct(input);
 
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
     csp::context::Flags flags;
-    flags.alignmentMayBeNotEqual = true;
+    flags.sizeOfArithmeticTypesMayBeNotEqual = true;
     ctxIn.setFlags(flags);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
     csp::context::DData<Walker<uint8_t>> ctxOut(bin);
-    T output;
+    TD output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_EQ(input, output);
+    EXPECT_EQ(input.getJ(), output.getJ());
+    EXPECT_NE(input.getK(), output.getK());
+    EXPECT_EQ(static_cast<short>(input.getK()), output.getK());
+
+    // comparing with no flags size of serialized data
+    TS input2;
+    fillingStruct(input2);
+
+    Walker<uint8_t> bin2;
+    EXPECT_EQ(input2.serialize(bin2.getVector()), Status::kNoError);
+
+    EXPECT_NE(bin2.size(), ctxIn.getBinaryData().size());
 }
 
-TEST(SerializationAlignmentMayBeNotEqualTests, SimpleAssignableAlignedToOneT)
+TEST(SerializationSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableAlignedToOneSimilarTypeT)
 {
-    mainTest<SimpleAssignableAlignedToOneSerializable<>>();
+    mainTest<SimpleAssignableAlignedToOneSimilarType1Serializable<>, SimpleAssignableAlignedToOneSimilarType2Serializable<>>();
 }
 
-TEST(SerializationAlignmentMayBeNotEqualTests, SimpleAssignableT)
+TEST(SerializationSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableSimilarTypeT)
 {
-    mainTest<SimpleAssignableSerializable<>>();
+    mainTest<SimpleAssignableSimilarType1Serializable<>, SimpleAssignableSimilarType2Serializable<>>();
 }
 
-TEST(SerializeNoFlagsTest, SpecialT)
+TEST(SerializationSizeOfArithmeticTypesMayBeNotEqualTests, SimilarTypeT)
 {
-    mainTest<SpecialProcessingTypeContainSerializable<>>();
+    mainTest<SimilarType1Serializable<>, SimilarType2Serializable<>>();
 }
 
-TEST(SerializationAlignmentMayBeNotEqualTests, SimpleAssignableDataSizeT)
+TEST(SerializationSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
 {
-    SimpleAssignableSerializable input;
+    SpecialProcessingTypeContainSerializable input;
     fillingStruct(input);
 
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
     csp::context::Flags flags;
-    flags.alignmentMayBeNotEqual = true;
+    flags.sizeOfArithmeticTypesMayBeNotEqual = true;
     ctxIn.setFlags(flags);
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
-    size_type sizeWithFlag = ctxIn.getBinaryData().size();
+    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
+    SpecialProcessingTypeContainSerializable output;
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(bin.tell(), bin.size());
 
-    ctxIn.clear();
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    size_type sizeWithoutFlag = ctxIn.getBinaryData().size();
-
-    EXPECT_NE(sizeWithFlag, sizeWithoutFlag);
+    EXPECT_TRUE(input == output);
 }
 
 } // namespace anonymous
