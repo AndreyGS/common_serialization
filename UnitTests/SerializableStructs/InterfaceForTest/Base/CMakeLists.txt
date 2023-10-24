@@ -8,4 +8,4 @@ add_library(InterfaceForTestBase STATIC
 
 target_compile_definitions(InterfaceForTestBase PRIVATE USER_MODE)
 target_link_libraries(InterfaceForTestBase PRIVATE cslib)
-target_precompile_headers(InterfaceForTestBase PRIVATE "Include/Interface.h")
+target_precompile_headers(InterfaceForTestBase PRIVATE "include/Interface.h")
