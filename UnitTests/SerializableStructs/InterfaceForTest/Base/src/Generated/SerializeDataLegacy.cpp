@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file SerializeDataLegacy.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,14 +23,46 @@
 
 #pragma once
 
-#include "SpecialTypesSerializable.h"
-#include "SpecialTypesSerializableLegacy.h"
+#include "SerializeDataLegacy.h"
 
-#include "Generated/SerializeData.h"
-#include "Generated/SerializeDataLegacy.h"
-#include "Generated/DeserializeData.h"
-#include "Generated/DeserializeDataLegacy.h"
+#define RUN(x)                                                                  \
+{                                                                               \
+    if (Status status = (x); !statusSuccess(status))                            \
+        return status;                                                          \
+}
 
-#include "ConvertToOldStruct.h"
-#include "ConvertFromOldStruct.h"
+namespace common_serialization
+{
 
+namespace csp
+{
+
+namespace processing
+{
+
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    RUN(serializeData(value.m_ti, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    RUN(serializeData(value.m_x, ctx));
+    RUN(serializeData(value.m_y, ctx));
+
+    return Status::kNoError;
+}
+
+} // namespace processing
+
+} // namespace csp
+
+} // namespace common_serialization
+
+#undef RUN

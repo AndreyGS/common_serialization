@@ -1,5 +1,5 @@
 /**
- * @file SpecialTypesFillingStruct.h
+ * @file SerializeDataLegacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,13 +23,29 @@
 
 #pragma once
 
-#include "SpecialTypes.h"
-#include "../SerializableStructs/InterfaceForTest/Base/Interface.h"
+#include "../../../Base/src/SpecialTypesSerializableLegacy.h"
 
-namespace special_types
+namespace common_serialization
 {
 
-template<typename T>
-void fillingStruct(T& output);
+namespace csp
+{
 
-} // namespace special_types
+namespace processing
+{
+
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+} // namespace processing
+
+} // namespace csp
+
+} // namespace common_serialization
+
+#undef RUN

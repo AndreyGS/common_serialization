@@ -1,5 +1,5 @@
 /**
- * @file DeserializeDataLegacy.h
+ * @file ConvertFromOldStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,13 +23,8 @@
 
 #pragma once
 
-#include "../SpecialTypesSerializableLegacy.h"
-
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !statusSuccess(status))                            \
-        return status;                                                          \
-}
+#include "SpecialTypesSerializable.h"
+#include "SpecialTypesSerializableLegacy.h"
 
 namespace common_serialization
 {
@@ -41,23 +36,8 @@ namespace processing
 {
 
 template<>
-constexpr Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value)
-{
-    RUN(deserializeData(ctx, value.m_ti));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value)
-{
-    RUN(deserializeData(ctx, value.m_x));
-    RUN(deserializeData(ctx, value.m_y));
-
-    return Status::kNoError;
-}
+Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , uint32_t thisVersionCompat, special_types::SimpleAssignableAlignedToOneSerializable<>& value);
 
 } // namespace processing
 

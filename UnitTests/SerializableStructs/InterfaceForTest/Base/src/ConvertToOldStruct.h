@@ -1,5 +1,5 @@
 /**
- * @file pch.h
+ * @file ConvertToOldStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,4 +23,26 @@
 
 #pragma once
 
-#include "common_serialization.h";
+#include "SpecialTypesSerializable.h"
+#include "SpecialTypesSerializableLegacy.h"
+
+namespace common_serialization
+{
+
+namespace csp
+{
+
+namespace processing
+{
+
+template<>
+Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
+    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+} // namespace processing
+
+} // namespace csp
+
+} // namespace common_serialization
+
+#undef RUN

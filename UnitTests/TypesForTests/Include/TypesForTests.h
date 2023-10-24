@@ -1,5 +1,5 @@
 /**
- * @file pch.h
+ * @file TypesForTests.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,5 @@
 
 #pragma once
 
-#include <gtest/gtest.h>
 #include "common_serialization.h"
-#include <string>
-#include <list>
-#include "TypesForTests/Include/TypesForTests.h"
+#include "../../TypesForTests/src/SpecialTypesFillingStruct.h"

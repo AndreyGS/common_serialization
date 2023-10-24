@@ -29,6 +29,7 @@ add_executable(serialization_tests
 )
 target_compile_definitions(serialization_tests PRIVATE USER_MODE)
 add_subdirectory(TypesForTests)
-target_link_libraries(serialization_tests PRIVATE cslib types4tests gtest_main)
+add_subdirectory(SerializableStructs/InterfaceForTest/Base)
+target_link_libraries(serialization_tests PRIVATE cslib types4tests InterfaceForTestBase gtest_main)
 target_include_directories(serialization_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_precompile_headers(serialization_tests PRIVATE pch.h)

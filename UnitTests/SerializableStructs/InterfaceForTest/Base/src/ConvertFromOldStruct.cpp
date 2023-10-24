@@ -1,5 +1,5 @@
 /**
- * @file ConvertToOldStruct.h
+ * @file ConvertFromOldStruct.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,7 @@
 
 #pragma once
 
-#include "SpecialTypesSerializable.h"
-#include "SpecialTypesSerializableLegacy.h"
+#include "ConvertFromOldStruct.h"
 
 #define RUN(x)                                                                  \
 {                                                                               \
@@ -42,8 +41,8 @@ namespace processing
 {
 
 template<>
-constexpr Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , uint32_t thisVersionCompat, special_types::SimpleAssignableAlignedToOneSerializable<>& value)
 {
     // If value version is the same as thisVersionCompat there is a programmatic error
     assert(value.getThisVersion() != thisVersionCompat);
@@ -51,18 +50,18 @@ constexpr Status DataProcessor::convertToOldStruct(const special_types::SimpleAs
     if (thisVersionCompat == 0)
     {
         special_types::SimpleAssignableAlignedToOneSerializable_Version0<> compatVersion;
-        compatVersion.m_ti.x = value.m_x;
-        compatVersion.m_ti.y = value.m_y;
+        RUN(deserializeDataLegacy(ctx, compatVersion));
 
-        RUN(serializeDataLegacy(compatVersion, ctx));
+        value.m_x = compatVersion.m_ti.x;
+        value.m_y = compatVersion.m_ti.y;
     }
     else if (thisVersionCompat == 1)
     {
         special_types::SimpleAssignableAlignedToOneSerializable_Version1<> compatVersion;
-        compatVersion.m_x = value.m_x;
-        compatVersion.m_y = value.m_y;
+        RUN(deserializeDataLegacy(ctx, compatVersion));
 
-        RUN(serializeDataLegacy(compatVersion, ctx));
+        value.m_x = compatVersion.m_x;
+        value.m_y = compatVersion.m_y;
     }
 
     return Status::kNoFurtherProcessingRequired;

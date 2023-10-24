@@ -1,5 +1,5 @@
 /**
- * @file SerializeDataLegacy.h
+ * @file Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,46 +23,15 @@
 
 #pragma once
 
-#include "../SpecialTypesSerializableLegacy.h"
+#include "common_serialization.h"
 
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !statusSuccess(status))                            \
-        return status;                                                          \
-}
+#include "../../Base/src/SpecialTypesSerializable.h"
+#include "../../Base/src/SpecialTypesSerializableLegacy.h"
 
-namespace common_serialization
-{
+#include "../../Base/src/Generated/SerializeData.h"
+#include "../../Base/src/Generated/SerializeDataLegacy.h"
+#include "../../Base/src/Generated/DeserializeData.h"
+#include "../../Base/src/Generated/DeserializeDataLegacy.h"
 
-namespace csp
-{
-
-namespace processing
-{
-
-template<>
-constexpr Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
-{
-    RUN(serializeData(value.m_ti, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
-{
-    RUN(serializeData(value.m_x, ctx));
-    RUN(serializeData(value.m_y, ctx));
-
-    return Status::kNoError;
-}
-
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
-
-#undef RUN
+#include "../../Base/src/ConvertToOldStruct.h"
+#include "../../Base/src/ConvertFromOldStruct.h"

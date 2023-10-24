@@ -1,5 +1,5 @@
 /**
- * @file pch.h
+ * @file DeserializeDataLegacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,29 @@
 
 #pragma once
 
-#include <gtest/gtest.h>
-#include "common_serialization.h"
-#include <string>
-#include <list>
-#include "TypesForTests/Include/TypesForTests.h"
+#include "../../../Base/src/SpecialTypesSerializableLegacy.h"
+
+namespace common_serialization
+{
+
+namespace csp
+{
+
+namespace processing
+{
+
+template<>
+Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value);
+
+template<>
+Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value);
+
+} // namespace processing
+
+} // namespace csp
+
+} // namespace common_serialization
+
+#undef RUN
