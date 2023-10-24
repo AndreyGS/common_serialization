@@ -21,8 +21,6 @@
  *
  */
 
-#include "TypesForTests/SpecialTypesFilling.h"
-
 namespace
 {
 

@@ -1,5 +1,5 @@
 /**
- * @file SpecialTypesFilling.cpp
+ * @file SpecialTypesFillingStruct.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,7 +21,7 @@
  *
  */
 
-#include "SpecialTypesFilling.h"
+#include "SpecialTypesFillingStruct.h"
 
 namespace special_types
 {

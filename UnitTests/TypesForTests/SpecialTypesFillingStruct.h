@@ -1,5 +1,5 @@
 /**
- * @file pch.h
+ * @file SpecialTypesFillingStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,13 @@
 
 #pragma once
 
-#include <gtest/gtest.h>
-#include "common_serialization.h";
-#include <string>
-#include <list>
-#include "TypesForTests/SpecialTypesFillingStruct.h"
+#include "SpecialTypes.h"
+#include "../SerializableStructs/InterfaceForTest/Base/Interface.h"
+
+namespace special_types
+{
+
+template<typename T>
+void fillingStruct(T& output);
+
+} // namespace special_types
