@@ -119,7 +119,7 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
                     , "References and pointers on functions are not allowed to be serialized");
 
-    assert(n > 0);
+    assert(p && n > 0 || n == 0);
 
     const context::Flags flags = ctx.getFlags();
 
@@ -145,14 +145,6 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
     }
     else if constexpr (!serialization_concepts::EmptyType<T>)
     {
-        /*if (p == nullptr)
-        {
-            RUN(output.pushBackArithmeticValue(flags.extendedPointersProcessing ? uint64_t(0) : uint8_t(0)));
-            return Status::kNoError;
-        }
-        else if (!flags.extendedPointersProcessing)
-            RUN(output.pushBackArithmeticValue(uint8_t(1)));*/
-
         for (size_t i = 0; i < n; ++i)
         {
             if (flags.extendedPointersProcessing)
@@ -239,6 +231,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
         , "Pointers on references and member_pointers are not allowed");
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
         , "References and pointers on functions are not allowed to be serialized");
+
+    assert(p && n > 0 || n == 0);
 
     const context::Flags flags = ctx.getFlags();
 
