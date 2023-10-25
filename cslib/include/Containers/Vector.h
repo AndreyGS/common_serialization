@@ -387,6 +387,7 @@ public:
     constexpr void clear() noexcept;
     constexpr void invalidate() noexcept;
 
+    // you shall free memory returned by this method manually
     [[nodiscard]] constexpr T* release() noexcept;
 
     [[nodiscard]] constexpr iterator begin() noexcept;

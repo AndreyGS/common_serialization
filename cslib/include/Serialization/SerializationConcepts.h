@@ -123,8 +123,8 @@ using normalize_t = std::remove_const_t<std::remove_reference_t<T>>;
 // can be copied with memcpy (if alignments are the same and arithmetic types in are fixed length)
 template<typename T>
 concept SimpleAssignableType
-    =  requires(T t) { typename normalize_t<T>::simple_assignable; }
-    && std::is_same_v<typename normalize_t<T>::simple_assignable, std::true_type>;
+    =  requires(T t) { typename normalize_t<T>::simple_assignable_tag; }
+    && std::is_same_v<typename normalize_t<T>::simple_assignable_tag, std::true_type>;
 
 // can be copied with memcpy (if all arithmetic types in are fixed length)
 template<typename T>
@@ -137,8 +137,8 @@ concept CompositeType
 
 template<typename T>
 concept EmptyType 
-    =  requires(T t) { typename normalize_t<T>::empty_type; }
-    && std::is_same_v<typename normalize_t<T>::empty_type, std::true_type>;
+    =  requires(T t) { typename normalize_t<T>::empty_type_tag; }
+    && std::is_same_v<typename normalize_t<T>::empty_type_tag, std::true_type>;
 
 template<typename T>
 concept IsISerializableBased = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;

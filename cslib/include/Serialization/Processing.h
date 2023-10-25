@@ -98,7 +98,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
         }
 
         if (flags.extendedPointersProcessing && ctx.getPointersMap() == nullptr)
-            return Status::kErrorInvalidArgument;    
+            return Status::kErrorInvalidArgument;
     }
 
     if (flags.interfaceVersionsNotMatch)
@@ -136,6 +136,8 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, u
         return Status::kErrorNotSupportedInterfaceVersion;
     else if (ctx.getInterfaceVersion() != T::getInterfaceVersion() && !ctx.getFlags().interfaceVersionsNotMatch)
         return Status::kErrorMismatchOfInterfaceVersions;
+    else if (ctx.getFlags().extendedPointersProcessing && ctx.getPointersMap() == nullptr)
+        return Status::kErrorInvalidArgument;
 
     return Status::kNoError;
 }

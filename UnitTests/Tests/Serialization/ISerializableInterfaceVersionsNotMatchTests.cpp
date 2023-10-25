@@ -26,7 +26,7 @@ namespace
 
 using namespace special_types;
 
-TEST(SerializationInterfaceVersionsNotMatchTests, TopStruct)
+TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
 {
     SimpleAssignableAlignedToOneSerializable input;
     fillingStruct(input);
@@ -48,7 +48,7 @@ TEST(SerializationInterfaceVersionsNotMatchTests, TopStruct)
     EXPECT_EQ(input, output);
 }
 
-TEST(SerializationInterfaceVersionsNotMatchTests, MemberStruct)
+TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
 {
     SimpleAssignableSerializable input;
     fillingStruct(input);

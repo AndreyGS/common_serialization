@@ -42,7 +42,7 @@ void mainTest()
     EXPECT_EQ(input, output);
 }
 
-TEST(SerializeNoFlagsTest, EmptyTypeT)
+TEST(ISerializableNoFlagsTests, EmptyTypeT)
 {
     EmptyTypeSerializable input;
     Walker<uint8_t> bin;
@@ -53,32 +53,32 @@ TEST(SerializeNoFlagsTest, EmptyTypeT)
     EXPECT_EQ(bin.tell(), bin.size());
 }
 
-TEST(SerializeNoFlagsTest, SimpleAssignableAlignedToOneT)
+TEST(ISerializableNoFlagsTests, SimpleAssignableAlignedToOneT)
 {
     mainTest<SimpleAssignableAlignedToOneSerializable<>>();
 }
 
-TEST(SerializeNoFlagsTest, SimpleAssignableT)
+TEST(ISerializableNoFlagsTests, SimpleAssignableT)
 {
     mainTest<SimpleAssignableSerializable<>>();
 }
 
-TEST(SerializeNoFlagsTest, SimpleAssignableDescendantT)
+TEST(ISerializableNoFlagsTests, SimpleAssignableDescendantT)
 {
     mainTest<SimpleAssignableDescendantSerializable<>>();
 }
 
-TEST(SerializeNoFlagsTest, DynamicPolymorphicT)
+TEST(ISerializableNoFlagsTests, DynamicPolymorphicT)
 {
     mainTest<DynamicPolymorphicSerializable<>>();
 }
 
-TEST(SerializeNoFlagsTest, DiamondT)
+TEST(ISerializableNoFlagsTests, DiamondT)
 {
     mainTest<DiamondSerializable<>>();
 }
 
-TEST(SerializeNoFlagsTest, SpecialT)
+TEST(ISerializableNoFlagsTests, SpecialT)
 {
     mainTest<SpecialProcessingTypeContainSerializable<>>();
 }

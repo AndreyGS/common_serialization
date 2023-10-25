@@ -52,16 +52,16 @@ protected:
     }
 
 public:
-    constexpr Container& getBinaryData() noexcept { return m_binaryData; }
-    constexpr const Container& getBinaryData() const noexcept { return m_binaryData; }
+    [[nodiscard]] constexpr Container& getBinaryData() noexcept { return m_binaryData; }
+    [[nodiscard]] constexpr const Container& getBinaryData() const noexcept { return m_binaryData; }
 
-    constexpr Flags getFlags() noexcept { return m_flags; }
+    [[nodiscard]] constexpr Flags getFlags() noexcept { return m_flags; }
     constexpr void setFlags(Flags flags) { m_flags = flags; }
 
-    constexpr Message getMessageType() const noexcept { return m_messageType; }
+    [[nodiscard]] constexpr Message getMessageType() const noexcept { return m_messageType; }
     constexpr void setMessageType(Message messageType) { m_messageType = messageType; }
 
-    constexpr uint8_t getProtocolVersion() const noexcept { return m_protocolVersion; }
+    [[nodiscard]] constexpr uint8_t getProtocolVersion() const noexcept { return m_protocolVersion; }
     constexpr void setProtocolVersion(uint8_t protocolVersion) { m_protocolVersion = protocolVersion; }
 
     void resetToDefaultsExceptDataContents() noexcept
@@ -111,11 +111,12 @@ public:
         : Common<Container>(binaryData, protocolVersion, flags, Message::kData), m_interfaceVersion(interfaceVersion), m_pPointersMap(pPointersMap)
     { }
 
-    constexpr uint32_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
+    [[nodiscard]] constexpr uint32_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
     constexpr void setInterfaceVersion(uint32_t interfaceVersion) { m_interfaceVersion = interfaceVersion; }
 
-    constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
-    constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
+    [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
+    [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
+    constexpr void setPointersMap(PM& pointersMap) noexcept { m_pPointersMap = &pointersMap; }
 
     void resetToDefaultsExceptDataContents() noexcept
     {

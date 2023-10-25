@@ -75,7 +75,7 @@ protected:
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status addPointerToMap(const T p, context::SData<S, PM>& ctx, bool& newPointer);
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-    static constexpr Status getPointerFromMap(context::DData<D, PM>& ctx, T p, bool& newPointer);
+    static constexpr Status getPointerFromMap(context::DData<D, PM>& ctx, T& p, bool& newPointer);
 
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx);
@@ -119,6 +119,8 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
                     , "References and pointers on functions are not allowed to be serialized");
 
+    assert(n > 0);
+
     const context::Flags flags = ctx.getFlags();
 
     if (
@@ -143,6 +145,14 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
     }
     else if constexpr (!serialization_concepts::EmptyType<T>)
     {
+        /*if (p == nullptr)
+        {
+            RUN(output.pushBackArithmeticValue(flags.extendedPointersProcessing ? uint64_t(0) : uint8_t(0)));
+            return Status::kNoError;
+        }
+        else if (!flags.extendedPointersProcessing)
+            RUN(output.pushBackArithmeticValue(uint8_t(1)));*/
+
         for (size_t i = 0; i < n; ++i)
         {
             if (flags.extendedPointersProcessing)
@@ -199,6 +209,16 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
 
             if (!newPointer)
                 return Status::kNoError;
+        }
+        else
+        {
+            if (value == nullptr)
+            {
+                RUN(output.pushBackArithmeticValue(uint8_t(0)));
+                return Status::kNoError;
+            }
+            else
+                RUN(output.pushBackArithmeticValue(uint8_t(1)));
         }
 
         RUN(serializeData(*value, ctx));
@@ -305,9 +325,21 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
             if (!newPointer)
                 return Status::kNoError;
         }
+        else
+        {
+            uint8_t isValidPtr = 0;
+            RUN(input.readArithmeticValue(isValidPtr));
+            if (!isValidPtr)
+            {
+                value = nullptr;
+                return Status::kNoError;
+            }
+        }
 
         // think about replace this with some Allocator function
         value = new std::remove_const_t<std::remove_pointer_t<T>>;
+        if (flags.extendedPointersProcessing)
+            (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);
 
         RUN(deserializeData(ctx, *value));
     }
@@ -402,7 +434,7 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
         {
             newPointer = true;
             pointersMap[p] = output.size() + sizeof(uint64_t);
-            RUN(output.pushBackArithmeticValue(static_cast<uint64_t>(-1)));
+            RUN(output.pushBackArithmeticValue(static_cast<uint64_t>(1)));
         }
         else
         {
@@ -415,7 +447,7 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T p, bool& newPointer)
+constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T& p, bool& newPointer)
 {
     D& input = ctx.getBinaryData();
 
@@ -440,7 +472,7 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T 
             if (offset >= input.tell())
                 return Status::KErrorInternal;
 
-            p = static_cast<T>(pointersMap[offset]);
+            p = reinterpret_cast<T>(pointersMap[offset]);
         }
     }
 

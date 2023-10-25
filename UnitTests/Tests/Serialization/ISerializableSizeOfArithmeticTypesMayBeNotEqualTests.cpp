@@ -63,22 +63,22 @@ void mainTest()
     EXPECT_NE(bin2.size(), ctxIn.getBinaryData().size());
 }
 
-TEST(SerializationSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableAlignedToOneSimilarTypeT)
+TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableAlignedToOneSimilarTypeT)
 {
     mainTest<SimpleAssignableAlignedToOneSimilarType1Serializable<>, SimpleAssignableAlignedToOneSimilarType2Serializable<>>();
 }
 
-TEST(SerializationSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableSimilarTypeT)
+TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableSimilarTypeT)
 {
     mainTest<SimpleAssignableSimilarType1Serializable<>, SimpleAssignableSimilarType2Serializable<>>();
 }
 
-TEST(SerializationSizeOfArithmeticTypesMayBeNotEqualTests, SimilarTypeT)
+TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimilarTypeT)
 {
     mainTest<SimilarType1Serializable<>, SimilarType2Serializable<>>();
 }
 
-TEST(SerializationSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
+TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
 {
     SpecialProcessingTypeContainSerializable input;
     fillingStruct(input);

@@ -33,7 +33,7 @@ class SimpleAssignableAlignedToOneSerializable_Version1 : public csp::ISerializa
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>;
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 10;
     static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
@@ -61,7 +61,7 @@ struct TwoInts
     uint8_t x{ 0 };
     uint16_t y{ 0 };
 
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 };
 
 template<typename T = Dummy>
@@ -69,7 +69,7 @@ class SimpleAssignableAlignedToOneSerializable_Version0 : public csp::ISerializa
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version0<T>, T>;
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 11;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs

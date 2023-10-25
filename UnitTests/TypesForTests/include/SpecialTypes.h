@@ -129,7 +129,7 @@ struct SimpleAssignableAlignedToOneNotInterfaceType
     char j;
     int k;
 
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 };
 
 #pragma pack(pop)
@@ -139,7 +139,7 @@ struct SimpleAssignableNotInterfaceType
     char j;
     int k;
 
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 };
 
 struct SimpleAssignableTypeWithoutTypeUsingNotInterfaceType

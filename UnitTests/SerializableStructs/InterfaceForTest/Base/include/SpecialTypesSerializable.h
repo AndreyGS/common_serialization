@@ -30,7 +30,7 @@ using namespace common_serialization;
 
 struct EmptyTypeNotSerializable
 {
-    using empty_type = std::true_type;
+    using empty_type_tag = std::true_type;
 };
 
 template<typename T = Dummy>
@@ -38,7 +38,7 @@ class EmptyTypeSerializable : public csp::ISerializable<GetCrtpMainType<EmptyTyp
 {
 public:
     using instance_type = GetCrtpMainType<EmptyTypeSerializable<T>, T>;
-    using empty_type = std::true_type;
+    using empty_type_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 0;
     static constexpr uint32_t kInterfaceVersion = 0;
@@ -49,7 +49,7 @@ public:
 
 struct SimpleAssignableAlignedToOneNotSerializable
 {
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     uint16_t a{ 0 };
     uint8_t s{ 0 };
@@ -65,7 +65,7 @@ class SimpleAssignableAlignedToOneSerializable : public csp::ISerializable<GetCr
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable<T>, T>;
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 1;
     static constexpr uint32_t kInterfaceVersion = 2;
@@ -92,7 +92,7 @@ private:
 
 struct SimpleAssignableNotSerializable
 {
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     uint16_t q{ 0 };
     uint64_t w{ 0 };
@@ -108,7 +108,7 @@ class SimpleAssignableSerializable : public csp::ISerializable<GetCrtpMainType<S
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableSerializable<T>, T>;
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 2;
     static constexpr uint32_t kInterfaceVersion = 2;         // latest version among all dependable structs
@@ -181,7 +181,7 @@ template<typename T = Dummy>
 struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializable<GetCrtpMainType<SimpleAssignableDescendantSerializable<T>, T>>
 {
     using instance_type = GetCrtpMainType<SimpleAssignableDescendantSerializable<T>, T>;
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 3;
     static constexpr uint32_t kInterfaceVersion = 2;
@@ -387,7 +387,7 @@ class SimpleAssignableAlignedToOneSimilarType1Serializable : public csp::ISerial
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1Serializable<T>, T>;
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 1001; // hash is same as in SimpleAssignableAlignedToOneSimilarType2Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
@@ -411,7 +411,7 @@ class SimpleAssignableAlignedToOneSimilarType2Serializable : public csp::ISerial
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2Serializable<T>, T>;
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 1001; // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
@@ -438,7 +438,7 @@ class SimpleAssignableSimilarType1Serializable : public csp::ISerializable<GetCr
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableSimilarType1Serializable<T>, T>;
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType2Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
@@ -462,7 +462,7 @@ class SimpleAssignableSimilarType2Serializable : public csp::ISerializable<GetCr
 {
 public:
     using instance_type = GetCrtpMainType<SimpleAssignableSimilarType2Serializable<T>, T>;
-    using simple_assignable = std::true_type;
+    using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType1Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;

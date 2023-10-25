@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAlignmentMayBeNotEqualTests.cpp
+ * @file ISerializableExtendedPointersProcessing.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -37,57 +37,32 @@ void mainTest()
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
     csp::context::Flags flags;
-    flags.alignmentMayBeNotEqual = true;
+    flags.extendedPointersProcessing = true;
     ctxIn.setFlags(flags);
+    std::unordered_map<const void*, uint64_t> sMap;
+    ctxIn.setPointersMap(sMap);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
+    EXPECT_TRUE(ctxIn.getPointersMap()->size() > 0);
+
     csp::context::DData<Walker<uint8_t>> ctxOut(bin);
+    std::unordered_map<uint64_t, void*> dMap;
+    ctxOut.setPointersMap(dMap);
+
     T output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
+    EXPECT_TRUE(ctxOut.getPointersMap()->size() > 0);
 
+    EXPECT_EQ(bin.tell(), bin.size());
     EXPECT_EQ(input, output);
 }
 
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableAlignedToOneT)
+
+TEST(ISerializableExtendedPointersProcessing, SimpleAssignableAlignedToOneT)
 {
-    mainTest<SimpleAssignableAlignedToOneSerializable<>>();
-}
-
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableT)
-{
-    mainTest<SimpleAssignableSerializable<>>();
-}
-
-TEST(SerializeNoFlagsTest, SpecialT)
-{
-    mainTest<SpecialProcessingTypeContainSerializable<>>();
-}
-
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableDataSizeT)
-{
-    SimpleAssignableSerializable input;
-    fillingStruct(input);
-
-    Walker<uint8_t> bin;
-    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
-    csp::context::Flags flags;
-    flags.alignmentMayBeNotEqual = true;
-    ctxIn.setFlags(flags);
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    size_type sizeWithFlag = ctxIn.getBinaryData().size();
-
-    ctxIn.clear();
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    size_type sizeWithoutFlag = ctxIn.getBinaryData().size();
-
-    EXPECT_NE(sizeWithFlag, sizeWithoutFlag);
+   // mainTest<SpecialProcessingTypeContainSerializable<>>();
 }
 
 } // namespace anonymous

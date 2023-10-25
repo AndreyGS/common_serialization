@@ -50,6 +50,33 @@ struct remove_member_pointer<T C::*>
 template<typename T>
 using remove_member_pointer_t = typename remove_member_pointer<T>::type;
 
+template<typename T, std::size_t L>
+struct pointer_level_traits_impl
+{
+    static const std::size_t value = L;
+    using from_ptr_to_const_to_ptr = std::remove_const_t<T>;
+};
+
+template<typename T, std::size_t L>
+    requires std::is_pointer_v<T>
+struct pointer_level_traits_impl<T, L> : pointer_level_traits_impl<std::remove_pointer_t<T>, L + 1>
+{
+    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<T>, L + 1>::from_ptr_to_const_to_ptr*;
+};
+
+template<typename T>
+    requires std::is_pointer_v<T>
+struct pointer_level_traits : pointer_level_traits_impl<std::remove_pointer_t<T>, 0>
+{
+    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<T>, 0>::from_ptr_to_const_to_ptr*;
+};
+
+// erases all consts from ptr
+// const int* const * const * const -> int***
+template<typename T>
+    requires std::is_pointer_v<T>
+using from_ptr_to_const_to_ptr_t = typename pointer_level_traits<T>::from_ptr_to_const_to_ptr;
+
 namespace helpers
 {
 
