@@ -206,7 +206,7 @@ void FInit()
     auto vec1 = getStringsFilledContainer<T>();
     decltype(vec1) vec2;
 
-    EXPECT_EQ(vec2.Init(vec1), Status::kNoError);
+    EXPECT_EQ(vec2.init(vec1), Status::kNoError);
 
     EXPECT_EQ(vec1.size(), vec2.size());
 
@@ -215,12 +215,12 @@ void FInit()
 
     vec1.invalidate();
 
-    // Init by empty Vector
-    EXPECT_EQ(vec2.Init(vec1), Status::kNoError);
+    // init by empty Vector
+    EXPECT_EQ(vec2.init(vec1), Status::kNoError);
     EXPECT_EQ(vec2.size(), 0);
 }
 
-TEST(VectorTest, Init)
+TEST(VectorTest, init)
 {
     FInit<std::string>();
 }
@@ -240,7 +240,7 @@ TEST(VectorTest, InitPod)
     vec1.pushBack("123");
 
     Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec2;
-    EXPECT_EQ(vec2.Init(vec1), Status::kErrorNoMemory);
+    EXPECT_EQ(vec2.init(vec1), Status::kErrorNoMemory);
 }
 
 TEST(VectorTest, InitErrorPropagation)
@@ -254,7 +254,7 @@ TEST(VectorTest, InitErrorPropagation)
     ErrorProne::errorOnCounter = 0;
     ErrorProne::currentError = Status::kErrorOverflow;
     
-    EXPECT_EQ(vec2.Init(vec1), Status::kErrorOverflow);
+    EXPECT_EQ(vec2.init(vec1), Status::kErrorOverflow);
 }
 
 template<typename T>
@@ -263,7 +263,7 @@ void FInitMove()
     auto vec1 = getStringsFilledContainer<T>();
     decltype(vec1) vec2;
 
-    EXPECT_EQ(vec2.Init(std::move(vec1)), Status::kNoError);
+    EXPECT_EQ(vec2.init(std::move(vec1)), Status::kNoError);
 
     EXPECT_EQ(vec1.size(), 0);
     EXPECT_EQ(vec1.capacity(), 0);
@@ -273,8 +273,8 @@ void FInitMove()
     for (size_type i = 0; i < vec2.size(); ++i)
         EXPECT_EQ(vec2[i], g_data_array<T>[i]);
 
-    // Init by empty Vector
-    EXPECT_EQ(vec2.Init(std::move(vec1)), Status::kNoError);
+    // init by empty Vector
+    EXPECT_EQ(vec2.init(std::move(vec1)), Status::kNoError);
     EXPECT_EQ(vec2.size(), 0);
 }
 
@@ -298,7 +298,19 @@ TEST(VectorTest, InitMovePod)
     vec1.pushBack("123");
 
     Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec2;
-    EXPECT_EQ(vec2.Init(std::move(vec1)), Status::kNoError);
+    EXPECT_EQ(vec2.init(std::move(vec1)), Status::kNoError);
+}
+
+TEST(VectorTest, SetSize)
+{
+    uint8_t buffer[32]{ 0 };
+    Vector<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> vec;
+    vec.getAllocatorHelper().getAllocator().setStorage(buffer, 32);
+
+    EXPECT_EQ(vec.setSize(32), Status::kNoError);
+    EXPECT_EQ(vec.size(), 32);
+    EXPECT_EQ(vec.setSize(33), Status::kErrorNoMemory);
+    EXPECT_EQ(vec.size(), 32);
 }
 
 TEST(VectorTest, Reserve)

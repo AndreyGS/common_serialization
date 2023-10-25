@@ -214,7 +214,7 @@ void FInit()
     auto walker1 = getStringsFilledContainer<T>();
     decltype(walker1) walker2;
 
-    EXPECT_EQ(walker2.Init(walker1), Status::kNoError);
+    EXPECT_EQ(walker2.init(walker1), Status::kNoError);
 
     EXPECT_EQ(walker1.size(), walker2.size());
     EXPECT_EQ(walker1.tell(), walker2.tell());
@@ -224,13 +224,13 @@ void FInit()
 
     walker1.invalidate();
 
-    // Init by empty Vector
-    EXPECT_EQ(walker2.Init(walker1), Status::kNoError);
+    // init by empty Vector
+    EXPECT_EQ(walker2.init(walker1), Status::kNoError);
     EXPECT_EQ(walker2.size(), 0);
     EXPECT_EQ(walker2.tell(), 0);
 }
 
-TEST(WalkerTest, Init)
+TEST(WalkerTest, init)
 {
     FInit<std::string>();
 }
@@ -250,7 +250,7 @@ TEST(WalkerTest, InitPod)
     walker1.pushBack("123");
 
     Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker2;
-    EXPECT_EQ(walker2.Init(walker1), Status::kErrorNoMemory);
+    EXPECT_EQ(walker2.init(walker1), Status::kErrorNoMemory);
 }
 
 TEST(WalkerTest, InitErrorPropagation)
@@ -264,7 +264,7 @@ TEST(WalkerTest, InitErrorPropagation)
     ErrorProne::errorOnCounter = 0;
     ErrorProne::currentError = Status::kErrorOverflow;
 
-    EXPECT_EQ(walker2.Init(walker1), Status::kErrorOverflow);
+    EXPECT_EQ(walker2.init(walker1), Status::kErrorOverflow);
 }
 
 template<typename T>
@@ -273,7 +273,7 @@ void FInitMove()
     auto walker1 = getStringsFilledContainer<T>();
     decltype(walker1) walker2;
 
-    EXPECT_EQ(walker2.Init(std::move(walker1)), Status::kNoError);
+    EXPECT_EQ(walker2.init(std::move(walker1)), Status::kNoError);
 
     EXPECT_EQ(walker1.size(), 0);
     EXPECT_EQ(walker1.capacity(), 0);
@@ -285,8 +285,8 @@ void FInitMove()
     for (size_type i = 0; i < walker2.size(); ++i)
         EXPECT_EQ(walker2[i], g_data_array<T>[i]);
 
-    // Init by empty Vector
-    EXPECT_EQ(walker2.Init(std::move(walker1)), Status::kNoError);
+    // init by empty Vector
+    EXPECT_EQ(walker2.init(std::move(walker1)), Status::kNoError);
     EXPECT_EQ(walker2.size(), 0);
     EXPECT_EQ(walker2.tell(), 0);
 }
@@ -311,7 +311,22 @@ TEST(WalkerTest, InitMovePod)
     walker1.pushBack("123");
 
     Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker2;
-    EXPECT_EQ(walker2.Init(std::move(walker1)), Status::kNoError);
+    EXPECT_EQ(walker2.init(std::move(walker1)), Status::kNoError);
+}
+
+TEST(WalkerTest, SetSize)
+{
+    uint8_t buffer[32]{ 0 };
+    Walker<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> walker;
+    walker.getAllocatorHelper().getAllocator().setStorage(buffer, 32);
+    EXPECT_EQ(walker.tell(), 0);
+
+    EXPECT_EQ(walker.setSize(32), Status::kNoError);
+    EXPECT_EQ(walker.size(), 32);
+    EXPECT_EQ(walker.tell(), 32);
+    EXPECT_EQ(walker.setSize(33), Status::kErrorNoMemory);
+    EXPECT_EQ(walker.size(), 32);
+    EXPECT_EQ(walker.tell(), 32);
 }
 
 TEST(WalkerTest, Reserve)
@@ -418,16 +433,19 @@ TEST(WalkerTest, PushBackPod)
     EXPECT_EQ(walker_pod.tell(), 2);
 
     Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker_pod2;
+    walker_pod2.getAllocatorHelper().getAllocator().setStorage(&ps, 1);
+    walker_pod2.pushBack(ps);
+    walker_pod2.seek(0);
 
     // test l-value
     EXPECT_EQ(walker_pod2.pushBack(ps), Status::kErrorNoMemory);
-    EXPECT_EQ(walker_pod2.size(), 0);
-    EXPECT_EQ(walker_pod2.tell(), 0);
+    EXPECT_EQ(walker_pod2.size(), 1);
+    EXPECT_EQ(walker_pod2.tell(), 1);
 
     // test r-value
     EXPECT_EQ(walker_pod2.pushBack(std::move(ps)), Status::kErrorNoMemory);
-    EXPECT_EQ(walker_pod2.size(), 0);
-    EXPECT_EQ(walker_pod2.tell(), 0);
+    EXPECT_EQ(walker_pod2.size(), 1);
+    EXPECT_EQ(walker_pod2.tell(), 1);
 }
 
 template<typename T>
@@ -482,9 +500,13 @@ TEST(WalkerTest, PushBackNPod)
 
     Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker_pod;
     PodStruct ps("456");
+    walker_pod.getAllocatorHelper().getAllocator().setStorage(&ps, 1);
+    walker_pod.pushBack(ps);
+    walker_pod.seek(0);
 
     EXPECT_EQ(walker_pod.pushBackN(&ps, 1), Status::kErrorNoMemory);
-    EXPECT_EQ(walker_pod.size(), 0);
+    EXPECT_EQ(walker_pod.size(), 1);
+    EXPECT_EQ(walker_pod.tell(), 1);
 }
 
 TEST(WalkerTest, PushBackArithmeticValue)
@@ -492,7 +514,7 @@ TEST(WalkerTest, PushBackArithmeticValue)
     Walker<uint8_t, DefaultAllocatorHelper<uint8_t>> walker;
     walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize); // as a precaution
 
-    constexpr double value = 5.;
+    double value = 5.;
 
     walker.pushBackArithmeticValue(value);
 
@@ -502,10 +524,14 @@ TEST(WalkerTest, PushBackArithmeticValue)
     EXPECT_EQ(walker.tell(), sizeof(value));
 
     Walker<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> walker2;
+    uint8_t storage[sizeof(double)]{ 0 };
+    walker2.getAllocatorHelper().getAllocator().setStorage(storage, 1);
+    walker2.pushBack(value);
+    walker2.seek(0);
 
     EXPECT_EQ(walker2.pushBackArithmeticValue(value), Status::kErrorNoMemory);
-    EXPECT_EQ(walker2.size(), 0);
-    EXPECT_EQ(walker2.tell(), 0);
+    EXPECT_EQ(walker2.size(), 1);
+    EXPECT_EQ(walker2.tell(), 1);
 }
 
 template<typename T>

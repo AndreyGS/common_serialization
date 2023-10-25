@@ -109,7 +109,7 @@ public:
     static uint32_t errorOnCounter;
     static Status currentError;
 
-    Status Init(const ErrorProne&)
+    Status init(const ErrorProne&)
     {
         if (errorOnCounter == counter++)
             return currentError;

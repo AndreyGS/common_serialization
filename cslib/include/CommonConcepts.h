@@ -31,7 +31,7 @@ namespace common_serialization
 template<typename T>
 concept Initable = requires(T t)
 {
-    { t.Init(*(new T)) } -> std::same_as<Status>;
+    { t.init(*(new T)) } -> std::same_as<Status>;
 };
 
 } // namespace common_serialization

@@ -341,8 +341,12 @@ public:
     constexpr Vector& operator=(Vector&& rhs) noexcept;
     constexpr ~Vector() noexcept;
 
-    constexpr Status Init(const Vector& rhs);
-    constexpr Status Init(Vector&& rhs) noexcept;
+    constexpr Status init(const Vector& rhs);
+    constexpr Status init(Vector&& rhs) noexcept;
+
+    // only set data size, no default values are set
+    constexpr Status setSize(size_type n) noexcept
+        requires std::is_trivially_copyable_v<T>;
 
     constexpr Status reserve(size_type n);
     
@@ -433,19 +437,19 @@ constexpr Vector<T, AllocatorHelper>::Vector() noexcept
 template<typename T, typename AllocatorHelper>
 constexpr Vector<T, AllocatorHelper>::Vector(const Vector& rhs)
 {
-    Init(rhs);
+    init(rhs);
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Vector<T, AllocatorHelper>::Vector(Vector&& rhs) noexcept
 {
-    Init(std::move(rhs));
+    init(std::move(rhs));
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(const Vector& rhs)
 {
-    Init(rhs);
+    init(rhs);
 
     return *this;
 }
@@ -453,7 +457,7 @@ constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(cons
 template<typename T, typename AllocatorHelper>
 constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(Vector&& rhs) noexcept
 {
-    Init(std::move(rhs));
+    init(std::move(rhs));
 
     return *this;
 }
@@ -465,7 +469,7 @@ constexpr Vector<T, AllocatorHelper>::~Vector() noexcept
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::Init(const Vector& rhs)
+constexpr Status Vector<T, AllocatorHelper>::init(const Vector& rhs)
 {
     if (this != &rhs)
     {
@@ -493,7 +497,7 @@ constexpr Status Vector<T, AllocatorHelper>::Init(const Vector& rhs)
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::Init(Vector&& rhs) noexcept
+constexpr Status Vector<T, AllocatorHelper>::init(Vector&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -506,6 +510,15 @@ constexpr Status Vector<T, AllocatorHelper>::Init(Vector&& rhs) noexcept
         m_p = rhs.release();
     }
 
+    return Status::kNoError;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Status Vector<T, AllocatorHelper>::setSize(size_type n) noexcept
+    requires std::is_trivially_copyable_v<T>
+{
+    RUN(reserveInternal(n, false));
+    m_dataSize = n;
     return Status::kNoError;
 }
 

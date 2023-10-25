@@ -45,8 +45,12 @@ public:
     constexpr Walker& operator=(Walker&& rhs) noexcept;
     constexpr ~Walker() noexcept;
 
-    constexpr Status Init(const Walker& rhs);
-    constexpr Status Init(Walker&& rhs) noexcept;
+    constexpr Status init(const Walker& rhs);
+    constexpr Status init(Walker&& rhs) noexcept;
+
+    // only set data size, no default values are set
+    constexpr Status setSize(size_type n) noexcept
+        requires std::is_trivially_copyable_v<T>;
     
     constexpr Status reserve(size_type n);
     constexpr Status reserve_from_current_offset(size_type n);
@@ -112,26 +116,26 @@ constexpr Walker<T, AllocatorHelper>::Walker() noexcept { };
 template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>::Walker(const Walker& rhs)
 {
-    Init(rhs);
+    init(rhs);
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>::Walker(Walker&& rhs) noexcept
 { 
-    Init(std::move(rhs));
+    init(std::move(rhs));
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>& Walker<T, AllocatorHelper>::operator=(const Walker& rhs)
 {
-    Init(rhs);
+    init(rhs);
     return *this;
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>& Walker<T, AllocatorHelper>::operator=(Walker&& rhs) noexcept
 {
-    Init(std::move(rhs));
+    init(std::move(rhs));
     return *this;
 }
 
@@ -139,11 +143,11 @@ template<typename T, typename AllocatorHelper>
 constexpr Walker<T, AllocatorHelper>::~Walker() noexcept { m_offset = 0; }
 
 template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::Init(const Walker& rhs)
+constexpr Status Walker<T, AllocatorHelper>::init(const Walker& rhs)
 {
     if (this != &rhs)
     {
-        RUN(m_vector.Init(rhs.m_vector));
+        RUN(m_vector.init(rhs.m_vector));
         m_offset = rhs.m_offset;
     }
 
@@ -151,16 +155,25 @@ constexpr Status Walker<T, AllocatorHelper>::Init(const Walker& rhs)
 }
 
 template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::Init(Walker&& rhs) noexcept
+constexpr Status Walker<T, AllocatorHelper>::init(Walker&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        RUN(m_vector.Init(std::move(rhs.m_vector)));
+        RUN(m_vector.init(std::move(rhs.m_vector)));
         m_offset = rhs.m_offset;
         rhs.m_offset = 0;
     }
 
     return Status::kNoError;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Status Walker<T, AllocatorHelper>::setSize(size_type n) noexcept
+    requires std::is_trivially_copyable_v<T>
+{
+    Status status = m_vector.setSize(n);
+    m_offset = size();
+    return status;
 }
 
 template<typename T, typename AllocatorHelper>
@@ -181,25 +194,25 @@ constexpr Status Walker<T, AllocatorHelper>::reserve_from_current_offset(size_ty
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::pushBack(const T& value)
 {
-    RUN(m_vector.pushBack(value));
+    Status status = m_vector.pushBack(value);
     m_offset = size();
-    return Status::kNoError;
+    return status;
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::pushBack(T&& value)
 {
-    RUN(m_vector.pushBack(std::move(value)));
+    Status status = m_vector.pushBack(std::move(value));
     m_offset = size();
-    return Status::kNoError;
+    return status;
 }
 
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
 {
-    RUN(m_vector.pushBackN(p, n));
+    Status status = m_vector.pushBackN(p, n);
     m_offset = size();
-    return Status::kNoError;
+    return status;
 }
 
 template<typename T, typename AllocatorHelper>
@@ -207,9 +220,9 @@ template<typename V>
 constexpr Status Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
     requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>
 {
-    RUN(m_vector.pushBackArithmeticValue(value));
+    Status status = m_vector.pushBackArithmeticValue(value);
     m_offset = size();
-    return Status::kNoError;
+    return status;
 }
 
 template<typename T, typename AllocatorHelper>

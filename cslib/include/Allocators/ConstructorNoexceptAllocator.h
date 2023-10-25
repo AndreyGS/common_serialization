@@ -93,7 +93,7 @@ template<typename... Args>
 constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
     new ((void*)p) T;
-    return p->Init(std::forward<Args>(args)...);
+    return p->init(std::forward<Args>(args)...);
 }
 
 template<typename T>
