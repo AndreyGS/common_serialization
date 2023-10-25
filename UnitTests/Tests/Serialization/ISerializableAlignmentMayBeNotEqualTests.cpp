@@ -1,5 +1,5 @@
 /**
- * @file SerializationInterfaceVersionsNotMatchTests.cpp
+ * @file ISerializableAlignmentMayBeNotEqualTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,29 +26,47 @@ namespace
 
 using namespace special_types;
 
-TEST(SerializationInterfaceVersionsNotMatchTests, TopStruct)
+using size_type = typename Vector<uint8_t>::size_type;
+
+template<typename T>
+void mainTest()
 {
-    SimpleAssignableAlignedToOneSerializable input;
+    T input;
     fillingStruct(input);
 
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
     csp::context::Flags flags;
-    flags.interfaceVersionsNotMatch = true;
+    flags.alignmentMayBeNotEqual = true;
     ctxIn.setFlags(flags);
-    ctxIn.setInterfaceVersion(0);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    csp::context::DData<Walker<uint8_t>> ctx2(bin);
-    SimpleAssignableAlignedToOneSerializable output;
+    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
+    T output;
 
-    EXPECT_EQ(output.deserialize(ctx2), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_TRUE(input == output);
+    EXPECT_EQ(input, output);
 }
 
-TEST(SerializationInterfaceVersionsNotMatchTests, MemberStruct)
+TEST(SerializationAlignmentMayBeNotEqualTests, SimpleAssignableAlignedToOneT)
+{
+    mainTest<SimpleAssignableAlignedToOneSerializable<>>();
+}
+
+TEST(SerializationAlignmentMayBeNotEqualTests, SimpleAssignableT)
+{
+    mainTest<SimpleAssignableSerializable<>>();
+}
+
+TEST(SerializeNoFlagsTest, SpecialT)
+{
+    mainTest<SpecialProcessingTypeContainSerializable<>>();
+}
+
+TEST(SerializationAlignmentMayBeNotEqualTests, SimpleAssignableDataSizeT)
 {
     SimpleAssignableSerializable input;
     fillingStruct(input);
@@ -56,28 +74,20 @@ TEST(SerializationInterfaceVersionsNotMatchTests, MemberStruct)
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
     csp::context::Flags flags;
-    flags.interfaceVersionsNotMatch = true;
+    flags.alignmentMayBeNotEqual = true;
     ctxIn.setFlags(flags);
-    ctxIn.setInterfaceVersion(1);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
-    SimpleAssignableSerializable output;
+    size_type sizeWithFlag = ctxIn.getBinaryData().size();
 
-    // test minimum interface version that is higher than in serialized data
-    ctxOut.setInterfaceVersion(2);
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kErrorNotSupportedInterfaceVersion);
+    ctxIn.clear();
 
-    ctxOut.resetToDefaultsExceptDataContents();
+    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    // normal deserialization
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    size_type sizeWithoutFlag = ctxIn.getBinaryData().size();
 
-    EXPECT_TRUE(input == output);
+    EXPECT_NE(sizeWithFlag, sizeWithoutFlag);
 }
-
-// need to add test for interface versions that are not matched 
-// and flags.interfaceVersionsNotMatch is not set
 
 } // namespace anonymous

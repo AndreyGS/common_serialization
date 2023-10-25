@@ -1,5 +1,5 @@
 /**
- * @file SerializationSizeOfArithmeticTypesMayBeNotEqualTests.cpp
+ * @file ISerializableSizeOfArithmeticTypesMayBeNotEqualTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -96,7 +96,7 @@ TEST(SerializationSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
     EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_TRUE(input == output);
+    EXPECT_EQ(input, output);
 }
 
 } // namespace anonymous
