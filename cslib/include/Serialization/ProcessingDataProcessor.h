@@ -479,7 +479,6 @@ constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context
     uint32_t thisVersionCompat = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
 
     S& output = ctx.getBinaryData();
-    RUN(output.pushBackArithmeticValue(thisVersionCompat));
 
     if (thisVersionCompat == value.getThisVersion())
         return Status::kNoError;
@@ -504,9 +503,7 @@ static constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData
     {
         D& input = ctx.getBinaryData();
 
-        uint32_t thisVersionCompat = 0;
-
-        RUN(input.readArithmeticValue(thisVersionCompat));
+        uint32_t thisVersionCompat = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
 
         if (thisVersionCompat == value.getThisVersion())
             return Status::kNoError;

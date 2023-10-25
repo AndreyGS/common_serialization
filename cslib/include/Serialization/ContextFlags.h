@@ -35,9 +35,7 @@ namespace context
 struct Flags
 {
     uint32_t protocolVersionsNotMatch               : 1 = 0;
-    uint32_t interfaceVersionsNotMatch              : 1 = 0;    // when this flag is set, it's also indicates that
-                                                                // serialized data would include version for every serialized struct
-                                                                // to allow it properly deserialized
+    uint32_t interfaceVersionsNotMatch              : 1 = 0;
     uint32_t alignmentMayBeNotEqual                 : 1 = 0;    // to speed up serialization without this flag
                                                                 // structs marked with simple_assignable_tag and their vectors
                                                                 // would be serialized and deserialized by memcpy
