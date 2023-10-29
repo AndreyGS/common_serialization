@@ -35,7 +35,7 @@
 {                                                                                       \
     if (                                                                                \
            serialization_concepts::IsISerializableBased<decltype(value)>                \
-        && ctx.getFlags().interfaceVersionsNotMatch                                     \
+        && ctx.isInterfaceVersionsNotMatch()                                            \
     )                                                                                   \
     {                                                                                   \
         Status status = convertToOldStructIfNeed((value), (ctx));                       \

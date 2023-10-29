@@ -38,7 +38,7 @@ void mainTest()
 
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
-    csp::context::Flags flags;
+    csp::context::DataFlags flags;
     flags.sizeOfArithmeticTypesMayBeNotEqual = true;
     ctxIn.setFlags(flags);
 
@@ -85,7 +85,7 @@ TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
 
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
-    csp::context::Flags flags;
+    csp::context::DataFlags flags;
     flags.sizeOfArithmeticTypesMayBeNotEqual = true;
     ctxIn.setFlags(flags);
 

@@ -43,7 +43,6 @@ constexpr Status serializeHeaderContext(context::Common<S>& ctx) noexcept
         return Status::kErrorNotSupportedProtocolVersion;
 
     RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getProtocolVersion())));
-    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getFlags())));
     RUN(output.pushBackArithmeticValue(ctx.getMessageType()));
 
     return Status::kNoError;
@@ -62,15 +61,6 @@ constexpr Status deserializeHeaderContext(context::Common<D>& ctx) noexcept
     if (minimumSupportedVersion > ctx.getProtocolVersion() || traits::getLatestProtocolVersion() < ctx.getProtocolVersion())
         return Status::kErrorNotSupportedProtocolVersion;
 
-    uint32_t intFlags = 0;
-    RUN(input.readArithmeticValue(intFlags));
-    context::Flags flags(intFlags);
-
-    if (!traits::isProtocolVersionSameAsLatestOur(ctx.getProtocolVersion()))
-        flags.protocolVersionsNotMatch = true;
-
-    ctx.setFlags(flags);
-
     context::Message messageType = context::Message::kData;
     RUN(input.readArithmeticValue(messageType));
 
@@ -85,26 +75,18 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     S& output = ctx.getBinaryData();
 
     RUN(output.pushBackArithmeticValue(T::getNameHash()));
+    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getFlags())));
 
-    const context::Flags flags = ctx.getFlags();
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getMinimumInterfaceVersion(), T::getInterfaceVersion()))
+        return Status::kErrorNotSupportedInterfaceVersion;
 
-    if (flags)
-    {
-        if (flags.interfaceVersionsNotMatch
-            && !traits::isInterfaceVersionSupported(ctx.getInterfaceVersion()
-                , T::getMinimumInterfaceVersion(), T::getInterfaceVersion()))
-        {
-            return Status::kErrorNotSupportedInterfaceVersion;
-        }
+    if (T::getInterfaceVersion() != ctx.getInterfaceVersion())
+        ctx.setInterfaceVersionsNotMatch(true);
 
-        if (flags.extendedPointersProcessing && ctx.getPointersMap() == nullptr)
-            return Status::kErrorInvalidArgument;
-    }
+    if (ctx.getFlags().extendedPointersProcessing && ctx.getPointersMap() == nullptr)
+        return Status::kErrorInvalidArgument;
 
-    if (flags.interfaceVersionsNotMatch)
-        RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
-    else
-        RUN(output.pushBackArithmeticValue(T::getInterfaceVersion()));
+    RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
     
     return Status::kNoError;
 }
@@ -115,6 +97,11 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, uint64_t& na
     D& input = ctx.getBinaryData();
 
     RUN(input.readArithmeticValue(nameHash));
+
+    uint32_t intFlags = 0;
+    RUN(input.readArithmeticValue(intFlags));
+    context::DataFlags flags(intFlags);
+    ctx.setFlags(flags);
 
     uint32_t inputInterfaceVersion = 0;
     RUN(input.readArithmeticValue(inputInterfaceVersion));
@@ -134,8 +121,8 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, u
     // value that is higher than minimum defined in interface version
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterfaceVersion()))
         return Status::kErrorNotSupportedInterfaceVersion;
-    else if (ctx.getInterfaceVersion() != T::getInterfaceVersion() && !ctx.getFlags().interfaceVersionsNotMatch)
-        return Status::kErrorMismatchOfInterfaceVersions;
+    else if (ctx.getInterfaceVersion() != T::getInterfaceVersion())
+        ctx.setInterfaceVersionsNotMatch(true);
     else if (ctx.getFlags().extendedPointersProcessing && ctx.getPointersMap() == nullptr)
         return Status::kErrorInvalidArgument;
 

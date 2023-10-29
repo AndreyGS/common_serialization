@@ -121,12 +121,12 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
 
     assert(p && n > 0 || n == 0);
 
-    const context::Flags flags = ctx.getFlags();
+    const context::DataFlags flags = ctx.getFlags();
 
     if (
            std::is_arithmetic_v<T> 
         || std::is_enum_v<T>
-        || !flags.sizeOfArithmeticTypesMayBeNotEqual && (!serialization_concepts::IsISerializableBased<T> || !flags.interfaceVersionsNotMatch)
+        || !flags.sizeOfArithmeticTypesMayBeNotEqual && (!serialization_concepts::IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
             && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
     )
     {
@@ -180,7 +180,7 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
         , "References and pointers on functions are not allowed to be serialized");
 
     S& output = ctx.getBinaryData();
-    const context::Flags flags = ctx.getFlags();
+    const context::DataFlags flags = ctx.getFlags();
 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
     {
@@ -234,12 +234,12 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
 
     assert(p && n > 0 || n == 0);
 
-    const context::Flags flags = ctx.getFlags();
+    const context::DataFlags flags = ctx.getFlags();
 
     if (
            std::is_arithmetic_v<T> 
         || std::is_enum_v<T>
-        || !flags.sizeOfArithmeticTypesMayBeNotEqual && (!serialization_concepts::IsISerializableBased<T> || !flags.interfaceVersionsNotMatch)
+        || !flags.sizeOfArithmeticTypesMayBeNotEqual && (!serialization_concepts::IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
             && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
     )
     {
@@ -290,7 +290,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         , "References and pointers on functions are not allowed to be serialized");
 
     D& input = ctx.getBinaryData();
-    const context::Flags flags = ctx.getFlags();
+    const context::DataFlags flags = ctx.getFlags();
 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
     {
@@ -371,7 +371,7 @@ template<typename T, serialization_concepts::ISerializationCapableContainer S, s
 static constexpr Status DataProcessor::serializeDataSimpleAssignable(const T& value, context::SData<S, PM>&ctx)
 {
     if (
-        context::Flags flags = ctx.getFlags();
+        context::DataFlags flags = ctx.getFlags();
         !flags.sizeOfArithmeticTypesMayBeNotEqual
         && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
     )
@@ -396,7 +396,7 @@ template<typename T, serialization_concepts::IDeserializationCapableContainer D,
 constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value)
 {
     if (
-        context::Flags flags = ctx.getFlags();
+        context::DataFlags flags = ctx.getFlags();
         !flags.sizeOfArithmeticTypesMayBeNotEqual
         && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
     )
@@ -499,19 +499,14 @@ static constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
 static constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
 {
-    if (const context::Flags flags = ctx.getFlags(); flags.interfaceVersionsNotMatch)
-    {
-        D& input = ctx.getBinaryData();
+    D& input = ctx.getBinaryData();
 
-        uint32_t thisVersionCompat = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
+    uint32_t thisVersionCompat = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
 
-        if (thisVersionCompat == value.getThisVersion())
-            return Status::kNoError;
-        else
-            return convertFromOldStruct(ctx, thisVersionCompat, value);
-    }
-    else
+    if (thisVersionCompat == value.getThisVersion())
         return Status::kNoError;
+    else
+        return convertFromOldStruct(ctx, thisVersionCompat, value);
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>

@@ -65,7 +65,7 @@ template<typename T>
 template<serialization_concepts::ISerializationCapableContainer S>
 constexpr Status ISerializable<T>::serialize(S& output) const noexcept
 {
-    context::SData<S> ctx(output);
+    context::SData<S> ctx(output, getInterfaceVersion());
 
     return serialize(ctx);
 }
@@ -74,6 +74,9 @@ template<typename T>
 template<serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
 constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const noexcept
 {
+    if (ctx.getInterfaceVersion() == traits::kInterfaceVersionMax)
+        ctx.setInterfaceVersion(getInterfaceVersion());
+
     RUN(processing::serializeHeaderContext(ctx));
     RUN(processing::serializeDataContext<T>(ctx));
 
@@ -84,7 +87,7 @@ template<typename T>
 template<serialization_concepts::IDeserializationCapableContainer D>
 constexpr Status ISerializable<T>::deserialize(D& input)
 {
-    context::DData<D> ctx(input);
+    context::DData<D> ctx(input, getMinimumInterfaceVersion());
 
     return deserialize(ctx);
 }

@@ -32,11 +32,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
     fillingStruct(input);
 
     Walker<uint8_t> bin;
-    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
-    csp::context::Flags flags;
-    flags.interfaceVersionsNotMatch = true;
-    ctxIn.setFlags(flags);
-    ctxIn.setInterfaceVersion(0);
+    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector(), 0);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
@@ -54,11 +50,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
     fillingStruct(input);
 
     Walker<uint8_t> bin;
-    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
-    csp::context::Flags flags;
-    flags.interfaceVersionsNotMatch = true;
-    ctxIn.setFlags(flags);
-    ctxIn.setInterfaceVersion(1);
+    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector(), 1);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 

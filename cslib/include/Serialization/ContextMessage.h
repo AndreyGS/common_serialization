@@ -42,13 +42,14 @@ enum class Message : uint_fast32_t
                                             //     struct
                                             //     {
                                             //         uint64_t structNameHash;
+                                            //         DataFlags flags;
                                             //         uint32_t interfaceVersion;
                                             //     } dataSpecificHeader;
                                             //     
                                             //     struct
                                             //     {
                                             //         uint8_t serializedData[anysize];
-                                            //     } binaryData; // varies by Flags that was set and struct that was serialized
+                                            //     } binaryData; // varies by DataFlags that was set and struct that was serialized
                                             // }
                                             //
     kStatus = 0x1                           // format of message depends on status code
@@ -62,7 +63,7 @@ enum class Message : uint_fast32_t
                                             //     struct
                                             //     {
                                             //         uint8_t serializedData[anysize];
-                                            //     } binaryData; // varies by Flags that was set and struct that was serialized
+                                            //     } binaryData; // varies by DataFlags that was set and struct that was serialized
                                             // }
                                             // 
                                             //
@@ -94,7 +95,7 @@ enum class Message : uint_fast32_t
                                             // 
                                             // sends when its primal (latest) version not
                                             // equal to version of input data, but version of input data
-                                            // is supported and Flags::interfaceVersionsNotMatch is false
+                                            // is supported and DataFlags::interfaceVersionsNotMatch is false
                                             // 
                                             // message body format
                                             // 

@@ -24,7 +24,7 @@
 #pragma once
 
 #include "Traits.h"
-#include "ContextFlags.h"
+#include "ContextDataFlags.h"
 #include "ContextMessage.h"
 #include "SerializationConcepts.h"
 #include "../Containers/HashMap.h"
@@ -44,8 +44,9 @@ template<typename Container>
 class Common
 {
 protected:
-    constexpr Common(Container& binaryData, uint8_t protocolVersion, Flags flags, Message messageType) noexcept
-        : m_binaryData(binaryData), m_protocolVersion(protocolVersion), m_flags(flags), m_messageType(messageType)
+    constexpr Common(Container& binaryData, uint8_t protocolVersion, Message messageType) noexcept
+        : m_binaryData(binaryData), m_protocolVersion(protocolVersion)
+        , m_protocolVersionsNotMatch(traits::getLatestProtocolVersion() != protocolVersion), m_messageType(messageType)
     {
         if constexpr (serialization_concepts::ISerializationCapableContainer<Container>)
             m_binaryData.reserve(256);
@@ -55,21 +56,21 @@ public:
     [[nodiscard]] constexpr Container& getBinaryData() noexcept { return m_binaryData; }
     [[nodiscard]] constexpr const Container& getBinaryData() const noexcept { return m_binaryData; }
 
-    [[nodiscard]] constexpr Flags getFlags() noexcept { return m_flags; }
-    constexpr void setFlags(Flags flags) { m_flags = flags; }
-
     [[nodiscard]] constexpr Message getMessageType() const noexcept { return m_messageType; }
     constexpr void setMessageType(Message messageType) { m_messageType = messageType; }
 
     [[nodiscard]] constexpr uint8_t getProtocolVersion() const noexcept { return m_protocolVersion; }
-    constexpr void setProtocolVersion(uint8_t protocolVersion) { m_protocolVersion = protocolVersion; }
+    constexpr void setProtocolVersion(uint8_t protocolVersion)
+    { 
+        m_protocolVersion = protocolVersion; 
+        m_protocolVersionsNotMatch = traits::isProtocolVersionSameAsLatestOur(m_protocolVersion);
+    }
 
     void resetToDefaultsExceptDataContents() noexcept
     {
         if constexpr (serialization_concepts::IDeserializationCapableContainer<Container>)
             m_binaryData.seek(0);
         m_protocolVersion = traits::getLatestProtocolVersion();
-        m_flags = Flags{};
         m_messageType = Message::kData;
     }
 
@@ -82,7 +83,7 @@ public:
 private:
     Container& m_binaryData;
     uint8_t m_protocolVersion{ traits::getLatestProtocolVersion() };
-    Flags m_flags = Flags{};
+    bool m_protocolVersionsNotMatch = false;
     Message m_messageType = Message::kData;
 };
 
@@ -94,25 +95,34 @@ template<typename Container, bool serialize = true, serialization_concepts::IPoi
 class Data : public Common<Container>
 {
 public:
-    constexpr Data(Container& container) noexcept
-        : Common<Container>(container, traits::getLatestProtocolVersion(), Flags{}, Message::kData)
+    constexpr Data(Container& container, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
+        : Common<Container>(container, traits::getLatestProtocolVersion(), Message::kData)
+        , m_interfaceVersion(interfaceVersion)
     { }
 
-    constexpr Data(const Common<Container>& common) noexcept
-        : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), common.getFlags(), Message::kData)
+    constexpr Data(const Common<Container>& common, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
+        : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), Message::kData)
+        , m_interfaceVersion(interfaceVersion)
     { }
 
     constexpr Data(const Data<Container, serialize, PM>& rhs) noexcept
         : Common<Container>(rhs.getBinaryData(), rhs.getProtocolVersion(), rhs.getFlags(), Message::kData)
-        , m_interfaceVersion(rhs.m_interfaceVersion), m_pPointersMap(rhs.m_pPointersMap)
+        , m_flags(rhs.m_flags), m_interfaceVersion(rhs.m_interfaceVersion), m_pPointersMap(rhs.m_pPointersMap)
     { }
 
-    constexpr Data(Container& binaryData, uint8_t protocolVersion, Flags flags, uint32_t interfaceVersion, PM* pPointersMap = nullptr) noexcept
-        : Common<Container>(binaryData, protocolVersion, flags, Message::kData), m_interfaceVersion(interfaceVersion), m_pPointersMap(pPointersMap)
+    constexpr Data(Container& binaryData, uint8_t protocolVersion, DataFlags flags, uint32_t interfaceVersion = traits::kInterfaceVersionMax, PM* pPointersMap = nullptr) noexcept
+        : Common<Container>(binaryData, protocolVersion, flags, Message::kData), m_flags(flags)
+        , m_interfaceVersion(interfaceVersion), m_interfaceVersionsNotMatch(false), m_pPointersMap(pPointersMap)
     { }
+
+    [[nodiscard]] constexpr DataFlags getFlags() noexcept { return m_flags; }
+    constexpr void setFlags(DataFlags flags) { m_flags = flags; }
 
     [[nodiscard]] constexpr uint32_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
     constexpr void setInterfaceVersion(uint32_t interfaceVersion) { m_interfaceVersion = interfaceVersion; }
+
+    [[nodiscard]] constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
+    constexpr void setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; }
 
     [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
     [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
@@ -121,7 +131,9 @@ public:
     void resetToDefaultsExceptDataContents() noexcept
     {
         Common<Container>::resetToDefaultsExceptDataContents();
+        m_flags = DataFlags{};
         m_interfaceVersion = traits::kInterfaceVersionMax;
+        m_interfaceVersionsNotMatch = false;
         if (m_pPointersMap)
             m_pPointersMap->clear();
     }
@@ -129,13 +141,17 @@ public:
     void clear() noexcept
     {
         Common<Container>::clear();
+        m_flags = DataFlags{};
         m_interfaceVersion = traits::kInterfaceVersionMax;
+        m_interfaceVersionsNotMatch = false;
         if (m_pPointersMap)
             m_pPointersMap->clear();
     }
 
 private:
+    DataFlags m_flags = DataFlags{};
     uint32_t m_interfaceVersion{ traits::kInterfaceVersionMax };
+    bool m_interfaceVersionsNotMatch = false;
     PM* m_pPointersMap{ nullptr };
 };
 
