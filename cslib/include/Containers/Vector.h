@@ -399,21 +399,9 @@ public:
     [[nodiscard]] constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
 
     [[nodiscard]] constexpr bool operator==(const Vector& rhs) const
-    {
-        if (size() != rhs.size())
-            return false;
-
-        for (size_type i = 0; i < size(); ++i)
-            if (m_p[i] != rhs.m_p[i])
-                return false;
-
-        return true;
-    }
-
+        requires IsNotPointer<T>;
     [[nodiscard]] constexpr bool operator!=(const Vector& rhs) const
-    {
-        return !operator==(rhs);
-    }
+        requires IsNotPointer<T>;
 
 private:
     [[nodiscard]] constexpr Status reserveInternal(size_type n, bool strict);
@@ -973,6 +961,27 @@ template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::isIteratorNotDereferenceable(iterator it) const noexcept
 {
     return &*it < m_p || &*it >= m_p + m_dataSize;
+}
+
+template<typename T, typename AllocatorHelper>
+[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::operator==(const Vector& rhs) const
+    requires IsNotPointer<T>
+{
+    if (size() != rhs.size())
+        return false;
+
+    for (size_type i = 0; i < size(); ++i)
+        if (m_p[i] != rhs.m_p[i])
+            return false;
+
+    return true;
+}
+
+template<typename T, typename AllocatorHelper>
+[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::operator!=(const Vector& rhs) const
+    requires IsNotPointer<T>
+{
+    return !operator==(rhs);
 }
 
 } // namespace common_serialization

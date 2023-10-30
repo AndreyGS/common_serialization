@@ -217,6 +217,7 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
     RUN(deserializeData(ctx, value.m_pVec));
     RUN(deserializeData(ctx, value.m_pInt));
     RUN(deserializeData(ctx, value.m_ppInt));
+    RUN(deserializeData(ctx, value.m_nullptrInt));
 
     return Status::kNoError;
 }

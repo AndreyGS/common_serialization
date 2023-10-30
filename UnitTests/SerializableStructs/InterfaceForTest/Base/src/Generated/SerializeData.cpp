@@ -217,6 +217,7 @@ Status DataProcessor::serializeData(const special_types::SpecialProcessingTypeCo
     RUN(serializeData(value.m_pVec, ctx));
     RUN(serializeData(value.m_pInt, ctx));
     RUN(serializeData(value.m_ppInt, ctx));
+    RUN(serializeData(value.m_nullptrInt, ctx));
 
     return Status::kNoError;
 }

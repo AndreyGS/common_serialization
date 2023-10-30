@@ -75,7 +75,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     S& output = ctx.getBinaryData();
 
     RUN(output.pushBackArithmeticValue(T::getNameHash()));
-    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getFlags())));
+    RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
 
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getMinimumInterfaceVersion(), T::getInterfaceVersion()))
         return Status::kErrorNotSupportedInterfaceVersion;
@@ -83,11 +83,11 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     if (T::getInterfaceVersion() != ctx.getInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
+    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getFlags())));
+
     if (ctx.getFlags().extendedPointersProcessing && ctx.getPointersMap() == nullptr)
         return Status::kErrorInvalidArgument;
 
-    RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
-    
     return Status::kNoError;
 }
 
@@ -98,14 +98,14 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, uint64_t& na
 
     RUN(input.readArithmeticValue(nameHash));
 
+    uint32_t inputInterfaceVersion = 0;
+    RUN(input.readArithmeticValue(inputInterfaceVersion));
+    ctx.setInterfaceVersion(inputInterfaceVersion);
+
     uint32_t intFlags = 0;
     RUN(input.readArithmeticValue(intFlags));
     context::DataFlags flags(intFlags);
     ctx.setFlags(flags);
-
-    uint32_t inputInterfaceVersion = 0;
-    RUN(input.readArithmeticValue(inputInterfaceVersion));
-    ctx.setInterfaceVersion(inputInterfaceVersion);
 
     return Status::kNoError;
 }
@@ -123,7 +123,8 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, u
         return Status::kErrorNotSupportedInterfaceVersion;
     else if (ctx.getInterfaceVersion() != T::getInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
-    else if (ctx.getFlags().extendedPointersProcessing && ctx.getPointersMap() == nullptr)
+    
+    if (ctx.getFlags().extendedPointersProcessing && ctx.getPointersMap() == nullptr)
         return Status::kErrorInvalidArgument;
 
     return Status::kNoError;

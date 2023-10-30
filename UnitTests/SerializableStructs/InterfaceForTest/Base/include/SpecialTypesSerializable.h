@@ -373,9 +373,10 @@ private:
     Vector<DiamondSerializable<>> m_vec;
     SimpleAssignableAlignedToOneNotSerializable m_saaToNS;
     SimpleAssignableNotSerializable m_saNS;
-    Vector<DiamondSerializable<>>* m_pVec = nullptr;
-    const int* m_pInt = nullptr;
-    const int** m_ppInt = nullptr;
+    Vector<DiamondSerializable<>>* m_pVec{ nullptr };
+    const int* m_pInt{ nullptr };
+    const int** m_ppInt{ nullptr };
+    const int* m_nullptrInt{ nullptr };
 
     friend csp::processing::DataProcessor;
 };
@@ -529,5 +530,64 @@ private:
     friend csp::processing::DataProcessor;
 };
 
+template<typename T = Dummy>
+class ManyPointersType : public csp::ISerializable<GetCrtpMainType<ManyPointersType<T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<ManyPointersType<T>, T>;
+
+    static constexpr uint64_t kNameHash = 100;
+    static constexpr uint32_t kInterfaceVersion = 0;
+    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+    [[nodiscard]] Vector<DiamondSerializable<>>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
+    [[nodiscard]] const Vector<DiamondSerializable<>>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)
+
+    [[nodiscard]] const int*& getPInt()                                                           noexcept { return m_pInt; }
+    [[nodiscard]] const int* const& getPInt()                                               const noexcept { return m_pInt; }
+    [[nodiscard]] const int**& getPpInt()                                                         noexcept { return m_ppInt; }
+    [[nodiscard]] const int* const*& getPpInt()                                             const noexcept { return m_ppInt; }
+
+    [[nodiscard]] bool operator==(const ManyPointersType& rhs) const noexcept
+    {
+        bool isEqual = true;
+
+        auto vecEqFunction = [](auto& vec1, auto& vec2, auto eqFunc = nullptr) -> bool
+        {
+            if (vec1.size() == vec2.size())
+                return false;
+
+            for (size_t i = 0; i < vec1.size(); ++i)
+                if (
+                    vec1[i] != nullptr && vec2[i] == nullptr
+                    || vec1[i] == nullptr && vec2[i] != nullptr
+                    || eqFunc ? !eqFunc(*vec1[i], *vec2[i]) : *vec1[i] != *vec2[i]
+                )
+                    return false;
+
+            return true;
+        };
+        
+        isEqual = vecEqFunction(m_vec, rhs.m_vec) && vecEqFunction(m_vecRecursive, rhs.m_vecRecursive, vecEqFunction) && vecEqFunction(*m_pVec, *rhs.m_pVec);
+        if (!isEqual)
+            return false;
+
+        return *m_pInt == *rhs.m_pInt 
+            && memcmp(m_pIntArr, rhs.m_pIntArr, sizeof(m_pIntArr)) == 0
+            && **m_ppInt == **rhs.m_ppInt
+            && m_nullptrInt == nullptr;
+    }
+
+private:
+    Vector<int*, StrategicAllocatorHelper<int*, RawKeeperAllocator<int*>>> m_vec;
+    Vector<Vector<int*>*, StrategicAllocatorHelper<Vector<int*>*, RawKeeperAllocator<Vector<int*>*>>> m_vecRecursive;
+    Vector<int*, StrategicAllocatorHelper<int*, RawKeeperAllocator<int*>>>* m_pVec;
+    int* m_pInt{ nullptr };
+    int m_pIntArr[3]{ 0 };
+    int** m_ppInt{ nullptr };
+    int* m_nullptrInt{ nullptr };
+
+    friend csp::processing::DataProcessor;
+};
 
 } // namespace special_types

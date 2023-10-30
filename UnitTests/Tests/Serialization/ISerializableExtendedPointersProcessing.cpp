@@ -62,7 +62,7 @@ void mainTest()
 
 TEST(ISerializableExtendedPointersProcessing, SimpleAssignableAlignedToOneT)
 {
-   // mainTest<SpecialProcessingTypeContainSerializable<>>();
+    mainTest<SpecialProcessingTypeContainSerializable<>>();
 }
 
 } // namespace anonymous

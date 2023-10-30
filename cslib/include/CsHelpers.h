@@ -77,6 +77,9 @@ template<typename T>
     requires std::is_pointer_v<T>
 using from_ptr_to_const_to_ptr_t = typename pointer_level_traits<T>::from_ptr_to_const_to_ptr;
 
+template<typename T>
+concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || std::is_function_v<T> || std::is_member_function_pointer_v<T>);
+
 namespace helpers
 {
 

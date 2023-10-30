@@ -148,13 +148,7 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
         for (size_t i = 0; i < n; ++i)
         {
             if (flags.extendedPointersProcessing)
-            {
-                bool newPointer = false;
-                RUN(addPointerToMap(&p[i], ctx, newPointer));
-
-                if (!newPointer)
-                    continue;
-            }
+                (*ctx.getPointersMap())[&p[i]] = ctx.getBinaryData().size();
 
             RUN(serializeData(p[i], ctx));
         }
@@ -265,7 +259,14 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
     else if constexpr (!serialization_concepts::EmptyType<T>)
     {
         for (size_t i = 0; i < n; ++i)
-            RUN(deserializeData(ctx, *(new (&p[i]) T)));
+        {
+            T* pItem = new (&p[i]) T;
+
+            if (flags.extendedPointersProcessing)
+                (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<T*>>(pItem);
+
+            RUN(deserializeData(ctx, *pItem));
+        }
     }
 
     return Status::kNoError;
@@ -427,8 +428,8 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
         if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
             newPointer = true;
-            pointersMap[p] = output.size() + sizeof(uint64_t);
             RUN(output.pushBackArithmeticValue(static_cast<uint64_t>(1)));
+            pointersMap[p] = output.size();
         }
         else
         {
