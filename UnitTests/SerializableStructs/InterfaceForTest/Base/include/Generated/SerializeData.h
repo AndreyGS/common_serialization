@@ -102,6 +102,18 @@ template<>
 Status DataProcessor::serializeData(const special_types::SimilarType2Serializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 
+template<>
+Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial1& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+template<>
+Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial2& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+template<>
+Status DataProcessor::serializeData(const special_types::ManyPointersType<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
 } // namespace processing
 
 } // namespace csp

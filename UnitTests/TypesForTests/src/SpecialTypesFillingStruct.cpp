@@ -195,4 +195,27 @@ void fillingStruct(SimilarType2Serializable<>& output)
     output.setK(8374);
 }
 
+template<>
+void fillingStruct(ManyPointersType<>& output)
+{
+    Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>> vec;
+    int* pInt = new int[3] { 1, 2, 3};
+    vec.pushBack(pInt);
+    vec.pushBack(pInt + 1);
+    vec.pushBack(pInt + 2);
+
+    output.getVec() = vec;
+    output.getVecRec().pushBack(&output.getVec());
+    output.getPVec() = &output.getVec();
+
+    output.getRTSpec1().pAny = &output.getRTSpec2();
+    output.getRTSpec2().pI = pInt;
+    output.getRTSpec2().pAny = &output.getRTSpec1();
+    output.getRTSpec2().pNext = &output.getRTSpec2();
+    
+    output.getPInt() = pInt;
+    memcpy(output.getIntArr(), pInt, sizeof(output.getIntArr()));
+    output.getPpInt() = &output.getPInt();
+}
+
 } // namespace special_types

@@ -294,6 +294,48 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
     return Status::kNoError;
 }
 
+template<>
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::RecursiveTestSpecial1& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.pAny));
+   
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::RecursiveTestSpecial2& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.pI));
+    RUN(deserializeData(ctx, value.pNext));
+    RUN(deserializeData(ctx, value.pAny));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::ManyPointersType<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_vec));
+    RUN(deserializeData(ctx, value.m_vecRecursive));
+    RUN(deserializeData(ctx, value.m_pVec));
+    RUN(deserializeData(ctx, value.m_rtSpec1));
+    RUN(deserializeData(ctx, value.m_rtSpec2));
+    RUN(deserializeData(ctx, value.m_intArr));
+    RUN(deserializeData(ctx, value.m_ppInt));
+    RUN(deserializeData(ctx, value.m_nullptrInt));
+
+    return Status::kNoError;
+}
+
 } // namespace processing
 
 } // namespace csp

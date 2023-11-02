@@ -59,10 +59,14 @@ void mainTest()
     EXPECT_EQ(input, output);
 }
 
-
 TEST(ISerializableExtendedPointersProcessing, SimpleAssignableAlignedToOneT)
 {
     mainTest<SpecialProcessingTypeContainSerializable<>>();
+}
+
+TEST(ISerializableExtendedPointersProcessing, ManyPointersTypeT)
+{
+    mainTest<ManyPointersType<>>();
 }
 
 } // namespace anonymous

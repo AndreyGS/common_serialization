@@ -530,6 +530,21 @@ private:
     friend csp::processing::DataProcessor;
 };
 
+struct RecursiveTestSpecial1;
+
+struct RecursiveTestSpecial2
+{
+    int* pI{ nullptr };
+    RecursiveTestSpecial2* pNext{ nullptr };
+    RecursiveTestSpecial1* pAny{ nullptr };
+};
+
+struct RecursiveTestSpecial1
+{
+    RecursiveTestSpecial2* pAny{ nullptr };
+};
+
+
 template<typename T = Dummy>
 class ManyPointersType : public csp::ISerializable<GetCrtpMainType<ManyPointersType<T>, T >>
 {
@@ -540,50 +555,63 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-    [[nodiscard]] Vector<DiamondSerializable<>>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
-    [[nodiscard]] const Vector<DiamondSerializable<>>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)
+    [[nodiscard]] Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>& getVec()                                   noexcept { return m_vec; }    // getters here are only need for testing proposes
+    [[nodiscard]] const Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>& getVec()                       const noexcept { return m_vec; }    // (not required for serialization itself)
+    [[nodiscard]] Vector<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*, StrategicRawNoexceptAllocatorHelper<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*>>&                              
+        getVecRec()        noexcept { return m_vecRecursive; }
+    [[nodiscard]] const Vector<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*, StrategicRawNoexceptAllocatorHelper<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*>>&
+        getVecRec()  const noexcept { return m_vecRecursive; }
+    [[nodiscard]] Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*& getPVec()                                 noexcept { return m_pVec; }
+    [[nodiscard]] const Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*& getPVec()                     const noexcept { return m_pVec; }
 
-    [[nodiscard]] const int*& getPInt()                                                           noexcept { return m_pInt; }
+    [[nodiscard]] RecursiveTestSpecial1& getRTSpec1()                                             noexcept { return m_rtSpec1; }
+    [[nodiscard]] const RecursiveTestSpecial1& getRTSpec1()                                 const noexcept { return m_rtSpec1; }
+    [[nodiscard]] RecursiveTestSpecial2& getRTSpec2()                                             noexcept { return m_rtSpec2; }
+    [[nodiscard]] const RecursiveTestSpecial2& getRTSpec2()                                 const noexcept { return m_rtSpec2; }
+
+    [[nodiscard]] int*& getPInt()                                                           noexcept { return m_pInt; }
     [[nodiscard]] const int* const& getPInt()                                               const noexcept { return m_pInt; }
-    [[nodiscard]] const int**& getPpInt()                                                         noexcept { return m_ppInt; }
+    [[nodiscard]] int* getIntArr()                                                        noexcept { return m_intArr; }
+    [[nodiscard]] const int* const getIntArr()                                            const noexcept { return m_intArr; }
+    [[nodiscard]] int**& getPpInt()                                                         noexcept { return m_ppInt; }
     [[nodiscard]] const int* const*& getPpInt()                                             const noexcept { return m_ppInt; }
 
     [[nodiscard]] bool operator==(const ManyPointersType& rhs) const noexcept
     {
-        bool isEqual = true;
+        return
+               *m_vec[0] == *rhs.m_vec[0]
+            && *m_vec[1] == *rhs.m_vec[1]
+            && *m_vec[2] == *rhs.m_vec[2]
+            && *(*m_vecRecursive[0])[0] == *(*rhs.m_vecRecursive[0])[0]
+            && *(*m_vecRecursive[0])[1] == *(*rhs.m_vecRecursive[0])[1]
+            && *(*m_vecRecursive[0])[2] == *(*rhs.m_vecRecursive[0])[2]
+            && *(*m_pVec)[0] == *(*rhs.m_pVec)[0]
+            && *(*m_pVec)[1] == *(*rhs.m_pVec)[1]
+            && *(*m_pVec)[2] == *(*rhs.m_pVec)[2]
+            && *m_rtSpec1.pAny->pI == *rhs.m_rtSpec2.pI
+            && *m_rtSpec1.pAny->pAny->pAny->pI == *rhs.m_rtSpec2.pI
+            && *m_rtSpec1.pAny->pNext->pI == *rhs.m_rtSpec2.pI
 
-        auto vecEqFunction = [](auto& vec1, auto& vec2, auto eqFunc = nullptr) -> bool
-        {
-            if (vec1.size() == vec2.size())
-                return false;
+            && *m_rtSpec2.pI == *rhs.m_rtSpec2.pI
+            && *m_rtSpec2.pAny->pAny->pI == *rhs.m_rtSpec2.pI
+            && *m_rtSpec2.pNext->pI == *rhs.m_rtSpec2.pI
 
-            for (size_t i = 0; i < vec1.size(); ++i)
-                if (
-                    vec1[i] != nullptr && vec2[i] == nullptr
-                    || vec1[i] == nullptr && vec2[i] != nullptr
-                    || eqFunc ? !eqFunc(*vec1[i], *vec2[i]) : *vec1[i] != *vec2[i]
-                )
-                    return false;
-
-            return true;
-        };
-        
-        isEqual = vecEqFunction(m_vec, rhs.m_vec) && vecEqFunction(m_vecRecursive, rhs.m_vecRecursive, vecEqFunction) && vecEqFunction(*m_pVec, *rhs.m_pVec);
-        if (!isEqual)
-            return false;
-
-        return *m_pInt == *rhs.m_pInt 
-            && memcmp(m_pIntArr, rhs.m_pIntArr, sizeof(m_pIntArr)) == 0
+            && *m_pInt == *rhs.m_pInt
+            && memcmp(m_intArr, rhs.m_intArr, sizeof(m_intArr)) == 0
             && **m_ppInt == **rhs.m_ppInt
             && m_nullptrInt == nullptr;
     }
 
 private:
-    Vector<int*, StrategicAllocatorHelper<int*, RawKeeperAllocator<int*>>> m_vec;
-    Vector<Vector<int*>*, StrategicAllocatorHelper<Vector<int*>*, RawKeeperAllocator<Vector<int*>*>>> m_vecRecursive;
-    Vector<int*, StrategicAllocatorHelper<int*, RawKeeperAllocator<int*>>>* m_pVec;
+    Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>> m_vec;
+    Vector<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*, StrategicRawNoexceptAllocatorHelper<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*>> m_vecRecursive;
+    Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>* m_pVec;
+
+    RecursiveTestSpecial1 m_rtSpec1;
+    RecursiveTestSpecial2 m_rtSpec2;
+
     int* m_pInt{ nullptr };
-    int m_pIntArr[3]{ 0 };
+    int m_intArr[3]{ 0 };
     int** m_ppInt{ nullptr };
     int* m_nullptrInt{ nullptr };
 

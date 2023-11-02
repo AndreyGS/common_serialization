@@ -294,6 +294,48 @@ Status DataProcessor::serializeData(const special_types::SimilarType2Serializabl
     return Status::kNoError;
 }
 
+template<>
+Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial1& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.pAny, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial2& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.pI, ctx));
+    RUN(serializeData(value.pNext, ctx));
+    RUN(serializeData(value.pAny, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::ManyPointersType<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_vec, ctx));
+    RUN(serializeData(value.m_vecRecursive, ctx));
+    RUN(serializeData(value.m_pVec, ctx));
+    RUN(serializeData(value.m_rtSpec1, ctx));
+    RUN(serializeData(value.m_rtSpec2, ctx));
+    RUN(serializeData(value.m_intArr, ctx));
+    RUN(serializeData(value.m_ppInt, ctx));
+    RUN(serializeData(value.m_nullptrInt, ctx));
+
+    return Status::kNoError;
+}
+
 } // namespace processing
 
 } // namespace csp
