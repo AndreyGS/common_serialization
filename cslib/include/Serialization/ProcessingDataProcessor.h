@@ -334,7 +334,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         // think about replace this with some Allocator function
         value = new std::remove_const_t<std::remove_pointer_t<T>>;
         if (flags.extendedPointersProcessing)
-            (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);
+            (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);
 
         RUN(deserializeData(ctx, *value));
     }

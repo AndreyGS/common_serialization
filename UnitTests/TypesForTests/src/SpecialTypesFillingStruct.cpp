@@ -214,7 +214,7 @@ void fillingStruct(ManyPointersType<>& output)
     output.getRTSpec2().pNext = &output.getRTSpec2();
     
     output.getPInt() = pInt;
-    memcpy(output.getIntArr(), pInt, sizeof(output.getIntArr()));
+    memcpy(output.getIntArr(), pInt, 3 * sizeof(int));
     output.getPpInt() = &output.getPInt();
 }
 
