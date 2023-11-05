@@ -69,7 +69,4 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
     EXPECT_EQ(input, output);
 }
 
-// need to add test for interface versions that are not matched 
-// and flags.interfaceVersionsNotMatch is not set
-
 } // namespace anonymous

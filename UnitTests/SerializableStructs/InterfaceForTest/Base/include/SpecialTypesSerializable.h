@@ -546,10 +546,10 @@ struct RecursiveTestSpecial1
 
 
 template<typename T = Dummy>
-class ManyPointersType : public csp::ISerializable<GetCrtpMainType<ManyPointersType<T>, T >>
+class ManyPointersTypeSerializable : public csp::ISerializable<GetCrtpMainType<ManyPointersTypeSerializable<T>, T >>
 {
 public:
-    using instance_type = GetCrtpMainType<ManyPointersType<T>, T>;
+    using instance_type = GetCrtpMainType<ManyPointersTypeSerializable<T>, T>;
 
     static constexpr uint64_t kNameHash = 100;
     static constexpr uint32_t kInterfaceVersion = 0;
@@ -576,7 +576,7 @@ public:
     [[nodiscard]] int**& getPpInt()                                                         noexcept { return m_ppInt; }
     [[nodiscard]] const int* const*& getPpInt()                                             const noexcept { return m_ppInt; }
 
-    [[nodiscard]] bool operator==(const ManyPointersType& rhs) const noexcept
+    [[nodiscard]] bool operator==(const ManyPointersTypeSerializable& rhs) const noexcept
     {
         return
                *m_vec[0] == *rhs.m_vec[0]
@@ -614,6 +614,107 @@ private:
     int m_intArr[3]{ 0 };
     int** m_ppInt{ nullptr };
     int* m_nullptrInt{ nullptr };
+
+    friend csp::processing::DataProcessor;
+};
+
+template<typename T = Dummy>
+class ForAllFlagsTests1 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests1<T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<ForAllFlagsTests1<T>, T>;
+
+    static constexpr uint64_t kNameHash = 10000;
+    static constexpr uint32_t kInterfaceVersion = 3;
+    static constexpr uint32_t kVersionsHierarchy[] = { 3, 1, 0 };
+
+    [[nodiscard]] SimpleAssignableDescendantSerializable<>& getSaDs()                                 noexcept { return m_saDs; }
+    [[nodiscard]] const SimpleAssignableDescendantSerializable<>& getSaDs()                     const noexcept { return m_saDs; }
+    [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
+    [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
+    [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
+    [[nodiscard]] const SpecialProcessingTypeContainSerializable<>& getSptCs()                  const noexcept { return m_sptCs; }
+    [[nodiscard]] SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()               noexcept { return m_saaToStS; }
+    [[nodiscard]] const SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()   const noexcept { return m_saaToStS; }
+    [[nodiscard]] SimpleAssignableSimilarType1Serializable<>& getSaStS()                              noexcept { return m_saStS; }
+    [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
+    [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
+    [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
+    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                                        noexcept { return m_mpt; }
+    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                            const noexcept { return m_mpt; }
+
+    [[nodiscard]] bool operator==(const ForAllFlagsTests1<>& rhs) const noexcept
+    {
+        return
+               m_saDs == rhs.m_saDs
+            && m_diamond == rhs.m_diamond
+            && m_sptCs == rhs.m_sptCs
+            && m_saaToStS == rhs.m_saaToStS
+            && m_saStS == rhs.m_saStS
+            && m_stS == rhs.m_stS
+            && m_mpt == rhs.m_mpt;
+
+    }
+
+private:
+    SimpleAssignableDescendantSerializable<> m_saDs;
+    DiamondSerializable<> m_diamond;
+    SpecialProcessingTypeContainSerializable<> m_sptCs;
+    SimpleAssignableAlignedToOneSimilarType1Serializable<> m_saaToStS;
+    SimpleAssignableSimilarType1Serializable<> m_saStS;
+    SimilarType1Serializable<> m_stS;
+    ManyPointersTypeSerializable<> m_mpt;
+
+    friend csp::processing::DataProcessor;
+};
+
+// ForAllFlagsTests2 shall be used in deserialization of ForAllFlagsTests1, but only with sizeOfArithmeticTypesMayBeNotEqual flag set
+template<typename T = Dummy>
+class ForAllFlagsTests2 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests2<T>, T >>
+{
+public:
+    using instance_type = GetCrtpMainType<ForAllFlagsTests2<T>, T>;
+
+    static constexpr uint64_t kNameHash = 10000;
+    static constexpr uint32_t kInterfaceVersion = 3;
+    static constexpr uint32_t kVersionsHierarchy[] = { 3, 1, 0 };
+
+    [[nodiscard]] SimpleAssignableDescendantSerializable<>& getSaDs()                                 noexcept { return m_saDs; }
+    [[nodiscard]] const SimpleAssignableDescendantSerializable<>& getSaDs()                     const noexcept { return m_saDs; }
+    [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
+    [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
+    [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
+    [[nodiscard]] const SpecialProcessingTypeContainSerializable<>& getSptCs()                  const noexcept { return m_sptCs; }
+    [[nodiscard]] SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()               noexcept { return m_saaToStS; }
+    [[nodiscard]] const SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()   const noexcept { return m_saaToStS; }
+    [[nodiscard]] SimpleAssignableSimilarType1Serializable<>& getSaStS()                              noexcept { return m_saStS; }
+    [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
+    [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
+    [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
+    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                                        noexcept { return m_mpt; }
+    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                            const noexcept { return m_mpt; }
+
+    [[nodiscard]] bool operator==(const ForAllFlagsTests1<>& rhs) const noexcept
+    {
+        return
+            m_saDs == rhs.m_saDs
+            && m_diamond == rhs.m_diamond
+            && m_sptCs == rhs.m_sptCs
+            && m_saaToStS == rhs.m_saaToStS
+            && m_saStS == rhs.m_saStS
+            && m_stS == rhs.m_stS
+            && m_mpt == rhs.m_mpt;
+
+    }
+
+private:
+    SimpleAssignableDescendantSerializable<> m_saDs;
+    DiamondSerializable<> m_diamond;
+    SpecialProcessingTypeContainSerializable<> m_sptCs;
+    SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToStS;
+    SimpleAssignableSimilarType2Serializable<> m_saStS;
+    SimilarType2Serializable<> m_stS;
+    ManyPointersTypeSerializable<> m_mpt;
 
     friend csp::processing::DataProcessor;
 };

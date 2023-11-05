@@ -319,7 +319,7 @@ Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial2& 
 }
 
 template<>
-Status DataProcessor::serializeData(const special_types::ManyPointersType<>& value
+Status DataProcessor::serializeData(const special_types::ManyPointersTypeSerializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
@@ -329,6 +329,7 @@ Status DataProcessor::serializeData(const special_types::ManyPointersType<>& val
     RUN(serializeData(value.m_pVec, ctx));
     RUN(serializeData(value.m_rtSpec1, ctx));
     RUN(serializeData(value.m_rtSpec2, ctx));
+    RUN(serializeData(value.m_pInt, ctx));
     RUN(serializeData(value.m_intArr, ctx));
     RUN(serializeData(value.m_ppInt, ctx));
     RUN(serializeData(value.m_nullptrInt, ctx));

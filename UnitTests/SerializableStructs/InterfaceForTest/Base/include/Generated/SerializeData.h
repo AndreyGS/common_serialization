@@ -111,7 +111,7 @@ Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial2& 
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
-Status DataProcessor::serializeData(const special_types::ManyPointersType<>& value
+Status DataProcessor::serializeData(const special_types::ManyPointersTypeSerializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 
 } // namespace processing

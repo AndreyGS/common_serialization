@@ -196,7 +196,7 @@ void fillingStruct(SimilarType2Serializable<>& output)
 }
 
 template<>
-void fillingStruct(ManyPointersType<>& output)
+void fillingStruct(ManyPointersTypeSerializable<>& output)
 {
     Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>> vec;
     int* pInt = new int[3] { 1, 2, 3};
@@ -216,6 +216,42 @@ void fillingStruct(ManyPointersType<>& output)
     output.getPInt() = pInt;
     memcpy(output.getIntArr(), pInt, 3 * sizeof(int));
     output.getPpInt() = &output.getPInt();
+}
+
+template<>
+void fillingStruct(ForAllFlagsTests1_Version0<>& output)
+{
+    fillingStruct(output.getSaDs());
+    fillingStruct(output.getDiamond());
+    fillingStruct(output.getSptCs());
+    fillingStruct(output.getSaaToStS());
+    fillingStruct(output.getSaStS());
+    fillingStruct(output.getStS());
+    fillingStruct(output.getMpT());
+}
+
+template<>
+void fillingStruct(ForAllFlagsTests1_Version1<>& output)
+{
+    fillingStruct(output.getSaS());
+    fillingStruct(output.getDiamond());
+    fillingStruct(output.getSptCs());
+    fillingStruct(output.getSaaToStS());
+    fillingStruct(output.getSaStS());
+    fillingStruct(output.getStS());
+    fillingStruct(output.getMpT());
+}
+
+template<>
+void fillingStruct(ForAllFlagsTests1<>& output)
+{
+    fillingStruct(output.getSaDs());
+    fillingStruct(output.getDiamond());
+    fillingStruct(output.getSptCs());
+    fillingStruct(output.getSaaToStS());
+    fillingStruct(output.getSaStS());
+    fillingStruct(output.getStS());
+    fillingStruct(output.getMpT());
 }
 
 } // namespace special_types

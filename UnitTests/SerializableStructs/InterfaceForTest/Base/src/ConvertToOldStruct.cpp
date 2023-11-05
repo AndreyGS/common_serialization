@@ -66,6 +66,33 @@ Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAl
 
     return Status::kNoFurtherProcessingRequired;
 }
+/*
+template<>
+Status DataProcessor::convertToOldStruct(const special_types::ForAllFlagsTests1<>& value
+    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    // If value version is the same as thisVersionCompat there is a programmatic error
+    assert(value.getThisVersion() != thisVersionCompat);
+
+    if (thisVersionCompat == 0)
+    {
+        special_types::ForAllFlagsTests1_Version0<> compatVersion;
+        compatVersion.m_ti.x = value.m_x;
+        compatVersion.m_ti.y = value.m_y;
+
+        RUN(serializeDataLegacy(compatVersion, ctx));
+    }
+    else if (thisVersionCompat == 1)
+    {
+        special_types::ForAllFlagsTests1_Version1<> compatVersion;
+        compatVersion.m_x = value.m_x;
+        compatVersion.m_y = value.m_y;
+
+        RUN(serializeDataLegacy(compatVersion, ctx));
+    }
+
+    return Status::kNoFurtherProcessingRequired;
+}*/
 
 } // namespace processing
 

@@ -320,7 +320,7 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
 
 template<>
 Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::ManyPointersType<>& value)
+    , special_types::ManyPointersTypeSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
 
@@ -329,6 +329,7 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
     RUN(deserializeData(ctx, value.m_pVec));
     RUN(deserializeData(ctx, value.m_rtSpec1));
     RUN(deserializeData(ctx, value.m_rtSpec2));
+    RUN(deserializeData(ctx, value.m_pInt));
     RUN(deserializeData(ctx, value.m_intArr));
     RUN(deserializeData(ctx, value.m_ppInt));
     RUN(deserializeData(ctx, value.m_nullptrInt));

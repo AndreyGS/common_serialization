@@ -66,7 +66,7 @@ TEST(ISerializableExtendedPointersProcessing, SimpleAssignableAlignedToOneT)
 
 TEST(ISerializableExtendedPointersProcessing, ManyPointersTypeT)
 {
-    mainTest<ManyPointersType<>>();
+    mainTest<ManyPointersTypeSerializable<>>();
 }
 
 } // namespace anonymous

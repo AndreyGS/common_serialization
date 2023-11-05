@@ -111,7 +111,7 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
 
 template<>
 Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::ManyPointersType<>& value);
+    , special_types::ManyPointersTypeSerializable<>& value);
 
 } // namespace processing
 

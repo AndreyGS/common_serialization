@@ -1,3 +1,5 @@
 First of all
 1. Unit-tests on operator== of Vector and Walker
 2. Add Init Vector and Walker by pointer, size, allocatedSize[, offset]
+3. More unit tests on extendedPointerProcessing mode
+4. Remove memory leacks in free pointers processing
