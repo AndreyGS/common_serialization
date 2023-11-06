@@ -1,7 +1,7 @@
 # Common Serialization Library
 
 This library will introduce another yet serialization protocol for C++ projects 
-that are built for different environments including those where no standard library is present, such as Windows or Linux kernel. \
+that are built for different environments including those where no standard library is present, such as Windows or Linux kernels. \
 So, one of the milestones is to add fully functional containers to operate with data.
 
 Under development.
