@@ -39,8 +39,19 @@ struct DataFlags
                                                                 // would be serialized and deserialized by memcpy
     uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;    // this flag is very dangerous and it should never be used,
                                                                 // except you are really know what you are doing
-    uint32_t extendedPointersProcessing             : 1 = 0;    // currently makes only recursion resolution for pointers
-    uint32_t reserved                               :29 = 0;
+    uint32_t allowUnmanagedPointers                 : 1 = 0;    // Allow serialization of pointers without help of DataProcessor
+                                                                // serializeData/deserializeData specialized class functions.
+                                                                // For instance, may be used for containers that holds pointers on objects
+                                                                // without special handling functions.
+                                                                // In deserialization process every creation of new pointer
+                                                                // is registers in context stored container, which will allow
+                                                                // to safe delete this pointers in future.
+                                                                // Note that when context is destroyed all accumulated pointers are destroyed too
+                                                                // so if you need them, you shall clear container that contains them before context destruction.
+                                                                // Also note, that if container on which points context field is destroyed before context itself
+                                                                // you will get dangling pointers, so be careful with that.
+    uint32_t checkRecursivePointers                 : 1 = 0;    // works only in conjunction with allowUnmanagedPointers which sets automatically
+    uint32_t reserved                               :28 = 0;
 
     constexpr DataFlags() noexcept;
     explicit constexpr DataFlags(uint32_t value) noexcept;

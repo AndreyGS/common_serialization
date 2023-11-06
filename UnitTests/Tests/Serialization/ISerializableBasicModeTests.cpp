@@ -1,5 +1,5 @@
 /**
- * @file ISerializableExtendedPointersProcessing.cpp
+ * @file ISerializableBasicModeTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,8 +26,6 @@ namespace
 
 using namespace special_types;
 
-using size_type = typename Vector<uint8_t>::size_type;
-
 template<typename T>
 void mainTest()
 {
@@ -35,38 +33,51 @@ void mainTest()
     fillingStruct(input);
 
     Walker<uint8_t> bin;
-    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.extendedPointersProcessing = true;
-    ctxIn.setFlags(flags);
-    std::unordered_map<const void*, uint64_t> sMap;
-    ctxIn.setPointersMap(sMap);
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    EXPECT_TRUE(ctxIn.getPointersMap()->size() > 0);
-
-    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
-    std::unordered_map<uint64_t, void*> dMap;
-    ctxOut.setPointersMap(dMap);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
     T output;
-
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_TRUE(ctxOut.getPointersMap()->size() > 0);
-
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
+
     EXPECT_EQ(input, output);
 }
 
-TEST(ISerializableExtendedPointersProcessing, SimpleAssignableAlignedToOneT)
+TEST(ISerializableBasicModeTests, EmptyTypeT)
 {
-    mainTest<SpecialProcessingTypeContainSerializable<>>();
+    EmptyTypeSerializable input;
+    Walker<uint8_t> bin;
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
+
+    EmptyTypeSerializable output;
+    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(bin.tell(), bin.size());
+
+    cleanAfterStruct(input);
 }
 
-TEST(ISerializableExtendedPointersProcessing, ManyPointersTypeT)
+TEST(ISerializableBasicModeTests, SimpleAssignableAlignedToOneT)
 {
-    mainTest<ManyPointersTypeSerializable<>>();
+    mainTest<SimpleAssignableAlignedToOneSerializable<>>();
+}
+
+TEST(ISerializableBasicModeTests, SimpleAssignableT)
+{
+    mainTest<SimpleAssignableSerializable<>>();
+}
+
+TEST(ISerializableBasicModeTests, SimpleAssignableDescendantT)
+{
+    mainTest<SimpleAssignableDescendantSerializable<>>();
+}
+
+TEST(ISerializableBasicModeTests, DynamicPolymorphicT)
+{
+    mainTest<DynamicPolymorphicSerializable<>>();
+}
+
+TEST(ISerializableBasicModeTests, DiamondT)
+{
+    mainTest<DiamondSerializable<>>();
 }
 
 } // namespace anonymous

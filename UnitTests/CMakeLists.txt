@@ -22,11 +22,13 @@ target_include_directories(allocators_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_precompile_headers(allocators_tests PRIVATE pch.h)
 
 add_executable(serialization_tests
-    "Tests/Serialization/ISerializableNoFlagsTests.cpp"
-    "Tests/Serialization/ISerializableInterfaceVersionsNotMatchTests.cpp"
     "Tests/Serialization/ISerializableAlignmentMayBeNotEqualTests.cpp"
+    "Tests/Serialization/ISerializableAllowUnmanagedPointersTests.cpp"
+    "Tests/Serialization/ISerializableCheckRecursivePointersTests.cpp"
+    "Tests/Serialization/ISerializableInterfaceVersionsNotMatchTests.cpp"
+    "Tests/Serialization/ISerializableBasicModeTests.cpp"
     "Tests/Serialization/ISerializableSizeOfArithmeticTypesMayBeNotEqualTests.cpp"
- "Tests/Serialization/ISerializableExtendedPointersProcessing.cpp")
+ )
 target_compile_definitions(serialization_tests PRIVATE USER_MODE)
 add_subdirectory(TypesForTests)
 add_subdirectory(SerializableStructs/InterfaceForTest/Base)

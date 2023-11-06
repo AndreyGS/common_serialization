@@ -37,6 +37,15 @@ template<typename> class ISerializable;
 
 }
 
+// can't using std::pair, cause we need our own implementation of it, which is absent for now
+struct PointerAndDestructorDeallocator
+{
+    using DestroyAndDeallocateFunc = void(*)(void*);
+
+    void* pointer;
+    DestroyAndDeallocateFunc destructorAndDeallocatorFunction;
+};
+
 namespace serialization_concepts
 {
 
@@ -108,6 +117,24 @@ concept IDeserializationPointersMap
 
 template<typename PM>
 concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;
+
+template<typename S>
+concept IPointersContainer
+    =  requires(S e)
+         {
+             typename S::value_type;
+
+             { e.clear() };
+             { e.begin() };
+             { e.end() };
+             { e.data() } -> std::same_as<typename S::value_type*>;
+             { e.size() } -> std::same_as<typename S::size_type>;
+             { e.capacity() } -> std::same_as<typename S::size_type>;
+
+             { e.reserve(1) } -> std::same_as<Status>;
+             { e.pushBack(*(new PointerAndDestructorDeallocator)) } -> std::same_as<Status>;
+         } 
+    && std::is_same_v<typename S::value_type, PointerAndDestructorDeallocator>;
 
 template<typename T>
 concept FixSizedArithmeticType

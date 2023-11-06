@@ -147,7 +147,7 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
     {
         for (size_t i = 0; i < n; ++i)
         {
-            if (flags.extendedPointersProcessing)
+            if (flags.checkRecursivePointers)
                 (*ctx.getPointersMap())[&p[i]] = ctx.getBinaryData().size();
 
             RUN(serializeData(p[i], ctx));
@@ -188,7 +188,10 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
     }
     else if constexpr (std::is_pointer_v<T>)
     {
-        if (flags.extendedPointersProcessing)
+        if (!flags.allowUnmanagedPointers)
+            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+
+        if (flags.checkRecursivePointers)
         {
             bool newPointer = false;
             RUN(addPointerToMap(value, ctx, newPointer));
@@ -262,7 +265,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
         {
             T* pItem = new (&p[i]) T;
 
-            if (flags.extendedPointersProcessing)
+            if (flags.checkRecursivePointers)
                 (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<T*>>(pItem);
 
             RUN(deserializeData(ctx, *pItem));
@@ -312,7 +315,10 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
     }
     else if constexpr (std::is_pointer_v<T>)
     {
-        if (flags.extendedPointersProcessing)
+        if (!flags.allowUnmanagedPointers)
+            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+
+        if (flags.checkRecursivePointers)
         {
             bool newPointer = false;
             RUN(getPointerFromMap(ctx, value, newPointer));
@@ -332,8 +338,13 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         }
 
         // think about replace this with some Allocator function
-        value = new std::remove_const_t<std::remove_pointer_t<T>>;
-        if (flags.extendedPointersProcessing)
+        value = ctx.allocateAndDefaultConstruct<std::remove_const_t<std::remove_pointer_t<T>>>();
+        if (!value)
+            return Status::kErrorNoMemory;
+        //else        
+            //(*ctx.getAddedPointers()).pushBack(value);
+
+        if (flags.checkRecursivePointers)
             (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);
 
         RUN(deserializeData(ctx, *value));

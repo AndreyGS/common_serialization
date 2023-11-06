@@ -42,14 +42,14 @@ protected:
     constexpr GenericAllocatorHelperImpl() : IAllocatorHelper<T, Allocator, AllocatorHelper>() { }
 
     template<typename... Args>
-    [[nodiscard]] constexpr T* allocateAndConstructImpl(size_type requestedN, size_type* allocatedN, Args&&... args) const;
-    [[nodiscard]] constexpr T* allocateImpl(size_type n, size_type* allocatedN) const;
+    [[nodiscard]] constexpr T* allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const;
+    [[nodiscard]] constexpr T* allocateImpl(size_type n, size_type* pAllocatedN) const;
     [[nodiscard]] constexpr T* allocateStrictImpl(size_type n) const;
 
     template<typename... Args>
     constexpr Status constructImpl(T* p, Args&&... args) const;
     template<typename... Args>
-    constexpr Status constructNImpl(T* p, T* pNError, size_type n, Args&&... args) const;
+    constexpr Status constructNImpl(T* p, T** pNError, size_type n, Args&&... args) const;
 
     constexpr Status copyDirtyImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const;
     constexpr Status copyDirtyNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const;
@@ -67,11 +67,9 @@ protected:
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
 template<typename... Args>
-[[nodiscard]] constexpr T* GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateAndConstructImpl(size_type requestedN, size_type* allocatedN, Args&&... args) const
+[[nodiscard]] constexpr T* GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
 {
-    assert(allocatedN);
-
-    T* p = this->allocate(requestedN * sizeof(T), allocatedN);
+    T* p = this->allocate(requestedN * sizeof(T), pAllocatedN);
 
     if constexpr (constructor_allocator::value)
         if (p)
@@ -88,11 +86,12 @@ template<typename... Args>
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
-[[nodiscard]] constexpr T* GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateImpl(size_type requestedN, size_type* allocatedN) const
+[[nodiscard]] constexpr T* GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateImpl(size_type requestedN, size_type* pAllocatedN) const
 {
     T* p = this->getAllocator().allocate(requestedN);
 
-    *allocatedN = p ? requestedN : 0;
+    if (pAllocatedN)
+        *pAllocatedN = p ? requestedN : 0;
 
     return p;
 }
@@ -108,12 +107,12 @@ template<typename... Args>
 constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructImpl(T* p, Args&&... args) const
 {
     T* pNError = nullptr;
-    return this->constructNImpl(p, pNError, 1, std::forward<Args>(args)...);
+    return this->constructNImpl(p, &pNError, 1, std::forward<Args>(args)...);
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
 template<typename... Args>
-constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructNImpl(T* p, T* nError, size_type n, Args&&... args) const
+constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructNImpl(T* p, T** nError, size_type n, Args&&... args) const
 {
     if (p)
         for (size_type i = 0; i < n; ++i)
@@ -121,7 +120,7 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::cons
             Status status = this->getAllocator().construct(p++, std::forward<Args>(args)...);
             if (!statusSuccess(status))
             {
-                nError = p + i;
+                *nError = p + i;
                 return status;
             }
         }
@@ -288,6 +287,10 @@ public:
     using size_type = typename IAllocatorHelper<T, Allocator, GenericAllocatorHelper<T, Allocator>>::size_type;
     using difference_type = typename IAllocatorHelper<T, Allocator, GenericAllocatorHelper<T, Allocator>>::difference_type;
     using constructor_allocator = typename IAllocatorHelper<T, Allocator, GenericAllocatorHelper<T, Allocator>>::constructor_allocator;
+
+    constexpr GenericAllocatorHelper() noexcept
+        : GenericAllocatorHelperImpl<T, Allocator, GenericAllocatorHelper<T, Allocator>>()
+    { }
 };
 
 } // namespace common_serialization

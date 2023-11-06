@@ -1,5 +1,5 @@
 /**
- * @file ISerializableNoFlagsTests.cpp
+ * @file ISerializableAllowUnmanagedPointers.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -27,58 +27,36 @@ namespace
 using namespace special_types;
 
 template<typename T>
+
 void mainTest()
 {
     T input;
     fillingStruct(input);
 
     Walker<uint8_t> bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
+    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
+    csp::context::DataFlags flags;
+    flags.allowUnmanagedPointers = true;
+    ctxIn.setFlags(flags);
+
+    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
     T output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+
+    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
+    Vector<PointerAndDestructorDeallocator> addedPointers;
+    ctxOut.setAddedPointers(addedPointers);
+
+    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
+
+    cleanAfterStruct(input);
+    ctxOut.destroyAndDeallocateAllAddedPointers();
 }
 
-TEST(ISerializableNoFlagsTests, EmptyTypeT)
-{
-    EmptyTypeSerializable input;
-    Walker<uint8_t> bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
-
-    EmptyTypeSerializable output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-}
-
-TEST(ISerializableNoFlagsTests, SimpleAssignableAlignedToOneT)
-{
-    mainTest<SimpleAssignableAlignedToOneSerializable<>>();
-}
-
-TEST(ISerializableNoFlagsTests, SimpleAssignableT)
-{
-    mainTest<SimpleAssignableSerializable<>>();
-}
-
-TEST(ISerializableNoFlagsTests, SimpleAssignableDescendantT)
-{
-    mainTest<SimpleAssignableDescendantSerializable<>>();
-}
-
-TEST(ISerializableNoFlagsTests, DynamicPolymorphicT)
-{
-    mainTest<DynamicPolymorphicSerializable<>>();
-}
-
-TEST(ISerializableNoFlagsTests, DiamondT)
-{
-    mainTest<DiamondSerializable<>>();
-}
-
-TEST(ISerializableNoFlagsTests, SpecialT)
+TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
 {
     mainTest<SpecialProcessingTypeContainSerializable<>>();
 }

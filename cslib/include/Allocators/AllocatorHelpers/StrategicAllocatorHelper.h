@@ -38,6 +38,8 @@ template<typename T, IAllocator Allocator, typename AllocatorHelper>
 class StrategicAllocatorHelperImpl : public GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>
 {
 public:
+    using size_type = typename GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::size_type;
+
     [[nodiscard]] constexpr AllocationStrategy getAllocationStrategy() const noexcept;
     constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept;
 
@@ -48,7 +50,7 @@ protected:
 
     constexpr StrategicAllocatorHelperImpl(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept;
 
-    [[nodiscard]] constexpr T* allocateImpl(size_t n, size_t* allocatedN) const;
+    [[nodiscard]] constexpr T* allocateImpl(size_type n, size_type* pAllocatedN) const;
 
 private:
     AllocationStrategy m_allocation_strategy;
@@ -73,24 +75,24 @@ constexpr void StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::setA
 }
 
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
-[[nodiscard]] constexpr T* StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateImpl(size_t requestedN, size_t* allocatedN) const
+[[nodiscard]] constexpr T* StrategicAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateImpl(size_type requestedN, size_type* pAllocatedN) const
 {
     T* p = nullptr;
 
     if (m_allocation_strategy == AllocationStrategy::doubleOfDataSize)
     {
-        *allocatedN = requestedN << 1;
-        p = this->allocateStrict(*allocatedN);
+        *pAllocatedN = requestedN << 1;
+        p = this->allocateStrict(*pAllocatedN);
     }
 
     if (!p)
     {
-        *allocatedN = requestedN;
-        p = this->allocateStrict(*allocatedN);
+        *pAllocatedN = requestedN;
+        p = this->allocateStrict(*pAllocatedN);
     }
 
     if (!p)
-        *allocatedN = 0;
+        *pAllocatedN = 0;
 
     return p;
 }

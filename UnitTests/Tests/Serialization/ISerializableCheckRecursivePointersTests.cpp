@@ -1,5 +1,5 @@
 /**
- * @file ISerializableInterfaceVersionsNotMatchTests.cpp
+ * @file ISerializableCheckRecursivePointersTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,51 +26,54 @@ namespace
 
 using namespace special_types;
 
-TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
+using size_type = typename Vector<uint8_t>::size_type;
+
+template<typename T>
+void mainTest()
 {
-    SimpleAssignableAlignedToOneSerializable input;
+    T input;
     fillingStruct(input);
 
     Walker<uint8_t> bin;
-    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector(), 0);
+    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
+    csp::context::DataFlags flags;
+    flags.checkRecursivePointers = true;
+    flags.allowUnmanagedPointers = true;
+    ctxIn.setFlags(flags);
+    std::unordered_map<const void*, uint64_t> sMap;
+    ctxIn.setPointersMap(sMap);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
+    EXPECT_TRUE(ctxIn.getPointersMap()->size() > 0);
+
     csp::context::DData<Walker<uint8_t>> ctxOut(bin);
-    SimpleAssignableAlignedToOneSerializable output;
+    std::unordered_map<uint64_t, void*> dMap;
+    ctxOut.setPointersMap(dMap);
+    Vector<PointerAndDestructorDeallocator> addedPointers;
+    ctxOut.setAddedPointers(addedPointers);
+
+    T output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_TRUE(ctxOut.getPointersMap()->size() > 0);
 
+    EXPECT_EQ(bin.tell(), bin.size());
     EXPECT_EQ(input, output);
 
     cleanAfterStruct(input);
+
+    ctxOut.destroyAndDeallocateAllAddedPointers();
 }
 
-TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
+TEST(ISerializableCheckRecursivePointersTests, SimpleAssignableAlignedToOneT)
 {
-    SimpleAssignableSerializable input;
-    fillingStruct(input);
+    mainTest<SpecialProcessingTypeContainSerializable<>>();
+}
 
-    Walker<uint8_t> bin;
-    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector(), 1);
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
-    SimpleAssignableSerializable output;
-
-    // test minimum interface version that is higher than in serialized data
-    ctxOut.setInterfaceVersion(2);
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kErrorNotSupportedInterfaceVersion);
-
-    ctxOut.resetToDefaultsExceptDataContents();
-
-    // normal deserialization
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
+TEST(ISerializableCheckRecursivePointersTests, ManyPointersTypeT)
+{
+    mainTest<ManyPointersTypeSerializable<>>();
 }
 
 } // namespace anonymous

@@ -61,6 +61,8 @@ void mainTest()
     EXPECT_EQ(input2.serialize(bin2.getVector()), Status::kNoError);
 
     EXPECT_NE(bin2.size(), ctxIn.getBinaryData().size());
+
+    cleanAfterStruct(input);
 }
 
 TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableAlignedToOneSimilarTypeT)
@@ -87,16 +89,25 @@ TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
     csp::context::DataFlags flags;
     flags.sizeOfArithmeticTypesMayBeNotEqual = true;
+    flags.allowUnmanagedPointers = true;
     ctxIn.setFlags(flags);
 
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
     csp::context::DData<Walker<uint8_t>> ctxOut(bin);
+
+    Vector<PointerAndDestructorDeallocator> addedPointers;
+    ctxOut.setAddedPointers(addedPointers);
+
     SpecialProcessingTypeContainSerializable output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
+
+    cleanAfterStruct(input);
+
+    ctxOut.destroyAndDeallocateAllAddedPointers();
 }
 
 } // namespace anonymous

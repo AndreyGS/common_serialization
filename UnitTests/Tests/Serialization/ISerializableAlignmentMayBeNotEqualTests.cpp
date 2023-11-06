@@ -49,6 +49,8 @@ void mainTest()
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
+
+    cleanAfterStruct(input);
 }
 
 TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableAlignedToOneT)
@@ -59,11 +61,6 @@ TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableAlignedToOneT)
 TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableT)
 {
     mainTest<SimpleAssignableSerializable<>>();
-}
-
-TEST(SerializeNoFlagsTest, SpecialT)
-{
-    mainTest<SpecialProcessingTypeContainSerializable<>>();
 }
 
 TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableDataSizeT)
@@ -88,6 +85,8 @@ TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableDataSizeT)
     size_type sizeWithoutFlag = ctxIn.getBinaryData().size();
 
     EXPECT_NE(sizeWithFlag, sizeWithoutFlag);
+
+    cleanAfterStruct(input);
 }
 
 } // namespace anonymous

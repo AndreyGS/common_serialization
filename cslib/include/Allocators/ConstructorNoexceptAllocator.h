@@ -52,6 +52,9 @@ public:
     template<typename... Args>
         requires Initable<T>
     constexpr Status construct(T* p, Args&&... args) const noexcept;
+    template<typename... Args>
+        requires Initable<T>
+    constexpr Status construct(T* p) const noexcept;
 
     constexpr void destroy(T* p) const noexcept;
 
@@ -94,6 +97,15 @@ constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args
 {
     new ((void*)p) T;
     return p->init(std::forward<Args>(args)...);
+}
+
+template<typename T>
+template<typename... Args>
+    requires Initable<T>
+constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p) const noexcept
+{
+    new ((void*)p) T;
+    return Status::kNoError;
 }
 
 template<typename T>

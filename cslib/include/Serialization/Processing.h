@@ -73,6 +73,7 @@ template<typename T, serialization_concepts::ISerializationCapableContainer S, s
 constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 {
     S& output = ctx.getBinaryData();
+    context::DataFlags flags = ctx.getFlags();
 
     RUN(output.pushBackArithmeticValue(T::getNameHash()));
     RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
@@ -83,10 +84,18 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     if (T::getInterfaceVersion() != ctx.getInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
+    if (flags.checkRecursivePointers)
+    {
+        if (ctx.getPointersMap() == nullptr)
+            return Status::kErrorInvalidArgument;
+
+        flags.allowUnmanagedPointers = true;
+    }
+
+    ctx.setFlags(flags);
+
     RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getFlags())));
 
-    if (ctx.getFlags().extendedPointersProcessing && ctx.getPointersMap() == nullptr)
-        return Status::kErrorInvalidArgument;
 
     return Status::kNoError;
 }
@@ -123,8 +132,13 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, u
         return Status::kErrorNotSupportedInterfaceVersion;
     else if (ctx.getInterfaceVersion() != T::getInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
+
+    context::DataFlags flags = ctx.getFlags();
+
+    if (flags.allowUnmanagedPointers && ctx.getAddedPointers() == nullptr)
+        return Status::kErrorInvalidArgument;
     
-    if (ctx.getFlags().extendedPointersProcessing && ctx.getPointersMap() == nullptr)
+    if (flags.checkRecursivePointers && (ctx.getPointersMap() == nullptr || !flags.allowUnmanagedPointers))
         return Status::kErrorInvalidArgument;
 
     return Status::kNoError;

@@ -1,5 +1,5 @@
 /**
- * @file TypesForTests.h
+ * @file SpecialTypesCleanAfterStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,6 +23,25 @@
 
 #pragma once
 
-#include "common_serialization.h"
-#include "../../TypesForTests/include/SpecialTypesFillingStruct.h"
-#include "../../TypesForTests/include/SpecialTypesCleanAfterStruct.h"
+#include "../../TypesForTests/include/SpecialTypes.h"
+#include "../../SerializableStructs/InterfaceForTest/Base/Include/Interface.h"
+
+namespace special_types
+{
+
+// it shall be used only for input structs, that are filled with allocating heap memory
+// pointers of output structs are cleaned up with context::DeserializeExtendedPointersProcessing destructor
+template<typename T>
+void cleanAfterStruct(T& output)
+{ }
+
+template<>
+void cleanAfterStruct(ManyPointersTypeSerializable<>& output);
+template<>
+void cleanAfterStruct(ForAllFlagsTests1_Version0<>& output);
+template<>
+void cleanAfterStruct(ForAllFlagsTests1_Version1<>& output);
+template<>
+void cleanAfterStruct(ForAllFlagsTests1<>& output);
+
+} // namespace special_types
