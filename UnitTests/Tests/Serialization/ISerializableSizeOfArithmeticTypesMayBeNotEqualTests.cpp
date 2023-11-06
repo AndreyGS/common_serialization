@@ -96,7 +96,7 @@ TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
 
     csp::context::DData<Walker<uint8_t>> ctxOut(bin);
 
-    Vector<PointerAndDestructorDeallocator> addedPointers;
+    Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(addedPointers);
 
     SpecialProcessingTypeContainSerializable output;
@@ -106,8 +106,6 @@ TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
     EXPECT_EQ(input, output);
 
     cleanAfterStruct(input);
-
-    ctxOut.destroyAndDeallocateAllAddedPointers();
 }
 
 } // namespace anonymous

@@ -1,5 +1,5 @@
 /**
- * @file ConvertFromOldStruct.cpp
+ * @file ConvertToOldStruct.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "ConvertFromOldStruct.h"
-
 #define RUN(x)                                                                  \
 {                                                                               \
     if (Status status = (x); !statusSuccess(status))                            \
@@ -41,31 +39,54 @@ namespace processing
 {
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , uint32_t thisVersionCompat, special_types::SimpleAssignableAlignedToOneSerializable<>& value)
+Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
+    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     // If value version is the same as thisVersionCompat there is a programmatic error
     assert(value.getThisVersion() != thisVersionCompat);
 
     if (thisVersionCompat == 0)
     {
-        special_types::SimpleAssignableAlignedToOneSerializable_Version0<> compatVersion;
-        RUN(deserializeDataLegacy(ctx, compatVersion));
+        special_types::SimpleAssignableAlignedToOneSerializable_Version0<> compatVersion(value);
 
-        value.m_x = compatVersion.m_ti.x;
-        value.m_y = compatVersion.m_ti.y;
+        RUN(serializeDataLegacy(compatVersion, ctx));
     }
     else if (thisVersionCompat == 1)
     {
-        special_types::SimpleAssignableAlignedToOneSerializable_Version1<> compatVersion;
-        RUN(deserializeDataLegacy(ctx, compatVersion));
+        special_types::SimpleAssignableAlignedToOneSerializable_Version1<> compatVersion(value);
 
-        value.m_x = compatVersion.m_x;
-        value.m_y = compatVersion.m_y;
+        RUN(serializeDataLegacy(compatVersion, ctx));
     }
 
     return Status::kNoFurtherProcessingRequired;
 }
+/*
+template<>
+Status DataProcessor::convertToOldStruct(const special_types::ForAllFlagsTests1<>& value
+    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    // If value version is the same as thisVersionCompat there is a programmatic error
+    assert(value.getThisVersion() != thisVersionCompat);
+
+    if (thisVersionCompat == 0)
+    {
+        special_types::ForAllFlagsTests1_Version0<> compatVersion;
+        compatVersion.m_ti.x = value.m_x;
+        compatVersion.m_ti.y = value.m_y;
+
+        RUN(serializeDataLegacy(compatVersion, ctx));
+    }
+    else if (thisVersionCompat == 1)
+    {
+        special_types::ForAllFlagsTests1_Version1<> compatVersion;
+        compatVersion.m_x = value.m_x;
+        compatVersion.m_y = value.m_y;
+
+        RUN(serializeDataLegacy(compatVersion, ctx));
+    }
+
+    return Status::kNoFurtherProcessingRequired;
+}*/
 
 } // namespace processing
 

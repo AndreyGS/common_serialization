@@ -47,6 +47,13 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
+    SimpleAssignableAlignedToOneSerializable_Version0() { }
+    SimpleAssignableAlignedToOneSerializable_Version0(const SimpleAssignableAlignedToOneSerializable<>& rhs)
+    {
+        m_ti.x = rhs.m_x;
+        m_ti.y = rhs.m_y;
+    }
+
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Version0& rhs) const noexcept
     {
         return m_ti == rhs.m_ti;
@@ -56,7 +63,17 @@ private:
     TwoInts m_ti{ 0 };
 
     friend csp::processing::DataProcessor;
+    friend SimpleAssignableAlignedToOneSerializable;
 };
+
+template<typename T>
+SimpleAssignableAlignedToOneSerializable<T>& SimpleAssignableAlignedToOneSerializable<T>::operator=(const SimpleAssignableAlignedToOneSerializable_Version0<T>& rhs)
+{
+    m_x = rhs.m_ti.x;
+    m_y = rhs.m_ti.y;
+
+    return *this;
+}
 
 template<typename T = Dummy>
 class SimpleAssignableAlignedToOneSerializable_Version1 : public csp::ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>>
@@ -74,6 +91,13 @@ public:
     [[nodiscard]] uint8_t& getY()                 noexcept { return m_y; }
     [[nodiscard]] const uint8_t& getY()     const noexcept { return m_y; }
 
+    SimpleAssignableAlignedToOneSerializable_Version1() { }
+    SimpleAssignableAlignedToOneSerializable_Version1(const SimpleAssignableAlignedToOneSerializable<>& rhs)
+    {
+        m_x = rhs.m_x;
+        m_y = rhs.m_y;
+    }
+
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Version1& rhs) const noexcept
     {
         return m_x == rhs.m_x && m_y == rhs.m_y;
@@ -84,7 +108,17 @@ private:
     uint16_t m_y{ 0 };
 
     friend csp::processing::DataProcessor;
+    friend SimpleAssignableAlignedToOneSerializable;
 };
+
+template<typename T>
+SimpleAssignableAlignedToOneSerializable<T>& SimpleAssignableAlignedToOneSerializable<T>::operator=(const SimpleAssignableAlignedToOneSerializable_Version1<T>& rhs)
+{
+    m_x = rhs.m_x;
+    m_y = rhs.m_y;
+
+    return *this;
+}
 
 template<typename T = Dummy>
 class ForAllFlagsTests1_Version0 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests1_Version0<T>, T >>

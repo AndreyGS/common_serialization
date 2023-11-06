@@ -33,5 +33,5 @@
 #include "../../Base/include/Generated/DeserializeData.h"
 #include "../../Base/include/Generated/DeserializeDataLegacy.h"
 
-#include "../../Base/include/ConvertToOldStruct.h"
-#include "../../Base/include/ConvertFromOldStruct.h"
+#include "../../Base/include/Generated/ConvertToOldStruct.h"
+#include "../../Base/include/Generated/ConvertFromOldStruct.h"

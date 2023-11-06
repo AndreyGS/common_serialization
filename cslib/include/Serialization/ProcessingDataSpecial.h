@@ -1,5 +1,5 @@
 /**
- * @file ProcessingSpecial.h
+ * @file ProcessingDataSpecial.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

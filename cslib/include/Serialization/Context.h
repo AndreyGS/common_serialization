@@ -27,6 +27,7 @@
 #include "ContextDataFlags.h"
 #include "ContextMessage.h"
 #include "SerializationConcepts.h"
+#include "../Containers/ContainersConcepts.h"
 #include "../Containers/HashMap.h"
 
 namespace common_serialization
@@ -89,6 +90,7 @@ private:
 
 // Because of std::conditional_t evaluation traits in instantiation of template Data
 // we cannot use more restricted concept here (ISerializationPointersMap)
+// Note that you shall manualy clear map container after use (you can use clear method if you wish)
 template<serialization_concepts::IPointersMap PM>
 class SerializeExtendedPointersProcessing
 {
@@ -111,13 +113,19 @@ public:
             m_pPointersMap->clear();
     }
 
+    void release()
+    {
+        m_pPointersMap = nullptr;
+    }
+
 private:
     PM* m_pPointersMap{ nullptr };
 };
 
 // Because of std::conditional_t evaluation traits in instantiation of template Data
-// we cannot use more restricted concept here (IDeserializationPointersMap)
-template<serialization_concepts::IPointersContainer PC, serialization_concepts::IPointersMap PM
+// we cannot use more restricted concept here (IDeserializationPointersMap).
+// Note that you shall manualy clear all containers after use (you can use clear method if you wish)
+template<IGenericPointersKeeperContainer PC, serialization_concepts::IPointersMap PM
     , template<typename> typename Allocator = ConstructorNoexceptAllocator, template<typename, typename> typename AllocatorHelper = GenericAllocatorHelper>
 struct DeserializeExtendedPointersProcessing
 {
@@ -141,35 +149,20 @@ public:
     // allocates memory for type T and costructs default object
     // only stateless AllocatorHelpers are allowed
     template<typename T>
+        requires IConstructorAllocator<Allocator<T>>
     [[nodiscard]] T* allocateAndDefaultConstruct() const noexcept
     {
         if (!m_pAddedPointers)
             assert(false); // this situation shall never exists
 
-        AllocatorHelper<T, Allocator<T>> allocatorHelper{};
-        T* p = allocatorHelper.allocateAndConstruct(1, nullptr);
+        GenericPointerKeeper pointerKeeper;
+        T* p = pointerKeeper.allocateAndConstruct<T, AllocatorHelper<T, Allocator<T>>>(1);
+
         if (p)
-            m_pAddedPointers->pushBack(
-                { p, reinterpret_cast<typename PointerAndDestructorDeallocator::DestroyAndDeallocateFunc>(&destroyAndDeallocatePointer<T>) }
-            );
+            if (!statusSuccess(m_pAddedPointers->pushBack(std::move(pointerKeeper))))
+                p = nullptr;
 
         return p;
-    }
-
-    void destroyAndDeallocateAddedPointer(size_t i) noexcept
-    {
-        if (m_pAddedPointers && i < (*m_pAddedPointers).size()) // we not assert here, cause this method should be used by users code
-        {
-            PointerAndDestructorDeallocator padd = (*m_pAddedPointers)[i];
-            padd.destructorAndDeallocatorFunction(padd.pointer);
-        }
-    }
-    
-    void destroyAndDeallocateAllAddedPointers() noexcept
-    {
-        if (m_pAddedPointers) // we not assert here, cause this method should be used by users code
-            for (auto& pointerAndDestructorDeallocator : *m_pAddedPointers)
-                pointerAndDestructorDeallocator.destructorAndDeallocatorFunction(pointerAndDestructorDeallocator.pointer);
     }
 
     void clear()
@@ -181,10 +174,10 @@ public:
             m_pPointersMap->clear();
     }
 
-    ~DeserializeExtendedPointersProcessing()
+    void release()
     {
-        if (m_pAddedPointers)
-            destroyAndDeallocateAllAddedPointers();
+        m_pAddedPointers = nullptr;
+        m_pPointersMap = nullptr;
     }
 
 private:
@@ -203,7 +196,7 @@ template<
           typename Container
         , bool serialize = true
         , serialization_concepts::IPointersMap PM = std::conditional_t<serialize, std::unordered_map<const void*, uint64_t>, std::unordered_map<uint64_t, void*>>
-        , serialization_concepts::IPointersContainer PC = Vector<PointerAndDestructorDeallocator>
+        , IGenericPointersKeeperContainer PC = Vector<GenericPointerKeeper>
         , typename EPP = std::conditional_t<serialize, SerializeExtendedPointersProcessing<PM>, DeserializeExtendedPointersProcessing<PC, PM>>
 >
     requires   serialization_concepts::ISerializationCapableContainer<Container>
@@ -264,8 +257,6 @@ public:
 
     template<typename T>
     [[nodiscard]] T* allocateAndDefaultConstruct() const noexcept requires !serialize { return m_epp.allocateAndDefaultConstruct<T>(); }
-    void destroyAndDeallocateAllAddedPointers() noexcept requires !serialize { return m_epp.destroyAndDeallocateAllAddedPointers(); }
-    void destroyAndDeallocateAddedPointer(size_t i) noexcept requires !serialize{ return m_epp.destroyAndDeallocateAddedPointer(i); }
 
     void resetToDefaultsExceptDataContents() noexcept
     {

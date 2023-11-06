@@ -50,7 +50,7 @@ void mainTest()
     csp::context::DData<Walker<uint8_t>> ctxOut(bin);
     std::unordered_map<uint64_t, void*> dMap;
     ctxOut.setPointersMap(dMap);
-    Vector<PointerAndDestructorDeallocator> addedPointers;
+    Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(addedPointers);
 
     T output;
@@ -62,11 +62,9 @@ void mainTest()
     EXPECT_EQ(input, output);
 
     cleanAfterStruct(input);
-
-    ctxOut.destroyAndDeallocateAllAddedPointers();
 }
 
-TEST(ISerializableCheckRecursivePointersTests, SimpleAssignableAlignedToOneT)
+TEST(ISerializableCheckRecursivePointersTests, SpecialProcessingTypeContainSerializableT)
 {
     mainTest<SpecialProcessingTypeContainSerializable<>>();
 }

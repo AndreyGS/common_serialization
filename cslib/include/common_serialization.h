@@ -71,6 +71,6 @@
 #include "../../cslib/include/Allocators/RawKeeperAllocator.h"
 #include "../../cslib/include/Containers/Walker.h"
 #include "../../cslib/include/Serialization/ISerializable.h"
-#include "../../cslib/include/Serialization/ProcessingSpecial.h"
+#include "../../cslib/include/Serialization/ProcessingDataSpecial.h"
 
 #undef RUN

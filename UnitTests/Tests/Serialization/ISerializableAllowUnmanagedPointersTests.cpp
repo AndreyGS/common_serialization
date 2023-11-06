@@ -44,7 +44,7 @@ void mainTest()
     T output;
 
     csp::context::DData<Walker<uint8_t>> ctxOut(bin);
-    Vector<PointerAndDestructorDeallocator> addedPointers;
+    Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(addedPointers);
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
@@ -53,7 +53,6 @@ void mainTest()
     EXPECT_EQ(input, output);
 
     cleanAfterStruct(input);
-    ctxOut.destroyAndDeallocateAllAddedPointers();
 }
 
 TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)

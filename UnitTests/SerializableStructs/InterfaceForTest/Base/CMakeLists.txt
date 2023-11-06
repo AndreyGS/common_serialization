@@ -3,8 +3,8 @@ add_library(InterfaceForTestBase STATIC
     "src/Generated/SerializeDataLegacy.cpp"
     "src/Generated/DeserializeData.cpp"
     "src/Generated/DeserializeDataLegacy.cpp"
-    "src/ConvertToOldStruct.cpp"
-    "src/ConvertFromOldStruct.cpp")
+    "src/Generated/ConvertToOldStruct.cpp"
+    "src/Generated/ConvertFromOldStruct.cpp")
 
 target_compile_definitions(InterfaceForTestBase PRIVATE USER_MODE)
 target_link_libraries(InterfaceForTestBase PRIVATE cslib)

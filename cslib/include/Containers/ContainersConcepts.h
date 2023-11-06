@@ -1,5 +1,5 @@
 /**
- * @file AllocatorConcepts.h
+ * @file ContainersConcepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,29 +23,31 @@
 
 #pragma once
 
+#include "../CsStatus.h"
+
 namespace common_serialization
 {
 
-template<typename T>
-concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_allocator> || std::is_same_v<std::false_type, typename T::constructor_allocator>) && requires(T a)
-{
-    typename T::value_type;
-    typename T::pointer;
-    typename T::size_type;
-    typename T::difference_type;
-    typename T::constructor_allocator;
-    T();
-    { a.allocate(0) } -> std::same_as<typename T::pointer>;
-    { a.deallocate(nullptr) } -> std::same_as<void>;
-    { a.deallocate(nullptr, 1) } -> std::same_as<void>;
+class GenericPointerKeeper;
 
-    { a.construct(nullptr) } -> std::same_as<Status>;
-    { a.destroy(nullptr) } -> std::same_as<void>;
+template<typename S>
+concept IGenericPointersKeeperContainer
+    =  requires(S e)
+         {
+             typename S::value_type;
+             typename S::constructor_allocator;
 
-    { a.max_size() } -> std::same_as<typename T::size_type>;
-};
+             { e.clear() };
+             { e.begin() };
+             { e.end() };
+             { e.erase(0, 1) };
+             { e.data() } -> std::same_as<typename S::value_type*>;
+             { e.size() } -> std::same_as<typename S::size_type>;
+             { e.capacity() } -> std::same_as<typename S::size_type>;
 
-template<typename T>
-concept IConstructorAllocator = IAllocator<T> && std::is_same_v<std::true_type, typename T::constructor_allocator>;
+             { e.reserve(1) } -> std::same_as<Status>;
+             { e.pushBack(*(new GenericPointerKeeper)) } -> std::same_as<Status>;
+         } 
+    && std::is_same_v<typename S::value_type, GenericPointerKeeper> && std::is_same_v<typename S::constructor_allocator, std::true_type>;
 
 } // namespace common_serialization
