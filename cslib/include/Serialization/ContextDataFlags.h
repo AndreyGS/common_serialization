@@ -46,10 +46,6 @@ struct DataFlags
                                                                 // In deserialization process every creation of new pointer
                                                                 // is registers in context stored container, which will allow
                                                                 // to safe delete this pointers in future.
-                                                                // Note that when context is destroyed all accumulated pointers are destroyed too
-                                                                // so if you need them, you shall clear container that contains them before context destruction.
-                                                                // Also note, that if container on which points context field is destroyed before context itself
-                                                                // you will get dangling pointers, so be careful with that.
     uint32_t checkRecursivePointers                 : 1 = 0;    // works only in conjunction with allowUnmanagedPointers which sets automatically
     uint32_t reserved                               :28 = 0;
 
