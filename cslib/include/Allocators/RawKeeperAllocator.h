@@ -26,6 +26,8 @@
 namespace common_serialization
 {
 
+// This allocator is single threaded
+// Any synchronization if need shall be used additionally
 template<typename T>
     requires std::is_trivially_copyable_v<T>
 class RawKeeperAllocator
@@ -138,6 +140,9 @@ template<typename T>
 template<typename... Args>
 constexpr Status RawKeeperAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
+    if (p < m_p || p + 1 > m_p + m_memorySize)
+        return Status::kErrorInvalidArgument;
+
     new ((void*)p) T(std::forward<Args>(args)...);
     return Status::kNoError;
 }

@@ -40,50 +40,28 @@ namespace processing
 
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+    , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
-    // If value version is the same as thisVersionCompat there is a programmatic error
-    assert(value.getThisVersion() != thisVersionCompat);
+    // If value version is the same as targetVersion there is a programmatic error that we are here
+    assert(value.getThisVersion() != targetVersion);
 
-    if (thisVersionCompat == 0)
-    {
-        special_types::SimpleAssignableAlignedToOneSerializable_Version0<> compatVersion(value);
+    ToVersionConverter<special_types::SimpleAssignableAlignedToOneSerializable_Version1<>
+                     , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>
+    > convertTo(targetVersion);
 
-        RUN(serializeDataLegacy(compatVersion, ctx));
-    }
-    else if (thisVersionCompat == 1)
-    {
-        special_types::SimpleAssignableAlignedToOneSerializable_Version1<> compatVersion(value);
-
-        RUN(serializeDataLegacy(compatVersion, ctx));
-    }
+    RUN(convertTo.convert(value, ctx));
 
     return Status::kNoFurtherProcessingRequired;
 }
+
 /*
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::ForAllFlagsTests1<>& value
-    , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+    , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
-    // If value version is the same as thisVersionCompat there is a programmatic error
-    assert(value.getThisVersion() != thisVersionCompat);
+    // If value version is the same as targetVersion there is a programmatic error
+    assert(value.getThisVersion() != targetVersion);
 
-    if (thisVersionCompat == 0)
-    {
-        special_types::ForAllFlagsTests1_Version0<> compatVersion;
-        compatVersion.m_ti.x = value.m_x;
-        compatVersion.m_ti.y = value.m_y;
-
-        RUN(serializeDataLegacy(compatVersion, ctx));
-    }
-    else if (thisVersionCompat == 1)
-    {
-        special_types::ForAllFlagsTests1_Version1<> compatVersion;
-        compatVersion.m_x = value.m_x;
-        compatVersion.m_y = value.m_y;
-
-        RUN(serializeDataLegacy(compatVersion, ctx));
-    }
 
     return Status::kNoFurtherProcessingRequired;
 }*/

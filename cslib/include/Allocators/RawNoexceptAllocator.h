@@ -82,6 +82,8 @@ template<typename T>
 template<typename... Args>
 constexpr Status RawNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
+    assert(p);
+
     new ((void*)p) T(std::forward<Args>(args)...);
     return Status::kNoError;
 }

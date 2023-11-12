@@ -67,7 +67,7 @@ constexpr bool isInterfaceVersionSupported(uint32_t version, uint32_t minVersion
     return maxVersion >= version && version >= minVersion;
 }
 
-// Using to find version of struct to which we shall serialize when we are in compat mode
+// Using to find index of version in versions hierarchy of struct to which we must serialize/deserialize
 constexpr uint32_t getBestCompatInterfaceVersion(const uint32_t* pVersionsHierarchy
     , uint32_t versionsHierarchySize, uint32_t compatInterfaceVersion) noexcept
 {

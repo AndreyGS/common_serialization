@@ -40,25 +40,16 @@ namespace processing
 
 template<>
 Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , uint32_t thisVersionCompat, special_types::SimpleAssignableAlignedToOneSerializable<>& value)
+    , uint32_t targetVersion, special_types::SimpleAssignableAlignedToOneSerializable<>& value)
 {
-    // If value version is the same as thisVersionCompat there is a programmatic error
-    assert(value.getThisVersion() != thisVersionCompat);
+    // If value version is the same as targetVersion there is a programmatic error that we are here
+    assert(value.getThisVersion() != targetVersion);
 
-    if (thisVersionCompat == 0)
-    {
-        special_types::SimpleAssignableAlignedToOneSerializable_Version0<> compatVersion;
-        RUN(deserializeDataLegacy(ctx, compatVersion));
+    FromVersionConverter<special_types::SimpleAssignableAlignedToOneSerializable_Version0<>
+                       , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>
+    > convertFrom(targetVersion);
 
-        value = compatVersion;
-    }
-    else if (thisVersionCompat == 1)
-    {
-        special_types::SimpleAssignableAlignedToOneSerializable_Version1<> compatVersion;
-        RUN(deserializeDataLegacy(ctx, compatVersion));
-
-        value = compatVersion;
-    }
+    RUN(convertFrom.convert(ctx, value));
 
     return Status::kNoFurtherProcessingRequired;
 }

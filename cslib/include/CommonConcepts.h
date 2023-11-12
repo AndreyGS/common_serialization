@@ -34,4 +34,10 @@ concept Initable = requires(T t)
     { t.init(*(new T)) } -> std::same_as<Status>;
 };
 
+template<typename T, typename SpecClass>
+concept InitableBySpecialClass = requires(T t)
+{
+    { t.init(*(new SpecClass)) } -> std::same_as<Status>;
+};
+
 } // namespace common_serialization

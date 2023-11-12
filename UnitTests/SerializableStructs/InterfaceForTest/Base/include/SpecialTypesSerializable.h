@@ -61,8 +61,6 @@ struct SimpleAssignableAlignedToOneNotSerializable
 };
 
 template<typename>
-class SimpleAssignableAlignedToOneSerializable_Version0;
-template<typename>
 class SimpleAssignableAlignedToOneSerializable_Version1;
 
 template<typename T = Dummy>
@@ -77,8 +75,8 @@ public:
     static constexpr uint32_t kVersionsHierarchy[] = { 2, 1, 0 };
 
     SimpleAssignableAlignedToOneSerializable() { }
-    SimpleAssignableAlignedToOneSerializable<T>& operator=(const SimpleAssignableAlignedToOneSerializable_Version0<T>& rhs);
-    SimpleAssignableAlignedToOneSerializable<T>& operator=(const SimpleAssignableAlignedToOneSerializable_Version1<T>& rhs);
+    template<typename T2>
+    Status init(const SimpleAssignableAlignedToOneSerializable_Version1<T2>& rhs);
 
     [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
     [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
@@ -95,7 +93,6 @@ private:
     uint8_t m_y{ 0 };
 
     friend csp::processing::DataProcessor;
-    friend SimpleAssignableAlignedToOneSerializable_Version0;
     friend SimpleAssignableAlignedToOneSerializable_Version1;
 };
 
@@ -651,8 +648,8 @@ public:
     [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
     [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
     [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
-    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                                        noexcept { return m_mpt; }
-    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                            const noexcept { return m_mpt; }
+    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                            noexcept { return m_mpt; }
+    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                const noexcept { return m_mpt; }
 
     [[nodiscard]] bool operator==(const ForAllFlagsTests1<>& rhs) const noexcept
     {
@@ -702,8 +699,8 @@ public:
     [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
     [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
     [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
-    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                                        noexcept { return m_mpt; }
-    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                            const noexcept { return m_mpt; }
+    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                            noexcept { return m_mpt; }
+    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                const noexcept { return m_mpt; }
 
     [[nodiscard]] bool operator==(const ForAllFlagsTests1<>& rhs) const noexcept
     {

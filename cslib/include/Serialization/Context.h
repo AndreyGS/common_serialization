@@ -88,6 +88,39 @@ private:
     Message m_messageType = Message::kData;
 };
 
+class InterfaceVersionsProcessing
+{
+public:
+    InterfaceVersionsProcessing() {}
+    InterfaceVersionsProcessing(const InterfaceVersionsProcessing& rhs) 
+        : m_auxUsingHeapAllocation(rhs.m_auxUsingHeapAllocation), m_interfaceVersion(rhs.m_interfaceVersion), m_interfaceVersionsNotMatch(rhs.m_interfaceVersionsNotMatch)
+    { }
+    InterfaceVersionsProcessing(bool auxUsingHeapAllocation, uint32_t interfaceVersion, bool interfaceVersionsNotMatch = false)
+        : m_auxUsingHeapAllocation(auxUsingHeapAllocation), m_interfaceVersion(interfaceVersion), m_interfaceVersionsNotMatch(interfaceVersionsNotMatch)
+    { }
+
+    [[nodiscard]] constexpr bool isAuxUsingHeapAllocation() const noexcept { return m_auxUsingHeapAllocation; }
+    constexpr void setAuxUsingHeapAllocation(bool auxUsingHeapAllocation) { m_auxUsingHeapAllocation = auxUsingHeapAllocation; }
+
+    [[nodiscard]] constexpr uint32_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
+    constexpr void setInterfaceVersion(uint32_t interfaceVersion) { m_interfaceVersion = interfaceVersion; }
+
+    [[nodiscard]] constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
+    constexpr void setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; }
+
+    void clear()
+    {
+        m_interfaceVersion = traits::kInterfaceVersionMax;
+        m_interfaceVersionsNotMatch = false;
+        // m_auxUsingHeapAllocation is not resets to false, cause it's rather environment tool option instead of struct/operation specific
+    }
+
+private:
+    uint32_t m_interfaceVersion{ traits::kInterfaceVersionMax };
+    bool m_interfaceVersionsNotMatch = false;
+    bool m_auxUsingHeapAllocation = false;  // flag indicates that auxillary created structs in conversion functions must be placed in heap instead of stack
+};
+
 // Because of std::conditional_t evaluation traits in instantiation of template Data
 // we cannot use more restricted concept here (ISerializationPointersMap)
 // Note that you shall manualy clear map container after use (you can use clear method if you wish)
@@ -127,7 +160,7 @@ private:
 // Note that you shall manualy clear all containers after use (you can use clear method if you wish)
 template<IGenericPointersKeeperContainer PC, serialization_concepts::IPointersMap PM
     , template<typename> typename Allocator = ConstructorNoexceptAllocator, template<typename, typename> typename AllocatorHelper = GenericAllocatorHelper>
-struct DeserializeExtendedPointersProcessing
+class DeserializeExtendedPointersProcessing
 {
 public:
     DeserializeExtendedPointersProcessing()
@@ -204,35 +237,35 @@ template<
 class Data : public Common<Container>
 {
 public:
-    constexpr Data(Container& container, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
+    constexpr Data(Container& container, bool auxUsingHeapAllocation = false, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
         : Common<Container>(container, traits::getLatestProtocolVersion(), Message::kData)
-        , m_interfaceVersion(interfaceVersion)
+        , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
     { }
 
-    constexpr Data(const Common<Container>& common, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
+    constexpr Data(const Common<Container>& common, bool auxUsingHeapAllocation = false, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
         : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), Message::kData)
-        , m_interfaceVersion(interfaceVersion)
+        , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
     { }
 
     constexpr Data(const Data<Container, serialize, PM, PC, EPP>& rhs) noexcept
         : Common<Container>(rhs.getBinaryData(), rhs.getProtocolVersion(), rhs.getFlags(), Message::kData)
-        , m_flags(rhs.m_flags), m_interfaceVersion(rhs.m_interfaceVersion), m_epp(rhs.m_epp)
+        , m_flags(rhs.m_flags), m_interfaceVersionsProcessing(rhs.m_interfaceVersionsProcessing), m_epp(rhs.m_epp)
     { }
 
-    constexpr Data(Container& binaryData, uint8_t protocolVersion, DataFlags flags, uint32_t interfaceVersion = traits::kInterfaceVersionMax
-        , PM* pPointersMap = nullptr
+    constexpr Data(Container& binaryData, uint8_t protocolVersion, DataFlags flags, bool auxUsingHeapAllocation = false
+        , uint32_t interfaceVersion = traits::kInterfaceVersionMax, PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
     : Common<Container>(binaryData, protocolVersion, flags, Message::kData), m_flags(flags)
-        , m_interfaceVersion(interfaceVersion), m_interfaceVersionsNotMatch(false), m_epp(pPointersMap)
+        , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion), m_epp(pPointersMap)
     { }
 
-    constexpr Data(Container& binaryData, uint8_t protocolVersion, DataFlags flags, uint32_t interfaceVersion = traits::kInterfaceVersionMax
-        , PC* pPointersContainer = nullptr, PM* pPointersMap = nullptr
+    constexpr Data(Container& binaryData, uint8_t protocolVersion, DataFlags flags, bool auxUsingHeapAllocation = false
+        , uint32_t interfaceVersion = traits::kInterfaceVersionMax, PC* pPointersContainer = nullptr, PM* pPointersMap = nullptr
     ) noexcept
         requires !serialize
             : Common<Container>(binaryData, protocolVersion, flags, Message::kData), m_flags(flags)
-            , m_interfaceVersion(interfaceVersion), m_interfaceVersionsNotMatch(false), m_epp(pPointersContainer, pPointersMap)
+            , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion), m_epp(pPointersContainer, pPointersMap)
     { }
 
     [[nodiscard]] constexpr DataFlags getFlags() noexcept { return m_flags; }
@@ -241,11 +274,14 @@ public:
     template<typename Flag>
     constexpr void setFlag(Flag flag, bool value) { m_flags.*flag = value; }
 
-    [[nodiscard]] constexpr uint32_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
-    constexpr void setInterfaceVersion(uint32_t interfaceVersion) { m_interfaceVersion = interfaceVersion; }
+    [[nodiscard]] constexpr uint32_t getInterfaceVersion() const noexcept { return m_interfaceVersionsProcessing.getInterfaceVersion(); }
+    constexpr void setInterfaceVersion(uint32_t interfaceVersion) { m_interfaceVersionsProcessing.setInterfaceVersion(interfaceVersion); }
 
-    [[nodiscard]] constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
-    constexpr void setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; }
+    [[nodiscard]] constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsProcessing.isInterfaceVersionsNotMatch(); }
+    constexpr void setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsProcessing.setInterfaceVersionsNotMatch(interfaceVersionsNotMatch); }
+
+    [[nodiscard]] constexpr bool isAuxUsingHeapAllocation() const noexcept { return m_interfaceVersionsProcessing.isAuxUsingHeapAllocation(); }
+    constexpr void setAuxUsingHeapAllocation(bool auxUsingHeapAllocation) { m_interfaceVersionsProcessing.setAuxUsingHeapAllocation(auxUsingHeapAllocation); }
 
     [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_epp.getPointersMap(); }
     [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_epp.getPointersMap(); }
@@ -262,8 +298,7 @@ public:
     {
         Common<Container>::resetToDefaultsExceptDataContents();
         m_flags = DataFlags{};
-        m_interfaceVersion = traits::kInterfaceVersionMax;
-        m_interfaceVersionsNotMatch = false;
+        m_interfaceVersionsProcessing.clear();
         m_epp.clear();
     }
 
@@ -271,15 +306,13 @@ public:
     {
         Common<Container>::clear();
         m_flags = DataFlags{};
-        m_interfaceVersion = traits::kInterfaceVersionMax;
-        m_interfaceVersionsNotMatch = false;
+        m_interfaceVersionsProcessing.clear();
         m_epp.clear();
     }
 
 private:
     DataFlags m_flags = DataFlags{};
-    uint32_t m_interfaceVersion{ traits::kInterfaceVersionMax };
-    bool m_interfaceVersionsNotMatch = false;
+    InterfaceVersionsProcessing m_interfaceVersionsProcessing;
     EPP  m_epp;
 };
 

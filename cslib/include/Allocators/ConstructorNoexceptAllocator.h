@@ -86,6 +86,8 @@ template<typename T>
 template<typename... Args>
 constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
+    assert(p);
+
     new ((void*)p) T(std::forward<Args>(args)...);
     return Status::kNoError;
 }
@@ -95,6 +97,8 @@ template<typename... Args>
     requires Initable<T>
 constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
+    assert(p);
+
     new ((void*)p) T;
     return p->init(std::forward<Args>(args)...);
 }
@@ -104,6 +108,8 @@ template<typename... Args>
     requires Initable<T>
 constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p) const noexcept
 {
+    assert(p);
+
     new ((void*)p) T;
     return Status::kNoError;
 }

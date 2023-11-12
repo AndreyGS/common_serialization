@@ -72,5 +72,6 @@
 #include "../../cslib/include/Containers/Walker.h"
 #include "../../cslib/include/Serialization/ISerializable.h"
 #include "../../cslib/include/Serialization/ProcessingDataSpecial.h"
+#include "../../cslib/include/Serialization/ProcessingDataVersionConverters.h"
 
 #undef RUN

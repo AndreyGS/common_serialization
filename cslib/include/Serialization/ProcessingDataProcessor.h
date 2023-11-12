@@ -1,5 +1,5 @@
 /**
- * @file SerializationProcessor.h
+ * @file ProcessingDataProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -54,6 +54,11 @@ public:
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     static constexpr Status deserializeData(size_t originalTypeSize, context::DData<D, PM>& ctx, T& value);
 
+    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    static constexpr Status serializeDataLegacy(const T& value, context::SData<S, PM>& ctx);
+    template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    static constexpr Status deserializeDataLegacy(context::DData<D, PM>& ctx, T& value);
+
 protected:
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status serializeDataSimpleAssignable(const T& value, context::SData<S, PM>& ctx);
@@ -66,11 +71,6 @@ protected:
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
         requires serialization_concepts::SimpleAssignableType<T> || serialization_concepts::SimpleAssignableAlignedToOneType<T>
     static constexpr Status deserializeDataSimpleAssignable(context::DData<D, PM>&ctx, T & value);
-
-    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
-    static constexpr Status serializeDataLegacy(const T& value, context::SData<S, PM>& ctx);
-    template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-    static constexpr Status deserializeDataLegacy(context::DData<D, PM>& ctx, T& value);
 
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status addPointerToMap(const T p, context::SData<S, PM>& ctx, bool& newPointer);
@@ -257,7 +257,13 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
                 }
             }
 
-        RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize));
+        typename D::size_type readSize = 0;
+
+        RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
+
+        if (readSize != bytesSize)
+            return Status::kErrorOverflow;
+
     }
     else if constexpr (!serialization_concepts::EmptyType<T>)
     {
@@ -366,7 +372,12 @@ constexpr Status DataProcessor::deserializeData(size_t originalTypeSize, context
         , "Current deserializeData function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
 
     uint8_t arr[64] = { 0 };
-    RUN(ctx.getBinaryData().read(arr, originalTypeSize));
+    typename D::size_type readSize = 0;
+    RUN(ctx.getBinaryData().read(arr, originalTypeSize, &readSize));
+
+    if (readSize != originalTypeSize)
+        return Status::kErrorOverflow;
+
     const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
 
     return Status::kNoError;
@@ -413,8 +424,12 @@ constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D
         && (serialization_concepts::SimpleAssignableAlignedToOneType<T> || serialization_concepts::SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
     )
     {
+        typename D::size_type readSize = 0;
         // for simple assignable types it is preferable to get a whole struct at a time
-        RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T)));
+        RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T), &readSize));
+
+        if (readSize != sizeof(T))
+            return Status::kErrorOverflow;
 
         return Status::kNoFurtherProcessingRequired;
     }
@@ -476,7 +491,7 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T&
         {
             newPointer = false;
             if (offset >= input.tell())
-                return Status::KErrorInternal;
+                return Status::kErrorInternal;
 
             p = reinterpret_cast<T>(pointersMap[offset]);
         }
@@ -488,17 +503,17 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T&
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
 constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
 {
-    uint32_t thisVersionCompat = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
+    uint32_t targetVersion = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
 
     S& output = ctx.getBinaryData();
 
-    if (thisVersionCompat == value.getThisVersion())
+    if (targetVersion == value.getThisVersion())
         return Status::kNoError;
     // Normaly, next condition shall never succeed
-    else if (thisVersionCompat == traits::kInterfaceVersionMax)
-        return Status::kErrorNotSupportedInterfaceVersion;
+    else if (targetVersion == traits::kInterfaceVersionMax)
+        return Status::kErrorInternal;
     else
-        return convertToOldStruct(value, thisVersionCompat, ctx);
+        return convertToOldStruct(value, targetVersion, ctx);
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
@@ -513,12 +528,15 @@ static constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData
 {
     D& input = ctx.getBinaryData();
 
-    uint32_t thisVersionCompat = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
+    uint32_t targetVersion = traits::getBestCompatInterfaceVersion(value.getVersionsHierarchy(), value.getVersionsHierarchySize(), ctx.getInterfaceVersion());
 
-    if (thisVersionCompat == value.getThisVersion())
+    if (targetVersion == value.getThisVersion())
         return Status::kNoError;
+    // Normaly, next condition shall never succeed
+    else if (targetVersion == traits::kInterfaceVersionMax)
+        return Status::kErrorDataCorrupted;
     else
-        return convertFromOldStruct(ctx, thisVersionCompat, value);
+        return convertFromOldStruct(ctx, targetVersion, value);
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
@@ -529,13 +547,13 @@ constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>
 }
 
 template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
-constexpr Status DataProcessor::convertToOldStruct(const T& value, uint32_t thisVersionCompat, context::SData<S, PM>& ctx)
+constexpr Status DataProcessor::convertToOldStruct(const T& value, uint32_t targetVersion, context::SData<S, PM>& ctx)
 {
     return Status::kErrorNoSuchHandler;
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-static constexpr Status DataProcessor::convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t thisVersionCompat, T& value)
+static constexpr Status DataProcessor::convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t targetVersion, T& value)
 {
     return Status::kErrorNoSuchHandler;
 }

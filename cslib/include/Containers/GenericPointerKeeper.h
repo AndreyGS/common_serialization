@@ -47,6 +47,12 @@ public:
     GenericPointerKeeper& operator=(const GenericPointerKeeper& rhs) = delete; // for now
     GenericPointerKeeper& operator=(GenericPointerKeeper&& rhs) noexcept
     {
+        if (this == &rhs)
+            return *this;
+
+        if (m_p)
+            destroyAndDeallocate();
+
         m_p = rhs.m_p, m_destroyAndDeallocate = rhs.m_destroyAndDeallocate;
         rhs.m_p = nullptr, rhs.m_destroyAndDeallocate = nullptr;
     }
@@ -56,8 +62,11 @@ public:
     }
 
     template<typename T, typename AllocatorHelper, typename... Args>
-    [[nodiscard]] T* allocateAndConstruct(size_t n, Args&&... args)
+    T* allocateAndConstruct(size_t n, Args&&... args)
     {
+        if (m_p)
+            destroyAndDeallocate();
+
         AllocatorHelper allocatorHelper{};
 
         if (n > allocatorHelper.getAllocator().max_size())
@@ -80,7 +89,14 @@ public:
         {
             m_destroyAndDeallocate(m_p, m_size);
             m_p = nullptr;
+            m_size = 0;
         }
+    }
+
+    template<typename T>
+    T* get()
+    {
+        return static_cast<T*>(m_p);
     }
 
 private:

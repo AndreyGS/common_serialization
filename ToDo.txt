@@ -2,6 +2,4 @@ First of all
 1. Unit-tests on operator== of Vector and Walker.
 2. Add Init Vector and Walker by pointer, size, allocatedSize[, offset].
 3. More unit tests on extendedPointerProcessing mode.
-4. Add test on common_serialization::csp::context::DeserializeExtendedPointersProcessing::destroyAndDeallocateAddedPointer function.
-5. Add useHeapAllocationForLegacyStructs flag.
-6. Add tests on GenericPointerKeeper.
+4. Add tests on GenericPointerKeeper.
