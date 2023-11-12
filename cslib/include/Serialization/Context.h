@@ -237,12 +237,12 @@ template<
 class Data : public Common<Container>
 {
 public:
-    constexpr Data(Container& container, bool auxUsingHeapAllocation = false, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
+    constexpr Data(Container& container, bool auxUsingHeapAllocation = true, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
         : Common<Container>(container, traits::getLatestProtocolVersion(), Message::kData)
         , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
     { }
 
-    constexpr Data(const Common<Container>& common, bool auxUsingHeapAllocation = false, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
+    constexpr Data(const Common<Container>& common, bool auxUsingHeapAllocation = true, uint32_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
         : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), Message::kData)
         , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
     { }

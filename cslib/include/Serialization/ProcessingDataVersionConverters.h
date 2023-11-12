@@ -43,13 +43,20 @@ public:
         : m_targetVersion(targetVersion)
     { }
 
+    constexpr uint32_t getTargetVersion() const noexcept { return m_targetVersion; }
+
+protected:
     template<typename From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
-    Status convert(const From& from, context::SData<S, PM>& ctx) noexcept
+    Status convertOnHeap(const From& from, context::SData<S, PM>& ctx) noexcept
     {
         return Status::kErrorInternal;
     }
 
-    constexpr uint32_t getTargetVersion() const noexcept { return m_targetVersion; }
+    template<typename From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    Status convertOnStack(const From& from, context::SData<S, PM>& ctx) noexcept
+    {
+        return Status::kErrorInternal;
+    }
 
 private:
     uint32_t m_targetVersion{ traits::kInterfaceVersionMax };
@@ -59,10 +66,7 @@ private:
 template<typename To, typename... NextTo>
 class ToVersionConverter<To, NextTo...> : public ToVersionConverter<NextTo...>
 {
-
 public:
-    using base_class = ToVersionConverter<NextTo...>;
-
     ToVersionConverter(uint32_t targetVersion)
         : ToVersionConverter<NextTo...>(targetVersion)
     { }
@@ -73,28 +77,43 @@ public:
     Status convert(const From& from, context::SData<S, PM>& ctx) noexcept
     {
         if (ctx.isAuxUsingHeapAllocation())
-        {
-            GenericPointerKeeper pointerKeeper;
-            if (!pointerKeeper.allocateAndConstruct<To, GenericAllocatorHelper<To, ConstructorNoexceptAllocator<To>>>(1))
-                return Status::kErrorNoMemory;
-
-            RUN(pointerKeeper.get<To>()->init(from));
-
-            if (pVersionsHierarchy[0] > getTargetVersion())
-                RUN(base_class::convert(*pointerKeeper.get<To>(), ctx))
-            else
-                RUN(DataProcessor::serializeDataLegacy(*pointerKeeper.get<To>(), ctx))
-        }
+            RUN(convertOnHeap(from, ctx))
         else
-        {
-            To to;
-            RUN(to.init(from));
+            RUN(convertOnStack(from, ctx))
 
-            if (pVersionsHierarchy[0] > getTargetVersion())
-                RUN(base_class::convert(to, ctx))
-            else
-                RUN(DataProcessor::serializeDataLegacy(to, ctx))
-        }
+        return Status::kNoError;
+    }
+
+protected:
+    using base_class = ToVersionConverter<NextTo...>;
+
+    template<typename From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    Status convertOnHeap(const From& from, context::SData<S, PM>& ctx) noexcept
+    {
+        GenericPointerKeeper pointerKeeper;
+        if (!pointerKeeper.allocateAndConstruct<To, GenericAllocatorHelper<To, ConstructorNoexceptAllocator<To>>>(1))
+            return Status::kErrorNoMemory;
+
+        RUN(pointerKeeper.get<To>()->init(from));
+
+        if (pVersionsHierarchy[0] > getTargetVersion())
+            RUN(base_class::convertOnHeap(*pointerKeeper.get<To>(), ctx))
+        else
+            RUN(DataProcessor::serializeDataLegacy(*pointerKeeper.get<To>(), ctx))
+
+            return Status::kNoError;
+    }
+
+    template<typename From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    Status convertOnStack(const From& from, context::SData<S, PM>& ctx) noexcept
+    {
+        To to;
+        RUN(to.init(from));
+
+        if (pVersionsHierarchy[0] > getTargetVersion())
+            RUN(base_class::convertOnStack(to, ctx))
+        else
+            RUN(DataProcessor::serializeDataLegacy(to, ctx))
 
         return Status::kNoError;
     }
@@ -119,18 +138,24 @@ public:
         return Status::kErrorInternal;
     }
 
+    constexpr uint32_t getTargetVersion() const noexcept { return m_targetVersion; }
+
+protected:
+    using base_class_from = Dummy; // placeholder
+
+    static constexpr const uint32_t pVersionsHierarchy[1] = { traits::kInterfaceVersionMax };
+
     template<typename From, typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-    Status convertToUpperVersion(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
+    Status convertToUpperVersionOnHeap(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
     {
         return Status::kErrorInternal;
     }
 
-    constexpr uint32_t getTargetVersion() const noexcept { return m_targetVersion; }
-
-    static constexpr const uint32_t pVersionsHierarchy[1] = { traits::kInterfaceVersionMax };
-
-protected:
-    using base_class_from = Dummy; // placeholder
+    template<typename From, typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    Status convertToUpperVersionOnStack(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
+    {
+        return Status::kErrorInternal;
+    }
 
 private:
     uint32_t m_targetVersion{ traits::kInterfaceVersionMax };
@@ -156,62 +181,84 @@ public:
         else
         {
             if (ctx.isAuxUsingHeapAllocation())
-            {
-                GenericPointerKeeper pointerKeeper;
-                if (!pointerKeeper.allocateAndConstruct<From, GenericAllocatorHelper<From, ConstructorNoexceptAllocator<From>>>(1))
-                    return Status::kErrorNoMemory;
-
-                RUN(DataProcessor::deserializeDataLegacy(ctx, *pointerKeeper.get<From>()));
-                RUN(convertToUpperVersion(*pointerKeeper.get<From>(), ctx, to));
-            }
+                RUN(convertOnHeap(ctx, to))
             else
-            {
-                From from;
-                RUN(DataProcessor::deserializeDataLegacy(ctx, from));
-                RUN(convertToUpperVersion(from, ctx, to));
-            }
+                RUN(convertOnStack(ctx, to))
         }
 
         return Status::kNoError;
     }
 
-    static constexpr const uint32_t* pVersionsHierarchy = From::kVersionsHierarchy;
-
 protected:
     using base_class = FromVersionConverter<NextFrom...>;
     using base_class_from = From;
 
+    static constexpr const uint32_t* pVersionsHierarchy = From::kVersionsHierarchy;
+
     template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-    Status convertToUpperVersion(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
+    Status convertOnHeap(context::DData<D, PM>& ctx, To& to) noexcept
+    {
+        GenericPointerKeeper pointerKeeper;
+        if (!pointerKeeper.allocateAndConstruct<From, GenericAllocatorHelper<From, ConstructorNoexceptAllocator<From>>>(1))
+            return Status::kErrorNoMemory;
+
+        RUN(DataProcessor::deserializeDataLegacy(ctx, *pointerKeeper.get<From>()));
+        RUN(convertToUpperVersionOnHeap(*pointerKeeper.get<From>(), ctx, to));
+
+        return Status::kNoError;
+    }
+
+    template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    Status convertOnStack(context::DData<D, PM>& ctx, To& to) noexcept
+    {
+        From from;
+        RUN(DataProcessor::deserializeDataLegacy(ctx, from));
+        RUN(convertToUpperVersionOnStack(from, ctx, to));
+
+        return Status::kNoError;
+    }
+
+    template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    Status convertToUpperVersionOnHeap(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
     {
         if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionMax)
         {
             using base_from = typename base_class::base_class_from;
 
-            if (ctx.isAuxUsingHeapAllocation())
-            {
-                GenericPointerKeeper pointerKeeper;
-                if (!pointerKeeper.allocateAndConstruct<base_from, GenericAllocatorHelper<base_from, ConstructorNoexceptAllocator<base_from>>>(1))
-                    return Status::kErrorNoMemory;
+            GenericPointerKeeper pointerKeeper;
+            if (!pointerKeeper.allocateAndConstruct<base_from, GenericAllocatorHelper<base_from, ConstructorNoexceptAllocator<base_from>>>(1))
+                return Status::kErrorNoMemory;
 
-                if constexpr (InitableBySpecialClass<To, base_from>)
-                    RUN(pointerKeeper.get<base_from>()->init(from))
-                else
-                    return Status::kErrorNoSuchHandler;
-
-                RUN(base_class::convertToUpperVersion(*pointerKeeper.get<base_from>(), ctx, to));
-            }
+            if constexpr (InitableBySpecialClass<To, base_from>)
+                RUN(pointerKeeper.get<base_from>()->init(from))
             else
-            {
-                base_from bFrom;
+                return Status::kErrorNoSuchHandler;
 
-                if constexpr (InitableBySpecialClass<To, base_from>)
-                    RUN(bFrom.init(from))
-                else
-                    return Status::kErrorNoSuchHandler;
+            RUN(base_class::convertToUpperVersionOnHeap(*pointerKeeper.get<base_from>(), ctx, to));
+        }
+        else if constexpr (InitableBySpecialClass<To, From>)
+            RUN(to.init(from))
+        else
+            return Status::kErrorNoSuchHandler;
 
-                RUN(base_class::convertToUpperVersion(bFrom, ctx, to));
-            }
+        return Status::kNoError;
+    }
+
+    template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    Status convertToUpperVersionOnStack(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
+    {
+        if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionMax)
+        {
+            using base_from = typename base_class::base_class_from;
+
+            base_from bFrom;
+
+            if constexpr (InitableBySpecialClass<To, base_from>)
+                RUN(bFrom.init(from))
+            else
+                return Status::kErrorNoSuchHandler;
+
+            RUN(base_class::convertToUpperVersionOnStack(bFrom, ctx, to));
         }
         else if constexpr (InitableBySpecialClass<To, From>)
             RUN(to.init(from))
