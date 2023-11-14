@@ -222,6 +222,7 @@ template<>
 void fillingStruct(ForAllFlagsTests1_Version0<>& output)
 {
     fillingStruct(output.getSaDs());
+
     fillingStruct(output.getDiamond());
     fillingStruct(output.getSptCs());
     fillingStruct(output.getSaaToStS());
@@ -234,6 +235,8 @@ template<>
 void fillingStruct(ForAllFlagsTests1_Version1<>& output)
 {
     fillingStruct(output.getSaS());
+    output.getI() = 185468;
+
     fillingStruct(output.getDiamond());
     fillingStruct(output.getSptCs());
     fillingStruct(output.getSaaToStS());
@@ -246,6 +249,7 @@ template<>
 void fillingStruct(ForAllFlagsTests1<>& output)
 {
     fillingStruct(output.getSaDs());
+
     fillingStruct(output.getDiamond());
     fillingStruct(output.getSptCs());
     fillingStruct(output.getSaaToStS());

@@ -28,7 +28,7 @@ add_executable(serialization_tests
     "Tests/Serialization/ISerializableInterfaceVersionsNotMatchTests.cpp"
     "Tests/Serialization/ISerializableBasicModeTests.cpp"
     "Tests/Serialization/ISerializableSizeOfArithmeticTypesMayBeNotEqualTests.cpp"
- )
+  "Tests/Serialization/ISerializableAllFlagsTests.cpp")
 target_compile_definitions(serialization_tests PRIVATE USER_MODE)
 add_subdirectory(TypesForTests)
 add_subdirectory(SerializableStructs/InterfaceForTest/Base)

@@ -36,8 +36,6 @@ struct TwoInts
     using simple_assignable_tag = std::true_type;
 };
 
-template<typename> class SimpleAssignableAlignedToOneSerializable_Version1;
-
 template<typename T = Dummy>
 class SimpleAssignableAlignedToOneSerializable_Version0 : public csp::ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version0<T>, T>>
 {
@@ -144,6 +142,9 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
+    template<typename T2>
+    Status init(const ForAllFlagsTests1_Version1<T2>& rhs);
+
     [[nodiscard]] SimpleAssignableDescendantSerializable<>& getSaDs()                                 noexcept { return m_saDs; }
     [[nodiscard]] const SimpleAssignableDescendantSerializable<>& getSaDs()                     const noexcept { return m_saDs; }
     [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
@@ -173,7 +174,6 @@ public:
     }
 
 private:
-    SimpleAssignableDescendantSerializable<> m_saDs;
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType1Serializable<> m_saaToStS;
@@ -181,7 +181,10 @@ private:
     SimilarType1Serializable<> m_stS;
     ManyPointersTypeSerializable<> m_mpt;
 
+    SimpleAssignableDescendantSerializable<> m_saDs;
+
     friend csp::processing::DataProcessor;
+    friend ForAllFlagsTests1_Version1;
 };
 
 template<typename T = Dummy>
@@ -193,6 +196,9 @@ public:
     static constexpr uint64_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+    template<typename T2>
+    Status init(const ForAllFlagsTests2_Version1<T2>& rhs);
 
     [[nodiscard]] SimpleAssignableDescendantSerializable<>& getSaDs()                                 noexcept { return m_saDs; }
     [[nodiscard]] const SimpleAssignableDescendantSerializable<>& getSaDs()                     const noexcept { return m_saDs; }
@@ -232,6 +238,7 @@ private:
     ManyPointersTypeSerializable<> m_mpt;
 
     friend csp::processing::DataProcessor;
+    friend ForAllFlagsTests2_Version1;
 };
 
 template<typename T = Dummy>
@@ -244,8 +251,16 @@ public:
     static constexpr uint32_t kInterfaceVersion = 1;
     static constexpr uint32_t kVersionsHierarchy[] = { 1, 0 };
 
+    template<typename T2>
+    Status init(const ForAllFlagsTests1_Version0<T2>& rhs);
+    template<typename T2>
+    Status init(const ForAllFlagsTests1<T2>& rhs);
+
     [[nodiscard]] SimpleAssignableSerializable<>& getSaS()                                            noexcept { return m_saS; }
     [[nodiscard]] const SimpleAssignableSerializable<>& getSaS()                                const noexcept { return m_saS; }
+    [[nodiscard]] int& getI()                                                                         noexcept { return m_i; }
+    [[nodiscard]] int getI()                                                                    const noexcept { return m_i; }
+
     [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
     [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
     [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
@@ -263,17 +278,16 @@ public:
     {
         return
                m_saS == rhs.m_saS
+            && m_i == rhs.m_i
             && m_diamond == rhs.m_diamond
             && m_sptCs == rhs.m_sptCs
             && m_saaToStS == rhs.m_saaToStS
             && m_saStS == rhs.m_saStS
             && m_stS == rhs.m_stS
             && m_mpt == rhs.m_mpt;
-
     }
 
 private:
-    SimpleAssignableSerializable<> m_saS;
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType1Serializable<> m_saaToStS;
@@ -281,8 +295,82 @@ private:
     SimilarType1Serializable<> m_stS;
     ManyPointersTypeSerializable<> m_mpt;
 
+    SimpleAssignableSerializable<> m_saS;
+    int m_i{ 0 }; // duplicated m_saDs.m_i
+
     friend csp::processing::DataProcessor;
+    friend ForAllFlagsTests1_Version0;
+    friend ForAllFlagsTests1;
 };
+
+template<typename T1>
+template<typename T2>
+Status ForAllFlagsTests1_Version0<T1>::init(const ForAllFlagsTests1_Version1<T2>& rhs)
+{
+    m_diamond = rhs.m_diamond;
+    m_sptCs = rhs.m_sptCs;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
+    m_mpt = rhs.m_mpt;
+
+    m_saDs = rhs.m_saS;
+    m_saDs.getI() += 1; // additional conversion
+
+    return Status;
+}
+
+template<typename T1>
+template<typename T2>
+Status ForAllFlagsTests1_Version1<T1>::init(const ForAllFlagsTests1_Version0<T2>& rhs)
+{
+    m_diamond = rhs.m_diamond;
+    m_sptCs = rhs.m_sptCs;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
+    m_mpt = rhs.m_mpt;
+
+    m_saS = rhs.m_saDs;
+    m_saS.getI() -= 1; // additional conversion
+    m_i = rhs.m_saDs.getI();
+}
+
+template<typename T1>
+template<typename T2>
+Status ForAllFlagsTests1_Version1<T1>::init(const ForAllFlagsTests1<T2>& rhs)
+{
+    m_diamond = rhs.m_diamond;
+    m_sptCs = rhs.m_sptCs;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
+    m_mpt = rhs.m_mpt;
+
+    m_saS = rhs.m_saDs;
+    m_saS.getI() += 1; // additional conversion
+    m_i = rhs.m_saDs.v;
+
+    return Status;
+}
+
+template<typename T1>
+template<typename T2>
+Status ForAllFlagsTests1<T1>::init(const ForAllFlagsTests1_Version1<T2>& rhs)
+{
+    m_diamond = rhs.m_diamond;
+    m_sptCs = rhs.m_sptCs;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
+    m_mpt = rhs.m_mpt;
+
+    m_saDs = rhs.m_saS;
+    m_saDs.getI() -= 1; // additional conversion
+    rhs.m_saDs.v = rhs.m_i;
+
+    return Status;
+}
 
 template<typename T = Dummy>
 class ForAllFlagsTests2_Version1 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests2_Version1<T>, T >>
@@ -294,8 +382,16 @@ public:
     static constexpr uint32_t kInterfaceVersion = 1;
     static constexpr uint32_t kVersionsHierarchy[] = { 1, 0 };
 
+    template<typename T2>
+    Status init(const ForAllFlagsTests2_Version0<T2>& rhs);
+    template<typename T2>
+    Status init(const ForAllFlagsTests2<T2>& rhs);
+
     [[nodiscard]] SimpleAssignableSerializable<>& getSaS()                                            noexcept { return m_saS; }
     [[nodiscard]] const SimpleAssignableSerializable<>& getSaS()                                const noexcept { return m_saS; }
+    [[nodiscard]] int& getI()                                                                         noexcept { return m_i; }
+    [[nodiscard]] int getI()                                                                    const noexcept { return m_i; }
+
     [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
     [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
     [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
@@ -313,17 +409,16 @@ public:
     {
         return
                m_saS == rhs.m_saS
+            && m_i == rhs.m_i
             && m_diamond == rhs.m_diamond
             && m_sptCs == rhs.m_sptCs
             && m_saaToStS == rhs.m_saaToStS
             && m_saStS == rhs.m_saStS
             && m_stS == rhs.m_stS
             && m_mpt == rhs.m_mpt;
-
     }
 
 private:
-    SimpleAssignableSerializable<> m_saS;
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToStS;
@@ -331,7 +426,83 @@ private:
     SimilarType2Serializable<> m_stS;
     ManyPointersTypeSerializable<> m_mpt;
 
+    SimpleAssignableSerializable<> m_saS;
+    int m_i{ 0 }; // duplicated m_saDs.m_i
+
     friend csp::processing::DataProcessor;
+    friend ForAllFlagsTests2_Version0;
+    friend ForAllFlagsTests2;
 };
+
+template<typename T1>
+template<typename T2>
+Status ForAllFlagsTests2_Version0<T1>::init(const ForAllFlagsTests2_Version1<T2>& rhs)
+{
+    m_diamond = rhs.m_diamond;
+    m_sptCs = rhs.m_sptCs;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
+    m_mpt = rhs.m_mpt;
+
+    m_saDs = rhs.m_saS;
+    m_saDs.getI() += 1; // additional conversion
+
+    return Status;
+}
+
+template<typename T1>
+template<typename T2>
+Status ForAllFlagsTests2_Version1<T1>::init(const ForAllFlagsTests2_Version0<T2>& rhs)
+{
+    m_diamond = rhs.m_diamond;
+    m_sptCs = rhs.m_sptCs;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
+    m_mpt = rhs.m_mpt;
+
+    m_saS = rhs.m_saDs;
+    m_saS.getI() -= 1; // additional conversion
+    m_i = rhs.m_saDs.getI();
+
+    return Status;
+}
+
+template<typename T1>
+template<typename T2>
+Status ForAllFlagsTests2_Version1<T1>::init(const ForAllFlagsTests2<T2>& rhs)
+{
+    m_diamond = rhs.m_diamond;
+    m_sptCs = rhs.m_sptCs;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
+    m_mpt = rhs.m_mpt;
+
+    m_saS = rhs.m_saDs;
+    m_saS.getI() += 1; // additional conversion
+    m_i = rhs.m_saDs.v;
+
+    return Status;
+}
+
+template<typename T1>
+template<typename T2>
+Status ForAllFlagsTests2<T1>::init(const ForAllFlagsTests2_Version1<T2>& rhs)
+{
+    m_diamond = rhs.m_diamond;
+    m_sptCs = rhs.m_sptCs;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
+    m_mpt = rhs.m_mpt;
+
+    m_saDs = rhs.m_saS;
+    m_saDs.getI() -= 1; // additional conversion
+    rhs.m_saDs.v = rhs.m_i;
+
+    return Status;
+}
 
 } // namespace special_types

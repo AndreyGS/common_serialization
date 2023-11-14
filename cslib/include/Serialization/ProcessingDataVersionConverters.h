@@ -62,8 +62,7 @@ private:
     uint32_t m_targetVersion{ traits::kInterfaceVersionMax };
 };
 
-
-template<typename To, typename... NextTo>
+template<serialization_concepts::IsISerializableBased To, typename... NextTo>
 class ToVersionConverter<To, NextTo...> : public ToVersionConverter<NextTo...>
 {
 public:
@@ -73,7 +72,7 @@ public:
 
     constexpr uint32_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
-    template<typename From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    template<serialization_concepts::IsISerializableBased From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     Status convert(const From& from, context::SData<S, PM>& ctx) noexcept
     {
         if (ctx.isAuxUsingHeapAllocation())
@@ -87,7 +86,7 @@ public:
 protected:
     using base_class = ToVersionConverter<NextTo...>;
 
-    template<typename From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    template<serialization_concepts::IsISerializableBased From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     Status convertOnHeap(const From& from, context::SData<S, PM>& ctx) noexcept
     {
         GenericPointerKeeper pointerKeeper;
@@ -104,7 +103,7 @@ protected:
             return Status::kNoError;
     }
 
-    template<typename From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
+    template<serialization_concepts::IsISerializableBased From, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     Status convertOnStack(const From& from, context::SData<S, PM>& ctx) noexcept
     {
         To to;
@@ -132,7 +131,7 @@ public:
         : m_targetVersion(targetVersion)
     { }
 
-    template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    template<serialization_concepts::IsISerializableBased To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     Status convert(context::DData<D, PM>& ctx, To& to) noexcept
     {
         return Status::kErrorInternal;
@@ -141,18 +140,18 @@ public:
     constexpr uint32_t getTargetVersion() const noexcept { return m_targetVersion; }
 
 protected:
-    using base_class_from = Dummy; // placeholder
+    using from_type = Dummy; // placeholder
 
     static constexpr const uint32_t pVersionsHierarchy[1] = { traits::kInterfaceVersionMax };
 
-    template<typename From, typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-    Status convertToUpperVersionOnHeap(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
+    template<serialization_concepts::IsISerializableBased To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    Status convertToUpperVersionOnHeap(const from_type& from, context::DData<D, PM>& ctx, To& to) noexcept
     {
         return Status::kErrorInternal;
     }
 
-    template<typename From, typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-    Status convertToUpperVersionOnStack(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
+    template<serialization_concepts::IsISerializableBased To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    Status convertToUpperVersionOnStack(const from_type& from, context::DData<D, PM>& ctx, To& to) noexcept
     {
         return Status::kErrorInternal;
     }
@@ -162,7 +161,7 @@ private:
 };
 
 
-template<typename From, typename... NextFrom>
+template<serialization_concepts::IsISerializableBased From, typename... NextFrom>
 class FromVersionConverter<From, NextFrom...> : public FromVersionConverter<NextFrom...>
 {
 public:
@@ -172,7 +171,7 @@ public:
 
     constexpr uint32_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
-    template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    template<serialization_concepts::IsISerializableBased To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     Status convert(context::DData<D, PM>& ctx, To& to) noexcept
     {
         // Skip versions that are older than serialized one
@@ -191,11 +190,11 @@ public:
 
 protected:
     using base_class = FromVersionConverter<NextFrom...>;
-    using base_class_from = From;
+    using from_type = From;
 
     static constexpr const uint32_t* pVersionsHierarchy = From::kVersionsHierarchy;
 
-    template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    template<serialization_concepts::IsISerializableBased To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     Status convertOnHeap(context::DData<D, PM>& ctx, To& to) noexcept
     {
         GenericPointerKeeper pointerKeeper;
@@ -208,7 +207,7 @@ protected:
         return Status::kNoError;
     }
 
-    template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    template<serialization_concepts::IsISerializableBased To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     Status convertOnStack(context::DData<D, PM>& ctx, To& to) noexcept
     {
         From from;
@@ -218,12 +217,12 @@ protected:
         return Status::kNoError;
     }
 
-    template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    template<serialization_concepts::IsISerializableBased To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     Status convertToUpperVersionOnHeap(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
     {
         if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionMax)
         {
-            using base_from = typename base_class::base_class_from;
+            using base_from = typename base_class::from_type;
 
             GenericPointerKeeper pointerKeeper;
             if (!pointerKeeper.allocateAndConstruct<base_from, GenericAllocatorHelper<base_from, ConstructorNoexceptAllocator<base_from>>>(1))
@@ -244,12 +243,12 @@ protected:
         return Status::kNoError;
     }
 
-    template<typename To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
+    template<serialization_concepts::IsISerializableBased To, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     Status convertToUpperVersionOnStack(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
     {
         if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionMax)
         {
-            using base_from = typename base_class::base_class_from;
+            using base_from = typename base_class::from_type;
 
             base_from bFrom;
 
