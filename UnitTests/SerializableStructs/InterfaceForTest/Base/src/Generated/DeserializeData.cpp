@@ -128,6 +128,8 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
     RUN(deserializeData(ctx, value.m_arrSaaToNS));
     RUN(deserializeData(ctx, value.m_arrSaNS));
 
+    RUN(deserializeData(ctx, value.m_vx));
+
     return Status::kNoError;
 }
 

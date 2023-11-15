@@ -71,8 +71,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr uint64_t kNameHash = 1;
-    static constexpr uint32_t kInterfaceVersion = 2;
-    static constexpr uint32_t kVersionsHierarchy[] = { 2, 1, 0 };
+    static constexpr uint32_t kInterfaceVersion = 3;
+    static constexpr uint32_t kVersionsHierarchy[] = { 3, 1, 0 };
 
     SimpleAssignableAlignedToOneSerializable() { }
     template<typename T2>
@@ -111,6 +111,9 @@ struct SimpleAssignableNotSerializable
     }
 };
 
+template<typename>
+class SimpleAssignableSerializable_Version0;
+
 template<typename T = Dummy>
 class SimpleAssignableSerializable : public csp::ISerializable<GetCrtpMainType<SimpleAssignableSerializable<T>, T>>
 {
@@ -120,12 +123,15 @@ public:
 
     static constexpr uint64_t kNameHash = 2;
     static constexpr uint32_t kInterfaceVersion = 2;         // latest version among all dependable structs
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
+
+    template<typename T2>
+    Status init(const SimpleAssignableSerializable_Version0<T2>& rhs);
 
     [[nodiscard]] uint8_t& getI()                                                                 noexcept { return m_i; }
-    [[nodiscard]] const uint8_t& getI()                                                     const noexcept { return m_i; }
+    [[nodiscard]] uint8_t getI()                                                            const noexcept { return m_i; }
     [[nodiscard]] uint16_t& getJ()                                                                noexcept { return m_j; }
-    [[nodiscard]] const uint16_t& getJ()                                                    const noexcept { return m_j; }
+    [[nodiscard]] uint16_t getJ()                                                           const noexcept { return m_j; }
     [[nodiscard]] SimpleAssignableAlignedToOneSerializable<>& getSaaToS()                         noexcept { return m_saaToS; }
     [[nodiscard]] const SimpleAssignableAlignedToOneSerializable<>& getSaaToS()             const noexcept { return m_saaToS; }
     [[nodiscard]] SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()                       noexcept { return m_saaToNS; }
@@ -148,6 +154,9 @@ public:
     [[nodiscard]] SimpleAssignableNotSerializable* getArrSaNS()                                   noexcept { return m_arrSaNS; }
     [[nodiscard]] const SimpleAssignableNotSerializable* getArrSaNS()                       const noexcept { return m_arrSaNS; }
 
+    [[nodiscard]] uint64_t& getVx()                                                               noexcept { return m_vx; }
+    [[nodiscard]] uint64_t getVx()                                                          const noexcept { return m_vx; }
+
     SimpleAssignableSerializable& operator=(const SimpleAssignableSerializable<>& rhs) noexcept
     {
         if (this == &rhs)
@@ -162,6 +171,8 @@ public:
         memcpy(m_arrSaaTos, rhs.m_arrSaaTos, getSizeOfArrI32());
         memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, getSizeOfArrI32());
         memcpy(m_arrSaNS, rhs.m_arrSaNS, sizeof(m_arrSaNS));
+
+        m_vx = rhs.m_vx;
 
         return *this;
     }
@@ -181,7 +192,10 @@ public:
 
             && m_arrSaNS[0] == rhs.m_arrSaNS[0]
             && m_arrSaNS[1] == rhs.m_arrSaNS[1]
-            && m_arrSaNS[2] == rhs.m_arrSaNS[2];
+            && m_arrSaNS[2] == rhs.m_arrSaNS[2]
+
+            && m_vx == rhs.m_vx
+            ;
     }
 
 private:
@@ -200,8 +214,14 @@ private:
     SimpleAssignableAlignedToOneNotSerializable m_arrSaaToNS[3]{};
     SimpleAssignableNotSerializable m_arrSaNS[3]{};
 
+    uint64_t m_vx{ 0 };
+
     friend csp::processing::DataProcessor;
+    friend SimpleAssignableSerializable_Version0;
 };
+
+template<typename>
+class SimpleAssignableDescendantSerializable_Version0;
 
 template<typename T = Dummy>
 struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializable<GetCrtpMainType<SimpleAssignableDescendantSerializable<T>, T>>
@@ -211,9 +231,23 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
 
     static constexpr uint64_t kNameHash = 3;
     static constexpr uint32_t kInterfaceVersion = 2;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
 
-    uint32_t v{ 0 };
+    uint32_t m_d{ 0 };
+
+    template<typename T2>
+    Status init(const SimpleAssignableDescendantSerializable_Version0<T2>& rhs);
+
+    SimpleAssignableDescendantSerializable& operator=(const SimpleAssignableDescendantSerializable<>& rhs) noexcept
+    {
+        if (this == &rhs)
+            return *this;
+
+        SimpleAssignableSerializable<>::operator=(rhs);
+        m_d = rhs.m_d;
+
+        return *this;
+    }
     
     [[nodiscard]] operator SimpleAssignableSerializable<>& () noexcept
     {
@@ -231,8 +265,11 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
     
     [[nodiscard]] bool operator==(const SimpleAssignableDescendantSerializable& rhs) const noexcept
     {
-        return v == rhs.v && SimpleAssignableSerializable<instance_type>::operator==(rhs);
+        return m_d == rhs.m_d && SimpleAssignableSerializable<instance_type>::operator==(rhs);
     }
+
+    friend csp::processing::DataProcessor;
+    friend SimpleAssignableDescendantSerializable_Version0;
 };
 
 class DynamicPolymorphicNotSerializable
@@ -692,7 +729,7 @@ private:
 };
 
 template<typename> 
-class ForAllFlagsTests1_Version1;
+class ForAllFlagsTests1_Version2;
 
 template<typename T = Dummy>
 class ForAllFlagsTests1 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests1<T>, T >>
@@ -705,7 +742,7 @@ public:
     static constexpr uint32_t kVersionsHierarchy[] = { 3, 1, 0 };
 
     template<typename T2>
-    Status init(const ForAllFlagsTests1_Version1<T2>& rhs);
+    Status init(const ForAllFlagsTests1_Version2<T2>& rhs);
 
     [[nodiscard]] SimpleAssignableDescendantSerializable<>& getSaDs()                                 noexcept { return m_saDs; }
     [[nodiscard]] const SimpleAssignableDescendantSerializable<>& getSaDs()                     const noexcept { return m_saDs; }
@@ -745,11 +782,11 @@ private:
     ManyPointersTypeSerializable<> m_mpt;
 
     friend csp::processing::DataProcessor;
-    friend ForAllFlagsTests1_Version1;
+    friend ForAllFlagsTests1_Version2;
 };
 
 template<typename> 
-class ForAllFlagsTests2_Version1;
+class ForAllFlagsTests2_Version2;
 
 // ForAllFlagsTests2 shall be used in deserialization of ForAllFlagsTests1, but only with sizeOfArithmeticTypesMayBeNotEqual flag set
 template<typename T = Dummy>
@@ -763,7 +800,7 @@ public:
     static constexpr uint32_t kVersionsHierarchy[] = { 3, 1, 0 };
 
     template<typename T2>
-    Status init(const ForAllFlagsTests2_Version1<T2>& rhs);
+    Status init(const ForAllFlagsTests2_Version2<T2>& rhs);
 
     [[nodiscard]] SimpleAssignableDescendantSerializable<>& getSaDs()                                 noexcept { return m_saDs; }
     [[nodiscard]] const SimpleAssignableDescendantSerializable<>& getSaDs()                     const noexcept { return m_saDs; }
@@ -804,7 +841,7 @@ private:
     SimpleAssignableDescendantSerializable<> m_saDs;
 
     friend csp::processing::DataProcessor;
-    friend ForAllFlagsTests2_Version1;
+    friend ForAllFlagsTests2_Version2;
 };
 
 } // namespace special_types

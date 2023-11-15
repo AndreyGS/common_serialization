@@ -41,6 +41,13 @@ void fillingStruct(SimpleAssignableAlignedToOneSerializable<>& output)
 }
 
 template<>
+void fillingStruct(SimpleAssignableAlignedToOneSerializable_Version0<>& output)
+{
+    output.m_ti.x = 17;
+    output.m_ti.y = 18654;
+}
+
+template<>
 void fillingStruct(SimpleAssignableNotSerializable& output)
 {
     output.q = 5;
@@ -68,13 +75,47 @@ void fillingStruct(SimpleAssignableSerializable<>& output)
     output.getArrSaNS()[1].w = 890;
     output.getArrSaNS()[2].q = 789;
     output.getArrSaNS()[2].w = 012;
+
+    output.getVx() = 8974;  // must be even (for tests)
+}
+
+template<>
+void fillingStruct(SimpleAssignableSerializable_Version0<>& output)
+{
+    output.getI() = 7;
+    output.getJ() = 8;
+
+    fillingStruct(output.getSaaToS());
+    fillingStruct(output.getSaaToNS());
+    fillingStruct(output.getSaNS());
+
+    memcpy(output.getArrI32(), "123456789012", output.getSizeOfArrI32());
+    memcpy(output.getArrSaaToS(), "00001000034000056", output.getSizeOfArrSaaToS());
+    memcpy(output.getArrSaaToNS(), "123456789", output.getSizeOfArrSaaToNS());
+
+    // we shouldn't memcpy array of SimpleAssignableNotSerializable cause its not aligned by one
+    output.getArrSaNS()[0].q = 123;
+    output.getArrSaNS()[0].w = 456;
+    output.getArrSaNS()[1].q = 567;
+    output.getArrSaNS()[1].w = 890;
+    output.getArrSaNS()[2].q = 789;
+    output.getArrSaNS()[2].w = 012;
+
+    output.getVt() = 46984;
+}
+
+template<>
+void fillingStruct(SimpleAssignableDescendantSerializable_Version0<>& output)
+{
+    fillingStruct<SimpleAssignableSerializable_Version0<>>(output);
+    output.m_d = 9;
 }
 
 template<>
 void fillingStruct(SimpleAssignableDescendantSerializable<>& output)
 {
     fillingStruct<SimpleAssignableSerializable<>>(output);
-    output.v = 9;
+    output.m_d = 9;
 }
 
 template<>
@@ -232,7 +273,7 @@ void fillingStruct(ForAllFlagsTests1_Version0<>& output)
 }
 
 template<>
-void fillingStruct(ForAllFlagsTests1_Version1<>& output)
+void fillingStruct(ForAllFlagsTests1_Version2<>& output)
 {
     fillingStruct(output.getSaS());
     output.getI() = 185468;

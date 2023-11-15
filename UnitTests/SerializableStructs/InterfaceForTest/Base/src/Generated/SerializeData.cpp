@@ -128,6 +128,8 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableSeriali
     RUN(serializeData(value.m_arrSaaToNS, ctx));
     RUN(serializeData(value.m_arrSaNS, ctx));
 
+    RUN(serializeData(value.m_vx, ctx));
+
     return Status::kNoError;
 }
 

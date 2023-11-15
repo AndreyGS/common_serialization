@@ -46,7 +46,7 @@ void cleanAfterStruct(ForAllFlagsTests1_Version0<>& output)
 }
 
 template<>
-void cleanAfterStruct(ForAllFlagsTests1_Version1<>& output)
+void cleanAfterStruct(ForAllFlagsTests1_Version2<>& output)
 {
     cleanAfterStruct(output.getSaS());
     cleanAfterStruct(output.getDiamond());
