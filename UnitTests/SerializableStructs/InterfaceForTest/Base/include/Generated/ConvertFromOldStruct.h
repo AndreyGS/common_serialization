@@ -40,6 +40,12 @@ Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::
     , uint32_t thisVersionCompat, special_types::SimpleAssignableAlignedToOneSerializable<>& value);
 template<>
 Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , uint32_t targetVersion, special_types::SimpleAssignableSerializable<>& value);
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , uint32_t targetVersion, special_types::SimpleAssignableDescendantSerializable<>& value);
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , uint32_t thisVersionCompat, special_types::ForAllFlagsTests1<>& value);
 template<>
 Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx

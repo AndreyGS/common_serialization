@@ -30,43 +30,43 @@ namespace special_types
 template<>
 void cleanAfterStruct(ManyPointersTypeSerializable<>& output)
 {
-    delete[] output.getPInt();
+    delete[] output.m_pInt;
 }
 
 template<>
 void cleanAfterStruct(ForAllFlagsTests1_Version0<>& output)
 {
-    cleanAfterStruct(output.getSaDs());
-    cleanAfterStruct(output.getDiamond());
-    cleanAfterStruct(output.getSptCs());
-    cleanAfterStruct(output.getSaaToStS());
-    cleanAfterStruct(output.getSaStS());
-    cleanAfterStruct(output.getStS());
-    cleanAfterStruct(output.getMpT());
+    cleanAfterStruct(output.m_saDs);
+    cleanAfterStruct(output.m_diamond);
+    cleanAfterStruct(output.m_sptCs);
+    cleanAfterStruct(output.m_saaToStS);
+    cleanAfterStruct(output.m_saStS);
+    cleanAfterStruct(output.m_stS);
+    cleanAfterStruct(output.m_mpt);
 }
 
 template<>
 void cleanAfterStruct(ForAllFlagsTests1_Version2<>& output)
 {
-    cleanAfterStruct(output.getSaS());
-    cleanAfterStruct(output.getDiamond());
-    cleanAfterStruct(output.getSptCs());
-    cleanAfterStruct(output.getSaaToStS());
-    cleanAfterStruct(output.getSaStS());
-    cleanAfterStruct(output.getStS());
-    cleanAfterStruct(output.getMpT());
+    cleanAfterStruct(output.m_saS);
+    cleanAfterStruct(output.m_diamond);
+    cleanAfterStruct(output.m_sptCs);
+    cleanAfterStruct(output.m_saaToStS);
+    cleanAfterStruct(output.m_saStS);
+    cleanAfterStruct(output.m_stS);
+    cleanAfterStruct(output.m_mpt);
 }
 
 template<>
 void cleanAfterStruct(ForAllFlagsTests1<>& output)
 {
-    cleanAfterStruct(output.getSaDs());
-    cleanAfterStruct(output.getDiamond());
-    cleanAfterStruct(output.getSptCs());
-    cleanAfterStruct(output.getSaaToStS());
-    cleanAfterStruct(output.getSaStS());
-    cleanAfterStruct(output.getStS());
-    cleanAfterStruct(output.getMpT());
+    cleanAfterStruct(output.m_saDs);
+    cleanAfterStruct(output.m_diamond);
+    cleanAfterStruct(output.m_sptCs);
+    cleanAfterStruct(output.m_saaToStS);
+    cleanAfterStruct(output.m_saStS);
+    cleanAfterStruct(output.m_stS);
+    cleanAfterStruct(output.m_mpt);
 }
 
 } // namespace special_types

@@ -135,6 +135,19 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
 
 template<>
 Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SimpleAssignableDescendantSerializable<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, static_cast<special_types::SimpleAssignableSerializable<>&>(value)));
+
+    RUN(deserializeData(ctx, value.m_d));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::DynamicPolymorphicNotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);

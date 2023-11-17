@@ -45,8 +45,9 @@ Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAl
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getThisVersion() != targetVersion);
 
-    ToVersionConverter<special_types::SimpleAssignableAlignedToOneSerializable_Version1<>
-                     , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>
+    ToVersionConverter<
+                        special_types::SimpleAssignableAlignedToOneSerializable_Version1<>
+                      , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>
     > convertTo(targetVersion);
 
     RUN(convertTo.convert(value, ctx));
@@ -54,17 +55,72 @@ Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAl
     return Status::kNoFurtherProcessingRequired;
 }
 
-/*
+template<>
+Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableSerializable<>& value
+    , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    // If value version is the same as targetVersion there is a programmatic error that we are here
+    assert(value.getThisVersion() != targetVersion);
+
+    ToVersionConverter<
+                        special_types::SimpleAssignableSerializable_Version0<>
+    > convertTo(targetVersion);
+
+    RUN(convertTo.convert(value, ctx));
+
+    return Status::kNoFurtherProcessingRequired;
+}
+
+template<>
+Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableDescendantSerializable<>& value
+    , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    // If value version is the same as targetVersion there is a programmatic error that we are here
+    assert(value.getThisVersion() != targetVersion);
+
+    ToVersionConverter<
+                        special_types::SimpleAssignableDescendantSerializable_Version0<>
+    > convertTo(targetVersion);
+
+    RUN(convertTo.convert(value, ctx));
+
+    return Status::kNoFurtherProcessingRequired;
+}
+
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::ForAllFlagsTests1<>& value
     , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
-    // If value version is the same as targetVersion there is a programmatic error
+    // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getThisVersion() != targetVersion);
 
+    ToVersionConverter<
+                        special_types::ForAllFlagsTests1_Version2<>
+                      , special_types::ForAllFlagsTests1_Version0<>
+    > convertTo(targetVersion);
+
+    RUN(convertTo.convert(value, ctx));
 
     return Status::kNoFurtherProcessingRequired;
-}*/
+}
+
+
+template<>
+Status DataProcessor::convertToOldStruct(const special_types::ForAllFlagsTests2<>& value
+    , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    // If value version is the same as targetVersion there is a programmatic error that we are here
+    assert(value.getThisVersion() != targetVersion);
+
+    ToVersionConverter<
+                        special_types::ForAllFlagsTests2_Version2<>
+                      , special_types::ForAllFlagsTests2_Version0<>
+    > convertTo(targetVersion);
+
+    RUN(convertTo.convert(value, ctx));
+
+    return Status::kNoFurtherProcessingRequired;
+}
 
 } // namespace processing
 

@@ -51,6 +51,10 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableSeriali
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
+Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+template<>
 Status DataProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 

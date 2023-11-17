@@ -134,6 +134,19 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableSeriali
 }
 
 template<>
+Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(static_cast<const special_types::SimpleAssignableSerializable<>&>(value), ctx));
+
+    RUN(serializeData(value.m_d, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
 Status DataProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
@@ -335,6 +348,40 @@ Status DataProcessor::serializeData(const special_types::ManyPointersTypeSeriali
     RUN(serializeData(value.m_intArr, ctx));
     RUN(serializeData(value.m_ppInt, ctx));
     RUN(serializeData(value.m_nullptrInt, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::ForAllFlagsTests1<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_saDs, ctx));
+    RUN(serializeData(value.m_diamond, ctx));
+    RUN(serializeData(value.m_sptCs, ctx));
+    RUN(serializeData(value.m_saaToStS, ctx));
+    RUN(serializeData(value.m_saStS, ctx));
+    RUN(serializeData(value.m_stS, ctx));
+    RUN(serializeData(value.m_mpt, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::ForAllFlagsTests2<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_saDs, ctx));
+    RUN(serializeData(value.m_diamond, ctx));
+    RUN(serializeData(value.m_sptCs, ctx));
+    RUN(serializeData(value.m_saaToStS, ctx));
+    RUN(serializeData(value.m_saStS, ctx));
+    RUN(serializeData(value.m_stS, ctx));
+    RUN(serializeData(value.m_mpt, ctx));
 
     return Status::kNoError;
 }

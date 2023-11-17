@@ -45,8 +45,75 @@ Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getThisVersion() != targetVersion);
 
-    FromVersionConverter<special_types::SimpleAssignableAlignedToOneSerializable_Version0<>
-                       , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>
+    FromVersionConverter<
+                          special_types::SimpleAssignableAlignedToOneSerializable_Version0<>
+                        , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>
+    > convertFrom(targetVersion);
+
+    RUN(convertFrom.convert(ctx, value));
+
+    return Status::kNoFurtherProcessingRequired;
+}
+
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , uint32_t targetVersion, special_types::SimpleAssignableSerializable<>& value)
+{
+    // If value version is the same as targetVersion there is a programmatic error that we are here
+    assert(value.getThisVersion() != targetVersion);
+
+    FromVersionConverter<
+                          special_types::SimpleAssignableSerializable_Version0<>
+    > convertFrom(targetVersion);
+
+    RUN(convertFrom.convert(ctx, value));
+
+    return Status::kNoFurtherProcessingRequired;
+}
+
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , uint32_t targetVersion, special_types::SimpleAssignableDescendantSerializable<>& value)
+{
+    // If value version is the same as targetVersion there is a programmatic error that we are here
+    assert(value.getThisVersion() != targetVersion);
+
+    FromVersionConverter<
+                          special_types::SimpleAssignableDescendantSerializable_Version0<>
+    > convertFrom(targetVersion);
+
+    RUN(convertFrom.convert(ctx, value));
+
+    return Status::kNoFurtherProcessingRequired;
+}
+
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , uint32_t targetVersion, special_types::ForAllFlagsTests1<>& value)
+{
+    // If value version is the same as targetVersion there is a programmatic error that we are here
+    assert(value.getThisVersion() != targetVersion);
+
+    FromVersionConverter<
+                          special_types::ForAllFlagsTests1_Version2<>
+                        , special_types::ForAllFlagsTests1_Version0<>
+    > convertFrom(targetVersion);
+
+    RUN(convertFrom.convert(ctx, value));
+
+    return Status::kNoFurtherProcessingRequired;
+}
+
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , uint32_t targetVersion, special_types::ForAllFlagsTests2<>& value)
+{
+    // If value version is the same as targetVersion there is a programmatic error that we are here
+    assert(value.getThisVersion() != targetVersion);
+
+    FromVersionConverter<
+                          special_types::ForAllFlagsTests2_Version2<>
+                        , special_types::ForAllFlagsTests2_Version0<>
     > convertFrom(targetVersion);
 
     RUN(convertFrom.convert(ctx, value));

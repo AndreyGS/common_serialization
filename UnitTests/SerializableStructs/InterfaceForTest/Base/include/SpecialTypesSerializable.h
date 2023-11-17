@@ -78,17 +78,21 @@ public:
     template<typename T2>
     Status init(const SimpleAssignableAlignedToOneSerializable_Version1<T2>& rhs);
 
-    [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
-    [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
-    [[nodiscard]] uint8_t& getY()                 noexcept { return m_y; }
-    [[nodiscard]] const uint8_t& getY()     const noexcept { return m_y; }
+    SimpleAssignableAlignedToOneSerializable& operator=(const SimpleAssignableAlignedToOneSerializable& rhs) noexcept
+    {
+        if (this == &rhs)
+            return *this;
+
+        m_x = rhs.m_x, m_y = rhs.m_y;
+
+        return *this;
+    }
 
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable& rhs) const noexcept
     {
         return m_x == rhs.m_x && m_y == rhs.m_y;
     }
 
-private:
     uint8_t m_x{ 0 };
     uint8_t m_y{ 0 };
 
@@ -128,35 +132,6 @@ public:
     template<typename T2>
     Status init(const SimpleAssignableSerializable_Version0<T2>& rhs);
 
-    [[nodiscard]] uint8_t& getI()                                                                 noexcept { return m_i; }
-    [[nodiscard]] uint8_t getI()                                                            const noexcept { return m_i; }
-    [[nodiscard]] uint16_t& getJ()                                                                noexcept { return m_j; }
-    [[nodiscard]] uint16_t getJ()                                                           const noexcept { return m_j; }
-    [[nodiscard]] SimpleAssignableAlignedToOneSerializable<>& getSaaToS()                         noexcept { return m_saaToS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSerializable<>& getSaaToS()             const noexcept { return m_saaToS; }
-    [[nodiscard]] SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()                       noexcept { return m_saaToNS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()           const noexcept { return m_saaToNS; }
-    [[nodiscard]] SimpleAssignableNotSerializable& getSaNS()                                      noexcept { return m_saNS; }
-    [[nodiscard]] const SimpleAssignableNotSerializable& getSaNS()                          const noexcept { return m_saNS; }
-
-    [[nodiscard]] uint32_t* getArrI32()                                                           noexcept { return m_arrI32; }
-    [[nodiscard]] const uint32_t* getArrI32()                                               const noexcept { return m_arrI32; }
-    [[nodiscard]] size_t getSizeOfArrI32()                                                  const noexcept { return sizeof(m_arrI32); }
-
-    [[nodiscard]] SimpleAssignableAlignedToOneSerializable<>* getArrSaaToS()                      noexcept { return m_arrSaaTos; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSerializable<>* getArrSaaToS()          const noexcept { return m_arrSaaTos; }
-    [[nodiscard]] size_t getSizeOfArrSaaToS()                                               const noexcept { return sizeof(m_arrSaaTos); }
-
-    [[nodiscard]] SimpleAssignableAlignedToOneNotSerializable* getArrSaaToNS()                    noexcept { return m_arrSaaToNS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneNotSerializable* getArrSaaToNS()        const noexcept { return m_arrSaaToNS; }
-    [[nodiscard]] size_t getSizeOfArrSaaToNS()                                              const noexcept { return sizeof(m_arrSaaToNS); }
-
-    [[nodiscard]] SimpleAssignableNotSerializable* getArrSaNS()                                   noexcept { return m_arrSaNS; }
-    [[nodiscard]] const SimpleAssignableNotSerializable* getArrSaNS()                       const noexcept { return m_arrSaNS; }
-
-    [[nodiscard]] uint64_t& getVx()                                                               noexcept { return m_vx; }
-    [[nodiscard]] uint64_t getVx()                                                          const noexcept { return m_vx; }
-
     SimpleAssignableSerializable& operator=(const SimpleAssignableSerializable<>& rhs) noexcept
     {
         if (this == &rhs)
@@ -167,9 +142,9 @@ public:
         m_saaToS = rhs.m_saaToS;
         m_saaToNS = rhs.m_saaToNS;
         m_saNS = rhs.m_saNS;
-        memcpy(m_arrI32, rhs.m_arrI32, getSizeOfArrI32());
-        memcpy(m_arrSaaTos, rhs.m_arrSaaTos, getSizeOfArrI32());
-        memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, getSizeOfArrI32());
+        memcpy(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32));
+        memcpy(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos));
+        memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS));
         memcpy(m_arrSaNS, rhs.m_arrSaNS, sizeof(m_arrSaNS));
 
         m_vx = rhs.m_vx;
@@ -186,9 +161,9 @@ public:
             && m_saaToNS == rhs.m_saaToNS
             && m_saNS == rhs.m_saNS
 
-            && memcmp(m_arrI32, rhs.m_arrI32, getSizeOfArrI32()) == 0
-            && memcmp(m_arrSaaTos, rhs.m_arrSaaTos, getSizeOfArrSaaToS()) == 0
-            && memcmp(m_arrSaaToNS, rhs.m_arrSaaToNS, getSizeOfArrSaaToNS()) == 0
+            && memcmp(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32)) == 0
+            && memcmp(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos)) == 0
+            && memcmp(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS)) == 0
 
             && m_arrSaNS[0] == rhs.m_arrSaNS[0]
             && m_arrSaNS[1] == rhs.m_arrSaNS[1]
@@ -198,7 +173,6 @@ public:
             ;
     }
 
-private:
     uint8_t m_i{ 0 };
     uint16_t m_j{ 0 };
     EmptyTypeSerializable<> m_et;
@@ -281,18 +255,11 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-    [[nodiscard]] uint8_t& getR()                 noexcept { return m_r; }    // getters here are only need for testing proposes
-    [[nodiscard]] const uint8_t& getR()     const noexcept { return m_r; }    // (not required for serialization itself)
-    [[nodiscard]] uint8_t* getArrR()                 noexcept { return m_arrR; }
-    [[nodiscard]] const uint8_t* getArrR()     const noexcept { return m_arrR; }
-    [[nodiscard]] size_t getSizeOfArrR()       const noexcept { return sizeof(m_arrR); }
-
     [[nodiscard]] bool operator==(const DynamicPolymorphicNotSerializable& rhs) const noexcept
     {
         return m_r == rhs.m_r && memcmp(m_arrR, rhs.m_arrR, sizeof(m_arrR)) == 0;
     }
 
-private:
     uint8_t m_r{ 0 };
     uint8_t m_arrR[3]{ 0 };
 
@@ -311,17 +278,6 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-    [[nodiscard]] uint8_t& getO()                 noexcept { return m_o; }    // getters here are only need for testing proposes
-    [[nodiscard]] const uint8_t& getO()     const noexcept { return m_o; }    // (not required for serialization itself)
-    [[nodiscard]] uint8_t* getArrO()                 noexcept { return m_arrO; }
-    [[nodiscard]] const uint8_t* getArrO()     const noexcept { return m_arrO; }
-    [[nodiscard]] size_t getSizeOfArrO()       const noexcept { return sizeof(m_arrO); }
-
-    [[nodiscard]] DynamicPolymorphicNotSerializable& getDpNS()                 noexcept { return m_dpNS; }
-    [[nodiscard]] const DynamicPolymorphicNotSerializable& getDpNS()     const noexcept { return m_dpNS; }
-    [[nodiscard]] DynamicPolymorphicNotSerializable* getArrDpNS()              noexcept { return m_arrDpNS; }
-    [[nodiscard]] const DynamicPolymorphicNotSerializable* getArrDpNS()  const noexcept { return m_arrDpNS; }
-
     [[nodiscard]] bool operator==(const DynamicPolymorphicSerializable& rhs) const noexcept
     {
         return 
@@ -333,7 +289,6 @@ public:
             && m_arrDpNS[2] == rhs.m_arrDpNS[2];
     }
 
-private:
     uint8_t m_o{ 0 };
     DynamicPolymorphicNotSerializable m_dpNS{};
 
@@ -407,7 +362,6 @@ public:
         return m_d0 == rhs.m_d0 && m_d1 == rhs.m_d1 && m_d2 == rhs.m_d2;
     }
 
-private:
     friend csp::processing::DataProcessor;
 };
 
@@ -420,20 +374,6 @@ public:
     static constexpr uint64_t kNameHash = 9;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
-
-    [[nodiscard]] Vector<DiamondSerializable<>>& getVec()                 noexcept { return m_vec; }    // getters here are only need for testing proposes
-    [[nodiscard]] const Vector<DiamondSerializable<>>& getVec()     const noexcept { return m_vec; }    // (not required for serialization itself)
-
-    [[nodiscard]] SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()                       noexcept { return m_saaToNS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()           const noexcept { return m_saaToNS; }
-    [[nodiscard]] SimpleAssignableNotSerializable& getSaNS()                                      noexcept { return m_saNS; }
-    [[nodiscard]] const SimpleAssignableNotSerializable& getSaNS()                          const noexcept { return m_saNS; }
-    [[nodiscard]] Vector<DiamondSerializable<>>*& getPVec()                                       noexcept { return m_pVec; }
-    [[nodiscard]] const Vector<DiamondSerializable<>>*& getPVec()                           const noexcept { return m_pVec; }
-    [[nodiscard]] const int*& getPInt()                                                           noexcept { return m_pInt; }
-    [[nodiscard]] const int* const & getPInt()                                              const noexcept { return m_pInt; }
-    [[nodiscard]] const int**& getPpInt()                                                         noexcept { return m_ppInt; }
-    [[nodiscard]] const int* const *& getPpInt()                                            const noexcept { return m_ppInt; }
 
     SpecialProcessingTypeContainSerializable& operator=(const SpecialProcessingTypeContainSerializable<>& rhs)
     {
@@ -460,7 +400,6 @@ public:
             && **m_ppInt == **m_ppInt;
     }
 
-private:
     Vector<DiamondSerializable<>> m_vec;
     SimpleAssignableAlignedToOneNotSerializable m_saaToNS;
     SimpleAssignableNotSerializable m_saNS;
@@ -485,13 +424,6 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
-    [[nodiscard]] char getJ()           const noexcept { return m_j; }
-
-    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
-    [[nodiscard]] int  getK()           const noexcept { return m_k; }
-
-private:
     char m_j{ 0 };
     int m_k{ 0 };
 
@@ -509,14 +441,6 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-    
-    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
-    [[nodiscard]] char getJ()           const noexcept { return m_j; }
-    
-    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
-    [[nodiscard]] int  getK()           const noexcept { return m_k; }
-
-private:
     char m_j{ 0 };
     short m_k{ 0 };
 
@@ -536,13 +460,6 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
-    [[nodiscard]] char getJ()           const noexcept { return m_j; }
-
-    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
-    [[nodiscard]] int  getK()           const noexcept { return m_k; }
-
-private:
     char m_j{ 0 };
     int m_k{ 0 };
 
@@ -560,14 +477,6 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-
-    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
-    [[nodiscard]] char getJ()           const noexcept { return m_j; }
-
-    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
-    [[nodiscard]] int  getK()           const noexcept { return m_k; }
-
-private:
     char m_j{ 0 };
     short m_k{ 0 };
 
@@ -584,13 +493,6 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
-    [[nodiscard]] char getJ()           const noexcept { return m_j; }
-
-    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
-    [[nodiscard]] int  getK()           const noexcept { return m_k; }
-
-private:
     char m_j{ 0 };
     int m_k{ 0 };
 
@@ -607,14 +509,6 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-
-    [[nodiscard]] void setJ(char j)           noexcept { m_j = j; }
-    [[nodiscard]] char getJ()           const noexcept { return m_j; }
-
-    [[nodiscard]] void setK(int k)            noexcept { m_k = k; }
-    [[nodiscard]] int  getK()           const noexcept { return m_k; }
-
-private:
     char m_j{ 0 };
     short m_k{ 0 };
 
@@ -646,27 +540,6 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
-    [[nodiscard]] Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>& getVec()                                   noexcept { return m_vec; }    // getters here are only need for testing proposes
-    [[nodiscard]] const Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>& getVec()                       const noexcept { return m_vec; }    // (not required for serialization itself)
-    [[nodiscard]] Vector<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*, StrategicRawNoexceptAllocatorHelper<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*>>&                              
-        getVecRec()        noexcept { return m_vecRecursive; }
-    [[nodiscard]] const Vector<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*, StrategicRawNoexceptAllocatorHelper<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*>>&
-        getVecRec()  const noexcept { return m_vecRecursive; }
-    [[nodiscard]] Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*& getPVec()                                 noexcept { return m_pVec; }
-    [[nodiscard]] const Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*& getPVec()                     const noexcept { return m_pVec; }
-
-    [[nodiscard]] RecursiveTestSpecial1& getRTSpec1()                                             noexcept { return m_rtSpec1; }
-    [[nodiscard]] const RecursiveTestSpecial1& getRTSpec1()                                 const noexcept { return m_rtSpec1; }
-    [[nodiscard]] RecursiveTestSpecial2& getRTSpec2()                                             noexcept { return m_rtSpec2; }
-    [[nodiscard]] const RecursiveTestSpecial2& getRTSpec2()                                 const noexcept { return m_rtSpec2; }
-
-    [[nodiscard]] int*& getPInt()                                                                 noexcept { return m_pInt; }
-    [[nodiscard]] const int* const& getPInt()                                               const noexcept { return m_pInt; }
-    [[nodiscard]] int* getIntArr()                                                                noexcept { return m_intArr; }
-    [[nodiscard]] const int* const getIntArr()                                              const noexcept { return m_intArr; }
-    [[nodiscard]] int**& getPpInt()                                                               noexcept { return m_ppInt; }
-    [[nodiscard]] const int* const*& getPpInt()                                             const noexcept { return m_ppInt; }
-
     ManyPointersTypeSerializable& operator=(const ManyPointersTypeSerializable<>& rhs)
     {
         if (this == &rhs)
@@ -679,7 +552,7 @@ public:
         m_rtSpec2 = rhs.m_rtSpec2;
         
         m_pInt = rhs.m_pInt;
-        m_intArr = rhs.m_intArr;
+        memcpy(m_intArr, rhs.m_intArr, sizeof(m_intArr));
         m_ppInt = rhs.m_ppInt;
         m_nullptrInt = rhs.m_nullptrInt;
 
@@ -695,6 +568,7 @@ public:
             && *(*m_vecRecursive[0])[0] == *(*rhs.m_vecRecursive[0])[0]
             && *(*m_vecRecursive[0])[1] == *(*rhs.m_vecRecursive[0])[1]
             && *(*m_vecRecursive[0])[2] == *(*rhs.m_vecRecursive[0])[2]
+            && m_vecRecursive[1] == rhs.m_vecRecursive[1] // must by nullptr
             && *(*m_pVec)[0] == *(*rhs.m_pVec)[0]
             && *(*m_pVec)[1] == *(*rhs.m_pVec)[1]
             && *(*m_pVec)[2] == *(*rhs.m_pVec)[2]
@@ -712,7 +586,6 @@ public:
             && m_nullptrInt == nullptr;
     }
 
-private:
     Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>> m_vec;
     Vector<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*, StrategicRawNoexceptAllocatorHelper<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*>> m_vecRecursive;
     Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>* m_pVec;
@@ -744,21 +617,6 @@ public:
     template<typename T2>
     Status init(const ForAllFlagsTests1_Version2<T2>& rhs);
 
-    [[nodiscard]] SimpleAssignableDescendantSerializable<>& getSaDs()                                 noexcept { return m_saDs; }
-    [[nodiscard]] const SimpleAssignableDescendantSerializable<>& getSaDs()                     const noexcept { return m_saDs; }
-    [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
-    [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
-    [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
-    [[nodiscard]] const SpecialProcessingTypeContainSerializable<>& getSptCs()                  const noexcept { return m_sptCs; }
-    [[nodiscard]] SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()               noexcept { return m_saaToStS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()   const noexcept { return m_saaToStS; }
-    [[nodiscard]] SimpleAssignableSimilarType1Serializable<>& getSaStS()                              noexcept { return m_saStS; }
-    [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
-    [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
-    [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
-    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                            noexcept { return m_mpt; }
-    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                const noexcept { return m_mpt; }
-
     [[nodiscard]] bool operator==(const ForAllFlagsTests1<>& rhs) const noexcept
     {
         return
@@ -772,7 +630,6 @@ public:
 
     }
 
-private:
     SimpleAssignableDescendantSerializable<> m_saDs;
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
@@ -802,21 +659,6 @@ public:
     template<typename T2>
     Status init(const ForAllFlagsTests2_Version2<T2>& rhs);
 
-    [[nodiscard]] SimpleAssignableDescendantSerializable<>& getSaDs()                                 noexcept { return m_saDs; }
-    [[nodiscard]] const SimpleAssignableDescendantSerializable<>& getSaDs()                     const noexcept { return m_saDs; }
-    [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
-    [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
-    [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
-    [[nodiscard]] const SpecialProcessingTypeContainSerializable<>& getSptCs()                  const noexcept { return m_sptCs; }
-    [[nodiscard]] SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()               noexcept { return m_saaToStS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()   const noexcept { return m_saaToStS; }
-    [[nodiscard]] SimpleAssignableSimilarType1Serializable<>& getSaStS()                              noexcept { return m_saStS; }
-    [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
-    [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
-    [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
-    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                            noexcept { return m_mpt; }
-    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                const noexcept { return m_mpt; }
-
     [[nodiscard]] bool operator==(const ForAllFlagsTests1<>& rhs) const noexcept
     {
         return
@@ -830,7 +672,6 @@ public:
 
     }
 
-private:
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToStS;

@@ -37,9 +37,26 @@ namespace processing
 template<>
 Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
-
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableSerializable_Version0<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableDescendantSerializable_Version0<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::ForAllFlagsTests1_Version0<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::ForAllFlagsTests2_Version0<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 template<>
 Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::ForAllFlagsTests1_Version2<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+template<>
+Status DataProcessor::serializeDataLegacy(const special_types::ForAllFlagsTests2_Version2<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 
 } // namespace processing

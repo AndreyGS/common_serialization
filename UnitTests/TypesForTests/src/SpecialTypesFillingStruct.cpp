@@ -36,8 +36,8 @@ void fillingStruct(SimpleAssignableAlignedToOneNotSerializable& output)
 template<>
 void fillingStruct(SimpleAssignableAlignedToOneSerializable<>& output)
 {
-    output.getX() = 3;
-    output.getY() = 4;
+    output.m_x = 3;
+    output.m_y = 4;
 }
 
 template<>
@@ -57,51 +57,51 @@ void fillingStruct(SimpleAssignableNotSerializable& output)
 template<>
 void fillingStruct(SimpleAssignableSerializable<>& output)
 {
-    output.getI() = 7;
-    output.getJ() = 8;
+    output.m_i = 7;
+    output.m_j = 8;
 
-    fillingStruct(output.getSaaToS());
-    fillingStruct(output.getSaaToNS());
-    fillingStruct(output.getSaNS());
+    fillingStruct(output.m_saaToS);
+    fillingStruct(output.m_saaToNS);
+    fillingStruct(output.m_saNS);
 
-    memcpy(output.getArrI32(), "123456789012", output.getSizeOfArrI32());
-    memcpy(output.getArrSaaToS(), "00001000034000056", output.getSizeOfArrSaaToS());
-    memcpy(output.getArrSaaToNS(), "123456789", output.getSizeOfArrSaaToNS());
+    memcpy(output.m_arrI32, "123456789012", sizeof(output.m_arrI32));
+    memcpy(output.m_arrSaaTos, "00001000034000056", sizeof(output.m_arrSaaTos));
+    memcpy(output.m_arrSaaToNS, "123456789", sizeof(output.m_arrSaaToNS));
 
     // we shouldn't memcpy array of SimpleAssignableNotSerializable cause its not aligned by one
-    output.getArrSaNS()[0].q = 123;
-    output.getArrSaNS()[0].w = 456;
-    output.getArrSaNS()[1].q = 567;
-    output.getArrSaNS()[1].w = 890;
-    output.getArrSaNS()[2].q = 789;
-    output.getArrSaNS()[2].w = 012;
+    output.m_arrSaNS[0].q = 123;
+    output.m_arrSaNS[0].w = 456;
+    output.m_arrSaNS[1].q = 567;
+    output.m_arrSaNS[1].w = 890;
+    output.m_arrSaNS[2].q = 789;
+    output.m_arrSaNS[2].w = 012;
 
-    output.getVx() = 8974;  // must be even (for tests)
+    output.m_vx = 8974;  // must be even (for tests)
 }
 
 template<>
 void fillingStruct(SimpleAssignableSerializable_Version0<>& output)
 {
-    output.getI() = 7;
-    output.getJ() = 8;
+    output.m_i = 7;
+    output.m_j = 8;
 
-    fillingStruct(output.getSaaToS());
-    fillingStruct(output.getSaaToNS());
-    fillingStruct(output.getSaNS());
+    fillingStruct(output.m_saaToS);
+    fillingStruct(output.m_saaToNS);
+    fillingStruct(output.m_saNS);
 
-    memcpy(output.getArrI32(), "123456789012", output.getSizeOfArrI32());
-    memcpy(output.getArrSaaToS(), "00001000034000056", output.getSizeOfArrSaaToS());
-    memcpy(output.getArrSaaToNS(), "123456789", output.getSizeOfArrSaaToNS());
+    memcpy(output.m_arrI32, "123456789012", sizeof(output.m_arrI32));
+    memcpy(output.m_arrSaaTos, "00001000034000056", sizeof(output.m_arrSaaTos));
+    memcpy(output.m_arrSaaToNS, "123456789", sizeof(output.m_arrSaaToNS));
 
     // we shouldn't memcpy array of SimpleAssignableNotSerializable cause its not aligned by one
-    output.getArrSaNS()[0].q = 123;
-    output.getArrSaNS()[0].w = 456;
-    output.getArrSaNS()[1].q = 567;
-    output.getArrSaNS()[1].w = 890;
-    output.getArrSaNS()[2].q = 789;
-    output.getArrSaNS()[2].w = 012;
+    output.m_arrSaNS[0].q = 123;
+    output.m_arrSaNS[0].w = 456;
+    output.m_arrSaNS[1].q = 567;
+    output.m_arrSaNS[1].w = 890;
+    output.m_arrSaNS[2].q = 789;
+    output.m_arrSaNS[2].w = 012;
 
-    output.getVt() = 46984;
+    output.m_vt = 46984;
 }
 
 template<>
@@ -121,24 +121,24 @@ void fillingStruct(SimpleAssignableDescendantSerializable<>& output)
 template<>
 void fillingStruct(DynamicPolymorphicNotSerializable& output)
 {
-    output.getR() = 10;
-    memcpy(output.getArrR(), "abc", output.getSizeOfArrR());
+    output.m_r = 10;
+    memcpy(output.m_arrR, "abc", sizeof(output.m_arrR));
 }
 
 template<>
 void fillingStruct(DynamicPolymorphicSerializable<>& output)
 {
-    output.getO() = 11;
-    fillingStruct(output.getDpNS());
+    output.m_o = 11;
+    fillingStruct(output.m_dpNS);
 
-    memcpy(output.getArrO(), "def", output.getSizeOfArrO());
+    memcpy(output.m_arrO, "def", sizeof(output.m_arrO));
 
-    fillingStruct(*output.getArrDpNS());
+    fillingStruct(*output.m_arrDpNS);
 
-    output.getArrDpNS()[1].getR() = 12;
-    memcpy(output.getArrDpNS()[1].getArrR(), "ghi", output.getArrDpNS()[1].getSizeOfArrR());
-    output.getArrDpNS()[2].getR() = 13;
-    memcpy(output.getArrDpNS()[2].getArrR(), "jkl", output.getArrDpNS()[2].getSizeOfArrR());
+    output.m_arrDpNS[1].m_r = 12;
+    memcpy(output.m_arrDpNS[1].m_arrR, "ghi", sizeof(output.m_arrDpNS[1].m_arrR));
+    output.m_arrDpNS[2].m_r = 13;
+    memcpy(output.m_arrDpNS[2].m_arrR, "jkl", sizeof(output.m_arrDpNS[2].m_arrR));
 }
 
 template<>
@@ -173,67 +173,67 @@ void fillingStruct(SpecialProcessingTypeContainSerializable<>& output)
 {
     DiamondSerializable ds1;
     fillingStruct(ds1);
-    output.getVec().pushBack(ds1);
+    output.m_vec.pushBack(ds1);
 
     DiamondSerializable ds2;
     ds2.m_d0 = 23;
     ds2.m_d0 = 24;
     ds2.m_d0 = 25;
 
-    output.getVec().pushBack(ds2);
-    fillingStruct(output.getSaaToNS());
-    fillingStruct(output.getSaNS());
+    output.m_vec.pushBack(ds2);
+    fillingStruct(output.m_saaToNS);
+    fillingStruct(output.m_saNS);
 
-    output.getPVec() = new Vector<DiamondSerializable<>>;
-    *output.getPVec() = output.getVec();
-    output.getPInt() = new int;
-    *const_cast<int*&>(output.getPInt()) = 64984561;
+    output.m_pVec = new Vector<DiamondSerializable<>>;
+    *output.m_pVec = output.m_vec;
+    output.m_pInt = new int;
+    *const_cast<int*&>(output.m_pInt) = 64984561;
 
-    output.getPpInt() = new const int*;
-    *output.getPpInt() = new int;
-    **const_cast<int**&>(output.getPpInt()) = 548505248;
+    output.m_ppInt = new const int*;
+    *output.m_ppInt = new int;
+    **const_cast<int**&>(output.m_ppInt) = 548505248;
 }
 
 template<>
 void fillingStruct(SimpleAssignableAlignedToOneSimilarType1Serializable<>& output)
 {
-    output.setJ(99);
-    output.setK(98352739);
+    output.m_j = 99;
+    output.m_k = 98352739;
 }
 
 template<>
 void fillingStruct(SimpleAssignableAlignedToOneSimilarType2Serializable<>& output)
 {
-    output.setJ(100);
-    output.setK(15456);
+    output.m_j = 100;
+    output.m_k = 15456;
 }
 
 template<>
 void fillingStruct(SimpleAssignableSimilarType1Serializable<>& output)
 {
-    output.setJ(101);
-    output.setK(8582727);
+    output.m_j = 101;
+    output.m_k = 8582727;
 }
 
 template<>
 void fillingStruct(SimpleAssignableSimilarType2Serializable<>& output)
 {
-    output.setJ(100);
-    output.setK(8374);
+    output.m_j = 102;
+    output.m_k = 8374;
 }
 
 template<>
 void fillingStruct(SimilarType1Serializable<>& output)
 {
-    output.setJ(101);
-    output.setK(8582727);
+    output.m_j = 103;
+    output.m_k = 8582727;
 }
 
 template<>
 void fillingStruct(SimilarType2Serializable<>& output)
 {
-    output.setJ(100);
-    output.setK(8374);
+    output.m_j = 104;
+    output.m_k = 8374;
 }
 
 template<>
@@ -245,58 +245,59 @@ void fillingStruct(ManyPointersTypeSerializable<>& output)
     vec.pushBack(pInt + 1);
     vec.pushBack(pInt + 2);
 
-    output.getVec() = vec;
-    output.getVecRec().pushBack(&output.getVec());
-    output.getPVec() = &output.getVec();
+    output.m_vec = vec;
+    output.m_vecRecursive.pushBack(&output.m_vec);
+    output.m_vecRecursive.pushBack(nullptr);
+    output.m_pVec = &output.m_vec;
 
-    output.getRTSpec1().pAny = &output.getRTSpec2();
-    output.getRTSpec2().pI = pInt;
-    output.getRTSpec2().pAny = &output.getRTSpec1();
-    output.getRTSpec2().pNext = &output.getRTSpec2();
+    output.m_rtSpec1.pAny = &output.m_rtSpec2;
+    output.m_rtSpec2.pI = pInt;
+    output.m_rtSpec2.pAny = &output.m_rtSpec1;
+    output.m_rtSpec2.pNext = &output.m_rtSpec2;
     
-    output.getPInt() = pInt;
-    memcpy(output.getIntArr(), pInt, 3 * sizeof(int));
-    output.getPpInt() = &output.getPInt();
+    output.m_pInt = pInt;
+    memcpy(output.m_intArr, pInt, sizeof(output.m_intArr));
+    output.m_ppInt = &output.m_pInt;
 }
 
 template<>
 void fillingStruct(ForAllFlagsTests1_Version0<>& output)
 {
-    fillingStruct(output.getSaDs());
+    fillingStruct(output.m_saDs);
 
-    fillingStruct(output.getDiamond());
-    fillingStruct(output.getSptCs());
-    fillingStruct(output.getSaaToStS());
-    fillingStruct(output.getSaStS());
-    fillingStruct(output.getStS());
-    fillingStruct(output.getMpT());
+    fillingStruct(output.m_diamond);
+    fillingStruct(output.m_sptCs);
+    fillingStruct(output.m_saaToStS);
+    fillingStruct(output.m_saStS);
+    fillingStruct(output.m_stS);
+    fillingStruct(output.m_mpt);
 }
 
 template<>
 void fillingStruct(ForAllFlagsTests1_Version2<>& output)
 {
-    fillingStruct(output.getSaS());
-    output.getI() = 185468;
+    fillingStruct(output.m_saS);
+    output.m_i = 185468;
 
-    fillingStruct(output.getDiamond());
-    fillingStruct(output.getSptCs());
-    fillingStruct(output.getSaaToStS());
-    fillingStruct(output.getSaStS());
-    fillingStruct(output.getStS());
-    fillingStruct(output.getMpT());
+    fillingStruct(output.m_diamond);
+    fillingStruct(output.m_sptCs);
+    fillingStruct(output.m_saaToStS);
+    fillingStruct(output.m_saStS);
+    fillingStruct(output.m_stS);
+    fillingStruct(output.m_mpt);
 }
 
 template<>
 void fillingStruct(ForAllFlagsTests1<>& output)
 {
-    fillingStruct(output.getSaDs());
+    fillingStruct(output.m_saDs);
 
-    fillingStruct(output.getDiamond());
-    fillingStruct(output.getSptCs());
-    fillingStruct(output.getSaaToStS());
-    fillingStruct(output.getSaStS());
-    fillingStruct(output.getStS());
-    fillingStruct(output.getMpT());
+    fillingStruct(output.m_diamond);
+    fillingStruct(output.m_sptCs);
+    fillingStruct(output.m_saaToStS);
+    fillingStruct(output.m_saStS);
+    fillingStruct(output.m_stS);
+    fillingStruct(output.m_mpt);
 }
 
 } // namespace special_types

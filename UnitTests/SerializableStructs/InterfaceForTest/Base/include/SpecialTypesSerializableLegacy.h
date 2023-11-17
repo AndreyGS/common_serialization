@@ -51,6 +51,16 @@ public:
     template<typename T2>
     Status init(const SimpleAssignableAlignedToOneSerializable_Version1<T2>& rhs);
 
+    SimpleAssignableAlignedToOneSerializable_Version0& operator=(const SimpleAssignableAlignedToOneSerializable_Version0& rhs) noexcept
+    {
+        if (this == &rhs)
+            return *this;
+
+        m_ti.x = rhs.m_ti.x, m_ti.y = rhs.m_ti.y;
+
+        return *this;
+    }
+
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSerializable_Version0& rhs) const noexcept
     {
         return m_ti == rhs.m_ti;
@@ -58,7 +68,6 @@ public:
 
     TwoInts m_ti{ 0 };
 
-private:
     friend csp::processing::DataProcessor;
     friend SimpleAssignableAlignedToOneSerializable_Version1;
 };
@@ -80,35 +89,6 @@ public:
     template<typename T2>
     Status init(const SimpleAssignableSerializable<T2>& rhs);
 
-    [[nodiscard]] uint8_t& getI()                                                                 noexcept { return m_i; }
-    [[nodiscard]] uint8_t getI()                                                            const noexcept { return m_i; }
-    [[nodiscard]] uint16_t& getJ()                                                                noexcept { return m_j; }
-    [[nodiscard]] uint16_t getJ()                                                           const noexcept { return m_j; }
-    [[nodiscard]] SimpleAssignableAlignedToOneSerializable_Version0<>& getSaaToS()                noexcept { return m_saaToS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSerializable_Version0<>& getSaaToS()    const noexcept { return m_saaToS; }
-    [[nodiscard]] SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()                       noexcept { return m_saaToNS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneNotSerializable& getSaaToNS()           const noexcept { return m_saaToNS; }
-    [[nodiscard]] SimpleAssignableNotSerializable& getSaNS()                                      noexcept { return m_saNS; }
-    [[nodiscard]] const SimpleAssignableNotSerializable& getSaNS()                          const noexcept { return m_saNS; }
-
-    [[nodiscard]] uint32_t* getArrI32()                                                           noexcept { return m_arrI32; }
-    [[nodiscard]] const uint32_t* getArrI32()                                               const noexcept { return m_arrI32; }
-    [[nodiscard]] size_t getSizeOfArrI32()                                                  const noexcept { return sizeof(m_arrI32); }
-
-    [[nodiscard]] SimpleAssignableAlignedToOneSerializable_Version0<>* getArrSaaToS()             noexcept { return m_arrSaaTos; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSerializable_Version0<>* getArrSaaToS() const noexcept { return m_arrSaaTos; }
-    [[nodiscard]] size_t getSizeOfArrSaaToS()                                               const noexcept { return sizeof(m_arrSaaTos); }
-
-    [[nodiscard]] SimpleAssignableAlignedToOneNotSerializable* getArrSaaToNS()                    noexcept { return m_arrSaaToNS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneNotSerializable* getArrSaaToNS()        const noexcept { return m_arrSaaToNS; }
-    [[nodiscard]] size_t getSizeOfArrSaaToNS()                                              const noexcept { return sizeof(m_arrSaaToNS); }
-
-    [[nodiscard]] SimpleAssignableNotSerializable* getArrSaNS()                                   noexcept { return m_arrSaNS; }
-    [[nodiscard]] const SimpleAssignableNotSerializable* getArrSaNS()                       const noexcept { return m_arrSaNS; }
-
-    [[nodiscard]] uint32_t& getVt()                                                               noexcept { return m_vt; }
-    [[nodiscard]] uint32_t getVt()                                                          const noexcept { return m_vt; }
-
     SimpleAssignableSerializable_Version0& operator=(const SimpleAssignableSerializable_Version0<>& rhs) noexcept
     {
         if (this == &rhs)
@@ -119,9 +99,9 @@ public:
         m_saaToS = rhs.m_saaToS;
         m_saaToNS = rhs.m_saaToNS;
         m_saNS = rhs.m_saNS;
-        memcpy(m_arrI32, rhs.m_arrI32, getSizeOfArrI32());
-        memcpy(m_arrSaaTos, rhs.m_arrSaaTos, getSizeOfArrI32());
-        memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, getSizeOfArrI32());
+        memcpy(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32));
+        memcpy(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos));
+        memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS));
         memcpy(m_arrSaNS, rhs.m_arrSaNS, sizeof(m_arrSaNS));
         m_vt = rhs.m_vt;
 
@@ -137,9 +117,9 @@ public:
             && m_saaToNS == rhs.m_saaToNS
             && m_saNS == rhs.m_saNS
 
-            && memcmp(m_arrI32, rhs.m_arrI32, getSizeOfArrI32()) == 0
-            && memcmp(m_arrSaaTos, rhs.m_arrSaaTos, getSizeOfArrSaaToS()) == 0
-            && memcmp(m_arrSaaToNS, rhs.m_arrSaaToNS, getSizeOfArrSaaToNS()) == 0
+            && memcmp(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32)) == 0
+            && memcmp(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos)) == 0
+            && memcmp(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS)) == 0
 
             && m_arrSaNS[0] == rhs.m_arrSaNS[0]
             && m_arrSaNS[1] == rhs.m_arrSaNS[1]
@@ -149,7 +129,6 @@ public:
             ;
     }
 
-private:
     uint8_t m_i{ 0 };
     uint16_t m_j{ 0 };
     EmptyTypeSerializable<> m_et;
@@ -177,12 +156,13 @@ Status SimpleAssignableSerializable_Version0<T1>::init(const SimpleAssignableSer
 {
     m_i = rhs.m_i;
     m_j = rhs.m_j;
-    m_saaToS = rhs.m_saaToS;
+    m_saaToS.m_ti.x = rhs.m_saaToS.m_x;
+    m_saaToS.m_ti.y = rhs.m_saaToS.m_y;
     m_saaToNS = rhs.m_saaToNS;
     m_saNS = rhs.m_saNS;
-    memcpy(m_arrI32, rhs.m_arrI32, getSizeOfArrI32());
-    memcpy(m_arrSaaTos, rhs.m_arrSaaTos, getSizeOfArrI32());
-    memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, getSizeOfArrI32());
+    memcpy(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32));
+    memcpy(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos));
+    memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS));
     memcpy(m_arrSaNS, rhs.m_arrSaNS, sizeof(m_arrSaNS));
     
     m_vt = rhs.m_vx/2;
@@ -196,12 +176,13 @@ Status SimpleAssignableSerializable<T1>::init(const SimpleAssignableSerializable
 {
     m_i = rhs.m_i;
     m_j = rhs.m_j;
-    m_saaToS = rhs.m_saaToS;
+    m_saaToS.m_x = rhs.m_saaToS.m_ti.x;
+    m_saaToS.m_y = rhs.m_saaToS.m_ti.y;
     m_saaToNS = rhs.m_saaToNS;
     m_saNS = rhs.m_saNS;
-    memcpy(m_arrI32, rhs.m_arrI32, getSizeOfArrI32());
-    memcpy(m_arrSaaTos, rhs.m_arrSaaTos, getSizeOfArrI32());
-    memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, getSizeOfArrI32());
+    memcpy(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32));
+    memcpy(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos));
+    memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS));
     memcpy(m_arrSaNS, rhs.m_arrSaNS, sizeof(m_arrSaNS));
 
     m_vx = rhs.m_vt * 2;
@@ -264,16 +245,20 @@ template<typename T1>
 template<typename T2>
 Status SimpleAssignableDescendantSerializable_Version0<T1>::init(const SimpleAssignableDescendantSerializable<T2>& rhs)
 {
-    SimpleAssignableSerializable_Version0<T2>::init(rhs);
+    static_cast<SimpleAssignableSerializable_Version0<T1>&>(*this).init(rhs);
     m_d = rhs.m_d;
+
+    return Status::kNoError;
 }
 
 template<typename T1>
 template<typename T2>
 Status SimpleAssignableDescendantSerializable<T1>::init(const SimpleAssignableDescendantSerializable_Version0<T2>& rhs)
 {
-    SimpleAssignableSerializable<T2>::init(rhs);
+    static_cast<SimpleAssignableSerializable<T2>&>(*this).init(rhs);
     m_d = rhs.m_d;
+
+    return Status::kNoError;
 }
 
 template<typename>
@@ -292,21 +277,6 @@ public:
     template<typename T2>
     Status init(const ForAllFlagsTests1_Version2<T2>& rhs);
 
-    [[nodiscard]] SimpleAssignableDescendantSerializable_Version0<>& getSaDs()                        noexcept { return m_saDs; }
-    [[nodiscard]] const SimpleAssignableDescendantSerializable_Version0<>& getSaDs()            const noexcept { return m_saDs; }
-    [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
-    [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
-    [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
-    [[nodiscard]] const SpecialProcessingTypeContainSerializable<>& getSptCs()                  const noexcept { return m_sptCs; }
-    [[nodiscard]] SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()               noexcept { return m_saaToStS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()   const noexcept { return m_saaToStS; }
-    [[nodiscard]] SimpleAssignableSimilarType1Serializable<>& getSaStS()                              noexcept { return m_saStS; }
-    [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
-    [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
-    [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
-    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                            noexcept { return m_mpt; }
-    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                const noexcept { return m_mpt; }
-
     [[nodiscard]] bool operator==(const ForAllFlagsTests1_Version0<>& rhs) const noexcept
     {
         return
@@ -320,7 +290,6 @@ public:
 
     }
 
-private:
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType1Serializable<> m_saaToStS;
@@ -351,21 +320,6 @@ public:
     template<typename T2>
     Status init(const ForAllFlagsTests2_Version2<T2>& rhs);
 
-    [[nodiscard]] SimpleAssignableDescendantSerializable_Version0<>& getSaDs()                                 noexcept { return m_saDs; }
-    [[nodiscard]] const SimpleAssignableDescendantSerializable_Version0<>& getSaDs()                     const noexcept { return m_saDs; }
-    [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
-    [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
-    [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
-    [[nodiscard]] const SpecialProcessingTypeContainSerializable<>& getSptCs()                  const noexcept { return m_sptCs; }
-    [[nodiscard]] SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()               noexcept { return m_saaToStS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()   const noexcept { return m_saaToStS; }
-    [[nodiscard]] SimpleAssignableSimilarType1Serializable<>& getSaStS()                              noexcept { return m_saStS; }
-    [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
-    [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
-    [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
-    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                            noexcept { return m_mpt; }
-    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                const noexcept { return m_mpt; }
-
     [[nodiscard]] bool operator==(const ForAllFlagsTests2_Version0<>& rhs) const noexcept
     {
         return
@@ -379,7 +333,6 @@ public:
 
     }
 
-private:
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToStS;
@@ -405,11 +358,6 @@ public:
     static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
     static constexpr uint32_t kVersionsHierarchy[] = { 1, 0 };
 
-    [[nodiscard]] uint8_t& getX()                 noexcept { return m_x; }    // getters here are only need for testing proposes
-    [[nodiscard]] const uint8_t& getX()     const noexcept { return m_x; }    // (not required for serialization itself)
-    [[nodiscard]] uint8_t& getY()                 noexcept { return m_y; }
-    [[nodiscard]] const uint8_t& getY()     const noexcept { return m_y; }
-
     SimpleAssignableAlignedToOneSerializable_Version1() { }
     template<typename T2>
     Status init(const SimpleAssignableAlignedToOneSerializable_Version0<T2>& rhs)
@@ -434,7 +382,6 @@ public:
         return m_x == rhs.m_x && m_y == rhs.m_y;
     }
 
-private:
     uint8_t m_x{ 0 };
     uint16_t m_y{ 0 };
 
@@ -478,24 +425,6 @@ public:
     template<typename T2>
     Status init(const ForAllFlagsTests1<T2>& rhs);
 
-    [[nodiscard]] SimpleAssignableSerializable<>& getSaS()                                            noexcept { return m_saS; }
-    [[nodiscard]] const SimpleAssignableSerializable<>& getSaS()                                const noexcept { return m_saS; }
-    [[nodiscard]] int& getI()                                                                         noexcept { return m_i; }
-    [[nodiscard]] int getI()                                                                    const noexcept { return m_i; }
-
-    [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
-    [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
-    [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
-    [[nodiscard]] const SpecialProcessingTypeContainSerializable<>& getSptCs()                  const noexcept { return m_sptCs; }
-    [[nodiscard]] SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()               noexcept { return m_saaToStS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()   const noexcept { return m_saaToStS; }
-    [[nodiscard]] SimpleAssignableSimilarType1Serializable<>& getSaStS()                              noexcept { return m_saStS; }
-    [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
-    [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
-    [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
-    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                            noexcept { return m_mpt; }
-    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                const noexcept { return m_mpt; }
-
     [[nodiscard]] bool operator==(const ForAllFlagsTests1_Version2<>& rhs) const noexcept
     {
         return
@@ -509,7 +438,6 @@ public:
             && m_mpt == rhs.m_mpt;
     }
 
-private:
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType1Serializable<> m_saaToStS;
@@ -536,10 +464,10 @@ Status ForAllFlagsTests1_Version0<T1>::init(const ForAllFlagsTests1_Version2<T2>
     m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
-    m_saDs = rhs.m_saS;
-    m_saDs.getI() += 1; // additional conversion
+    static_cast<SimpleAssignableSerializable_Version0<>&>(m_saDs).init(rhs.m_saS);
+    m_saDs.m_i += 1; // additional conversion
 
-    return Status;
+    return Status::kNoError;
 }
 
 template<typename T1>
@@ -570,10 +498,10 @@ Status ForAllFlagsTests1_Version2<T1>::init(const ForAllFlagsTests1<T2>& rhs)
     m_mpt = rhs.m_mpt;
 
     m_saS = rhs.m_saDs;
-    m_saS.getI() += 1; // additional conversion
-    m_i = rhs.m_saDs.v;
+    m_saS.m_i += 1; // additional conversion
+    m_i = rhs.m_saDs.m_d;
 
-    return Status;
+    return Status::kNoError;
 }
 
 template<typename T1>
@@ -587,11 +515,11 @@ Status ForAllFlagsTests1<T1>::init(const ForAllFlagsTests1_Version2<T2>& rhs)
     m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
-    m_saDs = rhs.m_saS;
-    m_saDs.getI() -= 1; // additional conversion
-    rhs.m_saDs.v = rhs.m_i;
+    static_cast<SimpleAssignableSerializable<>&>(m_saDs) = rhs.m_saS;
+    m_saDs.m_i -= 1; // additional conversion
+    m_saDs.m_d = rhs.m_i;
 
-    return Status;
+    return Status::kNoError;
 }
 
 template<typename T = Dummy>
@@ -609,24 +537,6 @@ public:
     template<typename T2>
     Status init(const ForAllFlagsTests2<T2>& rhs);
 
-    [[nodiscard]] SimpleAssignableSerializable<>& getSaS()                                            noexcept { return m_saS; }
-    [[nodiscard]] const SimpleAssignableSerializable<>& getSaS()                                const noexcept { return m_saS; }
-    [[nodiscard]] int& getI()                                                                         noexcept { return m_i; }
-    [[nodiscard]] int getI()                                                                    const noexcept { return m_i; }
-
-    [[nodiscard]] DiamondSerializable<>& getDiamond()                                                 noexcept { return m_diamond; }
-    [[nodiscard]] const DiamondSerializable<>& getDiamond()                                     const noexcept { return m_diamond; }
-    [[nodiscard]] SpecialProcessingTypeContainSerializable<>& getSptCs()                              noexcept { return m_sptCs; }
-    [[nodiscard]] const SpecialProcessingTypeContainSerializable<>& getSptCs()                  const noexcept { return m_sptCs; }
-    [[nodiscard]] SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()               noexcept { return m_saaToStS; }
-    [[nodiscard]] const SimpleAssignableAlignedToOneSimilarType1Serializable<>& getSaaToStS()   const noexcept { return m_saaToStS; }
-    [[nodiscard]] SimpleAssignableSimilarType1Serializable<>& getSaStS()                              noexcept { return m_saStS; }
-    [[nodiscard]] const SimpleAssignableSimilarType1Serializable<>& getSaStS()                  const noexcept { return m_saStS; }
-    [[nodiscard]] SimilarType1Serializable<>& getStS()                                                noexcept { return m_stS; }
-    [[nodiscard]] const SimilarType1Serializable<>& getStS()                                    const noexcept { return m_stS; }
-    [[nodiscard]] ManyPointersTypeSerializable<>& getMpT()                                            noexcept { return m_mpt; }
-    [[nodiscard]] const ManyPointersTypeSerializable<>& getMpT()                                const noexcept { return m_mpt; }
-
     [[nodiscard]] bool operator==(const ForAllFlagsTests2_Version2<>& rhs) const noexcept
     {
         return
@@ -640,7 +550,6 @@ public:
             && m_mpt == rhs.m_mpt;
     }
 
-private:
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToStS;
@@ -667,10 +576,10 @@ Status ForAllFlagsTests2_Version0<T1>::init(const ForAllFlagsTests2_Version2<T2>
     m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
-    m_saDs = rhs.m_saS;
-    m_saDs.getI() += 1; // additional conversion
+    static_cast<SimpleAssignableSerializable_Version0<>&>(m_saDs).init(rhs.m_saS);
+    m_saDs.m_i += 1; // additional conversion
 
-    return Status;
+    return Status::kNoError;
 }
 
 template<typename T1>
@@ -703,10 +612,10 @@ Status ForAllFlagsTests2_Version2<T1>::init(const ForAllFlagsTests2<T2>& rhs)
     m_mpt = rhs.m_mpt;
 
     m_saS = rhs.m_saDs;
-    m_saS.getI() += 1; // additional conversion
-    m_i = rhs.m_saDs.v;
+    m_saS.m_i += 1; // additional conversion
+    m_i = rhs.m_saDs.m_d;
 
-    return Status;
+    return Status::kNoError;
 }
 
 template<typename T1>
@@ -720,11 +629,11 @@ Status ForAllFlagsTests2<T1>::init(const ForAllFlagsTests2_Version2<T2>& rhs)
     m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
-    m_saDs = rhs.m_saS;
-    m_saDs.getI() -= 1; // additional conversion
-    rhs.m_saDs.v = rhs.m_i;
+    static_cast<SimpleAssignableSerializable<>&>(m_saDs) = rhs.m_saS;
+    m_saDs.m_i -= 1; // additional conversion
+    m_saDs.m_d = rhs.m_i;
 
-    return Status;
+    return Status::kNoError;
 }
 
 } // namespace special_types
