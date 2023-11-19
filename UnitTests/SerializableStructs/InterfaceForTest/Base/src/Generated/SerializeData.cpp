@@ -73,6 +73,18 @@ namespace processing
 {
 
 template<>
+Status DataProcessor::serializeData(const special_types::TwoInts& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.x, ctx));
+    RUN(serializeData(value.y, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneNotSerializable& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {

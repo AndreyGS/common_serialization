@@ -36,6 +36,10 @@ namespace processing
 
 template<>
 Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::TwoInts& value);
+
+template<>
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::SimpleAssignableAlignedToOneNotSerializable& value);
 
 template<>
