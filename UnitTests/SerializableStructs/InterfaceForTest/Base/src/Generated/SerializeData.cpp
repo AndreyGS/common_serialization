@@ -44,7 +44,9 @@
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
     }                                                                                   \
-    else if constexpr (serialization_concepts::SimpleAssignableType<decltype(value)>    \
+                                                                                        \
+    if constexpr (                                                                      \
+           serialization_concepts::SimpleAssignableType<decltype(value)>                \
         || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
     {                                                                                   \
         Status status = serializeDataSimpleAssignable((value), (ctx));                  \
@@ -353,24 +355,7 @@ Status DataProcessor::serializeData(const special_types::ManyPointersTypeSeriali
 }
 
 template<>
-Status DataProcessor::serializeData(const special_types::ForAllFlagsTests1<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
-{
-    SERIALIZE_COMMON(value, ctx);
-
-    RUN(serializeData(value.m_saDs, ctx));
-    RUN(serializeData(value.m_diamond, ctx));
-    RUN(serializeData(value.m_sptCs, ctx));
-    RUN(serializeData(value.m_saaToStS, ctx));
-    RUN(serializeData(value.m_saStS, ctx));
-    RUN(serializeData(value.m_stS, ctx));
-    RUN(serializeData(value.m_mpt, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
-Status DataProcessor::serializeData(const special_types::ForAllFlagsTests2<>& value
+Status DataProcessor::serializeData(const special_types::SForAllModesTests<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);

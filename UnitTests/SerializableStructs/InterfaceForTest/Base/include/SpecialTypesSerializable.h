@@ -424,6 +424,11 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
+    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSimilarType1Serializable& rhs) const noexcept
+    {
+        return m_j == rhs.m_j && m_k == rhs.m_k;
+    }
+
     char m_j{ 0 };
     int m_k{ 0 };
 
@@ -440,6 +445,11 @@ public:
     static constexpr uint64_t kNameHash = 1001; // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSimilarType2Serializable& rhs) const noexcept
+    {
+        return m_j == rhs.m_j && m_k == rhs.m_k;
+    }
 
     char m_j{ 0 };
     short m_k{ 0 };
@@ -460,6 +470,11 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
+    [[nodiscard]] bool operator==(const SimpleAssignableSimilarType1Serializable& rhs) const noexcept
+    {
+        return m_j == rhs.m_j && m_k == rhs.m_k;
+    }
+
     char m_j{ 0 };
     int m_k{ 0 };
 
@@ -477,6 +492,11 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
+    [[nodiscard]] bool operator==(const SimpleAssignableSimilarType2Serializable& rhs) const noexcept
+    {
+        return m_j == rhs.m_j && m_k == rhs.m_k;
+    }
+
     char m_j{ 0 };
     short m_k{ 0 };
 
@@ -493,6 +513,11 @@ public:
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
+    [[nodiscard]] bool operator==(const SimilarType1Serializable& rhs) const noexcept
+    {
+        return m_j == rhs.m_j && m_k == rhs.m_k;
+    }
+
     char m_j{ 0 };
     int m_k{ 0 };
 
@@ -508,6 +533,11 @@ public:
     static constexpr uint64_t kNameHash = 1003; // hash is same as in SimilarType1Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+
+    [[nodiscard]] bool operator==(const SimilarType2Serializable& rhs) const noexcept
+    {
+        return m_j == rhs.m_j && m_k == rhs.m_k;
+    }
 
     char m_j{ 0 };
     short m_k{ 0 };
@@ -602,22 +632,22 @@ public:
 };
 
 template<typename> 
-class ForAllFlagsTests1_Version2;
+class SForAllModesTests_Version2;
 
 template<typename T = Dummy>
-class ForAllFlagsTests1 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests1<T>, T >>
+class SForAllModesTests : public csp::ISerializable<GetCrtpMainType<SForAllModesTests<T>, T >>
 {
 public:
-    using instance_type = GetCrtpMainType<ForAllFlagsTests1<T>, T>;
+    using instance_type = GetCrtpMainType<SForAllModesTests<T>, T>;
 
     static constexpr uint64_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 3;
-    static constexpr uint32_t kVersionsHierarchy[] = { 3, 1, 0 };
+    static constexpr uint32_t kVersionsHierarchy[] = { 3, 2, 0 };
 
     template<typename T2>
-    Status init(const ForAllFlagsTests1_Version2<T2>& rhs);
+    Status init(const SForAllModesTests_Version2<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const ForAllFlagsTests1<>& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SForAllModesTests<>& rhs) const noexcept
     {
         return
                m_saDs == rhs.m_saDs
@@ -639,27 +669,27 @@ public:
     ManyPointersTypeSerializable<> m_mpt;
 
     friend csp::processing::DataProcessor;
-    friend ForAllFlagsTests1_Version2;
+    friend SForAllModesTests_Version2;
 };
 
 template<typename> 
-class ForAllFlagsTests2_Version2;
+class DForAllModesTests_Version2;
 
-// ForAllFlagsTests2 shall be used in deserialization of ForAllFlagsTests1, but only with sizeOfArithmeticTypesMayBeNotEqual flag set
+// DForAllModesTests shall be used in deserialization of SForAllModesTests, but only with sizeOfArithmeticTypesMayBeNotEqual flag set
 template<typename T = Dummy>
-class ForAllFlagsTests2 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests2<T>, T >>
+class DForAllModesTests : public csp::ISerializable<GetCrtpMainType<DForAllModesTests<T>, T >>
 {
 public:
-    using instance_type = GetCrtpMainType<ForAllFlagsTests2<T>, T>;
+    using instance_type = GetCrtpMainType<DForAllModesTests<T>, T>;
 
     static constexpr uint64_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 3;
-    static constexpr uint32_t kVersionsHierarchy[] = { 3, 1, 0 };
+    static constexpr uint32_t kVersionsHierarchy[] = { 3, 2, 0 };
 
     template<typename T2>
-    Status init(const ForAllFlagsTests2_Version2<T2>& rhs);
+    Status init(const SForAllModesTests_Version2<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const ForAllFlagsTests1<>& rhs) const noexcept
+    [[nodiscard]] bool operator==(const DForAllModesTests<>& rhs) const noexcept
     {
         return
             m_saDs == rhs.m_saDs
@@ -672,6 +702,7 @@ public:
 
     }
 
+    SimpleAssignableDescendantSerializable<> m_saDs;
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToStS;
@@ -679,10 +710,8 @@ public:
     SimilarType2Serializable<> m_stS;
     ManyPointersTypeSerializable<> m_mpt;
 
-    SimpleAssignableDescendantSerializable<> m_saDs;
-
     friend csp::processing::DataProcessor;
-    friend ForAllFlagsTests2_Version2;
+    friend DForAllModesTests_Version2;
 };
 
 } // namespace special_types

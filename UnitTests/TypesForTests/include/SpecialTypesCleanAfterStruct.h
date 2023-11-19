@@ -38,10 +38,10 @@ void cleanAfterStruct(T& output)
 template<>
 void cleanAfterStruct(ManyPointersTypeSerializable<>& output);
 template<>
-void cleanAfterStruct(ForAllFlagsTests1_Version0<>& output);
+void cleanAfterStruct(SForAllModesTests_Version0<>& output);
 template<>
-void cleanAfterStruct(ForAllFlagsTests1_Version2<>& output);
+void cleanAfterStruct(SForAllModesTests_Version2<>& output);
 template<>
-void cleanAfterStruct(ForAllFlagsTests1<>& output);
+void cleanAfterStruct(SForAllModesTests<>& output);
 
 } // namespace special_types

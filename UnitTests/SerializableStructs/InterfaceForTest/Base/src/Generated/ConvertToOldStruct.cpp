@@ -88,33 +88,15 @@ Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableDe
 }
 
 template<>
-Status DataProcessor::convertToOldStruct(const special_types::ForAllFlagsTests1<>& value
+Status DataProcessor::convertToOldStruct(const special_types::SForAllModesTests<>& value
     , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getThisVersion() != targetVersion);
 
     ToVersionConverter<
-                        special_types::ForAllFlagsTests1_Version2<>
-                      , special_types::ForAllFlagsTests1_Version0<>
-    > convertTo(targetVersion);
-
-    RUN(convertTo.convert(value, ctx));
-
-    return Status::kNoFurtherProcessingRequired;
-}
-
-
-template<>
-Status DataProcessor::convertToOldStruct(const special_types::ForAllFlagsTests2<>& value
-    , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
-{
-    // If value version is the same as targetVersion there is a programmatic error that we are here
-    assert(value.getThisVersion() != targetVersion);
-
-    ToVersionConverter<
-                        special_types::ForAllFlagsTests2_Version2<>
-                      , special_types::ForAllFlagsTests2_Version0<>
+                        special_types::SForAllModesTests_Version2<>
+                      , special_types::SForAllModesTests_Version0<>
     > convertTo(targetVersion);
 
     RUN(convertTo.convert(value, ctx));

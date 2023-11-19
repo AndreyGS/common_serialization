@@ -117,6 +117,10 @@ template<>
 Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::ManyPointersTypeSerializable<>& value);
 
+template<>
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::DForAllModesTests<>& value);
+
 } // namespace processing
 
 } // namespace csp

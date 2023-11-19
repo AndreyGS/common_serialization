@@ -118,6 +118,24 @@ template<>
 Status DataProcessor::serializeData(const special_types::ManyPointersTypeSerializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 
+// This is legacy versions of SForAllModesTests.
+// In normal conditions such specializations must not be here.
+// For testing proposes only.
+template<>
+Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version0<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+template<>
+Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version2<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+template<>
+Status DataProcessor::serializeData(const special_types::SForAllModesTests<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+template<>
+Status DataProcessor::serializeData(const special_types::DForAllModesTests<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+
 } // namespace processing
 
 } // namespace csp

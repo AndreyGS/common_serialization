@@ -33,6 +33,11 @@ struct TwoInts
     uint8_t x{ 0 };
     uint16_t y{ 0 };
 
+    [[nodiscard]] bool operator == (const TwoInts& rhs) const noexcept
+    {
+        return x == rhs.x && y == rhs.y;
+    }
+
     using simple_assignable_tag = std::true_type;
 };
 
@@ -161,7 +166,11 @@ Status SimpleAssignableSerializable_Version0<T1>::init(const SimpleAssignableSer
     m_saaToNS = rhs.m_saaToNS;
     m_saNS = rhs.m_saNS;
     memcpy(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32));
-    memcpy(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos));
+    for (size_t i = 0; i < 3; ++i)
+    {
+        m_arrSaaTos[i].m_ti.x = rhs.m_arrSaaTos[i].m_x;
+        m_arrSaaTos[i].m_ti.y = rhs.m_arrSaaTos[i].m_y;
+    }
     memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS));
     memcpy(m_arrSaNS, rhs.m_arrSaNS, sizeof(m_arrSaNS));
     
@@ -181,7 +190,12 @@ Status SimpleAssignableSerializable<T1>::init(const SimpleAssignableSerializable
     m_saaToNS = rhs.m_saaToNS;
     m_saNS = rhs.m_saNS;
     memcpy(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32));
-    memcpy(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos));
+    for (size_t i = 0; i < 3; ++i)
+    {
+        m_arrSaaTos[i].m_x = rhs.m_arrSaaTos[i].m_ti.x;
+        m_arrSaaTos[i].m_y = rhs.m_arrSaaTos[i].m_ti.y;
+    }
+
     memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS));
     memcpy(m_arrSaNS, rhs.m_arrSaNS, sizeof(m_arrSaNS));
 
@@ -262,22 +276,22 @@ Status SimpleAssignableDescendantSerializable<T1>::init(const SimpleAssignableDe
 }
 
 template<typename>
-class ForAllFlagsTests1_Version2;
+class SForAllModesTests_Version2;
 
 template<typename T = Dummy>
-class ForAllFlagsTests1_Version0 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests1_Version0<T>, T >>
+class SForAllModesTests_Version0 : public csp::ISerializable<GetCrtpMainType<SForAllModesTests_Version0<T>, T >>
 {
 public:
-    using instance_type = GetCrtpMainType<ForAllFlagsTests1_Version0<T>, T>;
+    using instance_type = GetCrtpMainType<SForAllModesTests_Version0<T>, T>;
 
     static constexpr uint64_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     template<typename T2>
-    Status init(const ForAllFlagsTests1_Version2<T2>& rhs);
+    Status init(const SForAllModesTests_Version2<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const ForAllFlagsTests1_Version0<>& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SForAllModesTests_Version0<>& rhs) const noexcept
     {
         return
             m_saDs == rhs.m_saDs
@@ -290,6 +304,7 @@ public:
 
     }
 
+    SimpleAssignableDescendantSerializable_Version0<> m_saDs;
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType1Serializable<> m_saaToStS;
@@ -297,30 +312,28 @@ public:
     SimilarType1Serializable<> m_stS;
     ManyPointersTypeSerializable<> m_mpt;
 
-    SimpleAssignableDescendantSerializable_Version0<> m_saDs;
-
     friend csp::processing::DataProcessor;
-    friend ForAllFlagsTests1_Version2;
+    friend SForAllModesTests_Version2;
 };
 
 
 template<typename>
-class ForAllFlagsTests2_Version2;
+class DForAllModesTests_Version2;
 
 template<typename T = Dummy>
-class ForAllFlagsTests2_Version0 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests2_Version0<T>, T >>
+class DForAllModesTests_Version0 : public csp::ISerializable<GetCrtpMainType<DForAllModesTests_Version0<T>, T >>
 {
 public:
-    using instance_type = GetCrtpMainType<ForAllFlagsTests2_Version0<T>, T>;
+    using instance_type = GetCrtpMainType<DForAllModesTests_Version0<T>, T>;
 
     static constexpr uint64_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
     template<typename T2>
-    Status init(const ForAllFlagsTests2_Version2<T2>& rhs);
+    Status init(const DForAllModesTests_Version2<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const ForAllFlagsTests2_Version0<>& rhs) const noexcept
+    [[nodiscard]] bool operator==(const DForAllModesTests_Version0<>& rhs) const noexcept
     {
         return
             m_saDs == rhs.m_saDs
@@ -333,6 +346,7 @@ public:
 
     }
 
+    SimpleAssignableDescendantSerializable_Version0<> m_saDs;
     DiamondSerializable<> m_diamond;
     SpecialProcessingTypeContainSerializable<> m_sptCs;
     SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToStS;
@@ -340,10 +354,8 @@ public:
     SimilarType2Serializable<> m_stS;
     ManyPointersTypeSerializable<> m_mpt;
 
-    SimpleAssignableDescendantSerializable_Version0<> m_saDs;
-
     friend csp::processing::DataProcessor;
-    friend ForAllFlagsTests2_Version2;
+    friend DForAllModesTests_Version2;
 };
 
 
@@ -411,21 +423,21 @@ Status SimpleAssignableAlignedToOneSerializable<T1>::init(const SimpleAssignable
 }
 
 template<typename T = Dummy>
-class ForAllFlagsTests1_Version2 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests1_Version2<T>, T >>
+class SForAllModesTests_Version2 : public csp::ISerializable<GetCrtpMainType<SForAllModesTests_Version2<T>, T >>
 {
 public:
-    using instance_type = GetCrtpMainType<ForAllFlagsTests1_Version2<T>, T>;
+    using instance_type = GetCrtpMainType<SForAllModesTests_Version2<T>, T>;
 
     static constexpr uint64_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 2;
     static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
 
     template<typename T2>
-    Status init(const ForAllFlagsTests1_Version0<T2>& rhs);
+    Status init(const SForAllModesTests_Version0<T2>& rhs);
     template<typename T2>
-    Status init(const ForAllFlagsTests1<T2>& rhs);
+    Status init(const SForAllModesTests<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const ForAllFlagsTests1_Version2<>& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SForAllModesTests_Version2<>& rhs) const noexcept
     {
         return
                m_saS == rhs.m_saS
@@ -449,13 +461,13 @@ public:
     int m_i{ 0 }; // duplicated m_saDs.m_i
 
     friend csp::processing::DataProcessor;
-    friend ForAllFlagsTests1_Version0;
-    friend ForAllFlagsTests1;
+    friend SForAllModesTests_Version0;
+    friend SForAllModesTests;
 };
 
 template<typename T1>
 template<typename T2>
-Status ForAllFlagsTests1_Version0<T1>::init(const ForAllFlagsTests1_Version2<T2>& rhs)
+Status SForAllModesTests_Version0<T1>::init(const SForAllModesTests_Version2<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -465,6 +477,7 @@ Status ForAllFlagsTests1_Version0<T1>::init(const ForAllFlagsTests1_Version2<T2>
     m_mpt = rhs.m_mpt;
 
     static_cast<SimpleAssignableSerializable_Version0<>&>(m_saDs).init(rhs.m_saS);
+    m_saDs.m_d = rhs.m_i;
     m_saDs.m_i += 1; // additional conversion
 
     return Status::kNoError;
@@ -472,7 +485,7 @@ Status ForAllFlagsTests1_Version0<T1>::init(const ForAllFlagsTests1_Version2<T2>
 
 template<typename T1>
 template<typename T2>
-Status ForAllFlagsTests1_Version2<T1>::init(const ForAllFlagsTests1_Version0<T2>& rhs)
+Status SForAllModesTests_Version2<T1>::init(const SForAllModesTests_Version0<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -481,14 +494,16 @@ Status ForAllFlagsTests1_Version2<T1>::init(const ForAllFlagsTests1_Version0<T2>
     m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
-    m_saS = rhs.m_saDs;
-    m_saS.getI() -= 1; // additional conversion
-    m_i = rhs.m_saDs.getI();
+    m_saS.init(static_cast<const SimpleAssignableSerializable_Version0<>&>(rhs.m_saDs));
+    m_i = rhs.m_saDs.m_d;
+    m_saS.m_i -= 1; // additional conversion
+
+    return Status::kNoError;
 }
 
 template<typename T1>
 template<typename T2>
-Status ForAllFlagsTests1_Version2<T1>::init(const ForAllFlagsTests1<T2>& rhs)
+Status SForAllModesTests_Version2<T1>::init(const SForAllModesTests<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -506,7 +521,7 @@ Status ForAllFlagsTests1_Version2<T1>::init(const ForAllFlagsTests1<T2>& rhs)
 
 template<typename T1>
 template<typename T2>
-Status ForAllFlagsTests1<T1>::init(const ForAllFlagsTests1_Version2<T2>& rhs)
+Status SForAllModesTests<T1>::init(const SForAllModesTests_Version2<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -523,21 +538,21 @@ Status ForAllFlagsTests1<T1>::init(const ForAllFlagsTests1_Version2<T2>& rhs)
 }
 
 template<typename T = Dummy>
-class ForAllFlagsTests2_Version2 : public csp::ISerializable<GetCrtpMainType<ForAllFlagsTests2_Version2<T>, T >>
+class DForAllModesTests_Version2 : public csp::ISerializable<GetCrtpMainType<DForAllModesTests_Version2<T>, T >>
 {
 public:
-    using instance_type = GetCrtpMainType<ForAllFlagsTests2_Version2<T>, T>;
+    using instance_type = GetCrtpMainType<DForAllModesTests_Version2<T>, T>;
 
     static constexpr uint64_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 2;
     static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
 
     template<typename T2>
-    Status init(const ForAllFlagsTests2_Version0<T2>& rhs);
+    Status init(const DForAllModesTests_Version0<T2>& rhs);
     template<typename T2>
-    Status init(const ForAllFlagsTests2<T2>& rhs);
+    Status init(const DForAllModesTests<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const ForAllFlagsTests2_Version2<>& rhs) const noexcept
+    [[nodiscard]] bool operator==(const DForAllModesTests_Version2<>& rhs) const noexcept
     {
         return
                m_saS == rhs.m_saS
@@ -561,13 +576,13 @@ public:
     int m_i{ 0 }; // duplicated m_saDs.m_i
 
     friend csp::processing::DataProcessor;
-    friend ForAllFlagsTests2_Version0;
-    friend ForAllFlagsTests2;
+    friend DForAllModesTests_Version0;
+    friend DForAllModesTests;
 };
 
 template<typename T1>
 template<typename T2>
-Status ForAllFlagsTests2_Version0<T1>::init(const ForAllFlagsTests2_Version2<T2>& rhs)
+Status DForAllModesTests_Version0<T1>::init(const DForAllModesTests_Version2<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -584,7 +599,7 @@ Status ForAllFlagsTests2_Version0<T1>::init(const ForAllFlagsTests2_Version2<T2>
 
 template<typename T1>
 template<typename T2>
-Status ForAllFlagsTests2_Version2<T1>::init(const ForAllFlagsTests2_Version0<T2>& rhs)
+Status DForAllModesTests_Version2<T1>::init(const DForAllModesTests_Version0<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -593,16 +608,16 @@ Status ForAllFlagsTests2_Version2<T1>::init(const ForAllFlagsTests2_Version0<T2>
     m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
-    m_saS = rhs.m_saDs;
-    m_saS.getI() -= 1; // additional conversion
-    m_i = rhs.m_saDs.getI();
+    m_saS.init(static_cast<const SimpleAssignableSerializable_Version0<>&>(rhs.m_saDs));
+    m_saS.m_i -= 1; // additional conversion
+    m_i = rhs.m_saDs.m_i;
 
-    return Status;
+    return Status::kNoError;
 }
 
 template<typename T1>
 template<typename T2>
-Status ForAllFlagsTests2_Version2<T1>::init(const ForAllFlagsTests2<T2>& rhs)
+Status DForAllModesTests_Version2<T1>::init(const DForAllModesTests<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -620,13 +635,16 @@ Status ForAllFlagsTests2_Version2<T1>::init(const ForAllFlagsTests2<T2>& rhs)
 
 template<typename T1>
 template<typename T2>
-Status ForAllFlagsTests2<T1>::init(const ForAllFlagsTests2_Version2<T2>& rhs)
+Status DForAllModesTests<T1>::init(const SForAllModesTests_Version2<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
-    m_saaToStS = rhs.m_saaToStS;
-    m_saStS = rhs.m_saStS;
-    m_stS = rhs.m_stS;
+    m_saaToStS.m_j = rhs.m_saaToStS.m_j;
+    m_saaToStS.m_k = rhs.m_saaToStS.m_k;
+    m_saStS.m_j = rhs.m_saStS.m_j;
+    m_saStS.m_k = rhs.m_saStS.m_k;
+    m_stS.m_j = rhs.m_stS.m_j;
+    m_stS.m_k = rhs.m_stS.m_k;
     m_mpt = rhs.m_mpt;
 
     static_cast<SimpleAssignableSerializable<>&>(m_saDs) = rhs.m_saS;

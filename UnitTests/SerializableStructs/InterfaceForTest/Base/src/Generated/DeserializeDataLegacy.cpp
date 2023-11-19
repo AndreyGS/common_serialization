@@ -31,6 +31,26 @@
         return status;                                                          \
 }
 
+#define DESERIALIZE_LEGACY_COMMON(ctx, value)                                           \
+{                                                                                       \
+    if constexpr (                                                                      \
+           serialization_concepts::SimpleAssignableType<decltype(value)>                \
+        || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
+    {                                                                                   \
+        Status status = deserializeDataSimpleAssignable((ctx), (value));                \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (                                                                       \
+                   !statusSuccess(status)                                               \
+                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
+        )                                                                               \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* than we should deserialize it field-by-field */                              \
+   }                                                                                    \
+}
+
 namespace common_serialization
 {
 
@@ -41,18 +61,22 @@ namespace processing
 {
 
 template<>
-Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value)
 {
+    DESERIALIZE_LEGACY_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, value.m_ti));
 
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::SimpleAssignableSerializable_Version0<>& value)
 {
+    DESERIALIZE_LEGACY_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, value.m_i));
     RUN(deserializeData(ctx, value.m_j));
     RUN(deserializeData(ctx, value.m_et));
@@ -74,9 +98,11 @@ Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std:
 }
 
 template<>
-Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::SimpleAssignableDescendantSerializable_Version0<>& value)
 {
+    DESERIALIZE_LEGACY_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, static_cast<special_types::SimpleAssignableSerializable_Version0<>&>(value)));
 
     RUN(deserializeData(ctx, value.m_d));
@@ -85,23 +111,28 @@ Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std:
 }
 
 template<>
-Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::ForAllFlagsTests1_Version0<>& value)
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SForAllModesTests_Version0<>& value)
 {
+    DESERIALIZE_LEGACY_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_saDs));
+    RUN(deserializeData(ctx, value.m_diamond));
+    RUN(deserializeData(ctx, value.m_sptCs));
+    RUN(deserializeData(ctx, value.m_saaToStS));
+    RUN(deserializeData(ctx, value.m_saStS));
+    RUN(deserializeData(ctx, value.m_stS));
+    RUN(deserializeData(ctx, value.m_mpt));
+
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::ForAllFlagsTests2_Version0<>& value)
-{
-    return Status::kNoError;
-}
-
-template<>
-Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value)
 {
+    DESERIALIZE_LEGACY_COMMON(ctx, value);
+
     RUN(deserializeData(ctx, value.m_x));
     RUN(deserializeData(ctx, value.m_y));
 
@@ -109,16 +140,21 @@ Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std:
 }
 
 template<>
-Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::ForAllFlagsTests1_Version2<>& value)
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::SForAllModesTests_Version2<>& value)
 {
-    return Status::kNoError;
-}
+    DESERIALIZE_LEGACY_COMMON(ctx, value);
 
-template<>
-Status DataProcessor::deserializeDataLegacy(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
-    , special_types::ForAllFlagsTests2_Version2<>& value)
-{
+    RUN(deserializeData(ctx, value.m_saS));
+    RUN(deserializeData(ctx, value.m_diamond));
+    RUN(deserializeData(ctx, value.m_sptCs));
+    RUN(deserializeData(ctx, value.m_saaToStS));
+    RUN(deserializeData(ctx, value.m_saStS));
+    RUN(deserializeData(ctx, value.m_stS));
+    RUN(deserializeData(ctx, value.m_mpt));
+
+    RUN(deserializeData(ctx, value.m_i));
+
     return Status::kNoError;
 }
 

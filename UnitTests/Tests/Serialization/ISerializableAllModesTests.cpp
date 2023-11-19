@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAllFlagsTests.cpp
+ * @file ISerializableAllModesTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -27,44 +27,67 @@ namespace
 using namespace special_types;
 
 using size_type = typename Vector<uint8_t>::size_type;
-/*
-void mainTest(csp::context::DataFlags flags)
+
+template<typename TS, typename TD>
+void mainTest(csp::context::DataFlags flags, uint32_t targetInterfaceVersion = TS::getInterfaceVersion())
 {
-    ForAllFlagsTests1 input;
+    TS input;
     fillingStruct(input);
 
     Walker<uint8_t> bin;
     csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
+    flags.allowUnmanagedPointers = true;
+    flags.checkRecursivePointers = true;
     ctxIn.setFlags(flags);
+    ctxIn.setInterfaceVersion(targetInterfaceVersion);
+
     std::unordered_map<const void*, uint64_t> sMap;
     ctxIn.setPointersMap(sMap);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
+    
+    TD output;
     csp::context::DData<Walker<uint8_t>> ctxOut(bin);
     std::unordered_map<uint64_t, void*> dMap;
     ctxOut.setPointersMap(dMap);
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(addedPointers);
 
-    if (flags.sizeOfArithmeticTypesMayBeNotEqual)
-    {
-        ForAllFlagsTests2 output;
-        EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-        EXPECT_EQ(input, output);
-    }
+    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+
+    TD reference;
+    fillingStruct(reference);
+
+    EXPECT_EQ(output, reference);
     EXPECT_EQ(bin.tell(), bin.size());
-    
-    
 
     cleanAfterStruct(input);
 }
 
-TEST(ISerializableAllFlagsTests, SpecialProcessingTypeContainSerializableT)
+TEST(ISerializableAllModesTests, NoFlags0to3)
 {
-    mainTest<SpecialProcessingTypeContainSerializable<>>();
+    mainTest<SForAllModesTests_Version0<>, DForAllModesTests<>>(csp::context::DataFlags{});
 }
 
+TEST(ISerializableAllModesTests, NoFlags2to3)
+{
+    mainTest<SForAllModesTests_Version2<>, DForAllModesTests<>>(csp::context::DataFlags{});
+}
+
+TEST(ISerializableAllModesTests, NoFlags3to3)
+{
+    mainTest<SForAllModesTests<>, DForAllModesTests<>>(csp::context::DataFlags{});
+}
+/*
+TEST(ISerializableAllModesTests, NoFlags3to0)
+{
+    mainTest<SForAllModesTests<>, SForAllModesTests_Version0<>>(csp::context::DataFlags{}, SForAllModesTests_Version0<>::getInterfaceVersion());
+}
+
+TEST(ISerializableAllModesTests, NoFlags3to2)
+{
+    mainTest<SForAllModesTests<>, SForAllModesTests_Version2<>>(csp::context::DataFlags{}, SForAllModesTests_Version2<>::getInterfaceVersion());
+}
 */
 
 } // namespace anonymous

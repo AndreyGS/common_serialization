@@ -34,7 +34,7 @@ void cleanAfterStruct(ManyPointersTypeSerializable<>& output)
 }
 
 template<>
-void cleanAfterStruct(ForAllFlagsTests1_Version0<>& output)
+void cleanAfterStruct(SForAllModesTests_Version0<>& output)
 {
     cleanAfterStruct(output.m_saDs);
     cleanAfterStruct(output.m_diamond);
@@ -46,7 +46,7 @@ void cleanAfterStruct(ForAllFlagsTests1_Version0<>& output)
 }
 
 template<>
-void cleanAfterStruct(ForAllFlagsTests1_Version2<>& output)
+void cleanAfterStruct(SForAllModesTests_Version2<>& output)
 {
     cleanAfterStruct(output.m_saS);
     cleanAfterStruct(output.m_diamond);
@@ -58,7 +58,7 @@ void cleanAfterStruct(ForAllFlagsTests1_Version2<>& output)
 }
 
 template<>
-void cleanAfterStruct(ForAllFlagsTests1<>& output)
+void cleanAfterStruct(SForAllModesTests<>& output)
 {
     cleanAfterStruct(output.m_saDs);
     cleanAfterStruct(output.m_diamond);

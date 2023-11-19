@@ -45,7 +45,9 @@
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
     }                                                                                   \
-    else if constexpr (serialization_concepts::SimpleAssignableType<decltype(value)>    \
+                                                                                        \
+    if constexpr (                                                                      \
+           serialization_concepts::SimpleAssignableType<decltype(value)>                \
         || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
     {                                                                                   \
         Status status = deserializeDataSimpleAssignable((ctx), (value));                \
@@ -348,6 +350,23 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
     RUN(deserializeData(ctx, value.m_intArr));
     RUN(deserializeData(ctx, value.m_ppInt));
     RUN(deserializeData(ctx, value.m_nullptrInt));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+    , special_types::DForAllModesTests<>& value)
+{
+    DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_saDs));
+    RUN(deserializeData(ctx, value.m_diamond));
+    RUN(deserializeData(ctx, value.m_sptCs));
+    RUN(deserializeData(ctx, value.m_saaToStS));
+    RUN(deserializeData(ctx, value.m_saStS));
+    RUN(deserializeData(ctx, value.m_stS));
+    RUN(deserializeData(ctx, value.m_mpt));
 
     return Status::kNoError;
 }

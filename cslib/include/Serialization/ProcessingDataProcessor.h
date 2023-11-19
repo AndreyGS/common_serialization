@@ -54,11 +54,6 @@ public:
     template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     static constexpr Status deserializeData(size_t originalTypeSize, context::DData<D, PM>& ctx, T& value);
 
-    template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
-    static constexpr Status serializeDataLegacy(const T& value, context::SData<S, PM>& ctx);
-    template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-    static constexpr Status deserializeDataLegacy(context::DData<D, PM>& ctx, T& value);
-
 protected:
     template<typename T, serialization_concepts::ISerializationCapableContainer S, serialization_concepts::ISerializationPointersMap PM>
     static constexpr Status serializeDataSimpleAssignable(const T& value, context::SData<S, PM>& ctx);

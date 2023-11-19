@@ -34,6 +34,13 @@ void fillingStruct(SimpleAssignableAlignedToOneNotSerializable& output)
 }
 
 template<>
+void fillingStruct(SimpleAssignableAlignedToOneSerializable_Version0<>& output)
+{
+    output.m_ti.x = 3;
+    output.m_ti.y = 4;
+}
+
+template<>
 void fillingStruct(SimpleAssignableAlignedToOneSerializable<>& output)
 {
     output.m_x = 3;
@@ -41,42 +48,10 @@ void fillingStruct(SimpleAssignableAlignedToOneSerializable<>& output)
 }
 
 template<>
-void fillingStruct(SimpleAssignableAlignedToOneSerializable_Version0<>& output)
-{
-    output.m_ti.x = 17;
-    output.m_ti.y = 18654;
-}
-
-template<>
 void fillingStruct(SimpleAssignableNotSerializable& output)
 {
     output.q = 5;
     output.w = 6;
-}
-
-template<>
-void fillingStruct(SimpleAssignableSerializable<>& output)
-{
-    output.m_i = 7;
-    output.m_j = 8;
-
-    fillingStruct(output.m_saaToS);
-    fillingStruct(output.m_saaToNS);
-    fillingStruct(output.m_saNS);
-
-    memcpy(output.m_arrI32, "123456789012", sizeof(output.m_arrI32));
-    memcpy(output.m_arrSaaTos, "00001000034000056", sizeof(output.m_arrSaaTos));
-    memcpy(output.m_arrSaaToNS, "123456789", sizeof(output.m_arrSaaToNS));
-
-    // we shouldn't memcpy array of SimpleAssignableNotSerializable cause its not aligned by one
-    output.m_arrSaNS[0].q = 123;
-    output.m_arrSaNS[0].w = 456;
-    output.m_arrSaNS[1].q = 567;
-    output.m_arrSaNS[1].w = 890;
-    output.m_arrSaNS[2].q = 789;
-    output.m_arrSaNS[2].w = 012;
-
-    output.m_vx = 8974;  // must be even (for tests)
 }
 
 template<>
@@ -90,10 +65,20 @@ void fillingStruct(SimpleAssignableSerializable_Version0<>& output)
     fillingStruct(output.m_saNS);
 
     memcpy(output.m_arrI32, "123456789012", sizeof(output.m_arrI32));
-    memcpy(output.m_arrSaaTos, "00001000034000056", sizeof(output.m_arrSaaTos));
-    memcpy(output.m_arrSaaToNS, "123456789", sizeof(output.m_arrSaaToNS));
+    output.m_arrSaaTos[0].m_ti.x = 48;
+    output.m_arrSaaTos[0].m_ti.y = 60;
+    output.m_arrSaaTos[1].m_ti.x = 49;
+    output.m_arrSaaTos[1].m_ti.y = 61;
+    output.m_arrSaaTos[2].m_ti.x = 50;
+    output.m_arrSaaTos[2].m_ti.y = 62;
 
-    // we shouldn't memcpy array of SimpleAssignableNotSerializable cause its not aligned by one
+    output.m_arrSaaToNS[0].a = 15000;
+    output.m_arrSaaToNS[0].s = 122;
+    output.m_arrSaaToNS[1].a = 15001;
+    output.m_arrSaaToNS[1].s = 123;
+    output.m_arrSaaToNS[2].a = 15002;
+    output.m_arrSaaToNS[2].s = 124;
+
     output.m_arrSaNS[0].q = 123;
     output.m_arrSaNS[0].w = 456;
     output.m_arrSaNS[1].q = 567;
@@ -101,21 +86,57 @@ void fillingStruct(SimpleAssignableSerializable_Version0<>& output)
     output.m_arrSaNS[2].q = 789;
     output.m_arrSaNS[2].w = 012;
 
-    output.m_vt = 46984;
+    output.m_vt = 23492;
+}
+
+template<>
+void fillingStruct(SimpleAssignableSerializable<>& output)
+{
+    output.m_i = 7;
+    output.m_j = 8;
+
+    fillingStruct(output.m_saaToS);
+    fillingStruct(output.m_saaToNS);
+    fillingStruct(output.m_saNS);
+
+    memcpy(output.m_arrI32, "123456789012", sizeof(output.m_arrI32));
+
+    output.m_arrSaaTos[0].m_x = 48;
+    output.m_arrSaaTos[0].m_y = 60;
+    output.m_arrSaaTos[1].m_x = 49;
+    output.m_arrSaaTos[1].m_y = 61;
+    output.m_arrSaaTos[2].m_x = 50;
+    output.m_arrSaaTos[2].m_y = 62;
+
+    output.m_arrSaaToNS[0].a = 15000;
+    output.m_arrSaaToNS[0].s = 122;
+    output.m_arrSaaToNS[1].a = 15001;
+    output.m_arrSaaToNS[1].s = 123;
+    output.m_arrSaaToNS[2].a = 15002;
+    output.m_arrSaaToNS[2].s = 124;
+
+    output.m_arrSaNS[0].q = 123;
+    output.m_arrSaNS[0].w = 456;
+    output.m_arrSaNS[1].q = 567;
+    output.m_arrSaNS[1].w = 890;
+    output.m_arrSaNS[2].q = 789;
+    output.m_arrSaNS[2].w = 012;
+
+    output.m_vx = 46984;
 }
 
 template<>
 void fillingStruct(SimpleAssignableDescendantSerializable_Version0<>& output)
 {
     fillingStruct<SimpleAssignableSerializable_Version0<>>(output);
-    output.m_d = 9;
+    output.m_d = output.m_i + 2;
 }
 
 template<>
 void fillingStruct(SimpleAssignableDescendantSerializable<>& output)
 {
     fillingStruct<SimpleAssignableSerializable<>>(output);
-    output.m_d = 9;
+    output.m_d = output.m_i + 2;
 }
 
 template<>
@@ -198,13 +219,13 @@ template<>
 void fillingStruct(SimpleAssignableAlignedToOneSimilarType1Serializable<>& output)
 {
     output.m_j = 99;
-    output.m_k = 98352739;
+    output.m_k = 15456 | (12345 << 16);
 }
 
 template<>
 void fillingStruct(SimpleAssignableAlignedToOneSimilarType2Serializable<>& output)
 {
-    output.m_j = 100;
+    output.m_j = 99;
     output.m_k = 15456;
 }
 
@@ -212,28 +233,28 @@ template<>
 void fillingStruct(SimpleAssignableSimilarType1Serializable<>& output)
 {
     output.m_j = 101;
-    output.m_k = 8582727;
+    output.m_k = 8374 | (12345 << 16);
 }
 
 template<>
 void fillingStruct(SimpleAssignableSimilarType2Serializable<>& output)
 {
-    output.m_j = 102;
+    output.m_j = 101;
     output.m_k = 8374;
 }
 
 template<>
 void fillingStruct(SimilarType1Serializable<>& output)
 {
-    output.m_j = 103;
-    output.m_k = 8582727;
+    output.m_j = 102;
+    output.m_k = 9951 | (12345 << 16);
 }
 
 template<>
 void fillingStruct(SimilarType2Serializable<>& output)
 {
-    output.m_j = 104;
-    output.m_k = 8374;
+    output.m_j = 102;
+    output.m_k = 9951;
 }
 
 template<>
@@ -261,7 +282,7 @@ void fillingStruct(ManyPointersTypeSerializable<>& output)
 }
 
 template<>
-void fillingStruct(ForAllFlagsTests1_Version0<>& output)
+void fillingStruct(SForAllModesTests_Version0<>& output)
 {
     fillingStruct(output.m_saDs);
 
@@ -274,10 +295,11 @@ void fillingStruct(ForAllFlagsTests1_Version0<>& output)
 }
 
 template<>
-void fillingStruct(ForAllFlagsTests1_Version2<>& output)
+void fillingStruct(SForAllModesTests_Version2<>& output)
 {
     fillingStruct(output.m_saS);
-    output.m_i = 185468;
+    output.m_i = output.m_saS.m_i + 2;      // == SimpleAssignableDescendantSerializable::m_d;
+    output.m_saS.m_i -= 1;
 
     fillingStruct(output.m_diamond);
     fillingStruct(output.m_sptCs);
@@ -288,9 +310,52 @@ void fillingStruct(ForAllFlagsTests1_Version2<>& output)
 }
 
 template<>
-void fillingStruct(ForAllFlagsTests1<>& output)
+void fillingStruct(SForAllModesTests<>& output)
 {
     fillingStruct(output.m_saDs);
+    output.m_saDs.m_i -= 2;                 // == SimpleAssignableSerializable::m_i - 2;
+    
+    fillingStruct(output.m_diamond);
+    fillingStruct(output.m_sptCs);
+    fillingStruct(output.m_saaToStS);
+    fillingStruct(output.m_saStS);
+    fillingStruct(output.m_stS);
+    fillingStruct(output.m_mpt);
+}
+
+template<>
+void fillingStruct(DForAllModesTests_Version0<>& output)
+{
+    fillingStruct(output.m_saDs);
+
+    fillingStruct(output.m_diamond);
+    fillingStruct(output.m_sptCs);
+    fillingStruct(output.m_saaToStS);
+    fillingStruct(output.m_saStS);
+    fillingStruct(output.m_stS);
+    fillingStruct(output.m_mpt);
+}
+
+template<>
+void fillingStruct(DForAllModesTests_Version2<>& output)
+{
+    fillingStruct(output.m_saS);
+    output.m_i = output.m_saS.m_i + 2;      // == SimpleAssignableDescendantSerializable::m_d;
+    output.m_saS.m_i -= 1;
+
+    fillingStruct(output.m_diamond);
+    fillingStruct(output.m_sptCs);
+    fillingStruct(output.m_saaToStS);
+    fillingStruct(output.m_saStS);
+    fillingStruct(output.m_stS);
+    fillingStruct(output.m_mpt);
+}
+
+template<>
+void fillingStruct(DForAllModesTests<>& output)
+{
+    fillingStruct(output.m_saDs);
+    output.m_saDs.m_i -= 2;                 // == SimpleAssignableSerializable::m_i - 2;
 
     fillingStruct(output.m_diamond);
     fillingStruct(output.m_sptCs);
