@@ -98,7 +98,7 @@ protected:
         if (pVersionsHierarchy[0] > getTargetVersion())
             RUN(base_class::convertOnHeap(*pointerKeeper.get<To>(), ctx))
         else
-            RUN(DataProcessor::serializeDataLegacy(*pointerKeeper.get<To>(), ctx))
+            RUN(DataProcessor::serializeData(*pointerKeeper.get<To>(), ctx))
 
             return Status::kNoError;
     }
@@ -112,7 +112,7 @@ protected:
         if (pVersionsHierarchy[0] > getTargetVersion())
             RUN(base_class::convertOnStack(to, ctx))
         else
-            RUN(DataProcessor::serializeDataLegacy(to, ctx))
+            RUN(DataProcessor::serializeData(to, ctx))
 
         return Status::kNoError;
     }
@@ -201,7 +201,7 @@ protected:
         if (!pointerKeeper.allocateAndConstruct<From, GenericAllocatorHelper<From, ConstructorNoexceptAllocator<From>>>(1))
             return Status::kErrorNoMemory;
 
-        RUN(DataProcessor::deserializeDataLegacy(ctx, *pointerKeeper.get<From>()));
+        RUN(DataProcessor::deserializeData(ctx, *pointerKeeper.get<From>()));
         RUN(convertToUpperVersionOnHeap(*pointerKeeper.get<From>(), ctx, to));
 
         return Status::kNoError;
@@ -211,7 +211,7 @@ protected:
     Status convertOnStack(context::DData<D, PM>& ctx, To& to) noexcept
     {
         From from;
-        RUN(DataProcessor::deserializeDataLegacy(ctx, from));
+        RUN(DataProcessor::deserializeData(ctx, from));
         RUN(convertToUpperVersionOnStack(from, ctx, to));
 
         return Status::kNoError;

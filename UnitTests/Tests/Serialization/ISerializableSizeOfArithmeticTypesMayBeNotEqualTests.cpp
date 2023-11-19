@@ -49,9 +49,9 @@ void mainTest()
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
 
-    EXPECT_EQ(input.getJ(), output.getJ());
-    EXPECT_NE(input.getK(), output.getK());
-    EXPECT_EQ(static_cast<short>(input.getK()), output.getK());
+    EXPECT_EQ(input.m_j, output.m_j);
+    EXPECT_NE(input.m_k, output.m_k);
+    EXPECT_EQ(static_cast<short>(input.m_k), output.m_k);
 
     // comparing with no flags size of serialized data
     TS input2;

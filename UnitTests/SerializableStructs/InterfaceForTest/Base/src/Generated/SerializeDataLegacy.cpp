@@ -31,6 +31,26 @@
         return status;                                                          \
 }
 
+#define SERIALIZE_LEGACY_COMMON(value, ctx)                                             \
+{                                                                                       \
+    if constexpr (                                                                      \
+           serialization_concepts::SimpleAssignableType<decltype(value)>                \
+        || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
+    {                                                                                   \
+        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (                                                                       \
+                   !statusSuccess(status)                                               \
+                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
+        )                                                                               \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* than we should serialize it field-by-field */                                \
+    }                                                                                   \
+}
+
 namespace common_serialization
 {
 
@@ -41,20 +61,100 @@ namespace processing
 {
 
 template<>
-Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value
+Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
+    SERIALIZE_LEGACY_COMMON(value, ctx);
+
     RUN(serializeData(value.m_ti, ctx));
 
     return Status::kNoError;
 }
 
+
 template<>
-Status DataProcessor::serializeDataLegacy(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
+Status DataProcessor::serializeData(const special_types::SimpleAssignableSerializable_Version0<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
+    SERIALIZE_LEGACY_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_i, ctx));
+    RUN(serializeData(value.m_j, ctx));
+    RUN(serializeData(value.m_et, ctx));
+    RUN(serializeData(value.m_et2, ctx));
+    RUN(serializeData(value.m_saaToS, ctx));
+    RUN(serializeData(value.m_saaToNS, ctx));
+    RUN(serializeData(value.m_saNS, ctx));
+
+    RUN(serializeData(value.m_arrI32, ctx));
+    RUN(serializeData(value.m_arrEtS, ctx));
+    RUN(serializeData(value.m_arrEtNS, ctx));
+    RUN(serializeData(value.m_arrSaaTos, ctx));
+    RUN(serializeData(value.m_arrSaaToNS, ctx));
+    RUN(serializeData(value.m_arrSaNS, ctx));
+
+    RUN(serializeData(value.m_vt, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable_Version0<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_LEGACY_COMMON(value, ctx);
+
+    RUN(serializeData(static_cast<const special_types::SimpleAssignableSerializable_Version0<>&>(value), ctx));
+
+    RUN(serializeData(value.m_d, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version0<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_LEGACY_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_saDs, ctx));
+    RUN(serializeData(value.m_diamond, ctx));
+    RUN(serializeData(value.m_sptCs, ctx));
+    RUN(serializeData(value.m_saaToStS, ctx));
+    RUN(serializeData(value.m_saStS, ctx));
+    RUN(serializeData(value.m_stS, ctx));
+    RUN(serializeData(value.m_mpt, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_LEGACY_COMMON(value, ctx);
+
     RUN(serializeData(value.m_x, ctx));
     RUN(serializeData(value.m_y, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version2<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_LEGACY_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_saS, ctx));
+    RUN(serializeData(value.m_diamond, ctx));
+    RUN(serializeData(value.m_sptCs, ctx));
+    RUN(serializeData(value.m_saaToStS, ctx));
+    RUN(serializeData(value.m_saStS, ctx));
+    RUN(serializeData(value.m_stS, ctx));
+    RUN(serializeData(value.m_mpt, ctx));
+
+    RUN(serializeData(value.m_i, ctx));
 
     return Status::kNoError;
 }

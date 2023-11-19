@@ -44,7 +44,9 @@
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
     }                                                                                   \
-    else if constexpr (serialization_concepts::SimpleAssignableType<decltype(value)>    \
+                                                                                        \
+    if constexpr (                                                                      \
+           serialization_concepts::SimpleAssignableType<decltype(value)>                \
         || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
     {                                                                                   \
         Status status = serializeDataSimpleAssignable((value), (ctx));                  \
@@ -69,6 +71,18 @@ namespace csp
 
 namespace processing
 {
+
+template<>
+Status DataProcessor::serializeData(const special_types::TwoInts& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.x, ctx));
+    RUN(serializeData(value.y, ctx));
+
+    return Status::kNoError;
+}
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneNotSerializable& value
@@ -127,6 +141,21 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableSeriali
     RUN(serializeData(value.m_arrSaaTos, ctx));
     RUN(serializeData(value.m_arrSaaToNS, ctx));
     RUN(serializeData(value.m_arrSaNS, ctx));
+
+    RUN(serializeData(value.m_vx, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(static_cast<const special_types::SimpleAssignableSerializable<>&>(value), ctx));
+
+    RUN(serializeData(value.m_d, ctx));
 
     return Status::kNoError;
 }
@@ -333,6 +362,23 @@ Status DataProcessor::serializeData(const special_types::ManyPointersTypeSeriali
     RUN(serializeData(value.m_intArr, ctx));
     RUN(serializeData(value.m_ppInt, ctx));
     RUN(serializeData(value.m_nullptrInt, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const special_types::DForAllModesTests<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+{
+    SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_saDs, ctx));
+    RUN(serializeData(value.m_diamond, ctx));
+    RUN(serializeData(value.m_sptCs, ctx));
+    RUN(serializeData(value.m_saaToStS, ctx));
+    RUN(serializeData(value.m_saStS, ctx));
+    RUN(serializeData(value.m_stS, ctx));
+    RUN(serializeData(value.m_mpt, ctx));
 
     return Status::kNoError;
 }

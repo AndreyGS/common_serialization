@@ -35,6 +35,10 @@ namespace processing
 {
 
 template<>
+Status DataProcessor::serializeData(const special_types::TwoInts& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneNotSerializable& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 
@@ -48,6 +52,10 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableNotSeri
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSerializable<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+template<>
+Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
@@ -113,6 +121,11 @@ Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial2& 
 template<>
 Status DataProcessor::serializeData(const special_types::ManyPointersTypeSerializable<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
+template<>
+Status DataProcessor::serializeData(const special_types::DForAllModesTests<>& value
+    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+
 
 } // namespace processing
 
