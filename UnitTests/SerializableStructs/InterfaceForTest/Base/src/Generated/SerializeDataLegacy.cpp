@@ -154,6 +154,8 @@ Status DataProcessor::serializeData(const special_types::SForAllModesTests_Versi
     RUN(serializeData(value.m_stS, ctx));
     RUN(serializeData(value.m_mpt, ctx));
 
+    RUN(serializeData(value.m_i, ctx));
+
     return Status::kNoError;
 }
 

@@ -88,7 +88,7 @@ Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableDe
 }
 
 template<>
-Status DataProcessor::convertToOldStruct(const special_types::SForAllModesTests<>& value
+Status DataProcessor::convertToOldStruct(const special_types::DForAllModesTests<>& value
     , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here

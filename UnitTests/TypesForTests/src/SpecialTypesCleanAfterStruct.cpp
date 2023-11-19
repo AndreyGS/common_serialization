@@ -58,7 +58,7 @@ void cleanAfterStruct(SForAllModesTests_Version2<>& output)
 }
 
 template<>
-void cleanAfterStruct(SForAllModesTests<>& output)
+void cleanAfterStruct(DForAllModesTests<>& output)
 {
     cleanAfterStruct(output.m_saDs);
     cleanAfterStruct(output.m_diamond);

@@ -310,48 +310,6 @@ void fillingStruct(SForAllModesTests_Version2<>& output)
 }
 
 template<>
-void fillingStruct(SForAllModesTests<>& output)
-{
-    fillingStruct(output.m_saDs);
-    output.m_saDs.m_i -= 2;                 // == SimpleAssignableSerializable::m_i - 2;
-    
-    fillingStruct(output.m_diamond);
-    fillingStruct(output.m_sptCs);
-    fillingStruct(output.m_saaToStS);
-    fillingStruct(output.m_saStS);
-    fillingStruct(output.m_stS);
-    fillingStruct(output.m_mpt);
-}
-
-template<>
-void fillingStruct(DForAllModesTests_Version0<>& output)
-{
-    fillingStruct(output.m_saDs);
-
-    fillingStruct(output.m_diamond);
-    fillingStruct(output.m_sptCs);
-    fillingStruct(output.m_saaToStS);
-    fillingStruct(output.m_saStS);
-    fillingStruct(output.m_stS);
-    fillingStruct(output.m_mpt);
-}
-
-template<>
-void fillingStruct(DForAllModesTests_Version2<>& output)
-{
-    fillingStruct(output.m_saS);
-    output.m_i = output.m_saS.m_i + 2;      // == SimpleAssignableDescendantSerializable::m_d;
-    output.m_saS.m_i -= 1;
-
-    fillingStruct(output.m_diamond);
-    fillingStruct(output.m_sptCs);
-    fillingStruct(output.m_saaToStS);
-    fillingStruct(output.m_saStS);
-    fillingStruct(output.m_stS);
-    fillingStruct(output.m_mpt);
-}
-
-template<>
 void fillingStruct(DForAllModesTests<>& output)
 {
     fillingStruct(output.m_saDs);

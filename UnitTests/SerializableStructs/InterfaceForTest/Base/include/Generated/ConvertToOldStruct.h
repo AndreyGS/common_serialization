@@ -45,9 +45,6 @@ template<>
 Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableDescendantSerializable<>& value
     , uint32_t thisVersionCompat, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 template<>
-Status DataProcessor::convertToOldStruct(const special_types::SForAllModesTests<>& value
-    , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
-template<>
 Status DataProcessor::convertToOldStruct(const special_types::DForAllModesTests<>& value
     , uint32_t targetVersion, context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
 

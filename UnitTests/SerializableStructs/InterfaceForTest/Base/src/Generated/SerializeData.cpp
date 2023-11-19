@@ -355,7 +355,7 @@ Status DataProcessor::serializeData(const special_types::ManyPointersTypeSeriali
 }
 
 template<>
-Status DataProcessor::serializeData(const special_types::SForAllModesTests<>& value
+Status DataProcessor::serializeData(const special_types::DForAllModesTests<>& value
     , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);

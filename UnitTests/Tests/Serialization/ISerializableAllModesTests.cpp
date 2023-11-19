@@ -76,18 +76,18 @@ TEST(ISerializableAllModesTests, NoFlags2to3)
 
 TEST(ISerializableAllModesTests, NoFlags3to3)
 {
-    mainTest<SForAllModesTests<>, DForAllModesTests<>>(csp::context::DataFlags{});
+    mainTest<DForAllModesTests<>, DForAllModesTests<>>(csp::context::DataFlags{});
 }
-/*
+
 TEST(ISerializableAllModesTests, NoFlags3to0)
 {
-    mainTest<SForAllModesTests<>, SForAllModesTests_Version0<>>(csp::context::DataFlags{}, SForAllModesTests_Version0<>::getInterfaceVersion());
+    mainTest<DForAllModesTests<>, SForAllModesTests_Version0<>>(csp::context::DataFlags{}, SForAllModesTests_Version0<>::getInterfaceVersion());
 }
 
 TEST(ISerializableAllModesTests, NoFlags3to2)
 {
-    mainTest<SForAllModesTests<>, SForAllModesTests_Version2<>>(csp::context::DataFlags{}, SForAllModesTests_Version2<>::getInterfaceVersion());
+    mainTest<DForAllModesTests<>, SForAllModesTests_Version2<>>(csp::context::DataFlags{}, SForAllModesTests_Version2<>::getInterfaceVersion());
 }
-*/
+
 
 } // namespace anonymous

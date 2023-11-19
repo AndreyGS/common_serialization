@@ -105,9 +105,21 @@ public:
         m_saaToNS = rhs.m_saaToNS;
         m_saNS = rhs.m_saNS;
         memcpy(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32));
-        memcpy(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos));
-        memcpy(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS));
-        memcpy(m_arrSaNS, rhs.m_arrSaNS, sizeof(m_arrSaNS));
+        for (size_t i = 0; i < 3; ++i)
+        {
+            m_arrSaaTos[i].m_ti.x = rhs.m_arrSaaTos[i].m_ti.x;
+            m_arrSaaTos[i].m_ti.y = rhs.m_arrSaaTos[i].m_ti.y;
+        }
+        for (size_t i = 0; i < 3; ++i)
+        {
+            m_arrSaaToNS[i].a = rhs.m_arrSaaToNS[i].a;
+            m_arrSaaToNS[i].s = rhs.m_arrSaaToNS[i].s;
+        }
+        for (size_t i = 0; i < 3; ++i)
+        {
+            m_arrSaNS[i].q = rhs.m_arrSaNS[i].q;
+            m_arrSaNS[i].w = rhs.m_arrSaNS[i].w;
+        }
         m_vt = rhs.m_vt;
 
         return *this;
@@ -123,8 +135,18 @@ public:
             && m_saNS == rhs.m_saNS
 
             && memcmp(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32)) == 0
-            && memcmp(m_arrSaaTos, rhs.m_arrSaaTos, sizeof(m_arrSaaTos)) == 0
-            && memcmp(m_arrSaaToNS, rhs.m_arrSaaToNS, sizeof(m_arrSaaToNS)) == 0
+
+            && m_arrSaaTos[0] == rhs.m_arrSaaTos[0]
+            && m_arrSaaTos[1] == rhs.m_arrSaaTos[1]
+            && m_arrSaaTos[2] == rhs.m_arrSaaTos[2]
+
+            && m_arrSaaToNS[0] == rhs.m_arrSaaToNS[0]
+            && m_arrSaaToNS[1] == rhs.m_arrSaaToNS[1]
+            && m_arrSaaToNS[2] == rhs.m_arrSaaToNS[2]
+
+            && m_arrSaNS[0] == rhs.m_arrSaNS[0]
+            && m_arrSaNS[1] == rhs.m_arrSaNS[1]
+            && m_arrSaNS[2] == rhs.m_arrSaNS[2]
 
             && m_arrSaNS[0] == rhs.m_arrSaNS[0]
             && m_arrSaNS[1] == rhs.m_arrSaNS[1]
@@ -317,48 +339,6 @@ public:
 };
 
 
-template<typename>
-class DForAllModesTests_Version2;
-
-template<typename T = Dummy>
-class DForAllModesTests_Version0 : public csp::ISerializable<GetCrtpMainType<DForAllModesTests_Version0<T>, T >>
-{
-public:
-    using instance_type = GetCrtpMainType<DForAllModesTests_Version0<T>, T>;
-
-    static constexpr uint64_t kNameHash = 10000;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
-
-    template<typename T2>
-    Status init(const DForAllModesTests_Version2<T2>& rhs);
-
-    [[nodiscard]] bool operator==(const DForAllModesTests_Version0<>& rhs) const noexcept
-    {
-        return
-            m_saDs == rhs.m_saDs
-            && m_diamond == rhs.m_diamond
-            && m_sptCs == rhs.m_sptCs
-            && m_saaToStS == rhs.m_saaToStS
-            && m_saStS == rhs.m_saStS
-            && m_stS == rhs.m_stS
-            && m_mpt == rhs.m_mpt;
-
-    }
-
-    SimpleAssignableDescendantSerializable_Version0<> m_saDs;
-    DiamondSerializable<> m_diamond;
-    SpecialProcessingTypeContainSerializable<> m_sptCs;
-    SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToStS;
-    SimpleAssignableSimilarType2Serializable<> m_saStS;
-    SimilarType2Serializable<> m_stS;
-    ManyPointersTypeSerializable<> m_mpt;
-
-    friend csp::processing::DataProcessor;
-    friend DForAllModesTests_Version2;
-};
-
-
 template<typename T = Dummy>
 class SimpleAssignableAlignedToOneSerializable_Version1 : public csp::ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>>
 {
@@ -435,7 +415,7 @@ public:
     template<typename T2>
     Status init(const SForAllModesTests_Version0<T2>& rhs);
     template<typename T2>
-    Status init(const SForAllModesTests<T2>& rhs);
+    Status init(const DForAllModesTests<T2>& rhs);
 
     [[nodiscard]] bool operator==(const SForAllModesTests_Version2<>& rhs) const noexcept
     {
@@ -462,7 +442,7 @@ public:
 
     friend csp::processing::DataProcessor;
     friend SForAllModesTests_Version0;
-    friend SForAllModesTests;
+    friend DForAllModesTests;
 };
 
 template<typename T1>
@@ -503,127 +483,16 @@ Status SForAllModesTests_Version2<T1>::init(const SForAllModesTests_Version0<T2>
 
 template<typename T1>
 template<typename T2>
-Status SForAllModesTests_Version2<T1>::init(const SForAllModesTests<T2>& rhs)
+Status SForAllModesTests_Version2<T1>::init(const DForAllModesTests<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
-    m_saaToStS = rhs.m_saaToStS;
-    m_saStS = rhs.m_saStS;
-    m_stS = rhs.m_stS;
-    m_mpt = rhs.m_mpt;
-
-    m_saS = rhs.m_saDs;
-    m_saS.m_i += 1; // additional conversion
-    m_i = rhs.m_saDs.m_d;
-
-    return Status::kNoError;
-}
-
-template<typename T1>
-template<typename T2>
-Status SForAllModesTests<T1>::init(const SForAllModesTests_Version2<T2>& rhs)
-{
-    m_diamond = rhs.m_diamond;
-    m_sptCs = rhs.m_sptCs;
-    m_saaToStS = rhs.m_saaToStS;
-    m_saStS = rhs.m_saStS;
-    m_stS = rhs.m_stS;
-    m_mpt = rhs.m_mpt;
-
-    static_cast<SimpleAssignableSerializable<>&>(m_saDs) = rhs.m_saS;
-    m_saDs.m_i -= 1; // additional conversion
-    m_saDs.m_d = rhs.m_i;
-
-    return Status::kNoError;
-}
-
-template<typename T = Dummy>
-class DForAllModesTests_Version2 : public csp::ISerializable<GetCrtpMainType<DForAllModesTests_Version2<T>, T >>
-{
-public:
-    using instance_type = GetCrtpMainType<DForAllModesTests_Version2<T>, T>;
-
-    static constexpr uint64_t kNameHash = 10000;
-    static constexpr uint32_t kInterfaceVersion = 2;
-    static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
-
-    template<typename T2>
-    Status init(const DForAllModesTests_Version0<T2>& rhs);
-    template<typename T2>
-    Status init(const DForAllModesTests<T2>& rhs);
-
-    [[nodiscard]] bool operator==(const DForAllModesTests_Version2<>& rhs) const noexcept
-    {
-        return
-               m_saS == rhs.m_saS
-            && m_i == rhs.m_i
-            && m_diamond == rhs.m_diamond
-            && m_sptCs == rhs.m_sptCs
-            && m_saaToStS == rhs.m_saaToStS
-            && m_saStS == rhs.m_saStS
-            && m_stS == rhs.m_stS
-            && m_mpt == rhs.m_mpt;
-    }
-
-    DiamondSerializable<> m_diamond;
-    SpecialProcessingTypeContainSerializable<> m_sptCs;
-    SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToStS;
-    SimpleAssignableSimilarType2Serializable<> m_saStS;
-    SimilarType2Serializable<> m_stS;
-    ManyPointersTypeSerializable<> m_mpt;
-
-    SimpleAssignableSerializable<> m_saS;
-    int m_i{ 0 }; // duplicated m_saDs.m_i
-
-    friend csp::processing::DataProcessor;
-    friend DForAllModesTests_Version0;
-    friend DForAllModesTests;
-};
-
-template<typename T1>
-template<typename T2>
-Status DForAllModesTests_Version0<T1>::init(const DForAllModesTests_Version2<T2>& rhs)
-{
-    m_diamond = rhs.m_diamond;
-    m_sptCs = rhs.m_sptCs;
-    m_saaToStS = rhs.m_saaToStS;
-    m_saStS = rhs.m_saStS;
-    m_stS = rhs.m_stS;
-    m_mpt = rhs.m_mpt;
-
-    static_cast<SimpleAssignableSerializable_Version0<>&>(m_saDs).init(rhs.m_saS);
-    m_saDs.m_i += 1; // additional conversion
-
-    return Status::kNoError;
-}
-
-template<typename T1>
-template<typename T2>
-Status DForAllModesTests_Version2<T1>::init(const DForAllModesTests_Version0<T2>& rhs)
-{
-    m_diamond = rhs.m_diamond;
-    m_sptCs = rhs.m_sptCs;
-    m_saaToStS = rhs.m_saaToStS;
-    m_saStS = rhs.m_saStS;
-    m_stS = rhs.m_stS;
-    m_mpt = rhs.m_mpt;
-
-    m_saS.init(static_cast<const SimpleAssignableSerializable_Version0<>&>(rhs.m_saDs));
-    m_saS.m_i -= 1; // additional conversion
-    m_i = rhs.m_saDs.m_i;
-
-    return Status::kNoError;
-}
-
-template<typename T1>
-template<typename T2>
-Status DForAllModesTests_Version2<T1>::init(const DForAllModesTests<T2>& rhs)
-{
-    m_diamond = rhs.m_diamond;
-    m_sptCs = rhs.m_sptCs;
-    m_saaToStS = rhs.m_saaToStS;
-    m_saStS = rhs.m_saStS;
-    m_stS = rhs.m_stS;
+    m_saaToStS.m_j = rhs.m_saaToStS.m_j;
+    m_saaToStS.m_k = rhs.m_saaToStS.m_k;
+    m_saStS.m_j = rhs.m_saStS.m_j;
+    m_saStS.m_k = rhs.m_saStS.m_k;
+    m_stS.m_j = rhs.m_stS.m_j;
+    m_stS.m_k = rhs.m_stS.m_k;
     m_mpt = rhs.m_mpt;
 
     m_saS = rhs.m_saDs;
