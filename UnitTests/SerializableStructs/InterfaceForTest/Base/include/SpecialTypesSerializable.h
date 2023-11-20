@@ -40,7 +40,7 @@ public:
     using instance_type = GetCrtpMainType<EmptyTypeSerializable<T>, T>;
     using empty_type_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 0;
+    static constexpr csp::name_hash_t kNameHash = 0;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 };
@@ -70,7 +70,7 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 1;
+    static constexpr csp::name_hash_t kNameHash = 1;
     static constexpr uint32_t kInterfaceVersion = 3;
     static constexpr uint32_t kVersionsHierarchy[] = { 3, 1, 0 };
 
@@ -125,7 +125,7 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableSerializable<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 2;
+    static constexpr csp::name_hash_t kNameHash = 2;
     static constexpr uint32_t kInterfaceVersion = 2;         // latest version among all dependable structs
     static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
 
@@ -221,7 +221,7 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
     using instance_type = GetCrtpMainType<SimpleAssignableDescendantSerializable<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 3;
+    static constexpr csp::name_hash_t kNameHash = 3;
     static constexpr uint32_t kInterfaceVersion = 2;
     static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
 
@@ -269,7 +269,7 @@ class DynamicPolymorphicNotSerializable
 public:
     virtual ~DynamicPolymorphicNotSerializable() {}
 
-    static constexpr uint64_t kNameHash = 4;
+    static constexpr csp::name_hash_t kNameHash = 4;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -292,7 +292,7 @@ public:
 
     virtual ~DynamicPolymorphicSerializable() {}
 
-    static constexpr uint64_t kNameHash = 5;
+    static constexpr csp::name_hash_t kNameHash = 5;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -359,7 +359,7 @@ class DiamondSerializable
 public:
     using instance_type = GetCrtpMainType<DiamondSerializable<T>, T>;
 
-    static constexpr uint64_t kNameHash = 8;
+    static constexpr csp::name_hash_t kNameHash = 8;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -389,7 +389,7 @@ class SpecialProcessingTypeContainSerializable : public csp::ISerializable<GetCr
 public:
     using instance_type = GetCrtpMainType<SpecialProcessingTypeContainSerializable<T>, T>;
 
-    static constexpr uint64_t kNameHash = 9;
+    static constexpr csp::name_hash_t kNameHash = 9;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -438,7 +438,7 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1Serializable<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 1001; // hash is same as in SimpleAssignableAlignedToOneSimilarType2Serializable (need for tests)
+    static constexpr csp::name_hash_t kNameHash = 1001; // hash is same as in SimpleAssignableAlignedToOneSimilarType2Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -460,7 +460,7 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2Serializable<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 1001; // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
+    static constexpr csp::name_hash_t kNameHash = 1001; // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -484,7 +484,7 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableSimilarType1Serializable<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType2Serializable (need for tests)
+    static constexpr csp::name_hash_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType2Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -506,7 +506,7 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableSimilarType2Serializable<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType1Serializable (need for tests)
+    static constexpr csp::name_hash_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType1Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -527,7 +527,7 @@ class SimilarType1Serializable : public csp::ISerializable<GetCrtpMainType<Simil
 public:
     using instance_type = GetCrtpMainType<SimilarType1Serializable<T>, T>;
 
-    static constexpr uint64_t kNameHash = 1003; // hash is same as in SimilarType2Serializable (need for tests)
+    static constexpr csp::name_hash_t kNameHash = 1003; // hash is same as in SimilarType2Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -548,7 +548,7 @@ class SimilarType2Serializable : public csp::ISerializable<GetCrtpMainType<Simil
 public:
     using instance_type = GetCrtpMainType<SimilarType2Serializable<T>, T>;
 
-    static constexpr uint64_t kNameHash = 1003; // hash is same as in SimilarType1Serializable (need for tests)
+    static constexpr csp::name_hash_t kNameHash = 1003; // hash is same as in SimilarType1Serializable (need for tests)
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -584,7 +584,7 @@ class ManyPointersTypeSerializable : public csp::ISerializable<GetCrtpMainType<M
 public:
     using instance_type = GetCrtpMainType<ManyPointersTypeSerializable<T>, T>;
 
-    static constexpr uint64_t kNameHash = 100;
+    static constexpr csp::name_hash_t kNameHash = 100;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -659,7 +659,7 @@ class DForAllModesTests : public csp::ISerializable<GetCrtpMainType<DForAllModes
 public:
     using instance_type = GetCrtpMainType<DForAllModesTests<T>, T>;
 
-    static constexpr uint64_t kNameHash = 10000;
+    static constexpr csp::name_hash_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 3;
     static constexpr uint32_t kVersionsHierarchy[] = { 3, 2, 0 };
 

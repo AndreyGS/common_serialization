@@ -48,7 +48,7 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version0<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 11;
+    static constexpr csp::name_hash_t kNameHash = 11;
     static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -87,7 +87,7 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableSerializable_Version0<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 2;
+    static constexpr csp::name_hash_t kNameHash = 2;
     static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -232,7 +232,7 @@ struct SimpleAssignableDescendantSerializable_Version0 : public SimpleAssignable
     using instance_type = GetCrtpMainType<SimpleAssignableDescendantSerializable_Version0<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 3;
+    static constexpr csp::name_hash_t kNameHash = 3;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -306,7 +306,7 @@ class SForAllModesTests_Version0 : public csp::ISerializable<GetCrtpMainType<SFo
 public:
     using instance_type = GetCrtpMainType<SForAllModesTests_Version0<T>, T>;
 
-    static constexpr uint64_t kNameHash = 10000;
+    static constexpr csp::name_hash_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 0;
     static constexpr uint32_t kVersionsHierarchy[] = { 0 };
 
@@ -346,7 +346,7 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 10;
+    static constexpr csp::name_hash_t kNameHash = 10;
     static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
     static constexpr uint32_t kVersionsHierarchy[] = { 1, 0 };
 
@@ -408,7 +408,7 @@ class SForAllModesTests_Version2 : public csp::ISerializable<GetCrtpMainType<SFo
 public:
     using instance_type = GetCrtpMainType<SForAllModesTests_Version2<T>, T>;
 
-    static constexpr uint64_t kNameHash = 10000;
+    static constexpr csp::name_hash_t kNameHash = 10000;
     static constexpr uint32_t kInterfaceVersion = 2;
     static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
 

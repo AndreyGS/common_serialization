@@ -33,20 +33,21 @@
 #include <concepts>
 #include <type_traits>
 #include <limits>
-#include <unordered_map>    // temporary header, shall be replaced by internal map implementation
+#include <shared_mutex>
+#include <unordered_map>    // temporary header, must be replaced by internal map implementation
                             // to support environments without std libs, like OSes kernel modes
 #endif // USER_MODE
 
-
 #define RUN(x)                                                                  \
 {                                                                               \
-    if (Status status = (x); !statusSuccess(status))                               \
+    if (Status status = (x); !statusSuccess(status))                            \
         return status;                                                          \
 }
 
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 
 #include "../../cslib/include/Allocators/PlatformDependent/UserModeMemoryManagement.h"
+#include "../../cslib/include/Concurency/PlatformDependent/UserModeConcurency.h"
 
 #else // !USER_MODE
 
@@ -67,11 +68,13 @@
 #endif // USER_MODE
 
 #include "../../cslib/include/CsHelpers.h"
+#include "../../cslib/include/Concurency/GuardRW.h"
 #include "../../cslib/include/Allocators/AllocatorConcepts.h"
 #include "../../cslib/include/Allocators/RawKeeperAllocator.h"
 #include "../../cslib/include/Containers/Walker.h"
-#include "../../cslib/include/Serialization/ISerializable.h"
-#include "../../cslib/include/Serialization/ProcessingDataSpecial.h"
-#include "../../cslib/include/Serialization/ProcessingDataVersionConverters.h"
+#include "../../cslib/include/CSP/ISerializable.h"
+#include "../../cslib/include/CSP/ProcessingDataSpecial.h"
+#include "../../cslib/include/CSP/ProcessingDataVersionConverters.h"
+#include "../../cslib/include/Subscribers/Subscriber.h"
 
 #undef RUN

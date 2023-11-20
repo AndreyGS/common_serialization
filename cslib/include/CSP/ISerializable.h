@@ -32,6 +32,8 @@ namespace common_serialization
 namespace csp
 {
 
+using name_hash_t = uint64_t;
+
 // ISerializable base must have permanent size regardless of platform alignment
 #pragma pack(push, 1)
 
@@ -51,7 +53,7 @@ public:
     template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
     constexpr Status deserialize(context::DData<D, PM>& ctx);
 
-    [[nodiscard]] static constexpr uint64_t getNameHash() noexcept;
+    [[nodiscard]] static constexpr name_hash_t getNameHash() noexcept;
     [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
     [[nodiscard]] static constexpr uint32_t getInterfaceVersion() noexcept;
     [[nodiscard]] static constexpr uint32_t getMinimumInterfaceVersion() noexcept;
@@ -108,7 +110,7 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 }
 
 template<typename T>
-[[nodiscard]] constexpr uint64_t ISerializable<T>::getNameHash() noexcept
+[[nodiscard]] constexpr name_hash_t ISerializable<T>::getNameHash() noexcept
 {
     return T::kNameHash;
 }
