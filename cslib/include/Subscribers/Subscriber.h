@@ -23,26 +23,39 @@
 
 #pragma once
 
-#include "SubscriberBase.h"
+#include "SubscribersManager.h"
 
 
 namespace common_serialization
 {
 
-template<typename InputType, typename OutputType, bool multicast>
+template<typename T, typename InputType, typename OutputType, bool multicast = false>
     requires serialization_concepts::IsISerializableBased<InputType> && serialization_concepts::IsISerializableBased<OutputType>
-class Subscriber : private SubscriberBase
+class Subscriber
 {
 public:
     constexpr Subscriber();
 
+    static Status handleDataCommon(void* instance, Walker<uint8_t>& binInput, Vector<uint8_t>& binOutput);
 };
 
-template<typename InputType, typename OutputType, bool multicast>
+template<typename T, typename InputType, typename OutputType, bool multicast>
     requires serialization_concepts::IsISerializableBased<InputType> && serialization_concepts::IsISerializableBased<OutputType>
-constexpr Subscriber<InputType, OutputType, multicast>::Subscriber()
-    : SubscriberBase(InputType::getNameHash(), multicast)
-{ }
+constexpr Subscriber<T, InputType, OutputType, multicast>::Subscriber()
+{ 
+    GetSubscribersManager().addSubscriber(InputType::getNameHash(), multicast, handleDataCommon, this);
+}
+
+template<typename T, typename InputType, typename OutputType, bool multicast>
+    requires serialization_concepts::IsISerializableBased<InputType>&& serialization_concepts::IsISerializableBased<OutputType>
+Status Subscriber<T, InputType, OutputType, multicast>::handleDataCommon(void* pInstance, Walker<uint8_t>& binInput, Vector<uint8_t>& binOutput)
+{
+    InputType input;
+    OutputType output;
+    //RuN(input.deserialize(binInput));
+
+    return static_cast<T*>(pInstance)->handleData(input, output);
+}
 
 
 } // namespace common_serialization

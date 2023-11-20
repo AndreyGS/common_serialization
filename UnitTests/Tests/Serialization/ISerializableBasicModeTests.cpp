@@ -80,4 +80,43 @@ TEST(ISerializableBasicModeTests, DiamondT)
     mainTest<DiamondSerializable<>>();
 }
 
+class TestSubscriber
+    : Subscriber<TestSubscriber, SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableDescendantSerializable<>, false>
+    , Subscriber<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>, false>
+
+{
+public:
+    static Status handleData(const SimpleAssignableAlignedToOneSerializable<>& input, SimpleAssignableDescendantSerializable<>& output)
+    {
+        return Status::kNoError;
+    }
+
+    Status handleData(const DiamondSerializable<>& input, DynamicPolymorphicSerializable<>& output)
+    {
+        return Status::kNoError;
+    }
+};
+
+TEST(ISerializableBasicModeTests, Temp)
+{
+    TestSubscriber testSubs;
+
+    SimpleAssignableAlignedToOneSerializable testInput;
+    SimpleAssignableDescendantSerializable testOutput;
+
+    Walker<uint8_t> binIn;
+    Vector<uint8_t> binOut;
+
+    Vector<std::pair<HandleBinary, void*>> subscribers;
+    GetSubscribersManager().findSubscribers(testInput.getNameHash(), subscribers);
+    subscribers[0].first(subscribers[0].second, binIn, binOut);
+
+    DiamondSerializable testInput2;
+    DynamicPolymorphicSerializable testOutput2;
+
+    GetSubscribersManager().findSubscribers(testInput2.getNameHash(), subscribers);
+    subscribers[0].first(subscribers[0].second, binIn, binOut);
+
+}
+
 } // namespace anonymous
