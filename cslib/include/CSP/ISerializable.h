@@ -32,8 +32,6 @@ namespace common_serialization
 namespace csp
 {
 
-using name_hash_t = uint64_t;
-
 // ISerializable base must have permanent size regardless of platform alignment
 #pragma pack(push, 1)
 
@@ -54,11 +52,11 @@ public:
     constexpr Status deserialize(context::DData<D, PM>& ctx);
 
     [[nodiscard]] static constexpr name_hash_t getNameHash() noexcept;
-    [[nodiscard]] static constexpr uint32_t getThisVersion() noexcept;
-    [[nodiscard]] static constexpr uint32_t getInterfaceVersion() noexcept;
-    [[nodiscard]] static constexpr uint32_t getMinimumInterfaceVersion() noexcept;
-    [[nodiscard]] static constexpr const uint32_t* getVersionsHierarchy() noexcept;
-    [[nodiscard]] static constexpr uint32_t getVersionsHierarchySize() noexcept;
+    [[nodiscard]] static constexpr interface_version_t getThisVersion() noexcept;
+    [[nodiscard]] static constexpr interface_version_t getInterfaceVersion() noexcept;
+    [[nodiscard]] static constexpr interface_version_t getMinimumInterfaceVersion() noexcept;
+    [[nodiscard]] static constexpr const interface_version_t* getVersionsHierarchy() noexcept;
+    [[nodiscard]] static constexpr interface_version_t getVersionsHierarchySize() noexcept;
 };
 
 #pragma pack(pop)
@@ -116,31 +114,31 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr uint32_t ISerializable<T>::getThisVersion() noexcept
+[[nodiscard]] constexpr interface_version_t ISerializable<T>::getThisVersion() noexcept
 {
     return T::kVersionsHierarchy[0];
 }
 
 template<typename T>
-[[nodiscard]] constexpr uint32_t ISerializable<T>::getInterfaceVersion() noexcept
+[[nodiscard]] constexpr interface_version_t ISerializable<T>::getInterfaceVersion() noexcept
 {
     return T::kInterfaceVersion;
 }
 
 template<typename T>
-[[nodiscard]] constexpr uint32_t ISerializable<T>::getMinimumInterfaceVersion() noexcept
+[[nodiscard]] constexpr interface_version_t ISerializable<T>::getMinimumInterfaceVersion() noexcept
 {
     return getVersionsHierarchy()[getVersionsHierarchySize() - 1];
 }
 
 template<typename T>
-[[nodiscard]] constexpr const uint32_t* ISerializable<T>::getVersionsHierarchy() noexcept
+[[nodiscard]] constexpr const interface_version_t* ISerializable<T>::getVersionsHierarchy() noexcept
 {
     return T::kVersionsHierarchy;
 }
 
 template<typename T>
-[[nodiscard]] constexpr uint32_t ISerializable<T>::getVersionsHierarchySize() noexcept
+[[nodiscard]] constexpr interface_version_t ISerializable<T>::getVersionsHierarchySize() noexcept
 {
     return std::size(T::kVersionsHierarchy);
 }

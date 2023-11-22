@@ -55,8 +55,8 @@ constexpr Status deserializeHeaderContext(context::Common<D>& ctx) noexcept
 
     uint32_t version = 0;
     RUN(input.readArithmeticValue(version));
-    uint8_t minimumSupportedVersion = ctx.getProtocolVersion();
-    ctx.setProtocolVersion(static_cast<uint8_t>(version));
+    protocol_version_t minimumSupportedVersion = ctx.getProtocolVersion();
+    ctx.setProtocolVersion(static_cast<protocol_version_t>(version));
 
     if (minimumSupportedVersion > ctx.getProtocolVersion() || traits::getLatestProtocolVersion() < ctx.getProtocolVersion())
         return Status::kErrorNotSupportedProtocolVersion;
@@ -101,13 +101,13 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 }
 
 template<serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, uint64_t& nameHash)
+constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, name_hash_t& nameHash)
 {
     D& input = ctx.getBinaryData();
 
     RUN(input.readArithmeticValue(nameHash));
 
-    uint32_t inputInterfaceVersion = 0;
+    interface_version_t inputInterfaceVersion = 0;
     RUN(input.readArithmeticValue(inputInterfaceVersion));
     ctx.setInterfaceVersion(inputInterfaceVersion);
 
@@ -120,7 +120,7 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, uint64_t& na
 }
 
 template<typename T, serialization_concepts::IDeserializationCapableContainer D, serialization_concepts::IDeserializationPointersMap PM>
-constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, uint64_t nameHash, uint32_t minimumSupportedInterfaceVersion)
+constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, name_hash_t nameHash, interface_version_t minimumSupportedInterfaceVersion)
 {
     if (T::getNameHash() != nameHash)
         return Status::kErrorMismatchOfStructNameHash;

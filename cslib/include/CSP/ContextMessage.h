@@ -88,21 +88,8 @@ enum class Message : uint_fast32_t
                                             // {
                                             //     uint64_t structNameHash;
                                             //     uint32_t minimumSupportedInterfaceVersion;
-                                            //     uint32_t maximalSupportedInterfaceVersion;
+                                            //     uint32_t maximumSupportedInterfaceVersion;
                                             // }
-                                            // 
-                                            // Status == kMismatchOfInterfaceVersions
-                                            // 
-                                            // sends when its primal (latest) version not
-                                            // equal to version of input data, but version of input data
-                                            // is supported and DataFlags::interfaceVersionsNotMatch is false
-                                            // 
-                                            // message body format
-                                            // 
-                                            // {
-                                            //     uint64_t structHashName;
-                                            // }
-                                            //                                      
 };
 
 }

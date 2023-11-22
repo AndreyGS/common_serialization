@@ -49,8 +49,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 11;
-    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     SimpleAssignableAlignedToOneSerializable_Version0() { }
     template<typename T2>
@@ -88,8 +88,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 2;
-    static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;         // latest version among all dependable structs
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     template<typename T2>
     Status init(const SimpleAssignableSerializable<T2>& rhs);
@@ -233,8 +233,8 @@ struct SimpleAssignableDescendantSerializable_Version0 : public SimpleAssignable
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 3;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     uint32_t m_d{ 0 };
 
@@ -307,8 +307,8 @@ public:
     using instance_type = GetCrtpMainType<SForAllModesTests_Version0<T>, T>;
 
     static constexpr csp::name_hash_t kNameHash = 10000;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     template<typename T2>
     Status init(const SForAllModesTests_Version2<T2>& rhs);
@@ -347,8 +347,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 10;
-    static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
-    static constexpr uint32_t kVersionsHierarchy[] = { 1, 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 1, 0 };
 
     SimpleAssignableAlignedToOneSerializable_Version1() { }
     template<typename T2>
@@ -409,8 +409,8 @@ public:
     using instance_type = GetCrtpMainType<SForAllModesTests_Version2<T>, T>;
 
     static constexpr csp::name_hash_t kNameHash = 10000;
-    static constexpr uint32_t kInterfaceVersion = 2;
-    static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 2;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 2, 0 };
 
     template<typename T2>
     Status init(const SForAllModesTests_Version0<T2>& rhs);

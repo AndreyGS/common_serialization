@@ -31,47 +31,62 @@ namespace common_serialization
 namespace csp
 {
 
+using name_hash_t = uint64_t;
+using interface_version_t = uint32_t;
+using protocol_version_t = uint8_t;
+
 namespace traits
 {
 
-inline constexpr uint8_t kProtocolVersions[] = { 1 };
-inline constexpr uint8_t kProtocolVersionMax = 0xff;
-inline constexpr uint32_t kInterfaceVersionMax = 0xffffffff;
+inline constexpr protocol_version_t kProtocolVersions[] = { 1 };
+inline constexpr protocol_version_t kProtocolVersionMax = 0xff;
+inline constexpr interface_version_t kInterfaceVersionMax = 0xffffffff;
 
-constexpr uint8_t getLatestProtocolVersion()
+[[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion()
 {
     return kProtocolVersions[0];
 }
 
-constexpr bool isProtocolVersionSameAsLatestOur(uint8_t foreignProtocolVersion)
+[[nodiscard]] constexpr bool isProtocolVersionSameAsLatestOur(protocol_version_t foreignProtocolVersion)
 {
     return getLatestProtocolVersion() == foreignProtocolVersion;
 }
 
-constexpr uint8_t getProtocolVersionsCount()
+[[nodiscard]] constexpr protocol_version_t getProtocolVersionsCount()
 {
     return std::size(kProtocolVersions);
 }
 
-constexpr bool isProtocolVersionSupported(uint8_t foreignProtocolVersion) noexcept
+[[nodiscard]] constexpr bool isProtocolVersionSupported(protocol_version_t foreignProtocolVersion) noexcept
 {
-    for (uint8_t i = 0; i < getProtocolVersionsCount(); ++i)
+    for (protocol_version_t i = 0; i < getProtocolVersionsCount(); ++i)
         if (foreignProtocolVersion == kProtocolVersions[i])
             return true;
 
     return false;
 }
 
-constexpr bool isInterfaceVersionSupported(uint32_t version, uint32_t minVersion, uint32_t maxVersion) noexcept
+[[nodiscard]] constexpr bool isInterfaceVersionSupported(interface_version_t version, interface_version_t minVersion, interface_version_t maxVersion) noexcept
 {
     return maxVersion >= version && version >= minVersion;
 }
 
-// Using to find index of version in versions hierarchy of struct to which we must serialize/deserialize
-constexpr uint32_t getBestCompatInterfaceVersion(const uint32_t* pVersionsHierarchy
-    , uint32_t versionsHierarchySize, uint32_t compatInterfaceVersion) noexcept
+template<typename T>
+[[nodiscard]] constexpr interface_version_t getThisVersion() noexcept
 {
-    for (uint32_t i = 0; i < versionsHierarchySize; ++i)
+    return T::getThisVersion();
+}
+
+[[nodiscard]] constexpr interface_version_t getMinimumInterfaceVersion(const interface_version_t* pVersionsHierarchy, interface_version_t versionsHierarchySize) noexcept
+{
+    return pVersionsHierarchy[versionsHierarchySize - 1];
+}
+
+// Using to find index of version in versions hierarchy of struct to which we must serialize/deserialize
+[[nodiscard]] constexpr interface_version_t getBestCompatInterfaceVersion(const interface_version_t* pVersionsHierarchy
+    , interface_version_t versionsHierarchySize, interface_version_t compatInterfaceVersion) noexcept
+{
+    for (interface_version_t i = 0; i < versionsHierarchySize; ++i)
         if (pVersionsHierarchy[i] <= compatInterfaceVersion)
             return pVersionsHierarchy[i];
 

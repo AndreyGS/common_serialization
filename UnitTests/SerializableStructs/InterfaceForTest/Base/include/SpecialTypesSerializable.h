@@ -41,8 +41,8 @@ public:
     using empty_type_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 0;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 };
 
 #pragma pack(push, 1)
@@ -71,8 +71,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 1;
-    static constexpr uint32_t kInterfaceVersion = 3;
-    static constexpr uint32_t kVersionsHierarchy[] = { 3, 1, 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 3;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 3, 1, 0 };
 
     SimpleAssignableAlignedToOneSerializable() { }
     template<typename T2>
@@ -126,8 +126,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 2;
-    static constexpr uint32_t kInterfaceVersion = 2;         // latest version among all dependable structs
-    static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 3;         // latest version among all dependable structs
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 2, 0 };
 
     template<typename T2>
     Status init(const SimpleAssignableSerializable_Version0<T2>& rhs);
@@ -222,8 +222,8 @@ struct SimpleAssignableDescendantSerializable : public SimpleAssignableSerializa
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 3;
-    static constexpr uint32_t kInterfaceVersion = 2;
-    static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 3;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 2, 0 };
 
     uint32_t m_d{ 0 };
 
@@ -270,8 +270,8 @@ public:
     virtual ~DynamicPolymorphicNotSerializable() {}
 
     static constexpr csp::name_hash_t kNameHash = 4;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const DynamicPolymorphicNotSerializable& rhs) const noexcept
     {
@@ -293,8 +293,8 @@ public:
     virtual ~DynamicPolymorphicSerializable() {}
 
     static constexpr csp::name_hash_t kNameHash = 5;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const DynamicPolymorphicSerializable& rhs) const noexcept
     {
@@ -360,8 +360,8 @@ public:
     using instance_type = GetCrtpMainType<DiamondSerializable<T>, T>;
 
     static constexpr csp::name_hash_t kNameHash = 8;
-    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     DiamondSerializable& operator=(const DiamondSerializable<>& rhs)
     {
@@ -390,8 +390,8 @@ public:
     using instance_type = GetCrtpMainType<SpecialProcessingTypeContainSerializable<T>, T>;
 
     static constexpr csp::name_hash_t kNameHash = 9;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     SpecialProcessingTypeContainSerializable& operator=(const SpecialProcessingTypeContainSerializable<>& rhs)
     {
@@ -439,8 +439,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 1001; // hash is same as in SimpleAssignableAlignedToOneSimilarType2Serializable (need for tests)
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSimilarType1Serializable& rhs) const noexcept
     {
@@ -461,8 +461,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 1001; // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSimilarType2Serializable& rhs) const noexcept
     {
@@ -485,8 +485,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType2Serializable (need for tests)
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const SimpleAssignableSimilarType1Serializable& rhs) const noexcept
     {
@@ -507,8 +507,8 @@ public:
     using simple_assignable_tag = std::true_type;
 
     static constexpr csp::name_hash_t kNameHash = 1002; // hash is same as in SimpleAssignableSimilarType1Serializable (need for tests)
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const SimpleAssignableSimilarType2Serializable& rhs) const noexcept
     {
@@ -528,8 +528,8 @@ public:
     using instance_type = GetCrtpMainType<SimilarType1Serializable<T>, T>;
 
     static constexpr csp::name_hash_t kNameHash = 1003; // hash is same as in SimilarType2Serializable (need for tests)
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const SimilarType1Serializable& rhs) const noexcept
     {
@@ -549,8 +549,8 @@ public:
     using instance_type = GetCrtpMainType<SimilarType2Serializable<T>, T>;
 
     static constexpr csp::name_hash_t kNameHash = 1003; // hash is same as in SimilarType1Serializable (need for tests)
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const SimilarType2Serializable& rhs) const noexcept
     {
@@ -585,8 +585,8 @@ public:
     using instance_type = GetCrtpMainType<ManyPointersTypeSerializable<T>, T>;
 
     static constexpr csp::name_hash_t kNameHash = 100;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     ManyPointersTypeSerializable& operator=(const ManyPointersTypeSerializable<>& rhs)
     {
@@ -660,8 +660,8 @@ public:
     using instance_type = GetCrtpMainType<DForAllModesTests<T>, T>;
 
     static constexpr csp::name_hash_t kNameHash = 10000;
-    static constexpr uint32_t kInterfaceVersion = 3;
-    static constexpr uint32_t kVersionsHierarchy[] = { 3, 2, 0 };
+    static constexpr csp::interface_version_t kInterfaceVersion = 3;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 3, 2, 0 };
 
     template<typename T2>
     Status init(const SForAllModesTests_Version2<T2>& rhs);

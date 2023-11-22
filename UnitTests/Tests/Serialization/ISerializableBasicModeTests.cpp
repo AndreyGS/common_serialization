@@ -81,17 +81,17 @@ TEST(ISerializableBasicModeTests, DiamondT)
 }
 
 class TestSubscriber
-    : Subscriber<TestSubscriber, SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableDescendantSerializable<>, false>
-    , Subscriber<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>, false>
+    : csp::MethodSubscriber<SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableDescendantSerializable<>, SimpleAssignableAlignedToOneSerializable<>::getMinimumInterfaceVersion(), true, false>
+    , csp::StaticSubscriber<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>, DiamondSerializable<>::getMinimumInterfaceVersion(), true, false>
 
 {
 public:
-    static Status handleData(const SimpleAssignableAlignedToOneSerializable<>& input, SimpleAssignableDescendantSerializable<>& output)
+    Status handleData(const SimpleAssignableAlignedToOneSerializable<>& input, SimpleAssignableDescendantSerializable<>& output) override
     {
         return Status::kNoError;
     }
 
-    Status handleData(const DiamondSerializable<>& input, DynamicPolymorphicSerializable<>& output)
+    static Status handleDataStatic(const DiamondSerializable<>& input, DynamicPolymorphicSerializable<>& output)
     {
         return Status::kNoError;
     }
@@ -107,15 +107,20 @@ TEST(ISerializableBasicModeTests, Temp)
     Walker<uint8_t> binIn;
     Vector<uint8_t> binOut;
 
-    Vector<std::pair<HandleBinary, void*>> subscribers;
-    GetSubscribersManager().findSubscribers(testInput.getNameHash(), subscribers);
-    subscribers[0].first(subscribers[0].second, binIn, binOut);
+    Vector<csp::SubscriberBase*, GenericRawNoexceptAllocatorHelper<csp::SubscriberBase*>> subscribers;
+    csp::GetSubscribersManager().findSubscribers(testInput.getNameHash(), subscribers);
+    subscribers[0]->handleDataCommon(binIn, binOut);
+
+    // only nonstatic handlers must be removed
+    testSubs.~TestSubscriber();
 
     DiamondSerializable testInput2;
     DynamicPolymorphicSerializable testOutput2;
 
-    GetSubscribersManager().findSubscribers(testInput2.getNameHash(), subscribers);
-    subscribers[0].first(subscribers[0].second, binIn, binOut);
+    csp::GetSubscribersManager().findSubscribers(testInput2.getNameHash(), subscribers);
+    
+    if (subscribers.size())
+        subscribers[0]->handleDataCommon(binIn, binOut);
 
 }
 

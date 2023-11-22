@@ -75,6 +75,6 @@
 #include "../../cslib/include/CSP/ISerializable.h"
 #include "../../cslib/include/CSP/ProcessingDataSpecial.h"
 #include "../../cslib/include/CSP/ProcessingDataVersionConverters.h"
-#include "../../cslib/include/Subscribers/Subscriber.h"
+#include "../../cslib/include/CSP/Subscribers/Subscriber.h"
 
 #undef RUN

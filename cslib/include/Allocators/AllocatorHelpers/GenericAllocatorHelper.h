@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "../../Allocators/ConstructorNoexceptAllocator.h"
 #include "IAllocatorHelper.h"
 #include "../../CsHelpers.h"
 
@@ -292,5 +291,8 @@ public:
         : GenericAllocatorHelperImpl<T, Allocator, GenericAllocatorHelper<T, Allocator>>()
     { }
 };
+
+template<typename T>
+using GenericRawNoexceptAllocatorHelper = GenericAllocatorHelper<T, RawNoexceptAllocator<T>>;
 
 } // namespace common_serialization
