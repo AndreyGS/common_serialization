@@ -36,7 +36,7 @@ class SubscriberBase;
 
 struct SubscriberDescriptor
 {
-    using SubscriberHandleCommon = Status(*)(void*, Walker<uint8_t>&, Vector<uint8_t>&);
+    using SubscriberHandleCommon = Status(*)(void*, BinWalker&, BinVector&);
 
     void* instance{ nullptr };
     SubscriberHandleCommon handleCommon{ nullptr };
@@ -55,7 +55,7 @@ public:
 
     Status addSubscriber(csp::name_hash_t nameHash, bool multicast, SubscriberBase* pInstance);
     void removeSubscriber(csp::name_hash_t nameHash, SubscriberBase* pInstance);
-    void findSubscribers(csp::name_hash_t nameHash, Vector<SubscriberBase*, GenericRawNoexceptAllocatorHelper<SubscriberBase*>>& subscribers);
+    void findSubscribers(csp::name_hash_t nameHash, Vector<SubscriberBase*, RawGenericAllocatorHelper<SubscriberBase*>>& subscribers);
 
 private:
     static SubscribersKeeper subscribersManager;
@@ -98,7 +98,7 @@ inline void SubscribersKeeper::removeSubscriber(name_hash_t nameHash, Subscriber
         }
 }
 
-inline void SubscribersKeeper::findSubscribers(name_hash_t nameHash, Vector<SubscriberBase*, GenericRawNoexceptAllocatorHelper<SubscriberBase*>>& subscribers)
+inline void SubscribersKeeper::findSubscribers(name_hash_t nameHash, Vector<SubscriberBase*, RawGenericAllocatorHelper<SubscriberBase*>>& subscribers)
 {
     subscribers.clear();
 

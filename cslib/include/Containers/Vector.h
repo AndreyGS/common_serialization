@@ -984,4 +984,9 @@ template<typename T, typename AllocatorHelper>
     return !operator==(rhs);
 }
 
+template<typename T>
+using RawVector = Vector<T, RawStrategicAllocatorHelper<T>>;
+
+using BinVector = RawVector<uint8_t>;
+
 } // namespace common_serialization

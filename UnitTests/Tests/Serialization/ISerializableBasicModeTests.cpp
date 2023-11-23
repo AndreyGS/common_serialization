@@ -32,7 +32,7 @@ void mainTest()
     T input;
     fillingStruct(input);
 
-    Walker<uint8_t> bin;
+    BinWalker bin;
     EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
     T output;
@@ -45,7 +45,7 @@ void mainTest()
 TEST(ISerializableBasicModeTests, EmptyTypeT)
 {
     EmptyTypeSerializable input;
-    Walker<uint8_t> bin;
+    BinWalker bin;
     EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
     EmptyTypeSerializable output;
@@ -104,14 +104,14 @@ TEST(ISerializableBasicModeTests, Temp)
     SimpleAssignableAlignedToOneSerializable testInput;
     SimpleAssignableDescendantSerializable testOutput;
 
-    Walker<uint8_t> binIn;
-    Vector<uint8_t> binOut;
+    BinWalker binIn;
+    binIn.pushBack(1);
+    BinVector binOut;
 
-    Vector<csp::SubscriberBase*, GenericRawNoexceptAllocatorHelper<csp::SubscriberBase*>> subscribers;
+    Vector<csp::SubscriberBase*, RawGenericAllocatorHelper<csp::SubscriberBase*>> subscribers;
     csp::GetSubscribersManager().findSubscribers(testInput.getNameHash(), subscribers);
     subscribers[0]->handleDataCommon(binIn, binOut);
 
-    // only nonstatic handlers must be removed
     testSubs.~TestSubscriber();
 
     DiamondSerializable testInput2;

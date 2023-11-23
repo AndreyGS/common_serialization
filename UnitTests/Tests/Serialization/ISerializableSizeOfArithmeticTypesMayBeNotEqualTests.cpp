@@ -36,15 +36,15 @@ void mainTest()
     TS input;
     fillingStruct(input);
 
-    Walker<uint8_t> bin;
-    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
+    BinWalker bin;
+    csp::context::SData<BinVector> ctxIn(bin.getVector());
     csp::context::DataFlags flags;
     flags.sizeOfArithmeticTypesMayBeNotEqual = true;
     ctxIn.setFlags(flags);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
+    csp::context::DData<BinWalker> ctxOut(bin);
     TD output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
@@ -57,7 +57,7 @@ void mainTest()
     TS input2;
     fillingStruct(input2);
 
-    Walker<uint8_t> bin2;
+    BinWalker bin2;
     EXPECT_EQ(input2.serialize(bin2.getVector()), Status::kNoError);
 
     EXPECT_NE(bin2.size(), ctxIn.getBinaryData().size());
@@ -85,8 +85,8 @@ TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
     SpecialProcessingTypeContainSerializable input;
     fillingStruct(input);
 
-    Walker<uint8_t> bin;
-    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
+    BinWalker bin;
+    csp::context::SData<BinVector> ctxIn(bin.getVector());
     csp::context::DataFlags flags;
     flags.sizeOfArithmeticTypesMayBeNotEqual = true;
     flags.allowUnmanagedPointers = true;
@@ -94,7 +94,7 @@ TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
+    csp::context::DData<BinWalker> ctxOut(bin);
 
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(addedPointers);

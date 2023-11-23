@@ -634,9 +634,9 @@ public:
             && m_nullptrInt == nullptr;
     }
 
-    Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>> m_vec;
-    Vector<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*, StrategicRawNoexceptAllocatorHelper<Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>*>> m_vecRecursive;
-    Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>>* m_pVec;
+    Vector<int*, RawStrategicAllocatorHelper<int*>> m_vec;
+    Vector<Vector<int*, RawStrategicAllocatorHelper<int*>>*, RawStrategicAllocatorHelper<Vector<int*, RawStrategicAllocatorHelper<int*>>*>> m_vecRecursive;
+    Vector<int*, RawStrategicAllocatorHelper<int*>>* m_pVec;
 
     RecursiveTestSpecial1 m_rtSpec1;
     RecursiveTestSpecial2 m_rtSpec2;

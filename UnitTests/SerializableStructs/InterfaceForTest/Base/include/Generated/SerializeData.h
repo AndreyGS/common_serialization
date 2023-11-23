@@ -36,95 +36,95 @@ namespace processing
 
 template<>
 Status DataProcessor::serializeData(const special_types::TwoInts& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneNotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableNotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::DiamondSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSimilarType1Serializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSimilarType2Serializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSimilarType1Serializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSimilarType2Serializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimilarType1Serializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimilarType2Serializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial1& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial2& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::ManyPointersTypeSerializable<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 template<>
 Status DataProcessor::serializeData(const special_types::DForAllModesTests<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
 
 
 } // namespace processing

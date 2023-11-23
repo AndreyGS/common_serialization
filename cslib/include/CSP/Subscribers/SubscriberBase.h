@@ -34,9 +34,13 @@ namespace csp
 class SubscriberBase
 {
 public:
-    virtual Status handleDataCommon(Walker<uint8_t>& binInput, Vector<uint8_t>& binOutput) = 0;
+    virtual Status handleDataCommon(BinWalker& binInput, BinVector& binOutput) = 0;
+    virtual [[nodiscard]] interface_version_t getMinimumHandlerSupportedInterfaceVersion() = 0;
 
-    virtual interface_version_t getMinimumHandlerSupportedInterfaceVersion() = 0;
+protected:
+    constexpr SubscriberBase() { }
+    constexpr ~SubscriberBase() { }
+
     /*
     virtual name_hash_t         getInputTypeNameHash() = 0;
     virtual interface_version_t*getInputTypeVersionsHierarchy() = 0;

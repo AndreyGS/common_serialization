@@ -36,16 +36,16 @@ namespace processing
 {
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::convertFromOldStruct(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
     , uint32_t thisVersionCompat, special_types::SimpleAssignableAlignedToOneSerializable<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::convertFromOldStruct(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
     , uint32_t targetVersion, special_types::SimpleAssignableSerializable<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::convertFromOldStruct(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
     , uint32_t targetVersion, special_types::SimpleAssignableDescendantSerializable<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::convertFromOldStruct(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
     , uint32_t thisVersionCompat, special_types::DForAllModesTests<>& value);
 
 } // namespace processing

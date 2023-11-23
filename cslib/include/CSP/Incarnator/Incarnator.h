@@ -47,7 +47,7 @@ public:
     template<typename InputType, serialization_concepts::ISerializationCapableContainer S>
     Status initStatusMessage(const InputType& input, S& output, v)
 
-    Status receiveMessage(Walker<uint8_t>& input, Vector<uint8_t>& output)
+    Status receiveMessage(BinWalker& input, BinVector& output)
     {
         return Status::kNoError;
     }

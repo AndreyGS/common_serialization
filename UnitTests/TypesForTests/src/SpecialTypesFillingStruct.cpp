@@ -260,7 +260,7 @@ void fillingStruct(SimilarType2Serializable<>& output)
 template<>
 void fillingStruct(ManyPointersTypeSerializable<>& output)
 {
-    Vector<int*, StrategicRawNoexceptAllocatorHelper<int*>> vec;
+    Vector<int*, RawStrategicAllocatorHelper<int*>> vec;
     int* pInt = new int[3] { 1, 2, 3};
     vec.pushBack(pInt);
     vec.pushBack(pInt + 1);

@@ -26,7 +26,7 @@ namespace
 
 using namespace special_types;
 
-using size_type = typename Vector<uint8_t>::size_type;
+using size_type = typename BinVector::size_type;
 
 template<typename T>
 void mainTest()
@@ -34,8 +34,8 @@ void mainTest()
     T input;
     fillingStruct(input);
 
-    Walker<uint8_t> bin;
-    csp::context::SData<Vector<uint8_t>> ctxIn(bin.getVector());
+    BinWalker bin;
+    csp::context::SData<BinVector> ctxIn(bin.getVector());
     csp::context::DataFlags flags;
     flags.checkRecursivePointers = true;
     flags.allowUnmanagedPointers = true;
@@ -47,7 +47,7 @@ void mainTest()
 
     EXPECT_TRUE(ctxIn.getPointersMap()->size() > 0);
 
-    csp::context::DData<Walker<uint8_t>> ctxOut(bin);
+    csp::context::DData<BinWalker> ctxOut(bin);
     std::unordered_map<uint64_t, void*> dMap;
     ctxOut.setPointersMap(dMap);
     Vector<GenericPointerKeeper> addedPointers;

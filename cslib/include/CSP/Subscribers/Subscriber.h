@@ -40,21 +40,20 @@ template<typename InstanceType, typename InputType, typename OutputType
 class Subscriber : public SubscriberBase
 {
 public:
-    virtual ~Subscriber();
+    Status handleDataCommon(BinWalker& binInput, BinVector& binOutput) override;
 
-    Status handleDataCommon(Walker<uint8_t>& binInput, Vector<uint8_t>& binOutput) override;
-
-    // For static handlers must be default implementation replacement
+    // It is a default implementation replacement for static handlers
     virtual Status handleData(const InputType& input, OutputType& output);
 
     [[nodiscard]] interface_version_t getMinimumHandlerSupportedInterfaceVersion() override;
 
 protected:
-    constexpr Subscriber();
+    Subscriber();
+    ~Subscriber();
 
 private:
-    Status handleDataOnStack(Walker<uint8_t>& binInput, Vector<uint8_t>& binOutput);
-    Status handleDataOnHeap(Walker<uint8_t>& binInput, Vector<uint8_t>& binOutput);
+    Status handleDataOnStack(BinWalker& binInput, BinVector& binOutput);
+    Status handleDataOnHeap(BinWalker& binInput, BinVector& binOutput);
 
     /*
     name_hash_t         getInputTypeNameHash() override;
@@ -69,18 +68,8 @@ private:
 template<typename InstanceType, typename InputType, typename OutputType
     , interface_version_t minimumInterfaceVersion, bool handleOnStack, bool multicast
 >
-    requires serialization_concepts::IsISerializableBased<InputType>&& serialization_concepts::IsISerializableBased<OutputType>
-Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::~Subscriber()
-{
-    if constexpr (std::is_same_v<InstanceType, Dummy>)
-        GetSubscribersManager().removeSubscriber(InputType::getNameHash(), this);
-}
-
-template<typename InstanceType, typename InputType, typename OutputType
-    , interface_version_t minimumInterfaceVersion, bool handleOnStack, bool multicast
->
     requires serialization_concepts::IsISerializableBased<InputType> && serialization_concepts::IsISerializableBased<OutputType>
-Status Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::handleDataCommon(Walker<uint8_t>& binInput, Vector<uint8_t>& binOutput)
+Status Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::handleDataCommon(BinWalker& binInput, BinVector& binOutput)
 {
     if constexpr (handleOnStack)
         return handleDataOnStack(binInput, binOutput);
@@ -94,6 +83,7 @@ template<typename InstanceType, typename InputType, typename OutputType
     requires serialization_concepts::IsISerializableBased<InputType>&& serialization_concepts::IsISerializableBased<OutputType>
 Status Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::handleData(const InputType& input, OutputType& output)
 {
+    assert(false);
     return Status::kErrorNoSuchHandler;
 }
 
@@ -110,7 +100,7 @@ template<typename InstanceType, typename InputType, typename OutputType
     , interface_version_t minimumInterfaceVersion, bool handleOnStack, bool multicast
 >
     requires serialization_concepts::IsISerializableBased<InputType>&& serialization_concepts::IsISerializableBased<OutputType>
-constexpr Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::Subscriber()
+Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::Subscriber()
 {
     GetSubscribersManager().addSubscriber(InputType::getNameHash(), multicast, this);
 }
@@ -119,7 +109,16 @@ template<typename InstanceType, typename InputType, typename OutputType
     , interface_version_t minimumInterfaceVersion, bool handleOnStack, bool multicast
 >
     requires serialization_concepts::IsISerializableBased<InputType>&& serialization_concepts::IsISerializableBased<OutputType>
-Status Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::handleDataOnStack(Walker<uint8_t>& binInput, Vector<uint8_t>& binOutput)
+Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::~Subscriber()
+{
+    GetSubscribersManager().removeSubscriber(InputType::getNameHash(), this);
+}
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInterfaceVersion, bool handleOnStack, bool multicast
+>
+    requires serialization_concepts::IsISerializableBased<InputType>&& serialization_concepts::IsISerializableBased<OutputType>
+Status Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::handleDataOnStack(BinWalker& binInput, BinVector& binOutput)
 {
     InputType input;
     OutputType output;
@@ -135,7 +134,7 @@ template<typename InstanceType, typename InputType, typename OutputType
     , interface_version_t minimumInterfaceVersion, bool handleOnStack, bool multicast
 >
     requires serialization_concepts::IsISerializableBased<InputType>&& serialization_concepts::IsISerializableBased<OutputType>
-Status Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::handleDataOnHeap(Walker<uint8_t>& binInput, Vector<uint8_t>& binOutput)
+Status Subscriber<InstanceType, InputType, OutputType, minimumInterfaceVersion, handleOnStack, multicast>::handleDataOnHeap(BinWalker& binInput, BinVector& binOutput)
 {
     return Status::kErrorNoSuchHandler;
 }

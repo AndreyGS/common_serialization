@@ -112,6 +112,6 @@ public:
 };
 
 template<typename T>
-using StrategicRawNoexceptAllocatorHelper = StrategicAllocatorHelper<T, RawNoexceptAllocator<T>>;
+using RawStrategicAllocatorHelper = StrategicAllocatorHelper<T, RawNoexceptAllocator<T>>;
 
 } // namespace common_serialization
