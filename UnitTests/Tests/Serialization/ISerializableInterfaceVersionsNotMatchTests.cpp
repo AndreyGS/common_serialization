@@ -32,7 +32,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector(), false, 0);
+    csp::context::SData<> ctxIn(bin.getVector(), csp::context::Message::kData, false, 0);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
@@ -52,7 +52,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector(), false, 1);
+    csp::context::SData<> ctxIn(bin.getVector(), csp::context::Message::kData, false, 1);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 

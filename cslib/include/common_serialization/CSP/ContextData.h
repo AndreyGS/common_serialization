@@ -166,6 +166,8 @@ private:
     PM* m_pPointersMap{ nullptr };
 };
 
+
+// Class Data is a base context class that is using
 // unordered_map shall be replaced by common_serialization::HashMap when it would be ready
 template< 
           typename Container
@@ -179,34 +181,36 @@ template<
 class Data : public Common<Container>
 {
 public:
-    constexpr Data(Container& container, bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined) noexcept
-        : Common<Container>(container, traits::getLatestProtocolVersion(), Message::kData)
+    constexpr Data(Container& container, Message messageType = Message::kData
+        , bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
+    ) noexcept
+        : Common<Container>(container, traits::getLatestProtocolVersion(), messageType)
         , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
     { }
 
     constexpr Data(Common<Container>& common, bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined) noexcept
-        : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), Message::kData)
+        : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), common.getMessageType())
         , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
     { }
 
     constexpr Data(Data<Container, serialize, PM, PC, EPP>& rhs) noexcept
-        : Common<Container>(rhs.getBinaryData(), rhs.getProtocolVersion(), rhs.getFlags(), Message::kData)
+        : Common<Container>(rhs.getBinaryData(), rhs.getProtocolVersion(), rhs.getFlags(), rhs.getMessageType())
         , m_flags(rhs.m_flags), m_interfaceVersionsProcessing(rhs.m_interfaceVersionsProcessing), m_epp(rhs.m_epp)
     { }
 
-    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags, bool auxUsingHeapAllocation = false
+    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags, Message messageType = Message::kData, bool auxUsingHeapAllocation = false
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined, PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
-    : Common<Container>(binaryData, protocolVersion, flags, Message::kData), m_flags(flags)
+    : Common<Container>(binaryData, protocolVersion, flags, messageType), m_flags(flags)
         , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion), m_epp(pPointersMap)
     { }
 
-    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags, bool auxUsingHeapAllocation = false
+    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags, Message messageType = Message::kData, bool auxUsingHeapAllocation = false
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined, PC* pPointersContainer = nullptr, PM* pPointersMap = nullptr
     ) noexcept
         requires !serialize
-            : Common<Container>(binaryData, protocolVersion, flags, Message::kData), m_flags(flags)
+            : Common<Container>(binaryData, protocolVersion, flags, messageType), m_flags(flags)
             , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion), m_epp(pPointersContainer, pPointersMap)
     { }
 

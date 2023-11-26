@@ -24,7 +24,6 @@
 #pragma once
 
 #include "common_serialization/CSP/Processing.h"
-#include "common_serialization/CSP/ProcessingDataProcessor.h"
 
 namespace common_serialization::csp
 {
@@ -43,17 +42,6 @@ struct StatusErrorNotSupportedProtocolVersion
 
     using SimpleAssignableType = std::true_type;
 };
-
-template<ISerializationCapableContainer S>
-constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output) noexcept
-{
-    context::SData<S> ctx(output, traits::getLatestProtocolVersion(), context::Message::kStatus);
-    RUN(serializeHeaderContext(ctx));
-
-    StatusErrorNotSupportedProtocolVersion statusMessage;
-
-    RUN(DataProcessor::serializeData()
-}
 
 struct StatusErrorNotSupportedInterfaceVersion
 {
@@ -75,5 +63,27 @@ struct StatusErrorNotSupportedInterfaceVersionInOut
 };
 
 #pragma pack(pop)
+
+template<ISerializationCapableContainer S, typename T>
+constexpr Status serializeStatus(S& output, Status statusOut, T& statusMessage) noexcept
+{
+    RUN(output.pushBackArithmeticValue(statusOut));
+    RUN(output.pushBackN(statusMessage, sizeof(T)));
+
+    return Status::kNoError;
+}
+
+template<ISerializationCapableContainer S>
+constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output) noexcept
+{
+    context::Common<S> ctx(output, traits::getLatestProtocolVersion(), context::Message::kStatus);
+    RUN(serializeHeaderContext(ctx));
+
+    StatusErrorNotSupportedProtocolVersion statusMessage;
+
+    RUN(serializeStatus(output, Status::kErrorNotSupportedProtocolVersion, statusMessage));
+
+    return Status::kNoError;
+}
 
 } // namespace common_serialization::csp

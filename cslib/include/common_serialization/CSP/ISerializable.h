@@ -62,7 +62,7 @@ template<typename T>
 template<ISerializationCapableContainer S>
 constexpr Status ISerializable<T>::serialize(S& output) const noexcept
 {
-    context::SData<S> ctx(output, getInterfaceVersion());
+    context::SData<S> ctx(output, context::Message::kData, getInterfaceVersion());
 
     return serialize(ctx);
 }
@@ -84,7 +84,7 @@ template<typename T>
 template<IDeserializationCapableContainer D>
 constexpr Status ISerializable<T>::deserialize(D& input)
 {
-    context::DData<D> ctx(input, getMinimumInterfaceVersion());
+    context::DData<D> ctx(input, context::Message::kData, getMinimumInterfaceVersion());
 
     return deserialize(ctx);
 }
