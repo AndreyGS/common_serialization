@@ -74,7 +74,7 @@ namespace processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::TwoInts& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -86,7 +86,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneNotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -98,7 +98,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -110,7 +110,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableNotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -122,7 +122,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -148,7 +148,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableDescendantSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -161,7 +161,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DynamicPolymorphicNotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -173,7 +173,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DynamicPolymorphicSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -188,7 +188,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DiamondBaseNotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -199,7 +199,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DiamondEdge1NotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -211,7 +211,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DiamondEdge2NotSerializable& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -223,7 +223,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DiamondSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -235,7 +235,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SpecialProcessingTypeContainSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -252,7 +252,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneSimilarType1Serializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -264,7 +264,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneSimilarType2Serializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -276,7 +276,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableSimilarType1Serializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -288,7 +288,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableSimilarType2Serializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -300,7 +300,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimilarType1Serializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -312,7 +312,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimilarType2Serializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -324,7 +324,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::RecursiveTestSpecial1& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -335,7 +335,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::RecursiveTestSpecial2& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -348,7 +348,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::ManyPointersTypeSerializable<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);
@@ -367,7 +367,7 @@ Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_m
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<BinWalker, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DForAllModesTests<>& value)
 {
     DESERIALIZE_COMMON(ctx, value);

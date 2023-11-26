@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "common_serialization/CSP/Traits.h"
+#include "common_serialization/CSP/CspTraits.h"
 #include "common_serialization/CSP/ContextMessage.h"
-#include "common_serialization/CSP/SerializationConcepts.h"
+#include "common_serialization/CSP/CspConcepts.h"
 #include "common_serialization/Containers/ContainersConcepts.h"
 
 namespace common_serialization::csp::context
@@ -36,8 +36,8 @@ template<typename Container>
             || IDeserializationCapableContainer<Container>
 class Common
 {
-protected:
-    constexpr Common(Container& binaryData, protocol_version_t protocolVersion, Message messageType) noexcept
+public:
+    constexpr Common(Container& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion(), Message messageType = Message::kData) noexcept
         : m_binaryData(binaryData), m_protocolVersion(protocolVersion)
         , m_protocolVersionsNotMatch(traits::getLatestProtocolVersion() != protocolVersion), m_messageType(messageType)
     {
@@ -45,7 +45,6 @@ protected:
             m_binaryData.reserve(256);
     }
 
-public:
     [[nodiscard]] constexpr Container& getBinaryData() noexcept { return m_binaryData; }
     [[nodiscard]] constexpr const Container& getBinaryData() const noexcept { return m_binaryData; }
 

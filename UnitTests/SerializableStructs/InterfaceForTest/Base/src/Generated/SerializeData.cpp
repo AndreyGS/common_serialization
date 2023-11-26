@@ -74,7 +74,7 @@ namespace processing
 
 template<>
 Status DataProcessor::serializeData(const special_types::TwoInts& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -86,7 +86,7 @@ Status DataProcessor::serializeData(const special_types::TwoInts& value
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneNotSerializable& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -98,7 +98,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableAligned
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -111,7 +111,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableAligned
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableNotSerializable& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -123,7 +123,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableNotSeri
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSerializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -149,7 +149,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableSeriali
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -162,7 +162,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableDescend
 
 template<>
 Status DataProcessor::serializeData(const special_types::DynamicPolymorphicNotSerializable& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -174,7 +174,7 @@ Status DataProcessor::serializeData(const special_types::DynamicPolymorphicNotSe
 
 template<>
 Status DataProcessor::serializeData(const special_types::DynamicPolymorphicSerializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -189,7 +189,7 @@ Status DataProcessor::serializeData(const special_types::DynamicPolymorphicSeria
 
 template<>
 Status DataProcessor::serializeData(const special_types::DiamondBaseNotSerializable& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -200,7 +200,7 @@ Status DataProcessor::serializeData(const special_types::DiamondBaseNotSerializa
 
 template<>
 Status DataProcessor::serializeData(const special_types::DiamondEdge1NotSerializable& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -212,7 +212,7 @@ Status DataProcessor::serializeData(const special_types::DiamondEdge1NotSerializ
 
 template<>
 Status DataProcessor::serializeData(const special_types::DiamondEdge2NotSerializable& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -224,7 +224,7 @@ Status DataProcessor::serializeData(const special_types::DiamondEdge2NotSerializ
 
 template<>
 Status DataProcessor::serializeData(const special_types::DiamondSerializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -236,7 +236,7 @@ Status DataProcessor::serializeData(const special_types::DiamondSerializable<>& 
 
 template<>
 Status DataProcessor::serializeData(const special_types::SpecialProcessingTypeContainSerializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -253,7 +253,7 @@ Status DataProcessor::serializeData(const special_types::SpecialProcessingTypeCo
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSimilarType1Serializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -265,7 +265,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableAligned
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSimilarType2Serializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -277,7 +277,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableAligned
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSimilarType1Serializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -289,7 +289,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableSimilar
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSimilarType2Serializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -301,7 +301,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableSimilar
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimilarType1Serializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -313,7 +313,7 @@ Status DataProcessor::serializeData(const special_types::SimilarType1Serializabl
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimilarType2Serializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -325,7 +325,7 @@ Status DataProcessor::serializeData(const special_types::SimilarType2Serializabl
 
 template<>
 Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial1& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -336,7 +336,7 @@ Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial1& 
 
 template<>
 Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial2& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -349,7 +349,7 @@ Status DataProcessor::serializeData(const special_types::RecursiveTestSpecial2& 
 
 template<>
 Status DataProcessor::serializeData(const special_types::ManyPointersTypeSerializable<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 
@@ -368,7 +368,7 @@ Status DataProcessor::serializeData(const special_types::ManyPointersTypeSeriali
 
 template<>
 Status DataProcessor::serializeData(const special_types::DForAllModesTests<>& value
-    , context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_COMMON(value, ctx);
 

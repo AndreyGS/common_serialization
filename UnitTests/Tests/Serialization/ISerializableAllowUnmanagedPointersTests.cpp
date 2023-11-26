@@ -34,7 +34,7 @@ void mainTest()
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<BinVector> ctxIn(bin.getVector());
+    csp::context::SData<> ctxIn(bin.getVector());
     csp::context::DataFlags flags;
     flags.allowUnmanagedPointers = true;
     ctxIn.setFlags(flags);
@@ -43,7 +43,7 @@ void mainTest()
 
     T output;
 
-    csp::context::DData<BinWalker> ctxOut(bin);
+    csp::context::DData<> ctxOut(bin);
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(addedPointers);
 

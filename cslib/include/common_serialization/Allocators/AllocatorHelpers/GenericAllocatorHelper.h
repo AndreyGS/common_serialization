@@ -295,4 +295,7 @@ public:
 template<typename T>
 using RawGenericAllocatorHelper = GenericAllocatorHelper<T, RawNoexceptAllocator<T>>;
 
+template<typename T>
+using RawKeeperGenericAllocatorHelper = GenericAllocatorHelper<T, RawKeeperAllocator<T>>;
+
 } // namespace common_serialization

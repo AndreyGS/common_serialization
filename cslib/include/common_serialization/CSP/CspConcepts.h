@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/SerializationConcepts.h
+ * @file cslib/include/common_serialization/CSP/CspConcepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

@@ -71,7 +71,7 @@ template<typename T>
 template<ISerializationCapableContainer S, ISerializationPointersMap PM>
 constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const noexcept
 {
-    if (ctx.getInterfaceVersion() == traits::kInterfaceVersionMax)
+    if (ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined)
         ctx.setInterfaceVersion(getInterfaceVersion());
 
     RUN(processing::serializeHeaderContext(ctx));
@@ -96,7 +96,7 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
     RUN(processing::deserializeHeaderContext(ctx));
 
     uint64_t nameHash = 0;
-    uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionMax ? getMinimumInterfaceVersion() : ctx.getInterfaceVersion();
+    uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? getMinimumInterfaceVersion() : ctx.getInterfaceVersion();
 
     RUN(processing::deserializeDataContext(ctx, nameHash));
     RUN(processing::deserializeDataContextPostprocess<T>(ctx, nameHash, minimumInterfaceVersion));

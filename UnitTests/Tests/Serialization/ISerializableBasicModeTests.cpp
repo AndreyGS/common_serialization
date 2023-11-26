@@ -81,17 +81,20 @@ TEST(ISerializableBasicModeTests, DiamondT)
 }
 
 class TestSubscriber
-    : csp::MethodSubscriber<SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableDescendantSerializable<>, SimpleAssignableAlignedToOneSerializable<>::getMinimumInterfaceVersion(), true, false>
-    , csp::StaticSubscriber<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>, DiamondSerializable<>::getMinimumInterfaceVersion(), true>
+    : csp::messaging::MethodDataServer<SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableDescendantSerializable<>
+        , SimpleAssignableAlignedToOneSerializable<>::getMinimumInterfaceVersion(), SimpleAssignableDescendantSerializable<>::getMinimumInterfaceVersion(), true, false>
+    , csp::messaging::StaticDataServer<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>
+        , DiamondSerializable<>::getMinimumInterfaceVersion(), DynamicPolymorphicSerializable<>::getMinimumInterfaceVersion(), true>
 
 {
-public:
-    Status handleData(const SimpleAssignableAlignedToOneSerializable<>& input, SimpleAssignableDescendantSerializable<>& output) override
+
+    Status handleData(const SimpleAssignableAlignedToOneSerializable<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, SimpleAssignableDescendantSerializable<>& output) override
     {
         return Status::kNoError;
     }
 
-    static Status handleDataStatic(const DiamondSerializable<>& input, DynamicPolymorphicSerializable<>& output)
+public:
+    static Status handleDataStatic(const DiamondSerializable<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, DynamicPolymorphicSerializable<>& output)
     {
         return Status::kNoError;
     }
@@ -108,19 +111,19 @@ TEST(ISerializableBasicModeTests, Temp)
     binIn.pushBack(1);
     BinVector binOut;
 
-    Vector<csp::SubscriberBase*, RawGenericAllocatorHelper<csp::SubscriberBase*>> subscribers;
-    csp::GetSubscribersManager().findSubscribers(testInput.getNameHash(), subscribers);
-    subscribers[0]->handleDataCommon(binIn, binOut);
+    Vector<csp::messaging::IDataServer*, RawGenericAllocatorHelper<csp::messaging::IDataServer*>> subscribers;
+    csp::messaging::GetDataServersKeeper().findServers(testInput.getNameHash(), subscribers);
+    //subscribers[0]->handleDataConcrete(binIn, binOut);
 
     testSubs.~TestSubscriber();
 
     DiamondSerializable testInput2;
     DynamicPolymorphicSerializable testOutput2;
 
-    csp::GetSubscribersManager().findSubscribers(testInput2.getNameHash(), subscribers);
+    csp::messaging::GetDataServersKeeper().findServers(testInput2.getNameHash(), subscribers);
     
-    if (subscribers.size())
-        subscribers[0]->handleDataCommon(binIn, binOut);
+    //if (subscribers.size())
+        //subscribers[0]->handleDataConcrete(binIn, binOut);
 
 }
 

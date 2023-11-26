@@ -52,13 +52,13 @@ public:
 
     void clear()
     {
-        m_interfaceVersion = traits::kInterfaceVersionMax;
+        m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
         // m_auxUsingHeapAllocation is not resets to false, cause it's rather environment tool option instead of struct/operation specific
     }
 
 private:
-    interface_version_t m_interfaceVersion{ traits::kInterfaceVersionMax };
+    interface_version_t m_interfaceVersion{ traits::kInterfaceVersionUndefined };
     bool m_interfaceVersionsNotMatch = false;
     bool m_auxUsingHeapAllocation = false;  // flag indicates that auxillary created structs in conversion functions must be placed in heap instead of stack
 };
@@ -179,23 +179,23 @@ template<
 class Data : public Common<Container>
 {
 public:
-    constexpr Data(Container& container, bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
+    constexpr Data(Container& container, bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined) noexcept
         : Common<Container>(container, traits::getLatestProtocolVersion(), Message::kData)
         , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
     { }
 
-    constexpr Data(const Common<Container>& common, bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionMax) noexcept
+    constexpr Data(Common<Container>& common, bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined) noexcept
         : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), Message::kData)
         , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
     { }
 
-    constexpr Data(const Data<Container, serialize, PM, PC, EPP>& rhs) noexcept
+    constexpr Data(Data<Container, serialize, PM, PC, EPP>& rhs) noexcept
         : Common<Container>(rhs.getBinaryData(), rhs.getProtocolVersion(), rhs.getFlags(), Message::kData)
         , m_flags(rhs.m_flags), m_interfaceVersionsProcessing(rhs.m_interfaceVersionsProcessing), m_epp(rhs.m_epp)
     { }
 
     constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags, bool auxUsingHeapAllocation = false
-        , interface_version_t interfaceVersion = traits::kInterfaceVersionMax, PM* pPointersMap = nullptr
+        , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined, PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
     : Common<Container>(binaryData, protocolVersion, flags, Message::kData), m_flags(flags)
@@ -203,7 +203,7 @@ public:
     { }
 
     constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags, bool auxUsingHeapAllocation = false
-        , interface_version_t interfaceVersion = traits::kInterfaceVersionMax, PC* pPointersContainer = nullptr, PM* pPointersMap = nullptr
+        , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined, PC* pPointersContainer = nullptr, PM* pPointersMap = nullptr
     ) noexcept
         requires !serialize
             : Common<Container>(binaryData, protocolVersion, flags, Message::kData), m_flags(flags)
@@ -258,10 +258,10 @@ private:
     EPP  m_epp;
 };
 
-template<ISerializationCapableContainer S, ISerializationPointersMap PM = std::unordered_map<const void*, uint64_t>>
+template<ISerializationCapableContainer S = BinVector, ISerializationPointersMap PM = std::unordered_map<const void*, uint64_t>>
 using SData = Data<S, true, PM>;
 
-template<IDeserializationCapableContainer D, IDeserializationPointersMap PM = std::unordered_map<uint64_t, void*>>
+template<IDeserializationCapableContainer D = BinWalker, IDeserializationPointersMap PM = std::unordered_map<uint64_t, void*>>
 using DData = Data<D, false, PM>;
 
 } // namespace common_serialization::csp::context

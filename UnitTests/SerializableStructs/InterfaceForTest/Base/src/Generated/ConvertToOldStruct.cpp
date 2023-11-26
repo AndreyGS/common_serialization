@@ -40,7 +40,7 @@ namespace processing
 
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , uint32_t targetVersion, context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getThisVersion() != targetVersion);
@@ -57,7 +57,7 @@ Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAl
 
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableSerializable<>& value
-    , uint32_t targetVersion, context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getThisVersion() != targetVersion);
@@ -73,7 +73,7 @@ Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableSe
 
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableDescendantSerializable<>& value
-    , uint32_t targetVersion, context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getThisVersion() != targetVersion);
@@ -89,7 +89,7 @@ Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableDe
 
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::DForAllModesTests<>& value
-    , uint32_t targetVersion, context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx)
+    , uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getThisVersion() != targetVersion);

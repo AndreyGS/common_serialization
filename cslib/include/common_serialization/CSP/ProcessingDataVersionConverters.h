@@ -53,7 +53,7 @@ protected:
     }
 
 private:
-    uint32_t m_targetVersion{ traits::kInterfaceVersionMax };
+    uint32_t m_targetVersion{ traits::kInterfaceVersionUndefined };
 };
 
 template<IsISerializableBased To, typename... NextTo>
@@ -136,7 +136,7 @@ public:
 protected:
     using from_type = Dummy; // placeholder
 
-    static constexpr const uint32_t pVersionsHierarchy[1] = { traits::kInterfaceVersionMax };
+    static constexpr const uint32_t pVersionsHierarchy[1] = { traits::kInterfaceVersionUndefined };
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     Status convertToUpperVersionOnHeap(const from_type& from, context::DData<D, PM>& ctx, To& to) noexcept
@@ -151,7 +151,7 @@ protected:
     }
 
 private:
-    uint32_t m_targetVersion{ traits::kInterfaceVersionMax };
+    uint32_t m_targetVersion{ traits::kInterfaceVersionUndefined };
 };
 
 
@@ -214,7 +214,7 @@ protected:
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     Status convertToUpperVersionOnHeap(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
     {
-        if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionMax)
+        if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionUndefined)
         {
             using base_from = typename base_class::from_type;
 
@@ -240,7 +240,7 @@ protected:
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     Status convertToUpperVersionOnStack(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
     {
-        if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionMax)
+        if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionUndefined)
         {
             using base_from = typename base_class::from_type;
 

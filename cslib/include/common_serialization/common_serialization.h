@@ -38,14 +38,7 @@
                             // to support environments without std libs, like OSes kernel modes
 #endif // USER_MODE
 
-#ifdef RUN
-#undef RUN
-#endif // RUN
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !statusSuccess(status))                            \
-        return status;                                                          \
-}
+#include "common_serialization/Status.h"
 
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 
@@ -78,6 +71,7 @@
 #include "common_serialization/CSP/ISerializable.h"
 #include "common_serialization/CSP/ProcessingDataSpecial.h"
 #include "common_serialization/CSP/ProcessingDataVersionConverters.h"
-#include "common_serialization/CSP/Subscribers/Subscriber.h"
+#include "common_serialization/CSP/MessagingCommonServer.h"
 
-#undef RUN
+#undef SET_NEW_ERROR    // defined in common_serialization/Status.h
+#undef RUN              // defined in common_serialization/Status.h

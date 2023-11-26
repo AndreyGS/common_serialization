@@ -35,7 +35,7 @@ void mainTest()
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<BinVector> ctxIn(bin.getVector());
+    csp::context::SData<> ctxIn(bin.getVector());
     csp::context::DataFlags flags;
     flags.checkRecursivePointers = true;
     flags.allowUnmanagedPointers = true;
@@ -47,7 +47,7 @@ void mainTest()
 
     EXPECT_TRUE(ctxIn.getPointersMap()->size() > 0);
 
-    csp::context::DData<BinWalker> ctxOut(bin);
+    csp::context::DData<> ctxOut(bin);
     std::unordered_map<uint64_t, void*> dMap;
     ctxOut.setPointersMap(dMap);
     Vector<GenericPointerKeeper> addedPointers;

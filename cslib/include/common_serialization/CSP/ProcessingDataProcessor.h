@@ -483,7 +483,7 @@ constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context
     if (targetVersion == value.getThisVersion())
         return Status::kNoError;
     // Normaly, next condition shall never succeed
-    else if (targetVersion == traits::kInterfaceVersionMax)
+    else if (targetVersion == traits::kInterfaceVersionUndefined)
         return Status::kErrorInternal;
     else
         return convertToOldStruct(value, targetVersion, ctx);
@@ -506,7 +506,7 @@ static constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData
     if (targetVersion == value.getThisVersion())
         return Status::kNoError;
     // Normaly, next condition shall never succeed
-    else if (targetVersion == traits::kInterfaceVersionMax)
+    else if (targetVersion == traits::kInterfaceVersionUndefined)
         return Status::kErrorDataCorrupted;
     else
         return convertFromOldStruct(ctx, targetVersion, value);

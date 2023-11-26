@@ -26,7 +26,7 @@
 #include "common_serialization/Allocators/ConstructorNoexceptAllocator.h"
 #include "common_serialization/Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
 #include "common_serialization/Containers/IteratorTagsDeclares.h"
-#include "common_serialization/CSP/SerializationConcepts.h"
+#include "common_serialization/CSP/CspConcepts.h"
 
 namespace common_serialization
 {

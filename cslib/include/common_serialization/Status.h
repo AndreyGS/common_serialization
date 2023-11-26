@@ -23,6 +23,24 @@
 
 #pragma once
 
+#ifdef RUN
+#undef RUN
+#endif // RUN
+#define RUN(x)                                                                  \
+{                                                                               \
+    if (Status status = (x); !statusSuccess(status))                            \
+        return status;                                                          \
+}
+
+#ifdef SET_NEW_ERROR
+#undef SET_NEW_ERROR
+#endif // SET_NEW_ERROR
+#define SET_NEW_ERROR(x)                                                            \
+{                                                                                   \
+    if (Status newStatus = (x); !statusSuccess(newStatus) && statusSuccess(status)) \
+        status = newStatus;                                                         \
+}
+
 namespace common_serialization
 {
 
@@ -48,7 +66,9 @@ enum class Status : int_fast32_t
     kErrorInternal                                  =      -11,
     kErrorNotSupportedSerializationSettingsForStruct=      -12,
     kErrorInvalidType                               =      -13,
-    kErrorDataCorrupted                             =      -14
+    kErrorDataCorrupted                             =      -14,
+    kErrorNotCompatibleFlagsSettings                =      -15,
+    kErrorMoreEntires                               =      -16
 };
 
 constexpr bool statusSuccess(Status status)

@@ -35,7 +35,7 @@ void mainTest(csp::context::DataFlags flags, uint32_t targetVersion)
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<BinVector> ctxIn(bin.getVector());
+    csp::context::SData<> ctxIn(bin.getVector());
     flags.allowUnmanagedPointers = true;
     flags.checkRecursivePointers = true;
     ctxIn.setFlags(flags);
@@ -57,7 +57,7 @@ void mainTest(csp::context::DataFlags flags, uint32_t targetVersion)
     EXPECT_EQ(csp::processing::DataProcessor::serializeData(input, ctxIn), Status::kNoError);
     
     TD output;
-    csp::context::DData<BinWalker> ctxOut(bin);
+    csp::context::DData<> ctxOut(bin);
     std::unordered_map<uint64_t, void*> dMap;
     ctxOut.setPointersMap(dMap);
     Vector<GenericPointerKeeper> addedPointers;

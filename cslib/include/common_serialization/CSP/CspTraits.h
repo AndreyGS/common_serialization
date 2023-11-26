@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/Traits.h
+ * @file cslib/include/common_serialization/CSP/CspTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -34,8 +34,8 @@ namespace traits
 {
 
 inline constexpr protocol_version_t kProtocolVersions[] = { 1 };
-inline constexpr protocol_version_t kProtocolVersionMax = 0xff;
-inline constexpr interface_version_t kInterfaceVersionMax = 0xffffffff;
+inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;
+inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;
 
 [[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion()
 {
@@ -85,7 +85,7 @@ template<typename T>
         if (pVersionsHierarchy[i] <= compatInterfaceVersion)
             return pVersionsHierarchy[i];
 
-    return kInterfaceVersionMax;
+    return kInterfaceVersionUndefined;
 }
 
 } // namespace traits

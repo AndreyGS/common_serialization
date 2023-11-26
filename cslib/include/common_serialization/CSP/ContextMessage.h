@@ -28,25 +28,7 @@ namespace common_serialization::csp::context
 
 enum class Message : uint_fast32_t
 {
-    kData = 0x0,                            // default message type
-                                            //
-                                            // message format:
-                                            //
-                                            // {
-                                            //     struct
-                                            //     {
-                                            //         uint64_t structNameHash;
-                                            //         DataFlags flags;
-                                            //         uint32_t interfaceVersion;
-                                            //     } dataSpecificHeader;
-                                            //     
-                                            //     struct
-                                            //     {
-                                            //         uint8_t serializedData[anysize];
-                                            //     } binaryData; // varies by DataFlags that was set and struct that was serialized
-                                            // }
-                                            //
-    kStatus = 0x1                           // format of message depends on status code
+    kStatus = 0x0,                          // format of message depends on status code
                                             //
                                             // {
                                             //     struct
@@ -84,6 +66,56 @@ enum class Message : uint_fast32_t
                                             //     uint32_t minimumSupportedInterfaceVersion;
                                             //     uint32_t maximumSupportedInterfaceVersion;
                                             // }
+                                            // 
+                                            // or if this is an answer of kInOutData
+                                            // 
+                                            // {
+                                            //     uint64_t inStructNameHash;
+                                            //     uint32_t inMinimumSupportedInterfaceVersion;
+                                            //     uint32_t inMaximumSupportedInterfaceVersion;
+                                            // 
+                                            //     uint64_t outStructNameHash;
+                                            //     uint32_t outMinimumSupportedInterfaceVersion;
+                                            //     uint32_t outMaximumSupportedInterfaceVersion;
+                                            // }
+                                            //
+    kData = 0x1,                            // default message type
+                                            //
+                                            // message format:
+                                            //
+                                            // {
+                                            //     struct
+                                            //     {
+                                            //         uint64_t structNameHash;
+                                            //         DataFlags flags;
+                                            //         uint32_t interfaceVersion;
+                                            //     } dataSpecificHeader;
+                                            //     
+                                            //     struct
+                                            //     {
+                                            //         uint8_t serializedData[anysize];
+                                            //     } binaryData; // varies by DataFlags that was set and struct that was serialized
+                                            // }
+                                            //
+    kInOutData = 0x2,                       // using for bidirectional data processing
+                                            //
+                                            // message format:
+                                            //
+                                            // {
+                                            //     struct
+                                            //     {
+                                            //         uint64_t inStructNameHash;
+                                            //         DataFlags flags;
+                                            //         uint32_t inInterfaceVersion;
+                                            //         uint32_t outInterfaceVersion;
+                                            //     } dataSpecificHeader;
+                                            //     
+                                            //     struct
+                                            //     {
+                                            //         uint8_t inSerializedData[anysize];
+                                            //     } binaryData; // varies by DataFlags that was set and struct that was serialized
+                                            // }
+                                            //
 };
 
 } // namespace common_serialization::csp::context

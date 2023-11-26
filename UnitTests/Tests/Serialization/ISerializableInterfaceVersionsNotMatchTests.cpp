@@ -32,11 +32,11 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<BinVector> ctxIn(bin.getVector(), false, 0);
+    csp::context::SData<> ctxIn(bin.getVector(), false, 0);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    csp::context::DData<BinWalker> ctxOut(bin);
+    csp::context::DData<> ctxOut(bin);
     SimpleAssignableAlignedToOneSerializable output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
@@ -52,11 +52,11 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<BinVector> ctxIn(bin.getVector(), false, 1);
+    csp::context::SData<> ctxIn(bin.getVector(), false, 1);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    csp::context::DData<BinWalker> ctxOut(bin);
+    csp::context::DData<> ctxOut(bin);
     SimpleAssignableSerializable output;
 
     // test minimum interface version that is higher than in serialized data

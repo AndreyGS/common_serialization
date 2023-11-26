@@ -1,5 +1,5 @@
 /**
- * @file SubscriberBase.h
+ * @file cslib/include/common_serialization/CSP/MessagingCommonServer.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,34 +23,38 @@
 
 #pragma once
 
-#include "SubscribersKeeper.h"
+#include "common_serialization/CSP/ContextCommon.h"
+#include "common_serialization/CSP/MessagingDataServer.h"
 
-namespace common_serialization
+
+namespace common_serialization::csp::messaging
 {
 
-namespace csp
-{
-
-class SubscriberBase
+class CommonServer
 {
 public:
-    virtual Status handleDataCommon(BinWalker& binInput, BinVector& binOutput) = 0;
-    virtual [[nodiscard]] interface_version_t getMinimumHandlerSupportedInterfaceVersion() = 0;
-
-protected:
-    constexpr SubscriberBase() { }
-    constexpr ~SubscriberBase() { }
-
-    /*
-    virtual name_hash_t         getInputTypeNameHash() = 0;
-    virtual interface_version_t*getInputTypeVersionsHierarchy() = 0;
-    virtual interface_version_t getInputTypeVersionsHierarchySize() = 0;
-
-    virtual name_hash_t         getOutputTypeNameHash() = 0;
-    virtual interface_version_t* getOutputTypeVersionsHierarchy() = 0;
-    virtual interface_version_t getOutputTypeVersionsHierarchySize() = 0;*/
+    static inline Status handleMessage(BinWalker& binInput, BinVector& binOutput);
 };
-    
-} // namespace csp
 
-} // namespace common_serialization
+inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOutput)
+{
+    context::Common<BinWalker> ctx(binInput);
+
+    RUN(processing::deserializeHeaderContext(ctx));
+
+    Status status{ Status::kNoError };
+
+    if (ctx.getMessageType() == context::Message::kInOutData)
+    {
+
+        status = IDataServer::handleDataCommon(ctx, binOutput);
+        if (status == Status::kErrorNotSupportedInterfaceVersion)
+        {
+
+        }
+    }
+
+    return Status::kNoError;
+}
+
+} // namespace common_serialization::csp::messaging

@@ -37,16 +37,16 @@ namespace processing
 
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableAlignedToOneSerializable<>& value
-    , uint32_t thisVersionCompat, context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
+    , uint32_t thisVersionCompat, context::SData<>& ctx);
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableSerializable<>& value
-    , uint32_t thisVersionCompat, context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
+    , uint32_t thisVersionCompat, context::SData<>& ctx);
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::SimpleAssignableDescendantSerializable<>& value
-    , uint32_t thisVersionCompat, context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
+    , uint32_t thisVersionCompat, context::SData<>& ctx);
 template<>
 Status DataProcessor::convertToOldStruct(const special_types::DForAllModesTests<>& value
-    , uint32_t targetVersion, context::SData<BinVector, std::unordered_map<const void*, uint64_t>>& ctx);
+    , uint32_t targetVersion, context::SData<>& ctx);
 
 } // namespace processing
 
