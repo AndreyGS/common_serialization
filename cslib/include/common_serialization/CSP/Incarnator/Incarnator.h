@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file Incarnator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,36 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+#include "../Subscribers/Subscriber.h"
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+namespace common_serialization
+{
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
+namespace csp
+{
 
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+class Incarnator
+{
+public:
+    template<typename InputType, ISerializationCapableContainer S>
+    Status initDataMessage(const InputType& input, S& output, interface_version_t minimumInterfaceVersion = InputType::getInterfaceVersion)
+    {
+        if constexpr (IsCspStatusMessage<InputType>)
+        {
+
+        }
+        return Status::kNoError;
+    }
+
+    template<typename InputType, ISerializationCapableContainer S>
+    Status initStatusMessage(const InputType& input, S& output, v)
+
+    Status receiveMessage(BinWalker& input, BinVector& output)
+    {
+        return Status::kNoError;
+    }
+};
+
+} // namespace csp
+
+} // namespace common_serialization

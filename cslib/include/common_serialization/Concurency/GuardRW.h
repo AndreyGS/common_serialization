@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file cslib/include/common_serialization/Concurency/GuardRW.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,40 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+#include "common_serialization/Concurency/ConcurencyConcepts.h"
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+namespace common_serialization
+{
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
+template<ISharedMutex SM, bool write>
+class GuardRW
+{
+public:
+    GuardRW(SM& sharedMutex)
+        : m_sharedMutex(sharedMutex)
+    {
+        if (write)
+            m_sharedMutex.lock();
+        else
+            m_sharedMutex.lock_shared();
+    }
 
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+    ~GuardRW()
+    {
+        if (write)
+            m_sharedMutex.unlock();
+        else
+            m_sharedMutex.unlock_shared();
+    }
+
+private:
+    SM& m_sharedMutex;
+};
+
+template<ISharedMutex SM>
+using GuardR = GuardRW<SM, false>;
+
+template<ISharedMutex SM>
+using GuardW = GuardRW<SM, true>;
+
+} // namespace common_serialization

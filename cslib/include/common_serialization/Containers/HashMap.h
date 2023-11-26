@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file cslib/include/common_serialization/Containers/Walker.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,21 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+namespace common_serialization
+{
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+// Stub HashMap (shall be switched to normal container)
+class HashMap
+{
+public:
+    using key_type = const void*;
+    using mapped_type = size_t;
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
+    void find(key_type) {}
+    void end() {}
+    mapped_type& operator [](key_type) { return i; }
 
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+    size_t i{ 0 };
+};
+
+} // namespace common_serialization

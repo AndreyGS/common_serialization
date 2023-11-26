@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file cslib/include/common_serialization/CommonConcepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,21 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+#include "common_serialization/Status.h"
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+namespace common_serialization
+{
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
+template<typename T>
+concept Initable = requires(T t)
+{
+    { t.init(*(new T)) } -> std::same_as<Status>;
+};
 
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+template<typename T, typename SpecClass>
+concept InitableBySpecialClass = requires(T t)
+{
+    { t.init(*(new SpecClass)) } -> std::same_as<Status>;
+};
+
+} // namespace common_serialization

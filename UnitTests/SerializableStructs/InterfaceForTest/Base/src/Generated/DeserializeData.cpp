@@ -34,7 +34,7 @@
 #define DESERIALIZE_COMMON(ctx, value)                                                  \
 {                                                                                       \
     if (                                                                                \
-           serialization_concepts::IsISerializableBased<decltype(value)>                \
+           IsISerializableBased<decltype(value)>                                        \
         && ctx.isInterfaceVersionsNotMatch()                                            \
     )                                                                                   \
     {                                                                                   \
@@ -47,8 +47,8 @@
     }                                                                                   \
                                                                                         \
     if constexpr (                                                                      \
-           serialization_concepts::SimpleAssignableType<decltype(value)>                \
-        || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
+           SimpleAssignableType<decltype(value)>                                        \
+        || SimpleAssignableAlignedToOneType<decltype(value)>)                           \
     {                                                                                   \
         Status status = deserializeDataSimpleAssignable((ctx), (value));                \
         if (status == Status::kNoFurtherProcessingRequired)                             \

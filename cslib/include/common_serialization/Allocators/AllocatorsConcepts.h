@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file cslib/include/common_serialization/Allocators/AllocatorsConcepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,29 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+namespace common_serialization
+{
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+template<typename T>
+concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_allocator> || std::is_same_v<std::false_type, typename T::constructor_allocator>) && requires(T a)
+{
+    typename T::value_type;
+    typename T::pointer;
+    typename T::size_type;
+    typename T::difference_type;
+    typename T::constructor_allocator;
+    T();
+    { a.allocate(0) } -> std::same_as<typename T::pointer>;
+    { a.deallocate(nullptr) } -> std::same_as<void>;
+    { a.deallocate(nullptr, 1) } -> std::same_as<void>;
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
+    { a.construct(nullptr) } -> std::same_as<Status>;
+    { a.destroy(nullptr) } -> std::same_as<void>;
 
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+    { a.max_size() } -> std::same_as<typename T::size_type>;
+};
+
+template<typename T>
+concept IConstructorAllocator = IAllocator<T> && std::is_same_v<std::true_type, typename T::constructor_allocator>;
+
+} // namespace common_serialization

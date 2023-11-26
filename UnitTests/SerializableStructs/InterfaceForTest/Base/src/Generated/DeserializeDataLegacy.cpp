@@ -34,8 +34,8 @@
 #define DESERIALIZE_LEGACY_COMMON(ctx, value)                                           \
 {                                                                                       \
     if constexpr (                                                                      \
-           serialization_concepts::SimpleAssignableType<decltype(value)>                \
-        || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
+           SimpleAssignableType<decltype(value)>                                        \
+        || SimpleAssignableAlignedToOneType<decltype(value)>)                           \
     {                                                                                   \
         Status status = deserializeDataSimpleAssignable((ctx), (value));                \
         if (status == Status::kNoFurtherProcessingRequired)                             \

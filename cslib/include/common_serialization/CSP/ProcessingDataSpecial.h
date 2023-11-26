@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file cslib/include/common_serialization/CSP/ProcessingDataSpecial.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,30 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+namespace common_serialization::csp::processing
+{
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+template<typename T, typename A, typename X>
+Status serializeData(const Vector<T, A>& value, X& ctx)
+{
+    RUN(DataProcessor::serializeData(value.size(), ctx));
+    RUN(DataProcessor::serializeData(value.data(), value.size(), ctx));
+    
+    return Status::kNoError;
+}
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
+template<typename T, typename A, typename X>
+Status deserializeData(X& ctx, Vector<T, A>& value)
+{
+    value.clear();
 
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+    typename Vector<T, A>::size_type size = 0;
+    RUN(DataProcessor::deserializeData(ctx, size));
+    RUN(value.reserve(size));
+    RUN(DataProcessor::deserializeData(ctx, size, value.data()));
+    value.m_dataSize = size;
+
+    return Status::kNoError;
+}
+
+} // namespace common_serialization::csp::processing

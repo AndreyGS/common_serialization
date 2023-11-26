@@ -82,7 +82,7 @@ TEST(ISerializableBasicModeTests, DiamondT)
 
 class TestSubscriber
     : csp::MethodSubscriber<SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableDescendantSerializable<>, SimpleAssignableAlignedToOneSerializable<>::getMinimumInterfaceVersion(), true, false>
-    , csp::StaticSubscriber<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>, DiamondSerializable<>::getMinimumInterfaceVersion(), true, false>
+    , csp::StaticSubscriber<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>, DiamondSerializable<>::getMinimumInterfaceVersion(), true>
 
 {
 public:

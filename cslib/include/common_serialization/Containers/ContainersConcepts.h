@@ -1,5 +1,6 @@
 /**
- * @file Interface.h
+ * @file cslib/include/common_serialization/Containers/Container
+ Concepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +24,31 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+#include "common_serialization/Status.h"
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+namespace common_serialization
+{
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
+class GenericPointerKeeper;
 
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+template<typename S>
+concept IGenericPointersKeeperContainer
+    =  requires(S e)
+         {
+             typename S::value_type;
+             typename S::constructor_allocator;
+
+             { e.clear() };
+             { e.begin() };
+             { e.end() };
+             { e.erase(0, 1) };
+             { e.data() } -> std::same_as<typename S::value_type*>;
+             { e.size() } -> std::same_as<typename S::size_type>;
+             { e.capacity() } -> std::same_as<typename S::size_type>;
+
+             { e.reserve(1) } -> std::same_as<Status>;
+             { e.pushBack(*(new GenericPointerKeeper)) } -> std::same_as<Status>;
+         } 
+    && std::is_same_v<typename S::value_type, GenericPointerKeeper> && std::is_same_v<typename S::constructor_allocator, std::true_type>;
+
+} // namespace common_serialization

@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file cslib/include/common_serialization/Concurency/ConcurencyConcepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,16 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+namespace common_serialization
+{
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+template<typename T>
+concept ISharedMutex = requires(T t)
+{
+    { t.lock() };
+    { t.lock_shared() };
+    { t.unlock() };
+    { t.unlock_shared() };
+};
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
-
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+} // namespace common_serialization

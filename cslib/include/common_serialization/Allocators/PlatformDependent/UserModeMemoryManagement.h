@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file cslib/include/common_serialization/Allocators/PlatformDependent/UserModeMemoryManagement.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,22 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+namespace common_serialization
+{
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+namespace memory_management
+{
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
+[[nodiscard]] inline void* raw_heap_allocate(size_t data_size_in_bytes) noexcept
+{
+    return std::malloc(data_size_in_bytes);
+}
 
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+inline void raw_heap_deallocate(void* p) noexcept
+{
+    std::free(p);
+}
+
+} // namespace memory_management
+
+} // namespace common_serialization
