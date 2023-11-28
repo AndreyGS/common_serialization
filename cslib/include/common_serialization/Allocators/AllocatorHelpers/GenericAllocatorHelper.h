@@ -298,4 +298,7 @@ using RawGenericAllocatorHelper = GenericAllocatorHelper<T, RawNoexceptAllocator
 template<typename T>
 using RawKeeperGenericAllocatorHelper = GenericAllocatorHelper<T, RawKeeperAllocator<T>>;
 
+template<typename T>
+using ConstructorGenericAllocatorHelper = GenericAllocatorHelper<T, ConstructorNoexceptAllocator<T>>;
+
 } // namespace common_serialization

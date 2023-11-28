@@ -23,66 +23,204 @@
 
 #pragma once
 
-#include "common_serialization/CSP/MessagingDataServersKeeper.h"
-#include "common_serialization/CSP/Processing.h"
-#include "common_serialization/Containers/Walker.h"
+#include "common_serialization/CSP/MessagingIDataServerBase.h"
+#include "common_serialization/CSP/ContextInOutData.h"
+#include "common_serialization/CSP/StatusMessages.h"
 
 namespace common_serialization::csp::messaging
 {
 
-// Do not be confused by it naming
-// It is a server that process data messages of CSP
-class IDataServer
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
+    , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
+    , bool handleOnHeap = false
+    , bool multicast = false
+>
+    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+class IDataServer : public IDataServerBase
 {
 public:
-    virtual Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) = 0;
-    virtual [[nodiscard]] interface_version_t getMinimumHandlerSupportedInterfaceVersion() = 0;
-
-    static inline Status handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput);
+    Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) override;
+    [[nodiscard]] interface_version_t getMinimumHandlerSupportedInterfaceVersion() override;
 
 protected:
-    constexpr IDataServer() { }
-    constexpr ~IDataServer() { }
+    IDataServer();
+    ~IDataServer();
+
+private:
+    // It is a default implementation replacement for static handlers
+    virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* unmanagedPointers, OutputType& output);
+
+    Status handleDataOnStack(context::DInOutData<>& ctx, BinVector& binOutput);
+    Status handleDataOnHeap(context::DInOutData<>& ctx, BinVector& binOutput);
 };
 
-inline Status IDataServer::handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput)
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
+    , bool handleOnHeap, bool multicast
+>
+    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
+    , handleOnHeap, multicast>::handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput)
 {
-    context::DInOutData<> ctx(ctxCommon);
-    name_hash_t nameHash{ 0 };
+    Status status = processing::deserializeInOutDataContextPostprocess<InputType, OutputType>(
+        ctx, InputType::getNameHash(), minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
 
-    RUN(processing::deserializeDataContext(ctx, nameHash));
-    
-    context::DataFlags flags = ctx.getFlags();
-
-    Vector<GenericPointerKeeper> addedPointers;
-    if (flags.allowUnmanagedPointers)
-        ctx.setAddedPointers(addedPointers);
-
-    std::unordered_map<uint64_t, void*> pointersMap;
-    if (flags.checkRecursivePointers)
-        ctx.setPointersMap(pointersMap);
-    
-    IDataServer* pServer{ nullptr };
-
-    if (Status status = GetDataServersKeeper().findServer(nameHash, pServer); statusSuccess(status))
+    if (!statusSuccess(status))
     {
-        return pServer->handleDataConcrete(ctx, binOutput);
-    }
-    // If we have more than one DataServer
-    else if (status == Status::kErrorMoreEntires)
-    {
-        Vector<IDataServer*, RawStrategicAllocatorHelper<IDataServer*>> servers;
-        RUN(GetDataServersKeeper().findServers(nameHash, servers));
-
-        status = Status::kNoError;
-
-        for (auto pServer : servers)
-            SET_NEW_ERROR(pServer->handleDataConcrete(ctx, binOutput));
-
+        if (status == Status::kErrorNotSupportedInterfaceVersion)
+            RUN(processing::serializeStatusErrorNotSupportedInterfaceVersionInOut(minimumInputInterfaceVersion, InputType::getInterfaceVersion()
+                , minimumOutputInterfaceVersion, OutputType::getInterfaceVersion(), binOutput));
+        
         return status;
     }
+    
+    ctx.setAuxUsingHeapAllocation(handleOnHeap);
+
+    if constexpr (handleOnHeap)
+        return handleDataOnHeap(ctx, binOutput);
     else
-        return status;
+        return handleDataOnStack(ctx, binOutput);
 }
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
+    , bool handleOnHeap, bool multicast
+>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+interface_version_t IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
+    , handleOnHeap, multicast>::getMinimumHandlerSupportedInterfaceVersion()
+{
+    return minimumInputInterfaceVersion;
+}
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
+    , bool handleOnHeap, bool multicast
+>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
+    , handleOnHeap, multicast>::IDataServer()
+{
+    GetDataServersKeeper().addServer(InputType::getNameHash(), multicast, this);
+}
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
+    , bool handleOnHeap, bool multicast
+>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
+    , handleOnHeap, multicast>::~IDataServer()
+{
+    GetDataServersKeeper().removeServer(InputType::getNameHash(), this);
+}
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
+    , bool handleOnHeap, bool multicast
+>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
+    , handleOnHeap, multicast>::handleData(const InputType& input, Vector<GenericPointerKeeper>* unmanagedPointers, OutputType& output)
+{
+    assert(false);
+    return Status::kErrorNoSuchHandler;
+}
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
+    , bool handleOnHeap, bool multicast
+>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
+    , handleOnHeap, multicast>::handleDataOnStack(context::DInOutData<>& ctx, BinVector& binOutput)
+{
+    InputType input;
+    OutputType output;
+
+    RUN(processing::DataProcessor::deserializeData(ctx, input));
+
+    if constexpr (std::is_same_v<InstanceType, Dummy>)
+        RUN(this->handleData(input, ctx.getAddedPointers(), output))
+    else
+        RUN(InstanceType::handleDataStatic(input, ctx.getAddedPointers(), output));
+
+    std::unordered_map<const void*, uint64_t> pointersMap;
+
+    context::SData ctxOut(
+          binOutput
+        , traits::getLatestProtocolVersion()
+        , context::Message::kData
+        , ctx.getFlags()
+        , handleOnHeap
+        , ctx.getOutputInterfaceVersion()
+        , &pointersMap);
+
+    return output.serialize(ctxOut);
+}
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
+    , bool handleOnHeap, bool multicast
+>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
+    , handleOnHeap, multicast>::handleDataOnHeap(context::DInOutData<>& ctx, BinVector& binOutput)
+{
+    GenericPointerKeeper input;
+    if (!input.allocateAndConstruct<InputType, ConstructorGenericAllocatorHelper<InputType>>(1))
+        return Status::kErrorNoMemory;
+
+    GenericPointerKeeper output;
+    if (!output.allocateAndConstruct<OutputType, ConstructorGenericAllocatorHelper<OutputType>>(1))
+        return Status::kErrorNoMemory;
+
+    RUN(processing::DataProcessor::deserializeData(ctx, *input.get<InputType>()));
+
+    if constexpr (std::is_same_v<InstanceType, Dummy>)
+        RUN(this->handleData(*input.get<InputType>(), ctx.getAddedPointers(), *output.get<OutputType>()))
+    else
+        RUN(InstanceType::handleDataStatic(*input.get<InputType>(), ctx.getAddedPointers(), *output.get<OutputType>()));
+
+    GenericPointerKeeper pointersMap;
+
+    context::SData<> ctxOut(
+          binOutput
+        , traits::getLatestProtocolVersion()
+        , context::Message::kData
+        , ctx.getFlags()
+        , handleOnHeap
+        , ctx.getOutputInterfaceVersion()
+        , nullptr);
+
+    if (ctx.getFlags().checkRecursivePointers)
+    {
+        if (!input.allocateAndConstruct<std::unordered_map<const void*, uint64_t>, ConstructorGenericAllocatorHelper<std::unordered_map<const void*, uint64_t>>>(1))
+            return Status::kErrorNoMemory;
+
+        ctxOut.setPointersMap(*pointersMap.get<std::unordered_map<const void*, uint64_t>>());
+    }
+
+    return output.get<OutputType>()->serialize(ctxOut);
+}
+
+template<typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
+    , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
+    , bool handleOnHeap = false
+    , bool multicast = false
+>
+    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+using IMethodDataServer = IDataServer<Dummy, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion, handleOnHeap, multicast>;
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
+    , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
+    , bool handleOnHeap = false
+    , bool multicast = false
+>
+    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+using IStaticDataServer = IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion, handleOnHeap, multicast>;
 
 } // namespace common_serialization::csp::messaging

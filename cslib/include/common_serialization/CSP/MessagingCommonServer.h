@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/CSP/ContextCommon.h"
-#include "common_serialization/CSP/MessagingDataServer.h"
+#include "common_serialization/CSP/MessagingIDataServer.h"
 
 
 namespace common_serialization::csp::messaging
@@ -45,14 +45,7 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
     Status status{ Status::kNoError };
 
     if (ctx.getMessageType() == context::Message::kInOutData)
-    {
-
-        status = IDataServer::handleDataCommon(ctx, binOutput);
-        if (status == Status::kErrorNotSupportedInterfaceVersion)
-        {
-
-        }
-    }
+        return IDataServerBase::handleDataCommon(ctx, binOutput);
 
     return Status::kNoError;
 }

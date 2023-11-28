@@ -26,13 +26,7 @@
 #include "SpecialTypesSerializable.h"
 #include "SpecialTypesSerializableLegacy.h"
 
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
+namespace common_serialization::csp::processing
 {
 
 template<>
@@ -48,10 +42,6 @@ template<>
 Status DataProcessor::convertToOldStruct(const special_types::DForAllModesTests<>& value
     , uint32_t targetVersion, context::SData<>& ctx);
 
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::processing
 
 #undef RUN

@@ -90,7 +90,7 @@ constexpr inline bool areRegionsOverlap(const T* objs1, const T* objs2, size_t n
 }
 
 template<typename T, size_t N>
-size_t countof(T(&arr)[N])
+constexpr size_t countof(T(&arr)[N])
 {
     return N;
 }

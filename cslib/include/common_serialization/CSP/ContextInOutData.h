@@ -40,19 +40,21 @@ template<
 class InOutData : public Data<Container, serialize, PM, PC, EPP>
 {
 public:
-    constexpr InOutData(Container& container, Message messageType = Message::kInOutData, bool auxUsingHeapAllocation = true
+    constexpr InOutData(Container& container, Message messageType = Message::kInOutData
+        , DataFlags flags = DataFlags{}, bool auxUsingHeapAllocation = true
         , interface_version_t inInterfaceVersion = traits::kInterfaceVersionUndefined
         , interface_version_t outInterfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Data<Container, serialize, PM, PC, EPP>(container, messageType, auxUsingHeapAllocation, inInterfaceVersion)
+        : Data<Container, serialize, PM, PC, EPP>(container, messageType, flags, auxUsingHeapAllocation, inInterfaceVersion)
         , m_outputInterfaceVersion(outInterfaceVersion)
     { }
 
-    constexpr InOutData(Common<Container>& common, bool auxUsingHeapAllocation = true
+    constexpr InOutData(Common<Container>& common
+        , DataFlags flags = DataFlags{}, bool auxUsingHeapAllocation = true
         , interface_version_t inInterfaceVersion = traits::kInterfaceVersionUndefined
         , interface_version_t outInterfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Data<Container, serialize, PM, PC, EPP>(common, auxUsingHeapAllocation, inInterfaceVersion)
+        : Data<Container, serialize, PM, PC, EPP>(common, flags, auxUsingHeapAllocation, inInterfaceVersion)
         , m_outputInterfaceVersion(outInterfaceVersion)
     { }
 
@@ -61,23 +63,27 @@ public:
         , m_outputInterfaceVersion(rhs.m_outputInterfaceVersion)
     { }
 
-    constexpr InOutData(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags, Message messageType = Message::kInOutData, bool auxUsingHeapAllocation = false
+    constexpr InOutData(Container& binaryData, protocol_version_t protocolVersion, Message messageType = Message::kInOutData
+        , DataFlags flags = DataFlags{}
+        , bool auxUsingHeapAllocation = false
         , interface_version_t inInterfaceVersion = traits::kInterfaceVersionUndefined
         , interface_version_t outInterfaceVersion = traits::kInterfaceVersionUndefined
         , PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
-        : Data<Container, serialize, PM, PC, EPP>(binaryData, flags, messageType, auxUsingHeapAllocation, inInterfaceVersion, pPointersMap)
+        : Data<Container, serialize, PM, PC, EPP>(binaryData, messageType, flags, auxUsingHeapAllocation, inInterfaceVersion, pPointersMap)
         , m_outputInterfaceVersion(outInterfaceVersion)
     { }
 
-    constexpr InOutData(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags, Message messageType = Message::kInOutData, bool auxUsingHeapAllocation = false
+    constexpr InOutData(Container& binaryData, protocol_version_t protocolVersion, Message messageType = Message::kInOutData
+        , DataFlags flags = DataFlags{}
+        , bool auxUsingHeapAllocation = false
         , interface_version_t inInterfaceVersion = traits::kInterfaceVersionUndefined
         , interface_version_t outInterfaceVersion = traits::kInterfaceVersionUndefined
         , PC* pPointersContainer = nullptr, PM* pPointersMap = nullptr
     ) noexcept
         requires !serialize
-        : Data<Container, serialize, PM, PC, EPP>(binaryData, flags, messageType, auxUsingHeapAllocation, inInterfaceVersion, pPointersContainer, pPointersMap)
+        : Data<Container, serialize, PM, PC, EPP>(binaryData, messageType, flags, auxUsingHeapAllocation, inInterfaceVersion, pPointersContainer, pPointersMap)
         , m_outputInterfaceVersion(outInterfaceVersion)
     { }
 

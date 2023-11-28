@@ -116,14 +116,14 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, name_hash_t&
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
 constexpr Status serializeInOutDataContext(context::SInOutData<S, PM>& ctx) noexcept
 {
-    RUN(serializeDataContext(ctx));
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(ctx.getOutInterfaceVersion()));
+    RUN(serializeDataContext<T>(ctx));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(ctx.getOutputInterfaceVersion()));
 
     return Status::kNoError;
 }
 
-template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeInOutDataContext(context::SInOutData<D, PM>& ctx, name_hash_t& nameHash) noexcept
+template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+constexpr Status deserializeInOutDataContext(context::DInOutData<D, PM>& ctx, name_hash_t& nameHash) noexcept
 {
     RUN(deserializeDataContext(ctx, nameHash));
 
@@ -173,6 +173,15 @@ constexpr Status deserializeInOutDataContextPostprocess(context::DInOutData<D, P
     
     if (!traits::isInterfaceVersionSupported(ctx.getOutputInterfaceVersion(), outputMinimumSupportedInterfaceVersion, Out::getInterfaceVersion()))
         return Status::kErrorNotSupportedInterfaceVersion;
+
+    return Status::kNoError;
+}
+
+template<ISerializationCapableContainer S, typename T>
+constexpr Status serializeStatus(S& output, Status statusOut, T& statusMessage) noexcept
+{
+    RUN(output.pushBackArithmeticValue(statusOut));
+    RUN(output.pushBackN(static_cast<uint8_t*>(static_cast<void*>(&statusMessage)), sizeof(T)));
 
     return Status::kNoError;
 }

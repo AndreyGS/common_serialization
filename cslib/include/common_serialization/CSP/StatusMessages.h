@@ -33,7 +33,7 @@ namespace common_serialization::csp
 struct StatusErrorNotSupportedProtocolVersion
 {
     protocol_version_t supportedProtocolsVersionsSize{ helpers::countof(traits::kProtocolVersions) };
-    protocol_version_t supportedProtocolsVersions[supportedProtocolsVersionsSize];
+    protocol_version_t supportedProtocolsVersions[helpers::countof(traits::kProtocolVersions)];
 
     StatusErrorNotSupportedProtocolVersion()
     {
@@ -64,14 +64,8 @@ struct StatusErrorNotSupportedInterfaceVersionInOut
 
 #pragma pack(pop)
 
-template<ISerializationCapableContainer S, typename T>
-constexpr Status serializeStatus(S& output, Status statusOut, T& statusMessage) noexcept
+namespace processing
 {
-    RUN(output.pushBackArithmeticValue(statusOut));
-    RUN(output.pushBackN(statusMessage, sizeof(T)));
-
-    return Status::kNoError;
-}
 
 template<ISerializationCapableContainer S>
 constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output) noexcept
@@ -85,5 +79,26 @@ constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output) noex
 
     return Status::kNoError;
 }
+
+template<ISerializationCapableContainer S>
+constexpr Status serializeStatusErrorNotSupportedInterfaceVersionInOut(
+      interface_version_t  inMinimumSupportedInterfaceVersion, interface_version_t inMaximumSupportedInterfaceVersion
+    , interface_version_t outMinimumSupportedInterfaceVersion, interface_version_t outMaximumSupportedInterfaceVersion
+    , S& output) noexcept
+{
+    context::Common<S> ctx(output, traits::getLatestProtocolVersion(), context::Message::kStatus);
+    RUN(serializeHeaderContext(ctx));
+
+    StatusErrorNotSupportedInterfaceVersionInOut statusMessage = { 
+          .inMinimumSupportedInterfaceVersion  = inMinimumSupportedInterfaceVersion,  .inMaximumSupportedInterfaceVersion  = inMaximumSupportedInterfaceVersion
+        , .outMinimumSupportedInterfaceVersion = outMinimumSupportedInterfaceVersion, .outMaximumSupportedInterfaceVersion = outMaximumSupportedInterfaceVersion
+    };
+
+    RUN(serializeStatus(output, Status::kErrorNotSupportedProtocolVersion, statusMessage));
+
+    return Status::kNoError;
+}
+
+} // namespace processing
 
 } // namespace common_serialization::csp

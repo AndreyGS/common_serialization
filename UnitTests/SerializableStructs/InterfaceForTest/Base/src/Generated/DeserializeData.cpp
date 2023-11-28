@@ -64,13 +64,7 @@
    }                                                                                    \
 }
 
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
+namespace common_serialization::csp::processing
 {
 
 template<>
@@ -383,10 +377,6 @@ Status DataProcessor::deserializeData(context::DData<>& ctx
     return Status::kNoError;
 }
 
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::processing
 
 #undef RUN

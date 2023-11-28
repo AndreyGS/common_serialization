@@ -30,28 +30,28 @@
 namespace common_serialization::csp::messaging
 {
 
-class IDataServer;
+class IDataServerBase;
 
 class DataServersKeeper
 {
 public:
     static DataServersKeeper& GetDataServersKeeper();
 
-    Status addServer(csp::name_hash_t nameHash, bool multicast, IDataServer* pInstance);
-    void removeServer(csp::name_hash_t nameHash, IDataServer* pInstance);
+    Status addServer(csp::name_hash_t nameHash, bool multicast, IDataServerBase* pInstance);
+    void removeServer(csp::name_hash_t nameHash, IDataServerBase* pInstance);
 
     template<typename T>
-        requires requires (T t) { { t.pushBack(*(new IDataServer*)) }; { t.clear() }; { t.size() }; }
+        requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
     Status findServers(csp::name_hash_t nameHash, T& servers);
 
-    inline Status findServer(csp::name_hash_t nameHash, IDataServer*& pServer);
+    inline Status findServer(csp::name_hash_t nameHash, IDataServerBase*& pServer);
 
 private:
     static DataServersKeeper serversKeeper;
 
     DataServersKeeper() {}
 
-    std::unordered_multimap<name_hash_t, IDataServer*> m_serversList;
+    std::unordered_multimap<name_hash_t, IDataServerBase*> m_serversList;
     SharedMutex m_serversListMutex;
 };
 
@@ -62,7 +62,7 @@ inline DataServersKeeper& DataServersKeeper::GetDataServersKeeper()
     return serversKeeper;
 }
 
-inline Status DataServersKeeper::addServer(name_hash_t nameHash, bool multicast, IDataServer* pInstance)
+inline Status DataServersKeeper::addServer(name_hash_t nameHash, bool multicast, IDataServerBase* pInstance)
 {
     GuardW guard(m_serversListMutex);
 
@@ -74,7 +74,7 @@ inline Status DataServersKeeper::addServer(name_hash_t nameHash, bool multicast,
     return Status::kNoError;
 }
 
-inline void DataServersKeeper::removeServer(name_hash_t nameHash, IDataServer* pInstance)
+inline void DataServersKeeper::removeServer(name_hash_t nameHash, IDataServerBase* pInstance)
 {
     GuardW guard(m_serversListMutex);
 
@@ -88,7 +88,7 @@ inline void DataServersKeeper::removeServer(name_hash_t nameHash, IDataServer* p
 }
 
 template<typename T>
-    requires requires (T t) { { t.pushBack(*(new IDataServer*)) }; { t.clear() }; { t.size() }; }
+    requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
 Status DataServersKeeper::findServers(name_hash_t nameHash, T& servers)
 {
     servers.clear();
@@ -105,7 +105,7 @@ Status DataServersKeeper::findServers(name_hash_t nameHash, T& servers)
     return servers.size() ? Status::kNoError : Status::kErrorNoSuchHandler;
 }
 
-inline Status DataServersKeeper::findServer(csp::name_hash_t nameHash, IDataServer*& pServer)
+inline Status DataServersKeeper::findServer(csp::name_hash_t nameHash, IDataServerBase*& pServer)
 {
     GuardR guard(m_serversListMutex);
 

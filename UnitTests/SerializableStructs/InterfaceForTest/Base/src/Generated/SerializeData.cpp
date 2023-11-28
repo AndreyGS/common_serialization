@@ -63,13 +63,7 @@
     }                                                                                   \
 }
 
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
+namespace common_serialization::csp::processing
 {
 
 template<>
@@ -383,11 +377,7 @@ Status DataProcessor::serializeData(const special_types::DForAllModesTests<>& va
     return Status::kNoError;
 }
 
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::processing
 
 #undef SERIALIZE_COMMON
 

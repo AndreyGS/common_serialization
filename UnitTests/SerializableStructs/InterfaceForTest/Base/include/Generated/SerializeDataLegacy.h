@@ -25,13 +25,7 @@
 
 #include "../../../Base/include/SpecialTypesSerializableLegacy.h"
 
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
+namespace common_serialization::csp::processing
 {
 
 template<>
@@ -53,10 +47,6 @@ template<>
 Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version2<>& value
     , context::SData<>& ctx);
 
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::processing
 
 #undef RUN
