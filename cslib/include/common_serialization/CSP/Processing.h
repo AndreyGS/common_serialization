@@ -177,13 +177,4 @@ constexpr Status deserializeInOutDataContextPostprocess(context::DInOutData<D, P
     return Status::kNoError;
 }
 
-template<ISerializationCapableContainer S, typename T>
-constexpr Status serializeStatus(S& output, Status statusOut, T& statusMessage) noexcept
-{
-    RUN(output.pushBackArithmeticValue(statusOut));
-    RUN(output.pushBackN(static_cast<uint8_t*>(static_cast<void*>(&statusMessage)), sizeof(T)));
-
-    return Status::kNoError;
-}
-
 } // namespace common_serialization::csp::processing

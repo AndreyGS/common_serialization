@@ -71,6 +71,7 @@
 #include "common_serialization/CSP/ISerializable.h"
 #include "common_serialization/CSP/ProcessingDataSpecial.h"
 #include "common_serialization/CSP/ProcessingDataVersionConverters.h"
+#include "common_serialization/CSP/MessagingIDataClient.h"
 #include "common_serialization/CSP/MessagingCommonServer.h"
 
 #undef SET_NEW_ERROR    // defined in common_serialization/Status.h
