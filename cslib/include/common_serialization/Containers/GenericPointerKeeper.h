@@ -29,9 +29,6 @@ namespace common_serialization
 {
 
 // This class is something like unique_ptr, but not template.
-// Its interface was intentionally made different from std analogue.
-// At the moment role of this class only in keeping random pointers in container
-// and its interface is not allowing to get pointer or destructor once it (pointer) created
 class GenericPointerKeeper
 {
 public:
