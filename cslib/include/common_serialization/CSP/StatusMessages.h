@@ -89,13 +89,25 @@ constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output) noex
     return Status::kNoError;
 }
 
+
+template<ISerializationCapableContainer S>
+constexpr Status serializeStatusSuccess(S& output, protocol_version_t protocolVersion, Status statusOut) noexcept
+{
+    context::Common<S> ctx(output, protocolVersion, context::Message::kStatus);
+    RUN(serializeHeaderContext(ctx));
+    RUN(output.pushBackArithmeticValue(statusOut));
+
+    return Status::kNoError;
+}
+
 template<ISerializationCapableContainer S>
 constexpr Status serializeStatusErrorNotSupportedInterfaceVersionInOut(
       interface_version_t  inMinimumSupportedInterfaceVersion, interface_version_t inMaximumSupportedInterfaceVersion
     , interface_version_t outMinimumSupportedInterfaceVersion, interface_version_t outMaximumSupportedInterfaceVersion
+    , protocol_version_t protocolVersion
     , S& output) noexcept
 {
-    context::Common<S> ctx(output, traits::getLatestProtocolVersion(), context::Message::kStatus);
+    context::Common<S> ctx(output, protocolVersion, context::Message::kStatus);
     RUN(serializeHeaderContext(ctx));
 
     StatusErrorNotSupportedInterfaceVersionInOut statusMessage = { 

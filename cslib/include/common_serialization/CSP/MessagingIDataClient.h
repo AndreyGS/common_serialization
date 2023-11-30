@@ -32,46 +32,93 @@ namespace common_serialization::csp::messaging
 class IDataClient
 {
 public:
-    template<typename InputType, typename OutputType, bool forTempUseHeap>
+    template<
+          typename InputType
+        , typename OutputType
+        , bool forTempUseHeap = true
+        , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
+        , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
+    >
+        requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
     Status sendData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers = nullptr)
     {
-        return sendData(input, output, m_defaultProtocolVersion, m_defaultFlags, m_targetInterfaceVersion, m_targetInterfaceVersion, unmanagedPointers);
+        return sendData(input, output, m_defaultProtocolVersion, m_defaultFlags, m_serverInterfaceVersion, m_serverInterfaceVersion, unmanagedPointers);
     }
 
-    template<typename InputType, typename OutputType, bool forTempUseHeap>
+    template<
+          typename InputType
+        , typename OutputType
+        , bool forTempUseHeap = true
+        , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
+        , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
+    >
+        requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
     Status sendData(
           const InputType& input
         , OutputType& output
-        , protocol_version_t protocolVersion
-        , context::DataFlags flags = m_defaultFlags
-        , interface_version_t minimumInputInterfaceVersion = m_targetInterfaceVersion
-        , interface_version_t minimumOutputInterfaceVersion = m_targetInterfaceVersion
+        , context::DataFlags flags
+        , interface_version_t preferedInputInterfaceVersion = m_serverInterfaceVersion
+        , interface_version_t preferedOutputInterfaceVersion = m_serverInterfaceVersion
         , Vector<GenericPointerKeeper>* unmanagedPointers = nullptr
+        , protocol_version_t protocolVersion = m_defaultProtocolVersion
     )
     {
+        interface_version_t inputInterfaceVersion = getFirstAttemptInterfaceVersion(preferedInputInterfaceVersion);
+        if (inputInterfaceVersion == traits::kInterfaceVersionUndefined)
+            return Status::kErrorInvalidArgument;
+
+        interface_version_t outputInterfaceVersion = getFirstAttemptInterfaceVersion(preferedOutputInterfaceVersion);
+        if (outputInterfaceVersion == traits::kInterfaceVersionUndefined)
+            return Status::kErrorInvalidArgument;
+
         if constexpr (forTempUseHeap)
-            return sendDataOnHeap(input, output, protocolVersion, flags, minimumInputInterfaceVersion, minimumOutputInterfaceVersion, unmanagedPointers);
+            return sendDataOnHeap<InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion>
+                (input, output, protocolVersion, flags, inputInterfaceVersion, outputInterfaceVersion, unmanagedPointers);
         else
-            return sendDataOnStack(input, output, protocolVersion, flags, minimumInputInterfaceVersion, minimumOutputInterfaceVersion, unmanagedPointers);
+            return sendDataOnStack<InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion>
+                (input, output, protocolVersion, flags, inputInterfaceVersion, outputInterfaceVersion, unmanagedPointers);
     }
 
 protected:
     IDataClient() {}
     IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, interface_version_t targetInterfaceVersion)
-        : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultFlags(defaultFlags), m_targetInterfaceVersion(targetInterfaceVersion)
+        : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultFlags(defaultFlags), m_serverInterfaceVersion(targetInterfaceVersion)
     { }
 
 private:
-    template<typename InputType, typename OutputType>
+    template<typename T>
+        requires IsISerializableBased<T>
+    interface_version_t getFirstAttemptInterfaceVersion(interface_version_t preferedInterfaceVersion)
+    {
+        interface_version_t interfaceVersion
+            = preferedInterfaceVersion == traits::kInterfaceVersionUndefined
+                ? m_serverInterfaceVersion
+                : preferedInterfaceVersion;
+
+        if (interfaceVersion > T::getInterfaceVersion())
+            interfaceVersion = T::getInterfaceVersion();
+        else if (interfaceVersion < T::getMinimumInterfaceVersion())
+            interfaceVersion = traits::kInterfaceVersionUndefined;
+
+        return interfaceVersion;
+    }
+
+    template<
+          typename InputType
+        , typename OutputType
+        , interface_version_t minimumInputInterfaceVersion
+        , interface_version_t minimumOutputInterfaceVersion
+    >
+        requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
     Status sendDataOnHeap(const InputType& input, OutputType& output, protocol_version_t protocolVersion, context::DataFlags flags
-        , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion, Vector<GenericPointerKeeper>* unmanagedPointers)
+        , interface_version_t inputInterfaceVersion, interface_version_t outputInterfaceVersion, Vector<GenericPointerKeeper>* unmanagedPointers)
     {
         GenericPointerKeeper pointersMap;
 
         BinVector binInput;
 
-        // Need to work on logic of minimum and maximum interface versions here
-        context::SInOutData<> ctx(binInput, protocolVersion, flags, true, minimumInputInterfaceVersion, minimumOutputInterfaceVersion, nullptr);
+        // First attempt of sending data is made of interface version function parameters
+        context::SInOutData<> ctx(binInput, protocolVersion, flags, true, inputInterfaceVersion, outputInterfaceVersion, nullptr);
 
         if (flags.checkRecursivePointers)
         {
@@ -87,14 +134,41 @@ private:
 
         BinWalker binOutput;
 
-        Status status = sendBinData(binInput, binOutput);
+        RUN(sendBinData(binInput, binOutput));
+
+        context::DData<> ctx(binOutput);
+
+        RUN(processing::deserializeHeaderContext(ctx));
+
+        if (ctx.getMessageType() == context::Message::kData)
+        {
+            if (std::is_same_v<OutputType, Dummy>)
+                return Status::kErrorInternal;
+
+            RUN(processing::deserializeDataContext(ctx));
+            RUN(processing::DataProcessor::deserializeData(ctx, output));
+        }
+        else if (ctx.getMessageType() == context::Message::kStatus)
+        {
 
 
+            if constexpr (std::is_same_v<OutputType, Dummy>)
+            {
+            }
+        }
+
+        return Status::kNoError;
     }
 
-    template<typename InputType, typename OutputType>
+    template<
+          typename InputType
+        , typename OutputType
+        , interface_version_t minimumInputInterfaceVersion
+        , interface_version_t minimumOutputInterfaceVersion
+    >
+        requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
     Status sendDataOnStack(const InputType& input, OutputType& output, protocol_version_t protocolVersion, context::DataFlags flags
-        , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion, Vector<GenericPointerKeeper>* unmanagedPointers)
+        , interface_version_t inputInterfaceVersion, interface_version_t outputInterfaceVersion, Vector<GenericPointerKeeper>* unmanagedPointers)
     {
         return Status::kErrorOverflow;
     }
@@ -103,7 +177,7 @@ private:
 
     protocol_version_t m_defaultProtocolVersion{ traits::getLatestProtocolVersion() };
     context::DataFlags m_defaultFlags;
-    interface_version_t m_targetInterfaceVersion{ traits::kInterfaceVersionUndefined };
+    interface_version_t m_serverInterfaceVersion{ traits::kInterfaceVersionUndefined };
 };
 
 } // namespace common_serialization::csp::messaging

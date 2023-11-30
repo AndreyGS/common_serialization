@@ -85,8 +85,8 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 
     RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
 
-        if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getMinimumInterfaceVersion(), T::getInterfaceVersion()))
-            return Status::kErrorNotSupportedInterfaceVersion;
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getMinimumInterfaceVersion(), T::getInterfaceVersion()))
+        return Status::kErrorNotSupportedInterfaceVersion;
 
     if (T::getInterfaceVersion() != ctx.getInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);

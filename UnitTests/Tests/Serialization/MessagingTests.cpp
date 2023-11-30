@@ -29,10 +29,8 @@ using namespace special_types;
 
 class TestSubscriber
     : csp::messaging::IMethodDataServer<SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableDescendantSerializable<>
-        , SimpleAssignableAlignedToOneSerializable<>::getMinimumInterfaceVersion(), 3, true, false>
-    , csp::messaging::IStaticDataServer<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>
-        , DiamondSerializable<>::getMinimumInterfaceVersion(), DynamicPolymorphicSerializable<>::getMinimumInterfaceVersion(), true>
-
+        , true, false, SimpleAssignableAlignedToOneSerializable<>::getMinimumInterfaceVersion(), 3>
+    , csp::messaging::IStaticDataServer<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>, false>
 {
 public:
     Status handleData(const SimpleAssignableAlignedToOneSerializable<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, SimpleAssignableDescendantSerializable<>& output) override

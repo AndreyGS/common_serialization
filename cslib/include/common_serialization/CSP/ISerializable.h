@@ -51,7 +51,7 @@ public:
     [[nodiscard]] static constexpr name_hash_t getNameHash() noexcept;
     [[nodiscard]] static constexpr interface_version_t getThisVersion() noexcept;
     [[nodiscard]] static constexpr interface_version_t getInterfaceVersion() noexcept;
-    [[nodiscard]] static constexpr interface_version_t getMinimumInterfaceVersion() noexcept;
+    [[nodiscard]] static consteval interface_version_t getMinimumInterfaceVersion() noexcept;
     [[nodiscard]] static constexpr const interface_version_t* getVersionsHierarchy() noexcept;
     [[nodiscard]] static constexpr interface_version_t getVersionsHierarchySize() noexcept;
 };
@@ -123,7 +123,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr interface_version_t ISerializable<T>::getMinimumInterfaceVersion() noexcept
+[[nodiscard]] consteval interface_version_t ISerializable<T>::getMinimumInterfaceVersion() noexcept
 {
     return getVersionsHierarchy()[getVersionsHierarchySize() - 1];
 }

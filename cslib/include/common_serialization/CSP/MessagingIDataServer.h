@@ -31,10 +31,10 @@ namespace common_serialization::csp::messaging
 {
 
 template<typename InstanceType, typename InputType, typename OutputType
+    , bool forTempUseHeap = true
+    , bool multicast = false
     , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
     , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
-    , bool forTempUseHeap = false
-    , bool multicast = false
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 class IDataServer : public IDataServerBase
@@ -56,12 +56,14 @@ private:
 };
 
 template<typename InstanceType, typename InputType, typename OutputType
-    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
-    , bool forTempUseHeap, bool multicast
+    , bool forTempUseHeap
+    , bool multicast
+    , interface_version_t minimumInputInterfaceVersion
+    , interface_version_t minimumOutputInterfaceVersion
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
-    , forTempUseHeap, multicast>::handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput)
+Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput)
 {
     Status status = processing::deserializeInOutDataContextPostprocess<InputType, OutputType>(
         ctx, InputType::getNameHash(), minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
@@ -70,7 +72,7 @@ Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVer
     {
         if (status == Status::kErrorNotSupportedInterfaceVersion)
             RUN(processing::serializeStatusErrorNotSupportedInterfaceVersionInOut(minimumInputInterfaceVersion, InputType::getInterfaceVersion()
-                , minimumOutputInterfaceVersion, OutputType::getInterfaceVersion(), binOutput));
+                , minimumOutputInterfaceVersion, OutputType::getInterfaceVersion(), ctx.getProtocolVersion(), binOutput));
         
         return status;
     }
@@ -84,57 +86,67 @@ Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVer
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
-    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
-    , bool forTempUseHeap, bool multicast
+    , bool forTempUseHeap
+    , bool multicast
+    , interface_version_t minimumInputInterfaceVersion
+    , interface_version_t minimumOutputInterfaceVersion
 >
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-interface_version_t IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
-    , forTempUseHeap, multicast>::getMinimumHandlerSupportedInterfaceVersion()
+interface_version_t IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::getMinimumHandlerSupportedInterfaceVersion()
 {
     return minimumInputInterfaceVersion;
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
-    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
-    , bool forTempUseHeap, bool multicast
+    , bool forTempUseHeap
+    , bool multicast
+    , interface_version_t minimumInputInterfaceVersion
+    , interface_version_t minimumOutputInterfaceVersion
 >
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
-    , forTempUseHeap, multicast>::IDataServer()
+IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::IDataServer()
 {
     GetDataServersKeeper().addServer(InputType::getNameHash(), multicast, this);
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
-    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
-    , bool forTempUseHeap, bool multicast
+    , bool forTempUseHeap
+    , bool multicast
+    , interface_version_t minimumInputInterfaceVersion
+    , interface_version_t minimumOutputInterfaceVersion
 >
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
-    , forTempUseHeap, multicast>::~IDataServer()
+IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::~IDataServer()
 {
     GetDataServersKeeper().removeServer(InputType::getNameHash(), this);
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
-    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
-    , bool forTempUseHeap, bool multicast
+    , bool forTempUseHeap
+    , bool multicast
+    , interface_version_t minimumInputInterfaceVersion
+    , interface_version_t minimumOutputInterfaceVersion
 >
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
-    , forTempUseHeap, multicast>::handleData(const InputType& input, Vector<GenericPointerKeeper>* unmanagedPointers, OutputType& output)
+Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleData(const InputType& input, Vector<GenericPointerKeeper>* unmanagedPointers, OutputType& output)
 {
     assert(false);
     return Status::kErrorNoSuchHandler;
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
-    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
-    , bool forTempUseHeap, bool multicast
+    , bool forTempUseHeap
+    , bool multicast
+    , interface_version_t minimumInputInterfaceVersion
+    , interface_version_t minimumOutputInterfaceVersion
 >
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
-    , forTempUseHeap, multicast>::handleDataOnStack(context::DInOutData<>& ctx, BinVector& binOutput)
+Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataOnStack(context::DInOutData<>& ctx, BinVector& binOutput)
 {
     InputType input;
     OutputType output;
@@ -160,12 +172,14 @@ Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVer
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
-    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion
-    , bool forTempUseHeap, bool multicast
+    , bool forTempUseHeap
+    , bool multicast
+    , interface_version_t minimumInputInterfaceVersion
+    , interface_version_t minimumOutputInterfaceVersion
 >
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion
-    , forTempUseHeap, multicast>::handleDataOnHeap(context::DInOutData<>& ctx, BinVector& binOutput)
+Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataOnHeap(context::DInOutData<>& ctx, BinVector& binOutput)
 {
     GenericPointerKeeper input;
     if (!input.allocateAndConstruct<InputType, ConstructorGenericAllocatorHelper<InputType>>(1))
@@ -204,21 +218,21 @@ Status IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVer
 }
 
 template<typename InputType, typename OutputType
+    , bool forTempUseHeap = true
+    , bool multicast = false
     , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
     , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
-    , bool forTempUseHeap = false
-    , bool multicast = false
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-using IMethodDataServer = IDataServer<Dummy, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion, forTempUseHeap, multicast>;
+using IMethodDataServer = IDataServer<Dummy, InputType, OutputType, forTempUseHeap, multicast, minimumInputInterfaceVersion, minimumOutputInterfaceVersion>;
 
 template<typename InstanceType, typename InputType, typename OutputType
+    , bool forTempUseHeap = true
+    , bool multicast = false
     , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
     , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
-    , bool forTempUseHeap = false
-    , bool multicast = false
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-using IStaticDataServer = IDataServer<InstanceType, InputType, OutputType, minimumInputInterfaceVersion, minimumOutputInterfaceVersion, forTempUseHeap, multicast>;
+using IStaticDataServer = IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast, minimumInputInterfaceVersion, minimumOutputInterfaceVersion>;
 
 } // namespace common_serialization::csp::messaging

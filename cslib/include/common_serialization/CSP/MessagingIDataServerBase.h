@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/CSP/MessagingDataServersKeeper.h"
-#include "common_serialization/CSP/Processing.h"
+#include "common_serialization/CSP/StatusMessages.h"
 #include "common_serialization/Containers/Walker.h"
 
 namespace common_serialization::csp::messaging
@@ -63,10 +63,11 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
         ctx.setPointersMap(pointersMap);
     
     IDataServerBase* pServer{ nullptr };
+    Status status = Status::kNoError;
 
     if (Status status = GetDataServersKeeper().findServer(nameHash, pServer); statusSuccess(status))
     {
-        return pServer->handleDataConcrete(ctx, binOutput);
+        status = pServer->handleDataConcrete(ctx, binOutput);
     }
     // If we have more than one DataServer
     else if (status == Status::kErrorMoreEntires)
@@ -78,9 +79,12 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
 
         for (auto pServer : servers)
             SET_NEW_ERROR(pServer->handleDataConcrete(ctx, binOutput));
-
-        return status;
     }
+    else
+        return status;
+
+    if (binOutput.size() == 0 && statusSuccess(status))
+        return processing::serializeStatusSuccess(binOutput, ctx.getProtocolVersion(), status);
     else
         return status;
 }
