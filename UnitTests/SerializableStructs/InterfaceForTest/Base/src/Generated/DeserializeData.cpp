@@ -301,6 +301,9 @@ Status DataProcessor::deserializeData(context::DData<>& ctx
 
     RUN(deserializeData(ctx, value.m_j));
     RUN(deserializeData(ctx, value.m_k));
+    RUN(deserializeData(ctx, value.m_arrL));
+    RUN(deserializeData(ctx, value.m_sasTs));
+    RUN(deserializeData(ctx, value.m_saaToSts));
 
     return Status::kNoError;
 }
@@ -313,6 +316,9 @@ Status DataProcessor::deserializeData(context::DData<>& ctx
 
     RUN(deserializeData(ctx, value.m_j));
     RUN(deserializeData(ctx, value.m_k));
+    RUN(deserializeData(ctx, value.m_arrL));
+    RUN(deserializeData(ctx, value.m_sasTs));
+    RUN(deserializeData(ctx, value.m_saaToSts));
 
     return Status::kNoError;
 }

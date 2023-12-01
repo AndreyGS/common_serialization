@@ -248,6 +248,26 @@ void fillingStruct(SimilarType1Serializable<>& output)
 {
     output.m_j = 102;
     output.m_k = 9951 | (12345 << 16);
+
+    output.m_arrL[0] = 34;
+    output.m_arrL[1] = 44;
+    output.m_arrL[2] = 54;
+    output.m_arrL[3] = 64;
+    output.m_arrL[4] = 74;
+
+    output.m_sasTs[0].m_j = 105;
+    output.m_sasTs[0].m_k = 11123;
+    output.m_sasTs[1].m_j = 200;
+    output.m_sasTs[1].m_k = 20110;
+    output.m_sasTs[2].m_j = 655;
+    output.m_sasTs[2].m_k = 25548;
+
+    output.m_saaToSts[0].m_j = 21;
+    output.m_saaToSts[0].m_k = 11923;
+    output.m_saaToSts[1].m_j = 85;
+    output.m_saaToSts[1].m_k = 31002;
+    output.m_saaToSts[2].m_j = 54;
+    output.m_saaToSts[2].m_k = 4563;
 }
 
 template<>
@@ -255,6 +275,26 @@ void fillingStruct(SimilarType2Serializable<>& output)
 {
     output.m_j = 102;
     output.m_k = 9951;
+
+    output.m_arrL[0] = 34;
+    output.m_arrL[1] = 44;
+    output.m_arrL[2] = 54;
+    output.m_arrL[3] = 64;
+    output.m_arrL[4] = 74;
+
+    output.m_sasTs[0].m_j = 105;
+    output.m_sasTs[0].m_k = 11123;
+    output.m_sasTs[1].m_j = 200;
+    output.m_sasTs[1].m_k = 20110;
+    output.m_sasTs[2].m_j = 655;
+    output.m_sasTs[2].m_k = 25548;
+
+    output.m_saaToSts[0].m_j = 21;
+    output.m_saaToSts[0].m_k = 11923;
+    output.m_saaToSts[1].m_j = 85;
+    output.m_saaToSts[1].m_k = 31002;
+    output.m_saaToSts[2].m_j = 54;
+    output.m_saaToSts[2].m_k = 4563;
 }
 
 template<>

@@ -301,6 +301,9 @@ Status DataProcessor::serializeData(const special_types::SimilarType1Serializabl
 
     RUN(serializeData(value.m_j, ctx));
     RUN(serializeData(value.m_k, ctx));
+    RUN(serializeData(value.m_arrL, ctx));
+    RUN(serializeData(value.m_sasTs, ctx));
+    RUN(serializeData(value.m_saaToSts, ctx));
 
     return Status::kNoError;
 }
@@ -313,6 +316,9 @@ Status DataProcessor::serializeData(const special_types::SimilarType2Serializabl
 
     RUN(serializeData(value.m_j, ctx));
     RUN(serializeData(value.m_k, ctx));
+    RUN(serializeData(value.m_arrL, ctx));
+    RUN(serializeData(value.m_sasTs, ctx));
+    RUN(serializeData(value.m_saaToSts, ctx));
 
     return Status::kNoError;
 }

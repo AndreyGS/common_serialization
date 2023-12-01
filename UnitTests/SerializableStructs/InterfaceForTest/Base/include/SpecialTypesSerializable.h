@@ -431,6 +431,9 @@ public:
 
 #pragma pack(push, 1)
 
+template<typename>
+class SimpleAssignableAlignedToOneSimilarType2Serializable;
+
 template<typename T = Dummy>
 class SimpleAssignableAlignedToOneSimilarType1Serializable : public csp::ISerializable<GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1Serializable<T>, T >>
 {
@@ -446,6 +449,8 @@ public:
     {
         return m_j == rhs.m_j && m_k == (rhs.m_k & 0xffff);
     }
+
+    SimpleAssignableAlignedToOneSimilarType1Serializable<T>& operator=(const SimpleAssignableAlignedToOneSimilarType2Serializable<T>& rhs) noexcept;
 
     char m_j{ 0 };
     int m_k{ 0 };
@@ -469,13 +474,33 @@ public:
         return m_j == rhs.m_j && m_k == rhs.m_k;
     }
 
+    SimpleAssignableAlignedToOneSimilarType2Serializable<T>& operator=(const SimpleAssignableAlignedToOneSimilarType1Serializable<T>& rhs) noexcept
+    {
+        m_j = rhs.m_j;
+        m_k = static_cast<short>(rhs.m_k);
+
+        return *this;
+    }
+
     char m_j{ 0 };
     short m_k{ 0 };
 
     friend csp::processing::DataProcessor;
 };
 
+template<typename T>
+SimpleAssignableAlignedToOneSimilarType1Serializable<T>& SimpleAssignableAlignedToOneSimilarType1Serializable<T>::operator=(const SimpleAssignableAlignedToOneSimilarType2Serializable<T>& rhs) noexcept
+{
+    m_j = rhs.m_j;
+    m_k = static_cast<int>(rhs.m_k);
+
+    return *this;
+}
+
 #pragma pack(pop)
+
+template<typename>
+class SimpleAssignableSimilarType2Serializable;
 
 template<typename T = Dummy>
 class SimpleAssignableSimilarType1Serializable : public csp::ISerializable<GetCrtpMainType<SimpleAssignableSimilarType1Serializable<T>, T >>
@@ -492,6 +517,8 @@ public:
     {
         return m_j == rhs.m_j && m_k == (rhs.m_k & 0xffff);
     }
+
+    SimpleAssignableSimilarType1Serializable<T>& operator=(const SimpleAssignableSimilarType2Serializable<T>& rhs) noexcept;
 
     char m_j{ 0 };
     int m_k{ 0 };
@@ -515,11 +542,31 @@ public:
         return m_j == rhs.m_j && m_k == rhs.m_k;
     }
 
+    SimpleAssignableSimilarType2Serializable<T>& operator=(const SimpleAssignableSimilarType1Serializable<T>& rhs) noexcept
+    {
+        m_j = rhs.m_j;
+        m_k = static_cast<short>(rhs.m_k);
+
+        return *this;
+    }
+
     char m_j{ 0 };
     short m_k{ 0 };
 
     friend csp::processing::DataProcessor;
 };
+
+template<typename T>
+SimpleAssignableSimilarType1Serializable<T>& SimpleAssignableSimilarType1Serializable<T>::operator=(const SimpleAssignableSimilarType2Serializable<T>& rhs) noexcept
+{
+    m_j = rhs.m_j;
+    m_k = static_cast<int>(rhs.m_k);
+
+    return *this;
+}
+
+template<typename>
+class SimilarType2Serializable;
 
 template<typename T = Dummy>
 class SimilarType1Serializable : public csp::ISerializable<GetCrtpMainType<SimilarType1Serializable<T>, T >>
@@ -533,11 +580,29 @@ public:
 
     [[nodiscard]] bool operator==(const SimilarType1Serializable& rhs) const noexcept
     {
+        for (size_t i = 0; i < std::size(m_arrL); ++i)
+            if (m_arrL[i] != rhs.m_arrL[i])
+                return false;
+
+        for (size_t i = 0; i < std::size(m_sasTs); ++i)
+            if (m_sasTs[i] != rhs.m_sasTs[i])
+                return false;
+
+        for (size_t i = 0; i < std::size(m_saaToSts); ++i)
+            if (m_saaToSts[i] != rhs.m_saaToSts[i])
+                return false;
+
         return m_j == rhs.m_j && m_k == (rhs.m_k & 0xffff);
     }
 
+    SimilarType1Serializable<T>& operator=(const SimilarType2Serializable<T>& rhs) noexcept;
+    
+
     char m_j{ 0 };
     int m_k{ 0 };
+    uint8_t m_arrL[5]{ 0 };
+    SimpleAssignableSimilarType1Serializable<> m_sasTs[3];
+    SimpleAssignableAlignedToOneSimilarType1Serializable<> m_saaToSts[3];
 
     friend csp::processing::DataProcessor;
 };
@@ -554,14 +619,64 @@ public:
 
     [[nodiscard]] bool operator==(const SimilarType2Serializable& rhs) const noexcept
     {
+        for (size_t i = 0; i < std::size(m_arrL); ++i)
+            if (m_arrL[i] != rhs.m_arrL[i])
+                return false;
+
+        for (size_t i = 0; i < std::size(m_sasTs); ++i)
+            if (m_sasTs[i] != rhs.m_sasTs[i])
+                return false;
+
+        for (size_t i = 0; i < std::size(m_saaToSts); ++i)
+            if (m_saaToSts[i] != rhs.m_saaToSts[i])
+                return false;
+
         return m_j == rhs.m_j && m_k == rhs.m_k;
+    }
+
+    SimilarType2Serializable<T>& operator=(const SimilarType1Serializable<T>& rhs) noexcept
+    {
+        m_j = rhs.m_j;
+        m_k = static_cast<short>(rhs.m_k);
+
+        for (size_t i = 0; i < std::size(m_arrL); ++i)
+            m_arrL[i] = rhs.m_arrL[i];
+
+        for (size_t i = 0; i < std::size(m_sasTs); ++i)
+            m_sasTs[i] = rhs.m_sasTs[i];
+
+        for (size_t i = 0; i < std::size(m_saaToSts); ++i)
+            m_saaToSts[i] = rhs.m_saaToSts[i];
+
+        return *this;
     }
 
     char m_j{ 0 };
     short m_k{ 0 };
+    uint32_t m_arrL[5]{ 0 };
+    SimpleAssignableSimilarType2Serializable<> m_sasTs[3];
+    SimpleAssignableAlignedToOneSimilarType2Serializable<> m_saaToSts[3];
 
     friend csp::processing::DataProcessor;
 };
+
+template<typename T>
+SimilarType1Serializable<T>& SimilarType1Serializable<T>::operator=(const SimilarType2Serializable<T>& rhs) noexcept
+{
+    m_j = rhs.m_j;
+    m_k = static_cast<int>(rhs.m_k);
+
+    for (size_t i = 0; i < std::size(m_arrL); ++i)
+        m_arrL[i] = rhs.m_arrL[i];
+
+    for (size_t i = 0; i < std::size(m_sasTs); ++i)
+        m_sasTs[i] = rhs.m_sasTs[i];
+
+    for (size_t i = 0; i < std::size(m_saaToSts); ++i)
+        m_saaToSts[i] = rhs.m_saaToSts[i];
+
+    return *this;
+}
 
 struct RecursiveTestSpecial1;
 

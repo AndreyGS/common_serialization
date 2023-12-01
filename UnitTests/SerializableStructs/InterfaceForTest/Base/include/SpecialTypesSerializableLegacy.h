@@ -487,12 +487,9 @@ Status SForAllModesTests_Version2<T1>::init(const DForAllModesTests<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
-    m_saaToStS.m_j = rhs.m_saaToStS.m_j;
-    m_saaToStS.m_k = rhs.m_saaToStS.m_k;
-    m_saStS.m_j = rhs.m_saStS.m_j;
-    m_saStS.m_k = rhs.m_saStS.m_k;
-    m_stS.m_j = rhs.m_stS.m_j;
-    m_stS.m_k = rhs.m_stS.m_k;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
     m_saS = rhs.m_saDs;
@@ -508,12 +505,9 @@ Status DForAllModesTests<T1>::init(const SForAllModesTests_Version2<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
-    m_saaToStS.m_j = rhs.m_saaToStS.m_j;
-    m_saaToStS.m_k = rhs.m_saaToStS.m_k;
-    m_saStS.m_j = rhs.m_saStS.m_j;
-    m_saStS.m_k = rhs.m_saStS.m_k;
-    m_stS.m_j = rhs.m_stS.m_j;
-    m_stS.m_k = rhs.m_stS.m_k;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
     static_cast<SimpleAssignableSerializable<>&>(m_saDs) = rhs.m_saS;

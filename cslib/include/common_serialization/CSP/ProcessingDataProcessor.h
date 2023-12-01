@@ -94,36 +94,42 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
 
     assert(p && n > 0 || n == 0);
 
-    const context::DataFlags flags = ctx.getFlags();
-
-    if (
-           std::is_arithmetic_v<T> 
-        || std::is_enum_v<T>
-        || !flags.sizeOfArithmeticTypesMayBeNotEqual && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
-            && (SimpleAssignableAlignedToOneType<T> || SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
-    )
+    if constexpr (EmptyType<T>)
+        return Status::kNoError;
+    else
     {
-        const typename S::size_type bytesSize = sizeof(T) * n;
-        assert((n == bytesSize / sizeof(T)));
+        const context::DataFlags flags = ctx.getFlags();
 
-        S& output = ctx.getBinaryData();
-
-        if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
-            {
-                RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
-            }
-
-        RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
-    }
-    else if constexpr (!EmptyType<T>)
-    {
-        for (size_t i = 0; i < n; ++i)
+        if (
+               std::is_arithmetic_v<T>
+            || std::is_enum_v<T>
+            || !flags.sizeOfArithmeticTypesMayBeNotEqual && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
+                && (SimpleAssignableAlignedToOneType<T> || SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
+            )
         {
-            if (flags.checkRecursivePointers)
-                (*ctx.getPointersMap())[&p[i]] = ctx.getBinaryData().size();
+            const typename S::size_type bytesSize = sizeof(T) * n;
+            assert((n == bytesSize / sizeof(T)));
 
-            RUN(serializeData(p[i], ctx));
+            S& output = ctx.getBinaryData();
+
+            
+            if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
+                if (flags.sizeOfArithmeticTypesMayBeNotEqual)
+                {
+                    RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
+                }
+
+            RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
+        }
+        else
+        {
+            for (size_t i = 0; i < n; ++i)
+            {
+                if (flags.checkRecursivePointers)
+                    (*ctx.getPointersMap())[&p[i]] = ctx.getBinaryData().size();
+
+                RUN(serializeData(p[i], ctx));
+            }
         }
     }
 
@@ -146,49 +152,54 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
         , "References and pointers on functions are not allowed to be serialized");
 
-    S& output = ctx.getBinaryData();
-    const context::DataFlags flags = ctx.getFlags();
-
-    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
+    if constexpr (EmptyType<T>)
+        return Status::kNoError;
+    else
     {
-        if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
-            {
-                RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
-            }
+        S& output = ctx.getBinaryData();
+        const context::DataFlags flags = ctx.getFlags();
 
-        RUN(output.pushBackArithmeticValue(value))
-    }
-    else if constexpr (std::is_pointer_v<T>)
-    {
-        if (!flags.allowUnmanagedPointers)
-            return Status::kErrorNotSupportedSerializationSettingsForStruct;
-
-        if (flags.checkRecursivePointers)
+        if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
         {
-            bool newPointer = false;
-            RUN(addPointerToMap(value, ctx, newPointer));
+            if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
+                if (flags.sizeOfArithmeticTypesMayBeNotEqual)
+                {
+                    RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
+                }
 
-            if (!newPointer)
-                return Status::kNoError;
+            RUN(output.pushBackArithmeticValue(value))
         }
-        else
+        else if constexpr (std::is_pointer_v<T>)
         {
-            if (value == nullptr)
+            if (!flags.allowUnmanagedPointers)
+                return Status::kErrorNotSupportedSerializationSettingsForStruct;
+
+            if (flags.checkRecursivePointers)
             {
-                RUN(output.pushBackArithmeticValue(uint8_t(0)));
-                return Status::kNoError;
+                bool newPointer = false;
+                RUN(addPointerToMap(value, ctx, newPointer));
+
+                if (!newPointer)
+                    return Status::kNoError;
             }
             else
-                RUN(output.pushBackArithmeticValue(uint8_t(1)));
-        }
+            {
+                if (value == nullptr)
+                {
+                    RUN(output.pushBackArithmeticValue(uint8_t(0)));
+                    return Status::kNoError;
+                }
+                else
+                    RUN(output.pushBackArithmeticValue(uint8_t(1)));
+            }
 
-        RUN(serializeData(*value, ctx));
+            RUN(serializeData(*value, ctx));
+        }
+        else if constexpr (SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>)
+            RUN(serializeDataSimpleAssignable(value, ctx))
+        else
+            RUN(processing::serializeData(value, ctx));
     }
-    else if constexpr (SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>)
-        RUN(serializeDataSimpleAssignable(value, ctx))
-    else if constexpr (!EmptyType<T>)
-        RUN(processing::serializeData(value, ctx));
 
     return Status::kNoError;
 }
@@ -204,50 +215,59 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
 
     assert(p && n > 0 || n == 0);
 
-    const context::DataFlags flags = ctx.getFlags();
-
-    if (
-           std::is_arithmetic_v<T> 
-        || std::is_enum_v<T>
-        || !flags.sizeOfArithmeticTypesMayBeNotEqual && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
-            && (SimpleAssignableAlignedToOneType<T> || SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
-    )
+    if constexpr (EmptyType<T>)
+        return Status::kNoError;
+    else
     {
-        const typename D::size_type bytesSize = sizeof(T) * n;
-        assert((n == bytesSize / sizeof(T)));
+        const context::DataFlags flags = ctx.getFlags();
 
-        D& input = ctx.getBinaryData();
-
-        if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
-            {
-                uint8_t originalTypeSize = 0;
-                RUN(input.readArithmeticValue(originalTypeSize));
-                if (originalTypeSize != sizeof(T))
-                {
-                    RUN(deserializeData(ctx, n * originalTypeSize, static_cast<uint8_t*>(static_cast<void*>(p))));
-                    return Status::kNoError;
-                }
-            }
-
-        typename D::size_type readSize = 0;
-
-        RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
-
-        if (readSize != bytesSize)
-            return Status::kErrorOverflow;
-
-    }
-    else if constexpr (!EmptyType<T>)
-    {
-        for (size_t i = 0; i < n; ++i)
+        if (
+               std::is_arithmetic_v<T>
+            || std::is_enum_v<T>
+            || !flags.sizeOfArithmeticTypesMayBeNotEqual && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
+                && (SimpleAssignableAlignedToOneType<T> || SimpleAssignableType<T> && !flags.alignmentMayBeNotEqual)
+            )
         {
-            T* pItem = new (&p[i]) T;
+            const typename D::size_type bytesSize = sizeof(T) * n;
+            assert((n == bytesSize / sizeof(T)));
 
-            if (flags.checkRecursivePointers)
-                (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<T*>>(pItem);
+            D& input = ctx.getBinaryData();
 
-            RUN(deserializeData(ctx, *pItem));
+            // In fact flags.sizeOfArithmeticTypesMayBeNotEqual can be true only if (std::is_arithmetic_v<T> || std::is_enum_v<T>) is true,
+            // but if we do not wrap this in constexpr statement, all SimpleAssignable types would be forced to have deserializeData functions
+            if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
+                if (flags.sizeOfArithmeticTypesMayBeNotEqual)
+                {
+                    uint8_t originalTypeSize = 0;
+                    RUN(input.readArithmeticValue(originalTypeSize));
+                    if (originalTypeSize != sizeof(T))
+                    {
+                        for (typename D::size_type i = 0; i < n; ++i)
+                            RUN(deserializeData(originalTypeSize, ctx, p[i]));
+
+                        return Status::kNoError;
+                    }
+                }
+
+            typename D::size_type readSize = 0;
+
+            RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
+
+            if (readSize != bytesSize)
+                return Status::kErrorOverflow;
+
+        }
+        else
+        {
+            for (size_t i = 0; i < n; ++i)
+            {
+                T* pItem = new (&p[i]) T;
+
+                if (flags.checkRecursivePointers)
+                    (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<T*>>(pItem);
+
+                RUN(deserializeData(ctx, *pItem));
+            }
         }
     }
 
@@ -272,67 +292,72 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
     static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
         , "References and pointers on functions are not allowed to be serialized");
 
-    D& input = ctx.getBinaryData();
-    const context::DataFlags flags = ctx.getFlags();
-
-    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
+    if constexpr (EmptyType<T>)
+        return Status::kNoError;
+    else
     {
-        if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (flags.sizeOfArithmeticTypesMayBeNotEqual)
-            {
-                uint8_t originalTypeSize = 0;
-                RUN(input.readArithmeticValue(originalTypeSize));
-                if (originalTypeSize != sizeof(T))
-                {
-                    RUN(deserializeData(originalTypeSize, ctx, value));
+        D& input = ctx.getBinaryData();
+        const context::DataFlags flags = ctx.getFlags();
 
+        if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
+        {
+            if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
+                if (flags.sizeOfArithmeticTypesMayBeNotEqual)
+                {
+                    uint8_t originalTypeSize = 0;
+                    RUN(input.readArithmeticValue(originalTypeSize));
+                    if (originalTypeSize != sizeof(T))
+                    {
+                        RUN(deserializeData(originalTypeSize, ctx, value));
+
+                        return Status::kNoError;
+                    }
+                }
+
+            RUN(input.readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
+        }
+        else if constexpr (std::is_pointer_v<T>)
+        {
+            if (!flags.allowUnmanagedPointers)
+                return Status::kErrorNotSupportedSerializationSettingsForStruct;
+
+            if (flags.checkRecursivePointers)
+            {
+                bool newPointer = false;
+                RUN(getPointerFromMap(ctx, value, newPointer));
+
+                if (!newPointer)
+                    return Status::kNoError;
+            }
+            else
+            {
+                uint8_t isValidPtr = 0;
+                RUN(input.readArithmeticValue(isValidPtr));
+                if (!isValidPtr)
+                {
+                    value = nullptr;
                     return Status::kNoError;
                 }
             }
 
-        RUN(input.readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
-    }
-    else if constexpr (std::is_pointer_v<T>)
-    {
-        if (!flags.allowUnmanagedPointers)
-            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+            // think about replace this with some Allocator function
+            value = ctx.allocateAndDefaultConstruct<std::remove_const_t<std::remove_pointer_t<T>>>();
+            if (!value)
+                return Status::kErrorNoMemory;
+            //else        
+                //(*ctx.getAddedPointers()).pushBack(value);
 
-        if (flags.checkRecursivePointers)
-        {
-            bool newPointer = false;
-            RUN(getPointerFromMap(ctx, value, newPointer));
+            if (flags.checkRecursivePointers)
+                (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);
 
-            if (!newPointer)
-                return Status::kNoError;
+            RUN(deserializeData(ctx, *value));
         }
+        // this is for types that are not ISerializable
+        else if constexpr (SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>)
+            RUN(deserializeDataSimpleAssignable(ctx, value))
         else
-        {
-            uint8_t isValidPtr = 0;
-            RUN(input.readArithmeticValue(isValidPtr));
-            if (!isValidPtr)
-            {
-                value = nullptr;
-                return Status::kNoError;
-            }
-        }
-
-        // think about replace this with some Allocator function
-        value = ctx.allocateAndDefaultConstruct<std::remove_const_t<std::remove_pointer_t<T>>>();
-        if (!value)
-            return Status::kErrorNoMemory;
-        //else        
-            //(*ctx.getAddedPointers()).pushBack(value);
-
-        if (flags.checkRecursivePointers)
-            (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);
-
-        RUN(deserializeData(ctx, *value));
+            RUN(processing::deserializeData(ctx, value));
     }
-    // this is for types that are not ISerializable
-    else if constexpr (SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>)
-        RUN(deserializeDataSimpleAssignable(ctx, value))
-    else if constexpr (!EmptyType<T>)
-        RUN(processing::deserializeData(ctx, value));
 
     return Status::kNoError;
 }
