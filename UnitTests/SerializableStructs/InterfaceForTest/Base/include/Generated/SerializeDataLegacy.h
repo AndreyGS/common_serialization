@@ -25,38 +25,28 @@
 
 #include "../../../Base/include/SpecialTypesSerializableLegacy.h"
 
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
+namespace common_serialization::csp::processing
 {
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSerializable_Version0<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable_Version0<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version0<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version2<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx);
+    , context::SData<>& ctx);
 
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::processing
 
 #undef RUN

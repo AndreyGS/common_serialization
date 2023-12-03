@@ -29,17 +29,11 @@
         return status;                                                          \
 }
 
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
+namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx
     , uint32_t targetVersion, special_types::SimpleAssignableAlignedToOneSerializable<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
@@ -56,7 +50,7 @@ Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::
 }
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx
     , uint32_t targetVersion, special_types::SimpleAssignableSerializable<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
@@ -72,7 +66,7 @@ Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::
 }
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx
     , uint32_t targetVersion, special_types::SimpleAssignableDescendantSerializable<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
@@ -88,7 +82,7 @@ Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::
 }
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx
     , uint32_t targetVersion, special_types::DForAllModesTests<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
@@ -104,10 +98,6 @@ Status DataProcessor::convertFromOldStruct(context::DData<Walker<uint8_t>, std::
     return Status::kNoFurtherProcessingRequired;
 }
 
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::processing
 
 #undef RUN

@@ -32,7 +32,7 @@ void mainTest()
     T input;
     fillingStruct(input);
 
-    Walker<uint8_t> bin;
+    BinWalker bin;
     EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
     T output;
@@ -45,7 +45,7 @@ void mainTest()
 TEST(ISerializableBasicModeTests, EmptyTypeT)
 {
     EmptyTypeSerializable input;
-    Walker<uint8_t> bin;
+    BinWalker bin;
     EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
     EmptyTypeSerializable output;

@@ -1,6 +1,14 @@
-First of all
 1. Unit-tests on operator== of Vector and Walker.
-2. Add Init Vector and Walker by pointer, size, allocatedSize[, offset].
+2. Add init Vector and Walker by pointer, size, allocatedSize[, offset].
 3. More unit tests on extendedPointerProcessing mode.
 4. Add tests on GenericPointerKeeper.
 5. Add structs and tests for AllModesTests without pointers related flags.
+6. Add endianess support (by context flag and compiling macro).
+7. Unit-tests on IDataClient and IDataServer.
+8. Make replacement for std::unordered_map, std::unordered_multimap which would also include replacement of linked list.
+9. Write documentation for protocol and interface.
+10. Write scripts for generating ISerializable data, serialization and conversion source files.
+11. Add synchronization not std platform dependent rw mutexes.
+12. Add testing modules for Windows and Linux kernels.
+13. Add unit-tests on Allocators.
+14. Add unit-tests for mutexes.

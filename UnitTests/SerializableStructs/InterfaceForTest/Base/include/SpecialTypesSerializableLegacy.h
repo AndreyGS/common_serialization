@@ -48,9 +48,9 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version0<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 11;
-    static constexpr uint32_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::name_hash_t kNameHash = 11;
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     SimpleAssignableAlignedToOneSerializable_Version0() { }
     template<typename T2>
@@ -87,9 +87,9 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableSerializable_Version0<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 2;
-    static constexpr uint32_t kInterfaceVersion = 0;         // latest version among all dependable structs
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::name_hash_t kNameHash = 2;
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;         // latest version among all dependable structs
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     template<typename T2>
     Status init(const SimpleAssignableSerializable<T2>& rhs);
@@ -232,9 +232,9 @@ struct SimpleAssignableDescendantSerializable_Version0 : public SimpleAssignable
     using instance_type = GetCrtpMainType<SimpleAssignableDescendantSerializable_Version0<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 3;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::name_hash_t kNameHash = 3;
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     uint32_t m_d{ 0 };
 
@@ -306,9 +306,9 @@ class SForAllModesTests_Version0 : public csp::ISerializable<GetCrtpMainType<SFo
 public:
     using instance_type = GetCrtpMainType<SForAllModesTests_Version0<T>, T>;
 
-    static constexpr uint64_t kNameHash = 10000;
-    static constexpr uint32_t kInterfaceVersion = 0;
-    static constexpr uint32_t kVersionsHierarchy[] = { 0 };
+    static constexpr csp::name_hash_t kNameHash = 10000;
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     template<typename T2>
     Status init(const SForAllModesTests_Version2<T2>& rhs);
@@ -346,9 +346,9 @@ public:
     using instance_type = GetCrtpMainType<SimpleAssignableAlignedToOneSerializable_Version1<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr uint64_t kNameHash = 10;
-    static constexpr uint32_t kInterfaceVersion = 1;            // latest version among all dependable structs
-    static constexpr uint32_t kVersionsHierarchy[] = { 1, 0 };
+    static constexpr csp::name_hash_t kNameHash = 10;
+    static constexpr csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 1, 0 };
 
     SimpleAssignableAlignedToOneSerializable_Version1() { }
     template<typename T2>
@@ -408,9 +408,9 @@ class SForAllModesTests_Version2 : public csp::ISerializable<GetCrtpMainType<SFo
 public:
     using instance_type = GetCrtpMainType<SForAllModesTests_Version2<T>, T>;
 
-    static constexpr uint64_t kNameHash = 10000;
-    static constexpr uint32_t kInterfaceVersion = 2;
-    static constexpr uint32_t kVersionsHierarchy[] = { 2, 0 };
+    static constexpr csp::name_hash_t kNameHash = 10000;
+    static constexpr csp::interface_version_t kInterfaceVersion = 2;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 2, 0 };
 
     template<typename T2>
     Status init(const SForAllModesTests_Version0<T2>& rhs);
@@ -487,12 +487,9 @@ Status SForAllModesTests_Version2<T1>::init(const DForAllModesTests<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
-    m_saaToStS.m_j = rhs.m_saaToStS.m_j;
-    m_saaToStS.m_k = rhs.m_saaToStS.m_k;
-    m_saStS.m_j = rhs.m_saStS.m_j;
-    m_saStS.m_k = rhs.m_saStS.m_k;
-    m_stS.m_j = rhs.m_stS.m_j;
-    m_stS.m_k = rhs.m_stS.m_k;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
     m_saS = rhs.m_saDs;
@@ -508,12 +505,9 @@ Status DForAllModesTests<T1>::init(const SForAllModesTests_Version2<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
-    m_saaToStS.m_j = rhs.m_saaToStS.m_j;
-    m_saaToStS.m_k = rhs.m_saaToStS.m_k;
-    m_saStS.m_j = rhs.m_saStS.m_j;
-    m_saStS.m_k = rhs.m_saStS.m_k;
-    m_stS.m_j = rhs.m_stS.m_j;
-    m_stS.m_k = rhs.m_stS.m_k;
+    m_saaToStS = rhs.m_saaToStS;
+    m_saStS = rhs.m_saStS;
+    m_stS = rhs.m_stS;
     m_mpt = rhs.m_mpt;
 
     static_cast<SimpleAssignableSerializable<>&>(m_saDs) = rhs.m_saS;

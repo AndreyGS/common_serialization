@@ -34,8 +34,8 @@
 #define DESERIALIZE_LEGACY_COMMON(ctx, value)                                           \
 {                                                                                       \
     if constexpr (                                                                      \
-           serialization_concepts::SimpleAssignableType<decltype(value)>                \
-        || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
+           SimpleAssignableType<decltype(value)>                                        \
+        || SimpleAssignableAlignedToOneType<decltype(value)>)                           \
     {                                                                                   \
         Status status = deserializeDataSimpleAssignable((ctx), (value));                \
         if (status == Status::kNoFurtherProcessingRequired)                             \
@@ -51,17 +51,11 @@
    }                                                                                    \
 }
 
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
+namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value)
 {
     DESERIALIZE_LEGACY_COMMON(ctx, value);
@@ -72,7 +66,7 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableSerializable_Version0<>& value)
 {
     DESERIALIZE_LEGACY_COMMON(ctx, value);
@@ -98,7 +92,7 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableDescendantSerializable_Version0<>& value)
 {
     DESERIALIZE_LEGACY_COMMON(ctx, value);
@@ -111,7 +105,7 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SForAllModesTests_Version0<>& value)
 {
     DESERIALIZE_LEGACY_COMMON(ctx, value);
@@ -128,7 +122,7 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value)
 {
     DESERIALIZE_LEGACY_COMMON(ctx, value);
@@ -140,7 +134,7 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SForAllModesTests_Version2<>& value)
 {
     DESERIALIZE_LEGACY_COMMON(ctx, value);
@@ -158,10 +152,6 @@ Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unord
     return Status::kNoError;
 }
 
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::processing
 
 #undef RUN

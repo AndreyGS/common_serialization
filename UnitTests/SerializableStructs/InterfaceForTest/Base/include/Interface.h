@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization.h"
+#include "common_serialization/common_serialization.h"
 
 #include "../../Base/include/SpecialTypesSerializable.h"
 #include "../../Base/include/SpecialTypesSerializableLegacy.h"

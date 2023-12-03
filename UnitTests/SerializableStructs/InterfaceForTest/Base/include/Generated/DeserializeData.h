@@ -25,110 +25,100 @@
 
 #include "../../../Base/include/SpecialTypesSerializable.h"
 
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
+namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::TwoInts& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneNotSerializable& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneSerializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableNotSerializable& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableSerializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableDescendantSerializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DynamicPolymorphicNotSerializable& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DynamicPolymorphicSerializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DiamondBaseNotSerializable& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DiamondEdge1NotSerializable& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DiamondEdge2NotSerializable& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DiamondSerializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SpecialProcessingTypeContainSerializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneSimilarType1Serializable<>& value);
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableAlignedToOneSimilarType2Serializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableSimilarType1Serializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimpleAssignableSimilarType2Serializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimilarType1Serializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::SimilarType2Serializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::RecursiveTestSpecial1& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::RecursiveTestSpecial2& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::ManyPointersTypeSerializable<>& value);
 
 template<>
-Status DataProcessor::deserializeData(context::DData<Walker<uint8_t>, std::unordered_map<uint64_t, void*>>& ctx
+Status DataProcessor::deserializeData(context::DData<>& ctx
     , special_types::DForAllModesTests<>& value);
 
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::processing
 
 #undef RUN

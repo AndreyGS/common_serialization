@@ -24,7 +24,7 @@
 #pragma once
 
 #include <gtest/gtest.h>
-#include "common_serialization.h"
+#include "common_serialization/common_serialization.h"
 #include <string>
 #include <list>
 #include "TypesForTests/include/TypesForTests.h"

@@ -34,8 +34,8 @@
 #define SERIALIZE_LEGACY_COMMON(value, ctx)                                             \
 {                                                                                       \
     if constexpr (                                                                      \
-           serialization_concepts::SimpleAssignableType<decltype(value)>                \
-        || serialization_concepts::SimpleAssignableAlignedToOneType<decltype(value)>)   \
+           SimpleAssignableType<decltype(value)>                                        \
+        || SimpleAssignableAlignedToOneType<decltype(value)>)                           \
     {                                                                                   \
         Status status = serializeDataSimpleAssignable((value), (ctx));                  \
         if (status == Status::kNoFurtherProcessingRequired)                             \
@@ -51,18 +51,12 @@
     }                                                                                   \
 }
 
-namespace common_serialization
-{
-
-namespace csp
-{
-
-namespace processing
+namespace common_serialization::csp::processing
 {
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_LEGACY_COMMON(value, ctx);
 
@@ -74,7 +68,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableAligned
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSerializable_Version0<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_LEGACY_COMMON(value, ctx);
 
@@ -100,7 +94,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableSeriali
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable_Version0<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_LEGACY_COMMON(value, ctx);
 
@@ -113,7 +107,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableDescend
 
 template<>
 Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version0<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_LEGACY_COMMON(value, ctx);
 
@@ -130,7 +124,7 @@ Status DataProcessor::serializeData(const special_types::SForAllModesTests_Versi
 
 template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_LEGACY_COMMON(value, ctx);
 
@@ -142,7 +136,7 @@ Status DataProcessor::serializeData(const special_types::SimpleAssignableAligned
 
 template<>
 Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version2<>& value
-    , context::SData<Vector<uint8_t>, std::unordered_map<const void*, uint64_t>>& ctx)
+    , context::SData<>& ctx)
 {
     SERIALIZE_LEGACY_COMMON(value, ctx);
 
@@ -159,10 +153,6 @@ Status DataProcessor::serializeData(const special_types::SForAllModesTests_Versi
     return Status::kNoError;
 }
 
-} // namespace processing
-
-} // namespace csp
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::processing
 
 #undef RUN
