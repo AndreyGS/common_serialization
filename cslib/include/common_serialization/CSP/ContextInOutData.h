@@ -105,6 +105,18 @@ public:
     [[nodiscard]] constexpr interface_version_t getOutputInterfaceVersion() const noexcept { return m_outputInterfaceVersion; }
     constexpr void setOutputInterfaceVersion(interface_version_t outInterfaceVersion) { m_outputInterfaceVersion = outInterfaceVersion; }
 
+    void resetToDefaultsExceptDataContents() noexcept override
+    {
+        Data<Container, serialize, PM, PC, EPP>::resetToDefaultsExceptDataContents();
+        m_outputInterfaceVersion = traits::kInterfaceVersionUndefined;
+    }
+
+    void clear() noexcept override
+    {
+        Data<Container, serialize, PM, PC, EPP>::clear();
+        m_outputInterfaceVersion = traits::kInterfaceVersionUndefined;
+    }
+
 private:
     interface_version_t m_outputInterfaceVersion{ traits::kInterfaceVersionUndefined };
 };

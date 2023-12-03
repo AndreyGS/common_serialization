@@ -66,26 +66,29 @@ inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;
     return maxVersion >= version && version >= minVersion;
 }
 
-template<typename T>
-[[nodiscard]] constexpr interface_version_t getThisVersion() noexcept
-{
-    return T::getThisVersion();
-}
-
-[[nodiscard]] constexpr interface_version_t getMinimumInterfaceVersion(const interface_version_t* pVersionsHierarchy, interface_version_t versionsHierarchySize) noexcept
-{
-    return pVersionsHierarchy[versionsHierarchySize - 1];
-}
-
 // Using to find index of version in versions hierarchy of struct to which we must serialize/deserialize
-[[nodiscard]] constexpr interface_version_t getBestCompatInterfaceVersion(const interface_version_t* pVersionsHierarchy
-    , interface_version_t versionsHierarchySize, interface_version_t compatInterfaceVersion) noexcept
+template<typename T>
+[[nodiscard]] constexpr interface_version_t getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept
 {
-    for (interface_version_t i = 0; i < versionsHierarchySize; ++i)
-        if (pVersionsHierarchy[i] <= compatInterfaceVersion)
-            return pVersionsHierarchy[i];
+    for (interface_version_t i = 0; i < T::getVersionsHierarchySize(); ++i)
+        if (T::getVersionsHierarchy()[i] <= compatInterfaceVersion)
+            return T::getVersionsHierarchy()[i];
 
     return kInterfaceVersionUndefined;
+}
+
+template<typename T>
+[[nodiscard]] constexpr interface_version_t getBestSupportedInterfaceVersion(
+    interface_version_t minForeignVersion, interface_version_t maxForeignVersion, interface_version_t minCurrentVersion
+) noexcept
+{
+    if (minCurrentVersion > minForeignVersion || minForeignVersion > T::getInterfaceVersion())
+        return kInterfaceVersionUndefined;
+
+    if (maxForeignVersion >= T::getInterfaceVersion())
+        return T::getInterfaceVersion();
+    else
+        return getBestCompatInterfaceVersion<T>(maxForeignVersion);
 }
 
 } // namespace traits

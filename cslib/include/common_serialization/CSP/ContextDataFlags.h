@@ -47,6 +47,7 @@ struct DataFlags
     explicit constexpr DataFlags(uint32_t value) noexcept;
 
     constexpr DataFlags& operator=(uint32_t value) noexcept;
+    [[nodiscard]] constexpr bool operator==(DataFlags rhs) const noexcept;
 
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
@@ -65,6 +66,13 @@ constexpr DataFlags& DataFlags::operator=(uint32_t value) noexcept
         (static_cast<void*>(
             &(*static_cast<uint32_t*>(
                 static_cast<void*>(this)) = value)));
+}
+
+[[nodiscard]] constexpr bool DataFlags::operator==(DataFlags rhs) const noexcept
+{
+    uint32_t thisValue = static_cast<uint32_t>(*this);
+    uint32_t rhsValue = static_cast<uint32_t>(rhs);
+    return thisValue == rhsValue;
 }
 
 [[nodiscard]] constexpr DataFlags::operator uint32_t() const noexcept

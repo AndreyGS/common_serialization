@@ -58,7 +58,7 @@ public:
         m_protocolVersionsNotMatch = traits::isProtocolVersionSameAsLatestOur(m_protocolVersion);
     }
 
-    void resetToDefaultsExceptDataContents() noexcept
+    virtual void resetToDefaultsExceptDataContents() noexcept
     {
         if constexpr (IDeserializationCapableContainer<Container>)
             m_binaryData.seek(0);
@@ -66,7 +66,7 @@ public:
         m_messageType = Message::kData;
     }
 
-    void clear() noexcept
+    virtual void clear() noexcept
     {
         resetToDefaultsExceptDataContents();
         m_binaryData.clear();

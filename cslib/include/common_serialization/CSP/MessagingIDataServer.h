@@ -53,6 +53,8 @@ private:
 
     Status handleDataOnStack(context::DInOutData<>& ctx, BinVector& binOutput);
     Status handleDataOnHeap(context::DInOutData<>& ctx, BinVector& binOutput);
+    // This is the common code between handleDataOnStack and handleDataOnHeap
+    Status handleDataMain(InputType& input, context::DInOutData<>& ctx, OutputType& output, BinVector& binOutput);
 };
 
 template<typename InstanceType, typename InputType, typename OutputType
@@ -71,7 +73,7 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
     if (!statusSuccess(status))
     {
         if (status == Status::kErrorNotSupportedInterfaceVersion)
-            RUN(processing::serializeStatusErrorNotSupportedInterfaceVersionInOut(minimumInputInterfaceVersion, InputType::getInterfaceVersion()
+            RUN(processing::serializeStatusErrorNotSupportedInOutInterfaceVersion(minimumInputInterfaceVersion, InputType::getInterfaceVersion()
                 , minimumOutputInterfaceVersion, OutputType::getInterfaceVersion(), ctx.getProtocolVersion(), binOutput));
         
         return status;
@@ -151,24 +153,7 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
     InputType input;
     OutputType output;
 
-    RUN(processing::DataProcessor::deserializeData(ctx, input));
-
-    if constexpr (std::is_same_v<InstanceType, Dummy>)
-        RUN(this->handleData(input, ctx.getAddedPointers(), output))
-    else
-        RUN(InstanceType::handleDataStatic(input, ctx.getAddedPointers(), output));
-
-    std::unordered_map<const void*, uint64_t> pointersMap;
-
-    context::SData ctxOut(
-          binOutput
-        , ctx.getProtocolVersion()
-        , ctx.getFlags()
-        , forTempUseHeap
-        , ctx.getOutputInterfaceVersion()
-        , &pointersMap);
-
-    return output.serialize(ctxOut);
+    return handleDataMain(input, ctx, output, binOutput);
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
@@ -189,32 +174,40 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
     if (!output.allocateAndConstruct<OutputType, ConstructorGenericAllocatorHelper<OutputType>>(1))
         return Status::kErrorNoMemory;
 
-    RUN(processing::DataProcessor::deserializeData(ctx, *input.get<InputType>()));
+    return handleDataMain(*input.get<InputType>(), ctx, *output.get<OutputType>(), binOutput);
+}
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , bool forTempUseHeap
+    , bool multicast
+    , interface_version_t minimumInputInterfaceVersion
+    , interface_version_t minimumOutputInterfaceVersion
+>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataMain(InputType& input, context::DInOutData<>& ctxIn, OutputType& output, BinVector& binOutput)
+{
+    RUN(processing::DataProcessor::deserializeData(ctxIn, input));
 
     if constexpr (std::is_same_v<InstanceType, Dummy>)
-        RUN(this->handleData(*input.get<InputType>(), ctx.getAddedPointers(), *output.get<OutputType>()))
+        RUN(this->handleData(input, ctxIn.getAddedPointers(), output))
     else
-        RUN(InstanceType::handleDataStatic(*input.get<InputType>(), ctx.getAddedPointers(), *output.get<OutputType>()));
+        RUN(InstanceType::handleDataStatic(input, ctxIn.getAddedPointers(), output));
 
-    GenericPointerKeeper pointersMap;
+    std::unordered_map<const void*, uint64_t> pointersMapOut;
 
     context::SData<> ctxOut(
           binOutput
-        , ctx.getProtocolVersion()
-        , ctx.getFlags()
+        , ctxIn.getProtocolVersion()
+        , ctxIn.getFlags()
         , forTempUseHeap
-        , ctx.getOutputInterfaceVersion()
+        , ctxIn.getOutputInterfaceVersion()
         , nullptr);
 
-    if (ctx.getFlags().checkRecursivePointers)
-    {
-        if (!input.allocateAndConstruct<std::unordered_map<const void*, uint64_t>, ConstructorGenericAllocatorHelper<std::unordered_map<const void*, uint64_t>>>(1))
-            return Status::kErrorNoMemory;
+    if (ctxOut.getFlags().checkRecursivePointers)
+        ctxOut.setPointersMap(pointersMapOut);
 
-        ctxOut.setPointersMap(*pointersMap.get<std::unordered_map<const void*, uint64_t>>());
-    }
-
-    return output.get<OutputType>()->serialize(ctxOut);
+    return output.serialize(ctxOut);
 }
 
 template<typename InputType, typename OutputType

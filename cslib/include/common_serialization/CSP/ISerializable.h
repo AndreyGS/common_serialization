@@ -48,12 +48,12 @@ public:
     template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     constexpr Status deserialize(context::DData<D, PM>& ctx);
 
-    [[nodiscard]] static constexpr name_hash_t getNameHash() noexcept;
-    [[nodiscard]] static constexpr interface_version_t getThisVersion() noexcept;
-    [[nodiscard]] static constexpr interface_version_t getInterfaceVersion() noexcept;
+    [[nodiscard]] static consteval name_hash_t getNameHash() noexcept;
+    [[nodiscard]] static consteval interface_version_t getThisVersion() noexcept;
+    [[nodiscard]] static consteval interface_version_t getInterfaceVersion() noexcept;
     [[nodiscard]] static consteval interface_version_t getMinimumInterfaceVersion() noexcept;
     [[nodiscard]] static constexpr const interface_version_t* getVersionsHierarchy() noexcept;
-    [[nodiscard]] static constexpr interface_version_t getVersionsHierarchySize() noexcept;
+    [[nodiscard]] static consteval interface_version_t getVersionsHierarchySize() noexcept;
 };
 
 #pragma pack(pop)
@@ -105,19 +105,19 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 }
 
 template<typename T>
-[[nodiscard]] constexpr name_hash_t ISerializable<T>::getNameHash() noexcept
+[[nodiscard]] consteval name_hash_t ISerializable<T>::getNameHash() noexcept
 {
     return T::kNameHash;
 }
 
 template<typename T>
-[[nodiscard]] constexpr interface_version_t ISerializable<T>::getThisVersion() noexcept
+[[nodiscard]] consteval interface_version_t ISerializable<T>::getThisVersion() noexcept
 {
     return T::kVersionsHierarchy[0];
 }
 
 template<typename T>
-[[nodiscard]] constexpr interface_version_t ISerializable<T>::getInterfaceVersion() noexcept
+[[nodiscard]] consteval interface_version_t ISerializable<T>::getInterfaceVersion() noexcept
 {
     return T::kInterfaceVersion;
 }
@@ -135,7 +135,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr interface_version_t ISerializable<T>::getVersionsHierarchySize() noexcept
+[[nodiscard]] consteval interface_version_t ISerializable<T>::getVersionsHierarchySize() noexcept
 {
     return std::size(T::kVersionsHierarchy);
 }

@@ -242,7 +242,7 @@ public:
     template<typename T>
     [[nodiscard]] T* allocateAndDefaultConstruct() const noexcept requires !serialize { return m_epp.allocateAndDefaultConstruct<T>(); }
 
-    void resetToDefaultsExceptDataContents() noexcept
+    void resetToDefaultsExceptDataContents() noexcept override
     {
         Common<Container>::resetToDefaultsExceptDataContents();
         m_flags = DataFlags{};
@@ -250,7 +250,7 @@ public:
         m_epp.clear();
     }
 
-    void clear() noexcept
+    void clear() noexcept override
     {
         Common<Container>::clear();
         m_flags = DataFlags{};
