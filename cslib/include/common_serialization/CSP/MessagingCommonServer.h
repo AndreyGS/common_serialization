@@ -47,7 +47,7 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
     if (ctx.getMessageType() == context::Message::kInOutData)
         return IDataServerBase::handleDataCommon(ctx, binOutput);
 
-    return Status::kNoError;
+    return Status::kErrorDataCorrupted;
 }
 
 } // namespace common_serialization::csp::messaging

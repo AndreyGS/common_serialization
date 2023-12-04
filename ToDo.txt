@@ -12,3 +12,4 @@
 12. Add testing modules for Windows and Linux kernels.
 13. Add unit-tests on Allocators.
 14. Add unit-tests for mutexes.
+15. Add unit-tests for Walker init by Vector functions.

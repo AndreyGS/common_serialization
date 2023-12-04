@@ -196,6 +196,8 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
 
     std::unordered_map<const void*, uint64_t> pointersMapOut;
 
+    binOutput.clear();
+
     context::SData<> ctxOut(
           binOutput
         , ctxIn.getProtocolVersion()

@@ -47,6 +47,8 @@ public:
 
     constexpr Status init(const Walker& rhs);
     constexpr Status init(Walker&& rhs) noexcept;
+    constexpr Status init(const Vector<T, AllocatorHelper>& rhs);
+    constexpr Status init(Vector<T, AllocatorHelper>&& rhs) noexcept;
 
     // only set data size, no default values are set
     constexpr Status setSize(size_type n) noexcept
@@ -164,6 +166,30 @@ constexpr Status Walker<T, AllocatorHelper>::init(Walker&& rhs) noexcept
         RUN(m_vector.init(std::move(rhs.m_vector)));
         m_offset = rhs.m_offset;
         rhs.m_offset = 0;
+    }
+
+    return Status::kNoError;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Status Walker<T, AllocatorHelper>::init(const Vector<T, AllocatorHelper>& rhs)
+{
+    if (&this->getVector() != &rhs)
+    {
+        RUN(m_vector.init(rhs));
+        m_offset = 0;
+    }
+
+    return Status::kNoError;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Status Walker<T, AllocatorHelper>::init(Vector<T, AllocatorHelper>&& rhs) noexcept
+{
+    if (&this->getVector() != &rhs)
+    {
+        RUN(m_vector.init(std::move(rhs)));
+        m_offset = 0;
     }
 
     return Status::kNoError;

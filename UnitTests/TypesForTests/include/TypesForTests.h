@@ -26,3 +26,4 @@
 #include "common_serialization/common_serialization.h"
 #include "../../TypesForTests/include/SpecialTypesFillingStruct.h"
 #include "../../TypesForTests/include/SpecialTypesCleanAfterStruct.h"
+#include "../../TypesForTests/include/SimpleDataClient.h"

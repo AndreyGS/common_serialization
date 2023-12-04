@@ -41,10 +41,7 @@ public:
         , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
     >
         requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-    Status sendData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers = nullptr)
-    {
-        return sendData(input, output, m_defaultProtocolVersion, m_defaultFlags, m_serverInterfaceVersion, m_serverInterfaceVersion, unmanagedPointers);
-    }
+    Status handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers = nullptr);
 
     template<
           typename InputType
@@ -54,7 +51,7 @@ public:
         , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
     >
         requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-    Status sendData(
+    Status handleData(
           const InputType& input
         , OutputType& output
         , context::DataFlags flags
@@ -62,149 +59,189 @@ public:
         , interface_version_t preferedOutputInterfaceVersion = m_serverInterfaceVersion
         , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
         , protocol_version_t protocolVersion = m_defaultProtocolVersion
-    )
-    {
-        interface_version_t inputInterfaceVersion = chooseInterfaceVersion<InputType, minimumInputInterfaceVersion>(preferedInputInterfaceVersion);
-        if (inputInterfaceVersion == traits::kInterfaceVersionUndefined)
-            return Status::kErrorInvalidArgument;
+    );
 
-        interface_version_t outputInterfaceVersion = chooseInterfaceVersion<OutputType, minimumOutputInterfaceVersion>(preferedOutputInterfaceVersion);
-        if (outputInterfaceVersion == traits::kInterfaceVersionUndefined)
-            return Status::kErrorInvalidArgument;
-
-        if (flags.allowUnmanagedPointers && pUnmanagedPointers == nullptr)
-            return Status::kErrorInvalidArgument;
-
-        BinVector binInput;
-
-        // First attempt of sending data is made of interface version function parameters
-        context::SInOutData<> ctxIn(binInput, protocolVersion, flags, forTempUseHeap, inputInterfaceVersion, outputInterfaceVersion, nullptr);
-
-        std::unordered_map<const void*, uint64_t> pointersMapIn;
-        if (flags.checkRecursivePointers)
-            ctxIn.setPointersMap(pointersMapIn);
-
-        RUN(processing::serializeHeaderContext(ctxIn));
-        RUN(processing::serializeInOutDataContext(ctxIn));
-        RUN(processing::DataProcessor::serializeData(input, ctxIn));
-
-        BinWalker binOutput;
-
-        RUN(sendBinData(binInput, binOutput));
-
-        binInput.clear();
-        pointersMapIn.clear();
-
-        context::DData<> ctxOut(binOutput);
-
-        RUN(processing::deserializeHeaderContext(ctxOut));
-
-        if (ctxOut.getMessageType() == context::Message::kData)
-        {
-            if constexpr (std::is_same_v<OutputType, Dummy>)
-                return Status::kErrorDataCorrupted;
-
-            ctxIn.clear();
-
-            RUN(processing::deserializeDataContext(ctxOut));
-            RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, OutputType::getNameHash(), minimumOutputInterfaceVersion));
-
-            if (flags != ctxOut.getFlags())
-                return Status::kErrorDataCorrupted;
-
-            if (flags.allowUnmanagedPointers)
-                ctxOut.setAddedPointers(*pUnmanagedPointers);
-
-            std::unordered_map<uint64_t, const void*> pointersMapOut;
-            if (flags.checkRecursivePointers)
-                ctxOut.setPointersMap(pointersMapOut);
-
-            RUN(processing::DataProcessor::deserializeData(ctxOut, output));
-        }
-        else if (ctxOut.getMessageType() == context::Message::kStatus)
-        {
-            Status statusOut = Status::kNoError;
-            RUN(processing::deserializeStatusGetStatus(output, statusOut));
-
-            if constexpr (std::is_same_v<OutputType, Dummy>)
-                if (statusOut == Status::kNoError)
-                    return Status::kNoError;
-
-            // We must not be here in recursive call
-            if (minimumInputInterfaceVersion == inputInterfaceVersion && minimumOutputInterfaceVersion == outputInterfaceVersion)
-                return Status::kErrorNotSupportedInOutInterfaceVersion;
-
-            if (statusOut == Status::kErrorNotSupportedInOutInterfaceVersion)
-            {
-                StatusErrorNotSupportedInOutInterfaceVersion statusStruct{ 0 };
-                RUN(processing::deserializeStatusGetStruct(output, statusStruct));
-
-                interface_version_t compatInputInterfaceVersion
-                    = traits::getBestSupportedInterfaceVersion<InputType>(
-                          statusStruct.inMinimumSupportedInterfaceVersion
-                        , statusStruct.inMaximumSupportedInterfaceVersion
-                        , minimumInputInterfaceVersion
-                      );
-
-                if (compatInputInterfaceVersion == traits::kInterfaceVersionUndefined)
-                    return statusOut;
-
-                interface_version_t compatOutputInterfaceVersion
-                    = traits::getBestSupportedInterfaceVersion<OutputType>(
-                          statusStruct.outMinimumSupportedInterfaceVersion
-                        , statusStruct.outMaximumSupportedInterfaceVersion
-                        , minimumOutputInterfaceVersion
-                      );
-
-                if (compatOutputInterfaceVersion == traits::kInterfaceVersionUndefined)
-                    return statusOut;
-
-                // Here we should free resources that we do no need now
-                ctxIn.clear();
-                ctxOut.clear();
-
-                // Try again with the compatible InputType and OutputType versions
-                return sendData<InputType, OutputType, forTempUseHeap, compatInputInterfaceVersion, compatOutputInterfaceVersion>
-                    (input, output, flags, compatInputInterfaceVersion, compatOutputInterfaceVersion, pUnmanagedPointers, protocolVersion);
-            }
-            else
-                return Status::kErrorDataCorrupted;
-        }
-
-        return Status::kNoError;
-    }
+    inline protocol_version_t getDefaultProtocolVersion() const noexcept;
+    inline context::DataFlags getDefaultFlags() const noexcept;
+    inline interface_version_t getServerInterfaceVersion() const noexcept;
 
 protected:
     IDataClient() {}
-    IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, interface_version_t targetInterfaceVersion)
-        : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultFlags(defaultFlags), m_serverInterfaceVersion(targetInterfaceVersion)
-    { }
+    inline IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, interface_version_t targetInterfaceVersion);
 
 private:
     template<typename T, interface_version_t minimumInterfaceVersion>
         requires IsISerializableBased<T>
-    interface_version_t chooseInterfaceVersion(interface_version_t preferedInterfaceVersion)
-    {
-        interface_version_t interfaceVersion
-            = preferedInterfaceVersion == minimumInterfaceVersion
-                ? preferedInterfaceVersion
-                : preferedInterfaceVersion == traits::kInterfaceVersionUndefined
-                    ? m_serverInterfaceVersion
-                    : preferedInterfaceVersion;
+    interface_version_t chooseInterfaceVersion(interface_version_t preferedInterfaceVersion);
 
-        if (interfaceVersion > T::getInterfaceVersion())
-            interfaceVersion = T::getInterfaceVersion();
-        else if (interfaceVersion < T::getMinimumInterfaceVersion())
-            interfaceVersion = traits::kInterfaceVersionUndefined;
-
-        return interfaceVersion;
-    }
-
-    virtual Status sendBinData(const BinVector& binInput, BinWalker& binOutput) = 0;
+    virtual Status handleBinData(const BinVector& binInput, BinWalker& binOutput) = 0;
 
     protocol_version_t m_defaultProtocolVersion{ traits::getLatestProtocolVersion() };
     context::DataFlags m_defaultFlags;
     interface_version_t m_serverInterfaceVersion{ traits::kInterfaceVersionUndefined };
 };
+
+template<typename InputType, typename OutputType, bool forTempUseHeap, interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion>
+    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+Status IDataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers)
+{
+    return sendData(input, output, m_defaultProtocolVersion, m_defaultFlags, m_serverInterfaceVersion, m_serverInterfaceVersion, unmanagedPointers);
+}
+
+template<typename InputType, typename OutputType, bool forTempUseHeap, interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+Status IDataClient::handleData(const InputType& input, OutputType& output, context::DataFlags flags, interface_version_t preferedInputInterfaceVersion
+    , interface_version_t preferedOutputInterfaceVersion, Vector<GenericPointerKeeper>* pUnmanagedPointers, protocol_version_t protocolVersion 
+)
+{
+    interface_version_t inputInterfaceVersion = chooseInterfaceVersion<InputType, minimumInputInterfaceVersion>(preferedInputInterfaceVersion);
+    if (inputInterfaceVersion == traits::kInterfaceVersionUndefined)
+        return Status::kErrorInvalidArgument;
+
+    interface_version_t outputInterfaceVersion = chooseInterfaceVersion<OutputType, minimumOutputInterfaceVersion>(preferedOutputInterfaceVersion);
+    if (outputInterfaceVersion == traits::kInterfaceVersionUndefined)
+        return Status::kErrorInvalidArgument;
+
+    if (flags.allowUnmanagedPointers && pUnmanagedPointers == nullptr)
+        return Status::kErrorInvalidArgument;
+
+    BinVector binInput;
+
+    // First attempt of sending data is made of interface version function parameters
+    context::SInOutData<> ctxIn(binInput, protocolVersion, flags, forTempUseHeap, inputInterfaceVersion, outputInterfaceVersion, nullptr);
+
+    std::unordered_map<const void*, uint64_t> pointersMapIn;
+    if (flags.checkRecursivePointers)
+        ctxIn.setPointersMap(pointersMapIn);
+
+    RUN(processing::serializeHeaderContext(ctxIn));
+    RUN(processing::serializeInOutDataContext(ctxIn));
+    RUN(processing::DataProcessor::serializeData(input, ctxIn));
+
+    pointersMapIn.clear();
+
+    BinWalker binOutput;
+
+    RUN(handleBinData(binInput, binOutput));
+
+    binInput.clear();
+
+    context::DData<> ctxOut(binOutput);
+
+    RUN(processing::deserializeHeaderContext(ctxOut));
+
+    if (ctxOut.getMessageType() == context::Message::kData)
+    {
+        if constexpr (std::is_same_v<OutputType, Dummy>)
+            return Status::kErrorDataCorrupted;
+
+        ctxIn.clear();
+
+        RUN(processing::deserializeDataContext(ctxOut));
+        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, OutputType::getNameHash(), minimumOutputInterfaceVersion));
+
+        if (flags != ctxOut.getFlags())
+            return Status::kErrorDataCorrupted;
+
+        if (flags.allowUnmanagedPointers)
+            ctxOut.setAddedPointers(*pUnmanagedPointers);
+
+        std::unordered_map<uint64_t, const void*> pointersMapOut;
+        if (flags.checkRecursivePointers)
+            ctxOut.setPointersMap(pointersMapOut);
+
+        RUN(processing::DataProcessor::deserializeData(ctxOut, output));
+    }
+    else if (ctxOut.getMessageType() == context::Message::kStatus)
+    {
+        Status statusOut = Status::kNoError;
+        RUN(processing::deserializeStatusGetStatus(output, statusOut));
+
+        if constexpr (std::is_same_v<OutputType, Dummy>)
+            if (statusOut == Status::kNoError)
+                return Status::kNoError;
+
+        // We must not be here in recursive call
+        if (minimumInputInterfaceVersion == inputInterfaceVersion && minimumOutputInterfaceVersion == outputInterfaceVersion)
+            return Status::kErrorNotSupportedInOutInterfaceVersion;
+
+        if (statusOut == Status::kErrorNotSupportedInOutInterfaceVersion)
+        {
+            StatusErrorNotSupportedInOutInterfaceVersion statusStruct{ 0 };
+            RUN(processing::deserializeStatusGetStruct(output, statusStruct));
+
+            interface_version_t compatInputInterfaceVersion
+                = traits::getBestSupportedInterfaceVersion<InputType>(
+                        statusStruct.inMinimumSupportedInterfaceVersion
+                    , statusStruct.inMaximumSupportedInterfaceVersion
+                    , minimumInputInterfaceVersion
+                    );
+
+            if (compatInputInterfaceVersion == traits::kInterfaceVersionUndefined)
+                return statusOut;
+
+            interface_version_t compatOutputInterfaceVersion
+                = traits::getBestSupportedInterfaceVersion<OutputType>(
+                        statusStruct.outMinimumSupportedInterfaceVersion
+                    , statusStruct.outMaximumSupportedInterfaceVersion
+                    , minimumOutputInterfaceVersion
+                    );
+
+            if (compatOutputInterfaceVersion == traits::kInterfaceVersionUndefined)
+                return statusOut;
+
+            // Here we should free resources that we do no need now
+            ctxIn.clear();
+            ctxOut.clear();
+
+            // Try again with the compatible InputType and OutputType versions
+            return handleData<InputType, OutputType, forTempUseHeap, compatInputInterfaceVersion, compatOutputInterfaceVersion>
+                (input, output, flags, compatInputInterfaceVersion, compatOutputInterfaceVersion, pUnmanagedPointers, protocolVersion);
+        }
+        else
+            return Status::kErrorDataCorrupted;
+    }
+
+    return Status::kNoError;
+}
+
+
+inline protocol_version_t IDataClient::getDefaultProtocolVersion() const noexcept
+{
+    return m_defaultProtocolVersion;
+}
+
+inline context::DataFlags IDataClient::getDefaultFlags() const noexcept
+{
+    return m_defaultFlags;
+}
+
+inline interface_version_t IDataClient::getServerInterfaceVersion() const noexcept
+{
+    return m_serverInterfaceVersion;
+}
+
+inline IDataClient::IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, interface_version_t targetInterfaceVersion)
+    : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultFlags(defaultFlags), m_serverInterfaceVersion(targetInterfaceVersion)
+{ }
+
+template<typename T, interface_version_t minimumInterfaceVersion>
+    requires IsISerializableBased<T>
+interface_version_t IDataClient::chooseInterfaceVersion(interface_version_t preferedInterfaceVersion)
+{
+    interface_version_t interfaceVersion
+        = preferedInterfaceVersion == minimumInterfaceVersion
+        ? preferedInterfaceVersion
+        : preferedInterfaceVersion == traits::kInterfaceVersionUndefined
+        ? m_serverInterfaceVersion
+        : preferedInterfaceVersion;
+
+    if (interfaceVersion > T::getInterfaceVersion())
+        interfaceVersion = T::getInterfaceVersion();
+    else if (interfaceVersion < T::getMinimumInterfaceVersion())
+        interfaceVersion = traits::kInterfaceVersionUndefined;
+
+    return interfaceVersion;
+}
 
 } // namespace common_serialization::csp::messaging

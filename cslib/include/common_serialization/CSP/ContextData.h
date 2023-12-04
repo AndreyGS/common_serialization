@@ -156,12 +156,6 @@ public:
     }
 
 private:
-    template<typename T>
-    static void destroyAndDeallocatePointer(T* p)
-    {
-        AllocatorHelper<T, Allocator<T>>().destroyAndDeallocate(p, 1);
-    }
-
     PC* m_pAddedPointers{ nullptr };
     PM* m_pPointersMap{ nullptr };
 };
