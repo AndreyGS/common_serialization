@@ -63,6 +63,7 @@
 
 #endif // USER_MODE
 
+#include "common_serialization/Types.h"
 #include "common_serialization/Helpers.h"
 #include "common_serialization/Concurency/GuardRW.h"
 #include "common_serialization/Allocators/AllocatorsConcepts.h"

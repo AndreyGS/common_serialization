@@ -37,21 +37,21 @@ class DataServersKeeper
 public:
     static DataServersKeeper& GetDataServersKeeper();
 
-    Status addServer(csp::name_hash_t nameHash, bool multicast, IDataServerBase* pInstance);
-    void removeServer(csp::name_hash_t nameHash, IDataServerBase* pInstance);
+    Status addServer(const Uuid& uuid, bool multicast, IDataServerBase* pInstance);
+    void removeServer(const Uuid& uuid, IDataServerBase* pInstance);
 
     template<typename T>
         requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
-    Status findServers(csp::name_hash_t nameHash, T& servers);
+    Status findServers(const Uuid& uuid, T& servers);
 
-    inline Status findServer(csp::name_hash_t nameHash, IDataServerBase*& pServer);
+    inline Status findServer(const Uuid& uuid, IDataServerBase*& pServer);
 
 private:
     static DataServersKeeper serversKeeper;
 
     DataServersKeeper() {}
 
-    std::unordered_multimap<name_hash_t, IDataServerBase*> m_serversList;
+    std::unordered_multimap<Uuid, IDataServerBase*> m_serversList;
     SharedMutex m_serversListMutex;
 };
 
@@ -62,23 +62,23 @@ inline DataServersKeeper& DataServersKeeper::GetDataServersKeeper()
     return serversKeeper;
 }
 
-inline Status DataServersKeeper::addServer(name_hash_t nameHash, bool multicast, IDataServerBase* pInstance)
+inline Status DataServersKeeper::addServer(const Uuid& uuid, bool multicast, IDataServerBase* pInstance)
 {
     GuardW guard(m_serversListMutex);
 
-    if (!multicast && m_serversList.contains(nameHash))
+    if (!multicast && m_serversList.contains(uuid))
         assert(false);
 
-    m_serversList.emplace(std::make_pair(nameHash, pInstance));
+    m_serversList.emplace(std::make_pair(uuid, pInstance));
 
     return Status::kNoError;
 }
 
-inline void DataServersKeeper::removeServer(name_hash_t nameHash, IDataServerBase* pInstance)
+inline void DataServersKeeper::removeServer(const Uuid& uuid, IDataServerBase* pInstance)
 {
     GuardW guard(m_serversListMutex);
 
-    auto range = m_serversList.equal_range(nameHash);
+    auto range = m_serversList.equal_range(uuid);
     while (range.first != range.second)
         if (range.first->second == pInstance)
         {
@@ -89,13 +89,13 @@ inline void DataServersKeeper::removeServer(name_hash_t nameHash, IDataServerBas
 
 template<typename T>
     requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
-Status DataServersKeeper::findServers(name_hash_t nameHash, T& servers)
+Status DataServersKeeper::findServers(const Uuid& uuid, T& servers)
 {
     servers.clear();
 
     GuardR guard(m_serversListMutex);
 
-    auto range = m_serversList.equal_range(nameHash);
+    auto range = m_serversList.equal_range(uuid);
     while (range.first != range.second)
     {
         RUN(servers.pushBack(range.first->second));
@@ -105,11 +105,11 @@ Status DataServersKeeper::findServers(name_hash_t nameHash, T& servers)
     return servers.size() ? Status::kNoError : Status::kErrorNoSuchHandler;
 }
 
-inline Status DataServersKeeper::findServer(csp::name_hash_t nameHash, IDataServerBase*& pServer)
+inline Status DataServersKeeper::findServer(const Uuid& uuid, IDataServerBase*& pServer)
 {
     GuardR guard(m_serversListMutex);
 
-    auto range = m_serversList.equal_range(nameHash);
+    auto range = m_serversList.equal_range(uuid);
     if (range.first != range.second)
     {
         pServer = range.first->second;

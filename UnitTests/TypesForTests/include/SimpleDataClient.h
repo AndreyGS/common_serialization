@@ -25,12 +25,6 @@
 
 #include "../../SerializableStructs/InterfaceForTest/Base/Include/Interface.h"
 
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !statusSuccess(status))                            \
-        return status;                                                          \
-}
-
 namespace special_types
 {
 
@@ -52,11 +46,12 @@ private:
     Status handleBinData(const BinVector& binInput, BinWalker& binOutput) override
     {
         BinWalker input;
-        RUN(input.init(binInput));
-        return csp::messaging::CommonServer::handleMessage(input, binOutput.getVector());
+        if (statusSuccess(input.init(binInput)))
+            return csp::messaging::CommonServer::handleMessage(input, binOutput.getVector());
+        else
+            return Status::kErrorNoMemory;
     }
 };
 
 } // namespace special_types
 
-#undef RUN

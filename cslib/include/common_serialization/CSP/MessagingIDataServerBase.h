@@ -48,9 +48,9 @@ protected:
 inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput)
 {
     context::DInOutData<> ctx(ctxCommon);
-    name_hash_t nameHash{ 0 };
+    Uuid uuid;
 
-    RUN(processing::deserializeInOutDataContext(ctx, nameHash));
+    RUN(processing::deserializeInOutDataContext(ctx, uuid));
     
     context::DataFlags flags = ctx.getFlags();
 
@@ -65,7 +65,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
     IDataServerBase* pServer{ nullptr };
     Status status = Status::kNoError;
 
-    if (Status status = GetDataServersKeeper().findServer(nameHash, pServer); statusSuccess(status))
+    if (Status status = GetDataServersKeeper().findServer(uuid, pServer); statusSuccess(status))
     {
         status = pServer->handleDataConcrete(ctx, binOutput);
     }
@@ -73,7 +73,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
     else if (status == Status::kErrorMoreEntires)
     {
         Vector<IDataServerBase*, RawStrategicAllocatorHelper<IDataServerBase*>> servers;
-        RUN(GetDataServersKeeper().findServers(nameHash, servers));
+        RUN(GetDataServersKeeper().findServers(uuid, servers));
 
         status = Status::kNoError;
 

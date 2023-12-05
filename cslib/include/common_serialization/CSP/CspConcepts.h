@@ -44,7 +44,7 @@ concept ISerializationCapableContainer
              { e.capacity() } -> std::same_as<typename S::size_type>;
 
              { e.reserve(1) } -> std::same_as<Status>;
-             { e.pushBackN(nullptr, 0) } -> std::same_as<Status>;
+             { e.pushBackN(nullptr, static_cast<typename S::size_type>(0)) } -> std::same_as<Status>;
              { e.pushBackArithmeticValue(1ull) } -> std::same_as<Status>;
          } 
     && std::is_same_v<typename S::value_type, uint8_t>;
@@ -64,7 +64,7 @@ concept IDeserializationCapableContainer
              { e.tell() } -> std::same_as<typename D::size_type>;
              { e.seek(0) } -> std::same_as<Status>;
              
-             { e.read(nullptr, 0) } -> std::same_as<Status>;
+             { e.read(nullptr, static_cast<typename D::size_type>(0)) } -> std::same_as<Status>;
              { e.readArithmeticValue(*(new unsigned)) } -> std::same_as<Status>;
          } 
     && std::is_same_v<typename D::value_type, uint8_t>;

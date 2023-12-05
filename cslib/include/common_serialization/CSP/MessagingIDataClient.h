@@ -138,7 +138,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
         ctxIn.clear();
 
         RUN(processing::deserializeDataContext(ctxOut));
-        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, OutputType::getNameHash(), minimumOutputInterfaceVersion));
+        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, OutputType::getUuid(), minimumOutputInterfaceVersion));
 
         if (flags != ctxOut.getFlags())
             return Status::kErrorDataCorrupted;

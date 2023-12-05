@@ -48,7 +48,7 @@ public:
     template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     constexpr Status deserialize(context::DData<D, PM>& ctx);
 
-    [[nodiscard]] static consteval name_hash_t getNameHash() noexcept;
+    [[nodiscard]] static consteval Uuid getUuid() noexcept;
     [[nodiscard]] static consteval interface_version_t getThisVersion() noexcept;
     [[nodiscard]] static consteval interface_version_t getInterfaceVersion() noexcept;
     [[nodiscard]] static consteval interface_version_t getMinimumInterfaceVersion() noexcept;
@@ -95,19 +95,19 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 {
     RUN(processing::deserializeHeaderContext(ctx));
 
-    uint64_t nameHash = 0;
+    Uuid uuid;
     uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? getMinimumInterfaceVersion() : ctx.getInterfaceVersion();
 
-    RUN(processing::deserializeDataContext(ctx, nameHash));
-    RUN(processing::deserializeDataContextPostprocess<T>(ctx, nameHash, minimumInterfaceVersion));
+    RUN(processing::deserializeDataContext(ctx, uuid));
+    RUN(processing::deserializeDataContextPostprocess<T>(ctx, uuid, minimumInterfaceVersion));
     
     return processing::DataProcessor::deserializeData(ctx, static_cast<T&>(*this));
 }
 
 template<typename T>
-[[nodiscard]] consteval name_hash_t ISerializable<T>::getNameHash() noexcept
+[[nodiscard]] consteval Uuid ISerializable<T>::getUuid() noexcept
 {
-    return T::kNameHash;
+    return T::kUuid;
 }
 
 template<typename T>

@@ -95,6 +95,58 @@ constexpr size_t countof(T(&arr)[N])
     return N;
 }
 
+constexpr uint64_t reverseEndianessUint64(uint64_t input)
+{
+    return input >> 56
+        | (input >> 40 & 0x000000000000ff00)
+        | (input >> 24 & 0x0000000000ff0000)
+        | (input >> 8 & 0x00000000ff000000)
+        | (input << 8 & 0x000000ff00000000)
+        | (input << 24 & 0x0000ff0000000000)
+        | (input << 40 & 0x00ff000000000000)
+        | input << 56;
+}
+
+constexpr uint32_t reverseEndianessUint32(uint32_t input)
+{
+    return input >> 24
+        | (input >> 8 & 0x0000ff00)
+        | (input << 8 & 0x00ff0000)
+        | input << 24;
+}
+
+constexpr uint16_t reverseEndianessUint16(uint16_t input)
+{
+    return input >> 8 | input << 8;
+}
+
+constexpr Uuid getUuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth)
+{
+    Uuid uuid;
+
+#ifndef BIG_ENDIAN
+    uuid.leftPart
+        = static_cast<uint64_t>(reverseEndianessUint32(first))
+        | static_cast<uint64_t>(reverseEndianessUint16(second)) << 32 
+        | static_cast<uint64_t>(reverseEndianessUint16(third)) << 48;
+
+    uuid.rightPart
+        = static_cast<uint64_t>(reverseEndianessUint16(fourth))
+        | static_cast<uint64_t>(reverseEndianessUint64(second)) << 16;
+#else
+    uuid.leftPart
+        = static_cast<uint64_t>(first) 
+        | static_cast<uint64_t>(second) << 32 
+        | static_cast<uint64_t>(third) << 48;
+
+    uuid.rightPart
+        = static_cast<uint64_t>(fourth)
+        | static_cast<uint64_t>(second) << 16;
+#endif // !BIG_ENDIAN
+
+    return uuid;
+}
+
 } // namespace helpers
 
 } // namespace common_serialization

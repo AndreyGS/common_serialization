@@ -13,3 +13,4 @@
 13. Add unit-tests on Allocators.
 14. Add unit-tests for mutexes.
 15. Add unit-tests for Walker init by Vector functions.
+16. Add unit-tests on Walker::setSize.

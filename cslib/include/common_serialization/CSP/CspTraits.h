@@ -26,7 +26,6 @@
 namespace common_serialization::csp
 {
 
-using name_hash_t = uint64_t;
 using interface_version_t = uint32_t;
 using protocol_version_t = uint8_t;
 

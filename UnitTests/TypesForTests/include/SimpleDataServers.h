@@ -1,5 +1,5 @@
 /**
- * @file TypesForTests.h
+ * @file SimpleDataServers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,22 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
-#include "../../TypesForTests/include/SpecialTypesFillingStruct.h"
-#include "../../TypesForTests/include/SpecialTypesCleanAfterStruct.h"
-#include "../../TypesForTests/include/SimpleDataClient.h"
-#include "../../TypesForTests/include/SimpleDataServers.h"
+#include "../../SerializableStructs/InterfaceForTest/Base/Include/Interface.h"
+
+namespace special_types
+{
+
+using namespace common_serialization;
+/*
+class FirstDataServer 
+    : csp::messaging::IMethodDataServer<SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableDescendantSerializable<>, true, false, SimpleAssignableAlignedToOneSerializable<>::getMinimumInterfaceVersion(), 3>
+    , csp::messaging::IStaticDataServer<FirstDataServer, DiamondSerializable<>, DynamicPolymorphicSerializable<>, false>
+{};
+
+class SecondDataServer
+{};
+
+class ThirdDataServer
+{};*/
+
+} // namespace special_types

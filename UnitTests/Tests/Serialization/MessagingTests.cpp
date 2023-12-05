@@ -70,7 +70,7 @@ TEST(MessagingTests, Temp)
     
 
     Vector<csp::messaging::IDataServerBase*, RawGenericAllocatorHelper<csp::messaging::IDataServerBase*>> subscribers;
-    csp::messaging::GetDataServersKeeper().findServers(testInput.getNameHash(), subscribers);
+    csp::messaging::GetDataServersKeeper().findServers(testInput.getUuid(), subscribers);
     //subscribers[0]->handleDataConcrete(binIn, binOut);
 
     testSubs.~TestSubscriber();
@@ -78,7 +78,7 @@ TEST(MessagingTests, Temp)
     DiamondSerializable testInput2;
     DynamicPolymorphicSerializable testOutput2;
 
-    csp::messaging::GetDataServersKeeper().findServers(testInput2.getNameHash(), subscribers);
+    csp::messaging::GetDataServersKeeper().findServers(testInput2.getUuid(), subscribers);
     
     //if (subscribers.size())
         //subscribers[0]->handleDataConcrete(binIn, binOut);

@@ -67,8 +67,10 @@ template<typename InstanceType, typename InputType, typename OutputType
 Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
     , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput)
 {
+    Uuid uuid = InputType::getUuid();
+
     Status status = processing::deserializeInOutDataContextPostprocess<InputType, OutputType>(
-        ctx, InputType::getNameHash(), minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
+        ctx, uuid, minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
 
     if (!statusSuccess(status))
     {
@@ -110,7 +112,7 @@ template<typename InstanceType, typename InputType, typename OutputType
 IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
     , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::IDataServer()
 {
-    GetDataServersKeeper().addServer(InputType::getNameHash(), multicast, this);
+    GetDataServersKeeper().addServer(InputType::getUuid(), multicast, this);
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
@@ -123,7 +125,7 @@ template<typename InstanceType, typename InputType, typename OutputType
 IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
     , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::~IDataServer()
 {
-    GetDataServersKeeper().removeServer(InputType::getNameHash(), this);
+    GetDataServersKeeper().removeServer(InputType::getUuid(), this);
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
