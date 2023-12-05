@@ -28,42 +28,9 @@ namespace common_serialization
 
 struct Uuid
 {
-    static constexpr size_t kBytesCount = 16;
-
-    struct
-    {
-        uint64_t leftPart;
-        uint64_t rightPart;
-    };
-
-    constexpr Uuid() : leftPart(0), rightPart(0) {}
-
-    constexpr Uuid(const Uuid& rhs) noexcept
-    {
-        operator=(rhs);
-    }
-
-    constexpr Uuid(Uuid&& rhs) noexcept
-    {
-        operator=(std::move(rhs));
-    }
-
-    constexpr Uuid& operator=(const Uuid& rhs) noexcept
-    {
-        leftPart = rhs.leftPart;
-        rightPart = rhs.rightPart;
-
-        return *this;
-    }
-
-    constexpr Uuid& operator=(Uuid&& rhs) noexcept
-    {
-        leftPart = rhs.leftPart;
-        rightPart = rhs.rightPart;
-
-        return *this;
-    }
-
+    uint64_t leftPart{ 0 };
+    uint64_t rightPart{ 0 };
+   
     constexpr bool operator<(const Uuid& rhs) const noexcept
     {
         return leftPart < rhs.leftPart || leftPart == rhs.leftPart && rightPart < rhs.rightPart;
@@ -72,11 +39,6 @@ struct Uuid
     constexpr bool operator==(const Uuid& rhs) const noexcept
     {
         return leftPart == rhs.leftPart && rightPart == rhs.rightPart;
-    }
-
-    constexpr bool operator!=(const Uuid& rhs) const noexcept
-    {
-        return !operator==(rhs);
     }
 };
 
