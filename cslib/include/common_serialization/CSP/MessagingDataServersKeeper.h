@@ -47,18 +47,19 @@ public:
     inline Status findServer(const Uuid& uuid, IDataServerBase*& pServer);
 
 private:
-    static DataServersKeeper serversKeeper;
-
     DataServersKeeper() {}
+    DataServersKeeper(const DataServersKeeper&) = delete;
+    DataServersKeeper( DataServersKeeper&&) noexcept = delete;
+    DataServersKeeper& operator=(const DataServersKeeper&) = delete;
+    DataServersKeeper& operator=(DataServersKeeper&&) noexcept = delete;
 
     std::unordered_multimap<Uuid, IDataServerBase*> m_serversList;
     SharedMutex m_serversListMutex;
 };
 
-inline DataServersKeeper DataServersKeeper::serversKeeper;
-
 inline DataServersKeeper& DataServersKeeper::GetDataServersKeeper()
 {
+    static DataServersKeeper serversKeeper;
     return serversKeeper;
 }
 
