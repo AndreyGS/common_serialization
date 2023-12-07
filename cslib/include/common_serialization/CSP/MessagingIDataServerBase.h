@@ -38,7 +38,7 @@ public:
     virtual Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) = 0;
     virtual [[nodiscard]] interface_version_t getMinimumHandlerSupportedInterfaceVersion() = 0;
 
-    static inline Status handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput);
+    static Status handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput);
 
 protected:
     constexpr IDataServerBase() { }

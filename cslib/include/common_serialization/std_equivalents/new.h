@@ -48,13 +48,13 @@
 }
 
 // placement new
-[[nodiscard]] constexpr inline void* operator new(uint64_t, void* p) noexcept
+[[nodiscard]] constexpr void* operator new(uint64_t, void* p) noexcept
 {
     return p;
 }
 
 // placement new[]
-[[nodiscard]] constexpr inline void* operator new[](uint64_t, void* p) noexcept
+[[nodiscard]] constexpr void* operator new[](uint64_t, void* p) noexcept
 {
     return p;
 }
@@ -84,11 +84,11 @@ constexpr void operator delete[](void* p, const std::nothrow_t&) noexcept
 }
 
 // placement delete
-constexpr inline void operator delete(void*, void* ) noexcept
+constexpr void operator delete(void*, void* ) noexcept
 {
 }
 
 // placement delete[]
-constexpr inline void operator delete[](void*, void* ) noexcept
+constexpr void operator delete[](void*, void* ) noexcept
 {
 }

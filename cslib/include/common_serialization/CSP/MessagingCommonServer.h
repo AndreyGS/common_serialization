@@ -33,7 +33,7 @@ namespace common_serialization::csp::messaging
 class CommonServer
 {
 public:
-    static inline Status handleMessage(BinWalker& binInput, BinVector& binOutput);
+    static Status handleMessage(BinWalker& binInput, BinVector& binOutput);
 };
 
 inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOutput)

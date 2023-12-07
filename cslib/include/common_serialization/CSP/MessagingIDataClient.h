@@ -67,7 +67,7 @@ public:
 
 protected:
     IDataClient() {}
-    inline IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, interface_version_t targetInterfaceVersion);
+    IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, interface_version_t targetInterfaceVersion);
 
 private:
     template<typename T, interface_version_t minimumInterfaceVersion>

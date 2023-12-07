@@ -44,7 +44,7 @@ public:
         requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
     Status findServers(const Uuid& uuid, T& servers);
 
-    inline Status findServer(const Uuid& uuid, IDataServerBase*& pServer);
+    Status findServer(const Uuid& uuid, IDataServerBase*& pServer);
 
 private:
     DataServersKeeper() {}
