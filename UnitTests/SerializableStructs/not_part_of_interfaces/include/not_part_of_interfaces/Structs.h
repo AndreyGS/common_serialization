@@ -1,5 +1,5 @@
 /**
- * @file DeserializeDataLegacy.h
+ * @file Structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,31 +23,12 @@
 
 #pragma once
 
-#include "../../../Base/include/SpecialTypesSerializableLegacy.h"
-
-namespace common_serialization::csp::processing
+namespace not_part_of_interfaces
 {
 
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx
-    , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx
-    , special_types::SimpleAssignableSerializable_Version0<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx
-    , special_types::SimpleAssignableDescendantSerializable_Version0<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx
-    , special_types::SForAllModesTests_Version0<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx
-    , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx
-    , special_types::SForAllModesTests_Version2<>& value);
+struct EmptyTypeNotSerializable
+{
+    using empty_type_tag = std::true_type;
+};
 
-
-} // namespace common_serialization::csp::processing
-
-#undef RUN
+} // namespace not_part_of_interface

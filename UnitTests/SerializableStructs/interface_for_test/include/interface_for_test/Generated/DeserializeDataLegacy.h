@@ -1,5 +1,5 @@
 /**
- * @file Interface.h
+ * @file DeserializeDataLegacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,31 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
+#include "interface_for_test/SpecialTypesSerializableLegacy.h"
 
-#include "../../Base/include/SpecialTypesSerializable.h"
-#include "../../Base/include/SpecialTypesSerializableLegacy.h"
+namespace common_serialization::csp::processing
+{
 
-#include "../../Base/include/Generated/SerializeData.h"
-#include "../../Base/include/Generated/SerializeDataLegacy.h"
-#include "../../Base/include/Generated/DeserializeData.h"
-#include "../../Base/include/Generated/DeserializeDataLegacy.h"
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx
+    , special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx
+    , special_types::SimpleAssignableSerializable_Version0<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx
+    , special_types::SimpleAssignableDescendantSerializable_Version0<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx
+    , special_types::SForAllModesTests_Version0<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx
+    , special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx
+    , special_types::SForAllModesTests_Version2<>& value);
 
-#include "../../Base/include/Generated/ConvertToOldStruct.h"
-#include "../../Base/include/Generated/ConvertFromOldStruct.h"
+
+} // namespace common_serialization::csp::processing
+
+#undef RUN

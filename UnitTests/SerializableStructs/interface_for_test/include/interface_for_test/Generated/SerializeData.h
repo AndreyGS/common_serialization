@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../../../Base/include/SpecialTypesSerializable.h"
+#include "interface_for_test/SpecialTypesSerializable.h"
 
 namespace common_serialization::csp::processing
 {

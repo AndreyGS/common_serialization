@@ -1,5 +1,5 @@
 /**
- * @file SimpleDataClient.h
+ * @file Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,33 +23,15 @@
 
 #pragma once
 
-#include "interface_for_test/Interface.h"
+#include "common_serialization/common_serialization.h"
 
-namespace special_types
-{
+#include "interface_for_test/SpecialTypesSerializable.h"
+#include "interface_for_test/SpecialTypesSerializableLegacy.h"
 
-using namespace common_serialization;
+#include "interface_for_test/Generated/SerializeData.h"
+#include "interface_for_test/Generated/SerializeDataLegacy.h"
+#include "interface_for_test/Generated/DeserializeData.h"
+#include "interface_for_test/Generated/DeserializeDataLegacy.h"
 
-class SimpleDataClient : public csp::messaging::IDataClient
-{
-public:
-    SimpleDataClient() {}
-    SimpleDataClient(csp::protocol_version_t defaultProtocolVersion, csp::context::DataFlags defaultFlags, csp::interface_version_t targetInterfaceVersion)
-        : csp::messaging::IDataClient(defaultProtocolVersion, defaultFlags, targetInterfaceVersion)
-    {
-    }
-
-private:
-    // This function must transfer data from client to server.
-    // Way by which it will be done is up to concrete client realization.
-    // Here we do not need to overcomplicate things and we simply calling csp::messaging::CommonServer::handleMessage.
-    Status handleBinData(BinVector& binInput, BinWalker& binOutput) override
-    {
-        BinWalker input;
-        input.init(std::move(binInput));
-        return csp::messaging::CommonServer::handleMessage(input, binOutput.getVector());
-    }
-};
-
-} // namespace special_types
-
+#include "interface_for_test/Generated/ConvertToOldStruct.h"
+#include "interface_for_test/Generated/ConvertFromOldStruct.h"

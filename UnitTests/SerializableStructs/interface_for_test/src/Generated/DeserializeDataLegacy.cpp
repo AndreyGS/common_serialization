@@ -23,12 +23,12 @@
 
 #pragma once
 
-#include "Generated/DeserializeDataLegacy.h"
+#include "interface_for_test/Generated/DeserializeDataLegacy.h"
 
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !statusSuccess(status))                            \
-        return status;                                                          \
+#define RUN(x)                                                                          \
+{                                                                                       \
+    if (Status status = (x); !statusSuccess(status))                                    \
+        return status;                                                                  \
 }
 
 #define DESERIALIZE_NO_CONVERSION_COMMON(ctx, value)                                    \

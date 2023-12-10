@@ -23,12 +23,12 @@
 
 #pragma once
 
-#include "Generated/SerializeData.h"
+#include "interface_for_test/Generated/SerializeData.h"
 
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !statusSuccess(status))                            \
-        return status;                                                          \
+#define RUN(x)                                                                          \
+{                                                                                       \
+    if (Status status = (x); !statusSuccess(status))                                    \
+        return status;                                                                  \
 }
 
 #define SERIALIZE_COMMON(value, ctx)                                                    \
