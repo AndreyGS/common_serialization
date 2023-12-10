@@ -26,8 +26,12 @@
 namespace common_serialization
 {
 
+#pragma pack(push, 1)
+
 struct Uuid
 {
+    using simple_assignable_tag = std::true_type;
+
     uint64_t leftPart{ 0 };
     uint64_t rightPart{ 0 };
    
@@ -42,16 +46,17 @@ struct Uuid
     }
 };
 
+#pragma pack(pop)
 
 } // namespace common_serialization
 
 template<>
 struct std::hash<common_serialization::Uuid>
 {
-    std::size_t operator()(const common_serialization::Uuid& uuid) const noexcept
+    std::size_t operator()(const common_serialization::Uuid& id) const noexcept
     {
-        std::size_t hash1 = std::hash<uint64_t>{}(uuid.leftPart);
-        std::size_t hash2 = std::hash<uint64_t>{}(uuid.rightPart);
+        std::size_t hash1 = std::hash<uint64_t>{}(id.leftPart);
+        std::size_t hash2 = std::hash<uint64_t>{}(id.rightPart);
         return hash1 ^ hash2;
     }
 };

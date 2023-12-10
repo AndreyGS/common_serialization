@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ContextMessage.h
+ * @file cslib/include/common_serialization/CSP/ProcessingStatus.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,48 +23,9 @@
 
 #pragma once
 
-#include "common_serialization/CSP/Processing.h"
+#include "common_serialization/CSP/MessagingStatusMessages.h"
 
-namespace common_serialization::csp
-{
-
-#pragma pack(push, 1)
-
-struct StatusErrorNotSupportedProtocolVersion
-{
-    protocol_version_t supportedProtocolsVersionsSize{ helpers::countof(traits::kProtocolVersions) };
-    protocol_version_t supportedProtocolsVersions[helpers::countof(traits::kProtocolVersions)];
-
-    StatusErrorNotSupportedProtocolVersion()
-    {
-        memcpy(supportedProtocolsVersions, traits::kProtocolVersions, supportedProtocolsVersionsSize * sizeof(protocol_version_t));
-    }
-
-    using SimpleAssignableType = std::true_type;
-};
-
-struct StatusErrorNotSupportedInterfaceVersion
-{
-    interface_version_t minimumSupportedInterfaceVersion{ traits::kInterfaceVersionUndefined };
-    interface_version_t maximumSupportedInterfaceVersion{ traits::kInterfaceVersionUndefined };
-
-    using SimpleAssignableType = std::true_type;
-};
-
-struct StatusErrorNotSupportedInOutInterfaceVersion
-{
-    interface_version_t inMinimumSupportedInterfaceVersion{ traits::kInterfaceVersionUndefined };
-    interface_version_t inMaximumSupportedInterfaceVersion{ traits::kInterfaceVersionUndefined };
-
-    interface_version_t outMinimumSupportedInterfaceVersion{ traits::kInterfaceVersionUndefined };
-    interface_version_t outMaximumSupportedInterfaceVersion{ traits::kInterfaceVersionUndefined };
-
-    using SimpleAssignableType = std::true_type;
-};
-
-#pragma pack(pop)
-
-namespace processing
+namespace common_serialization::csp::processing
 {
     
 template<ISerializationCapableContainer S, typename T>
@@ -101,7 +62,7 @@ constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output) noex
     context::Common<S> ctx(output, traits::getLatestProtocolVersion(), context::Message::kStatus);
     RUN(serializeHeaderContext(ctx));
 
-    StatusErrorNotSupportedProtocolVersion statusMessage;
+    messaging::StatusErrorNotSupportedProtocolVersion statusMessage;
 
     RUN(serializeStatus(output, Status::kErrorNotSupportedProtocolVersion, statusMessage));
 
@@ -128,7 +89,7 @@ constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
     context::Common<S> ctx(output, protocolVersion, context::Message::kStatus);
     RUN(serializeHeaderContext(ctx));
 
-    StatusErrorNotSupportedInterfaceVersion statusMessage = {
+    messaging::StatusErrorNotSupportedInterfaceVersion statusMessage = {
           .minimumSupportedInterfaceVersion = minimumSupportedInterfaceVersion,  .maximumSupportedInterfaceVersion = maximumSupportedInterfaceVersion
     };
 
@@ -147,7 +108,7 @@ constexpr Status serializeStatusErrorNotSupportedInOutInterfaceVersion(
     context::Common<S> ctx(output, protocolVersion, context::Message::kStatus);
     RUN(serializeHeaderContext(ctx));
 
-    StatusErrorNotSupportedInOutInterfaceVersion statusMessage = {
+    messaging::StatusErrorNotSupportedInOutInterfaceVersion statusMessage = {
           .inMinimumSupportedInterfaceVersion  = inMinimumSupportedInterfaceVersion,  .inMaximumSupportedInterfaceVersion  = inMaximumSupportedInterfaceVersion
         , .outMinimumSupportedInterfaceVersion = outMinimumSupportedInterfaceVersion, .outMaximumSupportedInterfaceVersion = outMaximumSupportedInterfaceVersion
     };
@@ -157,6 +118,4 @@ constexpr Status serializeStatusErrorNotSupportedInOutInterfaceVersion(
     return Status::kNoError;
 }
 
-} // namespace processing
-
-} // namespace common_serialization::csp
+} // namespace common_serialization::csp::processing

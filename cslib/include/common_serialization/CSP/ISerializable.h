@@ -95,11 +95,11 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 {
     RUN(processing::deserializeHeaderContext(ctx));
 
-    Uuid uuid;
+    Uuid id;
     uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? getMinimumInterfaceVersion() : ctx.getInterfaceVersion();
 
-    RUN(processing::deserializeDataContext(ctx, uuid));
-    RUN(processing::deserializeDataContextPostprocess<T>(ctx, uuid, minimumInterfaceVersion));
+    RUN(processing::deserializeDataContext(ctx, id));
+    RUN(processing::deserializeDataContextPostprocess<T>(ctx, id, minimumInterfaceVersion));
     
     return processing::DataProcessor::deserializeData(ctx, static_cast<T&>(*this));
 }
@@ -107,7 +107,7 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 template<typename T>
 [[nodiscard]] consteval Uuid ISerializable<T>::getUuid() noexcept
 {
-    return T::kUuid;
+    return T::kId;
 }
 
 template<typename T>

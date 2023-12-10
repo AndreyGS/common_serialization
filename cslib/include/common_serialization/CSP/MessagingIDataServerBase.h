@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "common_serialization/CSP/MessagingDataServersKeeper.h"
-#include "common_serialization/CSP/StatusMessages.h"
 #include "common_serialization/Containers/Walker.h"
+#include "common_serialization/CSP/MessagingDataServersKeeper.h"
+#include "common_serialization/CSP/ProcessingStatus.h"
 
 namespace common_serialization::csp::messaging
 {
@@ -48,9 +48,9 @@ protected:
 inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput)
 {
     context::DInOutData<> ctx(ctxCommon);
-    Uuid uuid;
+    Uuid id;
 
-    RUN(processing::deserializeInOutDataContext(ctx, uuid));
+    RUN(processing::deserializeInOutDataContext(ctx, id));
     
     context::DataFlags flags = ctx.getFlags();
 
@@ -65,7 +65,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
     IDataServerBase* pServer{ nullptr };
     Status status = Status::kNoError;
 
-    if (Status status = GetDataServersKeeper().findServer(uuid, pServer); statusSuccess(status))
+    if (Status status = GetDataServersKeeper().findServer(id, pServer); statusSuccess(status))
     {
         status = pServer->handleDataConcrete(ctx, binOutput);
     }
@@ -73,7 +73,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
     else if (status == Status::kErrorMoreEntires)
     {
         Vector<IDataServerBase*, RawStrategicAllocatorHelper<IDataServerBase*>> servers;
-        RUN(GetDataServersKeeper().findServers(uuid, servers));
+        RUN(GetDataServersKeeper().findServers(id, servers));
 
         status = Status::kNoError;
 

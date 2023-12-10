@@ -65,11 +65,11 @@ void mainTest(csp::context::DataFlags flags, uint32_t targetVersion)
 
     EXPECT_EQ(csp::processing::deserializeHeaderContext(ctxOut), Status::kNoError);
 
-    Uuid uuid;
+    Uuid id;
     uint32_t minimumInterfaceVersion = 0;
 
-    EXPECT_EQ(csp::processing::deserializeDataContext(ctxOut, uuid), Status::kNoError);
-    EXPECT_EQ(csp::processing::deserializeDataContextPostprocess<TD>(ctxOut, uuid, minimumInterfaceVersion), Status::kNoError);
+    EXPECT_EQ(csp::processing::deserializeDataContext(ctxOut, id), Status::kNoError);
+    EXPECT_EQ(csp::processing::deserializeDataContextPostprocess<TD>(ctxOut, id, minimumInterfaceVersion), Status::kNoError);
 
     if (TD::getInterfaceVersion() == 2)
         ctxOut.setInterfaceVersionsNotMatch(true);

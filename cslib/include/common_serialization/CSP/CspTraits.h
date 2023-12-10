@@ -33,8 +33,8 @@ namespace traits
 {
 
 inline constexpr protocol_version_t kProtocolVersions[] = { 1 };
-inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;
-inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;
+inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;           // it always must be kind of UINTMAX
+inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;   // it always must be kind of UINTMAX
 
 [[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion()
 {

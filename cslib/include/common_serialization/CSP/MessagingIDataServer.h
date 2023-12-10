@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "common_serialization/CSP/MessagingIDataServerBase.h"
 #include "common_serialization/CSP/ContextInOutData.h"
-#include "common_serialization/CSP/StatusMessages.h"
+#include "common_serialization/CSP/MessagingIDataServerBase.h"
+#include "common_serialization/CSP/MessagingStatusMessages.h"
 
 namespace common_serialization::csp::messaging
 {
@@ -67,10 +67,10 @@ template<typename InstanceType, typename InputType, typename OutputType
 Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
     , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput)
 {
-    Uuid uuid = InputType::getUuid();
+    Uuid id = InputType::getUuid();
 
     Status status = processing::deserializeInOutDataContextPostprocess<InputType, OutputType>(
-        ctx, uuid, minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
+        ctx, id, minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
 
     if (!statusSuccess(status))
     {
@@ -78,7 +78,7 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
             RUN(processing::serializeStatusErrorNotSupportedInOutInterfaceVersion(minimumInputInterfaceVersion, InputType::getInterfaceVersion()
                 , minimumOutputInterfaceVersion, OutputType::getInterfaceVersion(), ctx.getProtocolVersion(), binOutput));
         
-        return status;
+        return Status::kNoError;
     }
     
     ctx.setAuxUsingHeapAllocation(forTempUseHeap);
@@ -196,22 +196,27 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
     else
         RUN(InstanceType::handleDataStatic(input, ctxIn.getAddedPointers(), output));
 
-    std::unordered_map<const void*, uint64_t> pointersMapOut;
+    if constexpr (!std::is_same_v<OutputType, ISerializableDummy>)
+    {
+        std::unordered_map<const void*, uint64_t> pointersMapOut;
 
-    binOutput.clear();
+        binOutput.clear();
 
-    context::SData<> ctxOut(
-          binOutput
-        , ctxIn.getProtocolVersion()
-        , ctxIn.getFlags()
-        , forTempUseHeap
-        , ctxIn.getOutputInterfaceVersion()
-        , nullptr);
+        context::SData<> ctxOut(
+            binOutput
+            , ctxIn.getProtocolVersion()
+            , ctxIn.getFlags()
+            , forTempUseHeap
+            , ctxIn.getOutputInterfaceVersion()
+            , nullptr);
 
-    if (ctxOut.getFlags().checkRecursivePointers)
-        ctxOut.setPointersMap(pointersMapOut);
+        if (ctxOut.getFlags().checkRecursivePointers)
+            ctxOut.setPointersMap(pointersMapOut);
 
-    return output.serialize(ctxOut);
+        return output.serialize(ctxOut);
+    }
+    else
+        return Status::kNoError;
 }
 
 template<typename InputType, typename OutputType

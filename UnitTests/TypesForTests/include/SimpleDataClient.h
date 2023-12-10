@@ -43,13 +43,11 @@ private:
     // This function must transfer data from client to server.
     // Way by which it will be done is up to concrete client realization.
     // Here we do not need to overcomplicate things and we simply calling csp::messaging::CommonServer::handleMessage.
-    Status handleBinData(const BinVector& binInput, BinWalker& binOutput) override
+    Status handleBinData(BinVector& binInput, BinWalker& binOutput) override
     {
         BinWalker input;
-        if (statusSuccess(input.init(binInput)))
-            return csp::messaging::CommonServer::handleMessage(input, binOutput.getVector());
-        else
-            return Status::kErrorNoMemory;
+        input.init(std::move(binInput));
+        return csp::messaging::CommonServer::handleMessage(input, binOutput.getVector());
     }
 };
 

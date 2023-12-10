@@ -23,9 +23,10 @@
 
 #pragma once
 
+#include "common_serialization/CSP/MessagingServiceStructs.h"
 #include "common_serialization/CSP/Processing.h"
 #include "common_serialization/CSP/ProcessingDataProcessor.h"
-#include "common_serialization/CSP/StatusMessages.h"
+#include "common_serialization/CSP/ProcessingStatus.h"
 
 namespace common_serialization::csp::messaging
 {
@@ -74,7 +75,7 @@ private:
         requires IsISerializableBased<T>
     interface_version_t chooseInterfaceVersion(interface_version_t preferedInterfaceVersion);
 
-    virtual Status handleBinData(const BinVector& binInput, BinWalker& binOutput) = 0;
+    virtual Status handleBinData(BinVector& binInput, BinWalker& binOutput) = 0;
 
     protocol_version_t m_defaultProtocolVersion{ traits::getLatestProtocolVersion() };
     context::DataFlags m_defaultFlags;
@@ -124,7 +125,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
 
     RUN(handleBinData(binInput, binOutput));
 
-    binInput.clear();
+    ctxIn.clear();
 
     context::DData<> ctxOut(binOutput);
 
@@ -132,9 +133,6 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
 
     if (ctxOut.getMessageType() == context::Message::kData)
     {
-        if constexpr (std::is_same_v<OutputType, Dummy>)
-            return Status::kErrorDataCorrupted;
-
         ctxIn.clear();
 
         RUN(processing::deserializeDataContext(ctxOut));
@@ -157,22 +155,23 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
         Status statusOut = Status::kNoError;
         RUN(processing::deserializeStatusGetStatus(output, statusOut));
 
-        if constexpr (std::is_same_v<OutputType, Dummy>)
+        if constexpr (std::is_same_v<OutputType, messaging::ISerializableDummy>)
             if (statusOut == Status::kNoError)
                 return Status::kNoError;
 
-        // We must not be here in recursive call
-        if (minimumInputInterfaceVersion == inputInterfaceVersion && minimumOutputInterfaceVersion == outputInterfaceVersion)
-            return Status::kErrorNotSupportedInOutInterfaceVersion;
-
         if (statusOut == Status::kErrorNotSupportedInOutInterfaceVersion)
         {
+            // Scenario when all minimum and prefered interface versions are the same 
+            // does not imply any further processing when we've get Status::kErrorNotSupportedInOutInterfaceVersion Output
+            if (minimumInputInterfaceVersion == preferedInputInterfaceVersion && minimumOutputInterfaceVersion == preferedOutputInterfaceVersion)
+                return statusOut;
+
             StatusErrorNotSupportedInOutInterfaceVersion statusStruct{ 0 };
             RUN(processing::deserializeStatusGetStruct(output, statusStruct));
 
             interface_version_t compatInputInterfaceVersion
                 = traits::getBestSupportedInterfaceVersion<InputType>(
-                        statusStruct.inMinimumSupportedInterfaceVersion
+                      statusStruct.inMinimumSupportedInterfaceVersion
                     , statusStruct.inMaximumSupportedInterfaceVersion
                     , minimumInputInterfaceVersion
                     );
@@ -182,7 +181,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
 
             interface_version_t compatOutputInterfaceVersion
                 = traits::getBestSupportedInterfaceVersion<OutputType>(
-                        statusStruct.outMinimumSupportedInterfaceVersion
+                      statusStruct.outMinimumSupportedInterfaceVersion
                     , statusStruct.outMaximumSupportedInterfaceVersion
                     , minimumOutputInterfaceVersion
                     );
@@ -191,7 +190,6 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
                 return statusOut;
 
             // Here we should free resources that we do no need now
-            ctxIn.clear();
             ctxOut.clear();
 
             // Try again with the compatible InputType and OutputType versions
@@ -199,7 +197,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
                 (input, output, flags, compatInputInterfaceVersion, compatOutputInterfaceVersion, pUnmanagedPointers, protocolVersion);
         }
         else
-            return Status::kErrorDataCorrupted;
+            return statusOut;
     }
 
     return Status::kNoError;
@@ -233,9 +231,10 @@ interface_version_t IDataClient::chooseInterfaceVersion(interface_version_t pref
         = preferedInterfaceVersion == minimumInterfaceVersion
         ? preferedInterfaceVersion
         : preferedInterfaceVersion == traits::kInterfaceVersionUndefined
-        ? m_serverInterfaceVersion
-        : preferedInterfaceVersion;
+            ? m_serverInterfaceVersion
+            : preferedInterfaceVersion;
 
+    // This is also applies when interfaceVersion == traits::kInterfaceVersionUndefined 
     if (interfaceVersion > T::getInterfaceVersion())
         interfaceVersion = T::getInterfaceVersion();
     else if (interfaceVersion < T::getMinimumInterfaceVersion())

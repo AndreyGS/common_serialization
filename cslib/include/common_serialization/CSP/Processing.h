@@ -69,10 +69,10 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     S& output = ctx.getBinaryData();
     context::DataFlags flags = ctx.getFlags();
 
-    Uuid uuid = T::getUuid();
+    Uuid id = T::getUuid();
 
-    RUN(output.pushBackArithmeticValue(uuid.leftPart));
-    RUN(output.pushBackArithmeticValue(uuid.rightPart));
+    RUN(output.pushBackArithmeticValue(id.leftPart));
+    RUN(output.pushBackArithmeticValue(id.rightPart));
     
     if (flags.checkRecursivePointers)
     {
@@ -98,12 +98,12 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 }
 
 template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Uuid& uuid)
+constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Uuid& id)
 {
     D& input = ctx.getBinaryData();
 
-    RUN(input.readArithmeticValue(uuid.leftPart));
-    RUN(input.readArithmeticValue(uuid.rightPart));
+    RUN(input.readArithmeticValue(id.leftPart));
+    RUN(input.readArithmeticValue(id.rightPart));
 
     uint32_t intFlags = 0;
     RUN(input.readArithmeticValue(intFlags));
@@ -127,9 +127,9 @@ constexpr Status serializeInOutDataContext(context::SInOutData<S, PM>& ctx) noex
 }
 
 template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeInOutDataContext(context::DInOutData<D, PM>& ctx, Uuid& uuid) noexcept
+constexpr Status deserializeInOutDataContext(context::DInOutData<D, PM>& ctx, Uuid& id) noexcept
 {
-    RUN(deserializeDataContext(ctx, uuid));
+    RUN(deserializeDataContext(ctx, id));
 
     interface_version_t outputInterfaceVersion = 0;
     RUN(ctx.getBinaryData().readArithmeticValue(outputInterfaceVersion));
@@ -139,10 +139,10 @@ constexpr Status deserializeInOutDataContext(context::DInOutData<D, PM>& ctx, Uu
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, const Uuid& uuid, interface_version_t minimumSupportedInterfaceVersion)
+constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, const Uuid& id, interface_version_t minimumSupportedInterfaceVersion)
 {
     Uuid tUuid = T::getUuid();
-    if (tUuid != uuid)
+    if (tUuid != id)
         return Status::kErrorMismatchOfStructNameHash;
 
     context::DataFlags flags = ctx.getFlags();
@@ -171,10 +171,10 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
 
 
 template<typename In, typename Out, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeInOutDataContextPostprocess(context::DInOutData<D, PM>& ctx, Uuid uuid
+constexpr Status deserializeInOutDataContextPostprocess(context::DInOutData<D, PM>& ctx, const Uuid& id
     , interface_version_t inputMinimumSupportedInterfaceVersion, interface_version_t outputMinimumSupportedInterfaceVersion) noexcept
 {
-    RUN(deserializeDataContextPostprocess<In>(ctx, uuid, inputMinimumSupportedInterfaceVersion));
+    RUN(deserializeDataContextPostprocess<In>(ctx, id, inputMinimumSupportedInterfaceVersion));
     
     if (!traits::isInterfaceVersionSupported(ctx.getOutputInterfaceVersion(), outputMinimumSupportedInterfaceVersion, Out::getInterfaceVersion()))
         return Status::kErrorNotSupportedInterfaceVersion;
