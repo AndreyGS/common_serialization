@@ -24,21 +24,22 @@
 namespace
 {
 
-using namespace special_types;
+using namespace interface_for_test;
+using namespace ft_helpers;
 
 
 class TestSubscriber
-    : csp::messaging::IMethodDataServer<SimpleAssignableAlignedToOneSerializable<>, SimpleAssignableDescendantSerializable<>
-        , true, false, SimpleAssignableAlignedToOneSerializable<>::getMinimumInterfaceVersion(), 3>
-    , csp::messaging::IStaticDataServer<TestSubscriber, DiamondSerializable<>, DynamicPolymorphicSerializable<>, false>
+    : csp::messaging::IMethodDataServer<SimpleAssignableAlignedToOne<>, SimpleAssignableDescendant<>
+        , true, false, SimpleAssignableAlignedToOne<>::getMinimumInterfaceVersion(), 3>
+    , csp::messaging::IStaticDataServer<TestSubscriber, Diamond<>, DynamicPolymorphic<>, false>
 {
 public:
-    Status handleData(const SimpleAssignableAlignedToOneSerializable<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, SimpleAssignableDescendantSerializable<>& output) override
+    Status handleData(const SimpleAssignableAlignedToOne<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, SimpleAssignableDescendant<>& output) override
     {
         return Status::kNoError;
     }
 
-    static Status handleDataStatic(const DiamondSerializable<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, DynamicPolymorphicSerializable<>& output)
+    static Status handleDataStatic(const Diamond<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, DynamicPolymorphic<>& output)
     {
         return Status::kNoError;
     }
@@ -48,7 +49,7 @@ TEST(MessagingTests, Temp)
 {
     TestSubscriber testSubs;
 
-    SimpleAssignableAlignedToOneSerializable testInput;
+    SimpleAssignableAlignedToOne testInput;
     BinWalker bin;
     csp::context::SInOutData<> ctxIn(bin.getVector());
     ctxIn.setMessageType(csp::context::Message::kInOutData);
@@ -56,14 +57,14 @@ TEST(MessagingTests, Temp)
     ctxIn.setOutputInterfaceVersion(2);
 
     csp::processing::serializeHeaderContext(ctxIn);
-    csp::processing::serializeInOutDataContext<SimpleAssignableAlignedToOneSerializable<>>(ctxIn);
+    csp::processing::serializeInOutDataContext<SimpleAssignableAlignedToOne<>>(ctxIn);
     csp::processing::DataProcessor::serializeData(testInput, ctxIn);
 
     BinVector binOut;
     csp::messaging::CommonServer::handleMessage(bin, binOut);
 
 
-    SimpleAssignableDescendantSerializable testOutput;
+    SimpleAssignableDescendant testOutput;
 
     BinWalker binIn;
     binIn.pushBack(1);
@@ -75,8 +76,8 @@ TEST(MessagingTests, Temp)
 
     testSubs.~TestSubscriber();
 
-    DiamondSerializable testInput2;
-    DynamicPolymorphicSerializable testOutput2;
+    Diamond testInput2;
+    DynamicPolymorphic testOutput2;
 
     csp::messaging::GetDataServersKeeper().findServers(testInput2.getUuid(), subscribers);
     

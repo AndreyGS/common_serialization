@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAllowUnmanagedPointers.cpp
+ * @file ForTestsHelpers/include/ft_helpers/SimpleDataClient.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,44 +21,33 @@
  *
  */
 
-namespace
+#pragma once
+
+namespace ft_helpers
 {
 
-using namespace interface_for_test;
-using namespace ft_helpers;
+using namespace common_serialization;
 
-template<typename T>
-
-void mainTest()
+class SimpleDataClient : public csp::messaging::IDataClient
 {
-    T input;
-    fillingStruct(input);
+public:
+    SimpleDataClient() {}
+    SimpleDataClient(csp::protocol_version_t defaultProtocolVersion, csp::context::DataFlags defaultFlags, csp::interface_version_t targetInterfaceVersion)
+        : csp::messaging::IDataClient(defaultProtocolVersion, defaultFlags, targetInterfaceVersion)
+    {
+    }
 
-    BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
+private:
+    // This function must transfer data from client to server.
+    // Way by which it will be done is up to concrete client realization.
+    // Here we do not need to overcomplicate things and we simply calling csp::messaging::CommonServer::handleMessage.
+    Status handleBinData(BinVector& binInput, BinWalker& binOutput) override
+    {
+        BinWalker input;
+        input.init(std::move(binInput));
+        return csp::messaging::CommonServer::handleMessage(input, binOutput.getVector());
+    }
+};
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+} // namespace ft_helpers
 
-    T output;
-
-    csp::context::DData<> ctxOut(bin);
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
-
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
-{
-    mainTest<SpecialProcessingType<>>();
-}
-
-} // namespace anonymous

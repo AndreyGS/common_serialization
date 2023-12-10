@@ -24,7 +24,8 @@
 namespace
 {
 
-using namespace special_types;
+using namespace interface_for_test;
+using namespace ft_helpers;
 
 using size_type = typename BinVector::size_type;
 
@@ -55,17 +56,17 @@ void mainTest()
 
 TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableAlignedToOneT)
 {
-    mainTest<SimpleAssignableAlignedToOneSerializable<>>();
+    mainTest<SimpleAssignableAlignedToOne<>>();
 }
 
 TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableT)
 {
-    mainTest<SimpleAssignableSerializable<>>();
+    mainTest<SimpleAssignable<>>();
 }
 
 TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableDataSizeT)
 {
-    SimpleAssignableSerializable input;
+    SimpleAssignable input;
     fillingStruct(input);
 
     BinWalker bin;

@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAllowUnmanagedPointers.cpp
+ * @file ForTestsHelpers/include/ft_helpers/SimpleDataServers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,44 +21,22 @@
  *
  */
 
-namespace
+#pragma once
+
+namespace ft_helpers
 {
 
-using namespace interface_for_test;
-using namespace ft_helpers;
+using namespace common_serialization;
+/*
+class FirstDataServer 
+    : csp::messaging::IMethodDataServer<SimpleAssignableAlignedToOne<>, SimpleAssignableDescendant<>, true, false, SimpleAssignableAlignedToOne<>::getMinimumInterfaceVersion(), 3>
+    , csp::messaging::IStaticDataServer<FirstDataServer, Diamond<>, DynamicPolymorphic<>, false>
+{};
 
-template<typename T>
+class SecondDataServer
+{};
 
-void mainTest()
-{
-    T input;
-    fillingStruct(input);
+class ThirdDataServer
+{};*/
 
-    BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    T output;
-
-    csp::context::DData<> ctxOut(bin);
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
-
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
-{
-    mainTest<SpecialProcessingType<>>();
-}
-
-} // namespace anonymous
+} // namespace ft_helpers

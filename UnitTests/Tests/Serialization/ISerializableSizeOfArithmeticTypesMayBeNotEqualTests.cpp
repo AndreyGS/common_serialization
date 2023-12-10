@@ -28,7 +28,8 @@
 namespace
 {
 
-using namespace special_types;
+using namespace interface_for_test;
+using namespace ft_helpers;
 
 template<typename TS, typename TD>
 void mainTest()
@@ -68,22 +69,22 @@ void mainTest()
 
 TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableAlignedToOneSimilarTypeT)
 {
-    mainTest<SimpleAssignableAlignedToOneSimilarType1Serializable<>, SimpleAssignableAlignedToOneSimilarType2Serializable<>>();
+    mainTest<SimpleAssignableAlignedToOneSimilarType1<>, SimpleAssignableAlignedToOneSimilarType2<>>();
 }
 
 TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableSimilarTypeT)
 {
-    mainTest<SimpleAssignableSimilarType1Serializable<>, SimpleAssignableSimilarType2Serializable<>>();
+    mainTest<SimpleAssignableSimilarType1<>, SimpleAssignableSimilarType2<>>();
 }
 
 TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimilarTypeT)
 {
-    mainTest<SimilarType1Serializable<>, SimilarType2Serializable<>>();
+    mainTest<SimilarType1<>, SimilarType2<>>();
 }
 
 TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
 {
-    SpecialProcessingTypeContainSerializable input;
+    SpecialProcessingType input;
     fillingStruct(input);
 
     BinWalker bin;
@@ -100,7 +101,7 @@ TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(addedPointers);
 
-    SpecialProcessingTypeContainSerializable output;
+    SpecialProcessingType output;
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 

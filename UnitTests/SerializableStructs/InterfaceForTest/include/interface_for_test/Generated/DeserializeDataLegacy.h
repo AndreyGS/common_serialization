@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAllowUnmanagedPointers.cpp
+ * @file SerializableStructs/interface_for_test/include/interface_for_test/Generated/DeserializeDataLegacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,44 +21,27 @@
  *
  */
 
-namespace
+#pragma once
+
+#include "interface_for_test/StructsLegacy.h"
+
+namespace common_serialization::csp::processing
 {
 
-using namespace interface_for_test;
-using namespace ft_helpers;
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableAlignedToOne_Version0<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignable_Version0<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableDescendant_Version0<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version0<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableAlignedToOne_Version1<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version2<>& value);
 
-template<typename T>
 
-void mainTest()
-{
-    T input;
-    fillingStruct(input);
+} // namespace common_serialization::csp::processing
 
-    BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    T output;
-
-    csp::context::DData<> ctxOut(bin);
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
-
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
-{
-    mainTest<SpecialProcessingType<>>();
-}
-
-} // namespace anonymous
+#undef RUN

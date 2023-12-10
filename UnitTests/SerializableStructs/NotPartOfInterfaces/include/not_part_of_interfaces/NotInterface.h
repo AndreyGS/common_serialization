@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAllowUnmanagedPointers.cpp
+ * @file SerializableStructs/not_part_of_interfaces/include/not_part_of_interfaces/NotInterface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,44 +21,10 @@
  *
  */
 
-namespace
-{
+#pragma once
 
-using namespace interface_for_test;
-using namespace ft_helpers;
+#include "common_serialization/common_serialization.h"
 
-template<typename T>
-
-void mainTest()
-{
-    T input;
-    fillingStruct(input);
-
-    BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    T output;
-
-    csp::context::DData<> ctxOut(bin);
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
-
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
-{
-    mainTest<SpecialProcessingType<>>();
-}
-
-} // namespace anonymous
+#include "not_part_of_interfaces/Structs.h"
+#include "not_part_of_interfaces/Generated/DeserializeData.h"
+#include "not_part_of_interfaces/Generated/SerializeData.h"
