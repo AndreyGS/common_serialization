@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/MessagingCommonServer.h
+ * @file cslib/include/common_serialization/CSP/MessagingServiceStructs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,6 +24,9 @@
 #pragma once
 
 #include "common_serialization/CSP/ISerializable.h"
+
+// Service structs not support version conversion and must always be the same
+// Set is completely depend on protocol version
 
 namespace common_serialization::csp::messaging
 {
@@ -83,20 +86,6 @@ public:
 };
 
 template<typename T = Dummy>
-struct InterfacesGroupVersion : public csp::ISerializable<GetCrtpMainType<InterfacesGroupVersion<T>, T>>
-{
-public:
-    using instance_type = GetCrtpMainType<InterfacesGroupVersion<T>, T>;
-    using simple_assignable_tag = std::true_type;
-
-    static constexpr Uuid kId = helpers::getUuid(0x3b44e3c2, 0x9e9d, 0x4adb, 0xa068, 0x60a7cad9d93d);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
-
-    csp::interface_version_t interfacesGroupVersion{ 0 };
-};
-
-template<typename T = Dummy>
 struct GetInterfacesGroupList : public csp::ISerializable<GetCrtpMainType<GetInterfacesGroupList<T>, T>>
 {
 public:
@@ -111,7 +100,7 @@ public:
 struct InterfacesGroupTraits
 {
     Uuid id;
-    csp::interface_version_t interfacesGroupVersion{ 0 };
+    csp::interface_version_t version{ 0 };
 };
 
 template<typename T = Dummy>

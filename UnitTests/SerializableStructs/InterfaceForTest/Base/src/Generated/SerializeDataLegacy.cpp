@@ -31,7 +31,7 @@
         return status;                                                          \
 }
 
-#define SERIALIZE_LEGACY_COMMON(value, ctx)                                             \
+#define SERIALIZE_NO_CONVERSION_COMMON(value, ctx)                                      \
 {                                                                                       \
     if constexpr (                                                                      \
            SimpleAssignableType<decltype(value)>                                        \
@@ -58,7 +58,7 @@ template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable_Version0<>& value
     , context::SData<>& ctx)
 {
-    SERIALIZE_LEGACY_COMMON(value, ctx);
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_ti, ctx));
 
@@ -70,7 +70,7 @@ template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableSerializable_Version0<>& value
     , context::SData<>& ctx)
 {
-    SERIALIZE_LEGACY_COMMON(value, ctx);
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_i, ctx));
     RUN(serializeData(value.m_j, ctx));
@@ -96,7 +96,7 @@ template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableDescendantSerializable_Version0<>& value
     , context::SData<>& ctx)
 {
-    SERIALIZE_LEGACY_COMMON(value, ctx);
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(static_cast<const special_types::SimpleAssignableSerializable_Version0<>&>(value), ctx));
 
@@ -109,7 +109,7 @@ template<>
 Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version0<>& value
     , context::SData<>& ctx)
 {
-    SERIALIZE_LEGACY_COMMON(value, ctx);
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_saDs, ctx));
     RUN(serializeData(value.m_diamond, ctx));
@@ -126,7 +126,7 @@ template<>
 Status DataProcessor::serializeData(const special_types::SimpleAssignableAlignedToOneSerializable_Version1<>& value
     , context::SData<>& ctx)
 {
-    SERIALIZE_LEGACY_COMMON(value, ctx);
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_x, ctx));
     RUN(serializeData(value.m_y, ctx));
@@ -138,7 +138,7 @@ template<>
 Status DataProcessor::serializeData(const special_types::SForAllModesTests_Version2<>& value
     , context::SData<>& ctx)
 {
-    SERIALIZE_LEGACY_COMMON(value, ctx);
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_saS, ctx));
     RUN(serializeData(value.m_diamond, ctx));
@@ -154,5 +154,7 @@ Status DataProcessor::serializeData(const special_types::SForAllModesTests_Versi
 }
 
 } // namespace common_serialization::csp::processing
+
+#undef SERIALIZE_NO_CONVERSION_COMMON
 
 #undef RUN
