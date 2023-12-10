@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAllowUnmanagedPointers.cpp
+ * @file SerializableStructs/interface_for_test/include/interface_for_test/Generated/ConvertFromOldStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,44 +21,22 @@
  *
  */
 
-namespace
+#pragma once
+
+#include "interface_for_test/StructsLegacy.h"
+
+namespace common_serialization::csp::processing
 {
 
-using namespace interface_for_test;
-using namespace ft_helpers;
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::SimpleAssignableAlignedToOne<>& value);
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimpleAssignable<>& value);
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimpleAssignableDescendant<>& value);
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::DForAllModesTests<>& value);
 
-template<typename T>
+} // namespace common_serialization::csp::processing
 
-void mainTest()
-{
-    T input;
-    fillingStruct(input);
-
-    BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    T output;
-
-    csp::context::DData<> ctxOut(bin);
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
-
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
-{
-    mainTest<SpecialProcessingType<>>();
-}
-
-} // namespace anonymous
+#undef RUN

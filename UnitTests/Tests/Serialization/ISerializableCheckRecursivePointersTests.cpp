@@ -24,7 +24,8 @@
 namespace
 {
 
-using namespace special_types;
+using namespace interface_for_test;
+using namespace ft_helpers;
 
 using size_type = typename BinVector::size_type;
 
@@ -66,12 +67,12 @@ void mainTest()
 
 TEST(ISerializableCheckRecursivePointersTests, SpecialProcessingTypeContainSerializableT)
 {
-    mainTest<SpecialProcessingTypeContainSerializable<>>();
+    mainTest<SpecialProcessingType<>>();
 }
 
 TEST(ISerializableCheckRecursivePointersTests, ManyPointersTypeT)
 {
-    mainTest<ManyPointersTypeSerializable<>>();
+    mainTest<ManyPointersType<>>();
 }
 
 } // namespace anonymous

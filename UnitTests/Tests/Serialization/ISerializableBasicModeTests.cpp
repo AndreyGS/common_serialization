@@ -24,7 +24,8 @@
 namespace
 {
 
-using namespace special_types;
+using namespace interface_for_test;
+using namespace ft_helpers;
 
 template<typename T>
 void mainTest()
@@ -44,11 +45,11 @@ void mainTest()
 
 TEST(ISerializableBasicModeTests, EmptyTypeT)
 {
-    EmptyTypeSerializable input;
+    EmptyType input;
     BinWalker bin;
     EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
-    EmptyTypeSerializable output;
+    EmptyType output;
     EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
@@ -57,27 +58,27 @@ TEST(ISerializableBasicModeTests, EmptyTypeT)
 
 TEST(ISerializableBasicModeTests, SimpleAssignableAlignedToOneT)
 {
-    mainTest<SimpleAssignableAlignedToOneSerializable<>>();
+    mainTest<SimpleAssignableAlignedToOne<>>();
 }
 
 TEST(ISerializableBasicModeTests, SimpleAssignableT)
 {
-    mainTest<SimpleAssignableSerializable<>>();
+    mainTest<SimpleAssignable<>>();
 }
 
 TEST(ISerializableBasicModeTests, SimpleAssignableDescendantT)
 {
-    mainTest<SimpleAssignableDescendantSerializable<>>();
+    mainTest<SimpleAssignableDescendant<>>();
 }
 
 TEST(ISerializableBasicModeTests, DynamicPolymorphicT)
 {
-    mainTest<DynamicPolymorphicSerializable<>>();
+    mainTest<DynamicPolymorphic<>>();
 }
 
 TEST(ISerializableBasicModeTests, DiamondT)
 {
-    mainTest<DiamondSerializable<>>();
+    mainTest<Diamond<>>();
 }
 
 } // namespace anonymous

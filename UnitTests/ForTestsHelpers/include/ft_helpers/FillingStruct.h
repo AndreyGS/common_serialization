@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAllowUnmanagedPointers.cpp
+ * @file ForTestsHelpers/include/ft_helpers/FillingStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,44 +21,12 @@
  *
  */
 
-namespace
-{
+#pragma once
 
-using namespace interface_for_test;
-using namespace ft_helpers;
+namespace ft_helpers
+{
 
 template<typename T>
+void fillingStruct(T& output);
 
-void mainTest()
-{
-    T input;
-    fillingStruct(input);
-
-    BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    T output;
-
-    csp::context::DData<> ctxOut(bin);
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
-
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
-{
-    mainTest<SpecialProcessingType<>>();
-}
-
-} // namespace anonymous
+} // namespace ft_helpers

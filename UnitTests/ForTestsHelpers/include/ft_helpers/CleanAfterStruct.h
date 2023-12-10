@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAllowUnmanagedPointers.cpp
+ * @file ForTestsHelpers/include/ft_helpers/CleanAfterStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,44 +21,24 @@
  *
  */
 
-namespace
+#pragma once
+
+namespace ft_helpers
 {
 
-using namespace interface_for_test;
-using namespace ft_helpers;
-
+// it shall be used only for input structs, that are filled with allocating heap memory
+// pointers of output structs are cleaned up with context::DeserializeExtendedPointersProcessing destructor
 template<typename T>
+void cleanAfterStruct(T& output)
+{ }
 
-void mainTest()
-{
-    T input;
-    fillingStruct(input);
+template<>
+void cleanAfterStruct(interface_for_test::ManyPointersType<>& output);
+template<>
+void cleanAfterStruct(interface_for_test::SForAllModesTests_Version0<>& output);
+template<>
+void cleanAfterStruct(interface_for_test::SForAllModesTests_Version2<>& output);
+template<>
+void cleanAfterStruct(interface_for_test::DForAllModesTests<>& output);
 
-    BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
-
-    T output;
-
-    csp::context::DData<> ctxOut(bin);
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
-
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
-{
-    mainTest<SpecialProcessingType<>>();
-}
-
-} // namespace anonymous
+} // namespace ft_helpers

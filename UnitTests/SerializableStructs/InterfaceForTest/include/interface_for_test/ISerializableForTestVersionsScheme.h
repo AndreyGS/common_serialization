@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAllowUnmanagedPointers.cpp
+ * @file SerializableStructs/interface_for_test/include/interface_for_test/ISerializableForTestVersionsScheme.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,44 +21,31 @@
  *
  */
 
-namespace
+#pragma once
+
+namespace special_types
 {
 
-using namespace interface_for_test;
-using namespace ft_helpers;
+#pragma pack(push, 1)
 
-template<typename T>
-
-void mainTest()
+struct ISerializableForTestVersionsScheme
 {
-    T input;
-    fillingStruct(input);
+    uint16_t minorV{ 0 };
+    uint16_t majorV{ 0 };
 
-    BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
+    constexpr IForTestVersionsScheme() noexcept {}
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    constexpr explicit IForTestVersionsScheme(uint32_t value) noexcept
+    {
+        *static_cast<uint32_t*>(static_cast<void*>(this)) = value;
+    }
 
-    T output;
+    [[nodiscard]] constexpr explicit operator uint32_t() noexcept const
+    {
+        return *static_cast<const uint32_t*>(static_cast<const void*>(this));
+    }
+};
 
-    csp::context::DData<> ctxOut(bin);
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
+#pragma pack(pop)
 
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
-{
-    mainTest<SpecialProcessingType<>>();
-}
-
-} // namespace anonymous
+} // namespace special_types
