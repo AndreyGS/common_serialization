@@ -1,5 +1,5 @@
 /**
- * @file ForTestsHelpers/src/FillingStruct.cpp
+ * @file UnitTests/ForTestsHelpers/src/FillingStruct.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -25,6 +25,8 @@
 
 namespace ft_helpers
 {
+
+using namespace common_serialization;
 
 template<>
 void fillingStruct(not_part_of_interfaces::SimpleAssignableAlignedToOne& output)

@@ -1,5 +1,5 @@
 /**
- * @file SerializableStructs/not_part_of_interfaces/include/not_part_of_interfaces/Structs.h
+ * @file UnitTests/SerializableStructs/NotPartOfInterfaces/include/not_part_of_interfaces/Structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

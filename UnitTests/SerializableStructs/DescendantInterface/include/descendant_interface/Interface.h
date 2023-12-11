@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Containers/ContainerConcepts.h
+ * @file UnitTests/SerializableStructs/DescendantInterface/include/descendant_interface/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,31 +23,14 @@
 
 #pragma once
 
-#include "common_serialization/Status.h"
+// descendant_interface UUID    : {2335b43f-0228-411b-814f-3393a3e8ac3d}
+// interface version            : 3
 
-namespace common_serialization
-{
+#include "common_serialization/common_serialization.h"
 
-class GenericPointerKeeper;
-
-template<typename S>
-concept IGenericPointersKeeperContainer
-    =  requires(S e)
-         {
-             typename S::value_type;
-             typename S::constructor_allocator;
-
-             { e.clear() };
-             { e.begin() };
-             { e.end() };
-             { e.erase(0, 1) };
-             { e.data() } -> std::same_as<typename S::value_type*>;
-             { e.size() } -> std::same_as<typename S::size_type>;
-             { e.capacity() } -> std::same_as<typename S::size_type>;
-
-             { e.reserve(1) } -> std::same_as<Status>;
-             { e.pushBack(*(new GenericPointerKeeper)) } -> std::same_as<Status>;
-         } 
-    && std::is_same_v<typename S::value_type, GenericPointerKeeper> && std::is_same_v<typename S::constructor_allocator, std::true_type>;
-
-} // namespace common_serialization
+#include "interface_for_test/Interface.h"
+/*
+#include "descendant_interface/Structs.h"
+#include "descendant_interface/Generated/SerializeData.h"
+#include "descendant_interface/Generated/DeserializeData.h"
+*/

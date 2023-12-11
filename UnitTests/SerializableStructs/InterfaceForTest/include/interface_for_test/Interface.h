@@ -1,5 +1,5 @@
 /**
- * @file SerializableStructs/interface_for_test/include/interface_for_test/Interface.h
+ * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -22,6 +22,9 @@
  */
 
 #pragma once
+
+// interface_for_test UUID  : {a1cfd12a-22b2-49d3-8575-02342a630145}
+// interface version        : 3
 
 #include "common_serialization/common_serialization.h"
 

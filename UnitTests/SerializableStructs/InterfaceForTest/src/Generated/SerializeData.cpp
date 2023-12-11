@@ -1,5 +1,5 @@
 /**
- * @file SerializableStructs/interface_for_test/src/Generated/SerializeData.cpp
+ * @file UnitTests/SerializableStructs/interface_for_test/src/Generated/SerializeData.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

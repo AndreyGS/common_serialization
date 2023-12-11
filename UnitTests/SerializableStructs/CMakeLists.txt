@@ -8,7 +8,7 @@ add_library(SerializableStructs STATIC
     
     "NotPartOfInterfaces/src/Generated/SerializeData.cpp"
     "NotPartOfInterfaces/src/Generated/DeserializeData.cpp"
-)
+ "DescendantInterface/include/descendant_interface/Interface.h" "DescendantInterface/include/descendant_interface/Structs.h")
 
 target_compile_definitions(SerializableStructs PRIVATE USER_MODE)
 target_link_libraries(SerializableStructs PRIVATE cslib)

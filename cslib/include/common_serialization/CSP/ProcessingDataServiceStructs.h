@@ -70,26 +70,6 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-constexpr Status DataProcessor::serializeData(const messaging::GetInterfaceVersion<>& value, context::SData<>& ctx)
-{
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
-
-    RUN(serializeData(value.id, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::GetInterfaceVersion<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.id));
-
-    return Status::kNoError;
-}
-
-template<>
 constexpr Status DataProcessor::serializeData(const messaging::InterfaceVersion<>& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
@@ -110,7 +90,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const messaging::GetInterfacesGroupVersion<>& value, context::SData<>& ctx)
+constexpr Status DataProcessor::serializeData(const messaging::GetInterfaceVersion<>& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
@@ -120,7 +100,7 @@ constexpr Status DataProcessor::serializeData(const messaging::GetInterfacesGrou
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::GetInterfacesGroupVersion<>& value)
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::GetInterfaceVersion<>& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
 
@@ -130,7 +110,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const messaging::InterfacesGroupTraits& value, context::SData<>& ctx)
+constexpr Status DataProcessor::serializeData(const messaging::InterfaceTraits& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
@@ -141,7 +121,7 @@ constexpr Status DataProcessor::serializeData(const messaging::InterfacesGroupTr
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::InterfacesGroupTraits& value)
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::InterfaceTraits& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
 
@@ -152,7 +132,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const messaging::InterfacesGroupList<>& value, context::SData<>& ctx)
+constexpr Status DataProcessor::serializeData(const messaging::InterfacesList<>& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
@@ -162,7 +142,7 @@ constexpr Status DataProcessor::serializeData(const messaging::InterfacesGroupLi
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::InterfacesGroupList<>& value)
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::InterfacesList<>& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
 

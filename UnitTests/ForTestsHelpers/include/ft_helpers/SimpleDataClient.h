@@ -1,5 +1,5 @@
 /**
- * @file ForTestsHelpers/include/ft_helpers/SimpleDataClient.h
+ * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataClient.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,14 +26,14 @@
 namespace ft_helpers
 {
 
-using namespace common_serialization;
+namespace cs = common_serialization;
 
-class SimpleDataClient : public csp::messaging::IDataClient
+class SimpleDataClient : public cs::csp::messaging::IDataClient
 {
 public:
     SimpleDataClient() {}
-    SimpleDataClient(csp::protocol_version_t defaultProtocolVersion, csp::context::DataFlags defaultFlags, csp::interface_version_t targetInterfaceVersion)
-        : csp::messaging::IDataClient(defaultProtocolVersion, defaultFlags, targetInterfaceVersion)
+    SimpleDataClient(cs::csp::protocol_version_t defaultProtocolVersion, cs::csp::context::DataFlags defaultFlags, cs::csp::interface_version_t targetInterfaceVersion)
+        : cs::csp::messaging::IDataClient(defaultProtocolVersion, defaultFlags, targetInterfaceVersion)
     {
     }
 
@@ -41,11 +41,11 @@ private:
     // This function must transfer data from client to server.
     // Way by which it will be done is up to concrete client realization.
     // Here we do not need to overcomplicate things and we simply calling csp::messaging::CommonServer::handleMessage.
-    Status handleBinData(BinVector& binInput, BinWalker& binOutput) override
+    cs::Status handleBinData(cs::BinVector& binInput, cs::BinWalker& binOutput) override
     {
-        BinWalker input;
+        cs::BinWalker input;
         input.init(std::move(binInput));
-        return csp::messaging::CommonServer::handleMessage(input, binOutput.getVector());
+        return cs::csp::messaging::CommonServer::handleMessage(input, binOutput.getVector());
     }
 };
 

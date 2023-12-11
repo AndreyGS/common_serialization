@@ -1,5 +1,5 @@
 /**
- * @file SerializableStructs/not_part_of_interfaces/include/not_part_of_interfaces/Generated/DeserializeData.h
+ * @file UnitTests/SerializableStructs/NotPartOfInterfaces/include/not_part_of_interfaces/Generated/DeserializeData.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

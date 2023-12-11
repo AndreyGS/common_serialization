@@ -1,5 +1,5 @@
 /**
- * @file SerializableStructs/interface_for_test/include/interface_for_test/SpecialTypesSerializable.h
+ * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/SpecialTypesSerializable.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

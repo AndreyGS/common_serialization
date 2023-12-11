@@ -1,5 +1,5 @@
 /**
- * @file ForTestsHelpers/include/ft_helpers/ft_helpers.h
+ * @file UnitTests/ForTestsHelpers/include/ft_helpers/ft_helpers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

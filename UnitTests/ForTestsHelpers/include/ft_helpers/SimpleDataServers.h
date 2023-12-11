@@ -1,5 +1,5 @@
 /**
- * @file ForTestsHelpers/include/ft_helpers/SimpleDataServers.h
+ * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataServers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,17 +26,31 @@
 namespace ft_helpers
 {
 
-using namespace common_serialization;
+namespace cs = common_serialization;
 /*
+class CspServiceServer
+    : cs::csp::messaging::IStaticDataServer<CspServiceServer, cs::csp::messaging::GetInterfaceVersion<>, cs::csp::messaging::InterfaceVersion<>, false>
+    , cs::csp::messaging::IStaticDataServer<CspServiceServer, cs::csp::messaging::GetInterfacesList<>, cs::csp::messaging::InterfacesList<>, false>
+{
+    static cs::Status handleDataStatic(const cs::csp::messaging::GetInterfacesList<>& input, cs::Vector<cs::GenericPointerKeeper>* unmanagedPointers, cs::csp::messaging::InterfacesList<>& output)
+    {
+
+
+        return cs::Status::kNoError;
+    }
+};
+
+
 class FirstDataServer 
-    : csp::messaging::IMethodDataServer<SimpleAssignableAlignedToOne<>, SimpleAssignableDescendant<>, true, false, SimpleAssignableAlignedToOne<>::getMinimumInterfaceVersion(), 3>
-    , csp::messaging::IStaticDataServer<FirstDataServer, Diamond<>, DynamicPolymorphic<>, false>
+    : cs::csp::messaging::IMethodDataServer<interface_for_test::SimpleAssignableAlignedToOne<>, interface_for_test::SimpleAssignableDescendant<>, true, false, interface_for_test::SimpleAssignableAlignedToOne<>::getMinimumInterfaceVersion(), 3>
+    , cs::csp::messaging::IStaticDataServer<FirstDataServer, interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>, false>
+    , cs::csp::messaging::IStaticDataServer<FirstDataServer, cs::csp::messaging::GetInterfaceVersion<>, cs::csp::messaging::InterfaceVersion<>, false>
 {};
 
 class SecondDataServer
 {};
 
 class ThirdDataServer
-{};*/
-
+{};
+*/
 } // namespace ft_helpers

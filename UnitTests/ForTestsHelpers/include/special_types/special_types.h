@@ -1,5 +1,5 @@
 /**
- * @file ForTestsHelpers/include/special_types/special_types.h
+ * @file UnitTests/ForTestsHelpers/include/special_types/special_types.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

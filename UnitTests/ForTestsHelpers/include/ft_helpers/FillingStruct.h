@@ -1,5 +1,5 @@
 /**
- * @file ForTestsHelpers/include/ft_helpers/FillingStruct.h
+ * @file UnitTests/ForTestsHelpers/include/ft_helpers/FillingStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

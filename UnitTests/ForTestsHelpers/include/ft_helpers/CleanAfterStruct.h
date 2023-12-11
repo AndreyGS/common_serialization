@@ -1,5 +1,5 @@
 /**
- * @file ForTestsHelpers/include/ft_helpers/CleanAfterStruct.h
+ * @file UnitTests/ForTestsHelpers/include/ft_helpers/CleanAfterStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

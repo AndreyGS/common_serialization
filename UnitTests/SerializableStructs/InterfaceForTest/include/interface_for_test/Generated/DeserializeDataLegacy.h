@@ -1,5 +1,5 @@
 /**
- * @file SerializableStructs/interface_for_test/include/interface_for_test/Generated/DeserializeDataLegacy.h
+ * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/Generated/DeserializeDataLegacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

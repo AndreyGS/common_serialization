@@ -44,20 +44,6 @@ public:
 };
 
 template<typename T = Dummy>
-struct GetInterfaceVersion : public csp::ISerializable<GetCrtpMainType<GetInterfaceVersion<T>, T>>
-{
-public:
-    using instance_type = GetCrtpMainType<GetInterfaceVersion<T>, T>;
-    using simple_assignable_tag = std::true_type;
-
-    static constexpr Uuid kId = helpers::getUuid(0x166b4718, 0x9918, 0x462b, 0x8416, 0xd4f7b66a288d);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
-
-    Uuid id;
-};
-
-template<typename T = Dummy>
 struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVersion<T>, T>>
 {
 public:
@@ -72,10 +58,10 @@ public:
 };
 
 template<typename T = Dummy>
-struct GetInterfacesGroupVersion : public csp::ISerializable<GetCrtpMainType<GetInterfacesGroupVersion<T>, T>>
+struct GetInterfaceVersion : public csp::ISerializable<GetCrtpMainType<GetInterfaceVersion<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<GetInterfacesGroupVersion<T>, T>;
+    using instance_type = GetCrtpMainType<GetInterfaceVersion<T>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr Uuid kId = helpers::getUuid(0x08c68657, 0x4fa7, 0x4419, 0x8c13, 0x66aec2b06cb0);
@@ -86,10 +72,10 @@ public:
 };
 
 template<typename T = Dummy>
-struct GetInterfacesGroupList : public csp::ISerializable<GetCrtpMainType<GetInterfacesGroupList<T>, T>>
+struct GetInterfacesList : public csp::ISerializable<GetCrtpMainType<GetInterfacesList<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<GetInterfacesGroupList<T>, T>;
+    using instance_type = GetCrtpMainType<GetInterfacesList<T>, T>;
     using empty_type_tag = std::true_type;
 
     static constexpr Uuid kId = helpers::getUuid(0xd5b61816, 0xcc92, 0x4e18, 0xb287, 0xfcc4ed1e9f2a);
@@ -97,23 +83,23 @@ public:
     static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 };
 
-struct InterfacesGroupTraits
+struct InterfaceTraits
 {
     Uuid id;
     csp::interface_version_t version{ 0 };
 };
 
 template<typename T = Dummy>
-struct InterfacesGroupList : public csp::ISerializable<GetCrtpMainType<InterfacesGroupList<T>, T>>
+struct InterfacesList : public csp::ISerializable<GetCrtpMainType<InterfacesList<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<InterfacesGroupList<T>, T>;
+    using instance_type = GetCrtpMainType<InterfacesList<T>, T>;
 
     static constexpr Uuid kId = helpers::getUuid(0xb5346ff9, 0xe557, 0x40af, 0x8fb9, 0x5563fa97700e);
     static constexpr csp::interface_version_t kInterfaceVersion = 0;
     static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
-    Vector<InterfacesGroupTraits> list;
+    Vector<InterfaceTraits> list;
 };
 
 } // namespace common_serialization::csp::messaging

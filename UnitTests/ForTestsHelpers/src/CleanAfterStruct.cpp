@@ -1,5 +1,5 @@
 /**
- * @file ForTestsHelpers/src/CleanAfterStruct.cpp
+ * @file UnitTests/ForTestsHelpers/src/CleanAfterStruct.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
