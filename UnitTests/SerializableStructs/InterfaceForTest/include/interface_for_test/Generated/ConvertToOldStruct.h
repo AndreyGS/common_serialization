@@ -38,5 +38,3 @@ template<>
 Status DataProcessor::convertToOldStruct(const interface_for_test::DForAllModesTests<>& value, uint32_t targetVersion, context::SData<>& ctx);
 
 } // namespace common_serialization::csp::processing
-
-#undef RUN

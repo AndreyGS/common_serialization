@@ -49,7 +49,7 @@ public:
     constexpr Status deserialize(context::DData<D, PM>& ctx);
 
     [[nodiscard]] static consteval Uuid getUuid() noexcept;
-    [[nodiscard]] static consteval interface_version_t getThisVersion() noexcept;
+    [[nodiscard]] static constexpr interface_version_t getThisVersion() noexcept;
     [[nodiscard]] static consteval interface_version_t getInterfaceVersion() noexcept;
     [[nodiscard]] static consteval interface_version_t getMinimumInterfaceVersion() noexcept;
     [[nodiscard]] static constexpr const interface_version_t* getVersionsHierarchy() noexcept;
@@ -111,7 +111,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] consteval interface_version_t ISerializable<T>::getThisVersion() noexcept
+[[nodiscard]] constexpr interface_version_t ISerializable<T>::getThisVersion() noexcept
 {
     return T::kVersionsHierarchy[0];
 }

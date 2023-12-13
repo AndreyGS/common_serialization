@@ -62,5 +62,3 @@ template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::DForAllModesTests<>& value);
 
 } // namespace common_serialization::csp::processing
-
-#undef RUN

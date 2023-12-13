@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/Generated/SerializeDataLegacy.h
+ * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/Generated/SerializeData.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,28 +23,12 @@
 
 #pragma once
 
-#include "interface_for_test/StructsLegacy.h"
+#include "another_yet_interface/Structs.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOne_Version0<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignable_Version0<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableDescendant_Version0<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version0<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOne_Version1<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version2<>& value
-    , context::SData<>& ctx);
+Status DataProcessor::serializeData(const another_yet_interface::SimpleStruct<>& value, context::SData<>& ctx);
 
 } // namespace common_serialization::csp::processing

@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/Generated/SerializeDataLegacy.h
+ * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/SpecialTypesSerializable.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,28 +23,39 @@
 
 #pragma once
 
-#include "interface_for_test/StructsLegacy.h"
-
-namespace common_serialization::csp::processing
+namespace another_yet_interface
 {
 
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOne_Version0<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignable_Version0<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableDescendant_Version0<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version0<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOne_Version1<>& value
-    , context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version2<>& value
-    , context::SData<>& ctx);
+namespace cs = common_serialization;
 
-} // namespace common_serialization::csp::processing
+template<typename T = cs::Dummy>
+class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<T>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<SimpleStruct<T>, T>;
+
+    static constexpr cs::Uuid kId = cs::helpers::getUuid(0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd);
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 0 };
+
+    uint32_t m_i{ 0 };
+
+    SimpleStruct& operator=(const SimpleStruct<>& rhs)
+    {
+        if (this == &rhs)
+            return *this;
+
+        m_i = rhs.m_i;
+
+        return *this;
+    }
+
+    [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
+    {
+        return m_i == rhs.m_i;
+    }
+
+    friend cs::csp::processing::DataProcessor;
+};
+
+} // namespace another_yet_interface

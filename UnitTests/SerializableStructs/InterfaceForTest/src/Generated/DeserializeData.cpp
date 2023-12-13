@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/interface_for_test/src/Generated/DeserializeData.cpp
+ * @file UnitTests/SerializableStructs/InterfaceForTest/src/Generated/DeserializeData.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -285,5 +285,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 } // namespace common_serialization::csp::processing
+
+#undef DESERIALIZE_COMMON
 
 #undef RUN

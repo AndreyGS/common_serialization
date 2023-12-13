@@ -61,9 +61,4 @@ Status DataProcessor::serializeData(const interface_for_test::ManyPointersType<>
 template<>
 Status DataProcessor::serializeData(const interface_for_test::DForAllModesTests<>& value, context::SData<>& ctx);
 
-
 } // namespace common_serialization::csp::processing
-
-#undef SERIALIZE_COMMON
-
-#undef RUN

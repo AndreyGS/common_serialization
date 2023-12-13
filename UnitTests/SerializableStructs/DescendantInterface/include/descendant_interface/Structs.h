@@ -28,7 +28,78 @@ namespace descendant_interface
 
 namespace cs = common_serialization;
 
+template<typename T = cs::Dummy>
+class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<T>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<SimpleStruct<T>, T>;
 
+    static constexpr cs::Uuid kId = cs::helpers::getUuid(0xa4073aa8, 0xd9eb, 0x49cf, 0xb9be, 0xfea84ba9f314);
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
+    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 1 };
 
+    uint32_t m_i{ 0 };
+
+    SimpleStruct& operator=(const SimpleStruct<>& rhs)
+    {
+        if (this == &rhs)
+            return *this;
+
+        m_i = rhs.m_i;
+
+        return *this;
+    }
+
+    [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
+    {
+        return m_i == rhs.m_i;
+    }
+
+    friend cs::csp::processing::DataProcessor;
+};
+
+template<typename T = cs::Dummy>
+class DiamondDescendant : public interface_for_test::Diamond<cs::GetCrtpMainType<DiamondDescendant<T>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<DiamondDescendant<T>, T>;
+
+    static constexpr cs::Uuid kId = cs::helpers::getUuid(0x59a2dc70, 0x63eb, 0x434b, 0xbfe7, 0xad17dfad8e57);
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
+    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 1 };
+
+    SimpleStruct<> m_sSt;
+
+    [[nodiscard]] operator interface_for_test::Diamond<>& () noexcept
+    {
+        return  *static_cast<interface_for_test::Diamond<>*>(
+            static_cast<void*>(
+                static_cast<interface_for_test::Diamond<instance_type>*>(this)));
+    }
+
+    [[nodiscard]] operator const interface_for_test::Diamond<>& () const noexcept
+    {
+        return  *static_cast<const interface_for_test::Diamond<>*>(
+            static_cast<const void*>(
+                static_cast<const interface_for_test::Diamond<instance_type>*>(this)));
+    }
+
+    DiamondDescendant& operator=(const DiamondDescendant<>& rhs)
+    {
+        if (this == &rhs)
+            return *this;
+
+        m_sSt = rhs.m_sSt;
+
+        return *this;
+    }
+
+    [[nodiscard]] bool operator==(const DiamondDescendant& rhs) const noexcept
+    {
+        return m_sSt == rhs.m_sSt;;
+    }
+
+    friend cs::csp::processing::DataProcessor;
+};
 
 } // namespace descendant_interface

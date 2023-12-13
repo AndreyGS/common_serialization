@@ -38,5 +38,3 @@ template<>
 Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::DForAllModesTests<>& value);
 
 } // namespace common_serialization::csp::processing
-
-#undef RUN

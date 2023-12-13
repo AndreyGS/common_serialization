@@ -29,8 +29,7 @@
 #include "common_serialization/common_serialization.h"
 
 #include "interface_for_test/Interface.h"
-/*
+
 #include "descendant_interface/Structs.h"
 #include "descendant_interface/Generated/SerializeData.h"
 #include "descendant_interface/Generated/DeserializeData.h"
-*/

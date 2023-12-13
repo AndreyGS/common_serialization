@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/InterfaceForTest/src/Generated/DeserializeDataLegacy.h
+ * @file UnitTests/SerializableStructs/AnotherYetInterface/src/Generated/DeserializeData.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "interface_for_test/Generated/DeserializeDataLegacy.h"
+#include "another_yet_interface/Generated/DeserializeData.h"
 
 #define RUN(x)                                                                          \
 {                                                                                       \
@@ -31,8 +31,21 @@
         return status;                                                                  \
 }
 
-#define DESERIALIZE_NO_CONVERSION_COMMON(ctx, value)                                    \
+#define DESERIALIZE_COMMON(ctx, value)                                                  \
 {                                                                                       \
+    if (                                                                                \
+           IsISerializableBased<decltype(value)>                                        \
+        && ctx.isInterfaceVersionsNotMatch()                                            \
+    )                                                                                   \
+    {                                                                                   \
+        Status status = convertFromOldStructIfNeed((ctx), (value));                     \
+                                                                                        \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (!statusSuccess(status))                                                \
+            return status;                                                              \
+    }                                                                                   \
+                                                                                        \
     if constexpr (                                                                      \
            SimpleAssignableType<decltype(value)>                                        \
         || SimpleAssignableAlignedToOneType<decltype(value)>)                           \
@@ -55,91 +68,9 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableAlignedToOne_Version0<>& value)
+Status DataProcessor::deserializeData(context::DData<>& ctx, another_yet_interface::SimpleStruct<>& value)
 {
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.m_ti));
-
-    return Status::kNoError;
-}
-
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignable_Version0<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.m_i));
-    RUN(deserializeData(ctx, value.m_j));
-    RUN(deserializeData(ctx, value.m_et));
-    RUN(deserializeData(ctx, value.m_et2));
-    RUN(deserializeData(ctx, value.m_saaToS));
-    RUN(deserializeData(ctx, value.m_saaToNS));
-    RUN(deserializeData(ctx, value.m_saNS));
-
-    RUN(deserializeData(ctx, value.m_arrI32));
-    RUN(deserializeData(ctx, value.m_arrEtS));
-    RUN(deserializeData(ctx, value.m_arrEtNS));
-    RUN(deserializeData(ctx, value.m_arrSaaTos));
-    RUN(deserializeData(ctx, value.m_arrSaaToNS));
-    RUN(deserializeData(ctx, value.m_arrSaNS));
-
-    RUN(deserializeData(ctx, value.m_vt));
-
-    return Status::kNoError;
-}
-
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableDescendant_Version0<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, static_cast<interface_for_test::SimpleAssignable_Version0<>&>(value)));
-
-    RUN(deserializeData(ctx, value.m_d));
-
-    return Status::kNoError;
-}
-
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version0<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.m_saDs));
-    RUN(deserializeData(ctx, value.m_diamond));
-    RUN(deserializeData(ctx, value.m_sptCs));
-    RUN(deserializeData(ctx, value.m_saaToStS));
-    RUN(deserializeData(ctx, value.m_saStS));
-    RUN(deserializeData(ctx, value.m_stS));
-    RUN(deserializeData(ctx, value.m_mpt));
-
-    return Status::kNoError;
-}
-
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableAlignedToOne_Version1<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.m_x));
-    RUN(deserializeData(ctx, value.m_y));
-
-    return Status::kNoError;
-}
-
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version2<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.m_saS));
-    RUN(deserializeData(ctx, value.m_diamond));
-    RUN(deserializeData(ctx, value.m_sptCs));
-    RUN(deserializeData(ctx, value.m_saaToStS));
-    RUN(deserializeData(ctx, value.m_saStS));
-    RUN(deserializeData(ctx, value.m_stS));
-    RUN(deserializeData(ctx, value.m_mpt));
+    DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_i));
 
@@ -148,6 +79,6 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 
 } // namespace common_serialization::csp::processing
 
-#undef DESERIALIZE_NO_CONVERSION_COMMON
+#undef DESERIALIZE_COMMON
 
 #undef RUN
