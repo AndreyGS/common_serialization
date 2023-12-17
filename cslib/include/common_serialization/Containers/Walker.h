@@ -63,7 +63,7 @@ public:
 
     template<typename V>
     constexpr Status pushBackArithmeticValue(V value) noexcept
-        requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>;
+        requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
     constexpr Status replace(const T* p, size_type n, size_type offset);
 
@@ -246,7 +246,7 @@ constexpr Status Walker<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
 template<typename T, typename AllocatorHelper>
 template<typename V>
 constexpr Status Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
-    requires std::is_same_v<T, uint8_t>&& std::is_arithmetic_v<V>
+    requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
 {
     Status status = m_vector.pushBackArithmeticValue(value);
     m_offset = size();

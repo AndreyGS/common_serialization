@@ -365,4 +365,10 @@ void fillingStruct(interface_for_test::DForAllModesTests<>& output)
     fillingStruct(output.m_mpt);
 }
 
+template<>
+void fillingStruct(another_yet_interface::SimpleStruct<>& output)
+{
+    output.m_i = 27838;
+}
+
 } // namespace ft_helpers

@@ -31,7 +31,7 @@ namespace cs = common_serialization;
 class TunnedDataClient : public cs::csp::messaging::IDataClient
 {
 public:
-    using FilterFunction = void(*)(cs::BinVector&);
+    using FilterFunction = void(*)(cs::BinWalker&);
 
     TunnedDataClient() {}
     TunnedDataClient(cs::csp::protocol_version_t defaultProtocolVersion, cs::csp::context::DataFlags defaultFlags, cs::csp::interface_version_t targetInterfaceVersion)
@@ -55,21 +55,35 @@ public:
         isPreFunction ? m_preOperation[index] = filterFunction : m_postOperation[index] = filterFunction;
     }
 
+    size_t getLoopCount() const noexcept
+    {
+        return m_operationsLoopIndex;
+    }
+
+    void resetLoopCount() noexcept
+    {
+        m_operationsLoopIndex = 0;
+    }
+
 private:
     cs::Status handleBinData(cs::BinVector& binInput, cs::BinWalker& binOutput) override
     {
         if (m_operationsLoopIndex == kMaxLoopsCount)
             return cs::Status::kErrorOverflow;
-        
-        m_preOperation[m_operationsLoopIndex](binInput);
 
         cs::BinWalker input;
         input.init(std::move(binInput));
+
+        if (m_preOperation[m_operationsLoopIndex])
+            m_preOperation[m_operationsLoopIndex](input);
         
         if (cs::Status status = cs::csp::messaging::CommonServer::handleMessage(input, binOutput.getVector()); !statusSuccess(status))
             return status;
 
-        m_postOperation[m_operationsLoopIndex](binOutput.getVector());
+        if (m_postOperation[m_operationsLoopIndex])
+            m_postOperation[m_operationsLoopIndex](binOutput);
+
+        ++m_operationsLoopIndex;
 
         return cs::Status::kNoError;
     }
@@ -77,7 +91,7 @@ private:
     size_t m_operationsLoopIndex{ 0 };
 
     static constexpr size_t kMaxLoopsCount = 3;
-    size_t m_effectiveMaxLoopsCount = 1;
+    size_t m_effectiveMaxLoopsCount = 3;
 
     FilterFunction m_preOperation[kMaxLoopsCount] = { nullptr };
     FilterFunction m_postOperation[kMaxLoopsCount]= { nullptr };

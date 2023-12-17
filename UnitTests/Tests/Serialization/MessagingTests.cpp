@@ -28,11 +28,56 @@ using namespace common_serialization;
 using namespace interface_for_test;
 using namespace ft_helpers;
 
-
-
 TEST(MessagingTests, CommonServerTest)
 {
     TunnedDataClient dataClient;
+    FourthDataServer dataServer;
+
+    auto preOperationFilter0_1 = [](BinWalker& input)
+    {
+        csp::context::Common<BinWalker> ctx(input);
+        csp::processing::deserializeHeaderContext(ctx);
+        EXPECT_EQ(ctx.getProtocolVersion(), 1);
+
+        input.seek(0);
+        csp::protocol_version_t unsupportedProtocolVersion = 2;
+        input.write(&unsupportedProtocolVersion, sizeof(unsupportedProtocolVersion));
+        input.seek(0);
+    };
+
+    auto postOperationFilter1 = [](BinWalker& output)
+    {
+        csp::context::Common<BinWalker> ctx(output);
+
+        csp::processing::deserializeHeaderContext(ctx);
+        EXPECT_EQ(ctx.getMessageType(), csp::context::Message::kStatus);
+
+        Status statusOut = Status::kNoError;
+        csp::processing::deserializeStatusGetStatus(ctx.getBinaryData(), statusOut);
+        EXPECT_EQ(Status::kErrorNotSupportedProtocolVersion, statusOut);
+
+        csp::protocol_version_t protVersionsCount = 0;
+        ctx.getBinaryData().readArithmeticValue(protVersionsCount);
+        EXPECT_EQ(protVersionsCount, 1);
+
+        csp::protocol_version_t protVersionOut = 0;
+        ctx.getBinaryData().readArithmeticValue(protVersionOut);
+        EXPECT_EQ(protVersionOut, 1);
+
+        csp::protocol_version_t unsupportedProtocolVersion = 2;
+        output.seek(0);
+        output.write(&unsupportedProtocolVersion, sizeof(unsupportedProtocolVersion));
+        output.seek(0);
+    };
+
+    dataClient.setFilterFunction(preOperationFilter0_1, true, 0);
+    dataClient.setFilterFunction(preOperationFilter0_1, true, 1);
+    dataClient.setFilterFunction(postOperationFilter1, false, 1);
+
+    cs::csp::messaging::ISerializableDummy<> dummy{};
+
+    EXPECT_EQ(dataClient.handleData(another_yet_interface::SimpleStruct<>{}, dummy), Status::kErrorNotSupportedProtocolVersion);
+    EXPECT_EQ(dataClient.getLoopCount(), 2);
 }
 
 TEST(MessagingTests, DataServiceServerTest)
