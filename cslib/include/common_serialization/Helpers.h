@@ -132,7 +132,7 @@ constexpr Uuid getUuid(uint32_t first, uint16_t second, uint16_t third, uint16_t
 
     id.rightPart
         = static_cast<uint64_t>(reverseEndianessUint16(fourth))
-        | static_cast<uint64_t>(reverseEndianessUint64(second)) << 16;
+        | static_cast<uint64_t>(reverseEndianessUint64(fifth)) << 16;
 #else
     id.leftPart
         = static_cast<uint64_t>(first) 
@@ -141,7 +141,7 @@ constexpr Uuid getUuid(uint32_t first, uint16_t second, uint16_t third, uint16_t
 
     id.rightPart
         = static_cast<uint64_t>(fourth)
-        | static_cast<uint64_t>(second) << 16;
+        | static_cast<uint64_t>(fifth) << 16;
 #endif // !BIG_ENDIAN
 
     return id;

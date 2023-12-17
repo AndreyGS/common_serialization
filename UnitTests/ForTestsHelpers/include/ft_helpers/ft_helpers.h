@@ -26,8 +26,11 @@
 #include "common_serialization/common_serialization.h"
 #include "not_part_of_interfaces/NotInterface.h"
 #include "interface_for_test/Interface.h"
+#include "descendant_interface/Interface.h"
+#include "another_yet_interface/Interface.h"
 
 #include "ft_helpers/FillingStruct.h"
 #include "ft_helpers/CleanAfterStruct.h"
 #include "ft_helpers/SimpleDataClient.h"
+#include "ft_helpers/TunnedDataClient.h"
 #include "ft_helpers/SimpleDataServers.h"

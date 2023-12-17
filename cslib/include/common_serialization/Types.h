@@ -34,6 +34,13 @@ struct Uuid
 
     uint64_t leftPart{ 0 };
     uint64_t rightPart{ 0 };
+
+    constexpr Uuid() {}
+    constexpr Uuid(const Uuid& rhs)
+        : leftPart(rhs.leftPart), rightPart(rhs.rightPart)
+    { }
+
+    constexpr Uuid(uint64_t lP, uint64_t rP) : leftPart(lP), rightPart(rP) { }
    
     constexpr bool operator<(const Uuid& rhs) const noexcept
     {
@@ -47,6 +54,8 @@ struct Uuid
 };
 
 #pragma pack(pop)
+
+constexpr Uuid kNullUuid{ 0, 0 };
 
 } // namespace common_serialization
 

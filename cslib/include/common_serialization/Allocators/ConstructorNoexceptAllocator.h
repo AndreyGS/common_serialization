@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/Allocators/RawNoexceptAllocator.h"
-#include "common_serialization/CommonConcepts.h"
+#include "common_serialization/Concepts.h"
 
 namespace common_serialization
 {

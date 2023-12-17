@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "common_serialization/CSP/CspTraits.h"
+#include "common_serialization/CSP/Traits.h"
 #include "common_serialization/CSP/ContextMessage.h"
-#include "common_serialization/CSP/CspConcepts.h"
-#include "common_serialization/Containers/ContainersConcepts.h"
+#include "common_serialization/CSP/Concepts.h"
+#include "common_serialization/Containers/Concepts.h"
 
 namespace common_serialization::csp::context
 {

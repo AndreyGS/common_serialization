@@ -3,7 +3,7 @@
 3. More unit tests on extendedPointerProcessing mode.
 4. Add tests on GenericPointerKeeper.
 5. Add structs and tests for AllModesTests without pointers related flags.
-6. Add endianess support (by context flag and compiling macro).
+6. Add endianess support (by context flag (need to add CommonFlags bit-field first) and compiling macro).
 7. Unit-tests on IDataClient and IDataServer.
 8. Make replacement for std::unordered_map, std::unordered_multimap which would also include replacement of linked list.
 9. Write documentation for protocol and interface.
@@ -14,3 +14,6 @@
 14. Add unit-tests for mutexes.
 15. Add unit-tests for Walker init by Vector functions.
 16. Add unit-tests on Walker::setSize.
+17. Add Vector and Walker emplace() methods.
+18. Add crc32 of serialization flag support.
+19. Add empty() method to Vector and Walker.

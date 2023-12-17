@@ -61,7 +61,7 @@ enum class Status : int_fast32_t
     kErrorInvalidHash                               =       -6,
     kErrorMismatchOfProtocolVersions                =       -7,
     kErrorMismatchOfInterfaceVersions               =       -8,
-    kErrorMismatchOfStructNameHash                  =       -9,
+    kErrorMismatchOfStructId                        =       -9,
     kErrorNoSuchHandler                             =      -10,
     kErrorInternal                                  =      -11,
     kErrorNotSupportedSerializationSettingsForStruct=      -12,

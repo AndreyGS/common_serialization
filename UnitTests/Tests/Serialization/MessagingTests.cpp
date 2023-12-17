@@ -24,8 +24,50 @@
 namespace
 {
 
+using namespace common_serialization;
 using namespace interface_for_test;
 using namespace ft_helpers;
+
+
+
+TEST(MessagingTests, CommonServerTest)
+{
+    TunnedDataClient dataClient;
+}
+
+TEST(MessagingTests, DataServiceServerTest)
+{
+    SimpleDataClient dataClient;
+    csp::messaging::DataServiceServer<ft_helpers::DataServiceServerBase> serviceServer;
+
+    // Test of getting all availible interfaces on server
+    csp::messaging::InterfacesList outInterfacesList;
+    EXPECT_EQ(dataClient.handleData(csp::messaging::GetInterfacesList<>{}, outInterfacesList), Status::kNoError);
+
+    csp::messaging::InterfacesList interfacesListReference;
+    DataServiceServerBase::fillInterfacesList(interfacesListReference.list);
+
+    EXPECT_EQ(outInterfacesList, interfacesListReference);
+
+    // Test of getting properties of single interface on server
+    csp::messaging::GetInterfaceProperties getInterfaceProps;
+    getInterfaceProps.id = outInterfacesList.list[outInterfacesList.list.size()-1].id;
+    csp::messaging::OurGetInterfaceProperties outGetInterfaceProps;
+
+    EXPECT_EQ(dataClient.handleData(getInterfaceProps, outGetInterfaceProps), Status::kNoError);
+    EXPECT_EQ(outGetInterfaceProps.properties, outInterfacesList.list[outInterfacesList.list.size() - 1]);
+
+    // Test of getting properties of single unknown/invalid_id interface on server
+    getInterfaceProps.id = getInterfaceProps.getId();
+
+    EXPECT_EQ(dataClient.handleData(getInterfaceProps, outGetInterfaceProps), Status::kNoError);
+
+    csp::traits::InterfaceProperties interfacePropsReference;
+    interfacePropsReference.id = getInterfaceProps.id;
+    interfacePropsReference.version = csp::traits::kInterfaceVersionUndefined;
+
+    EXPECT_EQ(outGetInterfaceProps.properties, interfacePropsReference);
+}
 
 
 class TestSubscriber
@@ -71,7 +113,7 @@ TEST(MessagingTests, Temp)
     
 
     Vector<csp::messaging::IDataServerBase*, RawGenericAllocatorHelper<csp::messaging::IDataServerBase*>> subscribers;
-    csp::messaging::GetDataServersKeeper().findServers(testInput.getUuid(), subscribers);
+    csp::messaging::GetDataServersKeeper().findServers(testInput.getId(), subscribers);
     //subscribers[0]->handleDataConcrete(binIn, binOut);
 
     testSubs.~TestSubscriber();
@@ -79,11 +121,14 @@ TEST(MessagingTests, Temp)
     Diamond testInput2;
     DynamicPolymorphic testOutput2;
 
-    csp::messaging::GetDataServersKeeper().findServers(testInput2.getUuid(), subscribers);
+    csp::messaging::GetDataServersKeeper().findServers(testInput2.getId(), subscribers);
     
     //if (subscribers.size())
         //subscribers[0]->handleDataConcrete(binIn, binOut);
 
+    csp::messaging::DataServiceServer<ft_helpers::DataServiceServerBase> serviceServer;
+    csp::messaging::InterfacesList list;
+    serviceServer.handleDataStatic(csp::messaging::GetInterfacesList<>{}, nullptr, list);
 }
 
 } // namespace anonymous

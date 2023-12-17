@@ -33,7 +33,8 @@ namespace common_serialization::csp::messaging
 
 // Special type - placeholder for Input-Output operations that has no ISerializable Output struct
 // Interfaces which are using that struct as an Ouput will always receive the Message::kStatus as result
-struct ISerializableDummy : public ISerializable<Dummy>
+template<typename T = Dummy>
+struct ISerializableDummy : public ISerializable<ISerializableDummy<Dummy>>
 {
 public:
     using empty_type_tag = std::true_type;
@@ -43,25 +44,12 @@ public:
     static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 };
 
-template<typename T = Dummy>
-struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVersion<T>, T>>
-{
-public:
-    using instance_type = GetCrtpMainType<InterfaceVersion<T>, T>;
-    using simple_assignable_tag = std::true_type;
-
-    static constexpr Uuid kId = helpers::getUuid(0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
-
-    csp::interface_version_t version{ 0 };
-};
 
 template<typename T = Dummy>
-struct GetInterfaceVersion : public csp::ISerializable<GetCrtpMainType<GetInterfaceVersion<T>, T>>
+struct GetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<GetInterfaceProperties<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<GetInterfaceVersion<T>, T>;
+    using instance_type = GetCrtpMainType<GetInterfaceProperties<T>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr Uuid kId = helpers::getUuid(0x08c68657, 0x4fa7, 0x4419, 0x8c13, 0x66aec2b06cb0);
@@ -69,6 +57,20 @@ public:
     static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     Uuid id;
+};
+
+template<typename T = Dummy>
+struct OurGetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<OurGetInterfaceProperties<T>, T>>
+{
+public:
+    using instance_type = GetCrtpMainType<OurGetInterfaceProperties<T>, T>;
+    using simple_assignable_tag = std::true_type;
+
+    static constexpr Uuid kId = helpers::getUuid(0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1);
+    static constexpr csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
+
+    traits::InterfaceProperties properties;
 };
 
 template<typename T = Dummy>
@@ -83,12 +85,6 @@ public:
     static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 };
 
-struct InterfaceTraits
-{
-    Uuid id;
-    csp::interface_version_t version{ 0 };
-};
-
 template<typename T = Dummy>
 struct InterfacesList : public csp::ISerializable<GetCrtpMainType<InterfacesList<T>, T>>
 {
@@ -99,7 +95,12 @@ public:
     static constexpr csp::interface_version_t kInterfaceVersion = 0;
     static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
-    Vector<InterfaceTraits> list;
+    bool operator==(const InterfacesList& rhs) const noexcept
+    {
+        return list == rhs.list;
+    }
+
+    Vector<traits::InterfaceProperties> list;
 };
 
 } // namespace common_serialization::csp::messaging

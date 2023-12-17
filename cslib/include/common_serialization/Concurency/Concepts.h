@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Containers/ContainerConcepts.h
+ * @file cslib/include/common_serialization/Concurency/Concepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,31 +23,16 @@
 
 #pragma once
 
-#include "common_serialization/Status.h"
-
 namespace common_serialization
 {
 
-class GenericPointerKeeper;
-
-template<typename S>
-concept IGenericPointersKeeperContainer
-    =  requires(S e)
-         {
-             typename S::value_type;
-             typename S::constructor_allocator;
-
-             { e.clear() };
-             { e.begin() };
-             { e.end() };
-             { e.erase(0, 1) };
-             { e.data() } -> std::same_as<typename S::value_type*>;
-             { e.size() } -> std::same_as<typename S::size_type>;
-             { e.capacity() } -> std::same_as<typename S::size_type>;
-
-             { e.reserve(1) } -> std::same_as<Status>;
-             { e.pushBack(*(new GenericPointerKeeper)) } -> std::same_as<Status>;
-         } 
-    && std::is_same_v<typename S::value_type, GenericPointerKeeper> && std::is_same_v<typename S::constructor_allocator, std::true_type>;
+template<typename T>
+concept ISharedMutex = requires(T t)
+{
+    { t.lock() };
+    { t.lock_shared() };
+    { t.unlock() };
+    { t.unlock_shared() };
+};
 
 } // namespace common_serialization

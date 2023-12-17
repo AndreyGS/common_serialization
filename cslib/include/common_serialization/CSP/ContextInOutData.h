@@ -79,7 +79,7 @@ public:
         , PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
-        : Data<Container, serialize, PM, PC, EPP>(binaryData, flags, auxUsingHeapAllocation, inInterfaceVersion, pPointersMap)
+        : Data<Container, serialize, PM, PC, EPP>(binaryData, protocolVersion, flags, auxUsingHeapAllocation, inInterfaceVersion, pPointersMap)
         , m_outputInterfaceVersion(outInterfaceVersion)
     { 
         this->setMessageType(Message::kInOutData);

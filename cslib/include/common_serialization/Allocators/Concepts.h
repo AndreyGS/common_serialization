@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/AllocatorsConcepts.h
+ * @file cslib/include/common_serialization/Allocators/Concepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

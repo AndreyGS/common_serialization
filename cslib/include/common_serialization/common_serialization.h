@@ -66,7 +66,7 @@
 #include "common_serialization/Types.h"
 #include "common_serialization/Helpers.h"
 #include "common_serialization/Concurency/GuardRW.h"
-#include "common_serialization/Allocators/AllocatorsConcepts.h"
+#include "common_serialization/Allocators/Concepts.h"
 #include "common_serialization/Allocators/RawKeeperAllocator.h"
 #include "common_serialization/Containers/Walker.h"
 #include "common_serialization/CSP/ISerializable.h"
@@ -75,6 +75,7 @@
 #include "common_serialization/CSP/ProcessingDataVersionConverters.h"
 #include "common_serialization/CSP/MessagingIDataClient.h"
 #include "common_serialization/CSP/MessagingCommonServer.h"
+#include "common_serialization/CSP/MessagingDataServiceServer.h"
 
 #undef SET_NEW_ERROR    // defined in common_serialization/Status.h
 #undef RUN              // defined in common_serialization/Status.h

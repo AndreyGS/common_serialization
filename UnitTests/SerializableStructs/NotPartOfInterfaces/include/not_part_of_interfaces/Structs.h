@@ -26,7 +26,7 @@
 namespace not_part_of_interfaces
 {
 
-using namespace common_serialization;
+namespace cs = common_serialization;
 
 struct EmptyType
 {
@@ -68,9 +68,9 @@ class DynamicPolymorphic
 public:
     virtual ~DynamicPolymorphic() {}
 
-    static constexpr Uuid kId = helpers::getUuid(0xad460dc2, 0x429c, 0x4313, 0xa7c5, 0x06fca38389a0);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr cs::Uuid kId = cs::helpers::getUuid(0xad460dc2, 0x429c, 0x4313, 0xa7c5, 0x06fca38389a0);
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 0 };
 
     [[nodiscard]] bool operator==(const DynamicPolymorphic& rhs) const noexcept
     {
@@ -80,7 +80,7 @@ public:
     uint8_t m_r{ 0 };
     uint8_t m_arrR[3]{ 0 };
 
-    friend csp::processing::DataProcessor;
+    friend cs::csp::processing::DataProcessor;
 };
 
 
@@ -103,7 +103,7 @@ struct DiamondEdge1 : virtual public DiamondBase
 
     uint32_t m_d1{ 0 };
 
-    friend csp::processing::DataProcessor;
+    friend cs::csp::processing::DataProcessor;
 };
 
 struct DiamondEdge2 : virtual public DiamondBase
@@ -115,7 +115,7 @@ struct DiamondEdge2 : virtual public DiamondBase
 
     uint32_t m_d2{ 0 };
 
-    friend csp::processing::DataProcessor;
+    friend cs::csp::processing::DataProcessor;
 };
 
 struct TwoInts

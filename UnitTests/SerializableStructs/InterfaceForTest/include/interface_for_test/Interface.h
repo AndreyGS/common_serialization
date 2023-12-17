@@ -40,3 +40,12 @@
 
 #include "interface_for_test/Generated/ConvertToOldStruct.h"
 #include "interface_for_test/Generated/ConvertFromOldStruct.h"
+
+namespace interface_for_test
+{
+
+namespace cs = common_serialization;
+
+constexpr cs::csp::traits::InterfaceProperties properties(cs::helpers::getUuid(0xa1cfd12a, 0x22b2, 0x49d3, 0x8575, 0x02342a630145), 3);
+
+} // namespace interface_for_test

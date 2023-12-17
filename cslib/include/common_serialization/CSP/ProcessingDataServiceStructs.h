@@ -70,47 +70,7 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-constexpr Status DataProcessor::serializeData(const messaging::InterfaceVersion<>& value, context::SData<>& ctx)
-{
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
-
-    RUN(serializeData(value.version, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::InterfaceVersion<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.version));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::serializeData(const messaging::GetInterfaceVersion<>& value, context::SData<>& ctx)
-{
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
-
-    RUN(serializeData(value.id, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::GetInterfaceVersion<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.id));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::serializeData(const messaging::InterfaceTraits& value, context::SData<>& ctx)
+constexpr Status DataProcessor::serializeData(const traits::InterfaceProperties& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
@@ -121,12 +81,52 @@ constexpr Status DataProcessor::serializeData(const messaging::InterfaceTraits& 
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::InterfaceTraits& value)
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, traits::InterfaceProperties& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.id));
     RUN(deserializeData(ctx, value.version));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const messaging::OurGetInterfaceProperties<>& value, context::SData<>& ctx)
+{
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+
+    RUN(serializeData(value.properties, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::OurGetInterfaceProperties<>& value)
+{
+    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.properties));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const messaging::GetInterfaceProperties<>& value, context::SData<>& ctx)
+{
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+
+    RUN(serializeData(value.id, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::GetInterfaceProperties<>& value)
+{
+    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.id));
 
     return Status::kNoError;
 }

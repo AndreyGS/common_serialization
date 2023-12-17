@@ -69,7 +69,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     S& output = ctx.getBinaryData();
     context::DataFlags flags = ctx.getFlags();
 
-    Uuid id = T::getUuid();
+    Uuid id = T::getId();
 
     RUN(output.pushBackArithmeticValue(id.leftPart));
     RUN(output.pushBackArithmeticValue(id.rightPart));
@@ -141,9 +141,9 @@ constexpr Status deserializeInOutDataContext(context::DInOutData<D, PM>& ctx, Uu
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
 constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, const Uuid& id, interface_version_t minimumSupportedInterfaceVersion)
 {
-    Uuid tUuid = T::getUuid();
+    Uuid tUuid = T::getId();
     if (tUuid != id)
-        return Status::kErrorMismatchOfStructNameHash;
+        return Status::kErrorMismatchOfStructId;
 
     context::DataFlags flags = ctx.getFlags();
 

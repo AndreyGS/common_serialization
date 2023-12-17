@@ -48,7 +48,7 @@ public:
     template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     constexpr Status deserialize(context::DData<D, PM>& ctx);
 
-    [[nodiscard]] static consteval Uuid getUuid() noexcept;
+    [[nodiscard]] static consteval Uuid getId() noexcept;
     [[nodiscard]] static constexpr interface_version_t getThisVersion() noexcept;
     [[nodiscard]] static consteval interface_version_t getInterfaceVersion() noexcept;
     [[nodiscard]] static consteval interface_version_t getMinimumInterfaceVersion() noexcept;
@@ -105,7 +105,7 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 }
 
 template<typename T>
-[[nodiscard]] consteval Uuid ISerializable<T>::getUuid() noexcept
+[[nodiscard]] consteval Uuid ISerializable<T>::getId() noexcept
 {
     return T::kId;
 }

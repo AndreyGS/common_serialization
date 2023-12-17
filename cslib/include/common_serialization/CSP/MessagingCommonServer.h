@@ -40,7 +40,16 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
 {
     context::Common<BinWalker> ctx(binInput);
 
-    RUN(processing::deserializeHeaderContext(ctx));
+    if (Status status = processing::deserializeHeaderContext(ctx); !statusSuccess(status))
+    {
+        if (status == Status::kErrorNotSupportedProtocolVersion)
+        {
+            binOutput.clear();
+            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput);
+        }
+        else
+            return status;
+    }
 
     Status status{ Status::kNoError };
 

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/Concurency/ConcurencyConcepts.h"
+#include "common_serialization/Concurency/Concepts.h"
 
 namespace common_serialization
 {

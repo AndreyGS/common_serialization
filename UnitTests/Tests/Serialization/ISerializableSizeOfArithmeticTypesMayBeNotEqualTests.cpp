@@ -28,6 +28,7 @@
 namespace
 {
 
+using namespace common_serialization;
 using namespace interface_for_test;
 using namespace ft_helpers;
 

@@ -45,6 +45,7 @@ constexpr Status deserializeStatusGetStatus(D& input, Status& statusOut) noexcep
     return Status::kNoError;
 }
 
+// Not applicable for variable-sized structs
 template<IDeserializationCapableContainer D, typename T>
 constexpr Status deserializeStatusGetStruct(D& input, T& value) noexcept
 {

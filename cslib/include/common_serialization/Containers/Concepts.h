@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CommonConcepts.h
+ * @file cslib/include/common_serialization/Containers/Concepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -28,16 +28,26 @@
 namespace common_serialization
 {
 
-template<typename T>
-concept Initable = requires(T t)
-{
-    { t.init(*(new T)) } -> std::same_as<Status>;
-};
+class GenericPointerKeeper;
 
-template<typename T, typename SpecClass>
-concept InitableBySpecialClass = requires(T t)
-{
-    { t.init(*(new SpecClass)) } -> std::same_as<Status>;
-};
+template<typename S>
+concept IGenericPointersKeeperContainer
+    =  requires(S e)
+         {
+             typename S::value_type;
+             typename S::constructor_allocator;
+
+             { e.clear() };
+             { e.begin() };
+             { e.end() };
+             { e.erase(0, 1) };
+             { e.data() } -> std::same_as<typename S::value_type*>;
+             { e.size() } -> std::same_as<typename S::size_type>;
+             { e.capacity() } -> std::same_as<typename S::size_type>;
+
+             { e.reserve(1) } -> std::same_as<Status>;
+             { e.pushBack(*(new GenericPointerKeeper)) } -> std::same_as<Status>;
+         } 
+    && std::is_same_v<typename S::value_type, GenericPointerKeeper> && std::is_same_v<typename S::constructor_allocator, std::true_type>;
 
 } // namespace common_serialization

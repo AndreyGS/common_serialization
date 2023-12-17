@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/CspTraits.h
+ * @file cslib/include/common_serialization/CSP/Traits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -35,6 +35,19 @@ namespace traits
 inline constexpr protocol_version_t kProtocolVersions[] = { 1 };
 inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;           // it always must be kind of UINTMAX
 inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;   // it always must be kind of UINTMAX
+
+struct InterfaceProperties
+{
+    Uuid id;
+    csp::interface_version_t version{ kInterfaceVersionUndefined };
+
+    constexpr bool operator==(const InterfaceProperties& rhs) const noexcept
+    {
+        return id == rhs.id && version == rhs.version;
+    }
+};
+
+constexpr InterfaceProperties kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined };
 
 [[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion()
 {

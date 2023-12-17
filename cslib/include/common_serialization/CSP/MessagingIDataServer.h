@@ -67,7 +67,7 @@ template<typename InstanceType, typename InputType, typename OutputType
 Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
     , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput)
 {
-    Uuid id = InputType::getUuid();
+    Uuid id = InputType::getId();
 
     Status status = processing::deserializeInOutDataContextPostprocess<InputType, OutputType>(
         ctx, id, minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
@@ -112,7 +112,7 @@ template<typename InstanceType, typename InputType, typename OutputType
 IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
     , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::IDataServer()
 {
-    GetDataServersKeeper().addServer(InputType::getUuid(), multicast, this);
+    GetDataServersKeeper().addServer(InputType::getId(), multicast, this);
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
@@ -125,7 +125,7 @@ template<typename InstanceType, typename InputType, typename OutputType
 IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
     , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::~IDataServer()
 {
-    GetDataServersKeeper().removeServer(InputType::getUuid(), this);
+    GetDataServersKeeper().removeServer(InputType::getId(), this);
 }
 
 template<typename InstanceType, typename InputType, typename OutputType
@@ -196,7 +196,7 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
     else
         RUN(InstanceType::handleDataStatic(input, ctxIn.getAddedPointers(), output));
 
-    if constexpr (!std::is_same_v<OutputType, ISerializableDummy>)
+    if constexpr (!std::is_same_v<OutputType, ISerializableDummy<>>)
     {
         std::unordered_map<const void*, uint64_t> pointersMapOut;
 

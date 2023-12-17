@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Concurency/ConcurencyConcepts.h
+ * @file cslib/include/common_serialization/Concepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,16 +23,21 @@
 
 #pragma once
 
+#include "common_serialization/Status.h"
+
 namespace common_serialization
 {
 
 template<typename T>
-concept ISharedMutex = requires(T t)
+concept Initable = requires(T t)
 {
-    { t.lock() };
-    { t.lock_shared() };
-    { t.unlock() };
-    { t.unlock_shared() };
+    { t.init(*(new T)) } -> std::same_as<Status>;
+};
+
+template<typename T, typename SpecClass>
+concept InitableBySpecialClass = requires(T t)
+{
+    { t.init(*(new SpecClass)) } -> std::same_as<Status>;
 };
 
 } // namespace common_serialization

@@ -34,23 +34,11 @@ namespace common_serialization::csp::messaging
 class IDataClient
 {
 public:
-    template<
-          typename InputType
-        , typename OutputType
-        , bool forTempUseHeap = true
-        , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
-        , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
-    >
+    template<typename InputType, typename OutputType, bool forTempUseHeap = true>
         requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
     Status handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers = nullptr);
 
-    template<
-          typename InputType
-        , typename OutputType
-        , bool forTempUseHeap = true
-        , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
-        , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
-    >
+    template<typename InputType, typename OutputType, bool forTempUseHeap = true>
         requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
     Status handleData(
           const InputType& input
@@ -58,8 +46,10 @@ public:
         , context::DataFlags flags
         , interface_version_t preferedInputInterfaceVersion = m_serverInterfaceVersion
         , interface_version_t preferedOutputInterfaceVersion = m_serverInterfaceVersion
-        , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
+        , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
+        , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
         , protocol_version_t protocolVersion = m_defaultProtocolVersion
+        , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
     );
 
     inline protocol_version_t getDefaultProtocolVersion() const noexcept;
@@ -71,9 +61,9 @@ protected:
     IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, interface_version_t targetInterfaceVersion);
 
 private:
-    template<typename T, interface_version_t minimumInterfaceVersion>
+    template<typename T>
         requires IsISerializableBased<T>
-    interface_version_t chooseInterfaceVersion(interface_version_t preferedInterfaceVersion);
+    interface_version_t chooseInterfaceVersion(interface_version_t preferedInterfaceVersion, interface_version_t minimumInterfaceVersion);
 
     virtual Status handleBinData(BinVector& binInput, BinWalker& binOutput) = 0;
 
@@ -82,24 +72,25 @@ private:
     interface_version_t m_serverInterfaceVersion{ traits::kInterfaceVersionUndefined };
 };
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion>
+template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status IDataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers)
 {
-    return sendData(input, output, m_defaultProtocolVersion, m_defaultFlags, m_serverInterfaceVersion, m_serverInterfaceVersion, unmanagedPointers);
+    return handleData(input, output, m_defaultFlags, m_serverInterfaceVersion, m_serverInterfaceVersion
+        , InputType::getMinimumInterfaceVersion(), OutputType::getMinimumInterfaceVersion(), m_defaultProtocolVersion, unmanagedPointers);
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion>
+template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-Status IDataClient::handleData(const InputType& input, OutputType& output, context::DataFlags flags, interface_version_t preferedInputInterfaceVersion
-    , interface_version_t preferedOutputInterfaceVersion, Vector<GenericPointerKeeper>* pUnmanagedPointers, protocol_version_t protocolVersion 
+Status IDataClient::handleData(const InputType& input, OutputType& output, context::DataFlags flags, interface_version_t preferedInputInterfaceVersion, interface_version_t preferedOutputInterfaceVersion
+    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion, protocol_version_t protocolVersion, Vector<GenericPointerKeeper>* pUnmanagedPointers
 )
 {
-    interface_version_t inputInterfaceVersion = chooseInterfaceVersion<InputType, minimumInputInterfaceVersion>(preferedInputInterfaceVersion);
+    interface_version_t inputInterfaceVersion = chooseInterfaceVersion<InputType>(preferedInputInterfaceVersion, minimumInputInterfaceVersion);
     if (inputInterfaceVersion == traits::kInterfaceVersionUndefined)
         return Status::kErrorInvalidArgument;
 
-    interface_version_t outputInterfaceVersion = chooseInterfaceVersion<OutputType, minimumOutputInterfaceVersion>(preferedOutputInterfaceVersion);
+    interface_version_t outputInterfaceVersion = chooseInterfaceVersion<OutputType>(preferedOutputInterfaceVersion, minimumOutputInterfaceVersion);
     if (outputInterfaceVersion == traits::kInterfaceVersionUndefined)
         return Status::kErrorInvalidArgument;
 
@@ -116,7 +107,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
         ctxIn.setPointersMap(pointersMapIn);
 
     RUN(processing::serializeHeaderContext(ctxIn));
-    RUN(processing::serializeInOutDataContext(ctxIn));
+    RUN(processing::serializeInOutDataContext<InputType>(ctxIn));
     RUN(processing::DataProcessor::serializeData(input, ctxIn));
 
     pointersMapIn.clear();
@@ -135,8 +126,10 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
     {
         ctxIn.clear();
 
-        RUN(processing::deserializeDataContext(ctxOut));
-        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, OutputType::getUuid(), minimumOutputInterfaceVersion));
+        Uuid outId;
+
+        RUN(processing::deserializeDataContext(ctxOut, outId));
+        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, outId, minimumOutputInterfaceVersion));
 
         if (flags != ctxOut.getFlags())
             return Status::kErrorDataCorrupted;
@@ -144,7 +137,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
         if (flags.allowUnmanagedPointers)
             ctxOut.setAddedPointers(*pUnmanagedPointers);
 
-        std::unordered_map<uint64_t, const void*> pointersMapOut;
+        std::unordered_map<uint64_t, void*> pointersMapOut;
         if (flags.checkRecursivePointers)
             ctxOut.setPointersMap(pointersMapOut);
 
@@ -153,13 +146,43 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
     else if (ctxOut.getMessageType() == context::Message::kStatus)
     {
         Status statusOut = Status::kNoError;
-        RUN(processing::deserializeStatusGetStatus(output, statusOut));
+        RUN(processing::deserializeStatusGetStatus(ctxOut.getBinaryData(), statusOut));
 
-        if constexpr (std::is_same_v<OutputType, messaging::ISerializableDummy>)
+        if constexpr (std::is_same_v<OutputType, messaging::ISerializableDummy<>>)
             if (statusOut == Status::kNoError)
                 return Status::kNoError;
+        
+        if (statusOut == Status::kErrorNotSupportedProtocolVersion)
+        {
+            protocol_version_t protVersionsCount = traits::kProtocolVersionUndefined;
+            RUN(ctxOut.getBinaryData().readArithmeticValue(protVersionsCount));
+            
+            if (ctxOut.getBinaryData().tell() + protVersionsCount / sizeof(protocol_version_t) > ctxOut.getBinaryData().size())
+                return Status::kErrorInternal;
+            
+            const protocol_version_t* pProtVersions = 
+                static_cast<const protocol_version_t*>(static_cast<const void*>(&*(ctxOut.getBinaryData().getVector().begin() + ctxOut.getBinaryData().tell())));
 
-        if (statusOut == Status::kErrorNotSupportedInOutInterfaceVersion)
+            bool compatProtocolVersion = traits::kProtocolVersionUndefined;
+
+            for (protocol_version_t i = 0; i < protVersionsCount; ++i)
+                if (traits::isProtocolVersionSupported(pProtVersions[i]))
+                {
+                    compatProtocolVersion = pProtVersions[i];
+                    break;
+                }
+
+            if (compatProtocolVersion == traits::kProtocolVersionUndefined)
+                return statusOut;
+
+            // Here we should free resources that we do no need now
+            ctxOut.clear();
+
+            // Try again with the compatible protocol version
+            return handleData<InputType, OutputType, forTempUseHeap>(input, output, flags, inputInterfaceVersion, outputInterfaceVersion
+                , minimumInputInterfaceVersion, minimumOutputInterfaceVersion, compatProtocolVersion, pUnmanagedPointers);
+        }
+        else if (statusOut == Status::kErrorNotSupportedInOutInterfaceVersion)
         {
             // Scenario when all minimum and prefered interface versions are the same 
             // does not imply any further processing when we've get Status::kErrorNotSupportedInOutInterfaceVersion Output
@@ -167,7 +190,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
                 return statusOut;
 
             StatusErrorNotSupportedInOutInterfaceVersion statusStruct{ 0 };
-            RUN(processing::deserializeStatusGetStruct(output, statusStruct));
+            RUN(processing::deserializeStatusGetStruct(ctxOut.getBinaryData(), statusStruct));
 
             interface_version_t compatInputInterfaceVersion
                 = traits::getBestSupportedInterfaceVersion<InputType>(
@@ -193,8 +216,8 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
             ctxOut.clear();
 
             // Try again with the compatible InputType and OutputType versions
-            return handleData<InputType, OutputType, forTempUseHeap, compatInputInterfaceVersion, compatOutputInterfaceVersion>
-                (input, output, flags, compatInputInterfaceVersion, compatOutputInterfaceVersion, pUnmanagedPointers, protocolVersion);
+            return handleData<InputType, OutputType, forTempUseHeap>(input, output, flags, compatInputInterfaceVersion, compatOutputInterfaceVersion
+                , compatInputInterfaceVersion, compatOutputInterfaceVersion, protocolVersion, pUnmanagedPointers);
         }
         else
             return statusOut;
@@ -223,9 +246,9 @@ inline IDataClient::IDataClient(protocol_version_t defaultProtocolVersion, conte
     : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultFlags(defaultFlags), m_serverInterfaceVersion(targetInterfaceVersion)
 { }
 
-template<typename T, interface_version_t minimumInterfaceVersion>
+template<typename T>
     requires IsISerializableBased<T>
-interface_version_t IDataClient::chooseInterfaceVersion(interface_version_t preferedInterfaceVersion)
+interface_version_t IDataClient::chooseInterfaceVersion(interface_version_t preferedInterfaceVersion, interface_version_t minimumInterfaceVersion)
 {
     interface_version_t interfaceVersion
         = preferedInterfaceVersion == minimumInterfaceVersion

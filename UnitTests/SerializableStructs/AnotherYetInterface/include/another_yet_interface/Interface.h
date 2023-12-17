@@ -31,3 +31,12 @@
 #include "another_yet_interface/Structs.h"
 #include "another_yet_interface/Generated/SerializeData.h"
 #include "another_yet_interface/Generated/DeserializeData.h"
+
+namespace another_yet_interface
+{
+
+namespace cs = common_serialization;
+
+constexpr cs::csp::traits::InterfaceProperties properties(cs::helpers::getUuid(0xf7cbb63c, 0x2a5d, 0x44eb, 0x80fc, 0x591bd08941e2), 0);
+
+} // namespace another_yet_interface
