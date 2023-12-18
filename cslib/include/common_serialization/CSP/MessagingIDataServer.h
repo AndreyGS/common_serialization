@@ -74,7 +74,7 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
 
     if (!statusSuccess(status))
     {
-        if (status == Status::kErrorNotSupportedInterfaceVersion)
+        if (status == Status::kErrorNotSupportedInOutInterfaceVersion)
             RUN(processing::serializeStatusErrorNotSupportedInOutInterfaceVersion(minimumInputInterfaceVersion, InputType::getInterfaceVersion()
                 , minimumOutputInterfaceVersion, OutputType::getInterfaceVersion(), ctx.getProtocolVersion(), binOutput));
         

@@ -35,13 +35,17 @@ public:
     using DestroyAndDeallocateFunc = void(*)(void*, size_t);
 
     GenericPointerKeeper() noexcept { }
+
     GenericPointerKeeper(const GenericPointerKeeper& rhs) = delete; // for now
+
     GenericPointerKeeper(GenericPointerKeeper&& rhs) noexcept
-        : m_p(rhs.m_p), m_destroyAndDeallocate(rhs.m_destroyAndDeallocate)
+        : m_p(rhs.m_p), m_size(rhs.m_size), m_destroyAndDeallocate(rhs.m_destroyAndDeallocate)
     { 
-        rhs.m_p = nullptr, rhs.m_destroyAndDeallocate = nullptr;
+        rhs.m_p = nullptr, rhs.m_size = 0, rhs.m_destroyAndDeallocate = nullptr;
     }
+
     GenericPointerKeeper& operator=(const GenericPointerKeeper& rhs) = delete; // for now
+
     GenericPointerKeeper& operator=(GenericPointerKeeper&& rhs) noexcept
     {
         if (this == &rhs)
@@ -50,9 +54,15 @@ public:
         if (m_p)
             destroyAndDeallocate();
 
-        m_p = rhs.m_p, m_destroyAndDeallocate = rhs.m_destroyAndDeallocate;
-        rhs.m_p = nullptr, rhs.m_destroyAndDeallocate = nullptr;
+        m_p = rhs.m_p;
+        m_size = rhs.m_size;
+        m_destroyAndDeallocate = rhs.m_destroyAndDeallocate;
+
+        rhs.m_p = nullptr;
+        rhs.m_size = 0;
+        rhs.m_destroyAndDeallocate = nullptr;
     }
+
     ~GenericPointerKeeper()
     {
         destroyAndDeallocate();

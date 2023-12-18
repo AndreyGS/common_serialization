@@ -70,6 +70,48 @@ namespace common_serialization::csp::processing
 {
 
 template<>
+constexpr Status DataProcessor::serializeData(const Uuid& value, context::SData<>& ctx)
+{
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+
+    RUN(serializeData(value.leftPart, ctx));
+    RUN(serializeData(value.rightPart, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Uuid& value)
+{
+    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.leftPart));
+    RUN(deserializeData(ctx, value.rightPart));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const messaging::SupportedProtocolVersions<>& value, context::SData<>& ctx)
+{
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+
+    RUN(serializeData(value.list, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::SupportedProtocolVersions<>& value)
+{
+    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.list));
+
+    return Status::kNoError;
+}
+
+template<>
 constexpr Status DataProcessor::serializeData(const traits::InterfaceProperties& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);

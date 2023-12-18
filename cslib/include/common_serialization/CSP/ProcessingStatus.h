@@ -60,7 +60,8 @@ constexpr Status deserializeStatusGetStruct(D& input, T& value) noexcept
 template<ISerializationCapableContainer S>
 constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output) noexcept
 {
-    context::Common<S> ctx(output, traits::getLatestProtocolVersion(), context::Message::kStatus);
+    // For unsupported protocol version always using protocol version equal 1
+    context::Common<S> ctx(output, 1, context::Message::kStatus);
     RUN(serializeHeaderContext(ctx));
 
     messaging::StatusErrorNotSupportedProtocolVersion statusMessage;
@@ -91,10 +92,11 @@ constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
     RUN(serializeHeaderContext(ctx));
 
     messaging::StatusErrorNotSupportedInterfaceVersion statusMessage = {
-          .minimumSupportedInterfaceVersion = minimumSupportedInterfaceVersion,  .maximumSupportedInterfaceVersion = maximumSupportedInterfaceVersion
+          .minimumSupportedInterfaceVersion = minimumSupportedInterfaceVersion
+        , .maximumSupportedInterfaceVersion = maximumSupportedInterfaceVersion
     };
 
-    RUN(serializeStatus(output, Status::kErrorNotSupportedProtocolVersion, statusMessage));
+    RUN(serializeStatus(output, Status::kErrorNotSupportedInterfaceVersion, statusMessage));
 
     return Status::kNoError;
 }
@@ -110,11 +112,13 @@ constexpr Status serializeStatusErrorNotSupportedInOutInterfaceVersion(
     RUN(serializeHeaderContext(ctx));
 
     messaging::StatusErrorNotSupportedInOutInterfaceVersion statusMessage = {
-          .inMinimumSupportedInterfaceVersion  = inMinimumSupportedInterfaceVersion,  .inMaximumSupportedInterfaceVersion  = inMaximumSupportedInterfaceVersion
-        , .outMinimumSupportedInterfaceVersion = outMinimumSupportedInterfaceVersion, .outMaximumSupportedInterfaceVersion = outMaximumSupportedInterfaceVersion
+          .inMinimumSupportedInterfaceVersion  = inMinimumSupportedInterfaceVersion
+        , .inMaximumSupportedInterfaceVersion  = inMaximumSupportedInterfaceVersion
+        , .outMinimumSupportedInterfaceVersion = outMinimumSupportedInterfaceVersion
+        , .outMaximumSupportedInterfaceVersion = outMaximumSupportedInterfaceVersion
     };
 
-    RUN(serializeStatus(output, Status::kErrorNotSupportedProtocolVersion, statusMessage));
+    RUN(serializeStatus(output, Status::kErrorNotSupportedInOutInterfaceVersion, statusMessage));
 
     return Status::kNoError;
 }

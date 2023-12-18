@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/CSP/MessagingServiceStructs.h"
 #include "common_serialization/CSP/Processing.h"
+#include "common_serialization/CSP/ProcessingCommonCapabilities.h"
 #include "common_serialization/CSP/ProcessingDataProcessor.h"
 #include "common_serialization/CSP/ProcessingStatus.h"
 
@@ -51,6 +51,8 @@ public:
         , protocol_version_t protocolVersion = m_defaultProtocolVersion
         , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
     );
+
+    Status getProtocolCapabilities(SupportedProtocolVersions<>& output) noexcept;
 
     inline protocol_version_t getDefaultProtocolVersion() const noexcept;
     inline context::DataFlags getDefaultFlags() const noexcept;
@@ -226,6 +228,26 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
     return Status::kNoError;
 }
 
+inline Status IDataClient::getProtocolCapabilities(SupportedProtocolVersions<>& output) noexcept
+{
+    BinVector binInput;
+    context::Common<BinVector> ctxIn(binInput, 1, context::Message::kCommonCapabilitiesRequest);
+    RUN(processing::serializeHeaderContext(ctxIn));
+    RUN(processing::serializeCommonCapabilitiesRequest(context::CommonCapabilities::kSupportedProtocolVersions, ctxIn));
+
+    BinWalker binOutput;
+
+    RUN(handleBinData(binInput, binOutput));
+
+    context::DData<BinWalker> ctxOut(binOutput);
+
+    RUN(processing::deserializeHeaderContext(ctxOut));
+
+    if (ctxOut.getMessageType() != context::Message::kCommonCapabilitiesResponse)
+        return Status::kErrorDataCorrupted;
+
+    return processing::deserializeCommonCapabilitiesResponse(ctxOut, context::CommonCapabilities::kSupportedProtocolVersions, output);
+}
 
 inline protocol_version_t IDataClient::getDefaultProtocolVersion() const noexcept
 {

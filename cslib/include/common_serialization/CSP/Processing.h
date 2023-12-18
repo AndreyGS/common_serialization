@@ -177,7 +177,7 @@ constexpr Status deserializeInOutDataContextPostprocess(context::DInOutData<D, P
     RUN(deserializeDataContextPostprocess<In>(ctx, id, inputMinimumSupportedInterfaceVersion));
     
     if (!traits::isInterfaceVersionSupported(ctx.getOutputInterfaceVersion(), outputMinimumSupportedInterfaceVersion, Out::getInterfaceVersion()))
-        return Status::kErrorNotSupportedInterfaceVersion;
+        return Status::kErrorNotSupportedInOutInterfaceVersion;
 
     return Status::kNoError;
 }

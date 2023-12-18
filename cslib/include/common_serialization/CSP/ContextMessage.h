@@ -54,7 +54,7 @@ enum class Message : uint_fast32_t
                                             //     uint8_t supportedProtocolsVersions[supportedProtocolsVersionsSize];
                                             // }
                                             // 
-                                            // Status == kNotSupportedInterfaceVersion
+                                            // Status == kErrorNotSupportedInterfaceVersion
                                             //
                                             // sends when low supported version is bigger or
                                             // high version is lesser than in serialized data
@@ -62,19 +62,15 @@ enum class Message : uint_fast32_t
                                             // message body format:
                                             // 
                                             // {
-                                            //     uint64_t structNameHash;
                                             //     uint32_t minimumSupportedInterfaceVersion;
                                             //     uint32_t maximumSupportedInterfaceVersion;
                                             // }
                                             // 
-                                            // or if this is an answer of kInOutData
+                                            // Status == kErrorNotSupportedInOutInterfaceVersion
                                             // 
                                             // {
-                                            //     uint64_t inStructNameHash;
                                             //     uint32_t inMinimumSupportedInterfaceVersion;
                                             //     uint32_t inMaximumSupportedInterfaceVersion;
-                                            // 
-                                            //     uint64_t outStructNameHash;
                                             //     uint32_t outMinimumSupportedInterfaceVersion;
                                             //     uint32_t outMaximumSupportedInterfaceVersion;
                                             // }
@@ -86,7 +82,7 @@ enum class Message : uint_fast32_t
                                             // {
                                             //     struct
                                             //     {
-                                            //         uint64_t structNameHash;
+                                            //         uuid inStructId;
                                             //         DataFlags flags;
                                             //         uint32_t interfaceVersion;
                                             //     } dataSpecificHeader;
@@ -104,7 +100,7 @@ enum class Message : uint_fast32_t
                                             // {
                                             //     struct
                                             //     {
-                                            //         uint64_t inStructNameHash;
+                                            //         uuid inStructId;
                                             //         DataFlags flags;
                                             //         uint32_t inInterfaceVersion;
                                             //         uint32_t outInterfaceVersion;
@@ -116,6 +112,29 @@ enum class Message : uint_fast32_t
                                             //     } binaryData; // varies by DataFlags that was set and struct that was serialized
                                             // }
                                             //
+    kCommonCapabilitiesRequest = 0x3,       // request of servers protocol capabilities
+                                            //
+                                            // message format:
+                                            // {
+                                            //     struct
+                                            //     {
+                                            //         CommonCapabilities requestedCapability;
+                                            //     }
+                                            // }
+    kCommonCapabilitiesResponse = 0x4       // response on kCommonCapabilitiesRequest
+                                            //
+                                            // message format:
+                                            // {
+                                            //     struct
+                                            //     {
+                                            //         uuid structId; // returned struct id
+                                            //     }
+                                            // 
+                                            //     struct
+                                            //     {
+                                            //         uint8_t inSerializedData[anysize];
+                                            //     } binaryData; // varies by requestedCapability value
+                                            // }
 };
 
 } // namespace common_serialization::csp::context

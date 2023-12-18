@@ -1,0 +1,91 @@
+/**
+ * @file cslib/include/common_serialization/CSP/ProcessingCommonCapabilities.h
+ * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ *
+ * @section LICENSE
+ *
+ * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
+ * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+ * THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
+#pragma once
+
+#include "common_serialization/CSP/ContextCommonCapabilities.h"
+#include "common_serialization/CSP/MessagingServiceStructs.h"
+#include "common_serialization/CSP/ProcessingDataServiceStructs.h"
+
+namespace common_serialization::csp::processing
+{
+
+template<ISerializationCapableContainer S>
+constexpr Status serializeCommonCapabilitiesRequest(context::CommonCapabilities requestedCapability, context::Common<S>& ctx) noexcept
+{
+    S& output = ctx.getBinaryData();
+
+    RUN(output.pushBackArithmeticValue(requestedCapability));
+
+    return Status::kNoError;
+}
+
+template<IDeserializationCapableContainer D>
+constexpr Status deserializeCommonCapabilitiesRequest(context::Common<D>& ctx, context::CommonCapabilities& requestedCapability) noexcept
+{
+    D& input = ctx.getBinaryData();
+
+    RUN(input.readArithmeticValue(requestedCapability));
+
+    return Status::kNoError;
+}
+
+template<ISerializationCapableContainer S>
+constexpr Status serializeCommonCapabilitiesResponse(context::CommonCapabilities requestedCapability, context::SData<S>& ctx) noexcept
+{
+    S& output = ctx.getBinaryData();
+
+    if (requestedCapability == context::CommonCapabilities::kSupportedProtocolVersions)
+    {
+        messaging::SupportedProtocolVersions<> supportedProtocolVersions;
+        RUN(supportedProtocolVersions.list.pushBackN(traits::kProtocolVersions, std::size(traits::kProtocolVersions)));
+
+        Uuid id = supportedProtocolVersions.getId();
+
+        RUN(DataProcessor::serializeData(id, ctx));
+        RUN(DataProcessor::serializeData(supportedProtocolVersions, ctx));
+    }
+    else
+        return Status::kErrorInternal;
+
+    return Status::kNoError;
+}
+
+
+template<typename T, IDeserializationCapableContainer D>
+constexpr Status deserializeCommonCapabilitiesResponse(context::DData<D>& ctx, context::CommonCapabilities requestedCapability, T& responseStruct) noexcept
+{
+    D& input = ctx.getBinaryData();
+
+    Uuid id;
+    RUN(DataProcessor::deserializeData(ctx, id));
+
+    if (id != T::getId())
+        return Status::kErrorDataCorrupted;
+
+    RUN(DataProcessor::deserializeData(ctx, responseStruct));
+
+    return Status::kNoError;
+}
+
+} // namespace common_serialization::csp::processing
