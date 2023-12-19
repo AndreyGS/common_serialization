@@ -49,7 +49,6 @@ struct SupportedProtocolVersions : public csp::ISerializable<GetCrtpMainType<Sup
 {
 public:
     using instance_type = GetCrtpMainType<SupportedProtocolVersions<T>, T>;
-    using simple_assignable_tag = std::true_type;
 
     static constexpr Uuid kId = helpers::getUuid(0xc665f5c8, 0xa6c2, 0x4f75, 0xb84d, 0x41cff3c47578);
     static constexpr csp::interface_version_t kInterfaceVersion = 0;

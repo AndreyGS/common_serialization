@@ -44,23 +44,29 @@ public:
           const InputType& input
         , OutputType& output
         , context::DataFlags flags
-        , interface_version_t preferedInputInterfaceVersion = m_serverInterfaceVersion
-        , interface_version_t preferedOutputInterfaceVersion = m_serverInterfaceVersion
+        , interface_version_t preferedInputInterfaceVersion = m_defaultServerInterfaceVersion
+        , interface_version_t preferedOutputInterfaceVersion = m_defaultServerInterfaceVersion
         , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
         , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
         , protocol_version_t protocolVersion = m_defaultProtocolVersion
         , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
     );
 
-    Status getProtocolCapabilities(SupportedProtocolVersions<>& output) noexcept;
+    Status getServerProtocolVersions(SupportedProtocolVersions<>& output) noexcept;
 
-    inline protocol_version_t getDefaultProtocolVersion() const noexcept;
-    inline context::DataFlags getDefaultFlags() const noexcept;
-    inline interface_version_t getServerInterfaceVersion() const noexcept;
+    protocol_version_t getDefaultProtocolVersion() const noexcept;
+    context::DataFlags getDefaultFlags() const noexcept;
+    const Uuid& getDefaultInterfaceId() const noexcept;
+    interface_version_t getDefaultServerInterfaceVersion() const noexcept;
+
+    void setDefaultProtocolVersion(protocol_version_t defaultProtocolVersion) noexcept;
+    void setDefaultFlags(context::DataFlags defaultFlags) noexcept;
+    void setDefaultInterfaceId(const Uuid& defaultInterfaceId) noexcept;
+    void setDefaultServerInterfaceVersion(interface_version_t defaultServerInterfaceVersion) noexcept;
 
 protected:
     IDataClient() {}
-    IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, interface_version_t targetInterfaceVersion);
+    IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, const Uuid& defaultInterfaceId, interface_version_t targetInterfaceVersion);
 
 private:
     template<typename T>
@@ -71,14 +77,19 @@ private:
 
     protocol_version_t m_defaultProtocolVersion{ traits::getLatestProtocolVersion() };
     context::DataFlags m_defaultFlags;
-    interface_version_t m_serverInterfaceVersion{ traits::kInterfaceVersionUndefined };
+
+    // There can be more than one interfaces on server
+    // And for simplicity we should apply default parameters to only one of it
+    // ID of that interface is filling for informational purposes
+    Uuid m_defaultInterfaceId;
+    interface_version_t m_defaultServerInterfaceVersion{ traits::kInterfaceVersionUndefined };
 };
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status IDataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers)
 {
-    return handleData(input, output, m_defaultFlags, m_serverInterfaceVersion, m_serverInterfaceVersion
+    return handleData(input, output, m_defaultFlags, m_defaultServerInterfaceVersion, m_defaultServerInterfaceVersion
         , InputType::getMinimumInterfaceVersion(), OutputType::getMinimumInterfaceVersion(), m_defaultProtocolVersion, unmanagedPointers);
 }
 
@@ -165,7 +176,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
             const protocol_version_t* pProtVersions = 
                 static_cast<const protocol_version_t*>(static_cast<const void*>(&*(ctxOut.getBinaryData().getVector().begin() + ctxOut.getBinaryData().tell())));
 
-            bool compatProtocolVersion = traits::kProtocolVersionUndefined;
+            protocol_version_t compatProtocolVersion = traits::kProtocolVersionUndefined;
 
             for (protocol_version_t i = 0; i < protVersionsCount; ++i)
                 if (traits::isProtocolVersionSupported(pProtVersions[i]))
@@ -228,7 +239,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
     return Status::kNoError;
 }
 
-inline Status IDataClient::getProtocolCapabilities(SupportedProtocolVersions<>& output) noexcept
+inline Status IDataClient::getServerProtocolVersions(SupportedProtocolVersions<>& output) noexcept
 {
     BinVector binInput;
     context::Common<BinVector> ctxIn(binInput, 1, context::Message::kCommonCapabilitiesRequest);
@@ -259,13 +270,38 @@ inline context::DataFlags IDataClient::getDefaultFlags() const noexcept
     return m_defaultFlags;
 }
 
-inline interface_version_t IDataClient::getServerInterfaceVersion() const noexcept
+inline const Uuid& IDataClient::getDefaultInterfaceId() const noexcept
 {
-    return m_serverInterfaceVersion;
+    return m_defaultInterfaceId;
 }
 
-inline IDataClient::IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, interface_version_t targetInterfaceVersion)
-    : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultFlags(defaultFlags), m_serverInterfaceVersion(targetInterfaceVersion)
+inline interface_version_t IDataClient::getDefaultServerInterfaceVersion() const noexcept
+{
+    return m_defaultServerInterfaceVersion;
+}
+
+inline void IDataClient::setDefaultProtocolVersion(protocol_version_t defaultProtocolVersion) noexcept
+{
+    m_defaultProtocolVersion = defaultProtocolVersion;
+}
+
+inline void IDataClient::setDefaultFlags(context::DataFlags defaultFlags) noexcept
+{
+    m_defaultFlags = defaultFlags;
+}
+
+inline void IDataClient::setDefaultInterfaceId(const Uuid& defaultInterfaceId) noexcept
+{
+    m_defaultInterfaceId = defaultInterfaceId;
+}
+
+inline void IDataClient::setDefaultServerInterfaceVersion(interface_version_t defaultServerInterfaceVersion) noexcept
+{
+    m_defaultServerInterfaceVersion = defaultServerInterfaceVersion;
+}
+
+inline IDataClient::IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, const Uuid& defaultInterfaceId, interface_version_t targetInterfaceVersion)
+    : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultFlags(defaultFlags), m_defaultInterfaceId(defaultInterfaceId), m_defaultServerInterfaceVersion(targetInterfaceVersion)
 { }
 
 template<typename T>
@@ -276,7 +312,7 @@ interface_version_t IDataClient::chooseInterfaceVersion(interface_version_t pref
         = preferedInterfaceVersion == minimumInterfaceVersion
         ? preferedInterfaceVersion
         : preferedInterfaceVersion == traits::kInterfaceVersionUndefined
-            ? m_serverInterfaceVersion
+            ? m_defaultServerInterfaceVersion
             : preferedInterfaceVersion;
 
     // This is also applies when interfaceVersion == traits::kInterfaceVersionUndefined 

@@ -34,6 +34,8 @@ class CommonServer
 {
 public:
     static Status handleMessage(BinWalker& binInput, BinVector& binOutput);
+private:
+    static Status handleCommonCapabilitiesRequest(context::Common<BinWalker>& ctx, BinVector& binOutput);
 };
 
 inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOutput)
@@ -55,8 +57,26 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
 
     if (ctx.getMessageType() == context::Message::kInOutData)
         return IDataServerBase::handleDataCommon(ctx, binOutput);
+    else if (ctx.getMessageType() == context::Message::kCommonCapabilitiesRequest)
+        return handleCommonCapabilitiesRequest(ctx, binOutput);
 
     return Status::kErrorDataCorrupted;
+}
+
+inline Status CommonServer::handleCommonCapabilitiesRequest(context::Common<BinWalker>& ctx, BinVector& binOutput)
+{
+    context::CommonCapabilities requestedCapability;
+
+    RUN(processing::deserializeCommonCapabilitiesRequest(ctx, requestedCapability));
+
+    binOutput.clear();
+
+    context::SData<BinVector> ctxOut(binOutput, 1);
+    ctxOut.setMessageType(context::Message::kCommonCapabilitiesResponse);
+
+    RUN(processing::serializeHeaderContext(ctxOut));
+
+    return processing::serializeCommonCapabilitiesResponse(requestedCapability, ctxOut);
 }
 
 } // namespace common_serialization::csp::messaging
