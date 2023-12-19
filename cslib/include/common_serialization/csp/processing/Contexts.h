@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/Processing.h
+ * @file cslib/include/common_serialization/csp/processing/Contexts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/CSP/ContextInOutData.h"
+#include "common_serialization/csp/context/InOutData.h"
 
 namespace common_serialization::csp::processing
 {

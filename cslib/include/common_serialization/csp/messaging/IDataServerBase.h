@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/MessagingIDataServerBase.h
+ * @file cslib/include/common_serialization/csp/messaging/IDataServerBase.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,8 +24,8 @@
 #pragma once
 
 #include "common_serialization/Containers/Walker.h"
-#include "common_serialization/CSP/MessagingDataServersKeeper.h"
-#include "common_serialization/CSP/ProcessingStatus.h"
+#include "common_serialization/csp/messaging/DataServersKeeper.h"
+#include "common_serialization/csp/processing/Statuses.h"
 
 namespace common_serialization::csp::messaging
 {

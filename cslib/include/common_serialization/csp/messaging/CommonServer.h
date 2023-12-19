@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/MessagingCommonServer.h
+ * @file cslib/include/common_serialization/csp/messaging/CommonServer.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/CSP/ContextCommon.h"
-#include "common_serialization/CSP/MessagingIDataServer.h"
+#include "common_serialization/csp/context/Common.h"
+#include "common_serialization/csp/messaging/IDataServer.h"
 
 
 namespace common_serialization::csp::messaging

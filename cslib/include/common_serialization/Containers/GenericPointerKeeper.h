@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/CSP/Concepts.h"
+#include "common_serialization/csp/Concepts.h"
 
 namespace common_serialization
 {

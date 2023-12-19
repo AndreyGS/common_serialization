@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/MessagingDataServersKeeper.h
+ * @file cslib/include/common_serialization/csp/messaging/DataServersKeeper.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/CSP/ISerializable.h"
+#include "common_serialization/csp/ISerializable.h"
 #include "common_serialization/Concurency/GuardRW.h"
 #include "common_serialization/Containers/Vector.h"
 

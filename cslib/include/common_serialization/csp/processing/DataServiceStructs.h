@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ProcessingDataServiceStructs.h
+ * @file cslib/include/common_serialization/csp/processing/DataServiceStructs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/CSP/MessagingServiceStructs.h"
-#include "common_serialization/CSP/ProcessingDataTemplates.h"
+#include "common_serialization/csp/messaging/ServiceStructs.h"
+#include "common_serialization/csp/processing/DataTemplates.h"
 
 #define SERIALIZE_NO_CONVERSION_COMMON(value, ctx)                                      \
 {                                                                                       \

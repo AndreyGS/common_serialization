@@ -69,13 +69,13 @@
 #include "common_serialization/Allocators/Concepts.h"
 #include "common_serialization/Allocators/RawKeeperAllocator.h"
 #include "common_serialization/Containers/Walker.h"
-#include "common_serialization/CSP/ISerializable.h"
-#include "common_serialization/CSP/ProcessingDataTemplates.h"
-#include "common_serialization/CSP/ProcessingDataServiceStructs.h"
-#include "common_serialization/CSP/ProcessingDataVersionConverters.h"
-#include "common_serialization/CSP/MessagingIDataClient.h"
-#include "common_serialization/CSP/MessagingCommonServer.h"
-#include "common_serialization/CSP/MessagingDataServiceServer.h"
+#include "common_serialization/csp/ISerializable.h"
+#include "common_serialization/csp/processing/DataTemplates.h"
+#include "common_serialization/csp/processing/DataServiceStructs.h"
+#include "common_serialization/csp/processing/DataVersionConverters.h"
+#include "common_serialization/csp/messaging/IDataClient.h"
+#include "common_serialization/csp/messaging/CommonServer.h"
+#include "common_serialization/csp/messaging/DataServiceServer.h"
 
 #undef SET_NEW_ERROR    // defined in common_serialization/Status.h
 #undef RUN              // defined in common_serialization/Status.h

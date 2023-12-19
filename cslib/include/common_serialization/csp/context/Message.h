@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ContextMessage.h
+ * @file cslib/include/common_serialization/csp/context/Message.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

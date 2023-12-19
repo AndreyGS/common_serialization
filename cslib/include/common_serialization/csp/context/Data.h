@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ContextData.h
+ * @file cslib/include/common_serialization/csp/context/Data.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/CSP/ContextCommon.h"
-#include "common_serialization/CSP/ContextDataFlags.h"
+#include "common_serialization/csp/context/Common.h"
+#include "common_serialization/csp/context/DataFlags.h"
 #include "common_serialization/Containers/HashMap.h"
 
 namespace common_serialization::csp::context

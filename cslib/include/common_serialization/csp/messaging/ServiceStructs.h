@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/MessagingServiceStructs.h
+ * @file cslib/include/common_serialization/csp/messaging/ServiceStructs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/CSP/ISerializable.h"
+#include "common_serialization/csp/ISerializable.h"
 
 // Service structs not support version conversion and must always be the same
 // Set is completely depend on protocol version

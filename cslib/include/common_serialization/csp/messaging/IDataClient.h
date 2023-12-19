@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/MessagingIDataClient.h
+ * @file cslib/include/common_serialization/csp/messaging/IDataClient.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "common_serialization/CSP/Processing.h"
-#include "common_serialization/CSP/ProcessingCommonCapabilities.h"
-#include "common_serialization/CSP/ProcessingDataProcessor.h"
-#include "common_serialization/CSP/ProcessingStatus.h"
+#include "common_serialization/csp/processing/CommonCapabilities.h"
+#include "common_serialization/csp/processing/Contexts.h"
+#include "common_serialization/csp/processing/DataProcessor.h"
+#include "common_serialization/csp/processing/Statuses.h"
 
 namespace common_serialization::csp::messaging
 {

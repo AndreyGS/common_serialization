@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ProcessingDataVersionConverters.h
+ * @file cslib/include/common_serialization/csp/processing/DataVersionConverters.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,7 +21,7 @@
  *
  */
 
-#include "common_serialization/CSP/ProcessingDataProcessor.h"
+#include "common_serialization/csp/processing/DataProcessor.h"
 
 namespace common_serialization::csp::processing
 {

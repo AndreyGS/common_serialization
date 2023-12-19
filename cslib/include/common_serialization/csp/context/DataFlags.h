@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ContextDataFlags.h
+ * @file cslib/include/common_serialization/csp/context/DataFlags.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

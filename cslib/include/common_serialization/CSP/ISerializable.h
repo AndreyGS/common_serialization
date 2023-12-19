@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ISerializable.h
+ * @file cslib/include/common_serialization/csp/ISerializable.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/CSP/Processing.h"
-#include "common_serialization/CSP/ProcessingDataProcessor.h"
+#include "common_serialization/csp/processing/Contexts.h"
+#include "common_serialization/csp/processing/DataProcessor.h"
 
 namespace common_serialization::csp
 {

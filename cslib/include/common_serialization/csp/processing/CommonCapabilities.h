@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ProcessingCommonCapabilities.h
+ * @file cslib/include/common_serialization/csp/processing/CommonCapabilities.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "common_serialization/CSP/ContextCommonCapabilities.h"
-#include "common_serialization/CSP/MessagingServiceStructs.h"
-#include "common_serialization/CSP/ProcessingDataServiceStructs.h"
+#include "common_serialization/csp/context/CommonCapabilities.h"
+#include "common_serialization/csp/messaging/ServiceStructs.h"
+#include "common_serialization/csp/processing/DataServiceStructs.h"
 
 namespace common_serialization::csp::processing
 {

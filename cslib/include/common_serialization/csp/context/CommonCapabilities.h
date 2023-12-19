@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ContextCommonCapabilities.h
+ * @file cslib/include/common_serialization/csp/context/CommonCapabilities.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

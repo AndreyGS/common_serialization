@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/Traits.h
+ * @file cslib/include/common_serialization/csp/Traits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

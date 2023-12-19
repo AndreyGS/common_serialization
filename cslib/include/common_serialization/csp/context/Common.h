@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/CSP/ContextCommon.h
+ * @file cslib/include/common_serialization/csp/context/Common.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "common_serialization/CSP/Traits.h"
-#include "common_serialization/CSP/ContextMessage.h"
-#include "common_serialization/CSP/Concepts.h"
+#include "common_serialization/csp/Traits.h"
+#include "common_serialization/csp/context/Message.h"
+#include "common_serialization/csp/Concepts.h"
 #include "common_serialization/Containers/Concepts.h"
 
 namespace common_serialization::csp::context
