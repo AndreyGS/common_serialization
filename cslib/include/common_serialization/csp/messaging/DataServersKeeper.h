@@ -82,10 +82,9 @@ inline void DataServersKeeper::removeServer(const Uuid& id, IDataServerBase* pIn
     auto range = m_serversList.equal_range(id);
     while (range.first != range.second)
         if (range.first->second == pInstance)
-        {
-            m_serversList.erase(range.first);
-            break;
-        }
+            range.first = m_serversList.erase(range.first);
+        else
+            ++range.first;
 }
 
 template<typename T>

@@ -366,6 +366,19 @@ void fillingStruct(interface_for_test::DForAllModesTests<>& output)
 }
 
 template<>
+void fillingStruct(descendant_interface::SimpleStruct<>& output)
+{
+    output.m_i = 218418478;
+}
+
+template<>
+void fillingStruct(descendant_interface::DiamondDescendant<>& output)
+{
+    fillingStruct(static_cast<interface_for_test::Diamond<>&>(output));
+    fillingStruct(output.m_sSt);
+}
+
+template<>
 void fillingStruct(another_yet_interface::SimpleStruct<>& output)
 {
     output.m_i = 27838;

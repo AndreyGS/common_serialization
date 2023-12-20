@@ -143,6 +143,43 @@ TEST(MessagingTests, DataServiceServerTest)
     EXPECT_EQ(outGetInterfaceProps.properties, interfacePropsReference);
 }
 
+TEST(MessagingTests, MainTest)
+{
+    SimpleDataClient dataClient;
+
+    FirstDataServer dataServer1;
+    SecondDataServer dataServer2;
+    ThirdDataServer dataServer3;
+    FourthDataServer dataServer4;
+
+    interface_for_test::SimpleAssignableAlignedToOne<> saaTo;
+    fillingStruct(saaTo);
+
+    interface_for_test::SimpleAssignableDescendant<> sad;
+
+    // Send with parameters by default
+    EXPECT_EQ(dataClient.handleData(saaTo, sad), Status::kNoError);
+
+    interface_for_test::SimpleAssignableDescendant<> sadReference;
+    fillingStruct(sadReference);
+
+    EXPECT_EQ(sad, sadReference);
+
+    csp::context::DataFlags dataFlags;
+    dataFlags.alignmentMayBeNotEqual = true;
+    dataFlags.sizeOfArithmeticTypesMayBeNotEqual = true;
+    dataFlags.checkRecursivePointers = true;
+
+    interface_for_test::SimpleAssignableDescendant<> sad2;
+
+    Vector<GenericPointerKeeper> unmanagedPointers;
+
+    // Test when we send unsupported struct version, and then resend with supported version
+    EXPECT_EQ(dataClient.handleData(saaTo, sad2, dataFlags, 1, 0, 0, 0, csp::traits::getLatestProtocolVersion(), &unmanagedPointers), Status::kNoError);
+
+    EXPECT_EQ(sad2, sadReference);
+}
+
 
 class TestSubscriber
     : csp::messaging::IMethodDataServer<SimpleAssignableAlignedToOne<>, SimpleAssignableDescendant<>

@@ -43,6 +43,10 @@ void fillingStruct(interface_for_test::DynamicPolymorphic<>& output);
 template<>
 void fillingStruct(interface_for_test::Diamond<>& output);
 template<>
+void fillingStruct(descendant_interface::SimpleStruct<>& output);
+template<>
+void fillingStruct(descendant_interface::DiamondDescendant<>& output);
+template<>
 void fillingStruct(another_yet_interface::SimpleStruct<>& output);
 
 namespace cs = common_serialization;

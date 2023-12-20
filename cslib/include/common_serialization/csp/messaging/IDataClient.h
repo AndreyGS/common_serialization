@@ -44,11 +44,11 @@ public:
           const InputType& input
         , OutputType& output
         , context::DataFlags flags
-        , interface_version_t preferedInputInterfaceVersion = m_defaultServerInterfaceVersion
-        , interface_version_t preferedOutputInterfaceVersion = m_defaultServerInterfaceVersion
+        , interface_version_t preferedInputInterfaceVersion = InputType::getInterfaceVersion()
+        , interface_version_t preferedOutputInterfaceVersion = InputType::getInterfaceVersion()
         , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
         , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
-        , protocol_version_t protocolVersion = m_defaultProtocolVersion
+        , protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
         , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
     );
 
@@ -107,20 +107,22 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
     if (outputInterfaceVersion == traits::kInterfaceVersionUndefined)
         return Status::kErrorInvalidArgument;
 
-    if (flags.allowUnmanagedPointers && pUnmanagedPointers == nullptr)
-        return Status::kErrorInvalidArgument;
-
     BinVector binInput;
 
     // First attempt of sending data is made of interface version function parameters
     context::SInOutData<> ctxIn(binInput, protocolVersion, flags, forTempUseHeap, inputInterfaceVersion, outputInterfaceVersion, nullptr);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
-    if (flags.checkRecursivePointers)
+    if (ctxIn.getFlags().checkRecursivePointers)
         ctxIn.setPointersMap(pointersMapIn);
 
     RUN(processing::serializeHeaderContext(ctxIn));
     RUN(processing::serializeInOutDataContext<InputType>(ctxIn));
+
+    // Flags may be changed after processing::serializeInOutDataContext
+    if (ctxIn.getFlags().allowUnmanagedPointers && pUnmanagedPointers == nullptr)
+        return Status::kErrorInvalidArgument;
+
     RUN(processing::DataProcessor::serializeData(input, ctxIn));
 
     pointersMapIn.clear();
@@ -142,18 +144,18 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
         Uuid outId;
 
         RUN(processing::deserializeDataContext(ctxOut, outId));
-        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, outId, minimumOutputInterfaceVersion));
 
-        if (flags != ctxOut.getFlags())
+        if (ctxIn.getFlags() != ctxOut.getFlags())
             return Status::kErrorDataCorrupted;
 
-        if (flags.allowUnmanagedPointers)
+        if (ctxOut.getFlags().allowUnmanagedPointers)
             ctxOut.setAddedPointers(*pUnmanagedPointers);
 
         std::unordered_map<uint64_t, void*> pointersMapOut;
-        if (flags.checkRecursivePointers)
+        if (ctxOut.getFlags().checkRecursivePointers)
             ctxOut.setPointersMap(pointersMapOut);
 
+        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, outId, minimumOutputInterfaceVersion));
         RUN(processing::DataProcessor::deserializeData(ctxOut, output));
     }
     else if (ctxOut.getMessageType() == context::Message::kStatus)
@@ -192,7 +194,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
             ctxOut.clear();
 
             // Try again with the compatible protocol version
-            return handleData<InputType, OutputType, forTempUseHeap>(input, output, flags, inputInterfaceVersion, outputInterfaceVersion
+            return handleData<InputType, OutputType, forTempUseHeap>(input, output, ctxIn.getFlags(), inputInterfaceVersion, outputInterfaceVersion
                 , minimumInputInterfaceVersion, minimumOutputInterfaceVersion, compatProtocolVersion, pUnmanagedPointers);
         }
         else if (statusOut == Status::kErrorNotSupportedInOutInterfaceVersion)
@@ -229,7 +231,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
             ctxOut.clear();
 
             // Try again with the compatible InputType and OutputType versions
-            return handleData<InputType, OutputType, forTempUseHeap>(input, output, flags, compatInputInterfaceVersion, compatOutputInterfaceVersion
+            return handleData<InputType, OutputType, forTempUseHeap>(input, output, ctxIn.getFlags(), compatInputInterfaceVersion, compatOutputInterfaceVersion
                 , compatInputInterfaceVersion, compatOutputInterfaceVersion, protocolVersion, pUnmanagedPointers);
         }
         else
