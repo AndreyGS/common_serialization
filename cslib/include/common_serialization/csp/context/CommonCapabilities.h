@@ -26,6 +26,9 @@
 namespace common_serialization::csp::context
 {
 
+/// <summary>
+/// CSP capabilities
+/// </summary>
 enum class CommonCapabilities : uint_fast32_t
 {
     kSupportedProtocolVersions = 0x0

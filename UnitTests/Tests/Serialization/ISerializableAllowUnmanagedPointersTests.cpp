@@ -37,9 +37,9 @@ void mainTest()
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
+    csp::context::DataFlags dataFlags;
+    dataFlags.allowUnmanagedPointers = true;
+    ctxIn.setDataFlags(dataFlags);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
@@ -47,7 +47,7 @@ void mainTest()
 
     csp::context::DData<> ctxOut(bin);
     Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
+    ctxOut.setAddedPointers(&addedPointers);
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());

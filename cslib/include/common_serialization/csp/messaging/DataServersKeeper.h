@@ -37,14 +37,14 @@ class DataServersKeeper
 public:
     static DataServersKeeper& GetDataServersKeeper();
 
-    Status addServer(const Uuid& id, bool multicast, IDataServerBase* pInstance);
-    void removeServer(const Uuid& id, IDataServerBase* pInstance);
+    Status addServer(const Id& id, bool multicast, IDataServerBase* pInstance);
+    void removeServer(const Id& id, IDataServerBase* pInstance);
 
     template<typename T>
         requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
-    Status findServers(const Uuid& id, T& servers);
+    Status findServers(const Id& id, T& servers);
 
-    Status findServer(const Uuid& id, IDataServerBase*& pServer);
+    Status findServer(const Id& id, IDataServerBase*& pServer);
 
 private:
     DataServersKeeper() {}
@@ -53,7 +53,7 @@ private:
     DataServersKeeper& operator=(const DataServersKeeper&) = delete;
     DataServersKeeper& operator=(DataServersKeeper&&) noexcept = delete;
 
-    std::unordered_multimap<Uuid, IDataServerBase*> m_serversList;
+    std::unordered_multimap<Id, IDataServerBase*> m_serversList;
     SharedMutex m_serversListMutex;
 };
 
@@ -63,7 +63,7 @@ inline DataServersKeeper& DataServersKeeper::GetDataServersKeeper()
     return serversKeeper;
 }
 
-inline Status DataServersKeeper::addServer(const Uuid& id, bool multicast, IDataServerBase* pInstance)
+inline Status DataServersKeeper::addServer(const Id& id, bool multicast, IDataServerBase* pInstance)
 {
     GuardW guard(m_serversListMutex);
 
@@ -75,7 +75,7 @@ inline Status DataServersKeeper::addServer(const Uuid& id, bool multicast, IData
     return Status::kNoError;
 }
 
-inline void DataServersKeeper::removeServer(const Uuid& id, IDataServerBase* pInstance)
+inline void DataServersKeeper::removeServer(const Id& id, IDataServerBase* pInstance)
 {
     GuardW guard(m_serversListMutex);
 
@@ -89,7 +89,7 @@ inline void DataServersKeeper::removeServer(const Uuid& id, IDataServerBase* pIn
 
 template<typename T>
     requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
-Status DataServersKeeper::findServers(const Uuid& id, T& servers)
+Status DataServersKeeper::findServers(const Id& id, T& servers)
 {
     servers.clear();
 
@@ -105,7 +105,7 @@ Status DataServersKeeper::findServers(const Uuid& id, T& servers)
     return servers.size() ? Status::kNoError : Status::kErrorNoSuchHandler;
 }
 
-inline Status DataServersKeeper::findServer(const Uuid& id, IDataServerBase*& pServer)
+inline Status DataServersKeeper::findServer(const Id& id, IDataServerBase*& pServer)
 {
     GuardR guard(m_serversListMutex);
 

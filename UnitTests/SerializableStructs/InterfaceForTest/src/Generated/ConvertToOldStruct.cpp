@@ -36,7 +36,7 @@ template<>
 Status DataProcessor::convertToOldStruct(const interface_for_test::SimpleAssignableAlignedToOne<>& value, uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
-    assert(value.getThisVersion() != targetVersion);
+    assert(value.getLatestPrivateVersion() != targetVersion);
 
     ToVersionConverter<
                         interface_for_test::SimpleAssignableAlignedToOne_Version1<>
@@ -52,7 +52,7 @@ template<>
 Status DataProcessor::convertToOldStruct(const interface_for_test::SimpleAssignable<>& value, uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
-    assert(value.getThisVersion() != targetVersion);
+    assert(value.getLatestPrivateVersion() != targetVersion);
 
     ToVersionConverter<
                         interface_for_test::SimpleAssignable_Version0<>
@@ -67,7 +67,7 @@ template<>
 Status DataProcessor::convertToOldStruct(const interface_for_test::SimpleAssignableDescendant<>& value, uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
-    assert(value.getThisVersion() != targetVersion);
+    assert(value.getLatestPrivateVersion() != targetVersion);
 
     ToVersionConverter<
                         interface_for_test::SimpleAssignableDescendant_Version0<>
@@ -82,7 +82,7 @@ template<>
 Status DataProcessor::convertToOldStruct(const interface_for_test::DForAllModesTests<>& value, uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
-    assert(value.getThisVersion() != targetVersion);
+    assert(value.getLatestPrivateVersion() != targetVersion);
 
     ToVersionConverter<
                         interface_for_test::SForAllModesTests_Version2<>

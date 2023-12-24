@@ -83,7 +83,7 @@ enum class Message : uint_fast32_t
                                             //     struct
                                             //     {
                                             //         uuid inStructId;
-                                            //         DataFlags flags;
+                                            //         DataFlags dataFlags;
                                             //         uint32_t interfaceVersion;
                                             //     } dataSpecificHeader;
                                             //     
@@ -101,7 +101,7 @@ enum class Message : uint_fast32_t
                                             //     struct
                                             //     {
                                             //         uuid inStructId;
-                                            //         DataFlags flags;
+                                            //         DataFlags dataFlags;
                                             //         uint32_t inInterfaceVersion;
                                             //         uint32_t outInterfaceVersion;
                                             //     } dataSpecificHeader;

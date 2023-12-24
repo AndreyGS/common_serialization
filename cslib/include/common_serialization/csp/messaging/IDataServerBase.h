@@ -48,19 +48,19 @@ protected:
 inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput)
 {
     context::DInOutData<> ctx(ctxCommon);
-    Uuid id;
+    Id id;
 
     RUN(processing::deserializeInOutDataContext(ctx, id));
     
-    context::DataFlags flags = ctx.getFlags();
+    context::DataFlags dataFlags = ctx.getDataFlags();
 
     Vector<GenericPointerKeeper> addedPointers;
-    if (flags.allowUnmanagedPointers)
-        ctx.setAddedPointers(addedPointers);
+    if (dataFlags.allowUnmanagedPointers)
+        ctx.setAddedPointers(&addedPointers);
 
     std::unordered_map<uint64_t, void*> pointersMap;
-    if (flags.checkRecursivePointers)
-        ctx.setPointersMap(pointersMap);
+    if (dataFlags.checkRecursivePointers)
+        ctx.setPointersMap(&pointersMap);
     
     IDataServerBase* pServer{ nullptr };
     Status status = Status::kNoError;

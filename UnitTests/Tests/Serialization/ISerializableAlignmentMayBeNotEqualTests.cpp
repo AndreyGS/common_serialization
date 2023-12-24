@@ -38,9 +38,9 @@ void mainTest()
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.alignmentMayBeNotEqual = true;
-    ctxIn.setFlags(flags);
+    csp::context::DataFlags dataFlags;
+    dataFlags.alignmentMayBeNotEqual = true;
+    ctxIn.setDataFlags(dataFlags);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
@@ -72,9 +72,9 @@ TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableDataSizeT)
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.alignmentMayBeNotEqual = true;
-    ctxIn.setFlags(flags);
+    csp::context::DataFlags dataFlags;
+    dataFlags.alignmentMayBeNotEqual = true;
+    ctxIn.setDataFlags(dataFlags);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 

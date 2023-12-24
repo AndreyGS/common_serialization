@@ -70,7 +70,7 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-constexpr Status DataProcessor::serializeData(const Uuid& value, context::SData<>& ctx)
+constexpr Status DataProcessor::serializeData(const Id& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
@@ -81,7 +81,7 @@ constexpr Status DataProcessor::serializeData(const Uuid& value, context::SData<
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Uuid& value)
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
 

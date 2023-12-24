@@ -183,7 +183,7 @@ TEST(MessagingTests, MainTest)
 
 class TestSubscriber
     : csp::messaging::IMethodDataServer<SimpleAssignableAlignedToOne<>, SimpleAssignableDescendant<>
-        , true, false, SimpleAssignableAlignedToOne<>::getMinimumInterfaceVersion(), 3>
+        , true, false, SimpleAssignableAlignedToOne<>::getOriginPrivateVersion(), 3>
     , csp::messaging::IStaticDataServer<TestSubscriber, Diamond<>, DynamicPolymorphic<>, false>
 {
 public:

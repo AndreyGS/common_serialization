@@ -35,9 +35,9 @@ public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne_Version0<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr cs::Uuid kId = SimpleAssignableAlignedToOne<>::getId();
+    static constexpr cs::csp::Id kId = SimpleAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
 
     SimpleAssignableAlignedToOne_Version0() { }
     template<typename T2>
@@ -71,9 +71,9 @@ public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignable_Version0<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr cs::Uuid kId = SimpleAssignable<>::getId();
+    static constexpr cs::csp::Id kId = SimpleAssignable<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;         // latest version among all dependable structs
-    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
 
     template<typename T2>
     cs::Status init(const SimpleAssignable<T2>& rhs);
@@ -216,9 +216,9 @@ struct SimpleAssignableDescendant_Version0 : public SimpleAssignable_Version0<cs
     using instance_type = cs::GetCrtpMainType<SimpleAssignableDescendant_Version0<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr cs::Uuid kId = SimpleAssignableDescendant<>::getId();
+    static constexpr cs::csp::Id kId = SimpleAssignableDescendant<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
 
     uint32_t m_d{ 0 };
 
@@ -290,9 +290,9 @@ class SForAllModesTests_Version0 : public cs::csp::ISerializable<cs::GetCrtpMain
 public:
     using instance_type = cs::GetCrtpMainType<SForAllModesTests_Version0<T>, T>;
 
-    static constexpr cs::Uuid kId = DForAllModesTests<>::getId();
+    static constexpr cs::csp::Id kId = DForAllModesTests<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
 
     template<typename T2>
     cs::Status init(const SForAllModesTests_Version2<T2>& rhs);
@@ -330,9 +330,9 @@ public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne_Version1<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr cs::Uuid kId = SimpleAssignableAlignedToOne<>::getId();
+    static constexpr cs::csp::Id kId = SimpleAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
-    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 1, 0 };
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 1, 0 };
 
     SimpleAssignableAlignedToOne_Version1() { }
     template<typename T2>
@@ -392,9 +392,9 @@ class SForAllModesTests_Version2 : public cs::csp::ISerializable<cs::GetCrtpMain
 public:
     using instance_type = cs::GetCrtpMainType<SForAllModesTests_Version2<T>, T>;
 
-    static constexpr cs::Uuid kId = DForAllModesTests<>::getId();
+    static constexpr cs::csp::Id kId = DForAllModesTests<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 2;
-    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 2, 0 };
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 2, 0 };
 
     template<typename T2>
     cs::Status init(const SForAllModesTests_Version0<T2>& rhs);

@@ -60,7 +60,7 @@ constexpr Status serializeCommonCapabilitiesResponse(context::CommonCapabilities
         messaging::SupportedProtocolVersions<> supportedProtocolVersions;
         RUN(supportedProtocolVersions.list.pushBackN(traits::kProtocolVersions, std::size(traits::kProtocolVersions)));
 
-        Uuid id = supportedProtocolVersions.getId();
+        Id id = supportedProtocolVersions.getId();
 
         RUN(DataProcessor::serializeData(id, ctx));
         RUN(DataProcessor::serializeData(supportedProtocolVersions, ctx));
@@ -77,7 +77,7 @@ constexpr Status deserializeCommonCapabilitiesResponse(context::DData<D>& ctx, c
 {
     D& input = ctx.getBinaryData();
 
-    Uuid id;
+    Id id;
     RUN(DataProcessor::deserializeData(ctx, id));
 
     if (id != T::getId())

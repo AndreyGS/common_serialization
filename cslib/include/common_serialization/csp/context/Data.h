@@ -30,99 +30,141 @@
 namespace common_serialization::csp::context
 {
 
-class InterfaceVersionsProcessing
-{
-public:
-    InterfaceVersionsProcessing() {}
-    InterfaceVersionsProcessing(const InterfaceVersionsProcessing& rhs) 
-        : m_auxUsingHeapAllocation(rhs.m_auxUsingHeapAllocation), m_interfaceVersion(rhs.m_interfaceVersion), m_interfaceVersionsNotMatch(rhs.m_interfaceVersionsNotMatch)
-    { }
-    InterfaceVersionsProcessing(bool auxUsingHeapAllocation, interface_version_t interfaceVersion, bool interfaceVersionsNotMatch = false)
-        : m_auxUsingHeapAllocation(auxUsingHeapAllocation), m_interfaceVersion(interfaceVersion), m_interfaceVersionsNotMatch(interfaceVersionsNotMatch)
-    { }
-
-    [[nodiscard]] constexpr bool isAuxUsingHeapAllocation() const noexcept { return m_auxUsingHeapAllocation; }
-    constexpr void setAuxUsingHeapAllocation(bool auxUsingHeapAllocation) { m_auxUsingHeapAllocation = auxUsingHeapAllocation; }
-
-    [[nodiscard]] constexpr interface_version_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
-    constexpr void setInterfaceVersion(interface_version_t interfaceVersion) { m_interfaceVersion = interfaceVersion; }
-
-    [[nodiscard]] constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
-    constexpr void setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; }
-
-    void clear()
-    {
-        m_interfaceVersion = traits::kInterfaceVersionUndefined;
-        m_interfaceVersionsNotMatch = false;
-        // m_auxUsingHeapAllocation is not resets to false, cause it's rather environment tool option instead of struct/operation specific
-    }
-
-private:
-    interface_version_t m_interfaceVersion{ traits::kInterfaceVersionUndefined };
-    bool m_interfaceVersionsNotMatch = false;
-    bool m_auxUsingHeapAllocation = false;  // flag indicates that auxillary created structs in conversion functions must be placed in heap instead of stack
-};
-
-// Because of std::conditional_t evaluation traits in instantiation of template Data
-// we cannot use more restricted concept here (ISerializationPointersMap)
-// Note that you shall manualy clear map container after use (you can use clear method if you wish)
+/// <summary>
+/// Auxillary class for holding pointers map to prevent infinite recursive pointers serialization.
+/// </summary>
+/// <typeparam name="PM">
+/// Map that implements ISerializationPointersMap interface
+/// We cannot direct use more restricted concept here
+/// because std::conditional_t evaluating traits in instantiation of template Data.
+/// </typeparam>
 template<IPointersMap PM>
 class SerializeExtendedPointersProcessing
 {
 public:
+
+    /// <summary>
+    /// Default constructor
+    /// </summary>
     SerializeExtendedPointersProcessing()
         : m_pPointersMap(nullptr)
     { }
 
-    SerializeExtendedPointersProcessing(PM* pointersMap)
-        : m_pPointersMap(pointersMap)
+    /// <summary>
+    /// Constructor from IPointersMap
+    /// </summary>
+    /// <param name="pointersMap">Pointer to map that implements ISerializationPointersMap interface</param>
+    SerializeExtendedPointersProcessing(PM* pPointersMap)
+        : m_pPointersMap(pPointersMap)
     { }
 
+    /// <summary>
+    /// Get pointer to holding pointers map
+    /// </summary>
+    /// <returns>Pointer to pointers map</returns>
     [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
     [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
-    constexpr void setPointersMap(PM& pointersMap) noexcept { m_pPointersMap = &pointersMap; }
 
+    /// <summary>
+    /// Set holding pointers map.
+    /// You should notice that when we set map to SerializeExtendedPointersProcessing 
+    /// it will not owns this map and does not clears its contents on destruction.
+    /// </summary>
+    /// <param name="pointersMap">Set pointer map to this</param>
+    constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
+
+    /// <summary>
+    /// Clears contents of holding pointers map
+    /// </summary>
     void clear()
     {
         if (m_pPointersMap)
             m_pPointersMap->clear();
     }
 
-    void release()
-    {
-        m_pPointersMap = nullptr;
-    }
-
 private:
     PM* m_pPointersMap{ nullptr };
 };
 
-// Because of std::conditional_t evaluation traits in instantiation of template Data
-// we cannot use more restricted concept here (IDeserializationPointersMap).
-// Note that you shall manualy clear all containers after use (you can use clear method if you wish)
+/// <summary>
+/// Auxillary class for holding pointers containers using in some deserialization scenarios
+/// </summary>
+/// <typeparam name="PC">
+/// Container that implements IGenericPointersKeeperContainer interface.
+/// Using for keeping additional free pointers that creates deserialization process.
+/// When pointers are no longer needed it should be freed.
+/// </typeparam>
+/// <typeparam name="PM">
+/// Map that implements IDeserializationPointersMap interface
+/// We cannot direct use more restricted concept here
+/// because std::conditional_t evaluating traits in instantiation of template Data.
+/// </typeparam>
+/// <typeparam name="Allocator">
+/// Stateless Allocator that would be used for free pointers allocation
+/// (should be construction capabale)
+/// </typeparam>
+/// <typeparam name="AllocatorHelper">
+/// Stateless AllocatorHelper that would be used for free pointers allocation help
+/// (should be construction capabale)
+/// </typeparam>
 template<IGenericPointersKeeperContainer PC, IPointersMap PM
     , template<typename> typename Allocator = ConstructorNoexceptAllocator, template<typename, typename> typename AllocatorHelper = GenericAllocatorHelper>
 class DeserializeExtendedPointersProcessing
 {
 public:
+
+    /// <summary>
+    /// Default constuctor
+    /// </summary>
     DeserializeExtendedPointersProcessing()
         : m_pAddedPointers(nullptr), m_pPointersMap(nullptr)
     { }
 
-    DeserializeExtendedPointersProcessing(PC* addedPonters, PM* pointersMap)
-        : m_pAddedPointers(addedPonters), m_pPointersMap(pointersMap)
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="pAddedPonters">Pointer to additional free pointers container</param>
+    /// <param name="pPointersMap">Pointer to map that implements IDeserializationPointersMap interface</param>
+    DeserializeExtendedPointersProcessing(PC* pAddedPonters, PM* pPointersMap)
+        : m_pAddedPointers(pAddedPonters), m_pPointersMap(pPointersMap)
     { }
 
+    /// <summary>
+    /// Get pointer to added free pointers container
+    /// </summary>
+    /// <returns>Pointer to added free pointers container</returns>
     [[nodiscard]] constexpr PC* getAddedPointers() noexcept { return m_pAddedPointers; }
     [[nodiscard]] constexpr const PC* getAddedPointers() const noexcept { return m_pAddedPointers; }
-    constexpr void setAddedPointers(PC& addedPointers) noexcept { m_pAddedPointers = &addedPointers; }
 
+    /// <summary>
+    /// Set holding pointer to added pointers container
+    /// You should notice that when we set map to DeserializeExtendedPointersProcessing 
+    /// it will not owns this container and does not clears its contents on destruction.
+    /// </summary>
+    /// <param name="addedPointers">Pointer to added free pointers container<</param>
+    constexpr void setAddedPointers(PC* pAddedPointers) noexcept { m_pAddedPointers = pAddedPointers; }
+
+    /// <summary>
+    /// Get pointer to holding pointers map
+    /// </summary>
+    /// <returns>Pointer to pointers map</returns>
     [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
     [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
-    constexpr void setPointersMap(PM& pointersMap) noexcept { m_pPointersMap = &pointersMap; }
+
+    /// <summary>
+    /// Set holding pointers map.
+    /// You should notice that when we set map to DeserializeExtendedPointersProcessing 
+    /// it will not owns this map and does not clears its contents on destruction.
+    /// </summary>
+    /// <param name="pointersMap">Set pointer map to this</param>
+    constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
     
-    // allocates memory for type T and costructs default object
-    // only stateless AllocatorHelpers are allowed
+    /// <summary>
+    /// Allocates memory for type T and costructs default T-object,
+    /// and then places it to container of added free pointers.
+    /// </summary>
+    /// <typeparam name="T">Type of object to allocate and construct</typeparam>
+    /// <returns>Pointer of costructed object</returns>
     template<typename T>
         requires IConstructorAllocator<Allocator<T>>
     [[nodiscard]] T* allocateAndDefaultConstruct() const noexcept
@@ -140,6 +182,9 @@ public:
         return p;
     }
 
+    /// <summary>
+    /// Clears contents of holding containers
+    /// </summary>
     void clear()
     {
         if (m_pAddedPointers)
@@ -149,20 +194,24 @@ public:
             m_pPointersMap->clear();
     }
 
-    void release()
-    {
-        m_pAddedPointers = nullptr;
-        m_pPointersMap = nullptr;
-    }
-
 private:
     PC* m_pAddedPointers{ nullptr };
     PM* m_pPointersMap{ nullptr };
 };
 
+// 
 
-// Class Data is a base context class that is using
-// unordered_map shall be replaced by common_serialization::HashMap when it would be ready
+/// <summary>
+/// Holder of context in processing message of type Data
+/// </summary>
+/// <typeparam name="Container">Container capable to serialization/deserialization</typeparam>
+/// <typeparam name="serialize">Type of scenario (serialization|deserialization) for specialization</typeparam>
+/// <typeparam name="PM">
+/// Map that implements ISerializationPointersMap or IDeserializationPointersMap interface.
+/// (std::unordered_map shall be replaced by common_serialization::HashMap when it would be ready)
+/// </typeparam>
+/// <typeparam name="PC">Container that implements IGenericPointersKeeperContainer interface</typeparam>
+/// <typeparam name="EPP">SerializeExtendedPointersProcessing or DeserializeExtendedPointersProcessing (depends on serialize flag)</typeparam>
 template< 
           typename Container
         , bool serialize = true
@@ -175,87 +224,200 @@ template<
 class Data : public Common<Container>
 {
 public:
-    constexpr Data(Container& container
-        , DataFlags flags = DataFlags{}, bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="container">Container that hold or would hold binary data from processing</param>
+    /// <param name="dataFlags">Data flags that are using in processing</param>
+    /// <param name="auxUsingHeapAllocation">Should allocation of temp data be used on heap instead of stack</param>
+    /// <param name="interfaceVersion">Target interface version</param>
+    constexpr Data(Container& binaryData
+        , DataFlags dataFlags = DataFlags{}, bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Common<Container>(container, traits::getLatestProtocolVersion(), Message::kData)
-        , m_flags(flags), m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
+        : Common<Container>(binaryData, traits::getLatestProtocolVersion(), Message::kData)
+        , m_flags(dataFlags), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 
-    constexpr Data(Common<Container>& common, DataFlags flags = DataFlags{}, bool auxUsingHeapAllocation = true
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="common">Reference on Common</param>
+    /// <param name="dataFlags">Data flags that are using in processing</param>
+    /// <param name="auxUsingHeapAllocation">Should allocation of temp data be used on heap instead of stack</param>
+    /// <param name="interfaceVersion">Target interface version</param>
+    constexpr Data(Common<Container>& common, DataFlags dataFlags = DataFlags{}, bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
         : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), Message::kData)
-        , m_flags(flags), m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion)
+        , m_flags(dataFlags), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
-
+    
+    /// <summary>
+    /// Copy constructor
+    /// </summary>
+    /// <param name="rhs">Another instance</param>
     constexpr Data(Data<Container, serialize, PM, PC, EPP>& rhs) noexcept
         : Common<Container>(rhs.getBinaryData(), rhs.getProtocolVersion(), rhs.getMessageType())
-        , m_flags(rhs.m_flags), m_interfaceVersionsProcessing(rhs.m_interfaceVersionsProcessing), m_epp(rhs.m_epp)
+        , m_flags(rhs.m_flags), m_epp(rhs.m_epp), m_interfaceVersion(rhs.interfaceVersion), m_auxUsingHeapAllocation(rhs.auxUsingHeapAllocation)
     { }
 
-    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags = DataFlags{}
+    /// <summary>
+    /// Constructor (availible only on serialization mode)
+    /// </summary>
+    /// <param name="binaryData">Container that hold or would hold binary data from processing</param>
+    /// <param name="protocolVersion">Protocol version that would be used in process</param>
+    /// <param name="dataFlags">Data flags that are using in processing</param>
+    /// <param name="auxUsingHeapAllocation">Should allocation of temp data be used on heap instead of stack</param>
+    /// <param name="interfaceVersion">Target interface version</param>
+    /// <param name="pointersMap">Pointer to map that implements ISerializationPointersMap interface</param>
+    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags dataFlags = DataFlags{}
         , bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined, PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
-            : Common<Container>(binaryData, protocolVersion, Message::kData), m_flags(flags)
-            , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion), m_epp(pPointersMap)
+            : Common<Container>(binaryData, protocolVersion, Message::kData), m_flags(dataFlags)
+            , m_epp(pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 
-    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags flags = DataFlags{}
-        , bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined, PC* pPointersContainer = nullptr, PM* pPointersMap = nullptr
+    /// <summary>
+    /// Constructor (availible only on deserialization mode)
+    /// </summary>
+    /// <param name="binaryData">Container that hold or would hold binary data from processing</param>
+    /// <param name="protocolVersion">Protocol version that would be used in process</param>
+    /// <param name="dataFlags">Data flags that are using in processing</param>
+    /// <param name="auxUsingHeapAllocation">Should allocation of temp data be used on heap instead of stack</param>
+    /// <param name="interfaceVersion">Target interface version</param>
+    /// <param name="pAddedPointers">Pointer to additional free pointers container</param>
+    /// <param name="pPointersMap">Pointer to map that implements IDeserializationPointersMap interface</param>
+    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags dataFlags = DataFlags{}
+        , bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined, PC* pAddedPointers = nullptr, PM* pPointersMap = nullptr
     ) noexcept
         requires !serialize
-            : Common<Container>(binaryData, protocolVersion, Message::kData), m_flags(flags)
-            , m_interfaceVersionsProcessing(auxUsingHeapAllocation, interfaceVersion), m_epp(pPointersContainer, pPointersMap)
+            : Common<Container>(binaryData, protocolVersion, Message::kData), m_flags(dataFlags)
+            , m_epp(pAddedPointers, pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 
-    [[nodiscard]] constexpr DataFlags getFlags() noexcept { return m_flags; }
-    constexpr void setFlags(DataFlags flags) { m_flags = flags; }
+    /// <summary>
+    /// Get data processing flags
+    /// </summary>
+    /// <returns>Data processing flags</returns>
+    [[nodiscard]] constexpr DataFlags getDataFlags() noexcept { return m_flags; }
 
-    template<typename Flag>
-    constexpr void setFlag(Flag flag, bool value) { m_flags.*flag = value; }
+    /// <summary>
+    /// Set data processing flags
+    /// </summary>
+    /// <param name="dataFlags">Data processing flags</param>
+    constexpr void setDataFlags(DataFlags dataFlags) { m_flags = dataFlags; }
 
-    [[nodiscard]] constexpr interface_version_t getInterfaceVersion() const noexcept { return m_interfaceVersionsProcessing.getInterfaceVersion(); }
-    constexpr void setInterfaceVersion(interface_version_t interfaceVersion) { m_interfaceVersionsProcessing.setInterfaceVersion(interfaceVersion); }
+    /// <summary>
+    /// Get target interface version
+    /// </summary>
+    /// <returns>Target interface version</returns>
+    [[nodiscard]] constexpr interface_version_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
+    constexpr void setInterfaceVersion(interface_version_t interfaceVersion) { m_interfaceVersion = interfaceVersion; }
 
-    [[nodiscard]] constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsProcessing.isInterfaceVersionsNotMatch(); }
-    constexpr void setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsProcessing.setInterfaceVersionsNotMatch(interfaceVersionsNotMatch); }
+    /// <summary>
+    /// Is target interface version differs of latest version of top struct that is processed
+    /// </summary>
+    /// <returns>Flag indicating that interface versions are not match</returns>
+    [[nodiscard]] constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
 
-    [[nodiscard]] constexpr bool isAuxUsingHeapAllocation() const noexcept { return m_interfaceVersionsProcessing.isAuxUsingHeapAllocation(); }
-    constexpr void setAuxUsingHeapAllocation(bool auxUsingHeapAllocation) { m_interfaceVersionsProcessing.setAuxUsingHeapAllocation(auxUsingHeapAllocation); }
+    /// <summary>
+    /// If target interface version is differs from top struct interface version, true must be set.
+    /// Should be used before start of data processing.
+    /// </summary>
+    /// <param name="interfaceVersionsNotMatch">Flag indicating that interface versions are not match</param>
+    constexpr void setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; }
 
+    /// <summary>
+    /// Test if allocation of temp data would be used on heap instead of stack
+    /// </summary>
+    /// <returns>Is allocation of temp data would be used on heap instead of stack</returns>
+    [[nodiscard]] constexpr bool isAuxUsingHeapAllocation() const noexcept { return m_auxUsingHeapAllocation; }
+
+    /// <summary>
+    /// Set that allocation of temp data should use heap or stack
+    /// </summary>
+    /// <param name="auxUsingHeapAllocation">Flag indicating type of temp allocation</param>
+    constexpr void setAuxUsingHeapAllocation(bool auxUsingHeapAllocation) { m_auxUsingHeapAllocation = auxUsingHeapAllocation; }
+
+    /// <summary>
+    /// Get pointer to holding pointers map
+    /// </summary>
+    /// <returns>Pointer to pointers map</returns>
     [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_epp.getPointersMap(); }
     [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_epp.getPointersMap(); }
-    constexpr void setPointersMap(PM& pointersMap) noexcept { m_epp.setPointersMap(pointersMap); }
 
+    /// <summary>
+    /// Set holding pointers map.
+    /// You should notice that when we set map to Data 
+    /// it will not owns this map and does not clears its contents on destruction.
+    /// </summary>
+    /// <param name="pointersMap">Set pointer map to this</param>
+    constexpr void setPointersMap(PM* pPointersMap) noexcept { m_epp.setPointersMap(pPointersMap); }
+
+    /// <summary>
+    /// Get pointer to added free pointers container.
+    /// (availible only on deserialization mode)
+    /// </summary>
+    /// <returns>Pointer to added free pointers container</returns>
     [[nodiscard]] constexpr PC* getAddedPointers() noexcept requires !serialize { return m_epp.getAddedPointers(); }
     [[nodiscard]] constexpr const PC* getAddedPointers() const noexcept requires !serialize { return m_epp.getAddedPointers(); }
-    constexpr void setAddedPointers(PC& addedPointers) noexcept requires !serialize { m_epp.setAddedPointers(addedPointers); }
 
+    /// <summary>
+    /// Set holding pointer to added pointers container
+    /// You should notice that when we set map to Data 
+    /// it will not owns this container and does not clears its contents on destruction.
+    /// (availible only on deserialization mode)
+    /// </summary>
+    /// <param name="addedPointers">Pointer to added free pointers container<</param>
+    constexpr void setAddedPointers(PC* pAddedPointers) noexcept requires !serialize { m_epp.setAddedPointers(pAddedPointers); }
+
+    /// <summary>
+    /// Allocates memory for type T and costructs default T-object,
+    /// and then places it to container of added free pointers.
+    /// (availible only on deserialization mode)
+    /// </summary>
+    /// <typeparam name="T">Type of object to allocate and construct</typeparam>
+    /// <returns>Pointer of costructed object</returns>
     template<typename T>
     [[nodiscard]] T* allocateAndDefaultConstruct() const noexcept requires !serialize { return m_epp.allocateAndDefaultConstruct<T>(); }
 
+    /// <summary>
+    /// Reset all fields to their default values, but leaves processed binary data unchanged.
+    /// Also notice that flag of using heap allocation too not resets to false,
+    /// cause it's rather environment tool option instead of struct/operation specific.
+    /// </summary>
     void resetToDefaultsExceptDataContents() noexcept override
     {
         Common<Container>::resetToDefaultsExceptDataContents();
         m_flags = DataFlags{};
-        m_interfaceVersionsProcessing.clear();
+        m_interfaceVersion = traits::kInterfaceVersionUndefined;
+        m_interfaceVersionsNotMatch = false;
+        // 
         m_epp.clear();
     }
 
+    /// <summary>
+    /// Reset all fields to their default values and clears binary data container
+    /// Also notice that flag of using heap allocation too not resets to false,
+    /// cause it's rather environment tool option instead of struct/operation specific.
+    /// </summary>
     void clear() noexcept override
     {
         Common<Container>::clear();
         m_flags = DataFlags{};
-        m_interfaceVersionsProcessing.clear();
+        m_interfaceVersion = traits::kInterfaceVersionUndefined;
+        m_interfaceVersionsNotMatch = false;
         m_epp.clear();
     }
 
 private:
     DataFlags m_flags = DataFlags{};
-    InterfaceVersionsProcessing m_interfaceVersionsProcessing;
     EPP  m_epp;
+    interface_version_t m_interfaceVersion{ traits::kInterfaceVersionUndefined };
+    bool m_interfaceVersionsNotMatch = false;
+    bool m_auxUsingHeapAllocation = false;
 };
 
 template<ISerializationCapableContainer S = BinVector, ISerializationPointersMap PM = std::unordered_map<const void*, uint64_t>>

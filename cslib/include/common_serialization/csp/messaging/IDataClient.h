@@ -43,11 +43,11 @@ public:
     Status handleData(
           const InputType& input
         , OutputType& output
-        , context::DataFlags flags
-        , interface_version_t preferedInputInterfaceVersion = InputType::getInterfaceVersion()
-        , interface_version_t preferedOutputInterfaceVersion = InputType::getInterfaceVersion()
-        , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
-        , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
+        , context::DataFlags dataFlags
+        , interface_version_t preferedInputInterfaceVersion = InputType::getLatestInterfaceVersion()
+        , interface_version_t preferedOutputInterfaceVersion = InputType::getLatestInterfaceVersion()
+        , interface_version_t minimumInputInterfaceVersion = InputType::getOriginPrivateVersion()
+        , interface_version_t minimumOutputInterfaceVersion = OutputType::getOriginPrivateVersion()
         , protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
         , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
     );
@@ -56,17 +56,17 @@ public:
 
     protocol_version_t getDefaultProtocolVersion() const noexcept;
     context::DataFlags getDefaultFlags() const noexcept;
-    const Uuid& getDefaultInterfaceId() const noexcept;
+    const Id& getDefaultInterfaceId() const noexcept;
     interface_version_t getDefaultServerInterfaceVersion() const noexcept;
 
     void setDefaultProtocolVersion(protocol_version_t defaultProtocolVersion) noexcept;
     void setDefaultFlags(context::DataFlags defaultFlags) noexcept;
-    void setDefaultInterfaceId(const Uuid& defaultInterfaceId) noexcept;
+    void setDefaultInterfaceId(const Id& defaultInterfaceId) noexcept;
     void setDefaultServerInterfaceVersion(interface_version_t defaultServerInterfaceVersion) noexcept;
 
 protected:
     IDataClient() {}
-    IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, const Uuid& defaultInterfaceId, interface_version_t targetInterfaceVersion);
+    IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, const Id& defaultInterfaceId, interface_version_t targetInterfaceVersion);
 
 private:
     template<typename T>
@@ -81,7 +81,7 @@ private:
     // There can be more than one interfaces on server
     // And for simplicity we should apply default parameters to only one of it
     // ID of that interface is filling for informational purposes
-    Uuid m_defaultInterfaceId;
+    Id m_defaultInterfaceId;
     interface_version_t m_defaultServerInterfaceVersion{ traits::kInterfaceVersionUndefined };
 };
 
@@ -90,12 +90,12 @@ template<typename InputType, typename OutputType, bool forTempUseHeap>
 Status IDataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers)
 {
     return handleData(input, output, m_defaultFlags, m_defaultServerInterfaceVersion, m_defaultServerInterfaceVersion
-        , InputType::getMinimumInterfaceVersion(), OutputType::getMinimumInterfaceVersion(), m_defaultProtocolVersion, unmanagedPointers);
+        , InputType::getOriginPrivateVersion(), OutputType::getOriginPrivateVersion(), m_defaultProtocolVersion, unmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-Status IDataClient::handleData(const InputType& input, OutputType& output, context::DataFlags flags, interface_version_t preferedInputInterfaceVersion, interface_version_t preferedOutputInterfaceVersion
+Status IDataClient::handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags, interface_version_t preferedInputInterfaceVersion, interface_version_t preferedOutputInterfaceVersion
     , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion, protocol_version_t protocolVersion, Vector<GenericPointerKeeper>* pUnmanagedPointers
 )
 {
@@ -110,17 +110,17 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
     BinVector binInput;
 
     // First attempt of sending data is made of interface version function parameters
-    context::SInOutData<> ctxIn(binInput, protocolVersion, flags, forTempUseHeap, inputInterfaceVersion, outputInterfaceVersion, nullptr);
+    context::SInOutData<> ctxIn(binInput, protocolVersion, dataFlags, forTempUseHeap, inputInterfaceVersion, outputInterfaceVersion, nullptr);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
-    if (ctxIn.getFlags().checkRecursivePointers)
-        ctxIn.setPointersMap(pointersMapIn);
+    if (ctxIn.getDataFlags().checkRecursivePointers)
+        ctxIn.setPointersMap(&pointersMapIn);
 
     RUN(processing::serializeHeaderContext(ctxIn));
     RUN(processing::serializeInOutDataContext<InputType>(ctxIn));
 
     // Flags may be changed after processing::serializeInOutDataContext
-    if (ctxIn.getFlags().allowUnmanagedPointers && pUnmanagedPointers == nullptr)
+    if (ctxIn.getDataFlags().allowUnmanagedPointers && pUnmanagedPointers == nullptr)
         return Status::kErrorInvalidArgument;
 
     RUN(processing::DataProcessor::serializeData(input, ctxIn));
@@ -141,19 +141,18 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
     {
         ctxIn.clear();
 
-        Uuid outId;
+        Id outId;
 
         RUN(processing::deserializeDataContext(ctxOut, outId));
 
-        if (ctxIn.getFlags() != ctxOut.getFlags())
+        if (ctxIn.getDataFlags() != ctxOut.getDataFlags())
             return Status::kErrorDataCorrupted;
 
-        if (ctxOut.getFlags().allowUnmanagedPointers)
-            ctxOut.setAddedPointers(*pUnmanagedPointers);
+        ctxOut.setAddedPointers(pUnmanagedPointers);
 
         std::unordered_map<uint64_t, void*> pointersMapOut;
-        if (ctxOut.getFlags().checkRecursivePointers)
-            ctxOut.setPointersMap(pointersMapOut);
+        if (ctxOut.getDataFlags().checkRecursivePointers)
+            ctxOut.setPointersMap(&pointersMapOut);
 
         RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, outId, minimumOutputInterfaceVersion));
         RUN(processing::DataProcessor::deserializeData(ctxOut, output));
@@ -194,7 +193,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
             ctxOut.clear();
 
             // Try again with the compatible protocol version
-            return handleData<InputType, OutputType, forTempUseHeap>(input, output, ctxIn.getFlags(), inputInterfaceVersion, outputInterfaceVersion
+            return handleData<InputType, OutputType, forTempUseHeap>(input, output, ctxIn.getDataFlags(), inputInterfaceVersion, outputInterfaceVersion
                 , minimumInputInterfaceVersion, minimumOutputInterfaceVersion, compatProtocolVersion, pUnmanagedPointers);
         }
         else if (statusOut == Status::kErrorNotSupportedInOutInterfaceVersion)
@@ -231,7 +230,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
             ctxOut.clear();
 
             // Try again with the compatible InputType and OutputType versions
-            return handleData<InputType, OutputType, forTempUseHeap>(input, output, ctxIn.getFlags(), compatInputInterfaceVersion, compatOutputInterfaceVersion
+            return handleData<InputType, OutputType, forTempUseHeap>(input, output, ctxIn.getDataFlags(), compatInputInterfaceVersion, compatOutputInterfaceVersion
                 , compatInputInterfaceVersion, compatOutputInterfaceVersion, protocolVersion, pUnmanagedPointers);
         }
         else
@@ -272,7 +271,7 @@ inline context::DataFlags IDataClient::getDefaultFlags() const noexcept
     return m_defaultFlags;
 }
 
-inline const Uuid& IDataClient::getDefaultInterfaceId() const noexcept
+inline const Id& IDataClient::getDefaultInterfaceId() const noexcept
 {
     return m_defaultInterfaceId;
 }
@@ -292,7 +291,7 @@ inline void IDataClient::setDefaultFlags(context::DataFlags defaultFlags) noexce
     m_defaultFlags = defaultFlags;
 }
 
-inline void IDataClient::setDefaultInterfaceId(const Uuid& defaultInterfaceId) noexcept
+inline void IDataClient::setDefaultInterfaceId(const Id& defaultInterfaceId) noexcept
 {
     m_defaultInterfaceId = defaultInterfaceId;
 }
@@ -302,7 +301,7 @@ inline void IDataClient::setDefaultServerInterfaceVersion(interface_version_t de
     m_defaultServerInterfaceVersion = defaultServerInterfaceVersion;
 }
 
-inline IDataClient::IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, const Uuid& defaultInterfaceId, interface_version_t targetInterfaceVersion)
+inline IDataClient::IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, const Id& defaultInterfaceId, interface_version_t targetInterfaceVersion)
     : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultFlags(defaultFlags), m_defaultInterfaceId(defaultInterfaceId), m_defaultServerInterfaceVersion(targetInterfaceVersion)
 { }
 
@@ -318,9 +317,9 @@ interface_version_t IDataClient::chooseInterfaceVersion(interface_version_t pref
             : preferedInterfaceVersion;
 
     // This is also applies when interfaceVersion == traits::kInterfaceVersionUndefined 
-    if (interfaceVersion > T::getInterfaceVersion())
-        interfaceVersion = T::getInterfaceVersion();
-    else if (interfaceVersion < T::getMinimumInterfaceVersion())
+    if (interfaceVersion > T::getLatestInterfaceVersion())
+        interfaceVersion = T::getLatestInterfaceVersion();
+    else if (interfaceVersion < T::getOriginPrivateVersion())
         interfaceVersion = traits::kInterfaceVersionUndefined;
 
     return interfaceVersion;

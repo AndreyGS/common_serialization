@@ -111,7 +111,7 @@ protected:
         return Status::kNoError;
     }
 
-    static constexpr const uint32_t* pVersionsHierarchy = To::kVersionsHierarchy;
+    static constexpr const uint32_t* pVersionsHierarchy = To::kPrivateVersions;
 };
 
 template<typename... NextFrom>
@@ -186,7 +186,7 @@ protected:
     using base_class = FromVersionConverter<NextFrom...>;
     using from_type = From;
 
-    static constexpr const uint32_t* pVersionsHierarchy = From::kVersionsHierarchy;
+    static constexpr const uint32_t* pVersionsHierarchy = From::kPrivateVersions;
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     Status convertOnHeap(context::DData<D, PM>& ctx, To& to) noexcept

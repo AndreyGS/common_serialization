@@ -26,34 +26,105 @@
 namespace common_serialization::csp::context
 {
 
+/// <summary>
+/// Falgs that are using in Data type of message in CSP
+/// </summary>
 struct DataFlags
 {
-    uint32_t alignmentMayBeNotEqual                 : 1 = 0;    // to speed up serialization without this flag
-                                                                // structs marked with simple_assignable_tag and their vectors
-                                                                // would be serialized and deserialized by memcpy
-    uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;    // this flag is very dangerous and it should never be used,
-                                                                // except you are really know what you are doing
-    uint32_t allowUnmanagedPointers                 : 1 = 0;    // Allow serialization of pointers without help of DataProcessor
-                                                                // serializeData/deserializeData specialized class functions.
-                                                                // For instance, may be used for containers that holds pointers on objects
-                                                                // without special handling functions.
-                                                                // In deserialization process every creation of new pointer
-                                                                // is registers in context stored container, which will allow
-                                                                // to safe delete this pointers in future.
-    uint32_t checkRecursivePointers                 : 1 = 0;    // works only in conjunction with allowUnmanagedPointers which sets automatically
+    /// <summary>
+    /// Indicates that serialization and deserialization processes
+    /// may be made on modules that are built on different compilers 
+    /// or with different compiler options.
+    /// And caution on fields alignment must be made.
+    /// 
+    /// To speed up serialization without this flag
+    /// structs marked with simple_assignable_tag and their vectors
+    /// would be serialized and deserialized by memcpy
+    /// if their target versions are equal to latest 
+    /// and sizeOfArithmeticTypesMayBeNotEqual also not set.
+    /// </summary>
+    uint32_t alignmentMayBeNotEqual                 : 1 = 0;  
+    
+    /// <summary>
+    /// Indicates that serialization and deserialization processes
+    /// may be made on modules that are built on different compilers 
+    /// or with different compiler options.
+    /// And if struct contains any of not strictly sized types
+    /// before any write/read of it value there must be a write/read
+    /// of size that this type have.
+    /// The fact that size is strict aligned or not
+    /// is checks by FixSizedArithmeticType and FixSizedEnumType concepts.
+    /// Notice that most frequent used types are not strictly sized,
+    /// including uin32_t, uin64_t and others.
+    /// 
+    /// This flag is very dangerous and it should never be used,
+    /// except you are really know what you are doing.
+    /// Instead in your interface structs you should using types that have
+    /// semanticaly fixed size (uin32_t, uin64_t and others).
+    /// </summary>
+    uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;
+    
+    /// <summary>
+    /// Allow serialization of pointers without help of DataProcessor
+    /// serializeData/deserializeData specialized class functions.
+    /// 
+    /// For instance, may be used for containers that holds pointers on objects
+    /// without special handling functions.
+    /// 
+    /// In deserialization process every creation of new pointer
+    /// is registers in context stored container, which will allow
+    /// to use and safe delete this pointers in future.
+    /// </summary>
+    uint32_t allowUnmanagedPointers                 : 1 = 0;
+
+    /// <summary>
+    /// Checks if processed pointers are not recursively links.
+    /// 
+    /// Works only in conjunction with allowUnmanagedPointers which will be set automatically if need.
+    /// </summary>
+    uint32_t checkRecursivePointers                 : 1 = 0;    //
     uint32_t reserved                               :28 = 0;
 
+    /// <summary>
+    /// Default constructor
+    /// </summary>
     constexpr DataFlags() noexcept;
+
+    /// <summary>
+    /// Constructor from uint32_t
+    /// </summary>
+    /// <param name="value">32 bit unsigned integer</param>
     explicit constexpr DataFlags(uint32_t value) noexcept;
 
+    /// <summary>
+    /// Operator= from uint32_t
+    /// </summary>
+    /// <param name="value">32 bit unsigned integer</param>
+    /// <returns></returns>
     constexpr DataFlags& operator=(uint32_t value) noexcept;
+
+    /// <summary>
+    /// Operator==
+    /// </summary>
+    /// <param name="rhs">Another instance</param>
+    /// <returns>Result of comparison</returns>
     [[nodiscard]] constexpr bool operator==(DataFlags rhs) const noexcept;
 
+    /// <summary>
+    /// Cast to uint32_t
+    /// </summary>
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
+
+    /// <summary>
+    /// Cast to bool
+    /// </summary>
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
 };
 
-constexpr DataFlags::DataFlags() noexcept {}
+constexpr DataFlags::DataFlags() noexcept 
+{
+    *this = 0;
+}
 
 constexpr DataFlags::DataFlags(uint32_t value) noexcept
 {

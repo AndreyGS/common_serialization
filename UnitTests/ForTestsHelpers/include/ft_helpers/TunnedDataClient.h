@@ -35,7 +35,7 @@ public:
 
     TunnedDataClient() {}
     TunnedDataClient(cs::csp::protocol_version_t defaultProtocolVersion, cs::csp::context::DataFlags defaultFlags
-        , const cs::Uuid& defaultInterfaceId, cs::csp::interface_version_t targetInterfaceVersion
+        , const cs::csp::Id& defaultInterfaceId, cs::csp::interface_version_t targetInterfaceVersion
     )
         : cs::csp::messaging::IDataClient(defaultProtocolVersion, defaultFlags, defaultInterfaceId, targetInterfaceVersion)
     {

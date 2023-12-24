@@ -40,9 +40,9 @@ void mainTest()
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.sizeOfArithmeticTypesMayBeNotEqual = true;
-    ctxIn.setFlags(flags);
+    csp::context::DataFlags dataFlags;
+    dataFlags.sizeOfArithmeticTypesMayBeNotEqual = true;
+    ctxIn.setDataFlags(dataFlags);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
@@ -56,7 +56,7 @@ void mainTest()
 
     EXPECT_EQ(output, reference);
 
-    // comparing with no flags size of serialized data
+    // comparing with no dataFlags size of serialized data
     TS input2;
     fillingStruct(input2);
 
@@ -90,17 +90,17 @@ TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags flags;
-    flags.sizeOfArithmeticTypesMayBeNotEqual = true;
-    flags.allowUnmanagedPointers = true;
-    ctxIn.setFlags(flags);
+    csp::context::DataFlags dataFlags;
+    dataFlags.sizeOfArithmeticTypesMayBeNotEqual = true;
+    dataFlags.allowUnmanagedPointers = true;
+    ctxIn.setDataFlags(dataFlags);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
     csp::context::DData<> ctxOut(bin);
 
     Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
+    ctxOut.setAddedPointers(&addedPointers);
 
     SpecialProcessingType output;
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);

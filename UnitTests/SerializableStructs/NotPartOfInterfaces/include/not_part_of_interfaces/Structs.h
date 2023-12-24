@@ -68,9 +68,9 @@ class DynamicPolymorphic
 public:
     virtual ~DynamicPolymorphic() {}
 
-    static constexpr cs::Uuid kId = cs::helpers::getUuid(0xad460dc2, 0x429c, 0x4313, 0xa7c5, 0x06fca38389a0);
+    static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xad460dc2, 0x429c, 0x4313, 0xa7c5, 0x06fca38389a0);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
 
     [[nodiscard]] bool operator==(const DynamicPolymorphic& rhs) const noexcept
     {

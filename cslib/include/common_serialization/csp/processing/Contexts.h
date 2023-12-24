@@ -67,38 +67,38 @@ template<typename T, ISerializationCapableContainer S, ISerializationPointersMap
 constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 {
     S& output = ctx.getBinaryData();
-    context::DataFlags flags = ctx.getFlags();
+    context::DataFlags dataFlags = ctx.getDataFlags();
 
-    Uuid id = T::getId();
+    Id id = T::getId();
 
     RUN(output.pushBackArithmeticValue(id.leftPart));
     RUN(output.pushBackArithmeticValue(id.rightPart));
     
-    if (flags.checkRecursivePointers)
+    if (dataFlags.checkRecursivePointers)
     {
         if (ctx.getPointersMap() == nullptr)
             return Status::kErrorInvalidArgument;
 
-        flags.allowUnmanagedPointers = true;
+        dataFlags.allowUnmanagedPointers = true;
     }
 
-    ctx.setFlags(flags);
+    ctx.setDataFlags(dataFlags);
 
-    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getFlags())));
+    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getDataFlags())));
 
     RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
 
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getMinimumInterfaceVersion(), T::getInterfaceVersion()))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getLatestInterfaceVersion()))
         return Status::kErrorNotSupportedInterfaceVersion;
 
-    if (T::getInterfaceVersion() != ctx.getInterfaceVersion())
+    if (T::getLatestInterfaceVersion() != ctx.getInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
     return Status::kNoError;
 }
 
 template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Uuid& id)
+constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Id& id)
 {
     D& input = ctx.getBinaryData();
 
@@ -107,8 +107,8 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Uuid& id)
 
     uint32_t intFlags = 0;
     RUN(input.readArithmeticValue(intFlags));
-    context::DataFlags flags(intFlags);
-    ctx.setFlags(flags);
+    context::DataFlags dataFlags(intFlags);
+    ctx.setDataFlags(dataFlags);
 
     interface_version_t inputInterfaceVersion = 0;
     RUN(input.readArithmeticValue(inputInterfaceVersion));
@@ -127,7 +127,7 @@ constexpr Status serializeInOutDataContext(context::SInOutData<S, PM>& ctx) noex
 }
 
 template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeInOutDataContext(context::DInOutData<D, PM>& ctx, Uuid& id) noexcept
+constexpr Status deserializeInOutDataContext(context::DInOutData<D, PM>& ctx, Id& id) noexcept
 {
     RUN(deserializeDataContext(ctx, id));
 
@@ -139,31 +139,31 @@ constexpr Status deserializeInOutDataContext(context::DInOutData<D, PM>& ctx, Uu
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, const Uuid& id, interface_version_t minimumSupportedInterfaceVersion)
+constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, const Id& id, interface_version_t minimumSupportedInterfaceVersion)
 {
-    Uuid tUuid = T::getId();
+    Id tUuid = T::getId();
     if (tUuid != id)
         return Status::kErrorMismatchOfStructId;
 
-    context::DataFlags flags = ctx.getFlags();
+    context::DataFlags dataFlags = ctx.getDataFlags();
 
-    if (flags.allowUnmanagedPointers && ctx.getAddedPointers() == nullptr)
+    if (dataFlags.allowUnmanagedPointers && ctx.getAddedPointers() == nullptr)
         return Status::kErrorInvalidArgument;
     
-    if (flags.checkRecursivePointers)
+    if (dataFlags.checkRecursivePointers)
     {
         if (ctx.getPointersMap() == nullptr)
             return Status::kErrorInvalidArgument;
-        else if (!flags.allowUnmanagedPointers)
+        else if (!dataFlags.allowUnmanagedPointers)
             return Status::kErrorNotCompatibleFlagsSettings;
     }
 
-    // minimumSupportedInterfaceVersion should be getMinimumInterfaceVersion value by default
+    // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
     // however for some special subscribers of data struct you may override it by
     // value that is higher than minimum defined in interface version
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterfaceVersion()))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getLatestInterfaceVersion()))
         return Status::kErrorNotSupportedInterfaceVersion;
-    else if (ctx.getInterfaceVersion() != T::getInterfaceVersion())
+    else if (ctx.getInterfaceVersion() != T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
     return Status::kNoError;
@@ -171,12 +171,12 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
 
 
 template<typename In, typename Out, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeInOutDataContextPostprocess(context::DInOutData<D, PM>& ctx, const Uuid& id
+constexpr Status deserializeInOutDataContextPostprocess(context::DInOutData<D, PM>& ctx, const Id& id
     , interface_version_t inputMinimumSupportedInterfaceVersion, interface_version_t outputMinimumSupportedInterfaceVersion) noexcept
 {
     RUN(deserializeDataContextPostprocess<In>(ctx, id, inputMinimumSupportedInterfaceVersion));
     
-    if (!traits::isInterfaceVersionSupported(ctx.getOutputInterfaceVersion(), outputMinimumSupportedInterfaceVersion, Out::getInterfaceVersion()))
+    if (!traits::isInterfaceVersionSupported(ctx.getOutputInterfaceVersion(), outputMinimumSupportedInterfaceVersion, Out::getLatestInterfaceVersion()))
         return Status::kErrorNotSupportedInOutInterfaceVersion;
 
     return Status::kNoError;

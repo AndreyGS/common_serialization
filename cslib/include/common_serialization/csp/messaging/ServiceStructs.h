@@ -39,9 +39,9 @@ struct ISerializableDummy : public ISerializable<ISerializableDummy<Dummy>>
 public:
     using empty_type_tag = std::true_type;
 
-    static constexpr Uuid kId = helpers::getUuid(0x60b0dd3e, 0x7d2e, 0x42d9, 0xb00d, 0x90f7ecd19d25);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr Id kId = helpers::getUuid(0x60b0dd3e, 0x7d2e, 0x42d9, 0xb00d, 0x90f7ecd19d25);
+    static constexpr interface_version_t kInterfaceVersion = 0;
+    static constexpr interface_version_t kPrivateVersions[] = { 0 };
 };
 
 template<typename T = Dummy>
@@ -50,9 +50,9 @@ struct SupportedProtocolVersions : public csp::ISerializable<GetCrtpMainType<Sup
 public:
     using instance_type = GetCrtpMainType<SupportedProtocolVersions<T>, T>;
 
-    static constexpr Uuid kId = helpers::getUuid(0xc665f5c8, 0xa6c2, 0x4f75, 0xb84d, 0x41cff3c47578);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr Id kId = helpers::getUuid(0xc665f5c8, 0xa6c2, 0x4f75, 0xb84d, 0x41cff3c47578);
+    static constexpr interface_version_t kInterfaceVersion = 0;
+    static constexpr interface_version_t kPrivateVersions[] = { 0 };
 
     Vector<protocol_version_t> list;
 };
@@ -64,11 +64,11 @@ public:
     using instance_type = GetCrtpMainType<GetInterfaceProperties<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr Uuid kId = helpers::getUuid(0x08c68657, 0x4fa7, 0x4419, 0x8c13, 0x66aec2b06cb0);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr Id kId = helpers::getUuid(0x08c68657, 0x4fa7, 0x4419, 0x8c13, 0x66aec2b06cb0);
+    static constexpr interface_version_t kInterfaceVersion = 0;
+    static constexpr interface_version_t kPrivateVersions[] = { 0 };
 
-    Uuid id;
+    Id id;
 };
 
 template<typename T = Dummy>
@@ -78,9 +78,9 @@ public:
     using instance_type = GetCrtpMainType<OurGetInterfaceProperties<T>, T>;
     using simple_assignable_tag = std::true_type;
 
-    static constexpr Uuid kId = helpers::getUuid(0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr Id kId = helpers::getUuid(0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1);
+    static constexpr interface_version_t kInterfaceVersion = 0;
+    static constexpr interface_version_t kPrivateVersions[] = { 0 };
 
     traits::InterfaceProperties properties;
 };
@@ -92,9 +92,9 @@ public:
     using instance_type = GetCrtpMainType<GetInterfacesList<T>, T>;
     using empty_type_tag = std::true_type;
 
-    static constexpr Uuid kId = helpers::getUuid(0xd5b61816, 0xcc92, 0x4e18, 0xb287, 0xfcc4ed1e9f2a);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr Id kId = helpers::getUuid(0xd5b61816, 0xcc92, 0x4e18, 0xb287, 0xfcc4ed1e9f2a);
+    static constexpr interface_version_t kInterfaceVersion = 0;
+    static constexpr interface_version_t kPrivateVersions[] = { 0 };
 };
 
 template<typename T = Dummy>
@@ -103,9 +103,9 @@ struct InterfacesList : public csp::ISerializable<GetCrtpMainType<InterfacesList
 public:
     using instance_type = GetCrtpMainType<InterfacesList<T>, T>;
 
-    static constexpr Uuid kId = helpers::getUuid(0xb5346ff9, 0xe557, 0x40af, 0x8fb9, 0x5563fa97700e);
-    static constexpr csp::interface_version_t kInterfaceVersion = 0;
-    static constexpr csp::interface_version_t kVersionsHierarchy[] = { 0 };
+    static constexpr Id kId = helpers::getUuid(0xb5346ff9, 0xe557, 0x40af, 0x8fb9, 0x5563fa97700e);
+    static constexpr interface_version_t kInterfaceVersion = 0;
+    static constexpr interface_version_t kPrivateVersions[] = { 0 };
 
     bool operator==(const InterfacesList& rhs) const noexcept
     {

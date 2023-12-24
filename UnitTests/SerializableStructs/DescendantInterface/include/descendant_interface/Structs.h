@@ -34,9 +34,9 @@ class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStr
 public:
     using instance_type = cs::GetCrtpMainType<SimpleStruct<T>, T>;
 
-    static constexpr cs::Uuid kId = cs::helpers::getUuid(0xa4073aa8, 0xd9eb, 0x49cf, 0xb9be, 0xfea84ba9f314);
+    static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xa4073aa8, 0xd9eb, 0x49cf, 0xb9be, 0xfea84ba9f314);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
-    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 1 };
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 1 };
 
     uint32_t m_i{ 0 };
 
@@ -64,9 +64,9 @@ class DiamondDescendant : public interface_for_test::Diamond<cs::GetCrtpMainType
 public:
     using instance_type = cs::GetCrtpMainType<DiamondDescendant<T>, T>;
 
-    static constexpr cs::Uuid kId = cs::helpers::getUuid(0x59a2dc70, 0x63eb, 0x434b, 0xbfe7, 0xad17dfad8e57);
+    static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x59a2dc70, 0x63eb, 0x434b, 0xbfe7, 0xad17dfad8e57);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
-    static constexpr cs::csp::interface_version_t kVersionsHierarchy[] = { 1 };
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 1 };
 
     SimpleStruct<> m_sSt;
 

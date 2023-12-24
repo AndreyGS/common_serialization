@@ -31,20 +31,20 @@ using namespace ft_helpers;
 using size_type = typename BinVector::size_type;
 
 template<typename TS, typename TD>
-void mainTest(csp::context::DataFlags flags, uint32_t targetVersion)
+void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
 {
     TS input;
     fillingStruct(input);
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    flags.allowUnmanagedPointers = true;
-    flags.checkRecursivePointers = true;
-    ctxIn.setFlags(flags);
+    dataFlags.allowUnmanagedPointers = true;
+    dataFlags.checkRecursivePointers = true;
+    ctxIn.setDataFlags(dataFlags);
     ctxIn.setInterfaceVersion(targetVersion);
 
     std::unordered_map<const void*, uint64_t> sMap;
-    ctxIn.setPointersMap(sMap);
+    ctxIn.setPointersMap(&sMap);
 
     // In this function we need special processing to emulate behavior of real interface.
     // Otherwise serialization and deserialization of old interface can use newer structs inside main struct.
@@ -53,7 +53,7 @@ void mainTest(csp::context::DataFlags flags, uint32_t targetVersion)
     EXPECT_EQ(csp::processing::serializeHeaderContext(ctxIn), Status::kNoError);
     EXPECT_EQ(csp::processing::serializeDataContext<TS>(ctxIn), Status::kNoError);
 
-    if (TS::getInterfaceVersion() == 2)
+    if (TS::getLatestInterfaceVersion() == 2)
         ctxIn.setInterfaceVersionsNotMatch(true);
 
     EXPECT_EQ(csp::processing::DataProcessor::serializeData(input, ctxIn), Status::kNoError);
@@ -61,19 +61,19 @@ void mainTest(csp::context::DataFlags flags, uint32_t targetVersion)
     TD output;
     csp::context::DData<> ctxOut(bin);
     std::unordered_map<uint64_t, void*> dMap;
-    ctxOut.setPointersMap(dMap);
+    ctxOut.setPointersMap(&dMap);
     Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(addedPointers);
+    ctxOut.setAddedPointers(&addedPointers);
 
     EXPECT_EQ(csp::processing::deserializeHeaderContext(ctxOut), Status::kNoError);
 
-    Uuid id;
+    csp::Id id;
     uint32_t minimumInterfaceVersion = 0;
 
     EXPECT_EQ(csp::processing::deserializeDataContext(ctxOut, id), Status::kNoError);
     EXPECT_EQ(csp::processing::deserializeDataContextPostprocess<TD>(ctxOut, id, minimumInterfaceVersion), Status::kNoError);
 
-    if (TD::getInterfaceVersion() == 2)
+    if (TD::getLatestInterfaceVersion() == 2)
         ctxOut.setInterfaceVersionsNotMatch(true);
 
     EXPECT_EQ(csp::processing::DataProcessor::deserializeData(ctxOut, output), Status::kNoError);
@@ -90,40 +90,40 @@ void mainTest(csp::context::DataFlags flags, uint32_t targetVersion)
 template<typename TS, typename TD>
 void allFlags(uint32_t targetVersion)
 {
-    csp::context::DataFlags flags;
-    mainTest<TS, TD>(flags, targetVersion);
-    flags.alignmentMayBeNotEqual = true;
-    mainTest<TS, TD>(flags, targetVersion);
-    flags.sizeOfArithmeticTypesMayBeNotEqual = true;
-    mainTest<TS, TD>(flags, targetVersion);
-    flags.alignmentMayBeNotEqual = false;
-    mainTest<TS, TD>(flags, targetVersion);
+    csp::context::DataFlags dataFlags;
+    mainTest<TS, TD>(dataFlags, targetVersion);
+    dataFlags.alignmentMayBeNotEqual = true;
+    mainTest<TS, TD>(dataFlags, targetVersion);
+    dataFlags.sizeOfArithmeticTypesMayBeNotEqual = true;
+    mainTest<TS, TD>(dataFlags, targetVersion);
+    dataFlags.alignmentMayBeNotEqual = false;
+    mainTest<TS, TD>(dataFlags, targetVersion);
 }
 
 // 0 to 3 if for interface versions serialization = 0, deserialization = 3
 TEST(ISerializableAllModesTests, AllFlags0to3)
 {
-    allFlags<SForAllModesTests_Version0<>, DForAllModesTests<>>(SForAllModesTests_Version0<>::getInterfaceVersion());
+    allFlags<SForAllModesTests_Version0<>, DForAllModesTests<>>(SForAllModesTests_Version0<>::getLatestInterfaceVersion());
 }
 
 TEST(ISerializableAllModesTests, AllFlags2to3)
 {
-    allFlags<SForAllModesTests_Version2<>, DForAllModesTests<>>(SForAllModesTests_Version2<>::getInterfaceVersion());
+    allFlags<SForAllModesTests_Version2<>, DForAllModesTests<>>(SForAllModesTests_Version2<>::getLatestInterfaceVersion());
 }
 
 TEST(ISerializableAllModesTests, AllFlags3to3)
 {
-    allFlags<DForAllModesTests<>, DForAllModesTests<>>(DForAllModesTests<>::getInterfaceVersion());
+    allFlags<DForAllModesTests<>, DForAllModesTests<>>(DForAllModesTests<>::getLatestInterfaceVersion());
 }
 
 TEST(ISerializableAllModesTests, AllFlags3to0)
 {
-    allFlags<DForAllModesTests<>, SForAllModesTests_Version0<>>(SForAllModesTests_Version0<>::getInterfaceVersion());
+    allFlags<DForAllModesTests<>, SForAllModesTests_Version0<>>(SForAllModesTests_Version0<>::getLatestInterfaceVersion());
 }
 
 TEST(ISerializableAllModesTests, AllFlags3to2)
 {
-    allFlags<DForAllModesTests<>, SForAllModesTests_Version2<>>(SForAllModesTests_Version2<>::getInterfaceVersion());
+    allFlags<DForAllModesTests<>, SForAllModesTests_Version2<>>(SForAllModesTests_Version2<>::getLatestInterfaceVersion());
 }
 
 } // namespace anonymous

@@ -26,6 +26,7 @@
 namespace common_serialization::csp
 {
 
+using Id = Uuid;
 using interface_version_t = uint32_t;
 using protocol_version_t = uint8_t;
 
@@ -38,8 +39,8 @@ inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;   
 
 struct InterfaceProperties
 {
-    Uuid id;
-    csp::interface_version_t version{ kInterfaceVersionUndefined };
+    Id id;
+    interface_version_t version{ kInterfaceVersionUndefined };
 
     constexpr bool operator==(const InterfaceProperties& rhs) const noexcept
     {
@@ -82,9 +83,9 @@ constexpr InterfaceProperties kUndefinedInterface{ kNullUuid, kInterfaceVersionU
 template<typename T>
 [[nodiscard]] constexpr interface_version_t getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept
 {
-    for (interface_version_t i = 0; i < T::getVersionsHierarchySize(); ++i)
-        if (T::getVersionsHierarchy()[i] <= compatInterfaceVersion)
-            return T::getVersionsHierarchy()[i];
+    for (interface_version_t i = 0; i < T::getPrivateVersionsCount(); ++i)
+        if (T::getPrivateVersions()[i] <= compatInterfaceVersion)
+            return T::getPrivateVersions()[i];
 
     return kInterfaceVersionUndefined;
 }
@@ -94,13 +95,13 @@ template<typename T>
     interface_version_t minForeignVersion, interface_version_t maxForeignVersion, interface_version_t minCurrentVersion
 ) noexcept
 {
-    if (minCurrentVersion > minForeignVersion || minForeignVersion > T::getInterfaceVersion())
+    if (minCurrentVersion > minForeignVersion || minForeignVersion > T::getLatestInterfaceVersion())
         return kInterfaceVersionUndefined;
 
-    if (maxForeignVersion >= T::getInterfaceVersion())
-        return T::getInterfaceVersion();
+    if (maxForeignVersion >= T::getLatestInterfaceVersion())
+        return T::getLatestInterfaceVersion();
     else
-        return getBestCompatInterfaceVersion<T>(maxForeignVersion);
+        return maxForeignVersion;
 }
 
 } // namespace traits

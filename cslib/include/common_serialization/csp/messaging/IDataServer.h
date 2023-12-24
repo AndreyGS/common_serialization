@@ -33,8 +33,8 @@ namespace common_serialization::csp::messaging
 template<typename InstanceType, typename InputType, typename OutputType
     , bool forTempUseHeap = true
     , bool multicast = false
-    , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
-    , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
+    , interface_version_t minimumInputInterfaceVersion = InputType::getOriginPrivateVersion()
+    , interface_version_t minimumOutputInterfaceVersion = OutputType::getOriginPrivateVersion()
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 class IDataServer : public IDataServerBase
@@ -67,7 +67,7 @@ template<typename InstanceType, typename InputType, typename OutputType
 Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
     , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput)
 {
-    Uuid id = InputType::getId();
+    Id id = InputType::getId();
 
     Status status = processing::deserializeInOutDataContextPostprocess<InputType, OutputType>(
         ctx, id, minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
@@ -75,8 +75,8 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
     if (!statusSuccess(status))
     {
         if (status == Status::kErrorNotSupportedInOutInterfaceVersion)
-            RUN(processing::serializeStatusErrorNotSupportedInOutInterfaceVersion(minimumInputInterfaceVersion, InputType::getInterfaceVersion()
-                , minimumOutputInterfaceVersion, OutputType::getInterfaceVersion(), ctx.getProtocolVersion(), binOutput));
+            RUN(processing::serializeStatusErrorNotSupportedInOutInterfaceVersion(minimumInputInterfaceVersion, InputType::getLatestInterfaceVersion()
+                , minimumOutputInterfaceVersion, OutputType::getLatestInterfaceVersion(), ctx.getProtocolVersion(), binOutput));
         
         return Status::kNoError;
     }
@@ -205,13 +205,13 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
         context::SData<> ctxOut(
             binOutput
             , ctxIn.getProtocolVersion()
-            , ctxIn.getFlags()
+            , ctxIn.getDataFlags()
             , forTempUseHeap
             , ctxIn.getOutputInterfaceVersion()
             , nullptr);
 
-        if (ctxOut.getFlags().checkRecursivePointers)
-            ctxOut.setPointersMap(pointersMapOut);
+        if (ctxOut.getDataFlags().checkRecursivePointers)
+            ctxOut.setPointersMap(&pointersMapOut);
 
         return output.serialize(ctxOut);
     }
@@ -222,8 +222,8 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
 template<typename InputType, typename OutputType
     , bool forTempUseHeap = true
     , bool multicast = false
-    , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
-    , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
+    , interface_version_t minimumInputInterfaceVersion = InputType::getOriginPrivateVersion()
+    , interface_version_t minimumOutputInterfaceVersion = OutputType::getOriginPrivateVersion()
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 using IMethodDataServer = IDataServer<Dummy, InputType, OutputType, forTempUseHeap, multicast, minimumInputInterfaceVersion, minimumOutputInterfaceVersion>;
@@ -231,8 +231,8 @@ using IMethodDataServer = IDataServer<Dummy, InputType, OutputType, forTempUseHe
 template<typename InstanceType, typename InputType, typename OutputType
     , bool forTempUseHeap = true
     , bool multicast = false
-    , interface_version_t minimumInputInterfaceVersion = InputType::getMinimumInterfaceVersion()
-    , interface_version_t minimumOutputInterfaceVersion = OutputType::getMinimumInterfaceVersion()
+    , interface_version_t minimumInputInterfaceVersion = InputType::getOriginPrivateVersion()
+    , interface_version_t minimumOutputInterfaceVersion = OutputType::getOriginPrivateVersion()
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 using IStaticDataServer = IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast, minimumInputInterfaceVersion, minimumOutputInterfaceVersion>;
