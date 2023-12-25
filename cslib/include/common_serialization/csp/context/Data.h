@@ -30,14 +30,6 @@
 namespace common_serialization::csp::context
 {
 
-/// <summary>
-/// 
-/// </summary>
-/// <typeparam name="PM">
-/// 
-/// </typeparam>
-/// 
-
 /// @brief Auxillary class for holding pointers map to prevent infinite recursive pointers serialization
 /// @tparam PM Map that implements ISerializationPointersMap interface.
 ///     We cannot direct use more restricted concept here

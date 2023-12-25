@@ -34,10 +34,9 @@ struct DataFlags
     ///     or with different compiler options.
     ///     And caution on fields alignment must be made.
     ///     
-    ///         To speed up serialization without this flag
-    ///     structs marked with simple_assignable_tag and their vectors
-    ///     would be serialized and deserialized by memcpy
-    ///     if their target versions are equal to latest 
+    ///         To speed up serialization structs marked with simple_assignable_tag 
+    ///     and arrays of them would be serialized/deserialized by memcpy
+    ///     if their target versions are equal to latest, when this flag not set
     ///     and sizeOfArithmeticTypesMayBeNotEqual also not set.
     uint32_t alignmentMayBeNotEqual                 : 1 = 0;  
     
@@ -45,9 +44,10 @@ struct DataFlags
     ///     may be made on modules that are built on different compilers 
     ///     or with different compiler options.
     ///     And if struct contains any of not strictly sized types
-    ///     before any write/read of it value there must be a write/read
+    ///     before any write/read of it value there would be a write/read
     ///     of size that this type have.
-    ///     The fact that size is strict aligned or not
+    /// 
+    ///         The fact that size is strictly defined or not
     ///     is checks by FixSizedArithmeticType and FixSizedEnumType concepts.
     ///     Notice that most frequent used types are not strictly sized,
     ///     including uin32_t, uin64_t and others.
@@ -55,7 +55,7 @@ struct DataFlags
     ///         This flag is very dangerous and it should never be used,
     ///     except you are really know what you are doing.
     ///     Instead in your interface structs you should using types that have
-    ///     semanticaly fixed size (uin32_t, uin64_t and others).
+    ///     "semanticaly fixed" size (uin32_t, uin64_t and others).
     uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;
     
     /// @details Allow serialization of pointers without help of DataProcessor
