@@ -28,6 +28,13 @@
 namespace common_serialization::csp::context
 {
 
+/// @brief Holder of context in processing message of type InOutData
+/// @tparam Container Container capable to serialization/deserialization
+/// @tparam serialize Type of scenario (serialization|deserialization) for specialization
+/// @tparam PM Map that implements ISerializationPointersMap or IDeserializationPointersMap interface.
+///     (std::unordered_map shall be replaced by common_serialization::HashMap when it would be ready)
+/// @tparam PC Container that implements IGenericPointersKeeperContainer interface
+/// @tparam EPP SerializeExtendedPointersProcessing or DeserializeExtendedPointersProcessing (depends on serialize flag)
 template< 
           typename Container
         , bool serialize = true
@@ -40,6 +47,12 @@ template<
 class InOutData : public Data<Container, serialize, PM, PC, EPP>
 {
 public:
+    /// @brief Constructor
+    /// @param binaryData Container that hold or would hold binary data from processing
+    /// @param dataFlags Data flags that are using in processing
+    /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
+    /// @param inInterfaceVersion Target input struct interface version
+    /// @param outInterfaceVersion Target output struct interface version
     constexpr InOutData(
           Container& container
         , DataFlags dataFlags = DataFlags{}
@@ -53,6 +66,12 @@ public:
         this->setMessageType(Message::kInOutData);
     }
 
+    /// @brief Constructor
+    /// @param common Reference on Common
+    /// @param dataFlags Data flags that are using in processing
+    /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
+    /// @param inInterfaceVersion Target input struct interface version
+    /// @param outInterfaceVersion Target output struct interface version
     constexpr InOutData(
           Common<Container>& common
         , DataFlags dataFlags = DataFlags{}
@@ -64,11 +83,21 @@ public:
         , m_outputInterfaceVersion(outInterfaceVersion)
     { }
 
+    /// @brief Copy constructor
+    /// @param rhs Another instance
     constexpr InOutData(InOutData<Container, serialize, PM, PC, EPP>& rhs) noexcept
         : Data<Container, serialize, PM, PC, EPP>(rhs)
         , m_outputInterfaceVersion(rhs.m_outputInterfaceVersion)
     { }
 
+    /// @brief Constructor (availible only on serialization mode)
+    /// @param binaryData Container that hold or would hold binary data from processing
+    /// @param protocolVersion Protocol version that would be used in process
+    /// @param dataFlags Data flags that are using in processing
+    /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
+    /// @param inInterfaceVersion Target input struct interface version
+    /// @param outInterfaceVersion Target output struct interface version
+    /// @param pointersMap Pointer to map that implements ISerializationPointersMap interface
     constexpr InOutData(
           Container& binaryData
         , protocol_version_t protocolVersion
@@ -84,7 +113,16 @@ public:
     { 
         this->setMessageType(Message::kInOutData);
     }
-
+    
+    /// @brief Constructor (availible only on deserialization mode)
+    /// @param binaryData Container that hold or would hold binary data from processing
+    /// @param protocolVersion Protocol version that would be used in process
+    /// @param dataFlags Data flags that are using in processing
+    /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
+    /// @param inInterfaceVersion Target input struct interface version
+    /// @param outInterfaceVersion Target output struct interface version
+    /// @param pAddedPointers Pointer to additional free pointers container
+    /// @param pointersMap Pointer to map that implements ISerializationPointersMap interface
     constexpr InOutData(
           Container& binaryData
         , protocol_version_t protocolVersion
@@ -102,15 +140,26 @@ public:
         this->setMessageType(Message::kInOutData);
     }
 
+    /// @brief Get target output interface version
+    /// @return Target output interface version
     [[nodiscard]] constexpr interface_version_t getOutputInterfaceVersion() const noexcept { return m_outputInterfaceVersion; }
+
+    /// @brief Set target output interface version
+    /// @param outInterfaceVersion Target output interface version
     constexpr void setOutputInterfaceVersion(interface_version_t outInterfaceVersion) { m_outputInterfaceVersion = outInterfaceVersion; }
 
+    /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
+    ///     Also notice that flag of using heap allocation too not resets to false,
+    ///     cause it's rather environment tool option instead of struct/operation specific.
     void resetToDefaultsExceptDataContents() noexcept override
     {
         Data<Container, serialize, PM, PC, EPP>::resetToDefaultsExceptDataContents();
         m_outputInterfaceVersion = traits::kInterfaceVersionUndefined;
     }
 
+    /// @brief Reset all fields to their default values and clears binary data container
+    ///     Also notice that flag of using heap allocation too not resets to false,
+    ///     cause it's rather environment tool option instead of struct/operation specific.
     void clear() noexcept override
     {
         Data<Container, serialize, PM, PC, EPP>::clear();

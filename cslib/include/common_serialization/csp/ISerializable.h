@@ -29,108 +29,88 @@
 namespace common_serialization::csp
 {
 
-/// <summary>
-/// Common interface for simplifying data serialization process.
-/// It implements CTRP pattern as base class.
-/// Only classes that inherits this interface are supports versioning
+/// @brief Common interface for simplifying data serialization process.
+///     It implements CTRP pattern as base class.
+///     Only classes that inherits this interface are supports versioning
 ///     and may be used as top structs in csp data messaging.
-/// </summary>
-/// <typeparam name="T">
-/// This is primary class.
-/// Must have a few static fields.
+/// 
+/// @tparam T This is most derived class.
+///     Must have a few static fields:
 ///     - Id kId;
 ///         using as unique id of type (UUID v4)
 ///     - interface_version_t kInterfaceVersion;
 ///         latest struct interface version, which computes as 
 ///         max(private_ver, parent1_interface_ver ... parentn_interface_ver, member1_interface_ver ... membern_interface_ver)
-///         updated every time one of versions in 'max()' parameters are changed 
+///         updated every time when one of versions in 'max()' parameters are changed 
 ///     - interface_version_t kPrivateVersions[];
 ///         holds private versions of struct, from highest to lowest
 ///         every time when in this class or its parent class adds or removes member
-///         this array populates with interface version on time of change,
+///         copy of defenition of T class is placed to legacy structs header
+///         and its name is appended by _Version{kInterfaceVersion}
+///         meanwhile here this array populates with interface version on time of change,
+///         and kInterfaceVersion is also updated;
 ///         but when no member in this class or its parent are added or deleted
 ///         and there are changes in one or more of its members no action take place here
-/// </typeparam>
 template<typename T>
 class ISerializable
 {
 public:
     using instance_type = T;
 
-    /// <summary>
-    /// It is a shortcut method for serialize this struct.
-    /// Use it when no context::DataFlags is need.
-    /// </summary>
-    /// <typeparam name="S">Container that implements ISerializationCapableContainer interface</typeparam>
-    /// <param name="output">Output container</param>
-    /// <returns>Status of operation</returns>
+    /// @brief It is a shortcut method for serialize this struct.
+    ///     Use it when no context::DataFlags is need.
+    /// @tparam S Container that implements ISerializationCapableContainer interface
+    /// @param output Output container
+    /// @return Status of operation
     template<ISerializationCapableContainer S>
     constexpr Status serialize(S& output) const noexcept;
-
-    /// <summary>
-    /// It is a shortcut method for serialize this struct using custom context.
-    /// </summary>
-    /// <typeparam name="S">Container that implements ISerializationCapableContainer interface</typeparam>
-    /// <typeparam name="PM">Container that implements ISerializationPointersMap interface</typeparam>
-    /// <param name="ctx">Context that will be using in serialization process</param>
-    /// <returns>Status of operation</returns>
+    
+    /// @brief It is a shortcut method for serialize this struct using custom context
+    /// @tparam S Container that implements ISerializationCapableContainer interface
+    /// @tparam PM Container that implements ISerializationPointersMap interface
+    /// @param ctx Context that will be using in serialization process
+    /// @return Status of operation
     template<ISerializationCapableContainer S, ISerializationPointersMap PM>
     constexpr Status serialize(context::SData<S, PM>& ctx) const noexcept;
 
-    /// <summary>
-    /// It is a shortcut method for deserialize in this struct from input binary data.
-    /// </summary>
-    /// <typeparam name="D">Container that implements IDeserializationCapableContainer interface</typeparam>
-    /// <param name="input">Input container</param>
-    /// <returns>Status of operation</returns>
+    /// @brief It is a shortcut method for deserialize in this struct from input binary data
+    /// @tparam D Container that implements IDeserializationCapableContainer interface
+    /// @param input Input container
+    /// @return Status of operation
     template<IDeserializationCapableContainer D>
     constexpr Status deserialize(D& input);
 
-    /// <summary>
-    /// It is a shortcut method for deserialize in this struct from input binary data using custom context.
-    /// </summary>
-    /// <typeparam name="D">Container that implements IDeserializationCapableContainer interface</typeparam>
-    /// <typeparam name="PM">Container that implements IDeserializationPointersMap interface</typeparam>
-    /// <param name="ctx">Context that will be using in deserialization process</param>
-    /// <returns>Status of operation</returns>
+    /// @brief It is a shortcut method for deserialize in this struct from input binary data using custom context
+    /// @tparam D Container that implements IDeserializationCapableContainer interface
+    /// @tparam PM Container that implements IDeserializationPointersMap interface
+    /// @param ctx Context that will be using in deserialization process
+    /// @return Status of operation
     template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     constexpr Status deserialize(context::DData<D, PM>& ctx);
 
-    /// <summary>
-    /// Get instance ID
-    /// </summary>
-    /// <returns>Instance ID</returns>
+    /// @brief Get instance ID
+    /// @return Instance ID
     [[nodiscard]] static consteval Id getId() noexcept;
 
-    /// <summary>
-    /// Get latest private version 
-    /// </summary>
-    /// <returns>Latest private version</returns>
+    /// @brief Get latest private version
+    /// @return Latest private version
     [[nodiscard]] static constexpr interface_version_t getLatestPrivateVersion() noexcept;
 
-    /// <summary>
-    /// Get latest interface version
-    /// </summary>
-    /// <returns>Latest interface version</returns>
+    /// @brief Get latest interface version
+    /// @return Latest interface version
     [[nodiscard]] static consteval interface_version_t getLatestInterfaceVersion() noexcept;
 
-    /// <summary>
-    /// Get origin private version.
-    /// This is the interface version that was when class was first time defined.
-    /// </summary>
-    /// <returns>Origin private version</returns>
+    /// @brief Get origin private version.
+    ///     This is the interface version that was when class was first time defined.
+    /// @return Origin private version
     [[nodiscard]] static consteval interface_version_t getOriginPrivateVersion() noexcept;
 
-    /// <summary>
-    /// Get private versions array
-    /// </summary>
-    /// <returns>All private versions</returns>
+    /// @brief Get private versions array
+    /// @return All private versions
     [[nodiscard]] static constexpr const interface_version_t* getPrivateVersions() noexcept;
 
-    /// <summary>
-    /// Get array size of private versions
-    /// </summary>
-    /// <returns>Array size of private versions</returns>
+    /// @brief Get array size of private versions
+    /// @return Array size of private versions
     [[nodiscard]] static consteval interface_version_t getPrivateVersionsCount() noexcept;
 };
 

@@ -26,115 +26,126 @@
 namespace common_serialization::csp::context
 {
 
+/// @brief Message types that are using in CSP
 enum class Message : uint_fast32_t
 {
-    kStatus = 0x0,                          // format of message depends on status code
-                                            //
-                                            // {
-                                            //     struct
-                                            //     {
-                                            //         Status status;
-                                            //     } dataSpecificHeader;
-                                            // 
-                                            //     struct
-                                            //     {
-                                            //         uint8_t serializedData[anysize];
-                                            //     } binaryData; // varies by DataFlags that was set and struct that was serialized
-                                            // }
-                                            // 
-                                            //
-                                            // Status == kErrorNotSupportedProtocolVersion
-                                            //
-                                            // sends when serialization protocol is not supported
-                                            //
-                                            // message binaryData format:
-                                            //
-                                            // {
-                                            //     uint8_t supportedProtocolsVersionsSize;
-                                            //     uint8_t supportedProtocolsVersions[supportedProtocolsVersionsSize];
-                                            // }
-                                            // 
-                                            // Status == kErrorNotSupportedInterfaceVersion
-                                            //
-                                            // sends when low supported version is bigger or
-                                            // high version is lesser than in serialized data
-                                            // 
-                                            // message body format:
-                                            // 
-                                            // {
-                                            //     uint32_t minimumSupportedInterfaceVersion;
-                                            //     uint32_t maximumSupportedInterfaceVersion;
-                                            // }
-                                            // 
-                                            // Status == kErrorNotSupportedInOutInterfaceVersion
-                                            // 
-                                            // {
-                                            //     uint32_t inMinimumSupportedInterfaceVersion;
-                                            //     uint32_t inMaximumSupportedInterfaceVersion;
-                                            //     uint32_t outMinimumSupportedInterfaceVersion;
-                                            //     uint32_t outMaximumSupportedInterfaceVersion;
-                                            // }
-                                            //
-    kData = 0x1,                            // default message type
-                                            //
-                                            // message format:
-                                            //
-                                            // {
-                                            //     struct
-                                            //     {
-                                            //         uuid inStructId;
-                                            //         DataFlags dataFlags;
-                                            //         uint32_t interfaceVersion;
-                                            //     } dataSpecificHeader;
-                                            //     
-                                            //     struct
-                                            //     {
-                                            //         uint8_t serializedData[anysize];
-                                            //     } binaryData; // varies by DataFlags that was set and struct that was serialized
-                                            // }
-                                            //
-    kInOutData = 0x2,                       // using for bidirectional data processing
-                                            //
-                                            // message format:
-                                            //
-                                            // {
-                                            //     struct
-                                            //     {
-                                            //         uuid inStructId;
-                                            //         DataFlags dataFlags;
-                                            //         uint32_t inInterfaceVersion;
-                                            //         uint32_t outInterfaceVersion;
-                                            //     } dataSpecificHeader;
-                                            //     
-                                            //     struct
-                                            //     {
-                                            //         uint8_t inSerializedData[anysize];
-                                            //     } binaryData; // varies by DataFlags that was set and struct that was serialized
-                                            // }
-                                            //
-    kCommonCapabilitiesRequest = 0x3,       // request of servers protocol capabilities
-                                            //
-                                            // message format:
-                                            // {
-                                            //     struct
-                                            //     {
-                                            //         CommonCapabilities requestedCapability;
-                                            //     }
-                                            // }
-    kCommonCapabilitiesResponse = 0x4       // response on kCommonCapabilitiesRequest
-                                            //
-                                            // message format:
-                                            // {
-                                            //     struct
-                                            //     {
-                                            //         uuid structId; // returned struct id
-                                            //     }
-                                            // 
-                                            //     struct
-                                            //     {
-                                            //         uint8_t inSerializedData[anysize];
-                                            //     } binaryData; // varies by requestedCapability value
-                                            // }
+    /// @brief Status message
+    /// @details Format of message depends on status code
+    ///     {
+    ///         struct
+    ///         {
+    ///             Status status;
+    ///         } dataSpecificHeader;
+    ///
+    ///         struct
+    ///         {
+    ///             uint8_t serializedData[anysize];
+    ///         } binaryData; // varies by DataFlags that was set and struct that was serialized
+    ///     }
+    ///     
+    ///     Status == kErrorNotSupportedProtocolVersion
+    ///     
+    ///     sends when serialization protocol is not supported
+    ///     
+    ///     message binaryData format :
+    ///     
+    ///     {
+    ///         uint8_t supportedProtocolsVersionsSize;
+    ///         uint8_t supportedProtocolsVersions[supportedProtocolsVersionsSize];
+    ///     }
+    ///     
+    ///     Status == kErrorNotSupportedInterfaceVersion
+    ///     
+    ///     sends when low supported version is bigger or
+    ///     high version is lesser than in serialized data
+    ///     
+    ///     message body format :
+    ///     
+    ///     {
+    ///         uint32_t minimumSupportedInterfaceVersion;
+    ///         uint32_t maximumSupportedInterfaceVersion;
+    ///     }
+    ///     
+    ///     Status == kErrorNotSupportedInOutInterfaceVersion
+    ///     
+    ///     {
+    ///         uint32_t inMinimumSupportedInterfaceVersion;
+    ///         uint32_t inMaximumSupportedInterfaceVersion;
+    ///         uint32_t outMinimumSupportedInterfaceVersion;
+    ///         uint32_t outMaximumSupportedInterfaceVersion;
+    ///     }
+    kStatus = 0x0,
+                                            
+    /// @brief Default message type (standard processing)
+    /// @details Using in one way single struct serialization/deserialization,
+    ///     that is no return (response) message is expected
+    /// 
+    ///     message format:
+    ///
+    ///     {
+    ///         struct
+    ///         {
+    ///             uuid inStructId;
+    ///             DataFlags dataFlags;
+    ///             uint32_t interfaceVersion;
+    ///         } dataSpecificHeader;
+    ///         
+    ///         struct
+    ///         {
+    ///             uint8_t serializedData[anysize];
+    ///         } binaryData; // varies by DataFlags that was set and struct that was serialized
+    ///     }
+    kData = 0x1,                            
+                                            
+    /// @brief Using for bidirectional data processing
+    /// @details This message using in scenarios when on input struct we expecting to receive
+    ///     output struct or status of input struct handling.
+    ///         Processing of such messages engaged by Data clients and servers.
+    ///
+    ///     message format:
+    ///
+    ///     {
+    ///         struct
+    ///         {
+    ///             uuid inStructId;
+    ///             DataFlags dataFlags;
+    ///             uint32_t inInterfaceVersion;
+    ///             uint32_t outInterfaceVersion;
+    ///         } dataSpecificHeader;
+    ///         
+    ///         struct
+    ///         {
+    ///             uint8_t inSerializedData[anysize];
+    ///         } binaryData; // varies by DataFlags that was set and struct that was serialized
+    ///     }
+    kInOutData = 0x2,
+                                            
+    /// @brief Request of servers protocol capabilities
+    /// @details
+    ///     message format:
+    ///     {
+    ///         struct
+    ///         {
+    ///             CommonCapabilities requestedCapability;
+    ///         }
+    ///     }
+    kCommonCapabilitiesRequest = 0x3,
+
+    /// @brief Response on kCommonCapabilitiesRequest
+    /// @details
+    ///     message format:
+    ///     {
+    ///         struct
+    ///         {
+    ///             uuid structId; // returned struct id
+    ///         }
+    ///     
+    ///         struct
+    ///         {
+    ///             uint8_t inSerializedData[anysize];
+    ///         } binaryData; // varies by requestedCapability value
+    ///     }
+    kCommonCapabilitiesResponse = 0x4                      
 };
 
 } // namespace common_serialization::csp::context

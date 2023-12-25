@@ -30,10 +30,16 @@
 namespace common_serialization::csp::messaging
 {
 
+/// @brief Common CSP server for handling input/output
 class CommonServer
 {
 public:
+    /// @brief Entry point for CSP client requests
+    /// @param binInput Binary data received from client
+    /// @param binOutput Binary data that should be send back to client
+    /// @return Status of operation
     static Status handleMessage(BinWalker& binInput, BinVector& binOutput);
+
 private:
     static Status handleCommonCapabilitiesRequest(context::Common<BinWalker>& ctx, BinVector& binOutput);
 };

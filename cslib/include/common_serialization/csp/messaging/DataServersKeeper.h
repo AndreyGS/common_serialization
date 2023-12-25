@@ -32,18 +32,45 @@ namespace common_serialization::csp::messaging
 
 class IDataServerBase;
 
+/// @brief Keeper of servers that can process InOutData CSP requests (singleton)
+/// @details When server that implement IDataServerBase interface instantiates,
+///     pointer on created instance is placed here 
+///     and vice versa when instance is destructed its pointer removed from here too.
 class DataServersKeeper
 {
 public:
+    /// @brief Get single instance of DataServersKeeper
+    /// @return Reference on single instance of DataServersKeeper
     static DataServersKeeper& GetDataServersKeeper();
 
+    /// @brief Adds server to servers database
+    /// @param id Input-struct id that server will handling
+    /// @param multicast Is it acceptable to have more than one server to handle this Input-struct
+    /// @param pInstance Pointer on server instance
+    /// @return Status of operation
     Status addServer(const Id& id, bool multicast, IDataServerBase* pInstance);
+
+    /// @brief Removes server from servers database
+    /// @param id Input-struct id that server was handling
+    /// @param pInstance Server instance that must be deleted
     void removeServer(const Id& id, IDataServerBase* pInstance);
 
+    /// @brief Find all servers that subscribed to handle Input-struct with given id
+    /// @tparam T Container capable to hold set of servers
+    /// @param id Input-struct id related to handlers
+    /// @param servers Container that would be filled with target servers
+    /// @return Status of operation.
+    ///     If no servers were found, Status::kErrorNoSuchHandler is returned.
     template<typename T>
         requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
     Status findServers(const Id& id, T& servers);
 
+    /// @brief Find single server that is subsribed to handle Input-struct with given id
+    /// @param id Input-struct id related to handler
+    /// @param pServer Pointer on target server
+    /// @return Status of operation.
+    ///     If no server was found, Status::kErrorNoSuchHandler is returned.
+    ///     If there is more than one server that handle this id, Status::kErrorMoreEntires is returned.
     Status findServer(const Id& id, IDataServerBase*& pServer);
 
 private:
