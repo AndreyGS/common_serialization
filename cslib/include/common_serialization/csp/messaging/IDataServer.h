@@ -31,15 +31,18 @@ namespace common_serialization::csp::messaging
 {
 
 /// @brief Interface of concrete CSP data servers
-/// @tparam InstanceType Using in CRTP pattern as derived class
-///     if server using data handling in static function
-///     and
-/// @tparam InputType 
-/// @tparam OutputType 
-/// @tparam forTempUseHeap 
-/// @tparam multicast 
-/// @tparam minimumOutputInterfaceVersion 
-/// @tparam minimumInputInterfaceVersion 
+/// @tparam InstanceType If instance type same as Dummy
+///     then current server using method functions for handling data
+///     and otherwise it must be derived class in CRTP pattern
+///     and server using data handling with static function
+/// @tparam InputType Type of data that receiving from client. Must implement ISerializable.
+/// @tparam OutputType Type of data by that will be sent to client as response. Must implement ISerializable.
+/// @tparam forTempUseHeap Flag indicating that big memory consumption operations
+///     will use heap allocation instead of stack
+/// @tparam multicast Flag indicating that this server can be not the only one
+///     that may process request expressed in InputType
+/// @tparam minimumInputInterfaceVersion Minimum input interface version that this handler may process
+/// @tparam minimumOutputInterfaceVersion Minimum output interface version that this handler may process
 template<typename InstanceType, typename InputType, typename OutputType
     , bool forTempUseHeap = true
     , bool multicast = false
@@ -60,8 +63,18 @@ protected:
 private:
     Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) override;
 
-    // It is a default implementation replacement for static handlers
-    virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* unmanagedPointers, OutputType& output);
+    /// @brief This method must be overriden in concrete class.
+    /// @details It receives deserialized input data and returns output data
+    /// @note If concrete handler should be static this method is not overriden,
+    ///     instead static function handleDataStatic() with the same signature
+    ///     (with exception of "this" of course) must be implemented.
+    /// @remark It is not pure virtual to be as default implementation replacement for static handlers
+    /// @param input Deserialized input data
+    /// @param unmanagedPointers Pointer to container with unmanaged pointers
+    ///     received on input deserialization process
+    /// @param output Data that should be returned to client
+    /// @return Status of operation
+    virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, OutputType& output);
 
     Status handleDataOnStack(context::DInOutData<>& ctx, BinVector& binOutput);
     Status handleDataOnHeap(context::DInOutData<>& ctx, BinVector& binOutput);
@@ -161,7 +174,7 @@ template<typename InstanceType, typename InputType, typename OutputType
 >
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
 Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
-    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleData(const InputType& input, Vector<GenericPointerKeeper>* unmanagedPointers, OutputType& output)
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleData(const InputType& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, OutputType& output)
 {
     assert(false);
     return Status::kErrorNoSuchHandler;

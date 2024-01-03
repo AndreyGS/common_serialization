@@ -51,7 +51,7 @@ public:
     /// @return Status of operation
     template<typename InputType, typename OutputType, bool forTempUseHeap = true>
         requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-    Status handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers = nullptr);
+    Status handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr);
 
 
     /// @brief Send input data to server(s) and get output data on response
@@ -180,10 +180,10 @@ private:
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-Status IDataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers)
+Status IDataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
     return handleData(input, output, m_defaultDataFlags, m_defaultServerInterfaceVersion, m_defaultServerInterfaceVersion
-        , InputType::getOriginPrivateVersion(), OutputType::getOriginPrivateVersion(), m_defaultProtocolVersion, unmanagedPointers);
+        , InputType::getOriginPrivateVersion(), OutputType::getOriginPrivateVersion(), m_defaultProtocolVersion, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>

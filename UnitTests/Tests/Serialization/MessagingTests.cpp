@@ -186,12 +186,12 @@ class TestSubscriber
     , csp::messaging::IStaticDataServer<TestSubscriber, Diamond<>, DynamicPolymorphic<>, false>
 {
 public:
-    Status handleData(const SimpleAssignableAlignedToOne<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, SimpleAssignableDescendant<>& output) override
+    Status handleData(const SimpleAssignableAlignedToOne<>& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, SimpleAssignableDescendant<>& output) override
     {
         return Status::kNoError;
     }
 
-    static Status handleDataStatic(const Diamond<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, DynamicPolymorphic<>& output)
+    static Status handleDataStatic(const Diamond<>& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, DynamicPolymorphic<>& output)
     {
         return Status::kNoError;
     }

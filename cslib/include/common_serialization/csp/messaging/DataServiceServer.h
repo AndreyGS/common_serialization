@@ -54,7 +54,7 @@ public:
         return list;
     }
 
-    static Status handleDataStatic(const GetInterfaceProperties<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, OutGetInterfaceProperties<>& output)
+    static Status handleDataStatic(const GetInterfaceProperties<>& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, OutGetInterfaceProperties<>& output)
     {
         output.properties.id = input.id;
         output.properties.version = traits::kInterfaceVersionUndefined;
@@ -69,7 +69,7 @@ public:
         return Status::kNoError;
     }
 
-    static Status handleDataStatic(const GetInterfacesList<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, InterfacesList<>& output)
+    static Status handleDataStatic(const GetInterfacesList<>& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, InterfacesList<>& output)
     {
         return output.list.init(getInterfacesList());
     }
