@@ -30,9 +30,9 @@ namespace common_serialization::csp
 {
 
 /// @brief Common interface for simplifying data serialization process.
-///     It implements CTRP pattern as base class.
-///     Only classes that inherits this interface are supports versioning
+/// @note Only classes that inherits this interface are supports versioning
 ///     and may be used as top structs in csp data messaging.
+/// @remark Implements CTRP pattern as base class.
 /// 
 /// @tparam T This is most derived class.
 ///     Must have a few static fields:
@@ -58,7 +58,7 @@ public:
     using instance_type = T;
 
     /// @brief It is a shortcut method for serialize this struct.
-    ///     Use it when no context::DataFlags is need.
+    /// @remark Use it when no context::DataFlags is need.
     /// @tparam S Container that implements ISerializationCapableContainer interface
     /// @param output Output container
     /// @return Status of operation

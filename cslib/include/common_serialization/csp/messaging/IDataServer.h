@@ -24,12 +24,22 @@
 #pragma once
 
 #include "common_serialization/csp/context/InOutData.h"
-#include "common_serialization/csp/messaging/IDataServerBase.h"
+#include "common_serialization/csp/messaging/IDataServerCommon.h"
 #include "common_serialization/csp/messaging/StatusMessages.h"
 
 namespace common_serialization::csp::messaging
 {
 
+/// @brief Interface of concrete CSP data servers
+/// @tparam InstanceType Using in CRTP pattern as derived class
+///     if server using data handling in static function
+///     and
+/// @tparam InputType 
+/// @tparam OutputType 
+/// @tparam forTempUseHeap 
+/// @tparam multicast 
+/// @tparam minimumOutputInterfaceVersion 
+/// @tparam minimumInputInterfaceVersion 
 template<typename InstanceType, typename InputType, typename OutputType
     , bool forTempUseHeap = true
     , bool multicast = false
@@ -37,17 +47,19 @@ template<typename InstanceType, typename InputType, typename OutputType
     , interface_version_t minimumOutputInterfaceVersion = OutputType::getOriginPrivateVersion()
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-class IDataServer : public IDataServerBase
+class IDataServer : public IDataServerCommon
 {
 public:
-    Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) override;
-    [[nodiscard]] interface_version_t getMinimumHandlerSupportedInterfaceVersion() override;
+    [[nodiscard]] interface_version_t getMinimumInputInterfaceVersion() override;
+    [[nodiscard]] interface_version_t getMinimumOutputInterfaceVersion() override;
 
 protected:
     IDataServer();
     ~IDataServer();
 
 private:
+    Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) override;
+
     // It is a default implementation replacement for static handlers
     virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* unmanagedPointers, OutputType& output);
 
@@ -97,9 +109,22 @@ template<typename InstanceType, typename InputType, typename OutputType
 >
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
 interface_version_t IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
-    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::getMinimumHandlerSupportedInterfaceVersion()
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::getMinimumInputInterfaceVersion()
 {
     return minimumInputInterfaceVersion;
+}
+
+template<typename InstanceType, typename InputType, typename OutputType
+    , bool forTempUseHeap
+    , bool multicast
+    , interface_version_t minimumInputInterfaceVersion
+    , interface_version_t minimumOutputInterfaceVersion
+>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+interface_version_t IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::getMinimumOutputInterfaceVersion()
+{
+    return minimumOutputInterfaceVersion;
 }
 
 template<typename InstanceType, typename InputType, typename OutputType

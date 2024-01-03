@@ -149,8 +149,8 @@ public:
     constexpr void setOutputInterfaceVersion(interface_version_t outInterfaceVersion) { m_outputInterfaceVersion = outInterfaceVersion; }
 
     /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
-    ///     Also notice that flag of using heap allocation too not resets to false,
-    ///     cause it's rather environment tool option instead of struct/operation specific.
+    /// @note Fag of using heap allocation also not resets to false,
+    ///     because it's rather environment tool option instead of struct/operation specific.
     void resetToDefaultsExceptDataContents() noexcept override
     {
         Data<Container, serialize, PM, PC, EPP>::resetToDefaultsExceptDataContents();
@@ -158,8 +158,8 @@ public:
     }
 
     /// @brief Reset all fields to their default values and clears binary data container
-    ///     Also notice that flag of using heap allocation too not resets to false,
-    ///     cause it's rather environment tool option instead of struct/operation specific.
+    /// @note Flag of using heap allocation not resets to false,
+    ///     because it's rather environment tool option instead of struct/operation specific.
     void clear() noexcept override
     {
         Data<Container, serialize, PM, PC, EPP>::clear();

@@ -30,10 +30,10 @@
 namespace common_serialization::csp::messaging
 {
 
-class IDataServerBase;
+class IDataServerCommon;
 
 /// @brief Keeper of servers that can process InOutData CSP requests (singleton)
-/// @details When server that implement IDataServerBase interface instantiates,
+/// @details When server that implement IDataServerCommon interface instantiates,
 ///     pointer on created instance is placed here 
 ///     and vice versa when instance is destructed its pointer removed from here too.
 class DataServersKeeper
@@ -48,12 +48,12 @@ public:
     /// @param multicast Is it acceptable to have more than one server to handle this Input-struct
     /// @param pInstance Pointer on server instance
     /// @return Status of operation
-    Status addServer(const Id& id, bool multicast, IDataServerBase* pInstance);
+    Status addServer(const Id& id, bool multicast, IDataServerCommon* pInstance);
 
     /// @brief Removes server from servers database
     /// @param id Input-struct id that server was handling
     /// @param pInstance Server instance that must be deleted
-    void removeServer(const Id& id, IDataServerBase* pInstance);
+    void removeServer(const Id& id, IDataServerCommon* pInstance);
 
     /// @brief Find all servers that subscribed to handle Input-struct with given id
     /// @tparam T Container capable to hold set of servers
@@ -62,7 +62,7 @@ public:
     /// @return Status of operation.
     ///     If no servers were found, Status::kErrorNoSuchHandler is returned.
     template<typename T>
-        requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
+        requires requires (T t) { { t.pushBack(*(new IDataServerCommon*)) }; { t.clear() }; { t.size() }; }
     Status findServers(const Id& id, T& servers);
 
     /// @brief Find single server that is subsribed to handle Input-struct with given id
@@ -71,7 +71,7 @@ public:
     /// @return Status of operation.
     ///     If no server was found, Status::kErrorNoSuchHandler is returned.
     ///     If there is more than one server that handle this id, Status::kErrorMoreEntires is returned.
-    Status findServer(const Id& id, IDataServerBase*& pServer);
+    Status findServer(const Id& id, IDataServerCommon*& pServer);
 
 private:
     DataServersKeeper() {}
@@ -80,7 +80,7 @@ private:
     DataServersKeeper& operator=(const DataServersKeeper&) = delete;
     DataServersKeeper& operator=(DataServersKeeper&&) noexcept = delete;
 
-    std::unordered_multimap<Id, IDataServerBase*> m_serversList;
+    std::unordered_multimap<Id, IDataServerCommon*> m_serversList;
     SharedMutex m_serversListMutex;
 };
 
@@ -90,9 +90,9 @@ inline DataServersKeeper& DataServersKeeper::GetDataServersKeeper()
     return serversKeeper;
 }
 
-inline Status DataServersKeeper::addServer(const Id& id, bool multicast, IDataServerBase* pInstance)
+inline Status DataServersKeeper::addServer(const Id& id, bool multicast, IDataServerCommon* pInstance)
 {
-    GuardW guard(m_serversListMutex);
+    WGuard guard(m_serversListMutex);
 
     if (!multicast && m_serversList.contains(id))
         assert(false);
@@ -102,9 +102,9 @@ inline Status DataServersKeeper::addServer(const Id& id, bool multicast, IDataSe
     return Status::kNoError;
 }
 
-inline void DataServersKeeper::removeServer(const Id& id, IDataServerBase* pInstance)
+inline void DataServersKeeper::removeServer(const Id& id, IDataServerCommon* pInstance)
 {
-    GuardW guard(m_serversListMutex);
+    WGuard guard(m_serversListMutex);
 
     auto range = m_serversList.equal_range(id);
     while (range.first != range.second)
@@ -115,12 +115,12 @@ inline void DataServersKeeper::removeServer(const Id& id, IDataServerBase* pInst
 }
 
 template<typename T>
-    requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
+    requires requires (T t) { { t.pushBack(*(new IDataServerCommon*)) }; { t.clear() }; { t.size() }; }
 Status DataServersKeeper::findServers(const Id& id, T& servers)
 {
     servers.clear();
 
-    GuardR guard(m_serversListMutex);
+    RGuard guard(m_serversListMutex);
 
     auto range = m_serversList.equal_range(id);
     while (range.first != range.second)
@@ -132,9 +132,9 @@ Status DataServersKeeper::findServers(const Id& id, T& servers)
     return servers.size() ? Status::kNoError : Status::kErrorNoSuchHandler;
 }
 
-inline Status DataServersKeeper::findServer(const Id& id, IDataServerBase*& pServer)
+inline Status DataServersKeeper::findServer(const Id& id, IDataServerCommon*& pServer)
 {
-    GuardR guard(m_serversListMutex);
+    RGuard guard(m_serversListMutex);
 
     auto range = m_serversList.equal_range(id);
     if (range.first != range.second)

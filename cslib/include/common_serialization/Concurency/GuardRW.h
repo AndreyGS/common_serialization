@@ -35,7 +35,7 @@ public:
     GuardRW(SM& sharedMutex)
         : m_sharedMutex(sharedMutex)
     {
-        if (write)
+        if constexpr (write)
             m_sharedMutex.lock();
         else
             m_sharedMutex.lock_shared();
@@ -43,7 +43,7 @@ public:
 
     ~GuardRW()
     {
-        if (write)
+        if constexpr (write)
             m_sharedMutex.unlock();
         else
             m_sharedMutex.unlock_shared();
@@ -54,9 +54,9 @@ private:
 };
 
 template<ISharedMutex SM>
-using GuardR = GuardRW<SM, false>;
+using RGuard = GuardRW<SM, false>;
 
 template<ISharedMutex SM>
-using GuardW = GuardRW<SM, true>;
+using WGuard = GuardRW<SM, true>;
 
 } // namespace common_serialization

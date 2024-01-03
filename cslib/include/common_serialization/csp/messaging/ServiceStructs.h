@@ -72,10 +72,10 @@ public:
 };
 
 template<typename T = Dummy>
-struct OurGetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<OurGetInterfaceProperties<T>, T>>
+struct OutGetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<OutGetInterfaceProperties<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<OurGetInterfaceProperties<T>, T>;
+    using instance_type = GetCrtpMainType<OutGetInterfaceProperties<T>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr Id kId = helpers::getUuid(0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1);

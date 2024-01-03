@@ -31,7 +31,6 @@ using namespace ft_helpers;
 TEST(MessagingTests, CommonTests)
 {
     TunnedDataClient dataClient;
-    FourthDataServer dataServer;
 
     // Test is for IDataClient::getServerProtocolVersions and CommonServer handling
     csp::messaging::SupportedProtocolVersions<> supportedProtocolVersions;
@@ -112,21 +111,21 @@ TEST(MessagingTests, DataServiceServerTest)
     SimpleDataClient dataClient;
 
     // Create DataServiceServer (to response on client requests)
-    csp::messaging::DataServiceServer<ft_helpers::DataServiceServerBase> serviceServer;
+    csp::messaging::DataServiceServer<ft_helpers::DataServiceServerTraits> serviceServer;
 
     // Test of getting all availible interfaces on server
     csp::messaging::InterfacesList outInterfacesList;
     EXPECT_EQ(dataClient.handleData(csp::messaging::GetInterfacesList<>{}, outInterfacesList), Status::kNoError);
 
     csp::messaging::InterfacesList interfacesListReference;
-    DataServiceServerBase::fillInterfacesList(interfacesListReference.list);
+    DataServiceServerTraits::fillInterfacesList(interfacesListReference.list);
 
     EXPECT_EQ(outInterfacesList, interfacesListReference);
 
     // Test of getting properties of single interface on server
     csp::messaging::GetInterfaceProperties getInterfaceProps;
     getInterfaceProps.id = outInterfacesList.list[outInterfacesList.list.size()-1].id;
-    csp::messaging::OurGetInterfaceProperties outGetInterfaceProps;
+    csp::messaging::OutGetInterfaceProperties outGetInterfaceProps;
 
     EXPECT_EQ(dataClient.handleData(getInterfaceProps, outGetInterfaceProps), Status::kNoError);
     EXPECT_EQ(outGetInterfaceProps.properties, outInterfacesList.list[outInterfacesList.list.size() - 1]);
@@ -222,7 +221,7 @@ TEST(MessagingTests, Temp)
     BinWalker binIn;
     binIn.pushBack(1);
     
-    Vector<csp::messaging::IDataServerBase*, RawGenericAllocatorHelper<csp::messaging::IDataServerBase*>> subscribers;
+    Vector<csp::messaging::IDataServerCommon*, RawGenericAllocatorHelper<csp::messaging::IDataServerCommon*>> subscribers;
     csp::messaging::GetDataServersKeeper().findServers(testInput.getId(), subscribers);
     //subscribers[0]->handleDataConcrete(binIn, binOut);
 
@@ -236,7 +235,7 @@ TEST(MessagingTests, Temp)
     //if (subscribers.size())
         //subscribers[0]->handleDataConcrete(binIn, binOut);
 
-    csp::messaging::DataServiceServer<ft_helpers::DataServiceServerBase> serviceServer;
+    csp::messaging::DataServiceServer<ft_helpers::DataServiceServerTraits> serviceServer;
     csp::messaging::InterfacesList list;
     serviceServer.handleDataStatic(csp::messaging::GetInterfacesList<>{}, nullptr, list);
 }

@@ -31,13 +31,58 @@
 namespace common_serialization::csp::messaging
 {
 
+/// @brief Interface of client in CSP messaging model
+/// @details See documentation of CSP
+/// @note This class itself contains defined methods of handling
+///     data in CSP messaging model. Concrete client must implement
+///     only Status handleBinData(BinVector& binInput, BinWalker& binOutput) method.
 class IDataClient
 {
 public:
+
+    /// @brief Send input data to server(s) and get output data on response
+    /// @details See another handleData() overloading
+    /// @tparam InputType Type that implements ISerializable interface
+    /// @tparam OutputType Type that implements ISerializable interface
+    /// @tparam forTempUseHeap Should heap be used in large memory consumption operations
+    /// @param input Struct that must be sent to server
+    /// @param output Struct that is returned from server 
+    /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
+    /// @return Status of operation
     template<typename InputType, typename OutputType, bool forTempUseHeap = true>
         requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
     Status handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers = nullptr);
 
+
+    /// @brief Send input data to server(s) and get output data on response
+    /// @details Input data serialized according to arguments of function 
+    ///     and predefined settings of IDataClient object instance.
+    ///     Then serialized data being sent to server(s) and received serialized response.
+    ///     Response can be status of operation or expected output data.
+    ///     - if response is a status that implying input message resend, but with adjusted
+    ///         options that can be corrected automatically, input data repacking with it
+    ///         and sends to server(s) again;
+    ///     - if response is an error status that can't be handled automatically or
+    ///         successed status, this status is returned;
+    ///     - if response is expected output data, then it's being deserialized according
+    ///         to arguments of function and predefined settings of IDataClient object instance
+    ///         and function will return status of operation.
+    /// @tparam InputType Type that implements ISerializable interface
+    /// @tparam OutputType Type that implements ISerializable interface
+    /// @tparam forTempUseHeap Should heap be used in large memory consumption operations.
+    ///     Using stack can be dangerous if our environment have small stack (kernels)
+    ///     or for huge input or output structures, when versions convertations can be applied.
+    /// @param input Struct that must be sent to server
+    /// @param output Struct that is returned from server 
+    ///     (use ISerializableDummy<> if no output data is expected)
+    /// @param dataFlags Data flags that must be applied to current operation
+    /// @param preferedInputInterfaceVersion Version of input struct interface version that is preferable to send
+    /// @param preferedOutputInterfaceVersion Version of output struct interface version that is preferable to receive
+    /// @param minimumInputInterfaceVersion Minimum version of input struct interface version to which can be converted
+    /// @param minimumOutputInterfaceVersion Minimum version of output struct interface version from which can be converted
+    /// @param protocolVersion Protocol version that is preferable in operation
+    /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
+    /// @return Status of operation
     template<typename InputType, typename OutputType, bool forTempUseHeap = true>
         requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
     Status handleData(
@@ -52,34 +97,82 @@ public:
         , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
     );
 
+    /// @brief Shortcut to receive server supported CSP versions
+    /// @param output Server supported CSP versions
+    /// @return Status of operation
     Status getServerProtocolVersions(SupportedProtocolVersions<>& output) noexcept;
 
+    /// @brief Get protocol version that is using as default in communications
+    /// @return Default protocol version
     protocol_version_t getDefaultProtocolVersion() const noexcept;
-    context::DataFlags getDefaultFlags() const noexcept;
+
+    /// @brief Set protocol version that is using as default in communications
+    /// @param defaultProtocolVersion Default protocol version
+    void setDefaultProtocolVersion(protocol_version_t defaultProtocolVersion) noexcept;
+
+    /// @brief Get default data flags that are using in communications
+    /// @return Default data flags
+    context::DataFlags getDefaultDataFlags() const noexcept;
+
+    /// @brief Set default data flags that are using in communications
+    /// @param defaultDataFlags Default data flags
+    void setdefaultDataFlags(context::DataFlags defaultDataFlags) noexcept;
+
+    /// @brief Get interface ID for which this instance is constructed
+    /// @remark Interface ID is using only for informational purpose
+    ///     for adding meaning of default interface version.
+    /// @return Interface ID of default interface version
     const Id& getDefaultInterfaceId() const noexcept;
+
+    /// @brief Set interface ID for which this instance is constructed
+    /// @remark Interface ID is using only for informational purpose
+    ///     for adding meaning of default interface version.
+    /// @param defaultInterfaceId Interface ID of default interface version
+    void setDefaultInterfaceId(const Id& defaultInterfaceId) noexcept;
+
+    /// @brief Get default interface version that is using in communications
+    /// @details If it is known in advance or we discovered it manually 
+    ///     which interface version target server supports
+    ///     we can set up this number for implicit applying it for every operation
+    /// @return Default interface version
     interface_version_t getDefaultServerInterfaceVersion() const noexcept;
 
-    void setDefaultProtocolVersion(protocol_version_t defaultProtocolVersion) noexcept;
-    void setDefaultFlags(context::DataFlags defaultFlags) noexcept;
-    void setDefaultInterfaceId(const Id& defaultInterfaceId) noexcept;
+    /// @brief Set default interface version that is using in communications
+    /// @details If it is known in advance or we discovered it manually 
+    ///     which interface version target server supports
+    ///     we can set up this number for implicit applying it for every operation
+    /// @param defaultServerInterfaceVersion Default interface version
     void setDefaultServerInterfaceVersion(interface_version_t defaultServerInterfaceVersion) noexcept;
 
 protected:
+    /// @brief Default constructor
     IDataClient() {}
-    IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, const Id& defaultInterfaceId, interface_version_t targetInterfaceVersion);
+
+    /// @brief Constructor
+    /// @param defaultProtocolVersion Protocol version that is using as default in communications
+    /// @param defaultDataFlags Default data flags that are using in communications
+    /// @param defaultInterfaceId Interface ID for which this instance is constructed (informational purpose only)
+    /// @param targetInterfaceVersion Default interface version that is using in communications
+    IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultDataFlags, const Id& defaultInterfaceId, interface_version_t targetInterfaceVersion);
 
 private:
     template<typename T>
         requires IsISerializableBased<T>
     interface_version_t chooseInterfaceVersion(interface_version_t preferedInterfaceVersion, interface_version_t minimumInterfaceVersion);
 
+    /// @brief Method for sending and receiving binary data to and from server
+    /// @details This method must not make assumptions on what binary input and ouput data is.
+    ///     It must be implemented as transport function from client to server and vice versa.
+    ///     For example, it may be function that sends and receives data to and from socket.
+    /// @param binInput Data that is prepared by handleData method
+    /// @param binOutput Data that should be returned for processing by handleData method
+    /// @return Status of operation
     virtual Status handleBinData(BinVector& binInput, BinWalker& binOutput) = 0;
 
     protocol_version_t m_defaultProtocolVersion{ traits::getLatestProtocolVersion() };
-    context::DataFlags m_defaultFlags;
+    context::DataFlags m_defaultDataFlags;
 
     // There can be more than one interfaces on server
-    // And for simplicity we should apply default parameters to only one of it
     // ID of that interface is filling for informational purposes
     Id m_defaultInterfaceId;
     interface_version_t m_defaultServerInterfaceVersion{ traits::kInterfaceVersionUndefined };
@@ -89,7 +182,7 @@ template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status IDataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* unmanagedPointers)
 {
-    return handleData(input, output, m_defaultFlags, m_defaultServerInterfaceVersion, m_defaultServerInterfaceVersion
+    return handleData(input, output, m_defaultDataFlags, m_defaultServerInterfaceVersion, m_defaultServerInterfaceVersion
         , InputType::getOriginPrivateVersion(), OutputType::getOriginPrivateVersion(), m_defaultProtocolVersion, unmanagedPointers);
 }
 
@@ -266,9 +359,19 @@ inline protocol_version_t IDataClient::getDefaultProtocolVersion() const noexcep
     return m_defaultProtocolVersion;
 }
 
-inline context::DataFlags IDataClient::getDefaultFlags() const noexcept
+inline void IDataClient::setDefaultProtocolVersion(protocol_version_t defaultProtocolVersion) noexcept
 {
-    return m_defaultFlags;
+    m_defaultProtocolVersion = defaultProtocolVersion;
+}
+
+inline context::DataFlags IDataClient::getDefaultDataFlags() const noexcept
+{
+    return m_defaultDataFlags;
+}
+
+inline void IDataClient::setdefaultDataFlags(context::DataFlags defaultDataFlags) noexcept
+{
+    m_defaultDataFlags = defaultDataFlags;
 }
 
 inline const Id& IDataClient::getDefaultInterfaceId() const noexcept
@@ -276,24 +379,14 @@ inline const Id& IDataClient::getDefaultInterfaceId() const noexcept
     return m_defaultInterfaceId;
 }
 
-inline interface_version_t IDataClient::getDefaultServerInterfaceVersion() const noexcept
-{
-    return m_defaultServerInterfaceVersion;
-}
-
-inline void IDataClient::setDefaultProtocolVersion(protocol_version_t defaultProtocolVersion) noexcept
-{
-    m_defaultProtocolVersion = defaultProtocolVersion;
-}
-
-inline void IDataClient::setDefaultFlags(context::DataFlags defaultFlags) noexcept
-{
-    m_defaultFlags = defaultFlags;
-}
-
 inline void IDataClient::setDefaultInterfaceId(const Id& defaultInterfaceId) noexcept
 {
     m_defaultInterfaceId = defaultInterfaceId;
+}
+
+inline interface_version_t IDataClient::getDefaultServerInterfaceVersion() const noexcept
+{
+    return m_defaultServerInterfaceVersion;
 }
 
 inline void IDataClient::setDefaultServerInterfaceVersion(interface_version_t defaultServerInterfaceVersion) noexcept
@@ -301,8 +394,8 @@ inline void IDataClient::setDefaultServerInterfaceVersion(interface_version_t de
     m_defaultServerInterfaceVersion = defaultServerInterfaceVersion;
 }
 
-inline IDataClient::IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultFlags, const Id& defaultInterfaceId, interface_version_t targetInterfaceVersion)
-    : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultFlags(defaultFlags), m_defaultInterfaceId(defaultInterfaceId), m_defaultServerInterfaceVersion(targetInterfaceVersion)
+inline IDataClient::IDataClient(protocol_version_t defaultProtocolVersion, context::DataFlags defaultDataFlags, const Id& defaultInterfaceId, interface_version_t targetInterfaceVersion)
+    : m_defaultProtocolVersion(defaultProtocolVersion), m_defaultDataFlags(defaultDataFlags), m_defaultInterfaceId(defaultInterfaceId), m_defaultServerInterfaceVersion(targetInterfaceVersion)
 { }
 
 template<typename T>

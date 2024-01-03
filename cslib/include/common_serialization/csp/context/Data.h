@@ -55,7 +55,7 @@ public:
     [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
 
     /// @brief Set map that holding pointers and their relative offsets in binary data.
-    ///     You should notice that when we set map to SerializeExtendedPointersProcessing 
+    /// @note When we set map to SerializeExtendedPointersProcessing 
     ///     it will not owns this map and does not clears its contents on destruction.
     /// @param pPointersMap Pointer to pointers map (could be nullptr)
     constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
@@ -105,7 +105,7 @@ public:
     [[nodiscard]] constexpr const PC* getAddedPointers() const noexcept { return m_pAddedPointers; }
 
     /// @brief Set pointer to added pointers container
-    ///     You should notice that when we set map to DeserializeExtendedPointersProcessing 
+    /// @note When we set map to DeserializeExtendedPointersProcessing 
     ///     it will not owns this container and does not clears its contents on destruction.
     /// @param pAddedPointers Pointer to added free pointers container
     constexpr void setAddedPointers(PC* pAddedPointers) noexcept { m_pAddedPointers = pAddedPointers; }
@@ -116,7 +116,7 @@ public:
     [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
 
     /// @brief Set map that holding pointers and their relative offsets in binary data.
-    ///     You should notice that when we set map to DeserializeExtendedPointersProcessing 
+    /// @note When we set map to DeserializeExtendedPointersProcessing 
     ///     it will not owns this map and does not clears its contents on destruction.
     /// @param pPointersMap Set pointer map to this
     constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
@@ -207,7 +207,8 @@ public:
         , m_flags(rhs.m_flags), m_epp(rhs.m_epp), m_interfaceVersion(rhs.interfaceVersion), m_auxUsingHeapAllocation(rhs.auxUsingHeapAllocation)
     { }
 
-    /// @brief Constructor (availible only on serialization mode)
+    /// @brief Constructor
+    /// @remark availible only on serialization mode
     /// @param binaryData Container that hold or would hold binary data from processing
     /// @param protocolVersion Protocol version that would be used in process
     /// @param dataFlags Data flags that are using in processing
@@ -222,7 +223,8 @@ public:
             , m_epp(pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 
-    /// @brief Constructor (availible only on deserialization mode)
+    /// @brief Constructor
+    /// @remark availible only on deserialization mode
     /// @param binaryData Container that hold or would hold binary data from processing
     /// @param protocolVersion Protocol version that would be used in process
     /// @param dataFlags Data flags that are using in processing
@@ -256,7 +258,7 @@ public:
     [[nodiscard]] constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
 
     /// @brief If target interface version is differs from top struct interface version, true must be set.
-    ///     Should be used before start of data processing.
+    /// @note Should be used before start of data processing.
     /// @param interfaceVersionsNotMatch Flag indicating that interface versions are not match
     constexpr void setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; }
 
@@ -280,29 +282,29 @@ public:
     constexpr void setPointersMap(PM* pPointersMap) noexcept { m_epp.setPointersMap(pPointersMap); }
 
     /// @brief Get pointer to added free pointers container.
-    ///     (availible only on deserialization mode)
+    /// @remark availible only on deserialization mode
     /// @return Pointer to added free pointers container
     [[nodiscard]] constexpr PC* getAddedPointers() noexcept requires !serialize { return m_epp.getAddedPointers(); }
     [[nodiscard]] constexpr const PC* getAddedPointers() const noexcept requires !serialize { return m_epp.getAddedPointers(); }
 
     /// @brief Set holding pointer to added pointers container
-    ///     You should notice that when we set map to Data 
-    ///     it will not owns this container and does not clears its contents on destruction.
-    ///     (availible only on deserialization mode)
+    /// @note When we set map to Data it will not owns it
+    ///     and does not clears its contents on destruction.
+    /// @remark availible only on deserialization mode
     /// @param pAddedPointers Pointer to added free pointers container
     constexpr void setAddedPointers(PC* pAddedPointers) noexcept requires !serialize { m_epp.setAddedPointers(pAddedPointers); }
 
     /// @brief Allocates memory for type T and costructs default T-object,
     ///     and then places it to container of added free pointers.
-    ///     (availible only on deserialization mode)
+    /// @remark availible only on deserialization mode
     /// @tparam T Type of object to allocate and construct
     /// @return Pointer of costructed object
     template<typename T>
     [[nodiscard]] T* allocateAndDefaultConstruct() const noexcept requires !serialize { return m_epp.allocateAndDefaultConstruct<T>(); }
 
     /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
-    ///     Also notice that flag of using heap allocation too not resets to false,
-    ///     cause it's rather environment tool option instead of struct/operation specific.
+    /// @note Flag of using heap allocation also not resets to false,
+    ///     because it's rather environment tool option instead of struct/operation specific.
     void resetToDefaultsExceptDataContents() noexcept override
     {
         Common<Container>::resetToDefaultsExceptDataContents();
@@ -314,8 +316,8 @@ public:
     }
 
     /// @brief Reset all fields to their default values and clears binary data container
-    ///     Also notice that flag of using heap allocation too not resets to false,
-    ///     cause it's rather environment tool option instead of struct/operation specific.
+    /// @note Flag of using heap allocation not resets to false,
+    ///     because it's rather environment tool option instead of struct/operation specific.
     void clear() noexcept override
     {
         Common<Container>::clear();

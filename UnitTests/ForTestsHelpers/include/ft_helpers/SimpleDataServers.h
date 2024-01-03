@@ -51,7 +51,7 @@ void fillingStruct(another_yet_interface::SimpleStruct<>& output);
 
 namespace cs = common_serialization;
 
-class DataServiceServerBase
+class DataServiceServerTraits
 {
 public:
     static void fillInterfacesList(cs::Vector<cs::csp::traits::InterfaceProperties>& list)

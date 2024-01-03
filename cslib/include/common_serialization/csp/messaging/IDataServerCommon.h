@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IDataServerBase.h
+ * @file cslib/include/common_serialization/csp/messaging/IDataServerCommon.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -32,20 +32,36 @@ namespace common_serialization::csp::messaging
 
 // Do not be confused by it naming
 // It is a server that process data messages of CSP
-class IDataServerBase
+
+/// @brief Interface of common CSP data servers
+/// @remark Do not be confused by it naming - it is a server 
+///     that process data messages of CSP - not database server 
+class IDataServerCommon
 {
 public:
-    virtual Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) = 0;
-    virtual [[nodiscard]] interface_version_t getMinimumHandlerSupportedInterfaceVersion() = 0;
+    /// @brief Get instance minimum input interface version
+    /// @return Instance minimum input interface version
+    virtual [[nodiscard]] interface_version_t getMinimumInputInterfaceVersion() = 0;
 
+    /// @brief Get instance minimum output interface version
+    /// @return Instance minimum output interface version
+    virtual [[nodiscard]] interface_version_t getMinimumOutputInterfaceVersion() = 0;
+
+    /// @brief Common entry point on data messages handling
+    /// @param ctxCommon Deserialized from input common context
+    /// @param binOutput Binary data output
+    /// @return Status of operation
     static Status handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput);
 
 protected:
-    constexpr IDataServerBase() { }
-    constexpr ~IDataServerBase() { }
+    constexpr IDataServerCommon() { }
+    constexpr ~IDataServerCommon() { }
+
+private:
+    virtual Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) = 0;
 };
 
-inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput)
+inline Status IDataServerCommon::handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput)
 {
     context::DInOutData<> ctx(ctxCommon);
     Id id;
@@ -62,7 +78,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
     if (dataFlags.checkRecursivePointers)
         ctx.setPointersMap(&pointersMap);
     
-    IDataServerBase* pServer{ nullptr };
+    IDataServerCommon* pServer{ nullptr };
     Status status = Status::kNoError;
 
     if (Status status = GetDataServersKeeper().findServer(id, pServer); statusSuccess(status))
@@ -72,7 +88,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
     // If we have more than one DataServer
     else if (status == Status::kErrorMoreEntires)
     {
-        Vector<IDataServerBase*, RawStrategicAllocatorHelper<IDataServerBase*>> servers;
+        Vector<IDataServerCommon*, RawStrategicAllocatorHelper<IDataServerCommon*>> servers;
         RUN(GetDataServersKeeper().findServers(id, servers));
 
         status = Status::kNoError;

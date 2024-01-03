@@ -34,7 +34,7 @@ struct DataFlags
     ///     or with different compiler options.
     ///     And caution on fields alignment must be made.
     ///     
-    ///         To speed up serialization structs marked with simple_assignable_tag 
+    /// @note To speed up serialization structs marked with simple_assignable_tag 
     ///     and arrays of them would be serialized/deserialized by memcpy
     ///     if their target versions are equal to latest, when this flag not set
     ///     and sizeOfArithmeticTypesMayBeNotEqual also not set.
@@ -47,12 +47,12 @@ struct DataFlags
     ///     before any write/read of it value there would be a write/read
     ///     of size that this type have.
     /// 
-    ///         The fact that size is strictly defined or not
+    /// @note  The fact that size is strictly defined or not
     ///     is checks by FixSizedArithmeticType and FixSizedEnumType concepts.
     ///     Notice that most frequent used types are not strictly sized,
     ///     including uin32_t, uin64_t and others.
     ///     
-    ///         This flag is very dangerous and it should never be used,
+    /// @remark This flag is very dangerous and it should never be used,
     ///     except you are really know what you are doing.
     ///     Instead in your interface structs you should using types that have
     ///     "semanticaly fixed" size (uin32_t, uin64_t and others).
@@ -61,10 +61,10 @@ struct DataFlags
     /// @details Allow serialization of pointers without help of DataProcessor
     ///     serializeData/deserializeData specialized class functions.
     ///     
-    ///         For instance, may be used for containers that holds pointers on objects
+    /// @note May be used for containers that holds pointers on objects
     ///     without special handling functions.
     ///     
-    ///         In deserialization process every creation of new pointer
+    /// @remark In deserialization process every creation of new pointer
     ///     is registers in context stored container, which will allow
     ///     to use and safe delete this pointers in future.
     uint32_t allowUnmanagedPointers                 : 1 = 0;

@@ -32,28 +32,29 @@ namespace common_serialization::csp::messaging
 {
 
 template<typename T>
-concept DataServiceServerBase = requires
+concept DataServiceServerTraits = requires
 {
     { T::fillInterfacesList(*(new Vector<traits::InterfaceProperties>)) };
 };
 
-template<DataServiceServerBase Base>
+/// @brief Predefined data server that answers on CSP clients service requests
+/// @tparam Traits Class that support interface necessary for DataServiceServer work
+template<DataServiceServerTraits Traits>
 class DataServiceServer
-    : Base
-    , IStaticDataServer<DataServiceServer<Base>, GetInterfaceProperties<>, OurGetInterfaceProperties<>, false>
-    , IStaticDataServer<DataServiceServer<Base>, GetInterfacesList<>, InterfacesList<>, false>
+    : IStaticDataServer<DataServiceServer<Traits>, GetInterfaceProperties<>, OutGetInterfaceProperties<>, false>
+    , IStaticDataServer<DataServiceServer<Traits>, GetInterfacesList<>, InterfacesList<>, false>
 {
 public: 
     static Vector<traits::InterfaceProperties>& getInterfacesList()
     {
         static Vector<traits::InterfaceProperties> list;
 
-        Base::fillInterfacesList(list);
+        Traits::fillInterfacesList(list);
 
         return list;
     }
 
-    static Status handleDataStatic(const GetInterfaceProperties<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, OurGetInterfaceProperties<>& output)
+    static Status handleDataStatic(const GetInterfaceProperties<>& input, Vector<GenericPointerKeeper>* unmanagedPointers, OutGetInterfaceProperties<>& output)
     {
         output.properties.id = input.id;
         output.properties.version = traits::kInterfaceVersionUndefined;

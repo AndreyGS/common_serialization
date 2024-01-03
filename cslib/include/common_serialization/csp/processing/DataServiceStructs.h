@@ -134,7 +134,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, traits::I
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const messaging::OurGetInterfaceProperties<>& value, context::SData<>& ctx)
+constexpr Status DataProcessor::serializeData(const messaging::OutGetInterfaceProperties<>& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
@@ -144,7 +144,7 @@ constexpr Status DataProcessor::serializeData(const messaging::OurGetInterfacePr
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::OurGetInterfaceProperties<>& value)
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::OutGetInterfaceProperties<>& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
 

@@ -62,7 +62,7 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
     Status status{ Status::kNoError };
 
     if (ctx.getMessageType() == context::Message::kInOutData)
-        return IDataServerBase::handleDataCommon(ctx, binOutput);
+        return IDataServerCommon::handleDataCommon(ctx, binOutput);
     else if (ctx.getMessageType() == context::Message::kCommonCapabilitiesRequest)
         return handleCommonCapabilitiesRequest(ctx, binOutput);
 
