@@ -28,12 +28,20 @@
 namespace common_serialization
 {
 
+/// @brief Test for possibility to init object of type T
+///     by another instance of the same type.
+/// @remark Using to figure out can initialization of object be
+///     replaced from copy-constructor to init function.
+///     Primary for avoid exceptions and consequently 
+///     init function should not throw.
 template<typename T>
 concept Initable = requires(T t)
 {
     { t.init(*(new T)) } -> std::same_as<Status>;
 };
 
+/// @brief Test for possibility to init object of type T
+///     by another instance of type SpecClass.
 template<typename T, typename SpecClass>
 concept InitableBySpecialClass = requires(T t)
 {

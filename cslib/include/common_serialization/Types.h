@@ -28,6 +28,7 @@ namespace common_serialization
 
 #pragma pack(push, 1)
 
+/// @brief Struct for holding UUIDv4
 struct Uuid
 {
     using simple_assignable_tag = std::true_type;

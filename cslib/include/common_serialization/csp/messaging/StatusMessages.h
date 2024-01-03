@@ -30,6 +30,7 @@ namespace common_serialization::csp::messaging
 
 #pragma pack(push, 1)
 
+/// @brief Data part of CSP status message kErrorNotSupportedProtocolVersion
 struct StatusErrorNotSupportedProtocolVersion
 {
     protocol_version_t supportedProtocolsVersionsSize{ helpers::countof(traits::kProtocolVersions) };
@@ -43,6 +44,7 @@ struct StatusErrorNotSupportedProtocolVersion
     using SimpleAssignableType = std::true_type;
 };
 
+/// @brief Data part of CSP status message kErrorNotSupportedInterfaceVersion
 struct StatusErrorNotSupportedInterfaceVersion
 {
     interface_version_t minimumSupportedInterfaceVersion{ traits::kInterfaceVersionUndefined };
@@ -51,6 +53,7 @@ struct StatusErrorNotSupportedInterfaceVersion
     using SimpleAssignableType = std::true_type;
 };
 
+/// @brief Data part of CSP status message kErrorNotSupportedInOutInterfaceVersion
 struct StatusErrorNotSupportedInOutInterfaceVersion
 {
     interface_version_t inMinimumSupportedInterfaceVersion{ traits::kInterfaceVersionUndefined };

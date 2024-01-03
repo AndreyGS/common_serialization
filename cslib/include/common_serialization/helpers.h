@@ -32,6 +32,11 @@ namespace common_serialization
 
 struct Dummy {};
 
+/// @brief Get most derived type in CRTP pattern
+/// @note If derived type is Dummy then this class is the most derived type.
+///     If not - derived type is the most derived type.
+/// @tparam X This class type
+/// @tparam T Derived type
 template<typename X, typename T>
 using GetCrtpMainType = std::conditional_t<std::is_same_v<T, common_serialization::Dummy>, X, T>;
 
@@ -71,8 +76,9 @@ struct pointer_level_traits : pointer_level_traits_impl<std::remove_pointer_t<T>
     using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<T>, 0>::from_ptr_to_const_to_ptr*;
 };
 
-// erases all consts from ptr
-// const int* const * const * const -> int***
+/// @brief Erases all consts from pointer
+/// @note Works only with pointers
+/// @remark const int* const * const * const -> int***
 template<typename T>
     requires std::is_pointer_v<T>
 using from_ptr_to_const_to_ptr_t = typename pointer_level_traits<T>::from_ptr_to_const_to_ptr;
@@ -83,18 +89,32 @@ concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || 
 namespace helpers
 {
 
+/// @brief Test for overlapping memory regions of same sized arrays
+/// @tparam T Type of arrays
+/// @param objs1 Start of first array
+/// @param objs2 Start of second array
+/// @param n Number of elements in each array
+/// @return True if there is overlap of memory regions
 template<typename T>
-constexpr bool areRegionsOverlap(const T* objs1, const T* objs2, size_t n)
+constexpr bool areRegionsOverlap(const T* pObjs1, const T* pObjs2, size_t n)
 {
-    return objs1 >= objs2 && objs1 < objs2 + n || objs1 <= objs2 && objs1 + n > objs2;
+    return pObjs1 >= pObjs2 && pObjs1 < pObjs2 + n || pObjs1 <= pObjs2 && pObjs1 + n > pObjs2;
 }
 
+/// @brief Get array size
+/// @tparam T Array element type
+/// @tparam N Size of array
+/// @param arr Array which size we need to get
+/// @return Size of Array
 template<typename T, size_t N>
-constexpr size_t countof(T(&arr)[N])
+consteval size_t countof(T(&arr)[N])
 {
     return N;
 }
 
+/// @brief Convert uint64_t endianness from little-endian to big-endian and vice versa
+/// @param input Number
+/// @return Converted number
 constexpr uint64_t reverseEndianessUint64(uint64_t input)
 {
     return input >> 56
@@ -107,6 +127,9 @@ constexpr uint64_t reverseEndianessUint64(uint64_t input)
         | input << 56;
 }
 
+/// @brief Convert uint32_t endianness from little-endian to big-endian and vice versa
+/// @param input Number
+/// @return Converted number
 constexpr uint32_t reverseEndianessUint32(uint32_t input)
 {
     return input >> 24
@@ -115,11 +138,20 @@ constexpr uint32_t reverseEndianessUint32(uint32_t input)
         | input << 24;
 }
 
+/// @brief Convert uint16_t endianness from little-endian to big-endian and vice versa
+/// @param input Number
+/// @return Converted number
 constexpr uint16_t reverseEndianessUint16(uint16_t input)
 {
     return input >> 8 | input << 8;
 }
-
+/// @brief Get UUIDv4 from distinct numbers
+/// @param first First number
+/// @param second Second number
+/// @param third Third number
+/// @param fourth Fourth number
+/// @param fifth Fifth number
+/// @return Uuid
 constexpr Uuid getUuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth)
 {
     Uuid id;

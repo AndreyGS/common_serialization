@@ -31,8 +31,9 @@
 namespace common_serialization::csp::messaging
 {
 
-// Special type - placeholder for Input-Output operations that has no ISerializable Output struct
-// Interfaces which are using that struct as an Ouput will always receive the Message::kStatus as result
+/// @brief Special type - placeholder for Input-Output operations that have no need in ISerializable Output struct
+/// @remark Interfaces which are using that struct as an Output will always receive the Message::kStatus as result
+/// @tparam T Derived class
 template<typename T = Dummy>
 struct ISerializableDummy : public ISerializable<ISerializableDummy<Dummy>>
 {
@@ -44,6 +45,8 @@ public:
     static constexpr interface_version_t kPrivateVersions[] = { 0 };
 };
 
+/// @brief Struct contain list of supported CSP versions
+/// @tparam T Derived class
 template<typename T = Dummy>
 struct SupportedProtocolVersions : public csp::ISerializable<GetCrtpMainType<SupportedProtocolVersions<T>, T>>
 {
@@ -57,6 +60,8 @@ public:
     Vector<protocol_version_t> list;
 };
 
+/// @brief Struct for request of interface properties with specific Id
+/// @tparam T Derived class
 template<typename T = Dummy>
 struct GetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<GetInterfaceProperties<T>, T>>
 {
@@ -71,6 +76,8 @@ public:
     Id id;
 };
 
+/// @brief Struct for response on GetInterfaceProperties
+/// @tparam T Derived class
 template<typename T = Dummy>
 struct OutGetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<OutGetInterfaceProperties<T>, T>>
 {
@@ -85,6 +92,8 @@ public:
     traits::InterfaceProperties properties;
 };
 
+/// @brief Struct for request of all supported interfaces list
+/// @tparam T Derived class
 template<typename T = Dummy>
 struct GetInterfacesList : public csp::ISerializable<GetCrtpMainType<GetInterfacesList<T>, T>>
 {
@@ -97,6 +106,8 @@ public:
     static constexpr interface_version_t kPrivateVersions[] = { 0 };
 };
 
+/// @brief Struct contain list of all supported interfaces
+/// @tparam T Derived class
 template<typename T = Dummy>
 struct InterfacesList : public csp::ISerializable<GetCrtpMainType<InterfacesList<T>, T>>
 {

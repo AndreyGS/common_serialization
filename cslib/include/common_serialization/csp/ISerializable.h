@@ -31,7 +31,7 @@ namespace common_serialization::csp
 
 /// @brief Common interface for simplifying data serialization process.
 /// @note Only classes that inherits this interface are supports versioning
-///     and may be used as top structs in csp data messaging.
+///     and may be used as top structs in CSP data messaging.
 /// @remark Implements CTRP pattern as base class.
 /// 
 /// @tparam T This is most derived class.
