@@ -29,6 +29,9 @@
 namespace common_serialization
 {
 
+/// @brief Constructor Allocator that not throwing
+///     (as long as constructed objects don't do it)
+/// @tparam T Type of objects that allocator would allocate and construct
 template<typename T>
 class ConstructorNoexceptAllocator 
 {
@@ -39,25 +42,54 @@ public:
     using difference_type = ptrdiff_t;
     using constructor_allocator = std::true_type;
 
+    /// @brief Default constructor
     constexpr ConstructorNoexceptAllocator() noexcept {}
+
+    /// @brief Copy constructor
+    /// @remark This overload only for compatibility
+    /// @tparam R Type of ojects that rhs allocator would allocate
     template <class R>
     constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator<R>&) noexcept {}
 
+    /// @brief Allocate storage with bytes_size = n*sizeof(T)
+    /// @param n Number of elements of type T that storage must be capable to hold
+    /// @return Pointer to allocated storage, nullptr if there is not enough memory
     [[nodiscard]] constexpr T* allocate(size_type n) const noexcept;
+
+    /// @brief Frees storage pointed by p
+    /// @param p Pointer to memory that shall be freed
     constexpr void deallocate(T* p) const noexcept;
+
+    /// @brief Frees storage pointed by p
+    /// @remark This overload only for compatibility
+    /// @param p Pointer to memory that shall be freed
+    /// @param n Size of storage (not used)
     constexpr void deallocate(T* p, size_type n) const noexcept;
 
+    /// @brief Call constructor with args on memory pointed by p
+    /// @tparam ...Args Parameters types that go to constructor
+    /// @param p Pointer to memory where object shall be created
+    /// @param ...args Parameters that go to constructor
+    /// @return Status of operation
     template<typename... Args>
     constexpr Status construct(T* p, Args&&... args) const noexcept;
-    template<typename... Args>
-        requires Initable<T>
-    constexpr Status construct(T* p, Args&&... args) const noexcept;
-    template<typename... Args>
-        requires Initable<T>
-    constexpr Status construct(T* p) const noexcept;
 
+    /// @brief Call default constructor on memory pointed by p
+    ///     and then call init() method of T if args pack not empty
+    /// @tparam ...Args Parameters types that go to init() method
+    /// @param p Pointer to memory where object shall be created
+    /// @param ...args Parameters that go to init() method
+    /// @return Status of operation
+    template<typename... Args>
+    constexpr Status construct(T* p, Args&&... args) const noexcept
+        requires Initable<T>;
+
+    /// @brief Call destructor on object pointed by p
+    /// @param p Pointer to object that shall be destroyed
     constexpr void destroy(T* p) const noexcept;
 
+    /// @brief Get maximum number of objects of type T that allocator can allocate
+    /// @return Maximum number of objects
     constexpr size_type max_size() const noexcept;
 
 private:
@@ -94,24 +126,17 @@ constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args
 
 template<typename T>
 template<typename... Args>
-    requires Initable<T>
 constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
-{
-    assert(p);
-
-    new ((void*)p) T;
-    return p->init(std::forward<Args>(args)...);
-}
-
-template<typename T>
-template<typename... Args>
     requires Initable<T>
-constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p) const noexcept
 {
     assert(p);
 
     new ((void*)p) T;
-    return Status::kNoError;
+
+    if constexpr (sizeof...(Args))
+        return p->init(std::forward<Args>(args)...);
+    else
+        return Status::kNoError;
 }
 
 template<typename T>

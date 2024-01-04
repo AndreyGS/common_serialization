@@ -44,6 +44,9 @@
 namespace common_serialization
 {
 
+/// @brief Status messages that are using in all procedures 
+///     of common_serialization namespace and are part of CSP
+/// @note Negative numbers are errors, others are success
 enum class Status : int_fast32_t
 {
     // No error

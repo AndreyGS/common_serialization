@@ -26,8 +26,10 @@
 namespace common_serialization
 {
 
-// This allocator is single threaded
-// Any synchronization if need shall be used additionally
+/// @brief Stateful allocator that using user supplied storage
+/// @note This allocator is single threaded.
+///     Any synchronization if need shall be used additionally.
+/// @tparam T Type of objects that allocator would allocate and construct
 template<typename T>
     requires std::is_trivially_copyable_v<T>
 class RawKeeperAllocator
@@ -39,37 +41,98 @@ public:
     using difference_type = ptrdiff_t;
     using constructor_allocator = std::false_type;
 
+    /// @brief Default constructor
     constexpr RawKeeperAllocator() noexcept {}
+
+    /// @brief Init constructor
+    /// @param p Pointer on storage
+    /// @param memorySize Size of storage in T units
     constexpr RawKeeperAllocator(T* p, size_type memorySize) noexcept;
 
+    /// @brief Copy constructor
+    /// @remark This overload only for compatibility and does nothing
+    /// @tparam R Type of ojects that rhs allocator is allocate
+    /// @param rhs Another RawKeeperAllocator object
     template <class R>
     constexpr RawKeeperAllocator(const RawKeeperAllocator<R>& rhs) noexcept { operator=(rhs); }
+
+    /// @brief Copy constructor
+    /// @remark This overload only for compatibility and does nothing
+    /// @param rhs Another RawKeeperAllocator object
     constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { return operator=<T>(rhs); }
 
+    /// @brief Move constructor
+    /// @tparam R Type of ojects that rhs allocator is allocate
+    /// @param rhs Another RawKeeperAllocator object
     template <class R>
     constexpr RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept;
+
+    /// @brief Move constructor
+    /// @param rhs Another RawKeeperAllocator object
     constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept { operator=<T>(std::move(rhs)); }
 
+    /// @brief Copy assignment operator
+    /// @remark Present only for compatibility and does not copying anything
+    /// @tparam R Type of ojects that rhs allocator is allocate
     template <class R>
     constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<R>&) noexcept { return *this; }
+
+    /// @brief Copy assignment operator
+    /// @remark Present only for compatibility and does not copying anything
+    /// @param rhs Another RawKeeperAllocator object
+    /// @return *this
     constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator& rhs) noexcept { return operator=<T>(rhs); }
 
+    /// @brief Move assignment operator
+    /// @tparam R Type of ojects that rhs allocator is allocate
+    /// @param rhs Another RawKeeperAllocator object
+    /// @return *this
     template <class R>
     constexpr RawKeeperAllocator& operator=(RawKeeperAllocator<R>&& rhs) noexcept;
+
+    /// @brief Move assignment operator
+    /// @param rhs Another RawKeeperAllocator object
+    /// @return *this
     constexpr RawKeeperAllocator& operator=(RawKeeperAllocator&& rhs) noexcept { return operator=<T>(std::move(rhs)); }
 
+    /// @brief Init with storage
+    /// @param p Pointer to storage
+    /// @param memorySize Size of storage
     constexpr void setStorage(T* p, size_type memorySize) noexcept;
-    //constexpr void setSCtorage(const T* p, size_type memorySize) noexcept;
+    
+    /// @brief Get pointer on storage if n*T <= sizeof(storage)
+    /// @param n Number of elements of type T that storage must be capable to hold
+    /// @return Pointer to storage, nullptr if current storage is not large enough
+    [[nodiscard]] constexpr T* allocate(size_type n) const noexcept;
 
-    [[nodiscard]] constexpr T* allocate(size_type data_size_in_bytes) const noexcept;
+    /// @brief Does nothing
+    /// @remark Present only for compatibility
+    /// @param p Pointer to storage
     constexpr void deallocate(T* p) const noexcept;
+
+    /// @brief Does nothing
+    /// @remark Present only for compatibility
+    /// @param p Pointer to storage
+    /// @param n Number of elements
     constexpr void deallocate(T* p, size_type n) const noexcept;
 
-    // construct and destroy in this class are present only for compotability reasons
+    /// @brief Call constructor with args on memory pointed by p
+    /// @note If p is out of storage memory range or if it does not
+    ///     aligned to sizeof(T) unit boundaries, returns error.
+    /// @remark This method only for compatibility
+    /// @tparam ...Args Parameters types that go to constructor
+    /// @param p Pointer to memory where object shall be created
+    /// @param ...args Parameters that go to constructor
+    /// @return Status of operation
     template<typename... Args>
     constexpr Status construct(T* p, Args&&... args) const noexcept;
+
+    /// @brief Does nothing
+    /// @param p This overload only for compatibility
     constexpr void destroy(T* p) const noexcept;
 
+    /// @brief Get size of storage in T units
+    /// @return Size of storage in T units
     constexpr size_type max_size() const noexcept;
 
 private:
@@ -140,7 +203,7 @@ template<typename T>
 template<typename... Args>
 constexpr Status RawKeeperAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
-    if (p < m_p || p + 1 > m_p + m_memorySize)
+    if (p < m_p || p + 1 > m_p + m_memorySize || (p - m_p) % sizeof(T) != 0)
         return Status::kErrorInvalidArgument;
 
     new ((void*)p) T(std::forward<Args>(args)...);

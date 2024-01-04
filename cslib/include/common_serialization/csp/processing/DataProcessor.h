@@ -333,12 +333,9 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
             }
         }
 
-        // think about replace this with some Allocator function
         value = ctx.allocateAndDefaultConstruct<std::remove_const_t<std::remove_pointer_t<T>>>();
         if (!value)
             return Status::kErrorNoMemory;
-        //else        
-            //(*ctx.getAddedPointers()).pushBack(value);
 
         if (dataFlags.checkRecursivePointers)
             (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);

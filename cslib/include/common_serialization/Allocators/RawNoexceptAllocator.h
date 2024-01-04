@@ -26,6 +26,8 @@
 namespace common_serialization
 {
 
+/// @brief Raw allocator that not throwing
+/// @tparam T Type of objects that allocator would allocate and construct
 template<typename T>
     requires std::is_trivially_copyable_v<T>
 class RawNoexceptAllocator
@@ -37,19 +39,45 @@ public:
     using difference_type = ptrdiff_t;
     using constructor_allocator = std::false_type;
 
+    /// @brief Default constructor
     constexpr RawNoexceptAllocator() noexcept {}
+
+    /// @brief Copy constructor
+    /// @remark This overload only for compatibility
+    /// @tparam R Type of ojects that rhs allocator would allocate
     template <class R>
     constexpr RawNoexceptAllocator(const RawNoexceptAllocator<R>&) noexcept {}
 
+    /// @brief Allocate storage with bytes_size = n*sizeof(T)
+    /// @param n Number of elements of type T that storage must be capable to hold
+    /// @return Pointer to allocated storage, nullptr if there is not enough memory
     [[nodiscard]] constexpr T* allocate(size_type n) const noexcept;
+
+    /// @brief Frees storage pointed by p
+    /// @param p Pointer to memory that shall be freed
     constexpr void deallocate(T* p) const noexcept;
+
+    /// @brief Frees storage pointed by p
+    /// @remark This overload only for compatibility
+    /// @param p Pointer to memory that shall be freed
+    /// @param n Size of storage (not used)
     constexpr void deallocate(T* p, size_type n) const noexcept;
 
-    // construct and destroy in this class are present only for compotability reasons
+    /// @brief Call constructor with args on memory pointed by p
+    /// @remark This method only for compatibility
+    /// @tparam ...Args Parameters types that go to constructor
+    /// @param p Pointer to memory where object shall be created
+    /// @param ...args Parameters that go to constructor
+    /// @return Status of operation
     template<typename... Args>
     constexpr Status construct(T* p, Args&&... args) const noexcept;
+
+    /// @brief Does nothing
+    /// @param p This overload only for compatibility
     constexpr void destroy(T* p) const noexcept;
 
+    /// @brief Get maximum number of objects of type T that allocator can allocate
+    /// @return Maximum number of objects
     constexpr size_type max_size() const noexcept;
 
 private:
