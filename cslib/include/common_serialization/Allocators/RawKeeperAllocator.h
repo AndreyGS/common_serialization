@@ -203,7 +203,11 @@ template<typename T>
 template<typename... Args>
 constexpr Status RawKeeperAllocator<T>::construct(T* p, Args&&... args) const noexcept
 {
-    if (p < m_p || p + 1 > m_p + m_memorySize || (p - m_p) % sizeof(T) != 0)
+    if (   
+           p < m_p 
+        || p + 1 > m_p + m_memorySize
+        || (static_cast<uint8_t*>(static_cast<void*>(p)) - static_cast<uint8_t*>(static_cast<void*>(m_p))) % sizeof(T) != 0
+    )
         return Status::kErrorInvalidArgument;
 
     new ((void*)p) T(std::forward<Args>(args)...);
