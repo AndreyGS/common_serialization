@@ -68,18 +68,23 @@ template<typename T, IAllocator Allocator, typename AllocatorHelper>
 template<typename... Args>
 [[nodiscard]] constexpr T* GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
 {
-    T* p = this->allocate(requestedN * sizeof(T), pAllocatedN);
+    size_type allocatedN = 0;
 
-    if constexpr (constructor_allocator::value)
-        if (p)
+    T* p = this->allocate(requestedN, &allocatedN);
+
+    if (p)
+    {
+        T* pNError = nullptr;
+        if (Status status = this->constructN(p, &pNError, allocatedN, std::forward<Args>(args)...); !statusSuccess(status))
         {
-            T* pNError = nullptr;
-            if (Status status = this->constructN(p, &pNError, requestedN, std::forward<Args>(args)...); !statusSuccess(status))
-            {
-                this->destroyN(p, pNError - p);
-                p = nullptr;
-            }
+            this->destroyAndDeallocateImpl(p, pNError - p);
+            allocatedN = 0;
+            p = nullptr;
         }
+    }
+
+    if (pAllocatedN)
+        *pAllocatedN = allocatedN;
 
     return p;
 }
@@ -114,9 +119,15 @@ template<typename... Args>
 constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructNImpl(T* p, T** nError, size_type n, Args&&... args) const
 {
     if (p)
-        for (size_type i = 0; i < n; ++i)
+        for (size_type i = 0, lastElement = n - 1; i < n; ++i)
         {
-            Status status = this->getAllocator().construct(p++, std::forward<Args>(args)...);
+            Status status = Status::kNoError;
+
+            if (i == lastElement)
+                status = this->getAllocator().construct(p++, std::forward<Args>(args)...);
+            else
+                status = this->getAllocator().construct(p++, args...);
+
             if (!statusSuccess(status))
             {
                 *nError = p + i;

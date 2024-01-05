@@ -27,6 +27,8 @@ namespace common_serialization
 {
 
 /// @brief Interface concept of allocators using in common_serialization
+/// @note common_serialization Allocators should be used with conjuction
+///     of Allocator Helpers
 template<typename T>
 concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_allocator> || std::is_same_v<std::false_type, typename T::constructor_allocator>) && requires(T a)
 {

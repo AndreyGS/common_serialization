@@ -26,6 +26,10 @@
 namespace common_serialization
 {
 
+/// @brief Interface of allocator helpers (CRTP)
+/// @tparam T Type of objects that allocator would allocate and construct
+/// @tparam AllocatorHelper Most derived class
+/// @tparam Allocator Class that implement IAllocator interface
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
 class IAllocatorHelper
 {
@@ -37,68 +41,92 @@ public:
     using constructor_allocator = typename Allocator::constructor_allocator;
     using allocator = Allocator;
 
-    IAllocatorHelper(const IAllocatorHelper& rhs) 
-    {
-        operator=(rhs);
-    }
-
-    IAllocatorHelper(IAllocatorHelper&& rhs) noexcept
-    {
-        operator=(std::move(rhs));
-    }
-
-    IAllocatorHelper& operator=(const IAllocatorHelper& rhs)
-    {
-        m_allocator = rhs.m_allocator;
-        return *this;
-    }
-
-    IAllocatorHelper& operator=(IAllocatorHelper&& rhs) noexcept
-    {
-        m_allocator = std::move(rhs.m_allocator);
-        return *this;
-    }
-
+    /// @brief Shortcut for allocating and subsequent constructing operations
+    /// @tparam ...Args Parameters types that go to constructor of every element
+    /// @param requestedN Requested number of elements, that need to be allocated and constructed
+    /// @param pAllocatedN The actual number of elements that are allocated and constructed
+    /// @param ...args Parameters that go to constructor of every element
+    /// @return Pointer to allocated storage, nullptr if there is not enough memory
+    ///     or if object construction process return error.
     template<typename... Args>
     [[nodiscard]] constexpr T* allocateAndConstruct(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
     {
         return static_cast<const AllocatorHelper*>(this)->allocateAndConstructImpl(requestedN, pAllocatedN, std::forward<Args>(args)...);
     }
 
+    /// @brief Allocate storage for n elements of type T with support to apply 
+    ///     internal management (strategy) of allocating storage by actual implementation
+    ///     of IAllocatorHelper
+    /// @param requestedN Number of elements that storage should be capable to hold
+    /// @param pAllocatedN Returned the actual number of elements that allocated storage can hold
+    /// @return Pointer to allocated storage, nullptr if there is not enough memory
     [[nodiscard]] constexpr T* allocate(size_type requestedN, size_type* pAllocatedN) const
     {
         return static_cast<const AllocatorHelper*>(this)->allocateImpl(requestedN, pAllocatedN);
     }
 
+    /// @brief Allocate storage for n elements of type T
+    /// @param n Number of elements that storage should be capable to hold
+    /// @return Pointer to allocated storage, nullptr if there is not enough memory
     [[nodiscard]] constexpr T* allocateStrict(size_type n) const
     {
         return static_cast<const AllocatorHelper*>(this)->allocateStrictImpl(n);
     }
 
+    /// @brief Call constructor with args on memory pointed by p
+    /// @tparam ...Args Parameters types that go to constructors
+    /// @param p Pointer to memory where object must be created
+    /// @param ...args Parameters that are go to constructors
+    /// @return Status of operation
     template<typename... Args>
     constexpr Status construct(T* p, Args&&... args) const
     {
         return static_cast<const AllocatorHelper*>(this)->constructImpl(p, std::forward<Args>(args)...);
     }
 
+    /// @brief Call constructor for n elements with args on memory pointed by p
+    /// @tparam ...Args Parameters types that go to constructors
+    /// @param p Pointer to memory where object must be created
+    /// @param pNError Pointer on pointer to memory where an error was occurred.
+    ///     If there is no error, returned value of pNError is undefined.
+    /// @param n Number of elements to construct
+    /// @param ...args Parameters that go to constructors
+    /// @return Status of operation
     template<typename... Args>
     constexpr Status constructN(T* p, T** pNError, size_type n, Args&&... args) const
     {
         return static_cast<const AllocatorHelper*>(this)->constructNImpl(p, pNError, n, std::forward<Args>(args)...);
     }
 
-    // copy using copy constructor
+    /// @brief Copy elements using copy constructors
+    /// @param pDest Pointer to destination array of elements
+    /// @param pSrc Pointer to source array of elements
+    /// @param n Number of elements to copy
+    /// @return Status of operation
     constexpr Status copy(T* pDest, const T* pSrc, size_type n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDest, pSrc, n);
     }
 
-    // copy using copy constructor when dest and src not overlapping
+    /// @brief Copy elements using copy constructors when
+    ///     there is guaranteed no overlapping in memory regions
+    /// @param pDest Pointer to destination array of elements
+    /// @param pSrc Pointer to source array of elements
+    /// @param n Number of elements to copy
+    /// @return Status of operation
     constexpr Status copyNoOverlap(T* pDest, const T* pSrc, size_type n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDest, pSrc, n);
     }
 
+    /// @brief Copy elements using copy constructors when
+    ///     some part destination memory already has initialized objects
+    /// @param pDest Pointer to destination array of elements
+    /// @param pDirtyMemoryFinish Pointer to one of the elements of the destination array
+    ///     from which memory is not initialized
+    /// @param pSrc Pointer to source array of elements
+    /// @param n Number of elements to copy
+    /// @return Status of operation
     constexpr Status copyDirty(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
@@ -167,6 +195,28 @@ public:
 
 protected:
     constexpr IAllocatorHelper() { }
+
+    constexpr IAllocatorHelper(const IAllocatorHelper& rhs)
+    {
+        operator=(rhs);
+    }
+
+    constexpr IAllocatorHelper(IAllocatorHelper&& rhs) noexcept
+    {
+        operator=(std::move(rhs));
+    }
+
+    constexpr IAllocatorHelper& operator=(const IAllocatorHelper& rhs)
+    {
+        m_allocator = rhs.m_allocator;
+        return *this;
+    }
+
+    constexpr IAllocatorHelper& operator=(IAllocatorHelper&& rhs) noexcept
+    {
+        m_allocator = std::move(rhs.m_allocator);
+        return *this;
+    }
 
 private:
     Allocator m_allocator;

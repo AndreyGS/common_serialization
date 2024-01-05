@@ -17,3 +17,4 @@
 17. Add Vector and Walker emplace() methods.
 18. Add crc32 of serialization flag support.
 19. Add empty() method to Vector and Walker.
+20. Add unit-tests on AllocatorHelpers, especially for constructN and allocateAndConstruct.
