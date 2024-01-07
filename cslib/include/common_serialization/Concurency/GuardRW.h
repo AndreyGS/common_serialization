@@ -28,10 +28,15 @@
 namespace common_serialization
 {
 
+/// @brief Simple RAII guard for RW mutex
+/// @tparam SM Mutex which implement ISharedMutex interface
+/// @tparam write Flag that indicates that guard required for write
 template<ISharedMutex SM, bool write>
 class GuardRW
 {
 public:
+    /// @brief Init constructor
+    /// @param sharedMutex Managed mutex
     GuardRW(SM& sharedMutex)
         : m_sharedMutex(sharedMutex)
     {
@@ -41,6 +46,7 @@ public:
             m_sharedMutex.lock_shared();
     }
 
+    /// @brief Destructor
     ~GuardRW()
     {
         if constexpr (write)
@@ -53,9 +59,13 @@ private:
     SM& m_sharedMutex;
 };
 
+/// @brief Shared read GuardRW<>
+/// @tparam SM Mutex which implement ISharedMutex interface
 template<ISharedMutex SM>
 using RGuard = GuardRW<SM, false>;
 
+/// @brief Exclusive Write GuardRW<>
+/// @tparam SM Mutex which implement ISharedMutex interface
 template<ISharedMutex SM>
 using WGuard = GuardRW<SM, true>;
 

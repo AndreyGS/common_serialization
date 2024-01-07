@@ -30,6 +30,8 @@ namespace common_serialization
 
 class GenericPointerKeeper;
 
+/// @brief Interface of container that holds
+///     GenericPointerKeeper objects
 template<typename S>
 concept IGenericPointersKeeperContainer
     =  requires(S e)

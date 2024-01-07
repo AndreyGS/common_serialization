@@ -315,6 +315,13 @@ template<typename Vec>
 /// </summary>
 /// <typeparam name="T">type of data stored in contiguous array</typeparam>
 /// <typeparam name="AllocatorHelper">class that implements IAllocatorHelper</typeparam>
+/// 
+/// 
+
+/// @brief Container of elements stored contiguously
+/// @tparam T Type of elements
+/// @tparam AllocatorHelper Allocator Helper using for storage management
+///     and objects creation/deletion
 template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>>
 class Vector
 {

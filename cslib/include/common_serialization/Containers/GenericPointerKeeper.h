@@ -29,23 +29,48 @@ namespace common_serialization
 {
 
 // This class is something like unique_ptr, but not template.
+
+/// @brief Container for keeping any pointer type
+/// @details This class is something like unique_ptr, but not template
+///     and this property allows us to use it in any other containers,
+///     like Vector and others. Of course you should know the type
+///     of pointer which currently hold GenericPointerKeeper instance
+///     if you whish to get it from here. But most important, that
+///     this container implements RAII and properly destroys every
+///     object that it holds wherever it is needed.
+/// @remark Current interface of GenericPointerKeeper is pretty short
+///     and meets only those needs that were required when working on CSP.
+///     In future it should be extended.
 class GenericPointerKeeper
 {
 public:
+    /// @brief Function that destroys and deallocates holding pointer
     using DestroyAndDeallocateFunc = void(*)(void*, size_t);
 
+    /// @brief Default constructor
     GenericPointerKeeper() noexcept { }
 
-    GenericPointerKeeper(const GenericPointerKeeper& rhs) = delete; // for now
+    /// @brief Copy constructor
+    /// @remark I'm not sure about necessity of this costructor,
+    ///     even in future
+    GenericPointerKeeper(const GenericPointerKeeper&) = delete;
 
+    /// @brief Move constructor
+    /// @param rhs Another instance
     GenericPointerKeeper(GenericPointerKeeper&& rhs) noexcept
         : m_p(rhs.m_p), m_size(rhs.m_size), m_destroyAndDeallocate(rhs.m_destroyAndDeallocate)
     { 
         rhs.m_p = nullptr, rhs.m_size = 0, rhs.m_destroyAndDeallocate = nullptr;
     }
 
-    GenericPointerKeeper& operator=(const GenericPointerKeeper& rhs) = delete; // for now
+    /// @brief Copy assignment operator
+    /// @remark I'm not sure about necessity of this operator,
+    ///     even in future
+    GenericPointerKeeper& operator=(const GenericPointerKeeper&) = delete;
 
+    /// @brief Move assignment operator
+    /// @param rhs Another instance
+    /// @return *this
     GenericPointerKeeper& operator=(GenericPointerKeeper&& rhs) noexcept
     {
         if (this == &rhs)
@@ -63,11 +88,21 @@ public:
         rhs.m_destroyAndDeallocate = nullptr;
     }
 
+    /// @brief Destructor
     ~GenericPointerKeeper()
     {
         destroyAndDeallocate();
     }
 
+    /// @brief Allocates storage and constructs an object 
+    ///     or array of objects using supplied arguments
+    /// @tparam T Type of object(s) to create
+    /// @tparam AllocatorHelper Type that implements AllocatorHelper interface
+    /// @tparam ...Args Parameters types that go to constructor of every element
+    /// @param n 
+    /// @param ...args Parameters that go to constructor of every element
+    /// @return Pointer to allocated storage, nullptr if there is not enough memory
+    ///     or if object construction process return error.
     template<typename T, typename AllocatorHelper, typename... Args>
     T* allocateAndConstruct(size_t n, Args&&... args)
     {
@@ -90,6 +125,8 @@ public:
         return p;
     }
 
+    /// @brief Destroys holding objects 
+    ///     and deallocates storage that they used
     void destroyAndDeallocate() noexcept
     {
         if (m_p)
@@ -100,6 +137,9 @@ public:
         }
     }
 
+    /// @brief Get stored pointer
+    /// @tparam T Type on which pointer points
+    /// @return Stored pointer
     template<typename T>
     T* get()
     {

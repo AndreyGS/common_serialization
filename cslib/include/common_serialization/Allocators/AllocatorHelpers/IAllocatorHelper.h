@@ -27,13 +27,19 @@ namespace common_serialization
 {
 
 /// @brief Interface of allocator helpers (CRTP)
+/// @details This is interface for convenient usage of IAllocators.
+///     In many (or most) scenarios there is no need of direct using of IAllocators.
+///     Instead use this one supplying it with suitable IAllocator.
 /// @tparam T Type of objects that allocator would allocate and construct
-/// @tparam AllocatorHelper Most derived class
 /// @tparam Allocator Class that implement IAllocator interface
+/// @tparam AllocatorHelper Most derived class (instance type)
 template<typename T, IAllocator Allocator, typename AllocatorHelper>
 class IAllocatorHelper
 {
 public:
+    using instance_type = AllocatorHelper;
+    using interface_type = IAllocatorHelper<T, Allocator, AllocatorHelper>;
+
     using value_type = typename Allocator::value_type;
     using pointer = typename Allocator::pointer;
     using size_type = typename Allocator::size_type;
@@ -120,7 +126,7 @@ public:
     }
 
     /// @brief Copy elements using copy constructors when
-    ///     some part destination memory already has initialized objects
+    ///     some part of destination memory already has initialized objects
     /// @param pDest Pointer to destination array of elements
     /// @param pDirtyMemoryFinish Pointer to one of the elements of the destination array
     ///     from which memory is not initialized
@@ -132,57 +138,107 @@ public:
         return static_cast<const AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
-    // copy using copy constructor when dest and src not overlapping
+    /// @brief Copy elements using copy constructors when
+    ///     there is guaranteed no overlapping in memory regions,
+    ///     but some part of destination memory already has initialized objects
+    /// @param pDest Pointer to destination array of elements
+    /// @param pDirtyMemoryFinish Pointer to one of the elements of the destination array
+    ///     from which memory is not initialized
+    /// @param pSrc Pointer to source array of elements
+    /// @param n Number of elements to copy
+    /// @return Status of operation
     constexpr Status copyDirtyNoOverlap(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
     {
         return static_cast<const AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
+    /// @brief Move elements using move constructors
+    /// @param pDest Pointer to destination array of elements
+    /// @param pSrc Pointer to source array of elements
+    /// @param n Number of elements to move
+    /// @return Status of operation
     constexpr Status move(T* pDest, T* pSrc, size_type n) const
     {
         return static_cast<const AllocatorHelper*>(this)->moveImpl(pDest, pDest, pSrc, n);
     }
 
+    /// @brief Move elements using move constructors when
+    ///     there is guaranteed no overlapping in memory regions
+    /// @param pDest Pointer to destination array of elements
+    /// @param pSrc Pointer to source array of elements
+    /// @param n Number of elements to move
+    /// @return Status of operation
     constexpr Status moveNoOverlap(T* pDest, T* pSrc, size_type n) const
     {
         return static_cast<const AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDest, pSrc, n);
     }
 
+    /// @brief Move elements using move constructors when
+    ///     some part of destination memory already has initialized objects
+    /// @param pDest Pointer to destination array of elements
+    /// @param pDirtyMemoryFinish Pointer to one of the elements of the destination array
+    ///     from which memory is not initialized
+    /// @param pSrc Pointer to source array of elements
+    /// @param n Number of elements to move
+    /// @return Status of operation
     constexpr Status moveDirty(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
     {
         return static_cast<const AllocatorHelper*>(this)->moveImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
+    /// @brief Move elements using move constructors when
+    ///     there is guaranteed no overlapping in memory regions,
+    ///     but some part of destination memory already has initialized objects
+    /// @param pDest Pointer to destination array of elements
+    /// @param pDirtyMemoryFinish Pointer to one of the elements of the destination array
+    ///     from which memory is not initialized
+    /// @param pSrc Pointer to source array of elements
+    /// @param n Number of elements to move
+    /// @return Status of operation
     constexpr Status moveDirtyNoOverlap(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
     {
         return static_cast<const AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
+    /// @brief Shortcut for destroying and subsequent deallocating operations 
+    /// @param p Pointer to storage of elements which must be deallocated
+    /// @param n Number of elements to destroy
     constexpr void destroyAndDeallocate(T* p, size_type n) const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->destroyAndDeallocateImpl(p, n);
     }
 
+    /// @brief Deallocate storage
+    /// @param p Pointer to storage
     constexpr void deallocate(T* p) const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->deallocateImpl(p);
     }
 
+    /// @brief Destroy object
+    /// @param p Pointer to object
     constexpr void destroy(T* p) const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->destroyImpl(p);
     }
 
+    /// @brief Destroy n objects
+    /// @param p Pointer to objects
+    /// @param n Number of objects
     constexpr void destroyN(T* p, size_t n) const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->destroyNImpl(p, n);
     }
 
+    /// @brief Get number of elements that can be allocated
+    /// @return Number of elements that can be allocated
     constexpr size_t max_size() const noexcept
     {
         return static_cast<const AllocatorHelper*>(this)->max_size_impl();
     }
 
+    /// @brief Get managed Allocator
+    /// @return Managed Allocator
     constexpr Allocator& getAllocator() noexcept
     {
         return m_allocator;

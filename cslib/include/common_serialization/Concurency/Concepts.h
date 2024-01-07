@@ -25,7 +25,8 @@
 
 namespace common_serialization
 {
-
+    
+/// @brief Interface that shared mutex must implement
 template<typename T>
 concept ISharedMutex = requires(T t)
 {

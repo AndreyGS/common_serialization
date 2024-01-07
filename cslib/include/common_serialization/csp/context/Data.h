@@ -83,7 +83,7 @@ private:
 /// @tparam AllocatorHelperStateless AllocatorHelper that would be used for free pointers allocation help
 ///     (should be construction capable)
 template<IGenericPointersKeeperContainer PC, IPointersMap PM
-    , template<typename> typename Allocator = ConstructorNoexceptAllocator, template<typename, typename> typename AllocatorHelper = GenericAllocatorHelper>
+    , template<typename> typename Allocator = ConstructorNoexceptAllocator, template<typename, typename, typename> typename AllocatorHelper = GenericAllocatorHelper>
 class DeserializeExtendedPointersProcessing
 {
 public:
@@ -133,7 +133,7 @@ public:
             assert(false); // this situation shall never exists
 
         GenericPointerKeeper pointerKeeper;
-        T* p = pointerKeeper.allocateAndConstruct<T, AllocatorHelper<T, Allocator<T>>>(1);
+        T* p = pointerKeeper.allocateAndConstruct<T, AllocatorHelper<T, Allocator<T>, Dummy>>(1);
 
         if (p)
             if (!statusSuccess(m_pAddedPointers->pushBack(std::move(pointerKeeper))))

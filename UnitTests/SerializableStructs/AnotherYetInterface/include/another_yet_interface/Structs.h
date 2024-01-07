@@ -29,10 +29,10 @@ namespace another_yet_interface
 namespace cs = common_serialization;
 
 template<typename T = cs::Dummy>
-class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<T>, T>>
+class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<>, T>>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleStruct<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleStruct<>, T>;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs

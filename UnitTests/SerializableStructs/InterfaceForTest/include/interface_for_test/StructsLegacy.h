@@ -65,10 +65,10 @@ public:
 };
 
 template<typename T = cs::Dummy>
-class SimpleAssignable_Version0 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignable_Version0<T>, T>>
+class SimpleAssignable_Version0 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignable_Version0<>, T>>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignable_Version0<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignable_Version0<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = SimpleAssignable<>::getId();
@@ -211,9 +211,9 @@ cs::Status SimpleAssignable<T1>::init(const SimpleAssignable_Version0<T2>& rhs)
 }
 
 template<typename T = cs::Dummy>
-struct SimpleAssignableDescendant_Version0 : public SimpleAssignable_Version0<cs::GetCrtpMainType<SimpleAssignableDescendant_Version0<T>, T>>
+struct SimpleAssignableDescendant_Version0 : public SimpleAssignable_Version0<cs::GetCrtpMainType<SimpleAssignableDescendant_Version0<>, T>>
 {
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableDescendant_Version0<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignableDescendant_Version0<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = SimpleAssignableDescendant<>::getId();
@@ -324,10 +324,10 @@ public:
 
 
 template<typename T = cs::Dummy>
-class SimpleAssignableAlignedToOne_Version1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOne_Version1<T>, T>>
+class SimpleAssignableAlignedToOne_Version1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOne_Version1<>, T>>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne_Version1<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne_Version1<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = SimpleAssignableAlignedToOne<>::getId();
@@ -387,10 +387,10 @@ cs::Status SimpleAssignableAlignedToOne<T1>::init(const SimpleAssignableAlignedT
 }
 
 template<typename T = cs::Dummy>
-class SForAllModesTests_Version2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SForAllModesTests_Version2<T>, T >>
+class SForAllModesTests_Version2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SForAllModesTests_Version2<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SForAllModesTests_Version2<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SForAllModesTests_Version2<>, T>;
 
     static constexpr cs::csp::Id kId = DForAllModesTests<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 2;

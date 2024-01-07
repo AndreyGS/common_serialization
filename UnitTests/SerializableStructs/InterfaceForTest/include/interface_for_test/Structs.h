@@ -29,10 +29,10 @@ namespace interface_for_test
 namespace cs = common_serialization;
 
 template<typename T = cs::Dummy>
-class EmptyType : public cs::csp::ISerializable<cs::GetCrtpMainType<EmptyType<T>, T>>
+class EmptyType : public cs::csp::ISerializable<cs::GetCrtpMainType<EmptyType<>, T>>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<EmptyType<T>, T>;
+    using instance_type = cs::GetCrtpMainType<EmptyType<>, T>;
     using empty_type_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x7f17247f, 0x094b, 0x4cda, 0x9968, 0x66e31b88063c);
@@ -46,10 +46,10 @@ template<typename>
 class SimpleAssignableAlignedToOne_Version1;
 
 template<typename T = cs::Dummy>
-class SimpleAssignableAlignedToOne : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOne<T>, T>>
+class SimpleAssignableAlignedToOne : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOne<>, T>>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xf2d69dcd, 0x4e24, 0x4c65, 0x9f76, 0xd517be1daccd);
@@ -88,10 +88,10 @@ template<typename>
 class SimpleAssignable_Version0;
 
 template<typename T = cs::Dummy>
-class SimpleAssignable : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignable<T>, T>>
+class SimpleAssignable : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignable<>, T>>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignable<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignable<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x81582aae, 0x4a33, 0x4181, 0x8dda, 0xed092c23bccc);
@@ -185,9 +185,9 @@ template<typename>
 class SimpleAssignableDescendant_Version0;
 
 template<typename T = cs::Dummy>
-struct SimpleAssignableDescendant : public SimpleAssignable<cs::GetCrtpMainType<SimpleAssignableDescendant<T>, T>>
+struct SimpleAssignableDescendant : public SimpleAssignable<cs::GetCrtpMainType<SimpleAssignableDescendant<>, T>>
 {
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableDescendant<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignableDescendant<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x81d67474, 0xce11, 0x465e, 0x8558, 0xe10e84939b84);
@@ -234,10 +234,10 @@ struct SimpleAssignableDescendant : public SimpleAssignable<cs::GetCrtpMainType<
 };
 
 template<typename T = cs::Dummy>
-class DynamicPolymorphic : public cs::csp::ISerializable<cs::GetCrtpMainType<DynamicPolymorphic<T>, T>>
+class DynamicPolymorphic : public cs::csp::ISerializable<cs::GetCrtpMainType<DynamicPolymorphic<>, T>>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<DynamicPolymorphic<T>, T>;
+    using instance_type = cs::GetCrtpMainType<DynamicPolymorphic<>, T>;
 
     virtual ~DynamicPolymorphic() {}
 
@@ -299,10 +299,10 @@ public:
 };
 
 template<typename T = cs::Dummy>
-class SpecialProcessingType : public cs::csp::ISerializable<cs::GetCrtpMainType<SpecialProcessingType<T>, T >>
+class SpecialProcessingType : public cs::csp::ISerializable<cs::GetCrtpMainType<SpecialProcessingType<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SpecialProcessingType<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SpecialProcessingType<>, T>;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xada5ded5, 0x2568, 0x44ee, 0x961e, 0xf83491911449);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
@@ -350,10 +350,10 @@ template<typename>
 class SimpleAssignableAlignedToOneSimilarType2;
 
 template<typename T = cs::Dummy>
-class SimpleAssignableAlignedToOneSimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1<T>, T >>
+class SimpleAssignableAlignedToOneSimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373); // id is same as in SimpleAssignableAlignedToOneSimilarType2 (need for tests)
@@ -374,10 +374,10 @@ public:
 };
 
 template<typename T = cs::Dummy>
-class SimpleAssignableAlignedToOneSimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2<T>, T >>
+class SimpleAssignableAlignedToOneSimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373); // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
@@ -418,10 +418,10 @@ template<typename>
 class SimpleAssignableSimilarType2;
 
 template<typename T = cs::Dummy>
-class SimpleAssignableSimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableSimilarType1<T>, T >>
+class SimpleAssignableSimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableSimilarType1<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableSimilarType1<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignableSimilarType1<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583); // id is same as in SimpleAssignableSimilarType2 (need for tests)
@@ -442,10 +442,10 @@ public:
 };
 
 template<typename T = cs::Dummy>
-class SimpleAssignableSimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableSimilarType2<T>, T >>
+class SimpleAssignableSimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableSimilarType2<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableSimilarType2<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimpleAssignableSimilarType2<>, T>;
     using simple_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583); // id is same as in SimpleAssignableSimilarType1 (need for tests)
@@ -484,10 +484,10 @@ template<typename>
 class SimilarType2;
 
 template<typename T = cs::Dummy>
-class SimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimilarType1<T>, T >>
+class SimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimilarType1<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimilarType1<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimilarType1<>, T>;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x0bcf5909, 0xad8a, 0x48f2, 0xb1fd, 0xe9b781ce0b2d); // hash is same as in SimilarType2 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
@@ -523,10 +523,10 @@ public:
 };
 
 template<typename T = cs::Dummy>
-class SimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimilarType2<T>, T >>
+class SimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimilarType2<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimilarType2<T>, T>;
+    using instance_type = cs::GetCrtpMainType<SimilarType2<>, T>;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x0bcf5909, 0xad8a, 0x48f2, 0xb1fd, 0xe9b781ce0b2d); // id is same as in SimilarType1 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
@@ -609,10 +609,10 @@ struct RecursiveTestSpecial1
 
 
 template<typename T = cs::Dummy>
-class ManyPointersType : public cs::csp::ISerializable<cs::GetCrtpMainType<ManyPointersType<T>, T >>
+class ManyPointersType : public cs::csp::ISerializable<cs::GetCrtpMainType<ManyPointersType<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<ManyPointersType<T>, T>;
+    using instance_type = cs::GetCrtpMainType<ManyPointersType<>, T>;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xc3d3dfdf, 0x27a2, 0x47e2, 0xbddd, 0x671c180db011);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
@@ -684,10 +684,10 @@ class SForAllModesTests_Version2;
 
 // DForAllModesTests shall be used in deserialization of SForAllModesTests, but only with sizeOfArithmeticTypesMayBeNotEqual flag set
 template<typename T = cs::Dummy>
-class DForAllModesTests : public cs::csp::ISerializable<cs::GetCrtpMainType<DForAllModesTests<T>, T >>
+class DForAllModesTests : public cs::csp::ISerializable<cs::GetCrtpMainType<DForAllModesTests<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<DForAllModesTests<T>, T>;
+    using instance_type = cs::GetCrtpMainType<DForAllModesTests<>, T>;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x953e9f24, 0xc725, 0x4903, 0x8219, 0xf37d084ef557);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;

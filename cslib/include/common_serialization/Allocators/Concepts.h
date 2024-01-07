@@ -27,8 +27,9 @@ namespace common_serialization
 {
 
 /// @brief Interface concept of allocators using in common_serialization
-/// @note common_serialization Allocators should be used with conjuction
-///     of Allocator Helpers
+/// @note common_serialization Allocators in many (or most) scenarios
+///     should be used with conjuction of Allocator Helpers
+///     as low-level tool
 template<typename T>
 concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_allocator> || std::is_same_v<std::false_type, typename T::constructor_allocator>) && requires(T a)
 {
@@ -51,12 +52,11 @@ concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_all
 /// @brief Concept of Constructor Allocator
 /// @details Allocators in common_serialization have two types:
 ///     Raw Allocators and Constructor Allocators. Despite the naming
-///     both of them can construct objects, but only Constructor Allocators
-///     must use construct operation and Raw Allocators do not call 
-///     destructors on destroying objects. Besides, if Allocator is Raw there
-///     can be optimizations of memory operations. And Allocator Helpers
-///     that are using Raw Allocators may use memcpy and memmove procedures
-///     in many scenarios instead of calling constructors and destructors.
+///     both of them can construct objects, but Raw Allocators can only be
+///     used with trivially copyable structs and they do not use destructors 
+///     on destroying objects. Allocator Helpers that are using Raw Allocators 
+///     may use memcpy and memmove procedures in many scenarios instead 
+///     of calling constructors and destructors.
 template<typename T>
 concept IConstructorAllocator = IAllocator<T> && std::is_same_v<std::true_type, typename T::constructor_allocator>;
 

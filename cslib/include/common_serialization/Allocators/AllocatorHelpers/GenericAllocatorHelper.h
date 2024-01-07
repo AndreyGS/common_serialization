@@ -29,16 +29,30 @@
 namespace common_serialization
 {
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-class GenericAllocatorHelperImpl : public IAllocatorHelper<T, Allocator, AllocatorHelper>
+/// @brief Generic stateless class for allocation helping
+/// @tparam T Type of objects that allocator would allocate and construct
+/// @tparam Allocator Class that implement IAllocator interface
+/// @tparam MostDerivedClass Instance type. But if type of current instance 
+///     is GenericAllocatorHelper it must be Dummy.
+template<typename T, IAllocator Allocator, typename MostDerivedClass = Dummy>
+class GenericAllocatorHelper : public IAllocatorHelper<T, Allocator, GetCrtpMainType<GenericAllocatorHelper<T, Allocator>, MostDerivedClass>>
 {
+public:
+    /// @brief Real most derived class
+    using instance_type = GetCrtpMainType<GenericAllocatorHelper<T, Allocator>, MostDerivedClass>;
+
+    /// @brief IAllocatorHelper interface
+    using interface_type = IAllocatorHelper<T, Allocator, instance_type>::interface_type;
+    using value_type = typename interface_type::value_type;
+    using size_type = typename interface_type::size_type;
+    using difference_type = typename interface_type::difference_type;
+    using constructor_allocator = typename interface_type::constructor_allocator;
+
+    /// @brief Default constructor
+    constexpr GenericAllocatorHelper() : IAllocatorHelper<T, Allocator, instance_type>() { }
+
 protected:
-    using size_type = typename IAllocatorHelper<T, Allocator, AllocatorHelper>::size_type;
-    using constructor_allocator = typename IAllocatorHelper<T, Allocator, AllocatorHelper>::constructor_allocator;
-
-    friend IAllocatorHelper<T, Allocator, AllocatorHelper>;
-
-    constexpr GenericAllocatorHelperImpl() : IAllocatorHelper<T, Allocator, AllocatorHelper>() { }
+    friend interface_type;
 
     template<typename... Args>
     [[nodiscard]] constexpr T* allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const;
@@ -64,9 +78,9 @@ protected:
     constexpr size_type max_size_impl() const noexcept;
 };
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
 template<typename... Args>
-[[nodiscard]] constexpr T* GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
+[[nodiscard]] constexpr T* GenericAllocatorHelper<T, Allocator, MostDerivedClass>::allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
 {
     size_type allocatedN = 0;
 
@@ -89,8 +103,8 @@ template<typename... Args>
     return p;
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-[[nodiscard]] constexpr T* GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateImpl(size_type requestedN, size_type* pAllocatedN) const
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+[[nodiscard]] constexpr T* GenericAllocatorHelper<T, Allocator, MostDerivedClass>::allocateImpl(size_type requestedN, size_type* pAllocatedN) const
 {
     T* p = this->getAllocator().allocate(requestedN);
 
@@ -100,23 +114,23 @@ template<typename T, IAllocator Allocator, typename AllocatorHelper>
     return p;
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-[[nodiscard]] constexpr T* GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::allocateStrictImpl(size_type n) const
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+[[nodiscard]] constexpr T* GenericAllocatorHelper<T, Allocator, MostDerivedClass>::allocateStrictImpl(size_type n) const
 {
     return this->getAllocator().allocate(n);
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
 template<typename... Args>
-constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructImpl(T* p, Args&&... args) const
+constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::constructImpl(T* p, Args&&... args) const
 {
     T* pNError = nullptr;
     return this->constructNImpl(p, &pNError, 1, std::forward<Args>(args)...);
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
 template<typename... Args>
-constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::constructNImpl(T* p, T** nError, size_type n, Args&&... args) const
+constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::constructNImpl(T* p, T** nError, size_type n, Args&&... args) const
 {
     if (p)
         for (size_type i = 0, lastElement = n - 1; i < n; ++i)
@@ -140,8 +154,8 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::cons
     return Status::kNoError;
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyDirtyImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::copyDirtyImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
 
@@ -173,8 +187,8 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copy
     return Status::kNoError;
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copyDirtyNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::copyDirtyNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
 
@@ -195,8 +209,8 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::copy
     return Status::kNoError;
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::moveImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::moveImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
 
@@ -229,8 +243,8 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::move
     return Status::kNoError;
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::moveNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::moveNoOverlapImpl(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
 
@@ -252,30 +266,30 @@ constexpr Status GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::move
     return Status::kNoError;
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::destroyAndDeallocateImpl(T* p, size_type n) const noexcept
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+constexpr void GenericAllocatorHelper<T, Allocator, MostDerivedClass>::destroyAndDeallocateImpl(T* p, size_type n) const noexcept
 {
     if constexpr (constructor_allocator::value)
         this->destroyN(p, n);
     this->deallocate(p);
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::deallocateImpl(T* p) const noexcept
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+constexpr void GenericAllocatorHelper<T, Allocator, MostDerivedClass>::deallocateImpl(T* p) const noexcept
 {
     this->getAllocator().deallocate(p);
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::destroyImpl(T* p) const noexcept
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+constexpr void GenericAllocatorHelper<T, Allocator, MostDerivedClass>::destroyImpl(T* p) const noexcept
 {
     if constexpr (constructor_allocator::value)
         if (p)
             this->getAllocator().destroy(p);
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::destroyNImpl(T* p, size_type n) const noexcept
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+constexpr void GenericAllocatorHelper<T, Allocator, MostDerivedClass>::destroyNImpl(T* p, size_type n) const noexcept
 {   
     if constexpr (constructor_allocator::value)
         if (p)
@@ -283,25 +297,11 @@ constexpr void GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::destro
                 this->getAllocator().destroy(p + i);
 }
 
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
-constexpr IAllocatorHelper<T, Allocator, AllocatorHelper>::size_type GenericAllocatorHelperImpl<T, Allocator, AllocatorHelper>::max_size_impl() const noexcept
+template<typename T, IAllocator Allocator, typename MostDerivedClass>
+constexpr GenericAllocatorHelper<T, Allocator, MostDerivedClass>::size_type GenericAllocatorHelper<T, Allocator, MostDerivedClass>::max_size_impl() const noexcept
 {
     return this->getAllocator().max_size();
 }
-
-template<typename T, IAllocator Allocator>
-class GenericAllocatorHelper : public GenericAllocatorHelperImpl<T, Allocator, GenericAllocatorHelper<T, Allocator>>
-{
-public:
-    using value_type = typename IAllocatorHelper<T, Allocator, GenericAllocatorHelper<T, Allocator>>::value_type;
-    using size_type = typename IAllocatorHelper<T, Allocator, GenericAllocatorHelper<T, Allocator>>::size_type;
-    using difference_type = typename IAllocatorHelper<T, Allocator, GenericAllocatorHelper<T, Allocator>>::difference_type;
-    using constructor_allocator = typename IAllocatorHelper<T, Allocator, GenericAllocatorHelper<T, Allocator>>::constructor_allocator;
-
-    constexpr GenericAllocatorHelper() noexcept
-        : GenericAllocatorHelperImpl<T, Allocator, GenericAllocatorHelper<T, Allocator>>()
-    { }
-};
 
 template<typename T>
 using RawGenericAllocatorHelper = GenericAllocatorHelper<T, RawNoexceptAllocator<T>>;
