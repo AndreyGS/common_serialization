@@ -310,14 +310,6 @@ template<typename Vec>
     return this->m_p;
 }
 
-/// <summary>
-/// Vector - is a container class that has contiguous array as data keeper
-/// </summary>
-/// <typeparam name="T">type of data stored in contiguous array</typeparam>
-/// <typeparam name="AllocatorHelper">class that implements IAllocatorHelper</typeparam>
-/// 
-/// 
-
 /// @brief Container of elements stored contiguously
 /// @tparam T Type of elements
 /// @tparam AllocatorHelper Allocator Helper using for storage management
@@ -348,25 +340,77 @@ public:
     constexpr Vector& operator=(Vector&& rhs) noexcept;
     constexpr ~Vector() noexcept;
 
+    /// @brief Copy init method
+    /// @param rhs Another instance
+    /// @return Status of initialization
     constexpr Status init(const Vector& rhs);
+
+    /// @brief Move init method
+    /// @param rhs Another instance
+    /// @return Status of initialization
     constexpr Status init(Vector&& rhs) noexcept;
 
     // only set data size, no default values are set
+
+    /// @brief Set size of data
+    /// @note For trivially copyable types.
+    ///     Only set data size, no default values are set.
+    /// @param n New size
+    /// @return Status of operation
     constexpr Status setSize(size_type n) noexcept
         requires std::is_trivially_copyable_v<T>;
 
+    /// @brief Preallocate at least that much memory that
+    ///     is enough to hold N elements of T
+    /// @param n Number of elements that underlying storage
+    ///     must be capable to hold
+    /// @return Status of operation
     constexpr Status reserve(size_type n);
     
+    /// @brief Append element to tail of the storage
+    /// @param value Value that need to append
+    /// @return Status of operation
     constexpr Status pushBack(const T& value);
+
+    /// @brief Append element to tail of the storage
+    /// @param value Value that need to move to storage
+    /// @return Status of operation
     constexpr Status pushBack(T&& value);
+
+    /// @brief Append N elements to tail of the storage
+    /// @param p Pointer to array of elements
+    /// @param n Number of elements that need to append
+    /// @return Status of operation
     constexpr Status pushBackN(const T* p, size_type n);
-    // this special method is using for eliminating redundant overhead on raw arrays
+
+    /// @brief Append arithmetic or enum value to tail of container
+    /// @remark Using for eliminating redundant overhead on raw arrays
+    /// @tparam V Type of value that
+    /// @param value Value that need to append
+    /// @return Status of operation
     template<typename V>
     constexpr Status pushBackArithmeticValue(V value) noexcept
         requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
+    /// @brief Replace N elements from offset
+    /// @note Overwrites existing elements if offset < size.
+    ///     If offset + N > size, size of container will be increased.
+    ///     If offset > size an error will returned. It is
+    ///     legal to pass p == nullptr if n == 0 as well. 
+    /// @param p Pointer to array of elements
+    /// @param n Number of elements that need to copy
+    /// @param offset Offset from which replace is started
+    /// @param pNewOffset Offset + N if there is no error
+    /// @return Status of operation
     constexpr Status replace(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
 
+    /// @brief Insert N elements from offset
+    /// @note  
+    /// @param p 
+    /// @param n 
+    /// @param offset 
+    /// @param pNewOffset 
+    /// @return 
     constexpr Status insert(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
     template<typename ItSrc>
     constexpr Status insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd = nullptr);

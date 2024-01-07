@@ -47,7 +47,6 @@ public:
     /// @brief Function that destroys and deallocates holding pointer
     using DestroyAndDeallocateFunc = void(*)(void*, size_t);
 
-    /// @brief Default constructor
     GenericPointerKeeper() noexcept { }
 
     /// @brief Copy constructor
@@ -55,8 +54,6 @@ public:
     ///     even in future
     GenericPointerKeeper(const GenericPointerKeeper&) = delete;
 
-    /// @brief Move constructor
-    /// @param rhs Another instance
     GenericPointerKeeper(GenericPointerKeeper&& rhs) noexcept
         : m_p(rhs.m_p), m_size(rhs.m_size), m_destroyAndDeallocate(rhs.m_destroyAndDeallocate)
     { 
@@ -68,9 +65,6 @@ public:
     ///     even in future
     GenericPointerKeeper& operator=(const GenericPointerKeeper&) = delete;
 
-    /// @brief Move assignment operator
-    /// @param rhs Another instance
-    /// @return *this
     GenericPointerKeeper& operator=(GenericPointerKeeper&& rhs) noexcept
     {
         if (this == &rhs)
@@ -88,7 +82,6 @@ public:
         rhs.m_destroyAndDeallocate = nullptr;
     }
 
-    /// @brief Destructor
     ~GenericPointerKeeper()
     {
         destroyAndDeallocate();

@@ -46,7 +46,6 @@ public:
             m_sharedMutex.lock_shared();
     }
 
-    /// @brief Destructor
     ~GuardRW()
     {
         if constexpr (write)

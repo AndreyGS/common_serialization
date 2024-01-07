@@ -54,7 +54,6 @@ public:
     using difference_type = typename interface_type::difference_type;
     using constructor_allocator = typename interface_type::constructor_allocator;
 
-    /// @brief Default constructor
     constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept;
 
     /// @brief Get current allocation strategy
