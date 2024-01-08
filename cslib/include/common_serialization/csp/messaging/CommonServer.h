@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/csp/context/Common.h"
-#include "common_serialization/csp/messaging/IDataServer.h"
+#include "common_serialization/csp/messaging/IDataServerBase.h"
 
 
 namespace common_serialization::csp::messaging
@@ -40,6 +40,8 @@ public:
     /// @return Status of operation
     static Status handleMessage(BinWalker& binInput, BinVector& binOutput);
 
+    static constexpr context::CommonFlags kOutMandatoryCommonFlags{ helpers::isModuleIsBigEndian() };
+
 private:
     static Status handleCommonCapabilitiesRequest(context::Common<BinWalker>& ctx, BinVector& binOutput);
 };
@@ -48,12 +50,12 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
 {
     context::Common<BinWalker> ctx(binInput);
 
-    if (Status status = processing::deserializeHeaderContext(ctx); !statusSuccess(status))
+    if (Status status = processing::deserializeCommonContext(ctx); !statusSuccess(status))
     {
         if (status == Status::kErrorNotSupportedProtocolVersion)
         {
             binOutput.clear();
-            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput);
+            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, kOutMandatoryCommonFlags);
         }
         else
             return status;
@@ -62,11 +64,16 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
     Status status{ Status::kNoError };
 
     if (ctx.getMessageType() == context::Message::kInOutData)
-        return IDataServerCommon::handleDataCommon(ctx, binOutput);
+        status = IDataServerBase::handleDataCommon(ctx, binOutput);
     else if (ctx.getMessageType() == context::Message::kCommonCapabilitiesRequest)
-        return handleCommonCapabilitiesRequest(ctx, binOutput);
+        status = handleCommonCapabilitiesRequest(ctx, binOutput);
+    else
+        return Status::kErrorDataCorrupted;
 
-    return Status::kErrorDataCorrupted;
+    if (binOutput.size() == 0 && statusSuccess(status))
+        status = processing::serializeStatusSuccess(binOutput, ctx.getProtocolVersion(), kOutMandatoryCommonFlags, status);
+
+    return status;
 }
 
 inline Status CommonServer::handleCommonCapabilitiesRequest(context::Common<BinWalker>& ctx, BinVector& binOutput)
@@ -78,11 +85,17 @@ inline Status CommonServer::handleCommonCapabilitiesRequest(context::Common<BinW
     binOutput.clear();
 
     context::SData<BinVector> ctxOut(binOutput, 1);
-    ctxOut.setMessageType(context::Message::kCommonCapabilitiesResponse);
 
-    RUN(processing::serializeHeaderContext(ctxOut));
+    if (requestedCapability == context::CommonCapabilities::kSupportedProtocolVersions)
+    {
+        messaging::SupportedProtocolVersions<> supportedProtocolVersions;
+        RUN(supportedProtocolVersions.list.pushBackN(traits::kProtocolVersions, std::size(traits::kProtocolVersions)));
+        RUN(supportedProtocolVersions.serialize(ctxOut));
+    }
+    else
+        return Status::kErrorDataCorrupted;
 
-    return processing::serializeCommonCapabilitiesResponse(requestedCapability, ctxOut);
+    return Status::kNoError;
 }
 
 } // namespace common_serialization::csp::messaging

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/processing/Statuses.h
+ * @file cslib/include/common_serialization/csp/processing/Status.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,30 +24,35 @@
 #pragma once
 
 #include "common_serialization/csp/messaging/StatusMessages.h"
+#include "common_serialization/csp/processing/Contexts.h"
 
 namespace common_serialization::csp::processing
 {
-    
-template<ISerializationCapableContainer S, typename T>
-constexpr Status serializeStatus(S& output, Status statusOut, T& statusMessage) noexcept
+
+template<ISerializationCapableContainer S>
+constexpr Status serializeStatusSuccess(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut) noexcept
 {
-    RUN(output.pushBackArithmeticValue(statusOut));
-    RUN(output.pushBackN(static_cast<uint8_t*>(static_cast<void*>(&statusMessage)), sizeof(T)));
+    context::Common<S> ctx(output, protocolVersion, commonFlags, context::Message::kStatus);
+    RUN(serializeCommonContext(ctx));
+    RUN(serializeStatusContext(ctx, statusOut));
 
     return Status::kNoError;
 }
 
-template<IDeserializationCapableContainer D>
-constexpr Status deserializeStatusGetStatus(D& input, Status& statusOut) noexcept
+template<ISerializationCapableContainer S, typename T>
+constexpr Status serializeStatus(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut, T& statusMessage) noexcept
 {
-    RUN(input.readArithmeticValue(statusOut));
+    context::Common<S> ctx(output, protocolVersion, commonFlags, context::Message::kStatus);
+    RUN(serializeCommonContext(ctx));
+    RUN(serializeStatusContext(ctx, statusOut));
+    RUN(output.pushBackN(static_cast<uint8_t*>(static_cast<void*>(&statusMessage)), sizeof(T)));
 
     return Status::kNoError;
 }
 
 // Not applicable for variable-sized structs
 template<IDeserializationCapableContainer D, typename T>
-constexpr Status deserializeStatusGetStruct(D& input, T& value) noexcept
+constexpr Status deserializeStatusGetBody(D& input, T& value) noexcept
 {
     typename D::size_type readSize = 0;
     RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T), &readSize));
@@ -58,25 +63,17 @@ constexpr Status deserializeStatusGetStruct(D& input, T& value) noexcept
 }
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output) noexcept
+constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, context::CommonFlags commonFlags) noexcept
 {
-    // For unsupported protocol version always using protocol version equal 1
-    context::Common<S> ctx(output, 1, context::Message::kStatus);
-    RUN(serializeHeaderContext(ctx));
-
     messaging::StatusErrorNotSupportedProtocolVersion statusMessage;
 
-    RUN(serializeStatus(output, Status::kErrorNotSupportedProtocolVersion, statusMessage));
+    // For unsupported protocol version always using protocol version equal 1
+    context::Common<S> ctx(output, 1, commonFlags, context::Message::kStatus);
+    RUN(serializeCommonContext(ctx));
+    RUN(serializeStatusContext(ctx, Status::kErrorNotSupportedProtocolVersion));
 
-    return Status::kNoError;
-}
-
-template<ISerializationCapableContainer S>
-constexpr Status serializeStatusSuccess(S& output, protocol_version_t protocolVersion, Status statusOut) noexcept
-{
-    context::Common<S> ctx(output, protocolVersion, context::Message::kStatus);
-    RUN(serializeHeaderContext(ctx));
-    RUN(output.pushBackArithmeticValue(statusOut));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(traits::getProtocolVersionsCount()));
+    RUN(ctx.getBinaryData().pushBackN(traits::kProtocolVersions, traits::getProtocolVersionsCount()));
 
     return Status::kNoError;
 }
@@ -86,17 +83,15 @@ constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
       interface_version_t minimumSupportedInterfaceVersion
     , interface_version_t maximumSupportedInterfaceVersion
     , protocol_version_t protocolVersion
+    , context::CommonFlags commonFlags
     , S& output) noexcept
 {
-    context::Common<S> ctx(output, protocolVersion, context::Message::kStatus);
-    RUN(serializeHeaderContext(ctx));
-
     messaging::StatusErrorNotSupportedInterfaceVersion statusMessage = {
           .minimumSupportedInterfaceVersion = minimumSupportedInterfaceVersion
         , .maximumSupportedInterfaceVersion = maximumSupportedInterfaceVersion
     };
 
-    RUN(serializeStatus(output, Status::kErrorNotSupportedInterfaceVersion, statusMessage));
+    RUN(serializeStatus(output, protocolVersion, commonFlags, Status::kErrorNotSupportedInterfaceVersion, statusMessage));
 
     return Status::kNoError;
 }
@@ -106,11 +101,9 @@ constexpr Status serializeStatusErrorNotSupportedInOutInterfaceVersion(
       interface_version_t  inMinimumSupportedInterfaceVersion, interface_version_t inMaximumSupportedInterfaceVersion
     , interface_version_t outMinimumSupportedInterfaceVersion, interface_version_t outMaximumSupportedInterfaceVersion
     , protocol_version_t protocolVersion
+    , context::CommonFlags commonFlags
     , S& output) noexcept
 {
-    context::Common<S> ctx(output, protocolVersion, context::Message::kStatus);
-    RUN(serializeHeaderContext(ctx));
-
     messaging::StatusErrorNotSupportedInOutInterfaceVersion statusMessage = {
           .inMinimumSupportedInterfaceVersion  = inMinimumSupportedInterfaceVersion
         , .inMaximumSupportedInterfaceVersion  = inMaximumSupportedInterfaceVersion
@@ -118,7 +111,7 @@ constexpr Status serializeStatusErrorNotSupportedInOutInterfaceVersion(
         , .outMaximumSupportedInterfaceVersion = outMaximumSupportedInterfaceVersion
     };
 
-    RUN(serializeStatus(output, Status::kErrorNotSupportedInOutInterfaceVersion, statusMessage));
+    RUN(serializeStatus(output, protocolVersion, commonFlags, Status::kErrorNotSupportedInOutInterfaceVersion, statusMessage));
 
     return Status::kNoError;
 }

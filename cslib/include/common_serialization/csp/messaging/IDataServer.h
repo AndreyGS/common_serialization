@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/csp/context/InOutData.h"
-#include "common_serialization/csp/messaging/IDataServerCommon.h"
+#include "common_serialization/csp/messaging/CommonServer.h"
 #include "common_serialization/csp/messaging/StatusMessages.h"
 
 namespace common_serialization::csp::messaging
@@ -50,7 +50,7 @@ template<typename InstanceType, typename InputType, typename OutputType
     , interface_version_t minimumOutputInterfaceVersion = OutputType::getOriginPrivateVersion()
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-class IDataServer : public IDataServerCommon
+class IDataServer : public IDataServerBase
 {
 public:
     [[nodiscard]] interface_version_t getMinimumInputInterfaceVersion() override;
@@ -101,7 +101,7 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
     {
         if (status == Status::kErrorNotSupportedInOutInterfaceVersion)
             RUN(processing::serializeStatusErrorNotSupportedInOutInterfaceVersion(minimumInputInterfaceVersion, InputType::getLatestInterfaceVersion()
-                , minimumOutputInterfaceVersion, OutputType::getLatestInterfaceVersion(), ctx.getProtocolVersion(), binOutput));
+                , minimumOutputInterfaceVersion, OutputType::getLatestInterfaceVersion(), ctx.getProtocolVersion(), CommonServer::kOutMandatoryCommonFlags, binOutput));
         
         return Status::kNoError;
     }
@@ -243,6 +243,7 @@ Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicas
         context::SData<> ctxOut(
             binOutput
             , ctxIn.getProtocolVersion()
+            , CommonServer::kOutMandatoryCommonFlags
             , ctxIn.getDataFlags()
             , forTempUseHeap
             , ctxIn.getOutputInterfaceVersion()

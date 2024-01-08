@@ -55,12 +55,13 @@ public:
     /// @param outInterfaceVersion Target output struct interface version
     constexpr InOutData(
           Container& container
+        , CommonFlags commonFlags = CommonFlags{}
         , DataFlags dataFlags = DataFlags{}
         , bool auxUsingHeapAllocation = true
         , interface_version_t inInterfaceVersion = traits::kInterfaceVersionUndefined
         , interface_version_t outInterfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Data<Container, serialize, PM, PC, EPP>(container, dataFlags, auxUsingHeapAllocation, inInterfaceVersion)
+        : Data<Container, serialize, PM, PC, EPP>(container, commonFlags, dataFlags, auxUsingHeapAllocation, inInterfaceVersion)
         , m_outputInterfaceVersion(outInterfaceVersion)
     { 
         this->setMessageType(Message::kInOutData);
@@ -101,6 +102,7 @@ public:
     constexpr InOutData(
           Container& binaryData
         , protocol_version_t protocolVersion
+        , CommonFlags commonFlags = CommonFlags{}
         , DataFlags dataFlags = DataFlags{}
         , bool auxUsingHeapAllocation = true
         , interface_version_t inInterfaceVersion = traits::kInterfaceVersionUndefined
@@ -108,7 +110,8 @@ public:
         , PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
-        : Data<Container, serialize, PM, PC, EPP>(binaryData, protocolVersion, dataFlags, auxUsingHeapAllocation, inInterfaceVersion, pPointersMap)
+        : Data<Container, serialize, PM, PC, EPP>(binaryData, protocolVersion, commonFlags, dataFlags
+            , auxUsingHeapAllocation, inInterfaceVersion, pPointersMap)
         , m_outputInterfaceVersion(outInterfaceVersion)
     { 
         this->setMessageType(Message::kInOutData);
@@ -126,6 +129,7 @@ public:
     constexpr InOutData(
           Container& binaryData
         , protocol_version_t protocolVersion
+        , CommonFlags commonFlags = CommonFlags{}
         , DataFlags dataFlags = DataFlags{}
         , bool auxUsingHeapAllocation = true
         , interface_version_t inInterfaceVersion = traits::kInterfaceVersionUndefined
@@ -134,7 +138,8 @@ public:
         , PM* pPointersMap = nullptr
     ) noexcept
         requires !serialize
-        : Data<Container, serialize, PM, PC, EPP>(binaryData, dataFlags, auxUsingHeapAllocation, inInterfaceVersion, pPointersContainer, pPointersMap)
+        : Data<Container, serialize, PM, PC, EPP>(binaryData, protocolVersion, commonFlags, dataFlags
+            , auxUsingHeapAllocation, inInterfaceVersion, pPointersContainer, pPointersMap)
         , m_outputInterfaceVersion(outInterfaceVersion)
     { 
         this->setMessageType(Message::kInOutData);

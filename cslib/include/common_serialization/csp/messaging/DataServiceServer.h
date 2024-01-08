@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "common_serialization/csp/messaging/IDataServer.h"
 #include "common_serialization/csp/messaging/ServiceStructs.h"
 
 // Service structs not support version conversion and must always be the same

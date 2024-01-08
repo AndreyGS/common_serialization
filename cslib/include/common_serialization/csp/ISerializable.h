@@ -118,7 +118,7 @@ template<typename T>
 template<ISerializationCapableContainer S>
 constexpr Status ISerializable<T>::serialize(S& output) const noexcept
 {
-    context::SData<S> ctx(output, context::DataFlags{}, getLatestInterfaceVersion());
+    context::SData<S> ctx(output, context::CommonFlags{ helpers::isModuleIsBigEndian() }, context::DataFlags{}, getLatestInterfaceVersion());
 
     return serialize(ctx);
 }
@@ -130,7 +130,7 @@ constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const n
     if (ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined)
         ctx.setInterfaceVersion(getLatestInterfaceVersion());
 
-    RUN(processing::serializeHeaderContext(ctx));
+    RUN(processing::serializeCommonContext(ctx));
     RUN(processing::serializeDataContext<T>(ctx));
 
     return processing::DataProcessor::serializeData(static_cast<const T&>(*this), ctx);
@@ -140,7 +140,7 @@ template<typename T>
 template<IDeserializationCapableContainer D>
 constexpr Status ISerializable<T>::deserialize(D& input)
 {
-    context::DData<D> ctx(input, context::DataFlags{}, getOriginPrivateVersion());
+    context::DData<D> ctx(input, context::CommonFlags{ helpers::isModuleIsBigEndian() }, context::DataFlags{}, getOriginPrivateVersion());
 
     return deserialize(ctx);
 }
@@ -149,7 +149,7 @@ template<typename T>
 template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
 constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 {
-    RUN(processing::deserializeHeaderContext(ctx));
+    RUN(processing::deserializeCommonContext(ctx));
 
     Id id;
     uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? getOriginPrivateVersion() : ctx.getInterfaceVersion();

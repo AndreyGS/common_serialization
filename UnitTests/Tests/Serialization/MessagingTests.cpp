@@ -45,7 +45,7 @@ TEST(MessagingTests, CommonTests)
     auto preOperationFilter0_1 = [](BinWalker& input) -> void
     {
         csp::context::Common<BinWalker> ctx(input);
-        csp::processing::deserializeHeaderContext(ctx);
+        csp::processing::deserializeCommonContext(ctx);
         EXPECT_EQ(ctx.getProtocolVersion(), 1);
 
         input.seek(0);
@@ -58,12 +58,12 @@ TEST(MessagingTests, CommonTests)
     {
         csp::context::Common<BinWalker> ctx(output);
 
-        csp::processing::deserializeHeaderContext(ctx);
+        csp::processing::deserializeCommonContext(ctx);
         EXPECT_EQ(ctx.getMessageType(), csp::context::Message::kStatus);
         EXPECT_EQ(ctx.getProtocolVersion(), 1);
 
         Status statusOut = Status::kNoError;
-        csp::processing::deserializeStatusGetStatus(ctx.getBinaryData(), statusOut);
+        csp::processing::deserializeStatusGetBody(ctx.getBinaryData(), statusOut);
         EXPECT_EQ(Status::kErrorNotSupportedProtocolVersion, statusOut);
 
         csp::protocol_version_t protVersionsCount = 0;
@@ -177,6 +177,15 @@ TEST(MessagingTests, MainTest)
     EXPECT_EQ(dataClient.handleData(saaTo, sad2, dataFlags, 1, 0, 0, 0, csp::traits::getLatestProtocolVersion(), &unmanagedPointers), Status::kNoError);
 
     EXPECT_EQ(sad2, sadReference);
+
+    // Test of no output struct
+    interface_for_test::SimpleAssignable<> sa;
+    fillingStruct(sa);
+
+    csp::messaging::ISerializableDummy<> dummy{};
+
+    // Send with parameters by default
+    EXPECT_EQ(dataClient.handleData(sa, dummy), Status::kNoError);
 }
 
 
@@ -208,7 +217,7 @@ TEST(MessagingTests, Temp)
     ctxIn.setInterfaceVersion(1);
     ctxIn.setOutputInterfaceVersion(2);
 
-    csp::processing::serializeHeaderContext(ctxIn);
+    csp::processing::serializeCommonContext(ctxIn);
     csp::processing::serializeInOutDataContext<SimpleAssignableAlignedToOne<>>(ctxIn);
     csp::processing::DataProcessor::serializeData(testInput, ctxIn);
 
@@ -221,7 +230,7 @@ TEST(MessagingTests, Temp)
     BinWalker binIn;
     binIn.pushBack(1);
     
-    Vector<csp::messaging::IDataServerCommon*, RawGenericAllocatorHelper<csp::messaging::IDataServerCommon*>> subscribers;
+    Vector<csp::messaging::IDataServerBase*, RawGenericAllocatorHelper<csp::messaging::IDataServerBase*>> subscribers;
     csp::messaging::GetDataServersKeeper().findServers(testInput.getId(), subscribers);
     //subscribers[0]->handleDataConcrete(binIn, binOut);
 

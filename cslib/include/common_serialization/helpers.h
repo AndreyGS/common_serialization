@@ -89,6 +89,18 @@ concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || 
 namespace helpers
 {
 
+/// @brief Is current module compiled with big-endian format
+/// @return True if big-endian, false if little-endian
+consteval bool isModuleIsBigEndian()
+{
+    return
+#ifndef BIG_ENDIAN
+        false;
+#else
+        true;
+#endif
+}
+
 /// @brief Test for overlapping memory regions of same sized arrays
 /// @tparam T Type of arrays
 /// @param objs1 Start of first array

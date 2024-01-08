@@ -50,42 +50,4 @@ constexpr Status deserializeCommonCapabilitiesRequest(context::Common<D>& ctx, c
     return Status::kNoError;
 }
 
-template<ISerializationCapableContainer S>
-constexpr Status serializeCommonCapabilitiesResponse(context::CommonCapabilities requestedCapability, context::SData<S>& ctx) noexcept
-{
-    S& output = ctx.getBinaryData();
-
-    if (requestedCapability == context::CommonCapabilities::kSupportedProtocolVersions)
-    {
-        messaging::SupportedProtocolVersions<> supportedProtocolVersions;
-        RUN(supportedProtocolVersions.list.pushBackN(traits::kProtocolVersions, std::size(traits::kProtocolVersions)));
-
-        Id id = supportedProtocolVersions.getId();
-
-        RUN(DataProcessor::serializeData(id, ctx));
-        RUN(DataProcessor::serializeData(supportedProtocolVersions, ctx));
-    }
-    else
-        return Status::kErrorInternal;
-
-    return Status::kNoError;
-}
-
-
-template<typename T, IDeserializationCapableContainer D>
-constexpr Status deserializeCommonCapabilitiesResponse(context::DData<D>& ctx, context::CommonCapabilities requestedCapability, T& responseStruct) noexcept
-{
-    D& input = ctx.getBinaryData();
-
-    Id id;
-    RUN(DataProcessor::deserializeData(ctx, id));
-
-    if (id != T::getId())
-        return Status::kErrorDataCorrupted;
-
-    RUN(DataProcessor::deserializeData(ctx, responseStruct));
-
-    return Status::kNoError;
-}
-
 } // namespace common_serialization::csp::processing

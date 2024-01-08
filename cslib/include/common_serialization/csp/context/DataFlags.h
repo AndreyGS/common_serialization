@@ -76,34 +76,14 @@ struct DataFlags
 
     uint32_t reserved                               :28 = 0;
 
-    /// @brief Default constructor
-    constexpr DataFlags() noexcept;
-
-    /// @brief Constructor from uint32_t
-    /// @param value 32 bit unsigned integer
+    constexpr DataFlags() noexcept { }
     explicit constexpr DataFlags(uint32_t value) noexcept;
-
-    /// @brief Operator= from uint32_t
-    /// @param value 32 bit unsigned integer
-    /// @return *this
     constexpr DataFlags& operator=(uint32_t value) noexcept;
 
-    /// @brief Operator==
-    /// @param rhs Another instance
-    /// @return Result of comparison
     [[nodiscard]] constexpr bool operator==(DataFlags rhs) const noexcept;
-
-    /// @brief Cast to uint32_t
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
-
-    /// @brief Cast to bool
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
 };
-
-constexpr DataFlags::DataFlags() noexcept 
-{
-    *this = 0;
-}
 
 constexpr DataFlags::DataFlags(uint32_t value) noexcept
 {
@@ -127,7 +107,7 @@ constexpr DataFlags& DataFlags::operator=(uint32_t value) noexcept
 
 [[nodiscard]] constexpr DataFlags::operator uint32_t() const noexcept
 {
-    return (*static_cast<const uint32_t*>(static_cast<const void*>(this)) & 0xffffff);
+    return *static_cast<const uint32_t*>(static_cast<const void*>(this));
 }
 
 [[nodiscard]] constexpr DataFlags::operator bool() const noexcept

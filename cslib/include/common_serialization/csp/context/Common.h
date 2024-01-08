@@ -25,6 +25,7 @@
 
 #include "common_serialization/csp/Traits.h"
 #include "common_serialization/csp/context/Message.h"
+#include "common_serialization/csp/context/CommonFlags.h"
 #include "common_serialization/csp/Concepts.h"
 #include "common_serialization/Containers/Concepts.h"
 
@@ -43,13 +44,22 @@ public:
     /// @param binaryData Container that hold or would hold binary data of processing
     /// @param protocolVersion Protocol version that would be used in process (can be changed later)
     /// @param messageType Type of message that should be processed (can be changed later)
-    constexpr Common(Container& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion(), Message messageType = Message::kData) noexcept
-        : m_binaryData(binaryData), m_protocolVersion(protocolVersion)
-        , m_protocolVersionsNotMatch(traits::getLatestProtocolVersion() != protocolVersion), m_messageType(messageType)
+    constexpr Common(Container& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
+        , CommonFlags commonFlags = CommonFlags{}, Message messageType = Message::kData
+    ) noexcept
+        : m_binaryData(binaryData)
+        , m_protocolVersion(protocolVersion)
+        , m_protocolVersionsNotMatch(traits::getLatestProtocolVersion() != protocolVersion)
+        , m_commonFlags(commonFlags), m_messageType(messageType)
     {
         if constexpr (ISerializationCapableContainer<Container>)
             m_binaryData.reserve(256);
     }
+
+    constexpr Common(Common& rhs) noexcept
+        : m_binaryData(rhs.m_binaryData), m_protocolVersion(rhs.m_protocolVersion), m_commonFlags(rhs.m_commonFlags)
+        , m_protocolVersionsNotMatch(rhs.m_protocolVersionsNotMatch), m_messageType(rhs.m_messageType)
+    { }
 
     /// @brief Get reference to container that holds processed data in binary
     /// @return Container with binary data
@@ -68,15 +78,25 @@ public:
     /// @return CSP version
     [[nodiscard]] constexpr protocol_version_t getProtocolVersion() const noexcept { return m_protocolVersion; }
 
-    /// @brief Set CSP version that would be used by this context
+    /// @brief Set CSP version that will be used by this context
     /// @param protocolVersion CSP version
-    constexpr void setProtocolVersion(protocol_version_t protocolVersion)
+    constexpr void setProtocolVersion(protocol_version_t protocolVersion) noexcept
     { 
         m_protocolVersion = protocolVersion; 
         m_protocolVersionsNotMatch = traits::isProtocolVersionSameAsLatestOur(m_protocolVersion);
     }
 
-    /// @brief Reset all fields to their default values, but leaves binary data unchanged
+    /// @brief Get Common Flags that are using in this context
+    /// @return Common Flags
+    [[nodiscard]] constexpr CommonFlags getCommonFlags() const noexcept { return m_commonFlags; }
+
+    /// @brief Set Common Flags that will be used by this context
+    /// @param commonFlags Common Flags
+    constexpr void setCommonFlags(CommonFlags commonFlags) noexcept { m_commonFlags = commonFlags; }
+
+    /// @brief Reset all fields to their default values, but leaves binary data and common flags unchanged
+    /// @note Common flags are not resets to false because because they are 
+    ///     rather environment tool option instead of struct/operation specific.
     virtual void resetToDefaultsExceptDataContents() noexcept
     {
         if constexpr (IDeserializationCapableContainer<Container>)
@@ -86,6 +106,8 @@ public:
     }
 
     /// @brief Reset all fields to their default values and clears binary data container
+    /// @note Common flags are not resets to false because because they are 
+    ///     rather environment tool option instead of struct/operation specific.
     virtual void clear() noexcept
     {
         resetToDefaultsExceptDataContents();
@@ -96,6 +118,7 @@ private:
     Container& m_binaryData;
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
     bool m_protocolVersionsNotMatch = false;
+    CommonFlags m_commonFlags;
     Message m_messageType = Message::kData;
 };
 

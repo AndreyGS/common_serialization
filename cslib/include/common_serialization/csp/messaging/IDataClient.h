@@ -26,7 +26,7 @@
 #include "common_serialization/csp/processing/CommonCapabilities.h"
 #include "common_serialization/csp/processing/Contexts.h"
 #include "common_serialization/csp/processing/DataProcessor.h"
-#include "common_serialization/csp/processing/Statuses.h"
+#include "common_serialization/csp/processing/Status.h"
 
 namespace common_serialization::csp::messaging
 {
@@ -170,6 +170,7 @@ private:
     virtual Status handleBinData(BinVector& binInput, BinWalker& binOutput) = 0;
 
     protocol_version_t m_defaultProtocolVersion{ traits::getLatestProtocolVersion() };
+    context::CommonFlags m_defaultCommonFlags{ helpers::isModuleIsBigEndian() };
     context::DataFlags m_defaultDataFlags;
 
     // There can be more than one interfaces on server
@@ -203,13 +204,13 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
     BinVector binInput;
 
     // First attempt of sending data is made of interface version function parameters
-    context::SInOutData<> ctxIn(binInput, protocolVersion, dataFlags, forTempUseHeap, inputInterfaceVersion, outputInterfaceVersion, nullptr);
+    context::SInOutData<> ctxIn(binInput, protocolVersion, m_defaultCommonFlags, dataFlags, forTempUseHeap, inputInterfaceVersion, outputInterfaceVersion, nullptr);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
     if (ctxIn.getDataFlags().checkRecursivePointers)
         ctxIn.setPointersMap(&pointersMapIn);
 
-    RUN(processing::serializeHeaderContext(ctxIn));
+    RUN(processing::serializeCommonContext(ctxIn));
     RUN(processing::serializeInOutDataContext<InputType>(ctxIn));
 
     // Flags may be changed after processing::serializeInOutDataContext
@@ -228,7 +229,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
 
     context::DData<> ctxOut(binOutput);
 
-    RUN(processing::deserializeHeaderContext(ctxOut));
+    RUN(processing::deserializeCommonContext(ctxOut));
 
     if (ctxOut.getMessageType() == context::Message::kData)
     {
@@ -253,7 +254,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
     else if (ctxOut.getMessageType() == context::Message::kStatus)
     {
         Status statusOut = Status::kNoError;
-        RUN(processing::deserializeStatusGetStatus(ctxOut.getBinaryData(), statusOut));
+        RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
         if constexpr (std::is_same_v<OutputType, messaging::ISerializableDummy<>>)
             if (statusOut == Status::kNoError)
@@ -297,7 +298,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
                 return statusOut;
 
             StatusErrorNotSupportedInOutInterfaceVersion statusStruct{ 0 };
-            RUN(processing::deserializeStatusGetStruct(ctxOut.getBinaryData(), statusStruct));
+            RUN(processing::deserializeStatusGetBody(ctxOut.getBinaryData(), statusStruct));
 
             interface_version_t compatInputInterfaceVersion
                 = traits::getBestSupportedInterfaceVersion<InputType>(
@@ -336,22 +337,15 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
 inline Status IDataClient::getServerProtocolVersions(SupportedProtocolVersions<>& output) noexcept
 {
     BinVector binInput;
-    context::Common<BinVector> ctxIn(binInput, 1, context::Message::kCommonCapabilitiesRequest);
-    RUN(processing::serializeHeaderContext(ctxIn));
+    context::Common<BinVector> ctxIn(binInput, 1, context::CommonFlags{}, context::Message::kCommonCapabilitiesRequest);
+    RUN(processing::serializeCommonContext(ctxIn));
     RUN(processing::serializeCommonCapabilitiesRequest(context::CommonCapabilities::kSupportedProtocolVersions, ctxIn));
 
     BinWalker binOutput;
 
     RUN(handleBinData(binInput, binOutput));
 
-    context::DData<BinWalker> ctxOut(binOutput);
-
-    RUN(processing::deserializeHeaderContext(ctxOut));
-
-    if (ctxOut.getMessageType() != context::Message::kCommonCapabilitiesResponse)
-        return Status::kErrorDataCorrupted;
-
-    return processing::deserializeCommonCapabilitiesResponse(ctxOut, context::CommonCapabilities::kSupportedProtocolVersions, output);
+    return output.deserialize(binOutput);
 }
 
 inline protocol_version_t IDataClient::getDefaultProtocolVersion() const noexcept

@@ -181,10 +181,14 @@ public:
     /// @param dataFlags Data flags that are using in processing
     /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
-    constexpr Data(Container& binaryData
-        , DataFlags dataFlags = DataFlags{}, bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
+    constexpr Data(
+          Container& binaryData
+        , CommonFlags commonFlags = CommonFlags{}
+        , DataFlags dataFlags = DataFlags{}
+        , bool auxUsingHeapAllocation = true
+        , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Common<Container>(binaryData, traits::getLatestProtocolVersion(), Message::kData)
+        : Common<Container>(binaryData, traits::getLatestProtocolVersion(), commonFlags, Message::kData)
         , m_flags(dataFlags), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 
@@ -193,17 +197,19 @@ public:
     /// @param dataFlags Data flags that are using in processing
     /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
-    constexpr Data(Common<Container>& common, DataFlags dataFlags = DataFlags{}, bool auxUsingHeapAllocation = true
+    constexpr Data(
+          Common<Container>& common
+        , DataFlags dataFlags = DataFlags{}
+        , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Common<Container>(common.getBinaryData(), common.getProtocolVersion(), Message::kData)
-        , m_flags(dataFlags), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
+        : Common<Container>(common), m_flags(dataFlags), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
     
     /// @brief Copy constructor
     /// @param rhs Another instance
     constexpr Data(Data<Container, serialize, PM, PC, EPP>& rhs) noexcept
-        : Common<Container>(rhs.getBinaryData(), rhs.getProtocolVersion(), rhs.getMessageType())
+        : Common<Container>(rhs)
         , m_flags(rhs.m_flags), m_epp(rhs.m_epp), m_interfaceVersion(rhs.interfaceVersion), m_auxUsingHeapAllocation(rhs.auxUsingHeapAllocation)
     { }
 
@@ -215,11 +221,17 @@ public:
     /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
     /// @param pointersMap Pointer to map that implements ISerializationPointersMap interface
-    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags dataFlags = DataFlags{}
-        , bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined, PM* pPointersMap = nullptr
+    constexpr Data(
+          Container& binaryData
+        , protocol_version_t protocolVersion
+        , CommonFlags commonFlags = CommonFlags{}
+        , DataFlags dataFlags = DataFlags{}
+        , bool auxUsingHeapAllocation = true
+        , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
+        , PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
-            : Common<Container>(binaryData, protocolVersion, Message::kData), m_flags(dataFlags)
+            : Common<Container>(binaryData, protocolVersion, commonFlags, Message::kData), m_flags(dataFlags)
             , m_epp(pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 
@@ -232,11 +244,17 @@ public:
     /// @param interfaceVersion Target interface version
     /// @param pAddedPointers Pointer to additional free pointers container
     /// @param pointersMap Pointer to map that implements ISerializationPointersMap interface
-    constexpr Data(Container& binaryData, protocol_version_t protocolVersion, DataFlags dataFlags = DataFlags{}
-        , bool auxUsingHeapAllocation = true, interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined, PC* pAddedPointers = nullptr, PM* pPointersMap = nullptr
+    constexpr Data(
+          Container& binaryData
+        , protocol_version_t protocolVersion
+        , CommonFlags commonFlags = CommonFlags{}
+        , DataFlags dataFlags = DataFlags{}, bool auxUsingHeapAllocation = true
+        , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
+        , PC* pAddedPointers = nullptr
+        , PM* pPointersMap = nullptr
     ) noexcept
         requires !serialize
-            : Common<Container>(binaryData, protocolVersion, Message::kData), m_flags(dataFlags)
+            : Common<Container>(binaryData, protocolVersion, commonFlags, Message::kData), m_flags(dataFlags)
             , m_epp(pAddedPointers, pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 
@@ -311,7 +329,6 @@ public:
         m_flags = DataFlags{};
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
-        // 
         m_epp.clear();
     }
 

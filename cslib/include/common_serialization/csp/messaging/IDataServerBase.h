@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IDataServerCommon.h
+ * @file cslib/include/common_serialization/csp/messaging/IDataServerBase.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -25,7 +25,7 @@
 
 #include "common_serialization/Containers/Walker.h"
 #include "common_serialization/csp/messaging/DataServersKeeper.h"
-#include "common_serialization/csp/processing/Statuses.h"
+#include "common_serialization/csp/processing/Status.h"
 
 namespace common_serialization::csp::messaging
 {
@@ -36,7 +36,7 @@ namespace common_serialization::csp::messaging
 /// @brief Interface of common CSP data servers
 /// @remark Do not be confused by it naming - it is a server 
 ///     that process data messages of CSP - not database server 
-class IDataServerCommon
+class IDataServerBase
 {
 public:
     /// @brief Get instance minimum input interface version
@@ -54,14 +54,14 @@ public:
     static Status handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput);
 
 protected:
-    constexpr IDataServerCommon() { }
-    constexpr ~IDataServerCommon() { }
+    constexpr IDataServerBase() { }
+    constexpr ~IDataServerBase() { }
 
 private:
     virtual Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) = 0;
 };
 
-inline Status IDataServerCommon::handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput)
+inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput)
 {
     context::DInOutData<> ctx(ctxCommon);
     Id id;
@@ -78,7 +78,7 @@ inline Status IDataServerCommon::handleDataCommon(context::Common<BinWalker>& ct
     if (dataFlags.checkRecursivePointers)
         ctx.setPointersMap(&pointersMap);
     
-    IDataServerCommon* pServer{ nullptr };
+    IDataServerBase* pServer{ nullptr };
     Status status = Status::kNoError;
 
     if (Status status = GetDataServersKeeper().findServer(id, pServer); statusSuccess(status))
@@ -88,7 +88,7 @@ inline Status IDataServerCommon::handleDataCommon(context::Common<BinWalker>& ct
     // If we have more than one DataServer
     else if (status == Status::kErrorMoreEntires)
     {
-        Vector<IDataServerCommon*, RawStrategicAllocatorHelper<IDataServerCommon*>> servers;
+        Vector<IDataServerBase*, RawStrategicAllocatorHelper<IDataServerBase*>> servers;
         RUN(GetDataServersKeeper().findServers(id, servers));
 
         status = Status::kNoError;
@@ -96,13 +96,8 @@ inline Status IDataServerCommon::handleDataCommon(context::Common<BinWalker>& ct
         for (auto pServer : servers)
             SET_NEW_ERROR(pServer->handleDataConcrete(ctx, binOutput));
     }
-    else
-        return status;
 
-    if (binOutput.size() == 0 && statusSuccess(status))
-        return processing::serializeStatusSuccess(binOutput, ctx.getProtocolVersion(), status);
-    else
-        return status;
+    return status;
 }
 
 } // namespace common_serialization::csp::messaging

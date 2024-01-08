@@ -30,24 +30,28 @@ namespace common_serialization::csp::context
 enum class Message : uint_fast32_t
 {
     /// @brief Status message
-    /// @details Format of message depends on status code
+    /// @details
+    ///     Format of message:
+    /// 
     ///     {
     ///         struct
     ///         {
     ///             Status status;
-    ///         } dataSpecificHeader;
+    ///         } privateHeader;
     ///
     ///         struct
     ///         {
     ///             uint8_t serializedData[anysize];
-    ///         } binaryData; // varies by DataFlags that was set and struct that was serialized
+    ///         } body;
     ///     }
+    /// 
+    ///     Format of message body depends on status code
     ///     
     ///     Status == kErrorNotSupportedProtocolVersion
     ///     
     ///     sends when serialization protocol is not supported
     ///     
-    ///     message binaryData format :
+    ///     message body format :
     ///     
     ///     {
     ///         uint8_t supportedProtocolsVersionsSize;
@@ -68,6 +72,8 @@ enum class Message : uint_fast32_t
     ///     
     ///     Status == kErrorNotSupportedInOutInterfaceVersion
     ///     
+    ///     message body format :
+    /// 
     ///     {
     ///         uint32_t inMinimumSupportedInterfaceVersion;
     ///         uint32_t inMaximumSupportedInterfaceVersion;
@@ -80,7 +86,7 @@ enum class Message : uint_fast32_t
     /// @details Using in one way single struct serialization/deserialization,
     ///     that is no return (response) message is expected
     /// 
-    ///     message format:
+    ///     Format of message:
     ///
     ///     {
     ///         struct
@@ -88,12 +94,12 @@ enum class Message : uint_fast32_t
     ///             uuid inStructId;
     ///             DataFlags dataFlags;
     ///             uint32_t interfaceVersion;
-    ///         } dataSpecificHeader;
+    ///         } privateHeader;
     ///         
     ///         struct
     ///         {
     ///             uint8_t serializedData[anysize];
-    ///         } binaryData; // varies by DataFlags that was set and struct that was serialized
+    ///         } body; // varies by DataFlags that was set and struct that was serialized
     ///     }
     kData = 0x1,                            
                                             
@@ -102,7 +108,7 @@ enum class Message : uint_fast32_t
     ///     output struct or status of input struct handling.
     ///         Processing of such messages engaged by Data clients and servers.
     ///
-    ///     message format:
+    ///     Format of message:
     ///
     ///     {
     ///         struct
@@ -111,41 +117,26 @@ enum class Message : uint_fast32_t
     ///             DataFlags dataFlags;
     ///             uint32_t inInterfaceVersion;
     ///             uint32_t outInterfaceVersion;
-    ///         } dataSpecificHeader;
+    ///         } privateHeader;
     ///         
     ///         struct
     ///         {
     ///             uint8_t inSerializedData[anysize];
-    ///         } binaryData; // varies by DataFlags that was set and struct that was serialized
+    ///         } body; // varies by DataFlags that was set and struct that was serialized
     ///     }
     kInOutData = 0x2,
                                             
     /// @brief Request of servers protocol capabilities
     /// @details
-    ///     message format:
+    ///     Format of message:
+    /// 
     ///     {
     ///         struct
     ///         {
     ///             CommonCapabilities requestedCapability;
-    ///         }
+    ///         }  body;
     ///     }
-    kCommonCapabilitiesRequest = 0x3,
-
-    /// @brief Response on kCommonCapabilitiesRequest
-    /// @details
-    ///     message format:
-    ///     {
-    ///         struct
-    ///         {
-    ///             uuid structId; // returned struct id
-    ///         }
-    ///     
-    ///         struct
-    ///         {
-    ///             uint8_t inSerializedData[anysize];
-    ///         } binaryData; // varies by requestedCapability value
-    ///     }
-    kCommonCapabilitiesResponse = 0x4                      
+    kCommonCapabilitiesRequest = 0x3
 };
 
 } // namespace common_serialization::csp::context

@@ -1,0 +1,31 @@
+Common Serialization Protocol (CSP)
+
+CSP is the protocol of serialization that provide fast serialization process, with low memory consumption.
+
+Terminology
+
+Data that comes from serialization process is called Message.
+
+Message has two main fields: Common and Private. Private field consist of Header and Body, both are optional.
+
+Context fields are Common field and Private Header. So we have Common Context and Private Context. Note that almost everywhere we strive not to using Header keyword because in this way it may be confused with Common field.
+
+Full format of the message
+       
+| 64 bits long  |Variable length|Variable length|
++---------------+---------------+---------------+
+| Common field  |Private Context| Private body  |
++---------------+---------------+---------------+
+
+Private field is usally named by Message Type. So instead of saying Private Context or Private Body of Data Message we saying Data Context or Data Body.
+
+Common field structure:
+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  CSP version  |    Reserved   |         Common Flags          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                         Message Type                          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
