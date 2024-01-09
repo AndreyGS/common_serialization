@@ -30,7 +30,7 @@ namespace common_serialization::csp::processing
 {
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusSuccess(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut) noexcept
+constexpr Status serializeStatusNoContext(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut) noexcept
 {
     context::Common<S> ctx(output, protocolVersion, commonFlags, context::Message::kStatus);
     RUN(serializeCommonContext(ctx));

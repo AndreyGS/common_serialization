@@ -1,25 +1,35 @@
 Common Serialization Protocol (CSP)
 
-CSP is the protocol of serialization that provide fast serialization process, with low memory consumption.
+CSP is the protocol of serialization that provide fast serialization process, 
+with low memory consumption.
 
 Terminology
 
 Data that comes from serialization process is called Message.
 
-Message has two main fields: Common and Private. Private field consist of Header and Body, both are optional.
+Messaging process is client-server interaction in CSP model.
 
-Context fields are Common field and Private Header. So we have Common Context and Private Context. Note that almost everywhere we strive not to using Header keyword because in this way it may be confused with Common field.
+Message has two main parts: Common and Private. Private part consist of Header 
+and Body, both are optional.
+
+Context parts are Common part and Private Header. So we have Common Context and 
+Private Context. Note that almost everywhere we strive not to using Header 
+keyword because in this way it may be confused with Common part.
+
+Private part is usally named by Message Type. So instead of saying Private 
+Context or Private Body of Data Message we saying Data Context or Data Body.
 
 Full format of the message
        
 | 64 bits long  |Variable length|Variable length|
 +---------------+---------------+---------------+
-| Common field  |Private Context| Private body  |
+|               |         Private Part          |
+|  Common part  |                               |
+|               |Private Context| Private body  |
+|               |  (optional)   |  (optional)   |
 +---------------+---------------+---------------+
 
-Private field is usally named by Message Type. So instead of saying Private Context or Private Body of Data Message we saying Data Context or Data Body.
-
-Common field structure:
+Common part
 
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -28,4 +38,121 @@ Common field structure:
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                         Message Type                          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Common part is always presented in little-endian format.
+
+Fields description
+
+|  Field Name   |   Size  |                     Description                    |
+|               |(in bits)|                                                    |
++---------------+---------+----------------------------------------------------+
+|  CSP version  |    8    | Version of protocol using in Message creation and  |
+|               |         | client-server interactions. 
+|               |         | Current version is 1 (still in development).       |
++---------------+---------+----------------------------------------------------+
+| Common Flags  |   16    | Options that have meaning to Private part of any   |
+|               |         | Message.                                           |
+|               |         |                                                    |
+|               |         | Bit 0: using big endian format.                    |
+|               |         | Bit 1: set if there is possibility of endian       |
+|               |         |     difference.                                    |
+|               |         | Bits 2-15: unused (reserved)                       |
++---------------+---------+----------------------------------------------------+
+| Message Type  |   32    | Type of Message                                    |
+|               |         |                                                    |
+|               |         | 0x0: Status                                        |
+|               |         | 0x1: Data                                          |
+|               |         | 0x2: InOutData                                     |
+|               |         | 0x3: CommonCapabilitiesRequest                     |
++---------------+---------+----------------------------------------------------+
+
+Private part
+
+Private part structure depends of Message Type.
+
+Status Message
+
+Format of Status Message Private part
+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                            Status                             |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+\                             Body                              \
+\                          (optional)                           \
+|                                                               |                     
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Fields description
+
+|  Field Name   |   Size  |                     Description                    |
+|               |(in bits)|                                                    |
++---------------+---------+----------------------------------------------------+
+|    Status     |   32    | Status of operation on server in Messaging process | 
+|               |         | when applicable.                                   |
+|               |         |                                                    |
+|               |         |    0: NoError                                      |
+|               |         |                                                    |
+|               |         |    1: NoFurtherProcessingRequired                  |
+|               |         |                                                    |
+|               |         |   -1: ErrorNoMemory                                |
+|               |         |   -2: ErrorOverflow                                |
+|               |         |   -3: ErrorInvalidArgument                         |
+|               |         |   -4: ErrorNotSupportedProtocolVersion             |
+|               |         |   -5: ErrorNotSupportedInterfaceVersion            |
+|               |         |   -6: ErrorInvalidHash                             |
+|               |         |   -7: ErrorMismatchOfProtocolVersions              |
+|               |         |   -8: ErrorMismatchOfInterfaceVersions             |
+|               |         |   -9: ErrorMismatchOfStructId                      |
+|               |         |  -10: ErrorNoSuchHandler                           |
+|               |         |  -11: ErrorInternal                                |
+|               |         |-12: ErrorNotSupportedSerializationSettingsForStruct|
+|               |         |  -13: ErrorInvalidType                             |
+|               |         |  -14: ErrorDataCorrupted                           |
+|               |         |  -15: ErrorNotCompatibleFlagsSettings              |
+|               |         |  -16: ErrorMoreEntires                             |
+|               |         |  -17: ErrorNotSupportedInOutInterfaceVersion       |
+|               |         |                                                    |
+|               |         | Status with positive values are Informational,     |
+|               |         | with negative are errors.                          |
++---------------+---------+----------------------------------------------------+
+|     Body      |Variable | Depends on status field value.                     |
++---------------+---------+----------------------------------------------------+
+
+Only the few Status values require Body field.
+
+ErrorNotSupportedProtocolVersion sends when CSP protocol version is not 
+supported on server.
+    
+Format of ErrorNotSupportedProtocolVersion Body
+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Size of CSP  |                CSP versions                   |
+|   versions    |                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+\                         CSP versions                          \
+\                                                               \
+|                                                               |                     
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Fields description
+
+|  Field Name   |Size (in |                     Description                    |
+|               | octets) |                                                    |
++---------------+---------+----------------------------------------------------+
+|  Size of CSP  |    1    | Size of field CSP versions.                        |
+|   versions    |         |                                                    |
++---------------+---------+----------------------------------------------------+
+| CSP versions  | 1 - 255 | Depends on Size of CSP versions field value.       |
+|               |         | Versions must be sorted in decreasing order, latest|
+|               |         | version is first.                                  |
++---------------+---------+----------------------------------------------------+
+
+ErrorNotSupportedInOutInterfaceVersion sends when input struct or output struct
+versions are not supported on server.
 

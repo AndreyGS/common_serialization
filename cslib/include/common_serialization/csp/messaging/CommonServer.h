@@ -68,10 +68,10 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
     else if (ctx.getMessageType() == context::Message::kCommonCapabilitiesRequest)
         status = handleCommonCapabilitiesRequest(ctx, binOutput);
     else
-        return Status::kErrorDataCorrupted;
+        status = Status::kErrorDataCorrupted;
 
-    if (binOutput.size() == 0 && statusSuccess(status))
-        status = processing::serializeStatusSuccess(binOutput, ctx.getProtocolVersion(), kOutMandatoryCommonFlags, status);
+    if (binOutput.size() == 0)
+        status = processing::serializeStatusNoContext(binOutput, ctx.getProtocolVersion(), kOutMandatoryCommonFlags, status);
 
     return status;
 }
