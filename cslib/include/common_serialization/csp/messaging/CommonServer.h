@@ -71,7 +71,7 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
         status = Status::kErrorDataCorrupted;
 
     if (binOutput.size() == 0)
-        status = processing::serializeStatusNoContext(binOutput, ctx.getProtocolVersion(), kOutMandatoryCommonFlags, status);
+        status = processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), kOutMandatoryCommonFlags, status);
 
     return status;
 }

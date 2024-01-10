@@ -188,7 +188,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, Vecto
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status IDataClient::handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags, interface_version_t preferedInputInterfaceVersion, interface_version_t preferedOutputInterfaceVersion
     , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion, protocol_version_t protocolVersion, Vector<GenericPointerKeeper>* pUnmanagedPointers
 )
@@ -227,7 +227,7 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
 
     ctxIn.clear();
 
-    context::DData<> ctxOut(binOutput);
+    context::Common<BinWalker> ctxOut(binOutput);
 
     RUN(processing::deserializeCommonContext(ctxOut));
 
@@ -237,19 +237,21 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
 
         Id outId;
 
-        RUN(processing::deserializeDataContext(ctxOut, outId));
+        context::DData<> ctxOutData(ctxOut);
 
-        if (ctxIn.getDataFlags() != ctxOut.getDataFlags())
+        RUN(processing::deserializeDataContext(ctxOutData, outId));
+
+        if (ctxIn.getDataFlags() != ctxOutData.getDataFlags())
             return Status::kErrorDataCorrupted;
 
-        ctxOut.setAddedPointers(pUnmanagedPointers);
+        ctxOutData.setAddedPointers(pUnmanagedPointers);
 
         std::unordered_map<uint64_t, void*> pointersMapOut;
-        if (ctxOut.getDataFlags().checkRecursivePointers)
-            ctxOut.setPointersMap(&pointersMapOut);
+        if (ctxOutData.getDataFlags().checkRecursivePointers)
+            ctxOutData.setPointersMap(&pointersMapOut);
 
-        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOut, outId, minimumOutputInterfaceVersion));
-        RUN(processing::DataProcessor::deserializeData(ctxOut, output));
+        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOutData, outId, minimumOutputInterfaceVersion));
+        RUN(processing::DataProcessor::deserializeData(ctxOutData, output));
     }
     else if (ctxOut.getMessageType() == context::Message::kStatus)
     {
@@ -262,21 +264,15 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
         
         if (statusOut == Status::kErrorNotSupportedProtocolVersion)
         {
-            protocol_version_t protVersionsCount = traits::kProtocolVersionUndefined;
-            RUN(ctxOut.getBinaryData().readArithmeticValue(protVersionsCount));
-            
-            if (ctxOut.getBinaryData().tell() + protVersionsCount / sizeof(protocol_version_t) > ctxOut.getBinaryData().size())
-                return Status::kErrorInternal;
-            
-            const protocol_version_t* pProtVersions = 
-                static_cast<const protocol_version_t*>(static_cast<const void*>(&*(ctxOut.getBinaryData().getVector().begin() + ctxOut.getBinaryData().tell())));
+            Vector<protocol_version_t> serverCspVersions;
+            RUN(processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, serverCspVersions));
 
             protocol_version_t compatProtocolVersion = traits::kProtocolVersionUndefined;
 
-            for (protocol_version_t i = 0; i < protVersionsCount; ++i)
-                if (traits::isProtocolVersionSupported(pProtVersions[i]))
+            for (protocol_version_t serverCspVersion : serverCspVersions)
+                if (traits::isProtocolVersionSupported(serverCspVersion))
                 {
-                    compatProtocolVersion = pProtVersions[i];
+                    compatProtocolVersion = serverCspVersion;
                     break;
                 }
 
@@ -297,25 +293,22 @@ Status IDataClient::handleData(const InputType& input, OutputType& output, conte
             if (minimumInputInterfaceVersion == preferedInputInterfaceVersion && minimumOutputInterfaceVersion == preferedOutputInterfaceVersion)
                 return statusOut;
 
-            StatusErrorNotSupportedInOutInterfaceVersion statusStruct{ 0 };
-            RUN(processing::deserializeStatusGetBody(ctxOut.getBinaryData(), statusStruct));
+            interface_version_t serverMinInInterfaceVersion = 0;
+            interface_version_t serverMaxInInterfaceVersion = 0;
+            interface_version_t serverMinOutInterfaceVersion = 0;
+            interface_version_t serverMaxOutInterfaceVersion = 0;
+
+            RUN(processing::deserializeStatusErrorNotSupportedInOutInterfaceVersionBody(ctxOut
+                , serverMinInInterfaceVersion, serverMaxInInterfaceVersion, serverMinOutInterfaceVersion, serverMaxOutInterfaceVersion));
 
             interface_version_t compatInputInterfaceVersion
-                = traits::getBestSupportedInterfaceVersion<InputType>(
-                      statusStruct.inMinimumSupportedInterfaceVersion
-                    , statusStruct.inMaximumSupportedInterfaceVersion
-                    , minimumInputInterfaceVersion
-                    );
+                = traits::getBestSupportedInterfaceVersion<InputType>(serverMinInInterfaceVersion, serverMaxInInterfaceVersion, minimumInputInterfaceVersion);
 
             if (compatInputInterfaceVersion == traits::kInterfaceVersionUndefined)
                 return statusOut;
 
             interface_version_t compatOutputInterfaceVersion
-                = traits::getBestSupportedInterfaceVersion<OutputType>(
-                      statusStruct.outMinimumSupportedInterfaceVersion
-                    , statusStruct.outMaximumSupportedInterfaceVersion
-                    , minimumOutputInterfaceVersion
-                    );
+                = traits::getBestSupportedInterfaceVersion<OutputType>(serverMinOutInterfaceVersion, serverMaxOutInterfaceVersion, minimumOutputInterfaceVersion);
 
             if (compatOutputInterfaceVersion == traits::kInterfaceVersionUndefined)
                 return statusOut;

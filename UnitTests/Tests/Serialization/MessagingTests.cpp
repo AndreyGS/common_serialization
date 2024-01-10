@@ -41,6 +41,8 @@ TEST(MessagingTests, CommonTests)
 
     EXPECT_EQ(supportedProtocolVersionsReference.list, supportedProtocolVersions.list);
 
+    dataClient.resetLoopCount();
+
     // Test for unsupported protocol version reactions
     auto preOperationFilter0_1 = [](BinWalker& input) -> void
     {
@@ -63,20 +65,18 @@ TEST(MessagingTests, CommonTests)
         EXPECT_EQ(ctx.getProtocolVersion(), 1);
 
         Status statusOut = Status::kNoError;
-        csp::processing::deserializeStatusGetBody(ctx.getBinaryData(), statusOut);
+        csp::processing::deserializeStatusContext(ctx, statusOut);
         EXPECT_EQ(Status::kErrorNotSupportedProtocolVersion, statusOut);
 
-        csp::protocol_version_t protVersionsCount = 0;
-        ctx.getBinaryData().readArithmeticValue(protVersionsCount);
-        EXPECT_EQ(protVersionsCount, 1);
+        Vector<csp::protocol_version_t> cspVersions;
+        csp::processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctx, cspVersions);
 
-        csp::protocol_version_t protVersionOut = 0;
-        ctx.getBinaryData().readArithmeticValue(protVersionOut);
-        EXPECT_EQ(protVersionOut, 1);
+        EXPECT_EQ(cspVersions.size(), 1);
+        EXPECT_EQ(cspVersions[0], 1);
 
         // Overwritting received protocol version
         csp::protocol_version_t unsupportedProtocolVersion = 0;
-        output.seek(output.tell() - sizeof(protVersionOut));
+        output.seek(output.tell() - sizeof(unsupportedProtocolVersion));
         output.write(&unsupportedProtocolVersion, sizeof(unsupportedProtocolVersion));
         output.seek(0);
     };

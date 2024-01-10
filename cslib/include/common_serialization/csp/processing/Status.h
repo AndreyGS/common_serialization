@@ -23,41 +23,25 @@
 
 #pragma once
 
-#include "common_serialization/csp/messaging/StatusMessages.h"
 #include "common_serialization/csp/processing/Contexts.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusNoContext(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut) noexcept
+constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status statusOut) noexcept
 {
-    context::Common<S> ctx(output, protocolVersion, commonFlags, context::Message::kStatus);
     RUN(serializeCommonContext(ctx));
     RUN(serializeStatusContext(ctx, statusOut));
 
     return Status::kNoError;
 }
 
-template<ISerializationCapableContainer S, typename T>
-constexpr Status serializeStatus(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut, T& statusMessage) noexcept
+template<ISerializationCapableContainer S>
+constexpr Status serializeStatusFullContext(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut) noexcept
 {
     context::Common<S> ctx(output, protocolVersion, commonFlags, context::Message::kStatus);
-    RUN(serializeCommonContext(ctx));
-    RUN(serializeStatusContext(ctx, statusOut));
-    RUN(output.pushBackN(static_cast<uint8_t*>(static_cast<void*>(&statusMessage)), sizeof(T)));
-
-    return Status::kNoError;
-}
-
-// Not applicable for variable-sized structs
-template<IDeserializationCapableContainer D, typename T>
-constexpr Status deserializeStatusGetBody(D& input, T& value) noexcept
-{
-    typename D::size_type readSize = 0;
-    RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T), &readSize));
-    if (readSize != sizeof(T))
-        return Status::kErrorOverflow;
+    RUN(serializeStatusFullContext(ctx, statusOut));
 
     return Status::kNoError;
 }
@@ -65,34 +49,28 @@ constexpr Status deserializeStatusGetBody(D& input, T& value) noexcept
 template<ISerializationCapableContainer S>
 constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, context::CommonFlags commonFlags) noexcept
 {
-    messaging::StatusErrorNotSupportedProtocolVersion statusMessage;
-
     // For unsupported protocol version always using protocol version equal 1
     context::Common<S> ctx(output, 1, commonFlags, context::Message::kStatus);
-    RUN(serializeCommonContext(ctx));
-    RUN(serializeStatusContext(ctx, Status::kErrorNotSupportedProtocolVersion));
+    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedProtocolVersion));
 
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(traits::getProtocolVersionsCount()));
-    RUN(ctx.getBinaryData().pushBackN(traits::kProtocolVersions, traits::getProtocolVersionsCount()));
+    RUN(output.pushBackArithmeticValue(traits::getProtocolVersionsCount()));
+    RUN(output.pushBackN(traits::kProtocolVersions, traits::getProtocolVersionsCount()));
 
     return Status::kNoError;
 }
 
-template<ISerializationCapableContainer S>
-constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
-      interface_version_t minimumSupportedInterfaceVersion
-    , interface_version_t maximumSupportedInterfaceVersion
-    , protocol_version_t protocolVersion
-    , context::CommonFlags commonFlags
-    , S& output) noexcept
+template<IDeserializationCapableContainer D>
+constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::Common<D>& ctx, Vector<protocol_version_t>& value) noexcept
 {
-    messaging::StatusErrorNotSupportedInterfaceVersion statusMessage = {
-          .minimumSupportedInterfaceVersion = minimumSupportedInterfaceVersion
-        , .maximumSupportedInterfaceVersion = maximumSupportedInterfaceVersion
-    };
+    value.clear();
 
-    RUN(serializeStatus(output, protocolVersion, commonFlags, Status::kErrorNotSupportedInterfaceVersion, statusMessage));
+    protocol_version_t protocolVersionsSize = 0;
+    RUN(ctx.getBinaryData().readArithmeticValue(protocolVersionsSize));
 
+    RUN(value.reserve(protocolVersionsSize));
+    RUN(ctx.getBinaryData().read(value.data(), protocolVersionsSize));
+    value.setSize(protocolVersionsSize);
+    
     return Status::kNoError;
 }
 
@@ -104,14 +82,28 @@ constexpr Status serializeStatusErrorNotSupportedInOutInterfaceVersion(
     , context::CommonFlags commonFlags
     , S& output) noexcept
 {
-    messaging::StatusErrorNotSupportedInOutInterfaceVersion statusMessage = {
-          .inMinimumSupportedInterfaceVersion  = inMinimumSupportedInterfaceVersion
-        , .inMaximumSupportedInterfaceVersion  = inMaximumSupportedInterfaceVersion
-        , .outMinimumSupportedInterfaceVersion = outMinimumSupportedInterfaceVersion
-        , .outMaximumSupportedInterfaceVersion = outMaximumSupportedInterfaceVersion
-    };
+    context::Common<S> ctx(output, protocolVersion, commonFlags, context::Message::kStatus);
+    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInOutInterfaceVersion));
 
-    RUN(serializeStatus(output, protocolVersion, commonFlags, Status::kErrorNotSupportedInOutInterfaceVersion, statusMessage));
+    RUN(output.pushBackArithmeticValue(inMinimumSupportedInterfaceVersion));
+    RUN(output.pushBackArithmeticValue(inMaximumSupportedInterfaceVersion));
+    RUN(output.pushBackArithmeticValue(outMinimumSupportedInterfaceVersion));
+    RUN(output.pushBackArithmeticValue(outMaximumSupportedInterfaceVersion));
+
+    return Status::kNoError;
+}
+
+template<IDeserializationCapableContainer D>
+constexpr Status deserializeStatusErrorNotSupportedInOutInterfaceVersionBody(
+      context::Common<D>& ctx
+    , interface_version_t& inMinimumSupportedInterfaceVersion, interface_version_t& inMaximumSupportedInterfaceVersion
+    , interface_version_t& outMinimumSupportedInterfaceVersion,interface_version_t& outMaximumSupportedInterfaceVersion
+) noexcept
+{
+    RUN(ctx.getBinaryData().readArithmeticValue(inMinimumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().readArithmeticValue(inMaximumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().readArithmeticValue(outMinimumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().readArithmeticValue(outMaximumSupportedInterfaceVersion));
 
     return Status::kNoError;
 }

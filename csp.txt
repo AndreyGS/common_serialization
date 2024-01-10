@@ -1,3 +1,26 @@
+Copyright (c) 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
 Common Serialization Protocol (CSP)
 
 CSP is the protocol of serialization that provide fast serialization process, 
@@ -148,11 +171,31 @@ Fields description
 |  Size of CSP  |    1    | Size of field CSP versions.                        |
 |   versions    |         |                                                    |
 +---------------+---------+----------------------------------------------------+
-| CSP versions  | 1 - 255 | Depends on Size of CSP versions field value.       |
+| CSP versions  | 1 - 254 | Depends on Size of CSP versions field value.       |
 |               |         | Versions must be sorted in decreasing order, latest|
 |               |         | version is first.                                  |
 +---------------+---------+----------------------------------------------------+
 
 ErrorNotSupportedInOutInterfaceVersion sends when input struct or output struct
 versions are not supported on server.
+
+Format of ErrorNotSupportedInOutInterfaceVersion Body
+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|       Input struct minimum supported interface version        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|       Input struct maximum supported interface version        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|       Output struct minimum supported interface version       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|       Output struct maximum supported interface version       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Each field of ErrorNotSupportedInOutInterfaceVersion Body represents respective
+versions of coresponding structs. Details of what Interface versions are and
+how they handled in CSP will be discussed later.
+
+Full body size of ErrorNotSupportedInOutInterfaceVersion is 128 bits.
 
