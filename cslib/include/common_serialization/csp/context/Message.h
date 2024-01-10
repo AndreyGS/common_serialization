@@ -58,18 +58,6 @@ enum class Message : uint_fast32_t
     ///         uint8_t supportedProtocolsVersions[supportedProtocolsVersionsSize];
     ///     }
     ///     
-    ///     Status == kErrorNotSupportedInterfaceVersion
-    ///     
-    ///     sends when low supported version is bigger or
-    ///     high version is lesser than in serialized data
-    ///     
-    ///     message body format :
-    ///     
-    ///     {
-    ///         uint32_t minimumSupportedInterfaceVersion;
-    ///         uint32_t maximumSupportedInterfaceVersion;
-    ///     }
-    ///     
     ///     Status == kErrorNotSupportedInOutInterfaceVersion
     ///     
     ///     message body format :

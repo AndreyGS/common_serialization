@@ -70,8 +70,14 @@ Fields description
 |               |(in bits)|                                                    |
 +---------------+---------+----------------------------------------------------+
 |  CSP version  |    8    | Version of protocol using in Message creation and  |
-|               |         | client-server interactions. 
+|               |         | client-server interactions.                        |
+|               |         |                                                    |
 |               |         | Current version is 1 (still in development).       |
+|               |         | Possible values 1-254.                             |
+|               |         |                                                    |
+|               |         | Value 255 have special meaning - Protocol Version  |
+|               |         | Undefined.                                         |
+|               |         | Value 0 is not using.                              |
 +---------------+---------+----------------------------------------------------+
 | Common Flags  |   16    | Options that have meaning to Private part of any   |
 |               |         | Message.                                           |
