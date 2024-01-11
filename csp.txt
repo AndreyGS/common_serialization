@@ -1,103 +1,98 @@
-Copyright (c) 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
 Common Serialization Protocol (CSP)
 
-CSP is the protocol of serialization that provide fast serialization process, 
-with low memory consumption.
+  CSP is the protocol of serialization that provide fast serialization
+  process, with low memory consumption.  It supports versioning of
+  Interfaces, work in different compatibility modes (flexibility), and
+  versioning of protocol with backward compatibility (extensibility).
+  Also CSP provide client-server data exchange mechanism.
 
-Terminology
+  Central role in CSP is occupied by CSP Message.  It is the data that
+  is packed by CSP handling.
 
-Data that comes from serialization process is called Message.
+  CSP Messaging process is the client-server interaction in CSP model.
+  In case of simple saving/restoring data from storage medium there is
+  no need in Messaging, but still data is packed in Message format.
 
-Messaging process is client-server interaction in CSP model.
 
-Message has two main parts: Common and Private. Private part consist of Header 
-and Body, both are optional.
+Message Format
 
-Context parts are Common part and Private Header. So we have Common Context and 
-Private Context. Note that almost everywhere we strive not to using Header 
-keyword because in this way it may be confused with Common part.
-
-Private part is usally named by Message Type. So instead of saying Private 
-Context or Private Body of Data Message we saying Data Context or Data Body.
-
-Full format of the message
+  Message has three main parts: Common Context, Private Context and
+  Private Body.  Private parts are usually named by Message Type.
+  So instead of saying Private Context or Private Body of Data Message
+  we are saying Data Context or Data Body.
+  
+  CSP Message Format
        
-| 64 bits long  |Variable length|Variable length|
-+---------------+---------------+---------------+
-|               |         Private Part          |
-|  Common part  |                               |
-|               |Private Context| Private body  |
-|               |  (optional)   |  (optional)   |
-+---------------+---------------+---------------+
+           |  64 bits long |Variable length|Variable length|
+           +---------------+---------------+---------------+
+           | Common Context|Private Context|  Private Body |
+           |               |   (optional)  |   (optional)  |
+           +---------------+---------------+---------------+
+           
+                                Figure 1
+           
+  Availibility of Private Context and Private Body, and also their
+  formats, depends on Message Type.
 
-Common part
 
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  CSP version  |    Reserved   |         Common Flags          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                         Message Type                          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Common Context Format
 
-Common part is always presented in little-endian format.
+  Start of any Message include Common Context part.  It has fixed length
+  of 64 bits. Fields included here affect on all Private Parts of the
+  Message.
+  
+  CSP Common Context Format
 
-Fields description
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  CSP version  |    Reserved   |          Common Flags         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          Message Type                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-|  Field Name   |   Size  |                     Description                    |
-|               |(in bits)|                                                    |
-+---------------+---------+----------------------------------------------------+
-|  CSP version  |    8    | Version of protocol using in Message creation and  |
-|               |         | client-server interactions.                        |
-|               |         |                                                    |
-|               |         | Current version is 1 (still in development).       |
-|               |         | Possible values 1-254.                             |
-|               |         |                                                    |
-|               |         | Value 255 have special meaning - Protocol Version  |
-|               |         | Undefined.                                         |
-|               |         | Value 0 is not using.                              |
-+---------------+---------+----------------------------------------------------+
-| Common Flags  |   16    | Options that have meaning to Private part of any   |
-|               |         | Message.                                           |
-|               |         |                                                    |
-|               |         | Bit 0: using big endian format.                    |
-|               |         | Bit 1: set if there is possibility of endian       |
-|               |         |     difference.                                    |
-|               |         | Bits 2-15: unused (reserved)                       |
-+---------------+---------+----------------------------------------------------+
-| Message Type  |   32    | Type of Message                                    |
-|               |         |                                                    |
-|               |         | 0x0: Status                                        |
-|               |         | 0x1: Data                                          |
-|               |         | 0x2: InOutData                                     |
-|               |         | 0x3: CommonCapabilitiesRequest                     |
-+---------------+---------+----------------------------------------------------+
+                                Figure 2
+                                
+  All fields of CSP Common Context are always presented in little-endian
+  format.
+  
+  CSP version: 8 bits
+  
+    Version of protocol using in Message creation and client-server
+    interactions.  
+    
+    Current version is 1 (still in development).
+    Possible values 1-254.
+    
+    Value 255 have special meaning - Protocol Version Undefined.
+    Value 0 is not using.
+    
+  Reserved: 8 bits
+  
+    Reserved for future use.  Must be zero.
+    
+  Common Flags: 16 bits
+  
+    Options that have common meaning to Private parts of Message.
+    
+    Bit 0: using big endian format.
+    Bit 1: there is possibility of endian difference.
+    Bits 2-15: unused (reserved, must be zero).
+ 
+  Message Type: 32 bits
+  
+    Type of Message.
+    
+    0x0: Status
+    0x1: Data
+    0x2: InOutData
+    0x3: CommonCapabilitiesRequest
 
-Private part
 
-Private part structure depends of Message Type.
+
+Private parts
+
+  Private part structure depends of Message Type.
 
 Status Message
 
@@ -119,7 +114,7 @@ Fields description
 |  Field Name   |   Size  |                     Description                    |
 |               |(in bits)|                                                    |
 +---------------+---------+----------------------------------------------------+
-|    Status     |   32    | Status of operation on server in Messaging process | 
+|    Status     |   32    | Status of operation on server in Messaging process |
 |               |         | when applicable.                                   |
 |               |         |                                                    |
 |               |         |    0: NoError                                      |
@@ -205,3 +200,27 @@ how they handled in CSP will be discussed later.
 
 Full body size of ErrorNotSupportedInOutInterfaceVersion is 128 bits.
 
+
+
+Copyright (c) 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.

@@ -29,11 +29,11 @@ namespace common_serialization::csp::context
 /// @brief Flags that are using in Data type of message in CSP
 struct CommonFlags
 {
-    /// @brief Private part of message has big-endian format
+    /// @brief Private parts of message has big-endian format
     /// @remark Currently not implemented
     uint16_t bigEndianFormat                        : 1 = 0;
 
-    /// @brief Private part of message aware of endianess difference
+    /// @brief Private parts of message aware of endianess difference
     /// @remark Currently not implemented
     uint16_t possibleEndianDifference               : 1 = 0;
 
