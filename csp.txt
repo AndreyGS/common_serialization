@@ -12,7 +12,13 @@ Common Serialization Protocol (CSP)
   CSP Messaging process is the client-server interaction in CSP model.
   In case of simple saving/restoring data from storage medium there is
   no need in Messaging, but still data is packed in Message format.
+  
+  Any program, no matter if it is driver or demon, or user app, which is
+  interact with CSP implementation, is called User Application.
 
+  Instead of use serialization/deserialization process sentense here we
+  will use Serialization keyword for brevity.
+  
 
 Message Format
 
@@ -23,11 +29,11 @@ Message Format
   
   CSP Message Format
        
-           |  64 bits long |Variable length|Variable length|
-           +---------------+---------------+---------------+
-           | Common Context|Private Context|  Private Body |
-           |               |   (optional)  |   (optional)  |
-           +---------------+---------------+---------------+
+            |  64 bits long |Variable length|Variable length|
+            +---------------+---------------+---------------+
+            | Common Context|Private Context|  Private Body |
+            |               |   (optional)  |   (optional)  |
+            +---------------+---------------+---------------+
            
                                 Figure 1
            
@@ -43,13 +49,13 @@ Common Context Format
   
   CSP Common Context Format
 
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  CSP version  |    Reserved   |          Common Flags         |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          Message Type                         |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |  CSP version  |    Reserved   |          Common Flags         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                          Message Type                         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
                                 Figure 2
                                 
@@ -75,7 +81,7 @@ Common Context Format
   
     Options that have common meaning to Private parts of Message.
     
-    Bit 0: using big endian format.
+    Bit 0: using big endian format (default endianess is little-endian.
     Bit 1: there is possibility of endian difference.
     Bits 2-15: unused (reserved, must be zero).
  
@@ -89,117 +95,196 @@ Common Context Format
     0x3: CommonCapabilitiesRequest
 
 
-
 Private parts
 
-  Private part structure depends of Message Type.
+  Private parts structure depends on Message Type.
 
 Status Message
 
-Format of Status Message Private part
+  Status Messages are sends in Messaging process, in several cases.
+  That will be discused in Messaging section.
+  
+  Status Context
 
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                            Status                             |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-\                             Body                              \
-\                          (optional)                           \
-|                                                               |                     
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  CSP Status Context Format
 
-Fields description
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                            Status                             |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-|  Field Name   |   Size  |                     Description                    |
-|               |(in bits)|                                                    |
-+---------------+---------+----------------------------------------------------+
-|    Status     |   32    | Status of operation on server in Messaging process |
-|               |         | when applicable.                                   |
-|               |         |                                                    |
-|               |         |    0: NoError                                      |
-|               |         |                                                    |
-|               |         |    1: NoFurtherProcessingRequired                  |
-|               |         |                                                    |
-|               |         |   -1: ErrorNoMemory                                |
-|               |         |   -2: ErrorOverflow                                |
-|               |         |   -3: ErrorInvalidArgument                         |
-|               |         |   -4: ErrorNotSupportedProtocolVersion             |
-|               |         |   -5: ErrorNotSupportedInterfaceVersion            |
-|               |         |   -6: ErrorInvalidHash                             |
-|               |         |   -7: ErrorMismatchOfProtocolVersions              |
-|               |         |   -8: ErrorMismatchOfInterfaceVersions             |
-|               |         |   -9: ErrorMismatchOfStructId                      |
-|               |         |  -10: ErrorNoSuchHandler                           |
-|               |         |  -11: ErrorInternal                                |
-|               |         |-12: ErrorNotSupportedSerializationSettingsForStruct|
-|               |         |  -13: ErrorInvalidType                             |
-|               |         |  -14: ErrorDataCorrupted                           |
-|               |         |  -15: ErrorNotCompatibleFlagsSettings              |
-|               |         |  -16: ErrorMoreEntires                             |
-|               |         |  -17: ErrorNotSupportedInOutInterfaceVersion       |
-|               |         |                                                    |
-|               |         | Status with positive values are Informational,     |
-|               |         | with negative are errors.                          |
-+---------------+---------+----------------------------------------------------+
-|     Body      |Variable | Depends on status field value.                     |
-+---------------+---------+----------------------------------------------------+
+                                Figure 3
 
-Only the few Status values require Body field.
-
-ErrorNotSupportedProtocolVersion sends when CSP protocol version is not 
-supported on server.
+  Status: 32 bits
+  
+    Status of operation.  Status with positive values are Informational,
+    with negative are errors.
     
-Format of ErrorNotSupportedProtocolVersion Body
+    Note that status codes may and should be used not only in Messages,
+    but as result of internal procedures that participate in all
+    CSP procesing, for transparency.  In the following list desctiptions
+    of codes will be provided mostly for directly related to CSP
+    routines.
 
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Size of CSP  |                CSP versions                   |
-|   versions    |                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-\                         CSP versions                          \
-\                                                               \
-|                                                               |                     
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    0: NoError; operation is successed
 
-Fields description
+    1: NoFurtherProcessingRequired; if operation is not the latest in
+      some operation sequence, subsequent operations must be skipped.
 
-|  Field Name   |Size (in |                     Description                    |
-|               | octets) |                                                    |
-+---------------+---------+----------------------------------------------------+
-|  Size of CSP  |    1    | Size of field CSP versions.                        |
-|   versions    |         |                                                    |
-+---------------+---------+----------------------------------------------------+
-| CSP versions  | 1 - 254 | Depends on Size of CSP versions field value.       |
-|               |         | Versions must be sorted in decreasing order, latest|
-|               |         | version is first.                                  |
-+---------------+---------+----------------------------------------------------+
+    -1: ErrorNoMemory; there was not enough memory to complete the
+      operation.
 
-ErrorNotSupportedInOutInterfaceVersion sends when input struct or output struct
-versions are not supported on server.
+    -2: ErrorOverflow; general meaning in CSP - there was mismatch in
+      deserialization process in size of deserialized data with expected
+      one.
 
-Format of ErrorNotSupportedInOutInterfaceVersion Body
+    -3: ErrorInvalidArgument; lights inconsistence of input arguments in
+      CSP procedures.  For instance, if there is recursive pointers flag
+      was set and no pointers map container is supplied to serialization
+      procedure an error will be detected.  Such error most likely tell
+      about design of User Application issue.
 
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Input struct minimum supported interface version        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Input struct maximum supported interface version        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Output struct minimum supported interface version       |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Output struct maximum supported interface version       |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    -4: ErrorNotSupportedProtocolVersion; protocol version that need to
+      use in Serialization is not supported by this instance.
 
-Each field of ErrorNotSupportedInOutInterfaceVersion Body represents respective
-versions of coresponding structs. Details of what Interface versions are and
-how they handled in CSP will be discussed later.
+    -5: ErrorNotSupportedInterfaceVersion; interface version that need to
+      use in Serialization is not supported by this instance.
 
-Full body size of ErrorNotSupportedInOutInterfaceVersion is 128 bits.
+    -6: ErrorInvalidHash.
 
+    -7: ErrorMismatchOfProtocolVersions.
+
+    -8: ErrorMismatchOfInterfaceVersions.
+
+    -9: ErrorMismatchOfStructId; struct id that is deserialized not
+      correspond to that which is expect.
+
+    -10: ErrorNoSuchHandler; there is no procedure or server that can
+      nandle the request.
+
+    -11: ErrorInternal; in general any internal error that indicate of
+      CSP implementation design isuue.  But it is also may be result
+      of not properly configured Serialization related procedures for
+      User Application specific structs.
+
+    -12: ErrorNotSupportedSerializationSettingsForStruct; internal error
+      which indicate that some of settings are not suitable for current
+      struct.  Normally it may be used for implementing some logic and
+      it should not go as return value to User Application.
+
+    -13: ErrorInvalidType; there is inconsistence of struct and actions
+      that intend to apply to it. May witness of internal errors, but
+      mostly it is not properly configured Serialization related
+      procedures for User Application specific structs.
+
+    -14: ErrorDataCorrupted; returns when there is possibility of data
+      corruption in Serialization.  But there is also can be internal
+      error in CSP implementation which was lead to this condition.
+      
+    -15: ErrorNotCompatibleFlagsSettings; if some of the Contexts flags
+      have mutual contradictory status.
+
+    -16: ErrorMoreEntires; implementation specific status, currently may
+      be using only in CSP internal procedures.
+      
+    -17: ErrorNotSupportedInOutInterfaceVersion; using in Messaging,
+      when server cannot process InOutData Message because if either
+      input or output struct have incompatible versions.
+      
+  Status Body
+  
+  Length and format depends on status Field.  Only the few Status values
+  require Body field.
+
+  ErrorNotSupportedProtocolVersion:
+
+    CSP ErrorNotSupportedProtocolVersion Status Body Format
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |  Size of CSP  |                  CSP versions                 |
+    |    versions   |                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    \                          CSP versions                         \
+    \                                                               \
+    |                                                               |                     
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   
+                                Figure 4
+
+    Size of CSP versions: 1 octet
+      
+      Size of field CSP versions.
+        
+    CSP versions: 1-254 octet
+      
+      Versions must be sorted in decreasing order, latest version is
+      first.
+
+  ErrorNotSupportedInOutInterfaceVersion:
+
+    CSP ErrorNotSupportedInOutInterfaceVersion Status Body Format
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |        Input struct minimum supported interface version       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |        Input struct maximum supported interface version       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |       Output struct minimum supported interface version       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |       Output struct maximum supported interface version       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   
+                                Figure 5
+
+    Full body size of ErrorNotSupportedInOutInterfaceVersion is 128
+      bits.
+      
+      
+    Each field of ErrorNotSupportedInOutInterfaceVersion Body represents
+    respective versions of coresponding structs.  Details of what
+    Interface versions are and how they handled in CSP will be discussed
+    later.
+
+  Other statuses:
+    
+    Does not have Status Body part.
+
+
+Data Message
+
+  Data Messages are the central part of CSP protocol.  This messages
+  include endpoint data that should be serialized and vice versa.
+  
+  Data Message Context
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    +                                                               +
+    |                                                               |
+    +                           Struct ID                           +
+    |                                                               |
+    +                                                               +
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                           Data flags                          |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                       Interface version                       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                                Figure 6
+
+  Struct ID: 128 bits
+  
+    It represents UUIDv4 of the stuct that take part in Serialization.
+    Always have big-endian format.
 
 
 Copyright (c) 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
