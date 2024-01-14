@@ -31,7 +31,7 @@ namespace common_serialization
 /// @brief Struct for holding UUIDv4
 struct Uuid
 {
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     uint64_t leftPart{ 0 };
     uint64_t rightPart{ 0 };

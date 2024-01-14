@@ -113,12 +113,12 @@ using normalize_t = std::remove_const_t<std::remove_reference_t<T>>;
 
 // can be copied with memcpy (if alignments are the same and arithmetic types in are fixed length)
 template<typename T>
-concept SimpleAssignableType
-    =  requires(T t) { typename normalize_t<T>::simple_assignable_tag; };
+concept SimplyAssignableType
+    =  requires(T t) { typename normalize_t<T>::simply_assignable_tag; };
 
 // can be copied with memcpy (if all arithmetic types in are fixed length)
 template<typename T>
-concept SimpleAssignableAlignedToOneType = SimpleAssignableType<T> && alignof(T) == 1;
+concept SimplyAssignableAlignedToOneType = SimplyAssignableType<T> && alignof(T) == 1;
 
 template<typename T>
 concept EmptyType 

@@ -29,8 +29,8 @@
 #define SERIALIZE_NO_CONVERSION_COMMON(value, ctx)                                      \
 {                                                                                       \
     if constexpr (                                                                      \
-           SimpleAssignableType<decltype(value)>                                        \
-        || SimpleAssignableAlignedToOneType<decltype(value)>)                           \
+           SimplyAssignableType<decltype(value)>                                        \
+        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
     {                                                                                   \
         Status status = serializeDataSimpleAssignable((value), (ctx));                  \
         if (status == Status::kNoFurtherProcessingRequired)                             \
@@ -49,8 +49,8 @@
 #define DESERIALIZE_NO_CONVERSION_COMMON(ctx, value)                                    \
 {                                                                                       \
     if constexpr (                                                                      \
-           SimpleAssignableType<decltype(value)>                                        \
-        || SimpleAssignableAlignedToOneType<decltype(value)>)                           \
+           SimplyAssignableType<decltype(value)>                                        \
+        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
     {                                                                                   \
         Status status = deserializeDataSimpleAssignable((ctx), (value));                \
         if (status == Status::kNoFurtherProcessingRequired)                             \

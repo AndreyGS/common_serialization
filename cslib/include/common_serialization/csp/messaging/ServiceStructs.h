@@ -67,7 +67,7 @@ struct GetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<GetInt
 {
 public:
     using instance_type = GetCrtpMainType<GetInterfaceProperties<T>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr Id kId = helpers::getUuid(0x08c68657, 0x4fa7, 0x4419, 0x8c13, 0x66aec2b06cb0);
     static constexpr interface_version_t kInterfaceVersion = 0;
@@ -83,7 +83,7 @@ struct OutGetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<Out
 {
 public:
     using instance_type = GetCrtpMainType<OutGetInterfaceProperties<T>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr Id kId = helpers::getUuid(0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1);
     static constexpr interface_version_t kInterfaceVersion = 0;

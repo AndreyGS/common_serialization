@@ -37,7 +37,7 @@ struct EmptyType
 
 struct SimpleAssignableAlignedToOne
 {
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     uint16_t a{ 0 };
     uint8_t s{ 0 };
@@ -52,7 +52,7 @@ struct SimpleAssignableAlignedToOne
 
 struct SimpleAssignable
 {
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     uint16_t q{ 0 };
     uint64_t w{ 0 };
@@ -120,7 +120,7 @@ struct DiamondEdge2 : virtual public DiamondBase
 
 struct TwoInts
 {
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     uint8_t x{ 0 };
     uint16_t y{ 0 };

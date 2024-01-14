@@ -51,13 +51,13 @@ protected:
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static constexpr Status serializeDataSimpleAssignable(const T& value, context::SData<S, PM>& ctx);
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-        requires SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>
+        requires SimplyAssignableType<T> || SimplyAssignableAlignedToOneType<T>
     static constexpr Status serializeDataSimpleAssignable(const T& value, context::SData<S, PM>& ctx);
 
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value);
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-        requires SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>
+        requires SimplyAssignableType<T> || SimplyAssignableAlignedToOneType<T>
     static constexpr Status deserializeDataSimpleAssignable(context::DData<D, PM>&ctx, T & value);
 
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
@@ -103,7 +103,7 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
             std::is_arithmetic_v<T>
         || std::is_enum_v<T>
         || !dataFlags.sizeOfArithmeticTypesMayBeNotEqual && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
-            && (SimpleAssignableAlignedToOneType<T> || SimpleAssignableType<T> && !dataFlags.alignmentMayBeNotEqual)
+            && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !dataFlags.alignmentMayBeNotEqual)
         )
     {
         const typename S::size_type bytesSize = sizeof(T) * n;
@@ -192,7 +192,7 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
 
         RUN(serializeData(*value, ctx));
     }
-    else if constexpr (SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>)
+    else if constexpr (SimplyAssignableType<T> || SimplyAssignableAlignedToOneType<T>)
         RUN(serializeDataSimpleAssignable(value, ctx))
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::serializeData not found
     else if constexpr (!EmptyType<T>)
@@ -221,7 +221,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
             std::is_arithmetic_v<T>
         || std::is_enum_v<T>
         || !dataFlags.sizeOfArithmeticTypesMayBeNotEqual && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
-            && (SimpleAssignableAlignedToOneType<T> || SimpleAssignableType<T> && !dataFlags.alignmentMayBeNotEqual)
+            && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !dataFlags.alignmentMayBeNotEqual)
         )
     {
         const typename D::size_type bytesSize = sizeof(T) * n;
@@ -343,7 +343,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         RUN(deserializeData(ctx, *value));
     }
     // this will work for types that are not ISerializable
-    else if constexpr (SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>)
+    else if constexpr (SimplyAssignableType<T> || SimplyAssignableAlignedToOneType<T>)
         RUN(deserializeDataSimpleAssignable(ctx, value))
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::deserializeData not found
     else if constexpr (!EmptyType<T>)
@@ -378,7 +378,7 @@ static constexpr Status DataProcessor::serializeDataSimpleAssignable(const T& va
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    requires SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>
+    requires SimplyAssignableType<T> || SimplyAssignableAlignedToOneType<T>
 static constexpr Status DataProcessor::serializeDataSimpleAssignable(const T& value, context::SData<S, PM>&ctx)
 {
     if constexpr (IsISerializableBased<T>)
@@ -388,7 +388,7 @@ static constexpr Status DataProcessor::serializeDataSimpleAssignable(const T& va
     if (
         context::DataFlags dataFlags = ctx.getDataFlags();
         !dataFlags.sizeOfArithmeticTypesMayBeNotEqual
-        && (SimpleAssignableAlignedToOneType<T> || SimpleAssignableType<T> && !dataFlags.alignmentMayBeNotEqual)
+        && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !dataFlags.alignmentMayBeNotEqual)
     )
     {
         // for simple assignable types it is preferable to get a whole struct at a time
@@ -407,7 +407,7 @@ constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    requires SimpleAssignableType<T> || SimpleAssignableAlignedToOneType<T>
+    requires SimplyAssignableType<T> || SimplyAssignableAlignedToOneType<T>
 constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value)
 {
     if constexpr (IsISerializableBased<T>)
@@ -417,7 +417,7 @@ constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D
     if (
         context::DataFlags dataFlags = ctx.getDataFlags();
         !dataFlags.sizeOfArithmeticTypesMayBeNotEqual
-        && (SimpleAssignableAlignedToOneType<T> || SimpleAssignableType<T> && !dataFlags.alignmentMayBeNotEqual)
+        && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !dataFlags.alignmentMayBeNotEqual)
     )
     {
         typename D::size_type readSize = 0;

@@ -284,7 +284,21 @@ Data Message
   Struct ID: 128 bits
   
     It represents UUIDv4 of the stuct that take part in Serialization.
-    Always have big-endian format.
+    Always have big-endian format regardless of Common Flags.
+    
+  Data flags: 32 bits
+
+    Options that will influence on Data Body processing.
+    
+    Bit 0: alignment may be not equal.
+      
+      Alignment of structs that take a part in Data Body in modules that
+      serialize and deserialize Message, may be not equal.
+      
+      If this flag is not set some optimizations of Serialization can be
+      made. In particular instead of process some struct field-by-field
+      one can use plain memory copy of entire object, of course this
+      struct must be simply assignable (not using pointers etc).
 
 
 Copyright (c) 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>

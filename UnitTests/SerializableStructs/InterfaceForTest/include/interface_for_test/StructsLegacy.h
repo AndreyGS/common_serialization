@@ -33,7 +33,7 @@ class SimpleAssignableAlignedToOne_Version0 : public cs::csp::ISerializable<cs::
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne_Version0<T>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = SimpleAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
@@ -69,7 +69,7 @@ class SimpleAssignable_Version0 : public cs::csp::ISerializable<cs::GetCrtpMainT
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignable_Version0<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = SimpleAssignable<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;         // latest version among all dependable structs
@@ -214,7 +214,7 @@ template<typename T = cs::Dummy>
 struct SimpleAssignableDescendant_Version0 : public SimpleAssignable_Version0<cs::GetCrtpMainType<SimpleAssignableDescendant_Version0<>, T>>
 {
     using instance_type = cs::GetCrtpMainType<SimpleAssignableDescendant_Version0<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = SimpleAssignableDescendant<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
@@ -328,7 +328,7 @@ class SimpleAssignableAlignedToOne_Version1 : public cs::csp::ISerializable<cs::
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne_Version1<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = SimpleAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs

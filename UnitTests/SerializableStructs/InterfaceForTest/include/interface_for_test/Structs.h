@@ -50,7 +50,7 @@ class SimpleAssignableAlignedToOne : public cs::csp::ISerializable<cs::GetCrtpMa
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xf2d69dcd, 0x4e24, 0x4c65, 0x9f76, 0xd517be1daccd);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;
@@ -92,7 +92,7 @@ class SimpleAssignable : public cs::csp::ISerializable<cs::GetCrtpMainType<Simpl
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignable<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x81582aae, 0x4a33, 0x4181, 0x8dda, 0xed092c23bccc);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;         // latest version among all dependable structs
@@ -188,7 +188,7 @@ template<typename T = cs::Dummy>
 struct SimpleAssignableDescendant : public SimpleAssignable<cs::GetCrtpMainType<SimpleAssignableDescendant<>, T>>
 {
     using instance_type = cs::GetCrtpMainType<SimpleAssignableDescendant<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x81d67474, 0xce11, 0x465e, 0x8558, 0xe10e84939b84);
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;
@@ -354,7 +354,7 @@ class SimpleAssignableAlignedToOneSimilarType1 : public cs::csp::ISerializable<c
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373); // id is same as in SimpleAssignableAlignedToOneSimilarType2 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
@@ -378,7 +378,7 @@ class SimpleAssignableAlignedToOneSimilarType2 : public cs::csp::ISerializable<c
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373); // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
@@ -422,7 +422,7 @@ class SimpleAssignableSimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMa
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignableSimilarType1<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583); // id is same as in SimpleAssignableSimilarType2 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
@@ -446,7 +446,7 @@ class SimpleAssignableSimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMa
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleAssignableSimilarType2<>, T>;
-    using simple_assignable_tag = std::true_type;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583); // id is same as in SimpleAssignableSimilarType1 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
