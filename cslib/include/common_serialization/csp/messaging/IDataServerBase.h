@@ -51,17 +51,17 @@ public:
     /// @param ctxCommon Deserialized from input common context
     /// @param binOutput Binary data output
     /// @return Status of operation
-    static Status handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput);
+    static Status handleDataCommon(context::Common<BinWalker>& ctxCommon, const BinVector& clientId, BinVector& binOutput);
 
 protected:
     constexpr IDataServerBase() { }
     constexpr ~IDataServerBase() { }
 
 private:
-    virtual Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) = 0;
+    virtual Status handleDataConcrete(context::DInOutData<>& ctx, const BinVector& clientId, BinVector& binOutput) = 0;
 };
 
-inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, BinVector& binOutput)
+inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, const BinVector& clientId, BinVector& binOutput)
 {
     context::DInOutData<> ctx(ctxCommon);
     Id id;
@@ -83,7 +83,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
 
     if (Status status = GetDataServersKeeper().findServer(id, pServer); statusSuccess(status))
     {
-        status = pServer->handleDataConcrete(ctx, binOutput);
+        status = pServer->handleDataConcrete(ctx, clientId, binOutput);
     }
     // If we have more than one DataServer
     else if (status == Status::kErrorMoreEntires)
@@ -93,8 +93,15 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
 
         status = Status::kNoError;
 
+        typename BinWalker::size_type bodyPosition = ctx.getBinaryData().tell();
+
         for (auto pServer : servers)
-            SET_NEW_ERROR(pServer->handleDataConcrete(ctx, binOutput));
+        {
+            context::DInOutData<> ctxTemp(ctx);
+            SET_NEW_ERROR(pServer->handleDataConcrete(ctxTemp, clientId, binOutput));
+
+            ctx.getBinaryData().seek(bodyPosition);
+        }
     }
 
     return status;

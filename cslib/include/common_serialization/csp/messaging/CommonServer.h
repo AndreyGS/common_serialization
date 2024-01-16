@@ -38,7 +38,7 @@ public:
     /// @param binInput Binary data received from client
     /// @param binOutput Binary data that should be send back to client
     /// @return Status of operation
-    static Status handleMessage(BinWalker& binInput, BinVector& binOutput);
+    static Status handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput);
 
     static constexpr context::CommonFlags kOutMandatoryCommonFlags{ helpers::isModuleIsBigEndian() };
 
@@ -46,7 +46,7 @@ private:
     static Status handleCommonCapabilitiesRequest(context::Common<BinWalker>& ctx, BinVector& binOutput);
 };
 
-inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOutput)
+inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput)
 {
     context::Common<BinWalker> ctx(binInput);
 
@@ -64,7 +64,7 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, BinVector& binOut
     Status status{ Status::kNoError };
 
     if (ctx.getMessageType() == context::Message::kInOutData)
-        status = IDataServerBase::handleDataCommon(ctx, binOutput);
+        status = IDataServerBase::handleDataCommon(ctx, clientId, binOutput);
     else if (ctx.getMessageType() == context::Message::kCommonCapabilitiesRequest)
         status = handleCommonCapabilitiesRequest(ctx, binOutput);
     else

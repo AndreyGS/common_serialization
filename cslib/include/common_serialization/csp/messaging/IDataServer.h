@@ -60,7 +60,7 @@ protected:
     ~IDataServer();
 
 private:
-    Status handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput) override;
+    Status handleDataConcrete(context::DInOutData<>& ctx, const BinVector& clientId, BinVector& binOutput) override;
 
     /// @brief This method must be overriden in concrete class.
     /// @details It receives deserialized input data and returns output data
@@ -89,12 +89,15 @@ template<typename InstanceType, typename InputType, typename OutputType
 >
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status IDataServer<InstanceType, InputType, OutputType, forTempUseHeap, multicast
-    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataConcrete(context::DInOutData<>& ctx, BinVector& binOutput)
+    , minimumInputInterfaceVersion, minimumOutputInterfaceVersion>::handleDataConcrete(context::DInOutData<>& ctx, const BinVector& clientId, BinVector& binOutput)
 {
     Id id = InputType::getId();
 
     Status status = processing::deserializeInOutDataContextPostprocess<InputType, OutputType>(
         ctx, id, minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
+
+    //if (statusSuccess(status))
+        //status = CheckPoliciesCompliance<InputType, OutputType>(ctx, clientId);
 
     if (!statusSuccess(status))
     {

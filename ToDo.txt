@@ -18,3 +18,4 @@
 18. Add crc32 of serialization flag support.
 19. Add empty() method to Vector and Walker.
 20. Add unit-tests on AllocatorHelpers, especially for constructN and allocateAndConstruct.
+21. Add IDataServer::CheckPoliciesCompliance function realization.

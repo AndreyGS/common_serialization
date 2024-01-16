@@ -166,29 +166,8 @@ constexpr uint16_t reverseEndianessUint16(uint16_t input)
 /// @return Uuid
 constexpr Uuid getUuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth)
 {
-    Uuid id;
-
-#ifndef BIG_ENDIAN
-    id.leftPart
-        = static_cast<uint64_t>(reverseEndianessUint32(first))
-        | static_cast<uint64_t>(reverseEndianessUint16(second)) << 32 
-        | static_cast<uint64_t>(reverseEndianessUint16(third)) << 48;
-
-    id.rightPart
-        = static_cast<uint64_t>(reverseEndianessUint16(fourth))
-        | static_cast<uint64_t>(reverseEndianessUint64(fifth)) << 16;
-#else
-    id.leftPart
-        = static_cast<uint64_t>(first) << 32
-        | static_cast<uint64_t>(second) << 16 
-        | static_cast<uint64_t>(third);
-
-    id.rightPart
-        = static_cast<uint64_t>(fourth) << 48
-        | static_cast<uint64_t>(fifth);
-#endif // !BIG_ENDIAN
-
-    return id;
+    return Uuid { static_cast<uint64_t>(first) << 32  | static_cast<uint64_t>(second) << 16 | static_cast<uint64_t>(third),
+                  static_cast<uint64_t>(fourth) << 48 | static_cast<uint64_t>(fifth) };
 }
 
 } // namespace helpers

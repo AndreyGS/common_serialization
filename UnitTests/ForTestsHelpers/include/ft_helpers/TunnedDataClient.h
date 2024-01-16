@@ -79,7 +79,7 @@ private:
         if (m_preOperation[m_operationsLoopIndex])
             m_preOperation[m_operationsLoopIndex](input);
         
-        if (cs::Status status = cs::csp::messaging::CommonServer::handleMessage(input, binOutput.getVector()); !statusSuccess(status))
+        if (cs::Status status = cs::csp::messaging::CommonServer::handleMessage(input, cs::BinVector{}, binOutput.getVector()); !statusSuccess(status))
             return status;
 
         if (m_postOperation[m_operationsLoopIndex])

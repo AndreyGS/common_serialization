@@ -47,7 +47,7 @@ private:
     {
         cs::BinWalker input;
         input.init(std::move(binInput));
-        return cs::csp::messaging::CommonServer::handleMessage(input, binOutput.getVector());
+        return cs::csp::messaging::CommonServer::handleMessage(input, cs::BinVector{}, binOutput.getVector());
     }
 };
 

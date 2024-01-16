@@ -284,7 +284,6 @@ Data Message
   Struct ID: 128 bits
   
     It represents UUIDv4 of the stuct that take part in Serialization.
-    Always have big-endian format regardless of Common Flags.
     
   Data flags: 32 bits
 
@@ -299,6 +298,13 @@ Data Message
       made. In particular instead of process some struct field-by-field
       one can use plain memory copy of entire object, of course this
       struct must be simply assignable (not using pointers etc).
+      
+    Bit 1: size of arithmetic types may be not equal.
+    
+      Indicated that there is possibility of that the compilers that
+      built modules that take a part in Serialization may interpret with
+      different size any of the arithmetic (fundamental) fields from
+      which consists data struct.
 
 
 Copyright (c) 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>

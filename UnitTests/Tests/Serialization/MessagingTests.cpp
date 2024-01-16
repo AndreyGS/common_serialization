@@ -222,8 +222,7 @@ TEST(MessagingTests, Temp)
     csp::processing::DataProcessor::serializeData(testInput, ctxIn);
 
     BinVector binOut;
-    csp::messaging::CommonServer::handleMessage(bin, binOut);
-
+    csp::messaging::CommonServer::handleMessage(bin, cs::BinVector{}, binOut);
 
     SimpleAssignableDescendant testOutput;
 
