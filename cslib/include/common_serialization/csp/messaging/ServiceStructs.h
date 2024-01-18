@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -63,10 +63,10 @@ public:
 /// @brief Struct for request of interface properties with specific Id
 /// @tparam T Derived class
 template<typename T = Dummy>
-struct GetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<GetInterfaceProperties<T>, T>>
+struct GetInterface : public csp::ISerializable<GetCrtpMainType<GetInterface<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<GetInterfaceProperties<T>, T>;
+    using instance_type = GetCrtpMainType<GetInterface<T>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr Id kId = helpers::getUuid(0x08c68657, 0x4fa7, 0x4419, 0x8c13, 0x66aec2b06cb0);
@@ -76,20 +76,20 @@ public:
     Id id;
 };
 
-/// @brief Struct for response on GetInterfaceProperties
+/// @brief Struct for response on GetInterface
 /// @tparam T Derived class
 template<typename T = Dummy>
-struct OutGetInterfaceProperties : public csp::ISerializable<GetCrtpMainType<OutGetInterfaceProperties<T>, T>>
+struct OutGetInterface : public csp::ISerializable<GetCrtpMainType<OutGetInterface<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<OutGetInterfaceProperties<T>, T>;
+    using instance_type = GetCrtpMainType<OutGetInterface<T>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr Id kId = helpers::getUuid(0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1);
     static constexpr interface_version_t kInterfaceVersion = 0;
     static constexpr interface_version_t kPrivateVersions[] = { 0 };
 
-    traits::InterfaceProperties properties;
+    traits::Interface properties;
 };
 
 /// @brief Struct for request of all supported interfaces list
@@ -123,7 +123,36 @@ public:
         return list == rhs.list;
     }
 
-    Vector<traits::InterfaceProperties> list;
+    Vector<traits::Interface> list;
+};
+
+/// @brief Settings of a CSP party
+template<typename T = Dummy>
+struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySettings<T>, T>>
+{
+    using instance_type = GetCrtpMainType<CspPartySettings<T>, T>;
+
+    static constexpr Id kId = helpers::getUuid(0xbf8c27e8, 0xfe6a, 0x4492, 0x91cb, 0xe4cf411e1236);
+    static constexpr interface_version_t kInterfaceVersion = 0;
+    static constexpr interface_version_t kPrivateVersions[] = { 0 };
+
+    /// @brief Default CSP version to interact with party
+    protocol_version_t mandatoryProtocolVersion{ traits::getLatestProtocolVersion() };
+    /// @brief Minimum CSP version that allowed to interact with party
+    protocol_version_t minimumProtocolVersion{ 1 };
+
+    /// @brief Mandatory Common Flags in interactions with party
+    context::CommonFlags mandatoryCommonFlags{ helpers::isModuleIsBigEndian() };
+    /// @brief Forbidden Common Flags on party
+    context::CommonFlags forbiddenCommonFlags;
+
+    /// @brief Mandatory Data Flags in interactions with party
+    context::DataFlags mandatoryDataFlags;
+    /// @brief Forbidden Data Flags on party
+    context::DataFlags forbiddenDataFlags;
+
+    /// @brief List of availible party interfaces and their settings
+    Vector<traits::Interface> availableInterfaces;
 };
 
 } // namespace common_serialization::csp::messaging

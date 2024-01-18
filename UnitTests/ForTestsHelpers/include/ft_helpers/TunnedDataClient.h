@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -28,7 +28,7 @@ namespace ft_helpers
 
 namespace cs = common_serialization;
 
-class TunnedDataClient : public cs::csp::messaging::IDataClient
+class TunnedDataClient : public cs::csp::messaging::DataClient
 {
 public:
     using FilterFunction = void(*)(cs::BinWalker&);
@@ -37,7 +37,7 @@ public:
     TunnedDataClient(cs::csp::protocol_version_t defaultProtocolVersion, cs::csp::context::DataFlags defaultFlags
         , const cs::csp::Id& defaultInterfaceId, cs::csp::interface_version_t targetInterfaceVersion
     )
-        : cs::csp::messaging::IDataClient(defaultProtocolVersion, defaultFlags, defaultInterfaceId, targetInterfaceVersion)
+        : cs::csp::messaging::DataClient(defaultProtocolVersion, defaultFlags, defaultInterfaceId, targetInterfaceVersion)
     {
     }
 

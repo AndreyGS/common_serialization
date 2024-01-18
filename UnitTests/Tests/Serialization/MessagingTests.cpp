@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -32,7 +32,7 @@ TEST(MessagingTests, CommonTests)
 {
     TunnedDataClient dataClient;
 
-    // Test is for IDataClient::getServerProtocolVersions and CommonServer handling
+    // Test is for DataClient::getServerProtocolVersions and CommonServer handling
     csp::messaging::SupportedProtocolVersions<> supportedProtocolVersions;
     dataClient.getServerProtocolVersions(supportedProtocolVersions);
 
@@ -123,9 +123,9 @@ TEST(MessagingTests, DataServiceServerTest)
     EXPECT_EQ(outInterfacesList, interfacesListReference);
 
     // Test of getting properties of single interface on server
-    csp::messaging::GetInterfaceProperties getInterfaceProps;
+    csp::messaging::GetInterface getInterfaceProps;
     getInterfaceProps.id = outInterfacesList.list[outInterfacesList.list.size()-1].id;
-    csp::messaging::OutGetInterfaceProperties outGetInterfaceProps;
+    csp::messaging::OutGetInterface outGetInterfaceProps;
 
     EXPECT_EQ(dataClient.handleData(getInterfaceProps, outGetInterfaceProps), Status::kNoError);
     EXPECT_EQ(outGetInterfaceProps.properties, outInterfacesList.list[outInterfacesList.list.size() - 1]);
@@ -135,7 +135,7 @@ TEST(MessagingTests, DataServiceServerTest)
 
     EXPECT_EQ(dataClient.handleData(getInterfaceProps, outGetInterfaceProps), Status::kNoError);
 
-    csp::traits::InterfaceProperties interfacePropsReference;
+    csp::traits::Interface interfacePropsReference;
     interfacePropsReference.id = getInterfaceProps.id;
     interfacePropsReference.version = csp::traits::kInterfaceVersionUndefined;
 

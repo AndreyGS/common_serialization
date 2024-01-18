@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -37,6 +37,6 @@ namespace another_yet_interface
 
 namespace cs = common_serialization;
 
-constexpr cs::csp::traits::InterfaceProperties properties(cs::helpers::getUuid(0xf7cbb63c, 0x2a5d, 0x44eb, 0x80fc, 0x591bd08941e2), 0);
+constexpr cs::csp::traits::Interface properties(cs::helpers::getUuid(0xf7cbb63c, 0x2a5d, 0x44eb, 0x80fc, 0x591bd08941e2), 0);
 
 } // namespace another_yet_interface

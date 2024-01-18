@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -54,7 +54,7 @@ namespace cs = common_serialization;
 class DataServiceServerTraits
 {
 public:
-    static void fillInterfacesList(cs::Vector<cs::csp::traits::InterfaceProperties>& list)
+    static void fillInterfacesList(cs::Vector<cs::csp::traits::Interface>& list)
     {
         // There can be some algorithm to register different interfaces automatically.
 

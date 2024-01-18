@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -112,7 +112,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const traits::InterfaceProperties& value, context::SData<>& ctx)
+constexpr Status DataProcessor::serializeData(const traits::Interface& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
@@ -123,7 +123,7 @@ constexpr Status DataProcessor::serializeData(const traits::InterfaceProperties&
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, traits::InterfaceProperties& value)
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, traits::Interface& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
 
@@ -134,7 +134,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, traits::I
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const messaging::OutGetInterfaceProperties<>& value, context::SData<>& ctx)
+constexpr Status DataProcessor::serializeData(const messaging::OutGetInterface<>& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
@@ -144,7 +144,7 @@ constexpr Status DataProcessor::serializeData(const messaging::OutGetInterfacePr
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::OutGetInterfaceProperties<>& value)
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::OutGetInterface<>& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
 
@@ -154,7 +154,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const messaging::GetInterfaceProperties<>& value, context::SData<>& ctx)
+constexpr Status DataProcessor::serializeData(const messaging::GetInterface<>& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
@@ -164,7 +164,7 @@ constexpr Status DataProcessor::serializeData(const messaging::GetInterfacePrope
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::GetInterfaceProperties<>& value)
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::GetInterface<>& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
 

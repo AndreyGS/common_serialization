@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -37,18 +37,18 @@ inline constexpr protocol_version_t kProtocolVersions[] = { 1 };
 inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;           // it always must be kind of UINTMAX
 inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;   // it always must be kind of UINTMAX
 
-struct InterfaceProperties
+struct Interface
 {
     Id id;
     interface_version_t version{ kInterfaceVersionUndefined };
 
-    constexpr bool operator==(const InterfaceProperties& rhs) const noexcept
+    constexpr bool operator==(const Interface& rhs) const noexcept
     {
         return id == rhs.id && version == rhs.version;
     }
 };
 
-constexpr InterfaceProperties kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined };
+constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined };
 
 [[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion()
 {

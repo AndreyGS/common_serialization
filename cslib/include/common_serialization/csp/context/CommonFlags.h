@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -29,6 +29,10 @@ namespace common_serialization::csp::context
 /// @brief Flags that are using in Data type of message in CSP
 struct CommonFlags
 {
+    /// @brief Bitness of system on which serialization is performed
+    ///     is 32 bits (default is 64 bits, when not set)
+    uint16_t bitness32                              : 1 = 0;
+
     /// @brief Private parts of message has big-endian format
     /// @remark Currently not implemented
     uint16_t bigEndianFormat                        : 1 = 0;
@@ -37,7 +41,7 @@ struct CommonFlags
     /// @remark Currently not implemented
     uint16_t possibleEndianDifference               : 1 = 0;
 
-    uint32_t reserved                               :14 = 0;
+    uint32_t reserved                               :13 = 0;
 
     constexpr CommonFlags() noexcept { }
     constexpr CommonFlags(bool isBigEndianFormat) noexcept : bigEndianFormat(isBigEndianFormat) { }

@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -78,6 +78,7 @@ struct DataFlags
     explicit constexpr DataFlags(uint32_t value) noexcept;
     constexpr DataFlags& operator=(uint32_t value) noexcept;
 
+    [[nodiscard]] constexpr DataFlags operator&(DataFlags rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(DataFlags rhs) const noexcept;
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
@@ -94,6 +95,11 @@ constexpr DataFlags& DataFlags::operator=(uint32_t value) noexcept
         (static_cast<void*>(
             &(*static_cast<uint32_t*>(
                 static_cast<void*>(this)) = value)));
+}
+
+[[nodiscard]] constexpr DataFlags DataFlags::operator&(DataFlags rhs) const noexcept
+{
+    return DataFlags(static_cast<uint32_t>(*this) & static_cast<uint32_t>(rhs));
 }
 
 [[nodiscard]] constexpr bool DataFlags::operator==(DataFlags rhs) const noexcept

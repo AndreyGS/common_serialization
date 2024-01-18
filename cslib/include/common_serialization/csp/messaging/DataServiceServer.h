@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -35,27 +35,27 @@ namespace common_serialization::csp::messaging
 template<typename T>
 concept DataServiceServerTraits = requires
 {
-    { T::fillInterfacesList(*(new Vector<traits::InterfaceProperties>)) };
+    { T::fillInterfacesList(*(new Vector<traits::Interface>)) };
 };
 
 /// @brief Predefined data server that answers on CSP clients service requests
 /// @tparam Traits Class that support interface necessary for DataServiceServer work
 template<DataServiceServerTraits Traits>
 class DataServiceServer
-    : IStaticDataServer<DataServiceServer<Traits>, GetInterfaceProperties<>, OutGetInterfaceProperties<>, false>
+    : IStaticDataServer<DataServiceServer<Traits>, GetInterface<>, OutGetInterface<>, false>
     , IStaticDataServer<DataServiceServer<Traits>, GetInterfacesList<>, InterfacesList<>, false>
 {
 public: 
-    static Vector<traits::InterfaceProperties>& getInterfacesList()
+    static Vector<traits::Interface>& getInterfacesList()
     {
-        static Vector<traits::InterfaceProperties> list;
+        static Vector<traits::Interface> list;
 
         Traits::fillInterfacesList(list);
 
         return list;
     }
 
-    static Status handleDataStatic(const GetInterfaceProperties<>& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, OutGetInterfaceProperties<>& output)
+    static Status handleDataStatic(const GetInterface<>& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, OutGetInterface<>& output)
     {
         output.properties.id = input.id;
         output.properties.version = traits::kInterfaceVersionUndefined;

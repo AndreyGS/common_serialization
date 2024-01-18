@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h
+ * @file cslib/include/common_serialization/Containers/UniquePtr.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,22 +23,60 @@
 
 #pragma once
 
+#include "common_serialization/helpers.h"
+#include "common_serialization/Allocators/AllocatorHelpers/GenericAllocatorHelper.h"
+
 namespace common_serialization
 {
 
-namespace memory_management
+/// @brief Something like std::unique_ptr
+/// @note It's class half-finished article, should be upgraded later
+/// @tparam T Type that internal pointer points to
+/// @tparam D Custom deleter
+template<typename T, typename D = Dummy>
+class UniquePtr
 {
+public:
+    UniquePtr(T* p) noexcept : m_p(p) {}
 
-[[nodiscard]] inline void* raw_heap_allocate(size_t data_size_in_bytes) noexcept
-{
-    return ExAllocatePool2(POOL_FLAG_NON_PAGED | POOL_FLAG_UNINITIALIZED, data_size_in_bytes, "s-ga");
-}
+    ~UniquePtr() noexcept
+    {
+        if constexpr (std::is_same_v<D, Dummy>)
+            delete m_p;
+        else
+            D()(m_p);
+    }
 
-inline void raw_heap_deallocate(void* p) noexcept
-{
-    ExFreePool(p);
-}
+    /// @brief Get stored pointer
+    /// @return Stored pointer
+    [[nodiscard]] constexpr T* get() const noexcept { return m_p; }
 
-} // namespace memory_management
+    /// @brief Release pointer ownership
+    /// @return Stored pointer
+    constexpr T* release() noexcept
+    {
+        T* p = m_p;
+        m_p = nullptr;
+        return p;
+    }
+
+    [[nodiscard]] constexpr T* operator->() const noexcept
+    { 
+        return m_p; 
+    }
+
+    [[nodiscard]] constexpr T& operator*() const noexcept
+    { 
+        return *m_p; 
+    }
+
+    constexpr explicit operator bool() const noexcept
+    {
+        return static_cast<bool>(m_p);
+    }
+
+private:
+    T* m_p{ nullptr };
+};
 
 } // namespace common_serialization

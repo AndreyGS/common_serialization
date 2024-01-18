@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -114,7 +114,7 @@ enum class Message : uint_fast32_t
     ///     }
     kInOutData = 0x2,
                                             
-    /// @brief Request of servers protocol capabilities
+    /// @brief Request for servers protocol capabilities
     /// @details
     ///     Format of message:
     /// 
@@ -124,7 +124,15 @@ enum class Message : uint_fast32_t
     ///             CommonCapabilities requestedCapability;
     ///         }  body;
     ///     }
-    kCommonCapabilitiesRequest = 0x3
+    kCommonCapabilitiesRequest = 0x3,
+
+    /// @brief Request for settings that need for comunication from other side
+    ///     (other side is only server, for now)
+    /// @details
+    ///     Format of message:
+    /// 
+    ///     Is same as kInOutData, where InOutData Body is CspPartySettings struct
+    kGetSettings = 0x4
 };
 
 } // namespace common_serialization::csp::context
