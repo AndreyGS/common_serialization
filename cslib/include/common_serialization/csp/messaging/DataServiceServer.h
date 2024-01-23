@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/csp/messaging/IDataServer.h"
-#include "common_serialization/csp/messaging/ServiceStructs.h"
+#include "common_serialization/csp/messaging/service_structs/Interface.h"
 
 // Service structs not support version conversion and must always be the same
 // Set is completely depend on protocol version
@@ -42,8 +42,8 @@ concept DataServiceServerTraits = requires
 /// @tparam Traits Class that support interface necessary for DataServiceServer work
 template<DataServiceServerTraits Traits>
 class DataServiceServer
-    : IStaticDataServer<DataServiceServer<Traits>, GetInterface<>, OutGetInterface<>, false>
-    , IStaticDataServer<DataServiceServer<Traits>, GetInterfacesList<>, InterfacesList<>, false>
+    : IDataServer<GetInterface<>, OutGetInterface<>, false>
+    , IDataServer<GetInterfacesList<>, InterfacesList<>, false>
 {
 public: 
     static Vector<traits::Interface>& getInterfacesList()

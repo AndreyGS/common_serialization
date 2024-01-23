@@ -89,6 +89,18 @@ concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || 
 namespace helpers
 {
 
+/// @brief Is current module compiled for 32 bitness
+/// @return True if 32 bitness, false otherwise
+consteval bool isBitness32()
+{
+    return
+#ifndef X32
+        false;
+#else
+        true;
+#endif
+}
+
 /// @brief Is current module compiled with big-endian format
 /// @return True if big-endian, false if little-endian
 consteval bool isModuleIsBigEndian()
@@ -156,18 +168,6 @@ constexpr uint32_t reverseEndianessUint32(uint32_t input)
 constexpr uint16_t reverseEndianessUint16(uint16_t input)
 {
     return input >> 8 | input << 8;
-}
-/// @brief Get UUIDv4 from distinct numbers
-/// @param first First number
-/// @param second Second number
-/// @param third Third number
-/// @param fourth Fourth number
-/// @param fifth Fifth number
-/// @return Uuid
-constexpr Uuid getUuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth)
-{
-    return Uuid { static_cast<uint64_t>(first) << 32  | static_cast<uint64_t>(second) << 16 | static_cast<uint64_t>(third),
-                  static_cast<uint64_t>(fourth) << 48 | static_cast<uint64_t>(fifth) };
 }
 
 } // namespace helpers

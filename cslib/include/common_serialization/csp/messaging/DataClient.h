@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "common_serialization/csp/Concepts.h"
 #include "common_serialization/Containers/UniquePtr.h"
 #include "common_serialization/csp/messaging/IDataClientSpeaker.h"
 #include "common_serialization/csp/processing/CommonCapabilities.h"
@@ -36,19 +37,44 @@ namespace common_serialization::csp::messaging
 /// @brief Interface of client in CSP messaging model
 /// @details See documentation of CSP
 /// @note This class itself contains defined methods of handling
-///     data in CSP messaging model. Concrete client must implement
-///     only Status handleBinData(BinVector& binInput, BinWalker& binOutput) method.
+///     data in CSP messaging model.
 class DataClient
 {
 public:
-    /// @brief Default constructor
-    DataClient(IDataClientSpeaker* pDataClientSpeaker) 
-        : m_dataClientSpeaker(pDataClientSpeaker)
-    {}
-
-    bool isValid()
+    DataClient(IDataClientSpeaker* pDataClientSpeaker, traits::Interface _interface = service_structs::properties)
+        : m_dataClientSpeaker(pDataClientSpeaker), m_interface(_interface)
     {
-        return static_cast<bool>(m_dataClientSpeaker);
+    }
+
+    DataClient(
+          IDataClientSpeaker* pDataClientSpeaker
+        , traits::Interface _interface
+        , protocol_version_t protocolVersion
+        , context::CommonFlags mandatoryCommonFlags
+        , context::CommonFlags forbiddenCommonFlags
+        , context::DataFlags mandatoryDataFlags
+        , context::DataFlags forbiddenDataFlags
+    )
+        : m_dataClientSpeaker(pDataClientSpeaker)
+        , m_interface(_interface)
+        , m_protocolVersion(protocolVersion)
+        , m_mandatoryCommonFlags(mandatoryCommonFlags)
+        , m_forbiddenCommonFlags(forbiddenCommonFlags)
+        , m_mandatoryDataFlags(mandatoryDataFlags)
+        , m_forbiddenDataFlags(forbiddenDataFlags)
+    {
+        m_isReady = static_cast<bool>(pDataClientSpeaker);
+    }
+
+    Status init(service_structs::CspPartySettings<>* pCspPartySettings)
+    {
+        service_structs::CspPartySettings<> cspPartySettings;
+        Status status = handleData(service_structs::ISerializableDummy<>(), cspPartySettings);
+    }
+
+    bool isReady()
+    {
+        return m_isReady;
     }
 
     /// @brief Send input data to server(s) and get output data on response
@@ -63,6 +89,20 @@ public:
     template<typename InputType, typename OutputType, bool forTempUseHeap = true>
         requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
     Status handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr);
+
+    /// @brief Send input data to server(s) and get output data on response
+    /// @details See another handleData() overloading
+    /// @tparam InputType Type that implements ISerializable interface
+    /// @tparam OutputType Type that implements ISerializable interface
+    /// @tparam forTempUseHeap Should heap be used in large memory consumption operations
+    /// @param input Struct that must be sent to server
+    /// @param output Struct that is returned from server
+    /// @param dataFlags Data flags that must be applied to current operation
+    /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
+    /// @return Status of operation
+    template<typename InputType, typename OutputType, bool forTempUseHeap = true>
+        requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+    Status handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details Input data serialized according to arguments of function 
@@ -86,11 +126,7 @@ public:
     /// @param output Struct that is returned from server 
     ///     (use ISerializableDummy<> if no output data is expected)
     /// @param dataFlags Data flags that must be applied to current operation
-    /// @param preferedInputInterfaceVersion Version of input struct interface version that is preferable to send
-    /// @param preferedOutputInterfaceVersion Version of output struct interface version that is preferable to receive
-    /// @param minimumInputInterfaceVersion Minimum version of input struct interface version to which can be converted
-    /// @param minimumOutputInterfaceVersion Minimum version of output struct interface version from which can be converted
-    /// @param protocolVersion Protocol version that is preferable in operation
+    /// @param commonFlags Common flags that must be applied to current operation
     /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
     template<typename InputType, typename OutputType, bool forTempUseHeap = true>
@@ -99,23 +135,33 @@ public:
           const InputType& input
         , OutputType& output
         , context::DataFlags dataFlags
-        , interface_version_t preferedInputInterfaceVersion = InputType::getLatestInterfaceVersion()
-        , interface_version_t preferedOutputInterfaceVersion = InputType::getLatestInterfaceVersion()
-        , interface_version_t minimumInputInterfaceVersion = InputType::getOriginPrivateVersion()
-        , interface_version_t minimumOutputInterfaceVersion = OutputType::getOriginPrivateVersion()
-        , protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
+        , context::CommonFlags commonFlags
         , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
     );
 
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
     /// @return Status of operation
-    Status getServerProtocolVersions(SupportedProtocolVersions<>& output) noexcept;
+    Status getServerProtocolVersions(service_structs::SupportedProtocolVersions<>& output) noexcept;
+
+    constexpr const traits::Interface& getInterface() const noexcept
+    {
+        return m_interface;
+    }
+
 
 private:
-    template<typename T>
-        requires IsISerializableBased<T>
-    interface_version_t chooseInterfaceVersion(interface_version_t preferedInterfaceVersion, interface_version_t minimumInterfaceVersion);
+    bool m_isReady{ false };
+
+    protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
+
+    context::CommonFlags m_mandatoryCommonFlags{ helpers::isBitness32(), helpers::isModuleIsBigEndian() };
+    context::CommonFlags m_forbiddenCommonFlags;
+
+    context::DataFlags m_mandatoryDataFlags;
+    context::DataFlags m_forbiddenDataFlags;
+
+    traits::Interface& m_interface;
 
     UniquePtr<IDataClientSpeaker> m_dataClientSpeaker;
 };
@@ -124,35 +170,44 @@ template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status DataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    return handleData(input, output, m_defaultDataFlags, m_defaultServerInterfaceVersion, m_defaultServerInterfaceVersion
-        , InputType::getOriginPrivateVersion(), OutputType::getOriginPrivateVersion(), m_defaultProtocolVersion, pUnmanagedPointers);
+    return handleData(input, output, m_mandatoryDataFlags, m_mandatoryCommonFlags, pUnmanagedPointers);
+}
+
+template<typename InputType, typename OutputType, bool forTempUseHeap>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+{
+    return handleData(input, output, dataFlags, m_mandatoryCommonFlags, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags, interface_version_t preferedInputInterfaceVersion, interface_version_t preferedOutputInterfaceVersion
-    , interface_version_t minimumInputInterfaceVersion, interface_version_t minimumOutputInterfaceVersion, protocol_version_t protocolVersion, Vector<GenericPointerKeeper>* pUnmanagedPointers
-)
+Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags
+    , context::CommonFlags commonFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    interface_version_t inputInterfaceVersion = chooseInterfaceVersion<InputType>(preferedInputInterfaceVersion, minimumInputInterfaceVersion);
-    if (inputInterfaceVersion == traits::kInterfaceVersionUndefined)
-        return Status::kErrorInvalidArgument;
+    if (!isReady())
+        return Status::kErrorNotInited;
 
-    interface_version_t outputInterfaceVersion = chooseInterfaceVersion<OutputType>(preferedOutputInterfaceVersion, minimumOutputInterfaceVersion);
-    if (outputInterfaceVersion == traits::kInterfaceVersionUndefined)
-        return Status::kErrorInvalidArgument;
+    if (InputType::getOriginPrivateVersion() > m_serverInterfaceVersion || OutputType::getOriginPrivateVersion() > m_serverInterfaceVersion)
+        return Status::kErrorNotSupportedInterfaceVersion;
+
+    if (dataFlags & m_forbiddenDataFlags || commonFlags & m_forbiddenCommonFlags)
+        return Status::kErrorNotCompatibleFlagsSettings;
 
     BinVector binInput;
 
     // First attempt of sending data is made of interface version function parameters
-    context::SInOutData<> ctxIn(binInput, protocolVersion, m_defaultCommonFlags, dataFlags, forTempUseHeap, inputInterfaceVersion, outputInterfaceVersion, nullptr);
+    context::SData<> ctxIn(binInput, m_protocolVersion, commonFlags, dataFlags, forTempUseHeap, getInterface().version, nullptr);
+
+    if constexpr (std::is_same_v<InputType, service_structs::ISerializableDummy<>>)
+        ctxIn.setMessageType(context::Message::kGetSettings);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
     if (ctxIn.getDataFlags().checkRecursivePointers)
         ctxIn.setPointersMap(&pointersMapIn);
 
     RUN(processing::serializeCommonContext(ctxIn));
-    RUN(processing::serializeInOutDataContext<InputType>(ctxIn));
+    RUN(processing::serializeDataContext<InputType>(ctxIn));
 
     // Flags may be changed after processing::serializeInOutDataContext
     if (ctxIn.getDataFlags().allowUnmanagedPointers && pUnmanagedPointers == nullptr)
@@ -171,6 +226,9 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     context::Common<BinWalker> ctxOut(binOutput);
 
     RUN(processing::deserializeCommonContext(ctxOut));
+
+    if (ctxOut.getCommonFlags() & m_forbiddenCommonFlags)
+        return Status::kErrorNotCompatibleFlagsSettings;
 
     if (ctxOut.getMessageType() == context::Message::kData)
     {
@@ -192,6 +250,10 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
             ctxOutData.setPointersMap(&pointersMapOut);
 
         RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOutData, outId, minimumOutputInterfaceVersion));
+
+        if (ctxOutData.getDataFlags() & m_forbiddenDataFlags)
+            return Status::kErrorNotCompatibleFlagsSettings;
+
         RUN(processing::DataProcessor::deserializeData(ctxOutData, output));
     }
     else if (ctxOut.getMessageType() == context::Message::kStatus)
@@ -199,7 +261,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         Status statusOut = Status::kNoError;
         RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
-        if constexpr (std::is_same_v<OutputType, messaging::ISerializableDummy<>>)
+        if constexpr (std::is_same_v<OutputType, ISerializableDummy<>>)
             if (statusOut == Status::kNoError)
                 return Status::kNoError;
         
@@ -268,7 +330,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     return Status::kNoError;
 }
 
-inline Status DataClient::getServerProtocolVersions(SupportedProtocolVersions<>& output) noexcept
+inline Status DataClient::getServerProtocolVersions(service_structs::SupportedProtocolVersions<>& output) noexcept
 {
     BinVector binInput;
     context::Common<BinVector> ctxIn(binInput, 1, context::CommonFlags{}, context::Message::kCommonCapabilitiesRequest);
@@ -280,28 +342,6 @@ inline Status DataClient::getServerProtocolVersions(SupportedProtocolVersions<>&
     RUN(m_dataClientSpeaker->speak(binInput, binOutput));
 
     return output.deserialize(binOutput);
-}
-
-
-
-template<typename T>
-    requires IsISerializableBased<T>
-interface_version_t DataClient::chooseInterfaceVersion(interface_version_t preferedInterfaceVersion, interface_version_t minimumInterfaceVersion)
-{
-    interface_version_t interfaceVersion
-        = preferedInterfaceVersion == minimumInterfaceVersion
-        ? preferedInterfaceVersion
-        : preferedInterfaceVersion == traits::kInterfaceVersionUndefined
-            ? m_defaultServerInterfaceVersion
-            : preferedInterfaceVersion;
-
-    // This is also applies when interfaceVersion == traits::kInterfaceVersionUndefined 
-    if (interfaceVersion > T::getLatestInterfaceVersion())
-        interfaceVersion = T::getLatestInterfaceVersion();
-    else if (interfaceVersion < T::getOriginPrivateVersion())
-        interfaceVersion = traits::kInterfaceVersionUndefined;
-
-    return interfaceVersion;
 }
 
 } // namespace common_serialization::csp::messaging

@@ -31,7 +31,7 @@ enum class Message : uint_fast32_t
 {
     /// @brief Status message
     /// @details
-    ///     Format of message:
+    ///     Format of Private parts of message:
     /// 
     ///     {
     ///         struct
@@ -74,7 +74,7 @@ enum class Message : uint_fast32_t
     /// @details Using in one way single struct serialization/deserialization,
     ///     that is no return (response) message is expected
     /// 
-    ///     Format of message:
+    ///     Format of Private parts of message:
     ///
     ///     {
     ///         struct
@@ -91,32 +91,9 @@ enum class Message : uint_fast32_t
     ///     }
     kData = 0x1,                            
                                             
-    /// @brief Using for bidirectional data processing
-    /// @details This message using in scenarios when on input struct we expecting to receive
-    ///     output struct or status of input struct handling.
-    ///         Processing of such messages engaged by Data clients and servers.
-    ///
-    ///     Format of message:
-    ///
-    ///     {
-    ///         struct
-    ///         {
-    ///             uuid inStructId;
-    ///             DataFlags dataFlags;
-    ///             uint32_t inInterfaceVersion;
-    ///             uint32_t outInterfaceVersion;
-    ///         } privateHeader;
-    ///         
-    ///         struct
-    ///         {
-    ///             uint8_t inSerializedData[anysize];
-    ///         } body; // varies by DataFlags that was set and struct that was serialized
-    ///     }
-    kInOutData = 0x2,
-                                            
     /// @brief Request for servers protocol capabilities
     /// @details
-    ///     Format of message:
+    ///     Format of Private parts of message:
     /// 
     ///     {
     ///         struct
@@ -124,15 +101,19 @@ enum class Message : uint_fast32_t
     ///             CommonCapabilities requestedCapability;
     ///         }  body;
     ///     }
-    kCommonCapabilitiesRequest = 0x3,
+    kCommonCapabilitiesRequest = 0x2,
 
     /// @brief Request for settings that need for comunication from other side
     ///     (other side is only server, for now)
     /// @details
-    ///     Format of message:
+    ///     Format of Private parts of message:
     /// 
-    ///     Is same as kInOutData, where InOutData Body is CspPartySettings struct
-    kGetSettings = 0x4
+    ///     {
+    ///     }
+    /// 
+    ///     In response server will must send csp::messaging::service_structs::CspPartySettings
+    ///     struct with its mandatory settings
+    kGetSettings = 0x3
 };
 
 } // namespace common_serialization::csp::context

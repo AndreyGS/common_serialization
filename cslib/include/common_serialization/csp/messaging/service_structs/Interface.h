@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataClient.h
+ * @file cslib/include/common_serialization/csp/messaging/service_structs/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,27 +23,12 @@
 
 #pragma once
 
-namespace ft_helpers
-{
+// another_yet_interface UUID  : {e47be322-232e-4d66-9175-06eed2110b4b}
+// interface version           : 0
 
-namespace cs = common_serialization;
+// Service structs not support version conversion and must always be the same
+// Set is completely depend on protocol version
 
-class SimpleDataClient : public cs::csp::messaging::IDataClientSpeaker
-{
-public:
-    SimpleDataClient() {}
-
-private:
-    // This function must transfer data from client to server.
-    // Way by which it will be done is up to concrete client realization.
-    // Here we do not need to overcomplicate things and we simply calling csp::messaging::CommonServer::handleMessage.
-    cs::Status speak(cs::BinVector& binInput, cs::BinWalker& binOutput) override
-    {
-        cs::BinWalker input;
-        input.init(std::move(binInput));
-        return cs::csp::messaging::CommonServer::handleMessage(input, cs::BinVector{}, binOutput.getVector());
-    }
-};
-
-} // namespace ft_helpers
-
+#include "common_serialization/csp/messaging/service_structs/Structs.h"
+#include "common_serialization/csp/messaging/service_structs/Generated/DeserializeData.h"
+#include "common_serialization/csp/messaging/service_structs/Generated/SerializeData.h"

@@ -58,15 +58,15 @@ protected:
     constexpr ~IDataServerBase() { }
 
 private:
-    virtual Status handleDataConcrete(context::DInOutData<>& ctx, const BinVector& clientId, BinVector& binOutput) = 0;
+    virtual Status handleDataConcrete(context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput) = 0;
 };
 
 inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, const BinVector& clientId, BinVector& binOutput)
 {
-    context::DInOutData<> ctx(ctxCommon);
+    context::DData<> ctx(ctxCommon);
     Id id;
 
-    RUN(processing::deserializeInOutDataContext(ctx, id));
+    RUN(processing::deserializeDataContext(ctx, id));
     
     context::DataFlags dataFlags = ctx.getDataFlags();
 
@@ -97,7 +97,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
 
         for (auto pServer : servers)
         {
-            context::DInOutData<> ctxTemp(ctx);
+            context::DData<> ctxTemp(ctx);
             SET_NEW_ERROR(pServer->handleDataConcrete(ctxTemp, clientId, binOutput));
 
             ctx.getBinaryData().seek(bodyPosition);

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/csp/context/InOutData.h"
+#include "common_serialization/csp/context/Data.h"
 
 namespace common_serialization::csp::processing
 {
@@ -95,10 +95,11 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 
     RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
 
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getLatestInterfaceVersion()))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getLatestInterfaceVersion().version))
         return Status::kErrorNotSupportedInterfaceVersion;
 
-    if (T::getLatestInterfaceVersion() != ctx.getInterfaceVersion())
+    // Only set interface versions not match when some conversion will be need
+    if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
     return Status::kNoError;
@@ -120,27 +121,6 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Id& id)
     interface_version_t inputInterfaceVersion = 0;
     RUN(input.readArithmeticValue(inputInterfaceVersion));
     ctx.setInterfaceVersion(inputInterfaceVersion);
-
-    return Status::kNoError;
-}
-
-template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status serializeInOutDataContext(context::SInOutData<S, PM>& ctx) noexcept
-{
-    RUN(serializeDataContext<T>(ctx));
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(ctx.getOutputInterfaceVersion()));
-
-    return Status::kNoError;
-}
-
-template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeInOutDataContext(context::DInOutData<D, PM>& ctx, Id& id) noexcept
-{
-    RUN(deserializeDataContext(ctx, id));
-
-    interface_version_t outputInterfaceVersion = 0;
-    RUN(ctx.getBinaryData().readArithmeticValue(outputInterfaceVersion));
-    ctx.setOutputInterfaceVersion(outputInterfaceVersion);
 
     return Status::kNoError;
 }
@@ -168,23 +148,10 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
     // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
     // however for some special subscribers of data struct you may override it by
     // value that is higher than minimum defined in interface version
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getLatestInterfaceVersion()))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterfaceProperties().version))
         return Status::kErrorNotSupportedInterfaceVersion;
-    else if (ctx.getInterfaceVersion() != T::getLatestInterfaceVersion())
+    else if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
-
-    return Status::kNoError;
-}
-
-
-template<typename In, typename Out, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeInOutDataContextPostprocess(context::DInOutData<D, PM>& ctx, const Id& id
-    , interface_version_t inputMinimumSupportedInterfaceVersion, interface_version_t outputMinimumSupportedInterfaceVersion) noexcept
-{
-    RUN(deserializeDataContextPostprocess<In>(ctx, id, inputMinimumSupportedInterfaceVersion));
-    
-    if (!traits::isInterfaceVersionSupported(ctx.getOutputInterfaceVersion(), outputMinimumSupportedInterfaceVersion, Out::getLatestInterfaceVersion()))
-        return Status::kErrorNotSupportedInOutInterfaceVersion;
 
     return Status::kNoError;
 }

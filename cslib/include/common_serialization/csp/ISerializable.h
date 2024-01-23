@@ -94,7 +94,7 @@ public:
 
     /// @brief Get latest private version
     /// @return Latest private version
-    [[nodiscard]] static constexpr interface_version_t getLatestPrivateVersion() noexcept;
+    [[nodiscard]] static consteval interface_version_t getLatestPrivateVersion() noexcept;
 
     /// @brief Get latest interface version
     /// @return Latest interface version
@@ -112,6 +112,8 @@ public:
     /// @brief Get array size of private versions
     /// @return Array size of private versions
     [[nodiscard]] static consteval interface_version_t getPrivateVersionsCount() noexcept;
+
+    [[nodiscard]] static consteval const traits::Interface& getInterfaceProperties() noexcept;
 };
 
 template<typename T>
@@ -167,7 +169,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr interface_version_t ISerializable<T>::getLatestPrivateVersion() noexcept
+[[nodiscard]] consteval interface_version_t ISerializable<T>::getLatestPrivateVersion() noexcept
 {
     return T::kPrivateVersions[0];
 }
@@ -194,6 +196,12 @@ template<typename T>
 [[nodiscard]] consteval interface_version_t ISerializable<T>::getPrivateVersionsCount() noexcept
 {
     return std::size(T::kPrivateVersions);
+}
+
+template<typename T>
+[[nodiscard]] consteval const traits::Interface& ISerializable<T>::getInterfaceProperties() noexcept
+{
+    return T::getInterfaceProperties();
 }
 
 } // namespace common_serialization::csp

@@ -39,7 +39,7 @@ inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;   
 
 struct Interface
 {
-    Id id;
+    Id id{ kNullUuid };
     interface_version_t version{ kInterfaceVersionUndefined };
 
     constexpr bool operator==(const Interface& rhs) const noexcept

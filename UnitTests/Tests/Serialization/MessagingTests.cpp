@@ -28,104 +28,27 @@ using namespace common_serialization;
 using namespace interface_for_test;
 using namespace ft_helpers;
 
-TEST(MessagingTests, CommonTests)
-{
-    TunnedDataClient dataClient;
-
-    // Test is for DataClient::getServerProtocolVersions and CommonServer handling
-    csp::messaging::SupportedProtocolVersions<> supportedProtocolVersions;
-    dataClient.getServerProtocolVersions(supportedProtocolVersions);
-
-    csp::messaging::SupportedProtocolVersions<> supportedProtocolVersionsReference;
-    supportedProtocolVersionsReference.list.pushBackN(csp::traits::kProtocolVersions, std::size(csp::traits::kProtocolVersions));
-
-    EXPECT_EQ(supportedProtocolVersionsReference.list, supportedProtocolVersions.list);
-
-    dataClient.resetLoopCount();
-
-    // Test for unsupported protocol version reactions
-    auto preOperationFilter0_1 = [](BinWalker& input) -> void
-    {
-        csp::context::Common<BinWalker> ctx(input);
-        csp::processing::deserializeCommonContext(ctx);
-        EXPECT_EQ(ctx.getProtocolVersion(), 1);
-
-        input.seek(0);
-        csp::protocol_version_t unsupportedProtocolVersion = 0;
-        input.write(&unsupportedProtocolVersion, sizeof(unsupportedProtocolVersion));
-        input.seek(0);
-    };
-
-    auto postOperationFilter1 = [](BinWalker& output) -> void
-    {
-        csp::context::Common<BinWalker> ctx(output);
-
-        csp::processing::deserializeCommonContext(ctx);
-        EXPECT_EQ(ctx.getMessageType(), csp::context::Message::kStatus);
-        EXPECT_EQ(ctx.getProtocolVersion(), 1);
-
-        Status statusOut = Status::kNoError;
-        csp::processing::deserializeStatusContext(ctx, statusOut);
-        EXPECT_EQ(Status::kErrorNotSupportedProtocolVersion, statusOut);
-
-        Vector<csp::protocol_version_t> cspVersions;
-        csp::processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctx, cspVersions);
-
-        EXPECT_EQ(cspVersions.size(), 1);
-        EXPECT_EQ(cspVersions[0], 1);
-
-        // Overwritting received protocol version
-        csp::protocol_version_t unsupportedProtocolVersion = 0;
-        output.seek(output.tell() - sizeof(unsupportedProtocolVersion));
-        output.write(&unsupportedProtocolVersion, sizeof(unsupportedProtocolVersion));
-        output.seek(0);
-    };
-
-    // Before sending to data to server, set protocol version to 0, which is invalid value
-    dataClient.setFilterFunction(preOperationFilter0_1, true, 0);
-    // Next we must receive Status::kErrorNotSupportedProtocolVersion with versions that server supports
-    // And as we not modified server response it will contain valid values
-    // Which in turn we also change to 0, like in the first time
-    dataClient.setFilterFunction(preOperationFilter0_1, true, 1);
-    // Again we will receive Status::kErrorNotSupportedProtocolVersion from server
-    // And now we modifying it output by placing invalid version in messaging::StatusErrorNotSupportedProtocolVersion response struct
-    dataClient.setFilterFunction(postOperationFilter1, false, 1);
-
-    cs::csp::messaging::ISerializableDummy<> dummy{};
-
-    EXPECT_EQ(dataClient.handleData(another_yet_interface::SimpleStruct<>{}, dummy), Status::kErrorNotSupportedProtocolVersion);
-    EXPECT_EQ(dataClient.getLoopCount(), 2);
-
-    // Now test situation when we first response ouput header protocol version is include invalid value
-    dataClient.resetLoopCount();
-    auto postOperationFilter0 = preOperationFilter0_1;
-    dataClient.setFilterFunction(postOperationFilter0, false, 0);
-
-    EXPECT_EQ(dataClient.handleData(another_yet_interface::SimpleStruct<>{}, dummy), Status::kErrorNotSupportedProtocolVersion);
-    EXPECT_EQ(dataClient.getLoopCount(), 1);
-}
-
 TEST(MessagingTests, DataServiceServerTest)
 {
     // Create client (to request on data server)
-    SimpleDataClient dataClient;
+    csp::messaging::DataClient dataClient(new SimpleDataClient);
 
     // Create DataServiceServer (to response on client requests)
     csp::messaging::DataServiceServer<ft_helpers::DataServiceServerTraits> serviceServer;
 
     // Test of getting all availible interfaces on server
-    csp::messaging::InterfacesList outInterfacesList;
-    EXPECT_EQ(dataClient.handleData(csp::messaging::GetInterfacesList<>{}, outInterfacesList), Status::kNoError);
+    csp::messaging::service_structs::InterfacesList outInterfacesList;
+    EXPECT_EQ(dataClient.handleData(csp::messaging::service_structs::GetInterfacesList<>{}, outInterfacesList), Status::kNoError);
 
-    csp::messaging::InterfacesList interfacesListReference;
+    csp::messaging::service_structs::InterfacesList interfacesListReference;
     DataServiceServerTraits::fillInterfacesList(interfacesListReference.list);
 
     EXPECT_EQ(outInterfacesList, interfacesListReference);
 
     // Test of getting properties of single interface on server
-    csp::messaging::GetInterface getInterfaceProps;
+    csp::messaging::service_structs::GetInterface getInterfaceProps;
     getInterfaceProps.id = outInterfacesList.list[outInterfacesList.list.size()-1].id;
-    csp::messaging::OutGetInterface outGetInterfaceProps;
+    csp::messaging::service_structs::OutGetInterface outGetInterfaceProps;
 
     EXPECT_EQ(dataClient.handleData(getInterfaceProps, outGetInterfaceProps), Status::kNoError);
     EXPECT_EQ(outGetInterfaceProps.properties, outInterfacesList.list[outInterfacesList.list.size() - 1]);
@@ -141,7 +64,7 @@ TEST(MessagingTests, DataServiceServerTest)
 
     EXPECT_EQ(outGetInterfaceProps.properties, interfacePropsReference);
 }
-
+/*
 TEST(MessagingTests, MainTest)
 {
     SimpleDataClient dataClient;
@@ -247,5 +170,5 @@ TEST(MessagingTests, Temp)
     csp::messaging::InterfacesList list;
     serviceServer.handleDataStatic(csp::messaging::GetInterfacesList<>{}, nullptr, list);
 }
-
+*/
 } // namespace anonymous

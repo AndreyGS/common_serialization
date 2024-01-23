@@ -33,12 +33,3 @@
 #include "descendant_interface/Structs.h"
 #include "descendant_interface/Generated/SerializeData.h"
 #include "descendant_interface/Generated/DeserializeData.h"
-
-namespace descendant_interface
-{
-
-namespace cs = common_serialization;
-
-constexpr cs::csp::traits::Interface properties(cs::helpers::getUuid(0x2335b43f, 0x0228, 0x411b, 0x814f, 0x3393a3e8ac3d), 1);
-
-} // namespace descendant_interface

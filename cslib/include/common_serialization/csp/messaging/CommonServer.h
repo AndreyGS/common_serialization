@@ -63,7 +63,7 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& 
 
     Status status{ Status::kNoError };
 
-    if (ctx.getMessageType() == context::Message::kInOutData)
+    if (ctx.getMessageType() == context::Message::kData)
         status = IDataServerBase::handleDataCommon(ctx, clientId, binOutput);
     else if (ctx.getMessageType() == context::Message::kCommonCapabilitiesRequest)
         status = handleCommonCapabilitiesRequest(ctx, binOutput);
@@ -88,7 +88,7 @@ inline Status CommonServer::handleCommonCapabilitiesRequest(context::Common<BinW
 
     if (requestedCapability == context::CommonCapabilities::kSupportedProtocolVersions)
     {
-        messaging::SupportedProtocolVersions<> supportedProtocolVersions;
+        service_structs::SupportedProtocolVersions<> supportedProtocolVersions;
         RUN(supportedProtocolVersions.list.pushBackN(traits::kProtocolVersions, std::size(traits::kProtocolVersions)));
         RUN(supportedProtocolVersions.serialize(ctxOut));
     }

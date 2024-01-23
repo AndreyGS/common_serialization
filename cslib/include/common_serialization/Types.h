@@ -41,6 +41,11 @@ struct Uuid
         : leftPart(rhs.leftPart), rightPart(rhs.rightPart)
     { }
 
+    constexpr Uuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth)
+        : leftPart(static_cast<uint64_t>(first) << 32 | static_cast<uint64_t>(second) << 16 | static_cast<uint64_t>(third))
+        , rightPart(static_cast<uint64_t>(fourth) << 48 | static_cast<uint64_t>(fifth))
+    { }
+
     constexpr Uuid(uint64_t lP, uint64_t rP) : leftPart(lP), rightPart(rP) { }
    
     constexpr bool operator<(const Uuid& rhs) const noexcept
