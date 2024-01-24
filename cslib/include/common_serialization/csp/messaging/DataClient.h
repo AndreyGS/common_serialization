@@ -72,6 +72,18 @@ public:
         Status status = handleData(service_structs::ISerializableDummy<>(), cspPartySettings);
     }
 
+    Status getServerSettings(service_structs::CspPartySettings<>& cspPartySettings)
+    {
+        if (!m_dataClientSpeaker)
+            return Status::kErrorNotInited;
+
+        BinVector binInput;
+        RUN(cspPartySettings.serialize(binInput));
+
+        BinWalker binOutput;
+        RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+    }
+
     bool isReady()
     {
         return m_isReady;
@@ -261,7 +273,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         Status statusOut = Status::kNoError;
         RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
-        if constexpr (std::is_same_v<OutputType, ISerializableDummy<>>)
+        if constexpr (std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
             if (statusOut == Status::kNoError)
                 return Status::kNoError;
         
@@ -286,8 +298,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
             ctxOut.clear();
 
             // Try again with the compatible protocol version
-            return handleData<InputType, OutputType, forTempUseHeap>(input, output, ctxIn.getDataFlags(), inputInterfaceVersion, outputInterfaceVersion
-                , minimumInputInterfaceVersion, minimumOutputInterfaceVersion, compatProtocolVersion, pUnmanagedPointers);
+
         }
         else if (statusOut == Status::kErrorNotSupportedInOutInterfaceVersion)
         {
@@ -320,8 +331,6 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
             ctxOut.clear();
 
             // Try again with the compatible InputType and OutputType versions
-            return handleData<InputType, OutputType, forTempUseHeap>(input, output, ctxIn.getDataFlags(), compatInputInterfaceVersion, compatOutputInterfaceVersion
-                , compatInputInterfaceVersion, compatOutputInterfaceVersion, protocolVersion, pUnmanagedPointers);
         }
         else
             return statusOut;
@@ -333,13 +342,16 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 inline Status DataClient::getServerProtocolVersions(service_structs::SupportedProtocolVersions<>& output) noexcept
 {
     BinVector binInput;
-    context::Common<BinVector> ctxIn(binInput, 1, context::CommonFlags{}, context::Message::kCommonCapabilitiesRequest);
+
+    BinVector binInput;
+    context::Common<BinVector> ctxIn(binInput, traits::kProtocolVersionUndefined);
     RUN(processing::serializeCommonContext(ctxIn));
-    RUN(processing::serializeCommonCapabilitiesRequest(context::CommonCapabilities::kSupportedProtocolVersions, ctxIn));
 
     BinWalker binOutput;
 
     RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+
+    /// @brief //// need to add protocol version receiving handle
 
     return output.deserialize(binOutput);
 }

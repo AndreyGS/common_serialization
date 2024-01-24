@@ -90,18 +90,6 @@ enum class Message : uint_fast32_t
     ///         } body; // varies by DataFlags that was set and struct that was serialized
     ///     }
     kData = 0x1,                            
-                                            
-    /// @brief Request for servers protocol capabilities
-    /// @details
-    ///     Format of Private parts of message:
-    /// 
-    ///     {
-    ///         struct
-    ///         {
-    ///             CommonCapabilities requestedCapability;
-    ///         }  body;
-    ///     }
-    kCommonCapabilitiesRequest = 0x2,
 
     /// @brief Request for settings that need for comunication from other side
     ///     (other side is only server, for now)
@@ -113,7 +101,7 @@ enum class Message : uint_fast32_t
     /// 
     ///     In response server will must send csp::messaging::service_structs::CspPartySettings
     ///     struct with its mandatory settings
-    kGetSettings = 0x3
+    kGetSettings = 0x2
 };
 
 } // namespace common_serialization::csp::context
