@@ -70,9 +70,9 @@ enum class Status : int_fast32_t
     kErrorNotSupportedSerializationSettingsForStruct=      -12,
     kErrorInvalidType                               =      -13,
     kErrorDataCorrupted                             =      -14,
-    kErrorNotCompatibleFlagsSettings                =      -15,
-    kErrorMoreEntires                               =      -16,
-    kErrorNotSupportedInOutInterfaceVersion         =      -17,
+    kErrorNotCompatibleCommonFlagsSettings          =      -15,
+    kErrorNotCompatibleDataFlagsSettings            =      -16,
+    kErrorMoreEntires                               =      -17,
     kErrorNotInited                                 =      -18
 };
 

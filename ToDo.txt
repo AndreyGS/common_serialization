@@ -19,3 +19,5 @@
 19. Add empty() method to Vector and Walker.
 20. Add unit-tests on AllocatorHelpers, especially for constructN and allocateAndConstruct.
 21. Add IDataServer::CheckPoliciesCompliance function realization.
+22. Think about Status of not conformance Data Flags.
+23. Make Common Flags 32 bits and Message Type 16 bits.

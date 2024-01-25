@@ -48,22 +48,6 @@ public:
     static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
 };
 
-/// @brief Struct contain list of supported CSP versions
-/// @tparam T Derived class
-template<typename T = Dummy>
-struct SupportedProtocolVersions : public csp::ISerializable<GetCrtpMainType<SupportedProtocolVersions<T>, T>>
-{
-public:
-    using instance_type = GetCrtpMainType<SupportedProtocolVersions<T>, T>;
-
-    static constexpr Id kId{ 0xc665f5c8, 0xa6c2, 0x4f75, 0xb84d, 0x41cff3c47578 };
-    static constexpr interface_version_t kInterfaceVersion = 1;
-    static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
-
-    Vector<protocol_version_t> list;
-};
-
 /// @brief Struct for request of interface properties with specific Id
 /// @tparam T Derived class
 template<typename T = Dummy>
@@ -145,10 +129,8 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
     static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
 
-    /// @brief Default CSP version to interact with party
-    protocol_version_t mandatoryProtocolVersion{ traits::getLatestProtocolVersion() };
-    /// @brief Minimum CSP version that allowed to interact with party
-    protocol_version_t minimumProtocolVersion{ 1 };
+    /// @brief List of all supported CSP versions begining in decreasing order
+    Vector<protocol_version_t> supportedCspVersions;
 
     /// @brief Mandatory Common Flags in interactions with party
     context::CommonFlags mandatoryCommonFlags{ helpers::isModuleIsBigEndian() };
@@ -162,6 +144,31 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
 
     /// @brief List of availible party interfaces and their settings
     Vector<traits::Interface> availableInterfaces;
+
+    static Status getCommonSettings(const CspPartySettings<>& lhs, const CspPartySettings<>& rhs, CspPartySettings<>& output) noexcept
+    {
+        for (auto lhsVersion : lhs.supportedCspVersions)
+            for (auto rhsVersion : rhs.supportedCspVersions)
+                if (lhsVersion == rhsVersion)
+                {
+                    RUN(output.supportedCspVersions.pushBack(lhsVersion));
+                    break;
+                }
+
+        output.mandatoryCommonFlags = lhs.mandatoryCommonFlags | rhs.mandatoryCommonFlags;
+        output.forbiddenCommonFlags = lhs.forbiddenCommonFlags | rhs.forbiddenCommonFlags;
+
+        output.mandatoryDataFlags = lhs.mandatoryDataFlags | rhs.mandatoryDataFlags;
+        output.forbiddenDataFlags = lhs.forbiddenDataFlags | rhs.forbiddenDataFlags;
+
+        for (const auto& lhsInterface : lhs.availableInterfaces)
+            for (const auto& rhsInterface : rhs.availableInterfaces)
+                if (lhsInterface.id == rhsInterface.id)
+                {
+                    RUN(output.availableInterfaces.pushBack(lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version));
+                    break;
+                }
+    }
 };
 
 } // namespace common_serialization::csp::messaging::service_structs

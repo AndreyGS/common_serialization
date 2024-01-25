@@ -67,10 +67,17 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& 
 
     Status status{ Status::kNoError };
 
-    if (ctx.getMessageType() == context::Message::kData)
-        status = IDataServerBase::handleDataCommon(ctx, clientId, binOutput);
-    else if (ctx.getMessageType() == context::Message::kGetSettings)
+    if (ctx.getMessageType() == context::Message::kGetSettings)
         status = handleGetSettingsRequest(ctx.getProtocolVersion(), binOutput);
+
+    else if (ctx.getMessageType() == context::Message::kData)
+    {
+        if (    ctx.getCommonFlags() & m_serverSettings.forbiddenCommonFlags
+            || (ctx.getCommonFlags() & m_serverSettings.mandatoryCommonFlags) != m_serverSettings.mandatoryCommonFlags
+        )
+            status = Status::kErrorNotCompatibleCommonFlagsSettings;
+        status = IDataServerBase::handleDataCommon(ctx, clientId, binOutput);
+    }
     else
         status = Status::kErrorDataCorrupted;
 

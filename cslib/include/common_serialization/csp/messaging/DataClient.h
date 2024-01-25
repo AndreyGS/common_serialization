@@ -72,17 +72,7 @@ public:
         Status status = handleData(service_structs::ISerializableDummy<>(), cspPartySettings);
     }
 
-    Status getServerSettings(service_structs::CspPartySettings<>& cspPartySettings)
-    {
-        if (!m_dataClientSpeaker)
-            return Status::kErrorNotInited;
-
-        BinVector binInput;
-        RUN(cspPartySettings.serialize(binInput));
-
-        BinWalker binOutput;
-        RUN(m_dataClientSpeaker->speak(binInput, binOutput));
-    }
+    Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept;
 
     bool isReady()
     {
@@ -154,7 +144,12 @@ public:
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
     /// @return Status of operation
-    Status getServerProtocolVersions(service_structs::SupportedProtocolVersions<>& output) noexcept;
+    Status getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept;
+
+    template<typename InputType>
+        requires IsISerializableBased<InputType>
+    Status getServerStructInterfaceVersions(interface_version_t& minInputInterfaceVersion, interface_version_t& maxInputInterfaceVersion,
+        interface_version_t& minOutputInterfaceVersion, interface_version_t& maxOutputInterfaceVersion) const noexcept;
 
     constexpr const traits::Interface& getInterface() const noexcept
     {
@@ -177,6 +172,22 @@ private:
 
     UniquePtr<IDataClientSpeaker> m_dataClientSpeaker;
 };
+
+Status DataClient::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
+{
+    if (!m_dataClientSpeaker)
+        return Status::kErrorNotInited;
+
+    BinVector binInput;
+    context::Common<BinVector> ctxIn(binInput, serverCspVersion);
+    RUN(processing::serializeCommonContext(ctxIn));
+
+    BinWalker binOutput;
+
+    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+
+    return cspPartySettings.deserialize(binOutput);
+}
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
@@ -203,16 +214,15 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     if (InputType::getOriginPrivateVersion() > m_serverInterfaceVersion || OutputType::getOriginPrivateVersion() > m_serverInterfaceVersion)
         return Status::kErrorNotSupportedInterfaceVersion;
 
-    if (dataFlags & m_forbiddenDataFlags || commonFlags & m_forbiddenCommonFlags)
-        return Status::kErrorNotCompatibleFlagsSettings;
+    if (commonFlags & m_forbiddenCommonFlags || (commonFlags & m_mandatoryCommonFlags) != m_mandatoryCommonFlags)
+        return Status::kErrorNotCompatibleCommonFlagsSettings;
+
+    if (dataFlags & m_forbiddenDataFlags || (dataFlags & m_mandatoryDataFlags) != m_mandatoryDataFlags)
+        return Status::kErrorNotCompatibleDataFlagsSettings;
 
     BinVector binInput;
 
-    // First attempt of sending data is made of interface version function parameters
     context::SData<> ctxIn(binInput, m_protocolVersion, commonFlags, dataFlags, forTempUseHeap, getInterface().version, nullptr);
-
-    if constexpr (std::is_same_v<InputType, service_structs::ISerializableDummy<>>)
-        ctxIn.setMessageType(context::Message::kGetSettings);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
     if (ctxIn.getDataFlags().checkRecursivePointers)
@@ -239,15 +249,14 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 
     RUN(processing::deserializeCommonContext(ctxOut));
 
-    if (ctxOut.getCommonFlags() & m_forbiddenCommonFlags)
-        return Status::kErrorNotCompatibleFlagsSettings;
+    if (ctxIn.getCommonFlags() != ctxOut.getCommonFlags())
+        return Status::kErrorDataCorrupted;
 
     if (ctxOut.getMessageType() == context::Message::kData)
     {
         ctxIn.clear();
 
         Id outId;
-
         context::DData<> ctxOutData(ctxOut);
 
         RUN(processing::deserializeDataContext(ctxOutData, outId));
@@ -263,9 +272,6 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 
         RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOutData, outId, minimumOutputInterfaceVersion));
 
-        if (ctxOutData.getDataFlags() & m_forbiddenDataFlags)
-            return Status::kErrorNotCompatibleFlagsSettings;
-
         RUN(processing::DataProcessor::deserializeData(ctxOutData, output));
     }
     else if (ctxOut.getMessageType() == context::Message::kStatus)
@@ -273,75 +279,16 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         Status statusOut = Status::kNoError;
         RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
-        if constexpr (std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
-            if (statusOut == Status::kNoError)
-                return Status::kNoError;
-        
-        if (statusOut == Status::kErrorNotSupportedProtocolVersion)
-        {
-            Vector<protocol_version_t> serverCspVersions;
-            RUN(processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, serverCspVersions));
-
-            protocol_version_t compatProtocolVersion = traits::kProtocolVersionUndefined;
-
-            for (protocol_version_t serverCspVersion : serverCspVersions)
-                if (traits::isProtocolVersionSupported(serverCspVersion))
-                {
-                    compatProtocolVersion = serverCspVersion;
-                    break;
-                }
-
-            if (compatProtocolVersion == traits::kProtocolVersionUndefined)
-                return statusOut;
-
-            // Here we should free resources that we do no need now
-            ctxOut.clear();
-
-            // Try again with the compatible protocol version
-
-        }
-        else if (statusOut == Status::kErrorNotSupportedInOutInterfaceVersion)
-        {
-            // Scenario when all minimum and prefered interface versions are the same 
-            // does not imply any further processing when we've get Status::kErrorNotSupportedInOutInterfaceVersion Output
-            if (minimumInputInterfaceVersion == preferedInputInterfaceVersion && minimumOutputInterfaceVersion == preferedOutputInterfaceVersion)
-                return statusOut;
-
-            interface_version_t serverMinInInterfaceVersion = 0;
-            interface_version_t serverMaxInInterfaceVersion = 0;
-            interface_version_t serverMinOutInterfaceVersion = 0;
-            interface_version_t serverMaxOutInterfaceVersion = 0;
-
-            RUN(processing::deserializeStatusErrorNotSupportedInOutInterfaceVersionBody(ctxOut
-                , serverMinInInterfaceVersion, serverMaxInInterfaceVersion, serverMinOutInterfaceVersion, serverMaxOutInterfaceVersion));
-
-            interface_version_t compatInputInterfaceVersion
-                = traits::getBestSupportedInterfaceVersion<InputType>(serverMinInInterfaceVersion, serverMaxInInterfaceVersion, minimumInputInterfaceVersion);
-
-            if (compatInputInterfaceVersion == traits::kInterfaceVersionUndefined)
-                return statusOut;
-
-            interface_version_t compatOutputInterfaceVersion
-                = traits::getBestSupportedInterfaceVersion<OutputType>(serverMinOutInterfaceVersion, serverMaxOutInterfaceVersion, minimumOutputInterfaceVersion);
-
-            if (compatOutputInterfaceVersion == traits::kInterfaceVersionUndefined)
-                return statusOut;
-
-            // Here we should free resources that we do no need now
-            ctxOut.clear();
-
-            // Try again with the compatible InputType and OutputType versions
-        }
-        else
-            return statusOut;
+        return statusOut;
     }
 
     return Status::kNoError;
 }
 
-inline Status DataClient::getServerProtocolVersions(service_structs::SupportedProtocolVersions<>& output) noexcept
+inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept
 {
-    BinVector binInput;
+    if (!m_dataClientSpeaker)
+        return Status::kErrorNotInited;
 
     BinVector binInput;
     context::Common<BinVector> ctxIn(binInput, traits::kProtocolVersionUndefined);
@@ -351,9 +298,50 @@ inline Status DataClient::getServerProtocolVersions(service_structs::SupportedPr
 
     RUN(m_dataClientSpeaker->speak(binInput, binOutput));
 
-    /// @brief //// need to add protocol version receiving handle
+    context::Common<BinWalker> ctxOut(binOutput);
+    RUN(processing::deserializeCommonContext(ctxOut));
 
-    return output.deserialize(binOutput);
+    if (ctxOut.getMessageType() != context::Message::kStatus)
+        return Status::kErrorDataCorrupted;
+
+    Status statusOut = Status::kNoError;
+    RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+    
+    if (statusOut != Status::kErrorNotSupportedProtocolVersion)
+        return Status::kErrorDataCorrupted;
+
+    return processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, output);
+}
+
+template<typename InputType>
+    requires IsISerializableBased<InputType>
+Status DataClient::getServerStructInterfaceVersions(interface_version_t& minInputInterfaceVersion, interface_version_t& maxInputInterfaceVersion,
+    interface_version_t& minOutputInterfaceVersion, interface_version_t& maxOutputInterfaceVersion) const noexcept
+{
+    if (!isReady())
+        return Status::kErrorNotInited;
+
+    BinVector binInput;
+    context::SData<> ctxIn(binInput, m_protocolVersion, m_mandatoryCommonFlags, m_mandatoryDataFlags);
+    
+    RUN(processing::serializeCommonContext(ctxIn));
+    RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
+
+    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+
+    context::Common<BinWalker> ctxOut(binOutput);
+
+    if (ctxOut.getMessageType() != context::Message::kStatus)
+        return Status::kErrorDataCorrupted;
+
+    Status statusOut = Status::kNoError;
+    RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+
+    if (statusOut != Status::kErrorNotSupportedInterfaceVersion)
+        return Status::kErrorDataCorrupted;
+
+    return processing::deserializeStatusErrorNotSupportedInOutInterfaceVersionBody(ctxOut
+        , minInputInterfaceVersion, maxInputInterfaceVersion, minOutputInterfaceVersion, maxOutputInterfaceVersion);;
 }
 
 } // namespace common_serialization::csp::messaging

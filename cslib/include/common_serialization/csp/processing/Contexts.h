@@ -69,7 +69,6 @@ constexpr Status deserializeCommonContext(context::Common<D>& ctx) noexcept
     return Status::kNoError;
 }
 
-
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
 constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 {
@@ -80,6 +79,15 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 
     RUN(output.pushBackArithmeticValue(id.leftPart));
     RUN(output.pushBackArithmeticValue(id.rightPart));
+
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getLatestInterfaceVersion().version))
+        return Status::kErrorNotSupportedInterfaceVersion;
+
+    RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
+
+    // Only set interface versions not match when some conversion will be need
+    if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
+        ctx.setInterfaceVersionsNotMatch(true);
     
     if (dataFlags.checkRecursivePointers)
     {
@@ -93,15 +101,6 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 
     RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getDataFlags())));
 
-    RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
-
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getLatestInterfaceVersion().version))
-        return Status::kErrorNotSupportedInterfaceVersion;
-
-    // Only set interface versions not match when some conversion will be need
-    if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
-        ctx.setInterfaceVersionsNotMatch(true);
-
     return Status::kNoError;
 }
 
@@ -113,15 +112,35 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Id& id)
     RUN(input.readArithmeticValue(id.leftPart));
     RUN(input.readArithmeticValue(id.rightPart));
 
+    interface_version_t inputInterfaceVersion = 0;
+    RUN(input.readArithmeticValue(inputInterfaceVersion));
+    ctx.setInterfaceVersion(inputInterfaceVersion);
+
     uint32_t intFlags = 0;
     RUN(input.readArithmeticValue(intFlags));
     context::DataFlags dataFlags(intFlags);
     ctx.setDataFlags(dataFlags);
 
-    interface_version_t inputInterfaceVersion = 0;
-    RUN(input.readArithmeticValue(inputInterfaceVersion));
-    ctx.setInterfaceVersion(inputInterfaceVersion);
+    return Status::kNoError;
+}
 
+template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+constexpr Status serializeDataContextNoChecks(context::SData<S, PM>& ctx) noexcept
+{
+    S& output = ctx.getBinaryData();
+
+    Id id = T::getId();
+
+    RUN(output.pushBackArithmeticValue(id.leftPart));
+    RUN(output.pushBackArithmeticValue(id.rightPart));
+    RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
+
+    // Only set interface versions not match when some conversion will be need
+    if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
+        ctx.setInterfaceVersionsNotMatch(true);
+
+    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getDataFlags())));
+    
     return Status::kNoError;
 }
 
@@ -131,6 +150,14 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
     Id tUuid = T::getId();
     if (tUuid != id)
         return Status::kErrorMismatchOfStructId;
+
+    // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
+    // however for some special subscribers of data struct you may override it by
+    // value that is higher than minimum defined in interface version
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterfaceProperties().version))
+        return Status::kErrorNotSupportedInterfaceVersion;
+    else if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
+        ctx.setInterfaceVersionsNotMatch(true);
 
     context::DataFlags dataFlags = ctx.getDataFlags();
 
@@ -142,16 +169,8 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
         if (ctx.getPointersMap() == nullptr)
             return Status::kErrorInvalidArgument;
         else if (!dataFlags.allowUnmanagedPointers)
-            return Status::kErrorNotCompatibleFlagsSettings;
+            return Status::kErrorNotCompatibleDataFlagsSettings;
     }
-
-    // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
-    // however for some special subscribers of data struct you may override it by
-    // value that is higher than minimum defined in interface version
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterfaceProperties().version))
-        return Status::kErrorNotSupportedInterfaceVersion;
-    else if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
-        ctx.setInterfaceVersionsNotMatch(true);
 
     return Status::kNoError;
 }

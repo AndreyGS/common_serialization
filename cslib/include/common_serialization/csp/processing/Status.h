@@ -78,17 +78,14 @@ template<ISerializationCapableContainer S>
 constexpr Status serializeStatusErrorNotSupportedInOutInterfaceVersion(
       interface_version_t  inMinimumSupportedInterfaceVersion, interface_version_t inMaximumSupportedInterfaceVersion
     , interface_version_t outMinimumSupportedInterfaceVersion, interface_version_t outMaximumSupportedInterfaceVersion
-    , protocol_version_t protocolVersion
-    , context::CommonFlags commonFlags
-    , S& output) noexcept
+    , context::Common<S>& output) noexcept
 {
-    context::Common<S> ctx(output, protocolVersion, commonFlags, context::Message::kStatus);
     RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInOutInterfaceVersion));
 
-    RUN(output.pushBackArithmeticValue(inMinimumSupportedInterfaceVersion));
-    RUN(output.pushBackArithmeticValue(inMaximumSupportedInterfaceVersion));
-    RUN(output.pushBackArithmeticValue(outMinimumSupportedInterfaceVersion));
-    RUN(output.pushBackArithmeticValue(outMaximumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(inMinimumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(inMaximumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(outMinimumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(outMaximumSupportedInterfaceVersion));
 
     return Status::kNoError;
 }

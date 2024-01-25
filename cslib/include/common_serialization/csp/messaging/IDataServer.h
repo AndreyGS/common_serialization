@@ -96,23 +96,24 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
     context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput
 )
 {
+    // We already checked equality of ID in context and in subscriber
+    // so here it is only placeholder
     Id id = InputType::getId();
 
-    Status status = processing::deserializeInOutDataContextPostprocess<InputType, OutputType>(
-        ctx, id, minimumInputInterfaceVersion, minimumOutputInterfaceVersion);
+    //RUN(CheckPoliciesCompliance<InputType, OutputType>(ctx, clientId));
 
-    //if (statusSuccess(status))
-        //status = CheckPoliciesCompliance<InputType, OutputType>(ctx, clientId);
-
-    if (!statusSuccess(status))
+    if (Status status = processing::deserializeDataContextPostprocess<InputType>(ctx, id, minimumInterfaceVersion); !statusSuccess(status))
     {
-        if (status == Status::kErrorNotSupportedInOutInterfaceVersion)
+        if (status == Status::kErrorNotSupportedInterfaceVersion)
+        {
+            context::Common<> ctxOut(output, ctx.getProtocolVersion(), ctx.getCommonFlags(), context::Message::kStatus);
             RUN(processing::serializeStatusErrorNotSupportedInOutInterfaceVersion(minimumInputInterfaceVersion, InputType::getLatestInterfaceVersion()
-                , minimumOutputInterfaceVersion, OutputType::getLatestInterfaceVersion(), ctx.getProtocolVersion(), CommonServer::kOutMandatoryCommonFlags, binOutput));
+                , minimumOutputInterfaceVersion, OutputType::getLatestInterfaceVersion(), ctxOut));
+        }
         
-        return Status::kNoError;
+        return status;
     }
-    
+
     ctx.setAuxUsingHeapAllocation(forTempUseHeap);
 
     if constexpr (forTempUseHeap)
