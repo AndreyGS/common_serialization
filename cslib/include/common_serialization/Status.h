@@ -73,7 +73,8 @@ enum class Status : int_fast32_t
     kErrorNotCompatibleCommonFlagsSettings          =      -15,
     kErrorNotCompatibleDataFlagsSettings            =      -16,
     kErrorMoreEntires                               =      -17,
-    kErrorNotInited                                 =      -18
+    kErrorNotInited                                 =      -18,
+    kErrorNoSupportedInterfaces                     =      -19
 };
 
 constexpr bool statusSuccess(Status status)

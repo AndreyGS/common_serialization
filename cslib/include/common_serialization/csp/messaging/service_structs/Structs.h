@@ -118,6 +118,29 @@ public:
     Vector<traits::Interface> list;
 };
 
+
+/// @brief Struct contain list of all supported interfaces
+/// @tparam T Derived class
+template<typename T = Dummy>
+struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVersion<T>, T>>
+{
+public:
+    using instance_type = GetCrtpMainType<InterfaceVersion<T>, T>;
+
+    static constexpr Id kId{ 0xdf1cb40c, 0x9a72, 0x426b, 0xa801, 0xb0993fe76a46 };
+    static constexpr interface_version_t kInterfaceVersion = 1;
+    static constexpr interface_version_t kPrivateVersions[] = { 1 };
+    static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
+
+    bool operator==(const InterfacesList& rhs) const noexcept
+    {
+        return list == rhs.list;
+    }
+
+    Id id{ kNullUuid };
+    interface_version_t version{ traits::kInterfaceVersionUndefined };
+};
+
 /// @brief Settings of a CSP party
 template<typename T = Dummy>
 struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySettings<T>, T>>
@@ -138,14 +161,44 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     context::CommonFlags forbiddenCommonFlags;
 
     /// @brief List of availible party interfaces and their settings
-    Vector<traits::Interface> availableInterfaces;
+    Vector<InterfaceVersion<>> interfaces;
+
+    Status init(const CspPartySettings& rhs) noexcept
+    {
+        if (this == &rhs)
+            return Status::kNoError;
+
+        clear();
+
+        RUN(supportedCspVersions.init(rhs.supportedCspVersions));
+        mandatoryCommonFlags = rhs.mandatoryCommonFlags;
+        forbiddenCommonFlags = rhs.forbiddenCommonFlags;
+        RUN(interfaces.init(rhs.interfaces));
+
+        return Status::kNoError;
+    }
+
+    Status init(CspPartySettings&& rhs) noexcept
+    {
+        if (this == &rhs)
+            return Status::kNoError;
+
+        clear();
+
+        RUN(supportedCspVersions.init(std::move(rhs.supportedCspVersions)));
+        mandatoryCommonFlags = rhs.mandatoryCommonFlags;
+        forbiddenCommonFlags = rhs.forbiddenCommonFlags;
+        RUN(interfaces.init(std::move(rhs.interfaces)));
+
+        return Status::kNoError;
+    }
 
     constexpr bool isValid() const noexcept
     {
         return
                supportedCspVersions.size() > 0
             && !static_cast<bool>(mandatoryCommonFlags & forbiddenCommonFlags)
-            && availableInterfaces.size() > 0;
+            && interfaces.size() > 0;
     }
 
     static Status getCompatibleSettings(const CspPartySettings<>& lhs, const CspPartySettings<>& rhs, CspPartySettings<>& output) noexcept
@@ -161,13 +214,21 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
         output.mandatoryCommonFlags = lhs.mandatoryCommonFlags | rhs.mandatoryCommonFlags;
         output.forbiddenCommonFlags = lhs.forbiddenCommonFlags | rhs.forbiddenCommonFlags;
 
-        for (const auto& lhsInterface : lhs.availableInterfaces)
-            for (const auto& rhsInterface : rhs.availableInterfaces)
+        for (const auto& lhsInterface : lhs.interfaces)
+            for (const auto& rhsInterface : rhs.interfaces)
                 if (lhsInterface.id == rhsInterface.id)
                 {
-                    RUN(output.availableInterfaces.pushBack(lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version));
+                    RUN(output.interfaces.pushBack(lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version));
                     break;
                 }
+    }
+
+    void clear() noexcept
+    {
+        supportedCspVersions.clear();
+        mandatoryCommonFlags = context::CommonFlags{};
+        forbiddenCommonFlags = context::CommonFlags{};
+        interfaces.clear();
     }
 };
 

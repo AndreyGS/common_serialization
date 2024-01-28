@@ -41,36 +41,36 @@ namespace common_serialization::csp::messaging
 class DataClient
 {
 public:
-    DataClient(IDataClientSpeaker* pDataClientSpeaker, traits::Interface _interface = service_structs::properties)
-        : m_dataClientSpeaker(pDataClientSpeaker), m_interface(_interface)
+    DataClient(IDataClientSpeaker* pDataClientSpeaker)
+        : m_dataClientSpeaker(pDataClientSpeaker)
     {
     }
 
     DataClient(
           IDataClientSpeaker* pDataClientSpeaker
-        , traits::Interface _interface
         , protocol_version_t protocolVersion
         , context::CommonFlags mandatoryCommonFlags
         , context::CommonFlags forbiddenCommonFlags
-        , context::DataFlags mandatoryDataFlags
-        , context::DataFlags forbiddenDataFlags
+        , const Vector<traits::Interface>& interfaces
     )
         : m_dataClientSpeaker(pDataClientSpeaker)
-        , m_interface(_interface)
         , m_protocolVersion(protocolVersion)
         , m_mandatoryCommonFlags(mandatoryCommonFlags)
         , m_forbiddenCommonFlags(forbiddenCommonFlags)
-        , m_mandatoryDataFlags(mandatoryDataFlags)
-        , m_forbiddenDataFlags(forbiddenDataFlags)
+        , m_interfaces(interfaces)
     {
-        m_isReady = static_cast<bool>(pDataClientSpeaker);
+        m_isReady = static_cast<bool>(pDataClientSpeaker)
+            && m_protocolVersion != traits::kProtocolVersionUndefined
+            && !static_cast<bool>(m_mandatoryCommonFlags & m_forbiddenCommonFlags)
+            && m_interfaces.size() > 0;
     }
 
-    Status init(service_structs::CspPartySettings<>* pCspPartySettings)
-    {
-        service_structs::CspPartySettings<> cspPartySettings;
-        Status status = handleData(service_structs::ISerializableDummy<>(), cspPartySettings);
-    }
+    Status init(
+          const Vector<protocol_version_t>& acceptableCspVersions
+        , context::CommonFlags clientMandatoryCommonFlags
+        , context::CommonFlags clientForbiddenCommonFlags
+        , const Vector<traits::Interface>& acceptableInterfaces
+        , service_structs::CspPartySettings<>* pCspPartySettings) noexcept;
 
     Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept;
 
@@ -168,6 +168,84 @@ private:
 
     UniquePtr<IDataClientSpeaker> m_dataClientSpeaker;
 };
+
+Status DataClient::init(
+      const Vector<protocol_version_t>& acceptableCspVersions
+    , context::CommonFlags clientMandatoryCommonFlags
+    , context::CommonFlags clientForbiddenCommonFlags
+    , const Vector<traits::Interface>& acceptableInterfaces
+    , service_structs::CspPartySettings<>* pCspPartySettings) noexcept
+{
+    if (!m_dataClientSpeaker)
+        return Status::kErrorNotInited;
+
+    Vector<protocol_version_t> serverCspVersions;
+    RUN(getServerProtocolVersions(serverCspVersions));
+
+    protocol_version_t tempServerProtocolVersion = traits::kProtocolVersionUndefined;
+
+    for (auto serverProtocolVersion : serverCspVersions)
+    {
+        for (auto clientProtocolVersion : acceptableCspVersions)
+        {
+            if (clientProtocolVersion < serverProtocolVersion)
+                break;
+            else if (serverProtocolVersion == clientProtocolVersion)
+            {
+                tempServerProtocolVersion = serverProtocolVersion;
+                break;
+            }
+        }
+
+        if (tempServerProtocolVersion != traits::kProtocolVersionUndefined)
+            break;
+    }
+
+    if (tempServerProtocolVersion == traits::kProtocolVersionUndefined)
+    {
+        if (pCspPartySettings)
+            RUN(pCspPartySettings->supportedCspVersions.init(std::move(serverCspVersions)));
+
+        return Status::kErrorNotSupportedProtocolVersion;
+    }
+
+    service_structs::CspPartySettings<> cspPartySettings;
+    RUN(getServerSettings(serverCspVersions[0], cspPartySettings));
+
+    if (pCspPartySettings)
+        RUN(pCspPartySettings->init(std::move(cspPartySettings)));
+
+    service_structs::CspPartySettings<>& cspPartySettingsR = pCspPartySettings ? *pCspPartySettings : cspPartySettings;
+
+    context::CommonFlags tempMandatoryCommonFlags = clientMandatoryCommonFlags | cspPartySettingsR.mandatoryCommonFlags;
+    context::CommonFlags tempForbiddenCommonFlags = clientForbiddenCommonFlags | cspPartySettingsR.forbiddenCommonFlags;
+
+    if (tempMandatoryCommonFlags & tempForbiddenCommonFlags)
+        return Status::kErrorNotCompatibleCommonFlagsSettings;
+
+    for (auto serverInterfaceVersion : cspPartySettingsR.interfaces)
+        for (auto clientInterface : acceptableInterfaces)
+        {
+            if (serverInterfaceVersion.id == clientInterface.id)
+            {
+                RUN(m_interfaces.pushBack(clientInterface));
+                m_interfaces[m_interfaces.size() - 1].version = serverInterfaceVersion.version > clientInterface.version ? clientInterface.version : serverInterfaceVersion.version;
+                break;
+            }
+        }
+
+    if (m_interfaces.size() == 0)
+        return Status::kErrorNoSupportedInterfaces;
+
+    // if we are here, than everything is ok and we should init DataClient member fields
+    m_protocolVersion = tempServerProtocolVersion;
+    m_mandatoryCommonFlags = tempMandatoryCommonFlags;
+    m_forbiddenCommonFlags = tempForbiddenCommonFlags;
+    
+    m_isReady = true;
+
+    return Status::kNoError;
+}
 
 Status DataClient::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
 {
