@@ -52,7 +52,7 @@ private:
 
 inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput)
 {
-    context::Common<BinWalker> ctx(binInput, m_serverSettings.minimumProtocolVersion);
+    context::Common<BinWalker> ctx(binInput, m_serverSettings.supportedCspVersions[m_serverSettings.supportedCspVersions.size() - 1]);
 
     if (Status status = processing::deserializeCommonContext(ctx); !statusSuccess(status))
     {

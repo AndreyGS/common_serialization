@@ -74,7 +74,7 @@ public:
 
     Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept;
 
-    bool isReady()
+    bool isReady() const noexcept
     {
         return m_isReady;
     }
@@ -148,12 +148,11 @@ public:
 
     template<typename InputType>
         requires IsISerializableBased<InputType>
-    Status getServerStructInterfaceVersions(interface_version_t& minInputInterfaceVersion, interface_version_t& maxInputInterfaceVersion,
-        interface_version_t& minOutputInterfaceVersion, interface_version_t& maxOutputInterfaceVersion) const noexcept;
+    Status getServerStructInterfaceSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
 
-    constexpr const traits::Interface& getInterface() const noexcept
+    constexpr const Vector<traits::Interface>& getInterfaces() const noexcept
     {
-        return m_interface;
+        return m_interfaces;
     }
 
 
@@ -165,10 +164,7 @@ private:
     context::CommonFlags m_mandatoryCommonFlags{ helpers::isBitness32(), helpers::isModuleIsBigEndian() };
     context::CommonFlags m_forbiddenCommonFlags;
 
-    context::DataFlags m_mandatoryDataFlags;
-    context::DataFlags m_forbiddenDataFlags;
-
-    traits::Interface& m_interface;
+    Vector<traits::Interface> m_interfaces;
 
     UniquePtr<IDataClientSpeaker> m_dataClientSpeaker;
 };
@@ -270,7 +266,9 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         if (ctxOutData.getDataFlags().checkRecursivePointers)
             ctxOutData.setPointersMap(&pointersMapOut);
 
-        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOutData, outId, minimumOutputInterfaceVersion));
+        // Here we no need to check minimum value of output version, because if we run DataClient::handleData
+        // we're already agreed with interface version that server have
+        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOutData, outId, OutputType::getOriginPrivateVersion()));
 
         RUN(processing::DataProcessor::deserializeData(ctxOutData, output));
     }
@@ -295,7 +293,6 @@ inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& 
     RUN(processing::serializeCommonContext(ctxIn));
 
     BinWalker binOutput;
-
     RUN(m_dataClientSpeaker->speak(binInput, binOutput));
 
     context::Common<BinWalker> ctxOut(binOutput);
@@ -315,8 +312,7 @@ inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& 
 
 template<typename InputType>
     requires IsISerializableBased<InputType>
-Status DataClient::getServerStructInterfaceVersions(interface_version_t& minInputInterfaceVersion, interface_version_t& maxInputInterfaceVersion,
-    interface_version_t& minOutputInterfaceVersion, interface_version_t& maxOutputInterfaceVersion) const noexcept
+Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
 {
     if (!isReady())
         return Status::kErrorNotInited;
@@ -327,6 +323,7 @@ Status DataClient::getServerStructInterfaceVersions(interface_version_t& minInpu
     RUN(processing::serializeCommonContext(ctxIn));
     RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
 
+    BinWalker binOutput;
     RUN(m_dataClientSpeaker->speak(binInput, binOutput));
 
     context::Common<BinWalker> ctxOut(binOutput);
@@ -340,8 +337,7 @@ Status DataClient::getServerStructInterfaceVersions(interface_version_t& minInpu
     if (statusOut != Status::kErrorNotSupportedInterfaceVersion)
         return Status::kErrorDataCorrupted;
 
-    return processing::deserializeStatusErrorNotSupportedInOutInterfaceVersionBody(ctxOut
-        , minInputInterfaceVersion, maxInputInterfaceVersion, minOutputInterfaceVersion, maxOutputInterfaceVersion);;
+    return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 
 } // namespace common_serialization::csp::messaging

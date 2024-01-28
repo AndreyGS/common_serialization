@@ -80,7 +80,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     RUN(output.pushBackArithmeticValue(id.leftPart));
     RUN(output.pushBackArithmeticValue(id.rightPart));
 
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getLatestInterfaceVersion().version))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getInterfaceProperties().version))
         return Status::kErrorNotSupportedInterfaceVersion;
 
     RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
@@ -96,6 +96,9 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 
         dataFlags.allowUnmanagedPointers = true;
     }
+
+    if ((dataFlags & T::getEffectiveMandatoryDataFlags()) != dataFlags || static_cast<bool>(dataFlags & T::getEffectiveForbiddenDataFlags()))
+        return Status::kErrorNotCompatibleDataFlagsSettings;
 
     ctx.setDataFlags(dataFlags);
 
@@ -160,6 +163,9 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
         ctx.setInterfaceVersionsNotMatch(true);
 
     context::DataFlags dataFlags = ctx.getDataFlags();
+
+    if ((dataFlags & T::getEffectiveMandatoryDataFlags()) != dataFlags || static_cast<bool>(dataFlags & T::getEffectiveForbiddenDataFlags()))
+        return Status::kErrorNotCompatibleDataFlagsSettings;
 
     if (dataFlags.allowUnmanagedPointers && ctx.getAddedPointers() == nullptr)
         return Status::kErrorInvalidArgument;

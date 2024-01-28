@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "common_serialization/csp/context/DataFlags.h"
+
 namespace common_serialization::csp
 {
 
@@ -40,11 +42,17 @@ inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;   
 struct Interface
 {
     Id id{ kNullUuid };
+
+    /// @brief The only field than allowed to change since interface publication
     interface_version_t version{ kInterfaceVersionUndefined };
+
+    context::DataFlags mandatoryDataFlags;
+    context::DataFlags forbiddenDataFlags;
 
     constexpr bool operator==(const Interface& rhs) const noexcept
     {
-        return id == rhs.id && version == rhs.version;
+        return id == rhs.id && version == rhs.version 
+            && mandatoryDataFlags == rhs.mandatoryDataFlags && forbiddenDataFlags == rhs.forbiddenDataFlags;
     }
 };
 

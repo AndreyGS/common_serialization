@@ -29,6 +29,18 @@
 namespace common_serialization::csp
 {
 
+template<typename T>
+concept HasAddtionalMandatoryDataFlags = requires(T t)
+{
+    { T::kAddtionalMandatoryDataFlags } -> std::same_as<const context::DataFlags&>;
+};
+
+template<typename T>
+concept HasAddtionalForbiddenDataFlags = requires(T t)
+{
+    { T::kAddtionalForbiddenDataFlags } -> std::same_as<const context::DataFlags&>;
+};
+
 /// @brief Common interface for simplifying data serialization process.
 /// @note Only classes that inherits this interface are supports versioning
 ///     and may be used as top structs in CSP data messaging.
@@ -113,7 +125,29 @@ public:
     /// @return Array size of private versions
     [[nodiscard]] static consteval interface_version_t getPrivateVersionsCount() noexcept;
 
+    /// @brief Get properties of interface to which current struct beholds
+    /// @return Interface properties
     [[nodiscard]] static consteval const traits::Interface& getInterfaceProperties() noexcept;
+
+    /// @brief Get additional (to interace defined) mandatory data flags with which
+    ///     current struct must be serialized
+    /// @return Addtional mandatory DataFlags
+    [[nodiscard]] static consteval context::DataFlags getAddtionalMandatoryDataFlags() noexcept;
+
+    /// @brief Get additional (to interace defined) forbidden data flags with which
+    ///     current struct must be serialized
+    /// @return Addtional forbidden DataFlags
+    [[nodiscard]] static consteval context::DataFlags getAddtionalForbiddenDataFlags() noexcept;
+
+    /// @brief Get effective (with interace defined) mandatory data flags with which
+    ///     current struct must be serialized
+    /// @return Effective mandatory DataFlags
+    [[nodiscard]] static consteval context::DataFlags getEffectiveMandatoryDataFlags() noexcept;
+
+    /// @brief Get effective (with interace defined) forbidden data flags with which
+    ///     current struct must be serialized
+    /// @return AddtioEffectivenal forbidden DataFlags
+    [[nodiscard]] static consteval context::DataFlags getEffectiveForbiddenDataFlags() noexcept;
 };
 
 template<typename T>
@@ -202,6 +236,36 @@ template<typename T>
 [[nodiscard]] consteval const traits::Interface& ISerializable<T>::getInterfaceProperties() noexcept
 {
     return T::getInterfaceProperties();
+}
+
+template<typename T>
+[[nodiscard]] consteval context::DataFlags ISerializable<T>::getAddtionalMandatoryDataFlags() noexcept
+{
+    if constexpr (HasAddtionalMandatoryDataFlags<T>)
+        return T::kAddtionalMandatoryDataFlags;
+    else
+        return context::DataFlags{};
+}
+
+template<typename T>
+[[nodiscard]] consteval context::DataFlags ISerializable<T>::getAddtionalForbiddenDataFlags() noexcept
+{
+    if constexpr (HasAddtionalForbiddenDataFlags<T>)
+        return T::kAddtionalForbiddenDataFlags;
+    else
+        return context::DataFlags{};
+}
+
+template<typename T>
+[[nodiscard]] static consteval context::DataFlags ISerializable<T>::getEffectiveMandatoryDataFlags() noexcept
+{
+    return getAddtionalMandatoryDataFlags() | getInterfaceProperties().mandatoryDataFlags;
+}
+
+template<typename T>
+[[nodiscard]] static consteval context::DataFlags ISerializable<T>::getEffectiveForbiddenDataFlags() noexcept
+{
+    return getAddtionalForbiddenDataFlags() | getInterfaceProperties().forbiddenDataFlags;
 }
 
 } // namespace common_serialization::csp

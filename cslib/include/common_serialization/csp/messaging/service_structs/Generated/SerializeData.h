@@ -61,16 +61,6 @@ constexpr Status DataProcessor::serializeData(const Id& value, context::SData<>&
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const messaging::service_structs::SupportedProtocolVersions<>& value, context::SData<>& ctx)
-{
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
-
-    RUN(serializeData(value.list, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
 constexpr Status DataProcessor::serializeData(const traits::Interface& value, context::SData<>& ctx)
 {
     SERIALIZE_NO_CONVERSION_COMMON(value, ctx);

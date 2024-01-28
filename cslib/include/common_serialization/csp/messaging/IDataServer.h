@@ -107,8 +107,7 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
         if (status == Status::kErrorNotSupportedInterfaceVersion)
         {
             context::Common<> ctxOut(output, ctx.getProtocolVersion(), ctx.getCommonFlags(), context::Message::kStatus);
-            RUN(processing::serializeStatusErrorNotSupportedInOutInterfaceVersion(minimumInputInterfaceVersion, InputType::getLatestInterfaceVersion()
-                , minimumOutputInterfaceVersion, OutputType::getLatestInterfaceVersion(), ctxOut));
+            RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(minimumInterfaceVersion, OutputType::getId(), ctxOut));
         }
         
         return status;

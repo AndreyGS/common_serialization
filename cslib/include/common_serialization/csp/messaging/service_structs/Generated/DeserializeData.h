@@ -60,16 +60,6 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::service_structs::SupportedProtocolVersions<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.list));
-
-    return Status::kNoError;
-}
-
-template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, traits::Interface& value)
 {
     DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);

@@ -39,14 +39,6 @@ namespace common_serialization::csp::messaging
 class IDataServerBase
 {
 public:
-    /// @brief Get instance minimum input interface version
-    /// @return Instance minimum input interface version
-    virtual [[nodiscard]] interface_version_t getMinimumInputInterfaceVersion() = 0;
-
-    /// @brief Get instance minimum output interface version
-    /// @return Instance minimum output interface version
-    virtual [[nodiscard]] interface_version_t getMinimumOutputInterfaceVersion() = 0;
-
     /// @brief Common entry point on data messages handling
     /// @param ctxCommon Deserialized from input common context
     /// @param binOutput Binary data output

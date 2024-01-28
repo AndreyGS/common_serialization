@@ -137,15 +137,18 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     /// @brief Forbidden Common Flags on party
     context::CommonFlags forbiddenCommonFlags;
 
-    /// @brief Mandatory Data Flags in interactions with party
-    context::DataFlags mandatoryDataFlags;
-    /// @brief Forbidden Data Flags on party
-    context::DataFlags forbiddenDataFlags;
-
     /// @brief List of availible party interfaces and their settings
     Vector<traits::Interface> availableInterfaces;
 
-    static Status getCommonSettings(const CspPartySettings<>& lhs, const CspPartySettings<>& rhs, CspPartySettings<>& output) noexcept
+    constexpr bool isValid() const noexcept
+    {
+        return
+               supportedCspVersions.size() > 0
+            && !static_cast<bool>(mandatoryCommonFlags & forbiddenCommonFlags)
+            && availableInterfaces.size() > 0;
+    }
+
+    static Status getCompatibleSettings(const CspPartySettings<>& lhs, const CspPartySettings<>& rhs, CspPartySettings<>& output) noexcept
     {
         for (auto lhsVersion : lhs.supportedCspVersions)
             for (auto rhsVersion : rhs.supportedCspVersions)
@@ -157,9 +160,6 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
 
         output.mandatoryCommonFlags = lhs.mandatoryCommonFlags | rhs.mandatoryCommonFlags;
         output.forbiddenCommonFlags = lhs.forbiddenCommonFlags | rhs.forbiddenCommonFlags;
-
-        output.mandatoryDataFlags = lhs.mandatoryDataFlags | rhs.mandatoryDataFlags;
-        output.forbiddenDataFlags = lhs.forbiddenDataFlags | rhs.forbiddenDataFlags;
 
         for (const auto& lhsInterface : lhs.availableInterfaces)
             for (const auto& rhsInterface : rhs.availableInterfaces)

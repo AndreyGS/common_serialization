@@ -75,32 +75,26 @@ constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::
 }
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusErrorNotSupportedInOutInterfaceVersion(
-      interface_version_t  inMinimumSupportedInterfaceVersion, interface_version_t inMaximumSupportedInterfaceVersion
-    , interface_version_t outMinimumSupportedInterfaceVersion, interface_version_t outMaximumSupportedInterfaceVersion
-    , context::Common<S>& output) noexcept
+constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
+      interface_version_t minimumInterfaceVersion, const Id& outputTypeId, context::Common<S>& ctx) noexcept
 {
-    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInOutInterfaceVersion));
+    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInterfaceVersion));
 
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(inMinimumSupportedInterfaceVersion));
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(inMaximumSupportedInterfaceVersion));
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(outMinimumSupportedInterfaceVersion));
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(outMaximumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(minimumInterfaceVersion));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(outputTypeId.leftPart));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(outputTypeId.rightPart));
 
     return Status::kNoError;
 }
 
 template<IDeserializationCapableContainer D>
-constexpr Status deserializeStatusErrorNotSupportedInOutInterfaceVersionBody(
-      context::Common<D>& ctx
-    , interface_version_t& inMinimumSupportedInterfaceVersion, interface_version_t& inMaximumSupportedInterfaceVersion
-    , interface_version_t& outMinimumSupportedInterfaceVersion,interface_version_t& outMaximumSupportedInterfaceVersion
+constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(
+      context::Common<D>& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId
 ) noexcept
 {
-    RUN(ctx.getBinaryData().readArithmeticValue(inMinimumSupportedInterfaceVersion));
-    RUN(ctx.getBinaryData().readArithmeticValue(inMaximumSupportedInterfaceVersion));
-    RUN(ctx.getBinaryData().readArithmeticValue(outMinimumSupportedInterfaceVersion));
-    RUN(ctx.getBinaryData().readArithmeticValue(outMaximumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().readArithmeticValue(minimumInterfaceVersion));
+    RUN(ctx.getBinaryData().readArithmeticValue(outputTypeId.leftPart));
+    RUN(ctx.getBinaryData().readArithmeticValue(outputTypeId.rightPart));
 
     return Status::kNoError;
 }

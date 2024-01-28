@@ -47,6 +47,7 @@ struct CommonFlags
     constexpr CommonFlags(bool isBitness32, bool isBigEndianFormat) noexcept : bitness32(isBitness32), bigEndianFormat(isBigEndianFormat) { }
     explicit constexpr CommonFlags(uint16_t value) noexcept;
     constexpr CommonFlags& operator=(uint16_t value) noexcept;
+    [[nodiscard]] constexpr CommonFlags operator|(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr CommonFlags operator&(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr explicit operator uint16_t() const noexcept;
@@ -64,6 +65,11 @@ constexpr CommonFlags& CommonFlags::operator=(uint16_t value) noexcept
         (static_cast<void*>(
             &(*static_cast<uint16_t*>(
                 static_cast<void*>(this)) = value)));
+}
+
+[[nodiscard]] constexpr CommonFlags CommonFlags::operator|(CommonFlags rhs) const noexcept
+{
+    return CommonFlags(static_cast<uint16_t>(*this) | static_cast<uint16_t>(rhs));
 }
 
 [[nodiscard]] constexpr CommonFlags CommonFlags::operator&(CommonFlags rhs) const noexcept
