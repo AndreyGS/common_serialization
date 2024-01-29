@@ -26,7 +26,6 @@
 #include "common_serialization/csp/context/Common.h"
 #include "common_serialization/csp/messaging/IDataServerBase.h"
 
-
 namespace common_serialization::csp::messaging
 {
 
@@ -91,7 +90,7 @@ inline Status CommonServer::handleGetSettingsRequest(protocol_version_t cspVersi
 {
     binOutput.clear();
 
-    context::SData<BinVector> ctxOut(binOutput, cspVersion, m_serverSettings.mandatoryCommonFlags, m_serverSettings.mandatoryDataFlags, true, cspVersion);
+    context::SData<BinVector> ctxOut(binOutput, cspVersion, m_serverSettings.mandatoryCommonFlags, context::DataFlags{}, true, cspVersion);
 
     return m_serverSettings.serialize(ctxOut);
 }

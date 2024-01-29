@@ -127,27 +127,27 @@ public:
 
     /// @brief Get properties of interface to which current struct beholds
     /// @return Interface properties
-    [[nodiscard]] static consteval const traits::Interface& getInterfaceProperties() noexcept;
+    [[nodiscard]] static constexpr const traits::Interface& getInterface() noexcept;
 
     /// @brief Get additional (to interace defined) mandatory data flags with which
     ///     current struct must be serialized
     /// @return Addtional mandatory DataFlags
-    [[nodiscard]] static consteval context::DataFlags getAddtionalMandatoryDataFlags() noexcept;
+    [[nodiscard]] static constexpr context::DataFlags getAddtionalMandatoryDataFlags() noexcept;
 
     /// @brief Get additional (to interace defined) forbidden data flags with which
     ///     current struct must be serialized
     /// @return Addtional forbidden DataFlags
-    [[nodiscard]] static consteval context::DataFlags getAddtionalForbiddenDataFlags() noexcept;
+    [[nodiscard]] static constexpr context::DataFlags getAddtionalForbiddenDataFlags() noexcept;
 
     /// @brief Get effective (with interace defined) mandatory data flags with which
     ///     current struct must be serialized
     /// @return Effective mandatory DataFlags
-    [[nodiscard]] static consteval context::DataFlags getEffectiveMandatoryDataFlags() noexcept;
+    [[nodiscard]] static constexpr context::DataFlags getEffectiveMandatoryDataFlags() noexcept;
 
     /// @brief Get effective (with interace defined) forbidden data flags with which
     ///     current struct must be serialized
     /// @return AddtioEffectivenal forbidden DataFlags
-    [[nodiscard]] static consteval context::DataFlags getEffectiveForbiddenDataFlags() noexcept;
+    [[nodiscard]] static constexpr context::DataFlags getEffectiveForbiddenDataFlags() noexcept;
 };
 
 template<typename T>
@@ -233,13 +233,13 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] consteval const traits::Interface& ISerializable<T>::getInterfaceProperties() noexcept
+[[nodiscard]] constexpr const traits::Interface& ISerializable<T>::getInterface() noexcept
 {
-    return T::getInterfaceProperties();
+    return T::getInterface();
 }
 
 template<typename T>
-[[nodiscard]] consteval context::DataFlags ISerializable<T>::getAddtionalMandatoryDataFlags() noexcept
+[[nodiscard]] constexpr context::DataFlags ISerializable<T>::getAddtionalMandatoryDataFlags() noexcept
 {
     if constexpr (HasAddtionalMandatoryDataFlags<T>)
         return T::kAddtionalMandatoryDataFlags;
@@ -248,7 +248,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] consteval context::DataFlags ISerializable<T>::getAddtionalForbiddenDataFlags() noexcept
+[[nodiscard]] constexpr context::DataFlags ISerializable<T>::getAddtionalForbiddenDataFlags() noexcept
 {
     if constexpr (HasAddtionalForbiddenDataFlags<T>)
         return T::kAddtionalForbiddenDataFlags;
@@ -257,15 +257,15 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] static consteval context::DataFlags ISerializable<T>::getEffectiveMandatoryDataFlags() noexcept
+[[nodiscard]] constexpr context::DataFlags ISerializable<T>::getEffectiveMandatoryDataFlags() noexcept
 {
-    return getAddtionalMandatoryDataFlags() | getInterfaceProperties().mandatoryDataFlags;
+    return getAddtionalMandatoryDataFlags() | getInterface().mandatoryDataFlags;
 }
 
 template<typename T>
-[[nodiscard]] static consteval context::DataFlags ISerializable<T>::getEffectiveForbiddenDataFlags() noexcept
+[[nodiscard]] constexpr context::DataFlags ISerializable<T>::getEffectiveForbiddenDataFlags() noexcept
 {
-    return getAddtionalForbiddenDataFlags() | getInterfaceProperties().forbiddenDataFlags;
+    return getAddtionalForbiddenDataFlags() | getInterface().forbiddenDataFlags;
 }
 
 } // namespace common_serialization::csp

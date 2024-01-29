@@ -79,7 +79,7 @@ struct DataFlags
     constexpr DataFlags& operator=(uint32_t value) noexcept;
 
     [[nodiscard]] constexpr DataFlags operator|(DataFlags rhs) const noexcept;
-    [[nodiscard]] constexpr DataFlags operator&(DataFlags rhs) const noexcept;
+    [[nodiscard]] constexpr DataFlags operator&(const DataFlags& rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(DataFlags rhs) const noexcept;
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
@@ -103,7 +103,7 @@ constexpr DataFlags& DataFlags::operator=(uint32_t value) noexcept
     return DataFlags(static_cast<uint32_t>(*this) | static_cast<uint32_t>(rhs));
 }
 
-[[nodiscard]] constexpr DataFlags DataFlags::operator&(DataFlags rhs) const noexcept
+[[nodiscard]] constexpr DataFlags DataFlags::operator&(const DataFlags& rhs) const noexcept
 {
     return DataFlags(static_cast<uint32_t>(*this) & static_cast<uint32_t>(rhs));
 }

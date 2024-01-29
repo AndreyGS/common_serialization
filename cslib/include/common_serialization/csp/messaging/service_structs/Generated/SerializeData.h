@@ -101,6 +101,26 @@ constexpr Status DataProcessor::serializeData(const messaging::service_structs::
     return Status::kNoError;
 }
 
+template<>
+constexpr Status DataProcessor::serializeData(const messaging::service_structs::CspPartySettings<>& value, context::SData<>& ctx)
+{
+    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+
+    assert(value.supportedCspVersions.size() < traits::kProtocolVersionUndefined);
+    assert(value.interfaces.size() < traits::kProtocolVersionUndefined);
+
+    RUN(serializeData(static_cast<protocol_version_t>(value.supportedCspVersions.size()), ctx));
+    RUN(serializeData(value.supportedCspVersions.data(), static_cast<protocol_version_t>(value.supportedCspVersions.size()), ctx));
+
+    RUN(serializeData(static_cast<uint16_t>(value.mandatoryCommonFlags), ctx));
+    RUN(serializeData(static_cast<uint16_t>(value.forbiddenCommonFlags), ctx));
+
+    RUN(serializeData(static_cast<protocol_version_t>(value.interfaces.size()), ctx));
+    RUN(serializeData(value.interfaces.data(), static_cast<protocol_version_t>(value.interfaces.size()), ctx));
+
+    return Status::kNoError;
+}
+
 } // namespace common_serialization::csp::processing
 
 #undef SERIALIZE_NO_CONVERSION_COMMON

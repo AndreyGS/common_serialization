@@ -45,7 +45,7 @@ public:
     static constexpr Id kId{ 0x60b0dd3e, 0x7d2e, 0x42d9, 0xb00d, 0x90f7ecd19d25 };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const traits::Interface& getInterface() noexcept { return properties; }
 };
 
 /// @brief Struct for request of interface properties with specific Id
@@ -60,7 +60,7 @@ public:
     static constexpr Id kId{ 0x08c68657, 0x4fa7, 0x4419, 0x8c13, 0x66aec2b06cb0 };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const traits::Interface& getInterface() noexcept { return properties; }
 
     Id id;
 };
@@ -77,7 +77,7 @@ public:
     static constexpr Id kId{ 0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1 };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const traits::Interface& getInterface() noexcept { return properties; }
 
     traits::Interface properties;
 };
@@ -94,7 +94,7 @@ public:
     static constexpr Id kId{ 0xd5b61816, 0xcc92, 0x4e18, 0xb287, 0xfcc4ed1e9f2a };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const traits::Interface& getInterface() noexcept { return properties; }
 };
 
 /// @brief Struct contain list of all supported interfaces
@@ -108,7 +108,7 @@ public:
     static constexpr Id kId{ 0xb5346ff9, 0xe557, 0x40af, 0x8fb9, 0x5563fa97700e };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const traits::Interface& getInterface() noexcept { return properties; }
 
     bool operator==(const InterfacesList& rhs) const noexcept
     {
@@ -130,12 +130,7 @@ public:
     static constexpr Id kId{ 0xdf1cb40c, 0x9a72, 0x426b, 0xa801, 0xb0993fe76a46 };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
-
-    bool operator==(const InterfacesList& rhs) const noexcept
-    {
-        return list == rhs.list;
-    }
+    static consteval const traits::Interface& getInterface() noexcept { return properties; }
 
     Id id{ kNullUuid };
     interface_version_t version{ traits::kInterfaceVersionUndefined };
@@ -150,7 +145,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     static constexpr Id kId{ 0xbf8c27e8, 0xfe6a, 0x4492, 0x91cb, 0xe4cf411e1236 };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static constexpr const traits::Interface& getInterface() noexcept { return properties; }
 
     /// @brief List of all supported CSP versions begining in decreasing order
     Vector<protocol_version_t> supportedCspVersions;

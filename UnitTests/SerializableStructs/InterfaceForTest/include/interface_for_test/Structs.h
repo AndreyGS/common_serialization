@@ -40,7 +40,7 @@ public:
     static constexpr cs::csp::Id kId{ 0x7f17247f, 0x094b, 0x4cda, 0x9968, 0x66e31b88063c };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 };
 
 #pragma pack(push, 1)
@@ -58,7 +58,7 @@ public:
     static constexpr cs::csp::Id kId{ 0xf2d69dcd, 0x4e24, 0x4c65, 0x9f76, 0xd517be1daccd };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 3, 1, 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     SimpleAssignableAlignedToOne() { }
     template<typename T2>
@@ -101,7 +101,7 @@ public:
     static constexpr cs::csp::Id kId{ 0x81582aae, 0x4a33, 0x4181, 0x8dda, 0xed092c23bccc };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;         // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 2, 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     template<typename T2>
     cs::Status init(const SimpleAssignable_Version0<T2>& rhs);
@@ -198,7 +198,7 @@ struct SimpleAssignableDescendant : public SimpleAssignable<cs::GetCrtpMainType<
     static constexpr cs::csp::Id kId{ 0x81d67474, 0xce11, 0x465e, 0x8558, 0xe10e84939b84 };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 2, 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     uint32_t m_d{ 0 };
 
@@ -250,7 +250,7 @@ public:
     static constexpr cs::csp::Id kId{ 0x7df21aa3, 0x9999, 0x4fa7, 0xa34d, 0xd7190e818392 };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     [[nodiscard]] bool operator==(const DynamicPolymorphic& rhs) const noexcept
     {
@@ -284,7 +284,7 @@ public:
     static constexpr cs::csp::Id kId{ 0xcbe00219, 0x483c, 0x4f3d, 0xbe2c, 0x9878c3541d7c };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     Diamond& operator=(const Diamond<>& rhs)
     {
@@ -315,7 +315,7 @@ public:
     static constexpr cs::csp::Id kId{ 0xada5ded5, 0x2568, 0x44ee, 0x961e, 0xf83491911449 };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     SpecialProcessingType& operator=(const SpecialProcessingType<>& rhs)
     {
@@ -368,7 +368,7 @@ public:
     static constexpr cs::csp::Id kId{ 0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373 }; // id is same as in SimpleAssignableAlignedToOneSimilarType2 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSimilarType1& rhs) const noexcept
     {
@@ -393,7 +393,7 @@ public:
     static constexpr cs::csp::Id kId{ 0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373 }; // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSimilarType2& rhs) const noexcept
     {
@@ -438,7 +438,7 @@ public:
     static constexpr cs::csp::Id kId{ 0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583 }; // id is same as in SimpleAssignableSimilarType2 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     [[nodiscard]] bool operator==(const SimpleAssignableSimilarType1& rhs) const noexcept
     {
@@ -463,7 +463,7 @@ public:
     static constexpr cs::csp::Id kId{ 0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583 }; // id is same as in SimpleAssignableSimilarType1 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     [[nodiscard]] bool operator==(const SimpleAssignableSimilarType2& rhs) const noexcept
     {
@@ -505,7 +505,7 @@ public:
     static constexpr cs::csp::Id kId{ 0x0bcf5909, 0xad8a, 0x48f2, 0xb1fd, 0xe9b781ce0b2d }; // hash is same as in SimilarType2 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     [[nodiscard]] bool operator==(const SimilarType1& rhs) const noexcept
     {
@@ -545,7 +545,7 @@ public:
     static constexpr cs::csp::Id kId{ 0x0bcf5909, 0xad8a, 0x48f2, 0xb1fd, 0xe9b781ce0b2d }; // id is same as in SimilarType1 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     [[nodiscard]] bool operator==(const SimilarType2& rhs) const noexcept
     {
@@ -632,7 +632,7 @@ public:
     static constexpr cs::csp::Id kId{ 0xc3d3dfdf, 0x27a2, 0x47e2, 0xbddd, 0x671c180db011 };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     ManyPointersType& operator=(const ManyPointersType<>& rhs)
     {
@@ -708,7 +708,7 @@ public:
     static constexpr cs::csp::Id kId{ 0x953e9f24, 0xc725, 0x4903, 0x8219, 0xf37d084ef557 };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 3, 2, 0 };
-    static consteval const cs::csp::traits::Interface& getInterfaceProperties() noexcept { return properties; }
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     template<typename T2>
     cs::Status init(const SForAllModesTests_Version2<T2>& rhs);

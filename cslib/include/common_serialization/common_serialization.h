@@ -74,7 +74,6 @@
 #include "common_serialization/csp/processing/DataVersionConverters.h"
 #include "common_serialization/csp/messaging/DataClient.h"
 #include "common_serialization/csp/messaging/CommonServer.h"
-#include "common_serialization/csp/messaging/DataServiceServer.h"
 #include "common_serialization/csp/messaging/service_structs/Interface.h"
 
 #undef SET_NEW_ERROR    // defined in common_serialization/Status.h

@@ -127,8 +127,8 @@ public:
     /// @param input Struct that must be sent to server
     /// @param output Struct that is returned from server 
     ///     (use ISerializableDummy<> if no output data is expected)
-    /// @param dataFlags Data flags that must be applied to current operation
-    /// @param commonFlags Common flags that must be applied to current operation
+    /// @param additionalCommonFlags Common flags that must be applied to current operation
+    /// @param additionalDataFlags Data flags that must be applied to current operation
     /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
     template<typename InputType, typename OutputType, bool forTempUseHeap = true>
@@ -136,8 +136,8 @@ public:
     Status handleData(
           const InputType& input
         , OutputType& output
-        , context::DataFlags dataFlags
-        , context::CommonFlags commonFlags
+        , context::CommonFlags additionalCommonFlags
+        , context::DataFlags additionalDataFlags
         , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
     );
 
@@ -155,8 +155,28 @@ public:
         return m_interfaces;
     }
 
+    const traits::Interface* getInterface(const Id& id) const noexcept
+    {
+        for (const auto& _interface : getInterfaces())
+            if (id == _interface.id)
+                return &_interface;
+
+        return nullptr;
+    }
+
 
 private:
+    template<typename InputType, typename OutputType, bool forTempUseHeap = true>
+        requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+    Status handleData(
+          const InputType& input
+        , OutputType& output
+        , const traits::Interface& _interface
+        , context::CommonFlags additionalCommonFlags
+        , context::DataFlags additionalDataFlags
+        , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
+    );
+
     bool m_isReady{ false };
 
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
@@ -267,36 +287,69 @@ template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status DataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    return handleData(input, output, m_mandatoryDataFlags, m_mandatoryCommonFlags, pUnmanagedPointers);
+    if (!isReady())
+        return Status::kErrorNotInited;
+
+    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
+    if (!pInterface)
+        return Status::kErrorNotSupportedInterface;
+
+    return handleData(input, output, *pInterface, context::CommonFlags{}, context::DataFlags{}, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
-{
-    return handleData(input, output, dataFlags, m_mandatoryCommonFlags, pUnmanagedPointers);
-}
-
-template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags
-    , context::CommonFlags commonFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
     if (!isReady())
         return Status::kErrorNotInited;
 
-    if (InputType::getOriginPrivateVersion() > m_serverInterfaceVersion || OutputType::getOriginPrivateVersion() > m_serverInterfaceVersion)
+    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
+    if (!pInterface)
+        return Status::kErrorNotSupportedInterface;
+
+    return handleData(input, output, *pInterface, context::CommonFlags{}, additionalDataFlags, pUnmanagedPointers);
+}
+
+template<typename InputType, typename OutputType, bool forTempUseHeap>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+Status DataClient::handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
+    , context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+{
+    if (!isReady())
+        return Status::kErrorNotInited;
+
+    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
+    if (!pInterface)
+        return Status::kErrorNotSupportedInterface;
+
+    return handleData(input, output, *pInterface, additionalCommonFlags, additionalDataFlags, pUnmanagedPointers);
+}
+
+template<typename InputType, typename OutputType, bool forTempUseHeap>
+    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+Status DataClient::handleData(const InputType& input, OutputType& output, const traits::Interface& _interface, context::CommonFlags additionalCommonFlags
+    , context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+{
+    if (InputType::getOriginPrivateVersion() > _interface.version || OutputType::getOriginPrivateVersion() > _interface.version)
         return Status::kErrorNotSupportedInterfaceVersion;
 
-    if (commonFlags & m_forbiddenCommonFlags || (commonFlags & m_mandatoryCommonFlags) != m_mandatoryCommonFlags)
+    if (additionalCommonFlags & m_forbiddenCommonFlags)
         return Status::kErrorNotCompatibleCommonFlagsSettings;
 
-    if (dataFlags & m_forbiddenDataFlags || (dataFlags & m_mandatoryDataFlags) != m_mandatoryDataFlags)
+    if (additionalDataFlags & _interface.forbiddenDataFlags)
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
     BinVector binInput;
 
-    context::SData<> ctxIn(binInput, m_protocolVersion, commonFlags, dataFlags, forTempUseHeap, getInterface().version, nullptr);
+    context::SData<> ctxIn(
+          binInput
+        , m_protocolVersion
+        , m_mandatoryCommonFlags | additionalCommonFlags
+        , _interface.mandatoryDataFlags | InputType::getAddtionalMandatoryDataFlags() | additionalDataFlags
+        , forTempUseHeap
+        , _interface.version
+        , nullptr);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
     if (ctxIn.getDataFlags().checkRecursivePointers)
@@ -335,13 +388,19 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 
         RUN(processing::deserializeDataContext(ctxOutData, outId));
 
-        if (ctxIn.getDataFlags() != ctxOutData.getDataFlags())
+        context::DataFlags outDataFlags = ctxOutData.getDataFlags();
+
+        if (   outDataFlags & OutputType::getEffectiveForbiddenDataFlags()
+            || outDataFlags & _interface.forbiddenDataFlags
+            || (outDataFlags & OutputType::getEffectiveMandatoryDataFlags()) != OutputType::getEffectiveMandatoryDataFlags()
+            || (outDataFlags & _interface.mandatoryDataFlags) != _interface.mandatoryDataFlags
+        )
             return Status::kErrorDataCorrupted;
 
         ctxOutData.setAddedPointers(pUnmanagedPointers);
 
         std::unordered_map<uint64_t, void*> pointersMapOut;
-        if (ctxOutData.getDataFlags().checkRecursivePointers)
+        if (outDataFlags.checkRecursivePointers)
             ctxOutData.setPointersMap(&pointersMapOut);
 
         // Here we no need to check minimum value of output version, because if we run DataClient::handleData
@@ -395,8 +454,12 @@ Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimum
     if (!isReady())
         return Status::kErrorNotInited;
 
+    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
+    if (!pInterface)
+        return Status::kErrorNotSupportedInterface;
+
     BinVector binInput;
-    context::SData<> ctxIn(binInput, m_protocolVersion, m_mandatoryCommonFlags, m_mandatoryDataFlags);
+    context::SData<> ctxIn(binInput, m_protocolVersion, m_mandatoryCommonFlags, pInterface->mandatoryDataFlags);
     
     RUN(processing::serializeCommonContext(ctxIn));
     RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));

@@ -80,7 +80,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     RUN(output.pushBackArithmeticValue(id.leftPart));
     RUN(output.pushBackArithmeticValue(id.rightPart));
 
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getInterfaceProperties().version))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getInterface().version))
         return Status::kErrorNotSupportedInterfaceVersion;
 
     RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
@@ -157,7 +157,7 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
     // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
     // however for some special subscribers of data struct you may override it by
     // value that is higher than minimum defined in interface version
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterfaceProperties().version))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterface().version))
         return Status::kErrorNotSupportedInterfaceVersion;
     else if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
