@@ -27,32 +27,48 @@ namespace common_serialization::csp::context
 {
 
 /// @brief Flags that are using in Data type of message in CSP
-struct CommonFlags
+class CommonFlags
 {
+public:
     /// @brief Bitness of system on which serialization is performed
     ///     is 32 bits (default is 64 bits, when not set)
-    uint16_t bitness32                              : 1 = 0;
+    static constexpr uint16_t kBitness32 = 0x1;
 
     /// @brief Private parts of message has big-endian format
     /// @remark Currently not implemented
-    uint16_t bigEndianFormat                        : 1 = 0;
+    static constexpr uint16_t kBigEndianFormat = 0x2;
 
     /// @brief Private parts of message aware of endianess difference
     /// @remark Currently not implemented
-    uint16_t possibleEndianDifference               : 1 = 0;
+    static constexpr uint16_t kPossibleEndianDifference = 0x4;
 
-    uint32_t reserved                               :13 = 0;
+    static constexpr uint16_t kValidFlagsMask = 0x7;
 
-    constexpr CommonFlags() noexcept { }
-    constexpr CommonFlags(bool isBitness32, bool isBigEndianFormat) noexcept : bitness32(isBitness32), bigEndianFormat(isBigEndianFormat) { }
+    constexpr CommonFlags() noexcept;
+    //constexpr CommonFlags(bool isBitness32, bool isBigEndianFormat) noexcept : bitness32(isBitness32), bigEndianFormat(isBigEndianFormat) { }
     explicit constexpr CommonFlags(uint16_t value) noexcept;
     constexpr CommonFlags& operator=(uint16_t value) noexcept;
+
+    constexpr void addFlags(uint32_t value) noexcept;
+    constexpr void removeFlags(uint32_t value) noexcept;
+
+    [[nodiscard]] constexpr bool bitness32() const noexcept;
+    [[nodiscard]] constexpr bool bigEndianFormat() const noexcept;
+    [[nodiscard]] constexpr bool possibleEndianDifference() const noexcept;
+
     [[nodiscard]] constexpr CommonFlags operator|(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr CommonFlags operator&(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr explicit operator uint16_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
+
+private:
+    uint16_t m_flags{ 0 };
 };
+
+constexpr CommonFlags::CommonFlags() noexcept
+{ 
+}
 
 constexpr CommonFlags::CommonFlags(uint16_t value) noexcept
 {
@@ -61,37 +77,59 @@ constexpr CommonFlags::CommonFlags(uint16_t value) noexcept
 
 constexpr CommonFlags& CommonFlags::operator=(uint16_t value) noexcept
 {
-    return *static_cast<CommonFlags*>
-        (static_cast<void*>(
-            &(*static_cast<uint16_t*>(
-                static_cast<void*>(this)) = value)));
+    m_flags = value & kValidFlagsMask;
+
+    return *this;
+}
+
+constexpr void CommonFlags::addFlags(uint32_t value) noexcept
+{
+    m_flags |= value & kValidFlagsMask;
+}
+
+constexpr void CommonFlags::removeFlags(uint32_t value) noexcept
+{
+    m_flags &= ~value;
+}
+
+[[nodiscard]] constexpr bool CommonFlags::bitness32() const noexcept
+{
+    return static_cast<bool>(m_flags & kBitness32);
+}
+
+[[nodiscard]] constexpr bool CommonFlags::bigEndianFormat() const noexcept
+{
+    return static_cast<bool>(m_flags & kBigEndianFormat);
+}
+
+[[nodiscard]] constexpr bool CommonFlags::possibleEndianDifference() const noexcept
+{
+    return static_cast<bool>(m_flags & kPossibleEndianDifference);
 }
 
 [[nodiscard]] constexpr CommonFlags CommonFlags::operator|(CommonFlags rhs) const noexcept
 {
-    return CommonFlags(static_cast<uint16_t>(*this) | static_cast<uint16_t>(rhs));
+    return static_cast<CommonFlags>(m_flags | rhs.m_flags);
 }
 
 [[nodiscard]] constexpr CommonFlags CommonFlags::operator&(CommonFlags rhs) const noexcept
 {
-    return CommonFlags(static_cast<uint16_t>(*this) & static_cast<uint16_t>(rhs));
+    return static_cast<CommonFlags>(m_flags & rhs.m_flags);
 }
 
 [[nodiscard]] constexpr bool CommonFlags::operator==(CommonFlags rhs) const noexcept
 {
-    uint16_t thisValue = static_cast<uint16_t>(*this);
-    uint16_t rhsValue = static_cast<uint16_t>(rhs);
-    return thisValue == rhsValue;
+    return m_flags == rhs.m_flags;
 }
 
 [[nodiscard]] constexpr CommonFlags::operator uint16_t() const noexcept
 {
-    return *static_cast<const uint16_t*>(static_cast<const void*>(this));
+    return m_flags;
 }
 
 [[nodiscard]] constexpr CommonFlags::operator bool() const noexcept
 {
-    return static_cast<uint16_t>(*this) != 0;
+    return m_flags != 0;
 }
 
 } // namespace common_serialization::csp::context

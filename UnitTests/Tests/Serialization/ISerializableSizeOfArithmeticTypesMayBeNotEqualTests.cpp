@@ -40,9 +40,7 @@ void mainTest()
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags dataFlags;
-    dataFlags.sizeOfArithmeticTypesMayBeNotEqual = true;
-    ctxIn.setDataFlags(dataFlags);
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfArithmeticTypesMayBeNotEqual));
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
@@ -90,10 +88,7 @@ TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags dataFlags;
-    dataFlags.sizeOfArithmeticTypesMayBeNotEqual = true;
-    dataFlags.allowUnmanagedPointers = true;
-    ctxIn.setDataFlags(dataFlags);
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfArithmeticTypesMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers));
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 

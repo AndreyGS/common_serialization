@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/csp/context/CommonCapabilities.h"
-#include "common_serialization/csp/messaging/service_structs/Interface.h"
+#include "common_serialization/csp/service_structs/Interface.h"
 
 namespace common_serialization::csp::processing
 {

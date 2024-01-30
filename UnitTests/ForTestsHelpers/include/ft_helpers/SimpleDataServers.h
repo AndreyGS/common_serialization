@@ -89,7 +89,7 @@ cs::Status defaultHandle(const InputStruct& input, OutputStruct& output)
 class FirstDataServer 
     : cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignableAlignedToOne<>, interface_for_test::SimpleAssignableDescendant<>, true, false, interface_for_test::SimpleAssignableAlignedToOne<>::getOriginPrivateVersion()>
     , cs::csp::messaging::IDataServer<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>, false>
-    , cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignable<>, cs::csp::messaging::service_structs::ISerializableDummy<>, false, true>
+    , cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
 {
 public:
     cs::Status handleData(
@@ -114,7 +114,7 @@ public:
           const interface_for_test::SimpleAssignable<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
         , const cs::BinVector& clientId
-        , cs::csp::messaging::service_structs::ISerializableDummy<>& output) override
+        , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
         ++numberOfMultiEntrances;
         return cs::Status::kNoError;
@@ -122,13 +122,13 @@ public:
 };
 
 class SecondDataServer
-    : cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignable<>, cs::csp::messaging::service_structs::ISerializableDummy<>, false, true>
+    : cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
 {
 public:
     cs::Status handleData(const interface_for_test::SimpleAssignable<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
         , const cs::BinVector& clientId
-        , cs::csp::messaging::service_structs::ISerializableDummy<>& output) override
+        , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
         ++numberOfMultiEntrances;
         return cs::Status::kNoError;
@@ -150,14 +150,14 @@ public:
 };
 
 class FourthDataServer
-    : cs::csp::messaging::IDataServer<another_yet_interface::SimpleStruct<>, cs::csp::messaging::service_structs::ISerializableDummy<>, false, true>
+    : cs::csp::messaging::IDataServer<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
 {
 public:
     cs::Status handleData(
           const another_yet_interface::SimpleStruct<>& input
         , cs::Vector<cs::GenericPointerKeeper>* unmanagedPointers
         , const cs::BinVector& clientId
-        , cs::csp::messaging::service_structs::ISerializableDummy<>& output) override
+        , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
         another_yet_interface::SimpleStruct<> test;
         fillingStruct(test);

@@ -37,9 +37,7 @@ void mainTest()
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags dataFlags;
-    dataFlags.allowUnmanagedPointers = true;
-    ctxIn.setDataFlags(dataFlags);
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAllowUnmanagedPointers));
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 

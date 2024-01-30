@@ -38,9 +38,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    dataFlags.allowUnmanagedPointers = true;
-    dataFlags.checkRecursivePointers = true;
-    ctxIn.setDataFlags(dataFlags);
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAllowUnmanagedPointers | csp::context::DataFlags::kCheckRecursivePointers));
     ctxIn.setInterfaceVersion(targetVersion);
 
     std::unordered_map<const void*, uint64_t> sMap;
@@ -92,11 +90,11 @@ void allFlags(uint32_t targetVersion)
 {
     csp::context::DataFlags dataFlags;
     mainTest<TS, TD>(dataFlags, targetVersion);
-    dataFlags.alignmentMayBeNotEqual = true;
+    dataFlags.addFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual);
     mainTest<TS, TD>(dataFlags, targetVersion);
-    dataFlags.sizeOfArithmeticTypesMayBeNotEqual = true;
+    dataFlags.addFlags(csp::context::DataFlags::kSizeOfArithmeticTypesMayBeNotEqual);
     mainTest<TS, TD>(dataFlags, targetVersion);
-    dataFlags.alignmentMayBeNotEqual = false;
+    dataFlags.removeFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual);
     mainTest<TS, TD>(dataFlags, targetVersion);
 }
 

@@ -37,9 +37,7 @@ struct Uuid
     uint64_t rightPart{ 0 };
 
     constexpr Uuid() {}
-    constexpr Uuid(const Uuid& rhs)
-        : leftPart(rhs.leftPart), rightPart(rhs.rightPart)
-    { }
+    constexpr Uuid(const Uuid& rhs) = default;
 
     constexpr Uuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth)
         : leftPart(static_cast<uint64_t>(first) << 32 | static_cast<uint64_t>(second) << 16 | static_cast<uint64_t>(third))

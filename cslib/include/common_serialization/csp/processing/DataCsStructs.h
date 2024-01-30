@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/service_structs/Generated/DeserializeData.h
+ * @file cslib/include/common_serialization/csp/processing/DataCsStructs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,29 @@
 
 #pragma once
 
-#include "common_serialization/csp/processing/DataTemplates.h"
+#include "common_serialization/csp/traits.h"
+#include "common_serialization/csp/processing/DataProcessor.h"
+
+
+#define SERIALIZE_NO_CONVERSION_COMMON(value, ctx)                                      \
+{                                                                                       \
+    if constexpr (                                                                      \
+           SimplyAssignableType<decltype(value)>                                        \
+        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
+    {                                                                                   \
+        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (                                                                       \
+                   !statusSuccess(status)                                               \
+                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
+        )                                                                               \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* than we should serialize it field-by-field */                                \
+    }                                                                                   \
+}
 
 #define DESERIALIZE_NO_CONVERSION_COMMON(ctx, value)                                    \
 {                                                                                       \
@@ -49,10 +71,17 @@ namespace common_serialization::csp::processing
 {
 
 template<>
+constexpr Status DataProcessor::serializeData(const Id& value, context::SData<>& ctx)
+{
+    RUN(serializeData(value.leftPart, ctx));
+    RUN(serializeData(value.rightPart, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value)
 {
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
     RUN(deserializeData(ctx, value.leftPart));
     RUN(deserializeData(ctx, value.rightPart));
 
@@ -60,46 +89,43 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value
 }
 
 template<>
+constexpr Status DataProcessor::serializeData(const context::DataFlags& value, context::SData<>& ctx)
+{
+    RUN(serializeData(value.leftPart, ctx));
+    RUN(serializeData(value.rightPart, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, context::DataFlags& value)
+{
+    RUN(deserializeData(ctx, value.leftPart));
+    RUN(deserializeData(ctx, value.rightPart));
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::serializeData(const traits::Interface& value, context::SData<>& ctx)
+{
+    RUN(serializeData(value.id, ctx));
+    RUN(serializeData(value.version, ctx));
+    RUN(serializeData(value.mandatoryDataFlags, ctx));
+    RUN(serializeData(value.forbiddenDataFlags, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, traits::Interface& value)
 {
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
     RUN(deserializeData(ctx, value.id));
     RUN(deserializeData(ctx, value.version));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::service_structs::OutGetInterface<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.properties));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::service_structs::GetInterface<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.id));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, messaging::service_structs::InterfacesList<>& value)
-{
-    DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.list));
+    RUN(deserializeData(ctx, value.mandatoryDataFlags));
+    RUN(deserializeData(ctx, value.forbiddenDataFlags));
 
     return Status::kNoError;
 }
 
 } // namespace common_serialization::csp::processing
-
-#undef DESERIALIZE_NO_CONVERSION_COMMON

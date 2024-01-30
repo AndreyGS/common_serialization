@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/service_structs/Structs.h
+ * @file cslib/include/common_serialization/csp/service_structs/Structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -28,10 +28,10 @@
 // Service structs not support version conversion and must always be the same
 // Set is completely depend on protocol version
 
-namespace common_serialization::csp::messaging::service_structs
+namespace common_serialization::csp::service_structs
 {
 
-constexpr traits::Interface properties(Uuid{ 0xe47be322, 0x232e, 0x4d66, 0x9175, 0x06eed2110b4b }, 1);
+constexpr traits::Interface properties(Uuid{0xe47be322, 0x232e, 0x4d66, 0x9175, 0x06eed2110b4b}, 1);
 
 /// @brief Special type - placeholder for Input-Output operations that have no need in ISerializable Output struct
 /// @remark Interfaces which are using that struct as an Output will always receive the Message::kStatus as result
@@ -82,42 +82,7 @@ public:
     traits::Interface properties;
 };
 
-/// @brief Struct for request of all supported interfaces list
-/// @tparam T Derived class
-template<typename T = Dummy>
-struct GetInterfacesList : public csp::ISerializable<GetCrtpMainType<GetInterfacesList<T>, T>>
-{
-public:
-    using instance_type = GetCrtpMainType<GetInterfacesList<T>, T>;
-    using empty_type_tag = std::true_type;
-
-    static constexpr Id kId{ 0xd5b61816, 0xcc92, 0x4e18, 0xb287, 0xfcc4ed1e9f2a };
-    static constexpr interface_version_t kInterfaceVersion = 1;
-    static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterface() noexcept { return properties; }
-};
-
-/// @brief Struct contain list of all supported interfaces
-/// @tparam T Derived class
-template<typename T = Dummy>
-struct InterfacesList : public csp::ISerializable<GetCrtpMainType<InterfacesList<T>, T>>
-{
-public:
-    using instance_type = GetCrtpMainType<InterfacesList<T>, T>;
-
-    static constexpr Id kId{ 0xb5346ff9, 0xe557, 0x40af, 0x8fb9, 0x5563fa97700e };
-    static constexpr interface_version_t kInterfaceVersion = 1;
-    static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterface() noexcept { return properties; }
-
-    bool operator==(const InterfacesList& rhs) const noexcept
-    {
-        return list == rhs.list;
-    }
-
-    Vector<traits::Interface> list;
-};
-
+#pragma pack(push, 1)
 
 /// @brief Struct contain list of all supported interfaces
 /// @tparam T Derived class
@@ -126,15 +91,21 @@ struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVer
 {
 public:
     using instance_type = GetCrtpMainType<InterfaceVersion<T>, T>;
+    using simply_assignable_tag = std::true_type;
 
     static constexpr Id kId{ 0xdf1cb40c, 0x9a72, 0x426b, 0xa801, 0xb0993fe76a46 };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
     static consteval const traits::Interface& getInterface() noexcept { return properties; }
 
+    InterfaceVersion() = default;
+    InterfaceVersion(const InterfaceVersion&) = default;
+
     Id id{ kNullUuid };
     interface_version_t version{ traits::kInterfaceVersionUndefined };
 };
+
+#pragma pack(pop)
 
 /// @brief Settings of a CSP party
 template<typename T = Dummy>
@@ -145,7 +116,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     static constexpr Id kId{ 0xbf8c27e8, 0xfe6a, 0x4492, 0x91cb, 0xe4cf411e1236 };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static constexpr const traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const traits::Interface& getInterface() noexcept { return properties; }
 
     /// @brief List of all supported CSP versions begining in decreasing order
     Vector<protocol_version_t> supportedCspVersions;
@@ -227,4 +198,4 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     }
 };
 
-} // namespace common_serialization::csp::messaging::service_structs
+} // namespace common_serialization::csp::service_structs

@@ -29,6 +29,6 @@
 // Service structs not support version conversion and must always be the same
 // Set is completely depend on protocol version
 
-#include "common_serialization/csp/messaging/service_structs/Structs.h"
-#include "common_serialization/csp/messaging/service_structs/Generated/DeserializeData.h"
-#include "common_serialization/csp/messaging/service_structs/Generated/SerializeData.h"
+#include "common_serialization/csp/service_structs/Structs.h"
+#include "common_serialization/csp/service_structs/processing/DeserializeData.h"
+#include "common_serialization/csp/service_structs/processing/SerializeData.h"

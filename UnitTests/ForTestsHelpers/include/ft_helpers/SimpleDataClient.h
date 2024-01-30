@@ -42,7 +42,7 @@ private:
         cs::BinWalker input;
         input.init(std::move(binInput));
 
-        cs::csp::messaging::service_structs::CspPartySettings<> serverSettings;
+        cs::csp::service_structs::CspPartySettings<> serverSettings;
         cs::csp::messaging::CommonServer server{ serverSettings };
         return server.handleMessage(input, cs::BinVector{}, binOutput.getVector());
     }

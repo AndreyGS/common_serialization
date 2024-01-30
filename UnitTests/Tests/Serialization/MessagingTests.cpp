@@ -37,18 +37,18 @@ TEST(MessagingTests, DataServiceServerTest)
     csp::messaging::DataServiceServer<ft_helpers::DataServiceServerTraits> serviceServer;
 
     // Test of getting all availible interfaces on server
-    csp::messaging::service_structs::InterfacesList outInterfacesList;
-    EXPECT_EQ(dataClient.handleData(csp::messaging::service_structs::GetInterfacesList<>{}, outInterfacesList), Status::kNoError);
+    csp::service_structs::InterfacesList outInterfacesList;
+    EXPECT_EQ(dataClient.handleData(csp::service_structs::GetInterfacesList<>{}, outInterfacesList), Status::kNoError);
 
-    csp::messaging::service_structs::InterfacesList interfacesListReference;
+    csp::service_structs::InterfacesList interfacesListReference;
     DataServiceServerTraits::fillInterfacesList(interfacesListReference.list);
 
     EXPECT_EQ(outInterfacesList, interfacesListReference);
 
     // Test of getting properties of single interface on server
-    csp::messaging::service_structs::GetInterface getInterfaceProps;
+    csp::service_structs::GetInterface getInterfaceProps;
     getInterfaceProps.id = outInterfacesList.list[outInterfacesList.list.size()-1].id;
-    csp::messaging::service_structs::OutGetInterface outGetInterfaceProps;
+    csp::service_structs::OutGetInterface outGetInterfaceProps;
 
     EXPECT_EQ(dataClient.handleData(getInterfaceProps, outGetInterfaceProps), Status::kNoError);
     EXPECT_EQ(outGetInterfaceProps.properties, outInterfacesList.list[outInterfacesList.list.size() - 1]);

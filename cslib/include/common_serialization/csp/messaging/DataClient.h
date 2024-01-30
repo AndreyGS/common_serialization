@@ -181,7 +181,7 @@ private:
 
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
 
-    context::CommonFlags m_mandatoryCommonFlags{ helpers::isBitness32(), helpers::isModuleIsBigEndian() };
+    context::CommonFlags m_mandatoryCommonFlags;
     context::CommonFlags m_forbiddenCommonFlags;
 
     Vector<traits::Interface> m_interfaces;
@@ -352,14 +352,14 @@ Status DataClient::handleData(const InputType& input, OutputType& output, const 
         , nullptr);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
-    if (ctxIn.getDataFlags().checkRecursivePointers)
+    if (ctxIn.getDataFlags().checkRecursivePointers())
         ctxIn.setPointersMap(&pointersMapIn);
 
     RUN(processing::serializeCommonContext(ctxIn));
     RUN(processing::serializeDataContext<InputType>(ctxIn));
 
     // Flags may be changed after processing::serializeInOutDataContext
-    if (ctxIn.getDataFlags().allowUnmanagedPointers && pUnmanagedPointers == nullptr)
+    if (ctxIn.getDataFlags().allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
         return Status::kErrorInvalidArgument;
 
     RUN(processing::DataProcessor::serializeData(input, ctxIn));
@@ -400,7 +400,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, const 
         ctxOutData.setAddedPointers(pUnmanagedPointers);
 
         std::unordered_map<uint64_t, void*> pointersMapOut;
-        if (outDataFlags.checkRecursivePointers)
+        if (outDataFlags.checkRecursivePointers())
             ctxOutData.setPointersMap(&pointersMapOut);
 
         // Here we no need to check minimum value of output version, because if we run DataClient::handleData

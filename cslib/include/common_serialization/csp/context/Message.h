@@ -99,7 +99,7 @@ enum class Message : uint_fast32_t
     ///     {
     ///     }
     /// 
-    ///     In response server will must send csp::messaging::service_structs::CspPartySettings
+    ///     In response server will must send csp::service_structs::CspPartySettings
     ///     struct with its mandatory settings
     kGetSettings = 0x2
 };

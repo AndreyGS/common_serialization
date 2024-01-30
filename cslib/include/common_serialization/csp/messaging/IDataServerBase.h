@@ -63,11 +63,11 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
     context::DataFlags dataFlags = ctx.getDataFlags();
 
     Vector<GenericPointerKeeper> addedPointers;
-    if (dataFlags.allowUnmanagedPointers)
+    if (dataFlags.allowUnmanagedPointers())
         ctx.setAddedPointers(&addedPointers);
 
     std::unordered_map<uint64_t, void*> pointersMap;
-    if (dataFlags.checkRecursivePointers)
+    if (dataFlags.checkRecursivePointers())
         ctx.setPointersMap(&pointersMap);
     
     IDataServerBase* pServer{ nullptr };

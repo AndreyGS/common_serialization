@@ -119,7 +119,7 @@ public:
 
     /// @brief Get private versions array
     /// @return All private versions
-    [[nodiscard]] static constexpr const interface_version_t* getPrivateVersions() noexcept;
+    [[nodiscard]] static consteval const interface_version_t* getPrivateVersions() noexcept;
 
     /// @brief Get array size of private versions
     /// @return Array size of private versions
@@ -127,27 +127,27 @@ public:
 
     /// @brief Get properties of interface to which current struct beholds
     /// @return Interface properties
-    [[nodiscard]] static constexpr const traits::Interface& getInterface() noexcept;
+    [[nodiscard]] static consteval const traits::Interface& getInterface() noexcept;
 
     /// @brief Get additional (to interace defined) mandatory data flags with which
     ///     current struct must be serialized
     /// @return Addtional mandatory DataFlags
-    [[nodiscard]] static constexpr context::DataFlags getAddtionalMandatoryDataFlags() noexcept;
+    [[nodiscard]] static consteval context::DataFlags getAddtionalMandatoryDataFlags() noexcept;
 
     /// @brief Get additional (to interace defined) forbidden data flags with which
     ///     current struct must be serialized
     /// @return Addtional forbidden DataFlags
-    [[nodiscard]] static constexpr context::DataFlags getAddtionalForbiddenDataFlags() noexcept;
+    [[nodiscard]] static consteval context::DataFlags getAddtionalForbiddenDataFlags() noexcept;
 
     /// @brief Get effective (with interace defined) mandatory data flags with which
     ///     current struct must be serialized
     /// @return Effective mandatory DataFlags
-    [[nodiscard]] static constexpr context::DataFlags getEffectiveMandatoryDataFlags() noexcept;
+    [[nodiscard]] static consteval context::DataFlags getEffectiveMandatoryDataFlags() noexcept;
 
     /// @brief Get effective (with interace defined) forbidden data flags with which
     ///     current struct must be serialized
     /// @return AddtioEffectivenal forbidden DataFlags
-    [[nodiscard]] static constexpr context::DataFlags getEffectiveForbiddenDataFlags() noexcept;
+    [[nodiscard]] static consteval context::DataFlags getEffectiveForbiddenDataFlags() noexcept;
 };
 
 template<typename T>
@@ -221,7 +221,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr const interface_version_t* ISerializable<T>::getPrivateVersions() noexcept
+[[nodiscard]] consteval const interface_version_t* ISerializable<T>::getPrivateVersions() noexcept
 {
     return T::kPrivateVersions;
 }
@@ -233,13 +233,13 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr const traits::Interface& ISerializable<T>::getInterface() noexcept
+[[nodiscard]] consteval const traits::Interface& ISerializable<T>::getInterface() noexcept
 {
     return T::getInterface();
 }
 
 template<typename T>
-[[nodiscard]] constexpr context::DataFlags ISerializable<T>::getAddtionalMandatoryDataFlags() noexcept
+[[nodiscard]] consteval context::DataFlags ISerializable<T>::getAddtionalMandatoryDataFlags() noexcept
 {
     if constexpr (HasAddtionalMandatoryDataFlags<T>)
         return T::kAddtionalMandatoryDataFlags;
@@ -248,7 +248,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr context::DataFlags ISerializable<T>::getAddtionalForbiddenDataFlags() noexcept
+[[nodiscard]] consteval context::DataFlags ISerializable<T>::getAddtionalForbiddenDataFlags() noexcept
 {
     if constexpr (HasAddtionalForbiddenDataFlags<T>)
         return T::kAddtionalForbiddenDataFlags;
@@ -257,13 +257,13 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] constexpr context::DataFlags ISerializable<T>::getEffectiveMandatoryDataFlags() noexcept
+[[nodiscard]] consteval context::DataFlags ISerializable<T>::getEffectiveMandatoryDataFlags() noexcept
 {
     return getAddtionalMandatoryDataFlags() | getInterface().mandatoryDataFlags;
 }
 
 template<typename T>
-[[nodiscard]] constexpr context::DataFlags ISerializable<T>::getEffectiveForbiddenDataFlags() noexcept
+[[nodiscard]] consteval context::DataFlags ISerializable<T>::getEffectiveForbiddenDataFlags() noexcept
 {
     return getAddtionalForbiddenDataFlags() | getInterface().forbiddenDataFlags;
 }

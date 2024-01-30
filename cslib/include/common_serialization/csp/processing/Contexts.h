@@ -80,7 +80,9 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     RUN(output.pushBackArithmeticValue(id.leftPart));
     RUN(output.pushBackArithmeticValue(id.rightPart));
 
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), T::getInterface().version))
+    constexpr interface_version_t interfaceVersion = T::getInterface().version;
+
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), interfaceVersion))
         return Status::kErrorNotSupportedInterfaceVersion;
 
     RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
@@ -89,15 +91,18 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
     
-    if (dataFlags.checkRecursivePointers)
+    if (dataFlags.checkRecursivePointers())
     {
         if (ctx.getPointersMap() == nullptr)
             return Status::kErrorInvalidArgument;
 
-        dataFlags.allowUnmanagedPointers = true;
+        dataFlags.addFlags(context::DataFlags::kAllowUnmanagedPointers);
     }
 
-    if ((dataFlags & T::getEffectiveMandatoryDataFlags()) != dataFlags || static_cast<bool>(dataFlags & T::getEffectiveForbiddenDataFlags()))
+    constexpr context::DataFlags effectiveMandatoryDataFlags = T::getEffectiveMandatoryDataFlags();
+    constexpr context::DataFlags effectiveForbiddenDataFlags = T::getEffectiveForbiddenDataFlags();
+
+    if ((dataFlags & effectiveMandatoryDataFlags) != dataFlags || static_cast<bool>(dataFlags & effectiveForbiddenDataFlags))
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
     ctx.setDataFlags(dataFlags);
@@ -167,14 +172,14 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
     if ((dataFlags & T::getEffectiveMandatoryDataFlags()) != dataFlags || static_cast<bool>(dataFlags & T::getEffectiveForbiddenDataFlags()))
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
-    if (dataFlags.allowUnmanagedPointers && ctx.getAddedPointers() == nullptr)
+    if (dataFlags.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)
         return Status::kErrorInvalidArgument;
     
-    if (dataFlags.checkRecursivePointers)
+    if (dataFlags.checkRecursivePointers())
     {
         if (ctx.getPointersMap() == nullptr)
             return Status::kErrorInvalidArgument;
-        else if (!dataFlags.allowUnmanagedPointers)
+        else if (!dataFlags.allowUnmanagedPointers())
             return Status::kErrorNotCompatibleDataFlagsSettings;
     }
 

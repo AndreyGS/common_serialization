@@ -38,10 +38,7 @@ void mainTest()
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    csp::context::DataFlags dataFlags;
-    dataFlags.checkRecursivePointers = true;
-    dataFlags.allowUnmanagedPointers = true;
-    ctxIn.setDataFlags(dataFlags);
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAllowUnmanagedPointers | csp::context::DataFlags::kCheckRecursivePointers));
     std::unordered_map<const void*, uint64_t> sMap;
     ctxIn.setPointersMap(&sMap);
 
