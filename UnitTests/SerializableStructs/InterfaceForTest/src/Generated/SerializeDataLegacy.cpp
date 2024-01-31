@@ -25,39 +25,13 @@
 
 #include "interface_for_test/Generated/SerializeDataLegacy.h"
 
-#define RUN(x)                                                                          \
-{                                                                                       \
-    if (Status status = (x); !statusSuccess(status))                                    \
-        return status;                                                                  \
-}
-
-#define SERIALIZE_NO_CONVERSION_COMMON(value, ctx)                                      \
-{                                                                                       \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
-    {                                                                                   \
-        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (                                                                       \
-                   !statusSuccess(status)                                               \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-        )                                                                               \
-            return status;                                                              \
-                                                                                        \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-        /* than we should serialize it field-by-field */                                \
-    }                                                                                   \
-}
-
 namespace common_serialization::csp::processing
 {
 
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOne_Version0<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_ti, ctx));
 
@@ -67,7 +41,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAl
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignable_Version0<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_i, ctx));
     RUN(serializeData(value.m_j, ctx));
@@ -92,7 +66,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignable_V
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableDescendant_Version0<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(static_cast<const interface_for_test::SimpleAssignable_Version0<>&>(value), ctx));
 
@@ -104,7 +78,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableDe
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version0<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_saDs, ctx));
     RUN(serializeData(value.m_diamond, ctx));
@@ -120,7 +94,7 @@ Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOne_Version1<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_x, ctx));
     RUN(serializeData(value.m_y, ctx));
@@ -131,7 +105,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAl
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version2<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.m_saS, ctx));
     RUN(serializeData(value.m_diamond, ctx));
@@ -147,7 +121,3 @@ Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_
 }
 
 } // namespace common_serialization::csp::processing
-
-#undef SERIALIZE_NO_CONVERSION_COMMON
-
-#undef RUN

@@ -159,10 +159,12 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
     if (tUuid != id)
         return Status::kErrorMismatchOfStructId;
 
+    constexpr interface_version_t interfaceVersion = T::getInterface().version;
+
     // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
     // however for some special subscribers of data struct you may override it by
     // value that is higher than minimum defined in interface version
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, T::getInterface().version))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, interfaceVersion))
         return Status::kErrorNotSupportedInterfaceVersion;
     else if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);

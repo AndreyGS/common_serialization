@@ -41,7 +41,4 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version2<>& value);
 
-
 } // namespace common_serialization::csp::processing
-
-#undef RUN

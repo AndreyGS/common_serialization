@@ -70,11 +70,9 @@
 #include "common_serialization/Allocators/RawKeeperAllocator.h"
 #include "common_serialization/Containers/Walker.h"
 #include "common_serialization/csp/ISerializable.h"
+#include "common_serialization/csp/Macros.h"
 #include "common_serialization/csp/processing/DataCsStructs.h"
 #include "common_serialization/csp/processing/DataTemplates.h"
 #include "common_serialization/csp/processing/DataVersionConverters.h"
 #include "common_serialization/csp/messaging/DataClient.h"
-#include "common_serialization/csp/messaging/CommonServer.h"
-
-#undef SET_NEW_ERROR    // defined in common_serialization/Status.h
-#undef RUN              // defined in common_serialization/Status.h
+#include "common_serialization/csp/messaging/IDataServer.h"

@@ -119,7 +119,7 @@ public:
 
     /// @brief Get private versions array
     /// @return All private versions
-    [[nodiscard]] static consteval const interface_version_t* getPrivateVersions() noexcept;
+    [[nodiscard]] static constexpr const interface_version_t* getPrivateVersions() noexcept;
 
     /// @brief Get array size of private versions
     /// @return Array size of private versions
@@ -221,7 +221,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] consteval const interface_version_t* ISerializable<T>::getPrivateVersions() noexcept
+[[nodiscard]] constexpr const interface_version_t* ISerializable<T>::getPrivateVersions() noexcept
 {
     return T::kPrivateVersions;
 }

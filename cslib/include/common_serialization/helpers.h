@@ -25,8 +25,6 @@
 
 #include "common_serialization/Status.h"
 
-#define NO_SERIALIZATION_NEED
-
 namespace common_serialization
 {
 

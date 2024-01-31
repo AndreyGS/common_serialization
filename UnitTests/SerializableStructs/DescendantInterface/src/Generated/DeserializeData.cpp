@@ -25,52 +25,13 @@
 
 #include "descendant_interface/Generated/DeserializeData.h"
 
-#define RUN(x)                                                                          \
-{                                                                                       \
-    if (Status status = (x); !statusSuccess(status))                                    \
-        return status;                                                                  \
-}
-
-#define DESERIALIZE_COMMON(ctx, value)                                                  \
-{                                                                                       \
-    if (                                                                                \
-           IsISerializableBased<decltype(value)>                                        \
-        && ctx.isInterfaceVersionsNotMatch()                                            \
-    )                                                                                   \
-    {                                                                                   \
-        Status status = convertFromOldStructIfNeed((ctx), (value));                     \
-                                                                                        \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (!statusSuccess(status))                                                \
-            return status;                                                              \
-    }                                                                                   \
-                                                                                        \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
-    {                                                                                   \
-        Status status = deserializeDataSimpleAssignable((ctx), (value));                \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (                                                                       \
-                   !statusSuccess(status)                                               \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-        )                                                                               \
-            return status;                                                              \
-                                                                                        \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-        /* than we should deserialize it field-by-field */                              \
-   }                                                                                    \
-}
-
 namespace common_serialization::csp::processing
 {
 
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interface::SimpleStruct<>& value)
 {
-    DESERIALIZE_COMMON(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_i));
 
@@ -80,7 +41,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interfac
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interface::DiamondDescendant<>& value)
 {
-    DESERIALIZE_COMMON(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, static_cast<interface_for_test::Diamond<>&>(value)));
 
@@ -90,7 +51,3 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interfac
 }
 
 } // namespace common_serialization::csp::processing
-
-#undef DESERIALIZE_COMMON
-
-#undef RUN

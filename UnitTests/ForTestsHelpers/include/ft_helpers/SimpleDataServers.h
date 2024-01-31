@@ -23,12 +23,6 @@
 
 #pragma once
 
-#define RUN(x)                                                                          \
-{                                                                                       \
-    if (cs::Status status = (x); !statusSuccess(status))                                \
-        return status;                                                                  \
-}
-
 namespace ft_helpers
 {
 
@@ -170,5 +164,3 @@ public:
 };
 
 } // namespace ft_helpers
-
-#undef RUN

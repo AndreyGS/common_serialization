@@ -26,33 +26,13 @@
 
 #include "common_serialization/csp/processing/DataTemplates.h"
 
-#define SERIALIZE_NO_CONVERSION_COMMON(value, ctx)                                      \
-{                                                                                       \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
-    {                                                                                   \
-        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (                                                                       \
-                   !statusSuccess(status)                                               \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-        )                                                                               \
-            return status;                                                              \
-                                                                                        \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-        /* than we should serialize it field-by-field */                                \
-    }                                                                                   \
-}
-
 namespace common_serialization::csp::processing
 {
 
 template<>
 constexpr Status DataProcessor::serializeData(const service_structs::OutGetInterface<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.properties, ctx));
 
@@ -62,7 +42,7 @@ constexpr Status DataProcessor::serializeData(const service_structs::OutGetInter
 template<>
 constexpr Status DataProcessor::serializeData(const service_structs::GetInterface<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     RUN(serializeData(value.id, ctx));
 
@@ -72,7 +52,7 @@ constexpr Status DataProcessor::serializeData(const service_structs::GetInterfac
 template<>
 constexpr Status DataProcessor::serializeData(const service_structs::CspPartySettings<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
     assert(value.supportedCspVersions.size() < traits::kProtocolVersionUndefined);
 
@@ -89,5 +69,3 @@ constexpr Status DataProcessor::serializeData(const service_structs::CspPartySet
 }
 
 } // namespace common_serialization::csp::processing
-
-#undef SERIALIZE_NO_CONVERSION_COMMON

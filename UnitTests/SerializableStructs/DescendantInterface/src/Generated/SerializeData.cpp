@@ -25,44 +25,6 @@
 
 #include "descendant_interface/Generated/SerializeData.h"
 
-#define RUN(x)                                                                          \
-{                                                                                       \
-    if (Status status = (x); !statusSuccess(status))                                    \
-        return status;                                                                  \
-}
-
-#define SERIALIZE_COMMON(value, ctx)                                                    \
-{                                                                                       \
-    if (                                                                                \
-           IsISerializableBased<decltype(value)>                                        \
-        && ctx.isInterfaceVersionsNotMatch()                                            \
-    )                                                                                   \
-    {                                                                                   \
-        Status status = convertToOldStructIfNeed((value), (ctx));                       \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (!statusSuccess(status))                                                \
-            return status;                                                              \
-    }                                                                                   \
-                                                                                        \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
-    {                                                                                   \
-        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (                                                                       \
-                   !statusSuccess(status)                                               \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-        )                                                                               \
-            return status;                                                              \
-                                                                                        \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-        /* than we should serialize it field-by-field */                                \
-    }                                                                                   \
-}
-
 namespace common_serialization::csp::processing
 {
 
@@ -70,7 +32,7 @@ namespace common_serialization::csp::processing
 template<>
 Status DataProcessor::serializeData(const descendant_interface::SimpleStruct<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_i, ctx));
 
@@ -81,7 +43,7 @@ Status DataProcessor::serializeData(const descendant_interface::SimpleStruct<>& 
 template<>
 Status DataProcessor::serializeData(const descendant_interface::DiamondDescendant<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(static_cast<const interface_for_test::Diamond<>&>(value), ctx));
 
@@ -92,7 +54,3 @@ Status DataProcessor::serializeData(const descendant_interface::DiamondDescendan
 }
 
 } // namespace common_serialization::csp::processing
-
-#undef SERIALIZE_COMMON
-
-#undef RUN

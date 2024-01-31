@@ -87,7 +87,7 @@ template<typename InputType, typename OutputType, bool forTempUseHeap, bool mult
     requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
 interface_version_t IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::getMinimumInterfaceVersion()
 {
-    return minimumInputInterfaceVersion;
+    return minimumInterfaceVersion;
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
@@ -106,7 +106,7 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
     {
         if (status == Status::kErrorNotSupportedInterfaceVersion)
         {
-            context::Common<> ctxOut(output, ctx.getProtocolVersion(), ctx.getCommonFlags(), context::Message::kStatus);
+            context::Common<BinVector> ctxOut(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), context::Message::kStatus);
             RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(minimumInterfaceVersion, OutputType::getId(), ctxOut));
         }
         
@@ -174,7 +174,7 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
     
     RUN(this->handleData(input, ctxIn.getAddedPointers(), clientId, output))
 
-    if constexpr (!std::is_same_v<OutputType, ISerializableDummy<>>)
+    if constexpr (!std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
     {
         std::unordered_map<const void*, uint64_t> pointersMapOut;
 

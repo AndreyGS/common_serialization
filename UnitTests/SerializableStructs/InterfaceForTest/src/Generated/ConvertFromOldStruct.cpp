@@ -95,5 +95,3 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
 }
 
 } // namespace common_serialization::csp::processing
-
-#undef RUN

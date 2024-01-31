@@ -91,9 +91,11 @@ constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined }
 template<typename T>
 [[nodiscard]] constexpr interface_version_t getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept
 {
+    const interface_version_t* pPrivateVersions = T::getPrivateVersions();
+
     for (interface_version_t i = 0; i < T::getPrivateVersionsCount(); ++i)
-        if (T::getPrivateVersions()[i] <= compatInterfaceVersion)
-            return T::getPrivateVersions()[i];
+        if (pPrivateVersions[i] <= compatInterfaceVersion)
+            return pPrivateVersions[i];
 
     return kInterfaceVersionUndefined;
 }

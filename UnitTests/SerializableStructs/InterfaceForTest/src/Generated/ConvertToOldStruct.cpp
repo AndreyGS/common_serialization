@@ -95,5 +95,3 @@ Status DataProcessor::convertToOldStruct(const interface_for_test::DForAllModesT
 }
 
 } // namespace common_serialization::csp::processing
-
-#undef RUN

@@ -26,47 +26,6 @@
 #include "common_serialization/csp/traits.h"
 #include "common_serialization/csp/processing/DataProcessor.h"
 
-
-#define SERIALIZE_NO_CONVERSION_COMMON(value, ctx)                                      \
-{                                                                                       \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
-    {                                                                                   \
-        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (                                                                       \
-                   !statusSuccess(status)                                               \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-        )                                                                               \
-            return status;                                                              \
-                                                                                        \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-        /* than we should serialize it field-by-field */                                \
-    }                                                                                   \
-}
-
-#define DESERIALIZE_NO_CONVERSION_COMMON(ctx, value)                                    \
-{                                                                                       \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
-    {                                                                                   \
-        Status status = deserializeDataSimpleAssignable((ctx), (value));                \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (                                                                       \
-                   !statusSuccess(status)                                               \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-        )                                                                               \
-            return status;                                                              \
-                                                                                        \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-        /* than we should deserialize it field-by-field */                              \
-   }                                                                                    \
-}
-
 namespace common_serialization::csp::processing
 {
 
@@ -91,8 +50,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value
 template<>
 constexpr Status DataProcessor::serializeData(const context::DataFlags& value, context::SData<>& ctx)
 {
-    RUN(serializeData(value.leftPart, ctx));
-    RUN(serializeData(value.rightPart, ctx));
+    RUN(serializeData(static_cast<uint32_t>(value), ctx));
 
     return Status::kNoError;
 }
@@ -100,8 +58,9 @@ constexpr Status DataProcessor::serializeData(const context::DataFlags& value, c
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, context::DataFlags& value)
 {
-    RUN(deserializeData(ctx, value.leftPart));
-    RUN(deserializeData(ctx, value.rightPart));
+    uint32_t dataFlags{ 0 };
+    RUN(deserializeData(ctx, dataFlags));
+    value = dataFlags;
 
     return Status::kNoError;
 }

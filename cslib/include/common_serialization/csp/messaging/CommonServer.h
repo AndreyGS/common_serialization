@@ -25,6 +25,7 @@
 
 #include "common_serialization/csp/context/Common.h"
 #include "common_serialization/csp/messaging/IDataServerBase.h"
+#include "common_serialization/csp/service_structs/Interface.h"
 
 namespace common_serialization::csp::messaging
 {

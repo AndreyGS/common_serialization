@@ -25,51 +25,13 @@
 
 #include "interface_for_test/Generated/SerializeData.h"
 
-#define RUN(x)                                                                          \
-{                                                                                       \
-    if (Status status = (x); !statusSuccess(status))                                    \
-        return status;                                                                  \
-}
-
-#define SERIALIZE_COMMON(value, ctx)                                                    \
-{                                                                                       \
-    if (                                                                                \
-           IsISerializableBased<decltype(value)>                                        \
-        && ctx.isInterfaceVersionsNotMatch()                                            \
-    )                                                                                   \
-    {                                                                                   \
-        Status status = convertToOldStructIfNeed((value), (ctx));                       \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (!statusSuccess(status))                                                \
-            return status;                                                              \
-    }                                                                                   \
-                                                                                        \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
-    {                                                                                   \
-        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (                                                                       \
-                   !statusSuccess(status)                                               \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-        )                                                                               \
-            return status;                                                              \
-                                                                                        \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-        /* than we should serialize it field-by-field */                                \
-    }                                                                                   \
-}
-
 namespace common_serialization::csp::processing
 {
 
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOne<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_x, ctx));
     RUN(serializeData(value.m_y, ctx));
@@ -80,7 +42,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAl
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignable<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_i, ctx));
     RUN(serializeData(value.m_j, ctx));
@@ -105,7 +67,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignable<>
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableDescendant<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(static_cast<const interface_for_test::SimpleAssignable<>&>(value), ctx));
 
@@ -117,7 +79,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableDe
 template<>
 Status DataProcessor::serializeData(const interface_for_test::DynamicPolymorphic<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_o, ctx));
     RUN(serializeData(value.m_dpNS, ctx));
@@ -131,7 +93,7 @@ Status DataProcessor::serializeData(const interface_for_test::DynamicPolymorphic
 template<>
 Status DataProcessor::serializeData(const interface_for_test::Diamond<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondEdge1&>(value), ctx));
     RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondEdge2&>(value), ctx));
@@ -142,7 +104,7 @@ Status DataProcessor::serializeData(const interface_for_test::Diamond<>& value, 
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SpecialProcessingType<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_vec, ctx));
     RUN(serializeData(value.m_saaToNS, ctx));
@@ -158,7 +120,7 @@ Status DataProcessor::serializeData(const interface_for_test::SpecialProcessingT
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOneSimilarType1<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_j, ctx));
     RUN(serializeData(value.m_k, ctx));
@@ -169,7 +131,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAl
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOneSimilarType2<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_j, ctx));
     RUN(serializeData(value.m_k, ctx));
@@ -180,7 +142,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAl
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableSimilarType1<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_j, ctx));
     RUN(serializeData(value.m_k, ctx));
@@ -191,7 +153,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableSi
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableSimilarType2<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_j, ctx));
     RUN(serializeData(value.m_k, ctx));
@@ -202,7 +164,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableSi
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimilarType1<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_j, ctx));
     RUN(serializeData(value.m_k, ctx));
@@ -216,7 +178,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimilarType1<>& va
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimilarType2<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_j, ctx));
     RUN(serializeData(value.m_k, ctx));
@@ -230,7 +192,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimilarType2<>& va
 template<>
 Status DataProcessor::serializeData(const interface_for_test::RecursiveTestSpecial1& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.pAny, ctx));
 
@@ -240,7 +202,7 @@ Status DataProcessor::serializeData(const interface_for_test::RecursiveTestSpeci
 template<>
 Status DataProcessor::serializeData(const interface_for_test::RecursiveTestSpecial2& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.pI, ctx));
     RUN(serializeData(value.pNext, ctx));
@@ -252,7 +214,7 @@ Status DataProcessor::serializeData(const interface_for_test::RecursiveTestSpeci
 template<>
 Status DataProcessor::serializeData(const interface_for_test::ManyPointersType<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_vec, ctx));
     RUN(serializeData(value.m_vecRecursive, ctx));
@@ -270,7 +232,7 @@ Status DataProcessor::serializeData(const interface_for_test::ManyPointersType<>
 template<>
 Status DataProcessor::serializeData(const interface_for_test::DForAllModesTests<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_saDs, ctx));
     RUN(serializeData(value.m_diamond, ctx));
@@ -284,7 +246,3 @@ Status DataProcessor::serializeData(const interface_for_test::DForAllModesTests<
 }
 
 } // namespace common_serialization::csp::processing
-
-#undef SERIALIZE_COMMON
-
-#undef RUN

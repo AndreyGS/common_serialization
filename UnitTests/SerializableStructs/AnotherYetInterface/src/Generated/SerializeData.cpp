@@ -25,44 +25,6 @@
 
 #include "another_yet_interface/Generated/SerializeData.h"
 
-#define RUN(x)                                                                          \
-{                                                                                       \
-    if (Status status = (x); !statusSuccess(status))                                    \
-        return status;                                                                  \
-}
-
-#define SERIALIZE_COMMON(value, ctx)                                                    \
-{                                                                                       \
-    if (                                                                                \
-           IsISerializableBased<decltype(value)>                                        \
-        && ctx.isInterfaceVersionsNotMatch()                                            \
-    )                                                                                   \
-    {                                                                                   \
-        Status status = convertToOldStructIfNeed((value), (ctx));                       \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (!statusSuccess(status))                                                \
-            return status;                                                              \
-    }                                                                                   \
-                                                                                        \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
-    {                                                                                   \
-        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
-        else if (                                                                       \
-                   !statusSuccess(status)                                               \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-        )                                                                               \
-            return status;                                                              \
-                                                                                        \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-        /* than we should serialize it field-by-field */                                \
-    }                                                                                   \
-}
-
 namespace common_serialization::csp::processing
 {
 
@@ -70,7 +32,7 @@ namespace common_serialization::csp::processing
 template<>
 Status DataProcessor::serializeData(const another_yet_interface::SimpleStruct<>& value, context::SData<>& ctx)
 {
-    SERIALIZE_COMMON(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     RUN(serializeData(value.m_i, ctx));
 
@@ -79,7 +41,3 @@ Status DataProcessor::serializeData(const another_yet_interface::SimpleStruct<>&
 }
 
 } // namespace common_serialization::csp::processing
-
-#undef SERIALIZE_COMMON
-
-#undef RUN
