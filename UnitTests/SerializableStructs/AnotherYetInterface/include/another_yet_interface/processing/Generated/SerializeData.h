@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/SpecialTypesSerializable.h
+ * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/processing/Generated/SerializeData.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,38 +23,12 @@
 
 #pragma once
 
-namespace another_yet_interface
+#include "another_yet_interface/Structs.h"
+
+namespace common_serialization::csp::processing
 {
 
-template<typename T = cs::Dummy>
-class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<>, T>>
-{
-public:
-    using instance_type = cs::GetCrtpMainType<SimpleStruct<>, T>;
+template<>
+Status DataProcessor::serializeData(const another_yet_interface::SimpleStruct<>& value, context::SData<>& ctx);
 
-    static constexpr cs::csp::Id kId{ 0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd };
-    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
-
-    uint32_t m_i{ 0 };
-
-    SimpleStruct& operator=(const SimpleStruct<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_i = rhs.m_i;
-
-        return *this;
-    }
-
-    [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
-    {
-        return m_i == rhs.m_i;
-    }
-
-    friend cs::csp::processing::DataProcessor;
-};
-
-} // namespace another_yet_interface
+} // namespace common_serialization::csp::processing

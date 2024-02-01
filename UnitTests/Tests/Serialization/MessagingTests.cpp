@@ -25,8 +25,22 @@ namespace
 {
 
 using namespace common_serialization;
-using namespace interface_for_test;
 using namespace ft_helpers;
+
+csp::service_structs::CspPartySettings<>& getServerSettings()
+{
+    static csp::service_structs::CspPartySettings<> serverSettings;
+    if (serverSettings.supportedCspVersions.size() == 0)
+    {
+        serverSettings.supportedCspVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
+
+        serverSettings.interfaces.pushBack({ interface_for_test::properties.id, interface_for_test::properties.version });
+        serverSettings.interfaces.pushBack({ descendant_interface::properties.id, descendant_interface::properties.version });
+        serverSettings.interfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
+    }
+
+    return serverSettings;
+}
 
 TEST(MessagingTests, DataServiceServerTest)
 {

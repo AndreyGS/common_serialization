@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/SpecialTypesSerializable.h
+ * @file UnitTests/SerializableStructs/DescendantInterface/src/Generated/DeserializeData.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,38 +23,31 @@
 
 #pragma once
 
-namespace another_yet_interface
+#include "descendant_interface/processing/Generated/DeserializeData.h"
+
+namespace common_serialization::csp::processing
 {
 
-template<typename T = cs::Dummy>
-class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<>, T>>
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interface::SimpleStruct<>& value)
 {
-public:
-    using instance_type = cs::GetCrtpMainType<SimpleStruct<>, T>;
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
-    static constexpr cs::csp::Id kId{ 0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd };
-    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    RUN(deserializeData(ctx, value.m_i));
 
-    uint32_t m_i{ 0 };
+    return Status::kNoError;
+}
 
-    SimpleStruct& operator=(const SimpleStruct<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interface::DiamondDescendant<>& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
-        m_i = rhs.m_i;
+    RUN(deserializeData(ctx, static_cast<interface_for_test::Diamond<>&>(value)));
 
-        return *this;
-    }
+    RUN(deserializeData(ctx, value.m_sSt));
 
-    [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
-    {
-        return m_i == rhs.m_i;
-    }
+    return Status::kNoError;
+}
 
-    friend cs::csp::processing::DataProcessor;
-};
-
-} // namespace another_yet_interface
+} // namespace common_serialization::csp::processing

@@ -23,11 +23,22 @@
 
 #pragma once
 
-// another_yet_interface UUID  : {f7cbb63c-2a5d-44eb-80fc-591bd08941e2}
-// interface version           : 0
-
 #include "common_serialization/common_serialization.h"
 
+namespace another_yet_interface
+{
+
+namespace cs = common_serialization;
+
+constexpr cs::csp::traits::Interface properties(
+      cs::Uuid{ 0xf7cbb63c, 0x2a5d, 0x44eb, 0x80fc, 0x591bd08941e2 }
+    , 0
+    , cs::csp::context::DataFlags{}
+    , cs::csp::context::DataFlags(cs::csp::context::DataFlags::kAllowUnmanagedPointers | cs::csp::context::DataFlags::kCheckRecursivePointers)
+);
+
+} // namespace another_yet_interface
+
 #include "another_yet_interface/Structs.h"
-#include "another_yet_interface/Generated/SerializeData.h"
-#include "another_yet_interface/Generated/DeserializeData.h"
+#include "another_yet_interface/processing/Generated/SerializeData.h"
+#include "another_yet_interface/processing/Generated/DeserializeData.h"

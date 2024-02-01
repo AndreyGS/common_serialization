@@ -26,10 +26,6 @@
 namespace descendant_interface
 {
 
-namespace cs = common_serialization;
-
-constexpr cs::csp::traits::Interface properties(cs::Uuid{ 0x2335b43f, 0x0228, 0x411b, 0x814f, 0x3393a3e8ac3d }, 1);
-
 template<typename T = cs::Dummy>
 class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<>, T>>
 {

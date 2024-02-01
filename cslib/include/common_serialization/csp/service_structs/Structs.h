@@ -100,6 +100,7 @@ public:
 
     InterfaceVersion() = default;
     InterfaceVersion(const InterfaceVersion&) = default;
+    InterfaceVersion(const Id& id, interface_version_t version) : id(id), version(version) { }
 
     Id id{ kNullUuid };
     interface_version_t version{ traits::kInterfaceVersionUndefined };

@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/SpecialTypesSerializable.h
+ * @file UnitTests/SerializableStructs/DescendantInterface/src/Generated/SerializeData.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,38 +23,34 @@
 
 #pragma once
 
-namespace another_yet_interface
+#include "descendant_interface/processing/Generated/SerializeData.h"
+
+namespace common_serialization::csp::processing
 {
 
-template<typename T = cs::Dummy>
-class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<>, T>>
+
+template<>
+Status DataProcessor::serializeData(const descendant_interface::SimpleStruct<>& value, context::SData<>& ctx)
 {
-public:
-    using instance_type = cs::GetCrtpMainType<SimpleStruct<>, T>;
+    CSP_SERIALIZE_COMMON(value, ctx);
 
-    static constexpr cs::csp::Id kId{ 0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd };
-    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    RUN(serializeData(value.m_i, ctx));
 
-    uint32_t m_i{ 0 };
 
-    SimpleStruct& operator=(const SimpleStruct<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
+    return Status::kNoError;
+}
 
-        m_i = rhs.m_i;
+template<>
+Status DataProcessor::serializeData(const descendant_interface::DiamondDescendant<>& value, context::SData<>& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
 
-        return *this;
-    }
+    RUN(serializeData(static_cast<const interface_for_test::Diamond<>&>(value), ctx));
 
-    [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
-    {
-        return m_i == rhs.m_i;
-    }
+    RUN(serializeData(value.m_sSt, ctx));
 
-    friend cs::csp::processing::DataProcessor;
-};
 
-} // namespace another_yet_interface
+    return Status::kNoError;
+}
+
+} // namespace common_serialization::csp::processing

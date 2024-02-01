@@ -26,5 +26,5 @@
 #include "common_serialization/common_serialization.h"
 
 #include "not_part_of_interfaces/Structs.h"
-#include "not_part_of_interfaces/Generated/DeserializeData.h"
-#include "not_part_of_interfaces/Generated/SerializeData.h"
+#include "not_part_of_interfaces/processing/Generated/DeserializeData.h"
+#include "not_part_of_interfaces/processing/Generated/SerializeData.h"
