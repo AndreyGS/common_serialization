@@ -40,6 +40,11 @@ public:
     /// @param binOutput Data that should be returned for processing by handleData method
     /// @return Status of operation
     virtual Status speak(BinVector& binInput, BinWalker& binOutput) = 0;
+
+    virtual bool isValid() const noexcept
+    {
+        return true;
+    }
 };
 
 } // namespace common_serialization::csp::messaging

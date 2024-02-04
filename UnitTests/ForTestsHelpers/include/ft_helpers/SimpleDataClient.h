@@ -28,10 +28,10 @@ namespace ft_helpers
 
 namespace cs = common_serialization;
 
-class SimpleDataClient : public cs::csp::messaging::IDataClientSpeaker
+class SimpleSpeaker : public cs::csp::messaging::IDataClientSpeaker
 {
 public:
-    SimpleDataClient() {}
+    SimpleSpeaker() {}
 
 private:
     // This function must transfer data from client to server.

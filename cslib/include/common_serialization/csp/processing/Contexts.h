@@ -102,7 +102,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     constexpr context::DataFlags effectiveMandatoryDataFlags = T::getEffectiveMandatoryDataFlags();
     constexpr context::DataFlags effectiveForbiddenDataFlags = T::getEffectiveForbiddenDataFlags();
 
-    if ((dataFlags & effectiveMandatoryDataFlags) != dataFlags || static_cast<bool>(dataFlags & effectiveForbiddenDataFlags))
+    if ((dataFlags & effectiveMandatoryDataFlags) != effectiveMandatoryDataFlags || static_cast<bool>(dataFlags & effectiveForbiddenDataFlags))
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
     ctx.setDataFlags(dataFlags);
@@ -171,7 +171,7 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
 
     context::DataFlags dataFlags = ctx.getDataFlags();
 
-    if ((dataFlags & T::getEffectiveMandatoryDataFlags()) != dataFlags || static_cast<bool>(dataFlags & T::getEffectiveForbiddenDataFlags()))
+    if ((dataFlags & T::getEffectiveMandatoryDataFlags()) != T::getEffectiveMandatoryDataFlags() || static_cast<bool>(dataFlags & T::getEffectiveForbiddenDataFlags()))
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
     if (dataFlags.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)

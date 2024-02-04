@@ -44,7 +44,7 @@ public:
         if constexpr (std::is_same_v<D, Dummy>)
             delete m_p;
         else
-            D()(m_p);
+            D(m_p);
     }
 
     /// @brief Get stored pointer

@@ -41,10 +41,7 @@ namespace common_serialization::csp::messaging
 class DataClient
 {
 public:
-    DataClient(IDataClientSpeaker* pDataClientSpeaker)
-        : m_dataClientSpeaker(pDataClientSpeaker)
-    {
-    }
+    DataClient(IDataClientSpeaker* pDataClientSpeaker);
 
     DataClient(
           IDataClientSpeaker* pDataClientSpeaker
@@ -52,18 +49,13 @@ public:
         , context::CommonFlags mandatoryCommonFlags
         , context::CommonFlags forbiddenCommonFlags
         , const Vector<traits::Interface>& interfaces
-    )
-        : m_dataClientSpeaker(pDataClientSpeaker)
-        , m_protocolVersion(protocolVersion)
-        , m_mandatoryCommonFlags(mandatoryCommonFlags)
-        , m_forbiddenCommonFlags(forbiddenCommonFlags)
-        , m_interfaces(interfaces)
-    {
-        m_isReady = static_cast<bool>(pDataClientSpeaker)
-            && m_protocolVersion != traits::kProtocolVersionUndefined
-            && !static_cast<bool>(m_mandatoryCommonFlags & m_forbiddenCommonFlags)
-            && m_interfaces.size() > 0;
-    }
+    );
+
+    Status init(
+          protocol_version_t protocolVersion
+        , context::CommonFlags mandatoryCommonFlags
+        , context::CommonFlags forbiddenCommonFlags
+        , const Vector<traits::Interface>& interfaces) noexcept;
 
     Status init(
           const Vector<protocol_version_t>& acceptableCspVersions
@@ -72,12 +64,21 @@ public:
         , const Vector<traits::Interface>& acceptableInterfaces
         , service_structs::CspPartySettings<>* pCspPartySettings) noexcept;
 
+    bool isValid() const noexcept;
+
+    /// @brief Shortcut to receive server supported CSP versions
+    /// @param output Server supported CSP versions
+    /// @return Status of operation
+    Status getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept;
+
     Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept;
 
-    bool isReady() const noexcept
-    {
-        return m_isReady;
-    }
+    template<typename InputType>
+        requires IsISerializableBased<InputType>
+    Status getServerStructInterfaceSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
+
+    constexpr const Vector<traits::Interface>& getInterfaces() const noexcept;
+    const traits::Interface* getInterface(const Id& id) const noexcept;
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details See another handleData() overloading
@@ -141,43 +142,11 @@ public:
         , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
     );
 
-    /// @brief Shortcut to receive server supported CSP versions
-    /// @param output Server supported CSP versions
-    /// @return Status of operation
-    Status getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept;
-
-    template<typename InputType>
-        requires IsISerializableBased<InputType>
-    Status getServerStructInterfaceSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
-
-    constexpr const Vector<traits::Interface>& getInterfaces() const noexcept
-    {
-        return m_interfaces;
-    }
-
-    const traits::Interface* getInterface(const Id& id) const noexcept
-    {
-        for (const auto& _interface : getInterfaces())
-            if (id == _interface.id)
-                return &_interface;
-
-        return nullptr;
-    }
-
-
 private:
-    template<typename InputType, typename OutputType, bool forTempUseHeap = true>
-        requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-    Status handleData(
-          const InputType& input
-        , OutputType& output
-        , const traits::Interface& _interface
-        , context::CommonFlags additionalCommonFlags
-        , context::DataFlags additionalDataFlags
-        , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
-    );
+    constexpr bool isValidInternal() const noexcept;
 
-    bool m_isReady{ false };
+    // Distinct variable is for not having calculate valid condition every time
+    bool m_isValid{ false };
 
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
 
@@ -189,7 +158,40 @@ private:
     UniquePtr<IDataClientSpeaker> m_dataClientSpeaker;
 };
 
-Status DataClient::init(
+inline DataClient::DataClient(IDataClientSpeaker* pDataClientSpeaker)
+    : m_dataClientSpeaker(pDataClientSpeaker)
+{
+}
+
+inline DataClient::DataClient(
+      IDataClientSpeaker* pDataClientSpeaker
+    , protocol_version_t protocolVersion
+    , context::CommonFlags mandatoryCommonFlags
+    , context::CommonFlags forbiddenCommonFlags
+    , const Vector<traits::Interface>& interfaces
+)
+    : m_dataClientSpeaker(pDataClientSpeaker)
+{
+    init(protocolVersion, mandatoryCommonFlags, forbiddenCommonFlags, interfaces);
+}
+
+inline Status DataClient::init(
+      protocol_version_t protocolVersion
+    , context::CommonFlags mandatoryCommonFlags
+    , context::CommonFlags forbiddenCommonFlags
+    , const Vector<traits::Interface>& interfaces) noexcept
+{
+    m_protocolVersion = protocolVersion;
+    m_mandatoryCommonFlags = mandatoryCommonFlags;
+    m_forbiddenCommonFlags = forbiddenCommonFlags;
+    RUN(m_interfaces.init(interfaces));
+
+    m_isValid = isValidInternal();
+
+    return m_isValid ? Status::kNoError : Status::kErrorNotInited;
+}
+
+inline Status DataClient::init(
       const Vector<protocol_version_t>& acceptableCspVersions
     , context::CommonFlags clientMandatoryCommonFlags
     , context::CommonFlags clientForbiddenCommonFlags
@@ -261,13 +263,45 @@ Status DataClient::init(
     m_protocolVersion = tempServerProtocolVersion;
     m_mandatoryCommonFlags = tempMandatoryCommonFlags;
     m_forbiddenCommonFlags = tempForbiddenCommonFlags;
-    
-    m_isReady = true;
+
+    m_isValid = true;
 
     return Status::kNoError;
 }
 
-Status DataClient::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
+inline bool DataClient::isValid() const noexcept
+{
+    return m_isValid;
+}
+
+inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept
+{
+    if (!m_dataClientSpeaker)
+        return Status::kErrorNotInited;
+
+    BinVector binInput;
+    context::Common<BinVector> ctxIn(binInput, traits::kProtocolVersionUndefined);
+    RUN(processing::serializeCommonContext(ctxIn));
+
+    BinWalker binOutput;
+    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+
+    context::Common<BinWalker> ctxOut(binOutput);
+    RUN(processing::deserializeCommonContext(ctxOut));
+
+    if (ctxOut.getMessageType() != context::Message::kStatus)
+        return Status::kErrorDataCorrupted;
+
+    Status statusOut = Status::kNoError;
+    RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+
+    if (statusOut != Status::kErrorNotSupportedProtocolVersion)
+        return Status::kErrorDataCorrupted;
+
+    return processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, output);
+}
+
+inline Status DataClient::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
 {
     if (!m_dataClientSpeaker)
         return Status::kErrorNotInited;
@@ -283,61 +317,90 @@ Status DataClient::getServerSettings(protocol_version_t serverCspVersion, servic
     return cspPartySettings.deserialize(binOutput);
 }
 
+template<typename InputType>
+    requires IsISerializableBased<InputType>
+Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
+{
+    if (!isValid())
+        return Status::kErrorNotInited;
+
+    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
+    if (!pInterface)
+        return Status::kErrorNotSupportedInterface;
+
+    BinVector binInput;
+    context::SData<> ctxIn(binInput, m_protocolVersion, m_mandatoryCommonFlags, pInterface->mandatoryDataFlags);
+
+    RUN(processing::serializeCommonContext(ctxIn));
+    RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
+
+    BinWalker binOutput;
+    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+
+    context::Common<BinWalker> ctxOut(binOutput);
+
+    if (ctxOut.getMessageType() != context::Message::kStatus)
+        return Status::kErrorDataCorrupted;
+
+    Status statusOut = Status::kNoError;
+    RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+
+    if (statusOut != Status::kErrorNotSupportedInterfaceVersion)
+        return Status::kErrorDataCorrupted;
+
+    return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
+}
+
+inline constexpr const Vector<traits::Interface>& DataClient::getInterfaces() const noexcept
+{
+    return m_interfaces;
+}
+
+inline const traits::Interface* DataClient::getInterface(const Id& id) const noexcept
+{
+    for (const auto& _interface : getInterfaces())
+        if (id == _interface.id)
+            return &_interface;
+
+    return nullptr;
+}
+
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status DataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    if (!isReady())
+    if (!isValid())
         return Status::kErrorNotInited;
 
-    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
-    if (!pInterface)
-        return Status::kErrorNotSupportedInterface;
-
-    return handleData(input, output, *pInterface, context::CommonFlags{}, context::DataFlags{}, pUnmanagedPointers);
-}
-
-template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
-{
-    if (!isReady())
-        return Status::kErrorNotInited;
-
-    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
-    if (!pInterface)
-        return Status::kErrorNotSupportedInterface;
-
-    return handleData(input, output, *pInterface, context::CommonFlags{}, additionalDataFlags, pUnmanagedPointers);
-}
-
-template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-Status DataClient::handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
-    , context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
-{
-    if (!isReady())
-        return Status::kErrorNotInited;
-
-    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
-    if (!pInterface)
-        return Status::kErrorNotSupportedInterface;
-
-    return handleData(input, output, *pInterface, additionalCommonFlags, additionalDataFlags, pUnmanagedPointers);
+    return handleData(input, output, context::CommonFlags{}, context::DataFlags{}, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-Status DataClient::handleData(const InputType& input, OutputType& output, const traits::Interface& _interface, context::CommonFlags additionalCommonFlags
+Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+{
+    if (!isValid())
+        return Status::kErrorNotInited;
+
+    return handleData(input, output, context::CommonFlags{}, additionalDataFlags, pUnmanagedPointers);
+}
+
+template<typename InputType, typename OutputType, bool forTempUseHeap>
+    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+Status DataClient::handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
     , context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    if (InputType::getOriginPrivateVersion() > _interface.version || OutputType::getOriginPrivateVersion() > _interface.version)
+    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
+    if (!pInterface)
+        return Status::kErrorNotSupportedInterface;
+
+    if (InputType::getOriginPrivateVersion() > pInterface->version || OutputType::getOriginPrivateVersion() > pInterface->version)
         return Status::kErrorNotSupportedInterfaceVersion;
 
     if (additionalCommonFlags & m_forbiddenCommonFlags)
         return Status::kErrorNotCompatibleCommonFlagsSettings;
 
-    if (additionalDataFlags & _interface.forbiddenDataFlags)
+    if (additionalDataFlags & pInterface->forbiddenDataFlags)
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
     BinVector binInput;
@@ -346,9 +409,9 @@ Status DataClient::handleData(const InputType& input, OutputType& output, const 
           binInput
         , m_protocolVersion
         , m_mandatoryCommonFlags | additionalCommonFlags
-        , _interface.mandatoryDataFlags | InputType::getAddtionalMandatoryDataFlags() | additionalDataFlags
+        , pInterface->mandatoryDataFlags | InputType::getAddtionalMandatoryDataFlags() | additionalDataFlags
         , forTempUseHeap
-        , _interface.version
+        , pInterface->version
         , nullptr);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
@@ -391,9 +454,9 @@ Status DataClient::handleData(const InputType& input, OutputType& output, const 
         context::DataFlags outDataFlags = ctxOutData.getDataFlags();
 
         if (   outDataFlags & OutputType::getEffectiveForbiddenDataFlags()
-            || outDataFlags & _interface.forbiddenDataFlags
+            || outDataFlags & pInterface->forbiddenDataFlags
             || (outDataFlags & OutputType::getEffectiveMandatoryDataFlags()) != OutputType::getEffectiveMandatoryDataFlags()
-            || (outDataFlags & _interface.mandatoryDataFlags) != _interface.mandatoryDataFlags
+            || (outDataFlags & pInterface->mandatoryDataFlags) != pInterface->mandatoryDataFlags
         )
             return Status::kErrorDataCorrupted;
 
@@ -420,65 +483,13 @@ Status DataClient::handleData(const InputType& input, OutputType& output, const 
     return Status::kNoError;
 }
 
-inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept
+constexpr bool DataClient::isValidInternal() const noexcept
 {
-    if (!m_dataClientSpeaker)
-        return Status::kErrorNotInited;
-
-    BinVector binInput;
-    context::Common<BinVector> ctxIn(binInput, traits::kProtocolVersionUndefined);
-    RUN(processing::serializeCommonContext(ctxIn));
-
-    BinWalker binOutput;
-    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
-
-    context::Common<BinWalker> ctxOut(binOutput);
-    RUN(processing::deserializeCommonContext(ctxOut));
-
-    if (ctxOut.getMessageType() != context::Message::kStatus)
-        return Status::kErrorDataCorrupted;
-
-    Status statusOut = Status::kNoError;
-    RUN(processing::deserializeStatusContext(ctxOut, statusOut));
-    
-    if (statusOut != Status::kErrorNotSupportedProtocolVersion)
-        return Status::kErrorDataCorrupted;
-
-    return processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, output);
-}
-
-template<typename InputType>
-    requires IsISerializableBased<InputType>
-Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
-{
-    if (!isReady())
-        return Status::kErrorNotInited;
-
-    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
-    if (!pInterface)
-        return Status::kErrorNotSupportedInterface;
-
-    BinVector binInput;
-    context::SData<> ctxIn(binInput, m_protocolVersion, m_mandatoryCommonFlags, pInterface->mandatoryDataFlags);
-    
-    RUN(processing::serializeCommonContext(ctxIn));
-    RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
-
-    BinWalker binOutput;
-    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
-
-    context::Common<BinWalker> ctxOut(binOutput);
-
-    if (ctxOut.getMessageType() != context::Message::kStatus)
-        return Status::kErrorDataCorrupted;
-
-    Status statusOut = Status::kNoError;
-    RUN(processing::deserializeStatusContext(ctxOut, statusOut));
-
-    if (statusOut != Status::kErrorNotSupportedInterfaceVersion)
-        return Status::kErrorDataCorrupted;
-
-    return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
+    return static_cast<bool>(m_dataClientSpeaker)
+        && m_dataClientSpeaker->isValid()
+        && m_protocolVersion != traits::kProtocolVersionUndefined
+        && !static_cast<bool>(m_mandatoryCommonFlags & m_forbiddenCommonFlags)
+        && m_interfaces.size() > 0;
 }
 
 } // namespace common_serialization::csp::messaging

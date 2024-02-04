@@ -34,9 +34,12 @@ namespace common_serialization::csp::messaging
 class CommonServer
 {
 public:
-    constexpr CommonServer(const service_structs::CspPartySettings<>& serverSettings)
-        : m_serverSettings(serverSettings)
-    { }
+    CommonServer() = default;
+
+    CommonServer(const service_structs::CspPartySettings<>& serverSettings);
+
+    Status init(const service_structs::CspPartySettings<>& serverSettings) noexcept;
+    constexpr bool isValid() const noexcept;
 
     /// @brief Entry point for CSP client requests
     /// @param binInput Binary data received from client
@@ -50,8 +53,31 @@ private:
     service_structs::CspPartySettings<> m_serverSettings;
 };
 
+inline CommonServer::CommonServer(const service_structs::CspPartySettings<>& serverSettings)
+{
+    init(serverSettings);
+}
+
+inline Status CommonServer::init(const service_structs::CspPartySettings<>& serverSettings) noexcept
+{
+    m_serverSettings.clear();
+
+    if (!serverSettings.isValid())
+        return Status::kErrorInvalidArgument;
+
+    return m_serverSettings.init(serverSettings);
+}
+
+constexpr bool CommonServer::isValid() const noexcept
+{
+    return m_serverSettings.isValid();
+}
+
 inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput)
 {
+    if (!isValid())
+        return Status::kErrorNotInited;
+
     context::Common<BinWalker> ctx(binInput, m_serverSettings.supportedCspVersions[m_serverSettings.supportedCspVersions.size() - 1]);
 
     if (Status status = processing::deserializeCommonContext(ctx); !statusSuccess(status))

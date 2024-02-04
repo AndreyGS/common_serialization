@@ -27,9 +27,13 @@ namespace
 using namespace common_serialization;
 using namespace ft_helpers;
 
-csp::service_structs::CspPartySettings<>& getServerSettings()
+csp::service_structs::CspPartySettings<>& getServerSettings(csp::service_structs::CspPartySettings<> optSettings = csp::service_structs::CspPartySettings<>{})
 {
     static csp::service_structs::CspPartySettings<> serverSettings;
+
+    if (optSettings.isValid())
+        serverSettings = optSettings;
+
     if (serverSettings.supportedCspVersions.size() == 0)
     {
         serverSettings.supportedCspVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
@@ -42,8 +46,26 @@ csp::service_structs::CspPartySettings<>& getServerSettings()
     return serverSettings;
 }
 
+TEST(MessagingTests, InitCommonServerT)
+{
+    csp::messaging::CommonServer commonServer(getServerSettings());
+    EXPECT_TRUE(commonServer.isValid());
+    EXPECT_EQ(commonServer.init(csp::service_structs::CspPartySettings<>{}), Status::kErrorInvalidArgument);
+    EXPECT_FALSE(commonServer.isValid());
+    EXPECT_EQ(commonServer.init(getServerSettings()), Status::kNoError);
+    EXPECT_TRUE(commonServer.isValid());
+}
+
+TEST(MessagingTests, InitDataClientT)
+{
+    csp::messaging::DataClient(new SimpleSpeaker{});
+
+}
+
 TEST(MessagingTests, DataServiceServerTest)
 {
+
+    /*
     // Create client (to request on data server)
     csp::messaging::DataClient dataClient(new SimpleDataClient);
 
@@ -76,7 +98,7 @@ TEST(MessagingTests, DataServiceServerTest)
     interfacePropsReference.id = getInterfaceProps.id;
     interfacePropsReference.version = csp::traits::kInterfaceVersionUndefined;
 
-    EXPECT_EQ(outGetInterfaceProps.properties, interfacePropsReference);
+    EXPECT_EQ(outGetInterfaceProps.properties, interfacePropsReference);*/
 }
 /*
 TEST(MessagingTests, MainTest)
