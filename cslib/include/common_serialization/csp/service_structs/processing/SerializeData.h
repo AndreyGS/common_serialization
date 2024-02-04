@@ -54,10 +54,10 @@ constexpr Status DataProcessor::serializeData(const service_structs::CspPartySet
 {
     CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
 
-    assert(value.supportedCspVersions.size() < traits::kProtocolVersionUndefined);
+    assert(value.protocolVersions.size() < traits::kProtocolVersionUndefined);
 
-    RUN(serializeData(static_cast<protocol_version_t>(value.supportedCspVersions.size()), ctx));
-    RUN(serializeData(value.supportedCspVersions.data(), static_cast<protocol_version_t>(value.supportedCspVersions.size()), ctx));
+    RUN(serializeData(static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
+    RUN(serializeData(value.protocolVersions.data(), static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
 
     RUN(serializeData(static_cast<uint16_t>(value.mandatoryCommonFlags), ctx));
     RUN(serializeData(static_cast<uint16_t>(value.forbiddenCommonFlags), ctx));

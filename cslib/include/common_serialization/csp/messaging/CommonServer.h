@@ -45,10 +45,10 @@ public:
     /// @param binInput Binary data received from client
     /// @param binOutput Binary data that should be send back to client
     /// @return Status of operation
-    Status handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput);
+    Status handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput) const noexcept;
 
 private:
-    Status handleGetSettingsRequest(protocol_version_t cspVersion, BinVector& binOutput);
+    Status handleGetSettingsRequest(protocol_version_t cspVersion, BinVector& binOutput) const noexcept;
 
     service_structs::CspPartySettings<> m_serverSettings;
 };
@@ -73,19 +73,19 @@ constexpr bool CommonServer::isValid() const noexcept
     return m_serverSettings.isValid();
 }
 
-inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput)
+inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput) const noexcept
 {
     if (!isValid())
         return Status::kErrorNotInited;
 
-    context::Common<BinWalker> ctx(binInput, m_serverSettings.supportedCspVersions[m_serverSettings.supportedCspVersions.size() - 1]);
+    context::Common<BinWalker> ctx(binInput, m_serverSettings.protocolVersions[m_serverSettings.protocolVersions.size() - 1]);
 
     if (Status status = processing::deserializeCommonContext(ctx); !statusSuccess(status))
     {
         if (status == Status::kErrorNotSupportedProtocolVersion)
         {
             binOutput.clear();
-            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_serverSettings.mandatoryCommonFlags);
+            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_serverSettings.protocolVersions, m_serverSettings.mandatoryCommonFlags);
         }
         else
             return status;
@@ -113,7 +113,7 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& 
     return status;
 }
 
-inline Status CommonServer::handleGetSettingsRequest(protocol_version_t cspVersion, BinVector& binOutput)
+inline Status CommonServer::handleGetSettingsRequest(protocol_version_t cspVersion, BinVector& binOutput) const noexcept
 {
     binOutput.clear();
 

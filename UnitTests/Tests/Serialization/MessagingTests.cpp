@@ -27,16 +27,13 @@ namespace
 using namespace common_serialization;
 using namespace ft_helpers;
 
-csp::service_structs::CspPartySettings<>& getServerSettings(csp::service_structs::CspPartySettings<> optSettings = csp::service_structs::CspPartySettings<>{})
+const csp::service_structs::CspPartySettings<>& getServerSettings()
 {
     static csp::service_structs::CspPartySettings<> serverSettings;
 
-    if (optSettings.isValid())
-        serverSettings = optSettings;
-
-    if (serverSettings.supportedCspVersions.size() == 0)
+    if (serverSettings.protocolVersions.size() == 0)
     {
-        serverSettings.supportedCspVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
+        serverSettings.protocolVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
 
         serverSettings.interfaces.pushBack({ interface_for_test::properties.id, interface_for_test::properties.version });
         serverSettings.interfaces.pushBack({ descendant_interface::properties.id, descendant_interface::properties.version });
@@ -58,8 +55,28 @@ TEST(MessagingTests, InitCommonServerT)
 
 TEST(MessagingTests, InitDataClientT)
 {
-    csp::messaging::DataClient(new SimpleSpeaker{});
+    csp::service_structs::CspPartySettings<> serverSettings;
+    serverSettings.protocolVersions.pushBack(2);
+    serverSettings.protocolVersions.pushBack(1);
+    serverSettings.mandatoryCommonFlags = csp::context::CommonFlags::kBigEndianFormat;
+    serverSettings.forbiddenCommonFlags = csp::context::CommonFlags::kBitness32;
+    serverSettings.interfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
+    csp::messaging::CommonServer commonServer(serverSettings);
 
+    csp::messaging::DataClient dataClient(new SimpleSpeaker{ commonServer });
+
+    Vector<csp::protocol_version_t> clientProtocolVersions;
+    clientProtocolVersions.pushBack(1);
+    clientProtocolVersions.pushBack(0); // 0 is not a valid CSP version and we add it here only for logic test
+    csp::context::CommonFlags clientMandatoryCommonFlags{ csp::context::CommonFlags::kPossibleEndianDifference };
+    csp::context::CommonFlags clientForbiddenCommonFlags;
+    Vector<csp::traits::Interface> clientInterfaces;
+    clientInterfaces.pushBack(interface_for_test::properties);
+    clientInterfaces.pushBack(descendant_interface::properties);
+    clientInterfaces.pushBack(another_yet_interface::properties);
+    csp::service_structs::CspPartySettings<> serverSettingsReturned;
+
+    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
 }
 
 TEST(MessagingTests, DataServiceServerTest)

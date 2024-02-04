@@ -120,7 +120,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     static consteval const traits::Interface& getInterface() noexcept { return properties; }
 
     /// @brief List of all supported CSP versions begining in decreasing order
-    Vector<protocol_version_t> supportedCspVersions;
+    Vector<protocol_version_t> protocolVersions;
 
     /// @brief Mandatory Common Flags in interactions with party
     context::CommonFlags mandatoryCommonFlags{ helpers::isModuleIsBigEndian() };
@@ -137,7 +137,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
 
         clear();
 
-        RUN(supportedCspVersions.init(rhs.supportedCspVersions));
+        RUN(protocolVersions.init(rhs.protocolVersions));
         mandatoryCommonFlags = rhs.mandatoryCommonFlags;
         forbiddenCommonFlags = rhs.forbiddenCommonFlags;
         RUN(interfaces.init(rhs.interfaces));
@@ -152,7 +152,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
 
         clear();
 
-        RUN(supportedCspVersions.init(std::move(rhs.supportedCspVersions)));
+        RUN(protocolVersions.init(std::move(rhs.protocolVersions)));
         mandatoryCommonFlags = rhs.mandatoryCommonFlags;
         forbiddenCommonFlags = rhs.forbiddenCommonFlags;
         RUN(interfaces.init(std::move(rhs.interfaces)));
@@ -160,21 +160,29 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
         return Status::kNoError;
     }
 
+    constexpr bool operator==(const CspPartySettings& rhs) const noexcept
+    {
+        return protocolVersions == rhs.protocolVersions
+            && mandatoryCommonFlags == rhs.mandatoryCommonFlags
+            && forbiddenCommonFlags == rhs.forbiddenCommonFlags
+            && interfaces == rhs.interfaces;
+    }
+
     constexpr bool isValid() const noexcept
     {
         return
-               supportedCspVersions.size() > 0
+               protocolVersions.size() > 0
             && !static_cast<bool>(mandatoryCommonFlags & forbiddenCommonFlags)
             && interfaces.size() > 0;
     }
 
     static Status getCompatibleSettings(const CspPartySettings<>& lhs, const CspPartySettings<>& rhs, CspPartySettings<>& output) noexcept
     {
-        for (auto lhsVersion : lhs.supportedCspVersions)
-            for (auto rhsVersion : rhs.supportedCspVersions)
+        for (auto lhsVersion : lhs.protocolVersions)
+            for (auto rhsVersion : rhs.protocolVersions)
                 if (lhsVersion == rhsVersion)
                 {
-                    RUN(output.supportedCspVersions.pushBack(lhsVersion));
+                    RUN(output.protocolVersions.pushBack(lhsVersion));
                     break;
                 }
 
@@ -192,7 +200,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
 
     void clear() noexcept
     {
-        supportedCspVersions.clear();
+        protocolVersions.clear();
         mandatoryCommonFlags = context::CommonFlags{};
         forbiddenCommonFlags = context::CommonFlags{};
         interfaces.clear();

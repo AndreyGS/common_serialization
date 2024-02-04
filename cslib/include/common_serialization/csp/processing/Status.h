@@ -29,9 +29,13 @@ namespace common_serialization::csp::processing
 {
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status statusOut) noexcept
+constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status statusOut, bool noChecks = false) noexcept
 {
-    RUN(serializeCommonContext(ctx));
+    if (!noChecks)
+        RUN(serializeCommonContext(ctx))
+    else
+        RUN(serializeCommonContextNoChecks(ctx));
+        
     RUN(serializeStatusContext(ctx, statusOut));
 
     return Status::kNoError;
@@ -47,14 +51,14 @@ constexpr Status serializeStatusFullContext(S& output, protocol_version_t protoc
 }
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, context::CommonFlags commonFlags) noexcept
+constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, const Vector<protocol_version_t>& supportedProtocolVersions, context::CommonFlags commonFlags) noexcept
 {
-    // For unsupported protocol version always using protocol version equal 1
-    context::Common<S> ctx(output, 1, commonFlags, context::Message::kStatus);
-    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedProtocolVersion));
+    // For unsupported protocol version always using kProtocolVersionUndefined in response context
+    context::Common<S> ctx(output, traits::kProtocolVersionUndefined, commonFlags, context::Message::kStatus);
+    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedProtocolVersion, true));
 
-    RUN(output.pushBackArithmeticValue(traits::getProtocolVersionsCount()));
-    RUN(output.pushBackN(traits::kProtocolVersions, traits::getProtocolVersionsCount()));
+    RUN(output.pushBackArithmeticValue(static_cast<protocol_version_t>(supportedProtocolVersions.size())));
+    RUN(output.pushBackN(supportedProtocolVersions.data(), static_cast<protocol_version_t>(supportedProtocolVersions.size())));
 
     return Status::kNoError;
 }

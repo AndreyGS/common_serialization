@@ -31,7 +31,7 @@ namespace cs = common_serialization;
 class SimpleSpeaker : public cs::csp::messaging::IDataClientSpeaker
 {
 public:
-    SimpleSpeaker() {}
+    SimpleSpeaker(cs::csp::messaging::CommonServer& server) : m_server(server) {}
 
 private:
     // This function must transfer data from client to server.
@@ -42,10 +42,10 @@ private:
         cs::BinWalker input;
         input.init(std::move(binInput));
 
-        cs::csp::service_structs::CspPartySettings<> serverSettings;
-        cs::csp::messaging::CommonServer server{ serverSettings };
-        return server.handleMessage(input, cs::BinVector{}, binOutput.getVector());
+        return m_server.handleMessage(input, cs::BinVector{}, binOutput.getVector());
     }
+
+    cs::csp::messaging::CommonServer& m_server;
 };
 
 } // namespace ft_helpers

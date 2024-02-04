@@ -69,6 +69,41 @@ constexpr Status deserializeCommonContext(context::Common<D>& ctx) noexcept
     return Status::kNoError;
 }
 
+template<ISerializationCapableContainer S>
+constexpr Status serializeCommonContextNoChecks(context::Common<S>& ctx) noexcept
+{
+    S& output = ctx.getBinaryData();
+
+    RUN(output.pushBackArithmeticValue(static_cast<uint16_t>(ctx.getProtocolVersion())));
+    RUN(output.pushBackArithmeticValue(static_cast<uint16_t>(ctx.getCommonFlags())));
+    RUN(output.pushBackArithmeticValue(ctx.getMessageType()));
+
+    return Status::kNoError;
+}
+
+template<IDeserializationCapableContainer D>
+constexpr Status deserializeCommonContextNoChecks(context::Common<D>& ctx) noexcept
+{
+    D& input = ctx.getBinaryData();
+
+    uint16_t version = 0;
+    RUN(input.readArithmeticValue(version));
+    protocol_version_t minimumSupportedVersion = ctx.getProtocolVersion();
+    ctx.setProtocolVersion(static_cast<protocol_version_t>(version));
+
+    uint16_t intFlags = 0;
+    RUN(input.readArithmeticValue(intFlags));
+    context::CommonFlags commonFlags(intFlags);
+    ctx.setCommonFlags(commonFlags);
+
+    context::Message messageType = context::Message::kData;
+    RUN(input.readArithmeticValue(messageType));
+
+    ctx.setMessageType(messageType);
+
+    return Status::kNoError;
+}
+
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
 constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 {

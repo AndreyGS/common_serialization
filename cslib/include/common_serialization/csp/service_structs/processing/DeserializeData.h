@@ -56,8 +56,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_s
 
     protocol_version_t cspVersionsSize{ 0 };
     RUN(deserializeData(ctx, cspVersionsSize));
-    value.supportedCspVersions.setSize(cspVersionsSize);
-    RUN(deserializeData(ctx, cspVersionsSize, value.supportedCspVersions.data()));
+    value.protocolVersions.setSize(cspVersionsSize);
+    RUN(deserializeData(ctx, cspVersionsSize, value.protocolVersions.data()));
 
     uint16_t mandatoryCommonFlags;
     RUN(deserializeData(ctx, mandatoryCommonFlags));

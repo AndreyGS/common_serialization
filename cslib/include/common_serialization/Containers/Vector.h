@@ -415,6 +415,7 @@ public:
     template<typename ItSrc>
     constexpr Status insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd = nullptr);
 
+    constexpr Status erase(size_type offset);
     constexpr Status erase(size_type offset, size_type n);
     constexpr Status erase(iterator destBegin, iterator destEnd);
 
@@ -776,6 +777,12 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
         *pDestEnd = m_p + currentOffset;
 
     return Status::kNoError;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Status Vector<T, AllocatorHelper>::erase(size_type offset)
+{
+    return erase(offset, 1);
 }
 
 template<typename T, typename AllocatorHelper>

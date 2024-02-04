@@ -77,8 +77,12 @@ public:
         requires IsISerializableBased<InputType>
     Status getServerStructInterfaceSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
 
+    constexpr protocol_version_t getProtocolVersion() const noexcept;
+    constexpr context::CommonFlags getMandatoryCommonFlags() const noexcept;
+    constexpr context::CommonFlags getForbiddenCommonFlags() const noexcept;
     constexpr const Vector<traits::Interface>& getInterfaces() const noexcept;
-    const traits::Interface* getInterface(const Id& id) const noexcept;
+
+    constexpr const traits::Interface* getInterface(const Id& id) const noexcept;
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details See another handleData() overloading
@@ -226,13 +230,13 @@ inline Status DataClient::init(
     if (tempServerProtocolVersion == traits::kProtocolVersionUndefined)
     {
         if (pCspPartySettings)
-            RUN(pCspPartySettings->supportedCspVersions.init(std::move(serverCspVersions)));
+            RUN(pCspPartySettings->protocolVersions.init(std::move(serverCspVersions)));
 
         return Status::kErrorNotSupportedProtocolVersion;
     }
 
     service_structs::CspPartySettings<> cspPartySettings;
-    RUN(getServerSettings(serverCspVersions[0], cspPartySettings));
+    RUN(getServerSettings(tempServerProtocolVersion, cspPartySettings));
 
     if (pCspPartySettings)
         RUN(pCspPartySettings->init(std::move(cspPartySettings)));
@@ -281,13 +285,13 @@ inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& 
 
     BinVector binInput;
     context::Common<BinVector> ctxIn(binInput, traits::kProtocolVersionUndefined);
-    RUN(processing::serializeCommonContext(ctxIn));
+    RUN(processing::serializeCommonContextNoChecks(ctxIn));
 
     BinWalker binOutput;
     RUN(m_dataClientSpeaker->speak(binInput, binOutput));
 
     context::Common<BinWalker> ctxOut(binOutput);
-    RUN(processing::deserializeCommonContext(ctxOut));
+    RUN(processing::deserializeCommonContextNoChecks(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::kStatus)
         return Status::kErrorDataCorrupted;
@@ -307,7 +311,7 @@ inline Status DataClient::getServerSettings(protocol_version_t serverCspVersion,
         return Status::kErrorNotInited;
 
     BinVector binInput;
-    context::Common<BinVector> ctxIn(binInput, serverCspVersion);
+    context::Common<BinVector> ctxIn(binInput, serverCspVersion, context::CommonFlags{}, context::Message::kGetSettings);
     RUN(processing::serializeCommonContext(ctxIn));
 
     BinWalker binOutput;
@@ -351,12 +355,27 @@ Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimum
     return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 
-inline constexpr const Vector<traits::Interface>& DataClient::getInterfaces() const noexcept
+constexpr protocol_version_t DataClient::getProtocolVersion() const noexcept
+{
+    return m_protocolVersion;
+}
+
+constexpr context::CommonFlags DataClient::getMandatoryCommonFlags() const noexcept
+{
+    return m_mandatoryCommonFlags;
+}
+
+constexpr context::CommonFlags DataClient::getForbiddenCommonFlags() const noexcept
+{
+    return m_forbiddenCommonFlags;
+}
+
+constexpr const Vector<traits::Interface>& DataClient::getInterfaces() const noexcept
 {
     return m_interfaces;
 }
 
-inline const traits::Interface* DataClient::getInterface(const Id& id) const noexcept
+constexpr const traits::Interface* DataClient::getInterface(const Id& id) const noexcept
 {
     for (const auto& _interface : getInterfaces())
         if (id == _interface.id)
