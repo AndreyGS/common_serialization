@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -38,6 +38,7 @@ public:
     static constexpr cs::csp::Id kId = SimpleAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     SimpleAssignableAlignedToOne_Version0() { }
     template<typename T2>
@@ -74,6 +75,7 @@ public:
     static constexpr cs::csp::Id kId = SimpleAssignable<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;         // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     template<typename T2>
     cs::Status init(const SimpleAssignable<T2>& rhs);
@@ -219,6 +221,7 @@ struct SimpleAssignableDescendant_Version0 : public SimpleAssignable_Version0<cs
     static constexpr cs::csp::Id kId = SimpleAssignableDescendant<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     uint32_t m_d{ 0 };
 
@@ -293,6 +296,7 @@ public:
     static constexpr cs::csp::Id kId = DForAllModesTests<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     template<typename T2>
     cs::Status init(const SForAllModesTests_Version2<T2>& rhs);
@@ -333,6 +337,7 @@ public:
     static constexpr cs::csp::Id kId = SimpleAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 1, 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     SimpleAssignableAlignedToOne_Version1() { }
     template<typename T2>
@@ -395,6 +400,7 @@ public:
     static constexpr cs::csp::Id kId = DForAllModesTests<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 2;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 2, 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     template<typename T2>
     cs::Status init(const SForAllModesTests_Version0<T2>& rhs);

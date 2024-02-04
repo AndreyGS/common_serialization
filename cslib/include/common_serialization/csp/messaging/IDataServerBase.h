@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -39,43 +39,37 @@ namespace common_serialization::csp::messaging
 class IDataServerBase
 {
 public:
-    /// @brief Get instance minimum input interface version
-    /// @return Instance minimum input interface version
-    virtual [[nodiscard]] interface_version_t getMinimumInputInterfaceVersion() = 0;
-
-    /// @brief Get instance minimum output interface version
-    /// @return Instance minimum output interface version
-    virtual [[nodiscard]] interface_version_t getMinimumOutputInterfaceVersion() = 0;
-
     /// @brief Common entry point on data messages handling
     /// @param ctxCommon Deserialized from input common context
     /// @param binOutput Binary data output
     /// @return Status of operation
     static Status handleDataCommon(context::Common<BinWalker>& ctxCommon, const BinVector& clientId, BinVector& binOutput);
 
+    virtual [[nodiscard]] interface_version_t getMinimumInterfaceVersion() = 0;
+
 protected:
     constexpr IDataServerBase() { }
     constexpr ~IDataServerBase() { }
 
 private:
-    virtual Status handleDataConcrete(context::DInOutData<>& ctx, const BinVector& clientId, BinVector& binOutput) = 0;
+    virtual Status handleDataConcrete(context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput) = 0;
 };
 
 inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, const BinVector& clientId, BinVector& binOutput)
 {
-    context::DInOutData<> ctx(ctxCommon);
+    context::DData<> ctx(ctxCommon);
     Id id;
 
-    RUN(processing::deserializeInOutDataContext(ctx, id));
+    RUN(processing::deserializeDataContext(ctx, id));
     
     context::DataFlags dataFlags = ctx.getDataFlags();
 
     Vector<GenericPointerKeeper> addedPointers;
-    if (dataFlags.allowUnmanagedPointers)
+    if (dataFlags.allowUnmanagedPointers())
         ctx.setAddedPointers(&addedPointers);
 
     std::unordered_map<uint64_t, void*> pointersMap;
-    if (dataFlags.checkRecursivePointers)
+    if (dataFlags.checkRecursivePointers())
         ctx.setPointersMap(&pointersMap);
     
     IDataServerBase* pServer{ nullptr };
@@ -97,7 +91,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
 
         for (auto pServer : servers)
         {
-            context::DInOutData<> ctxTemp(ctx);
+            context::DData<> ctxTemp(ctx);
             SET_NEW_ERROR(pServer->handleDataConcrete(ctxTemp, clientId, binOutput));
 
             ctx.getBinaryData().seek(bodyPosition);

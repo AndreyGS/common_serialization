@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -23,29 +23,30 @@
 
 #pragma once
 
-// interface_for_test UUID  : {a1cfd12a-22b2-49d3-8575-02342a630145}
-// interface version        : 3
-
 #include "common_serialization/common_serialization.h"
-
 #include "not_part_of_interfaces/NotInterface.h"
-
-#include "interface_for_test/Structs.h"
-#include "interface_for_test/StructsLegacy.h"
-
-#include "interface_for_test/Generated/SerializeData.h"
-#include "interface_for_test/Generated/SerializeDataLegacy.h"
-#include "interface_for_test/Generated/DeserializeData.h"
-#include "interface_for_test/Generated/DeserializeDataLegacy.h"
-
-#include "interface_for_test/Generated/ConvertToOldStruct.h"
-#include "interface_for_test/Generated/ConvertFromOldStruct.h"
 
 namespace interface_for_test
 {
 
 namespace cs = common_serialization;
 
-constexpr cs::csp::traits::InterfaceProperties properties(cs::helpers::getUuid(0xa1cfd12a, 0x22b2, 0x49d3, 0x8575, 0x02342a630145), 3);
+constexpr cs::csp::traits::Interface properties(
+      cs::Uuid{ 0xa1cfd12a, 0x22b2, 0x49d3, 0x8575, 0x02342a630145 }
+    , 3
+    , cs::csp::context::DataFlags{}
+    , cs::csp::context::DataFlags{}
+);
 
 } // namespace interface_for_test
+
+#include "interface_for_test/Structs.h"
+#include "interface_for_test/StructsLegacy.h"
+
+#include "interface_for_test/processing/Generated/SerializeData.h"
+#include "interface_for_test/processing/Generated/SerializeDataLegacy.h"
+#include "interface_for_test/processing/Generated/DeserializeData.h"
+#include "interface_for_test/processing/Generated/DeserializeDataLegacy.h"
+
+#include "interface_for_test/processing/Generated/ConvertToOldStruct.h"
+#include "interface_for_test/processing/Generated/ConvertFromOldStruct.h"

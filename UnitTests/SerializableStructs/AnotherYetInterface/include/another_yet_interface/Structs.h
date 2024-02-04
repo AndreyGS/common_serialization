@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -26,17 +26,16 @@
 namespace another_yet_interface
 {
 
-namespace cs = common_serialization;
-
 template<typename T = cs::Dummy>
 class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<>, T>>
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleStruct<>, T>;
 
-    static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd);
+    static constexpr cs::csp::Id kId{ 0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     uint32_t m_i{ 0 };
 

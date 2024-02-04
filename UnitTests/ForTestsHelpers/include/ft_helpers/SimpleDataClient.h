@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -28,26 +28,23 @@ namespace ft_helpers
 
 namespace cs = common_serialization;
 
-class SimpleDataClient : public cs::csp::messaging::IDataClient
+class SimpleSpeaker : public cs::csp::messaging::IDataClientSpeaker
 {
 public:
-    SimpleDataClient() {}
-    SimpleDataClient(cs::csp::protocol_version_t defaultProtocolVersion, cs::csp::context::DataFlags defaultFlags
-        , const cs::csp::Id& defaultInterfaceId, cs::csp::interface_version_t targetInterfaceVersion
-    )
-        : cs::csp::messaging::IDataClient(defaultProtocolVersion, defaultFlags, defaultInterfaceId, targetInterfaceVersion)
-    {
-    }
+    SimpleSpeaker() {}
 
 private:
     // This function must transfer data from client to server.
     // Way by which it will be done is up to concrete client realization.
     // Here we do not need to overcomplicate things and we simply calling csp::messaging::CommonServer::handleMessage.
-    cs::Status handleBinData(cs::BinVector& binInput, cs::BinWalker& binOutput) override
+    cs::Status speak(cs::BinVector& binInput, cs::BinWalker& binOutput) override
     {
         cs::BinWalker input;
         input.init(std::move(binInput));
-        return cs::csp::messaging::CommonServer::handleMessage(input, cs::BinVector{}, binOutput.getVector());
+
+        cs::csp::service_structs::CspPartySettings<> serverSettings;
+        cs::csp::messaging::CommonServer server{ serverSettings };
+        return server.handleMessage(input, cs::BinVector{}, binOutput.getVector());
     }
 };
 

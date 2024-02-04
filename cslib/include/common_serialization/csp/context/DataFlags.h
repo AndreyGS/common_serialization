@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -27,8 +27,9 @@ namespace common_serialization::csp::context
 {
 
 /// @brief Flags that are using in Data type of message in CSP
-struct DataFlags
+class DataFlags
 {
+public:
     /// @details Alignment of structs that take a part in Data Body in 
     ///     modules that serialize and deserialize Message, may be not equal.
     ///     
@@ -36,7 +37,7 @@ struct DataFlags
     ///     and arrays of them would be serialized/deserialized by memcpy
     ///     if their target versions are equal to latest, when this flag not set
     ///     and sizeOfArithmeticTypesMayBeNotEqual also not set.
-    uint32_t alignmentMayBeNotEqual                 : 1 = 0;  
+    static constexpr uint32_t kAlignmentMayBeNotEqual = 0x1;  
     
     /// @details Indicates that serialization and deserialization processes
     ///     may be made on modules that are built on different compilers 
@@ -54,7 +55,7 @@ struct DataFlags
     ///     except you are really know what you are doing.
     ///     Instead in your interface structs you should using types that have
     ///     "semanticaly fixed" size (uin32_t, uin64_t and others).
-    uint32_t sizeOfArithmeticTypesMayBeNotEqual     : 1 = 0;
+    static constexpr uint32_t kSizeOfArithmeticTypesMayBeNotEqual = 0x2;
     
     /// @details Allow serialization of pointers without help of DataProcessor
     ///     serializeData/deserializeData specialized class functions.
@@ -65,23 +66,41 @@ struct DataFlags
     /// @remark In deserialization process every creation of new pointer
     ///     is registers in context stored container, which will allow
     ///     to use and safe delete this pointers in future.
-    uint32_t allowUnmanagedPointers                 : 1 = 0;
+    static constexpr uint32_t kAllowUnmanagedPointers = 0x4;
 
     /// @brief Checks if processed pointers are not recursively linked.
     ///     Works only in conjunction with allowUnmanagedPointers flag
     ///     which will be set automatically if need.
-    uint32_t checkRecursivePointers                 : 1 = 0;
+    static constexpr uint32_t kCheckRecursivePointers = 0x8;
 
-    uint32_t reserved                               :28 = 0;
+    static constexpr uint32_t kValidFlagsMask = 0xf;
 
-    constexpr DataFlags() noexcept { }
+    constexpr DataFlags() noexcept;
     explicit constexpr DataFlags(uint32_t value) noexcept;
     constexpr DataFlags& operator=(uint32_t value) noexcept;
 
+    constexpr void addFlags(uint32_t value) noexcept;
+    constexpr void removeFlags(uint32_t value) noexcept;
+
+    [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept;
+    [[nodiscard]] constexpr bool sizeOfArithmeticTypesMayBeNotEqual() const noexcept;
+    [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept;
+    [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept;
+
+    [[nodiscard]] constexpr DataFlags operator|(DataFlags rhs) const noexcept;
+    [[nodiscard]] constexpr DataFlags operator&(const DataFlags& rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(DataFlags rhs) const noexcept;
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
+
+private:
+    uint32_t m_flags{ 0 };
 };
+
+constexpr DataFlags::DataFlags() noexcept
+{
+
+}
 
 constexpr DataFlags::DataFlags(uint32_t value) noexcept
 {
@@ -90,27 +109,64 @@ constexpr DataFlags::DataFlags(uint32_t value) noexcept
 
 constexpr DataFlags& DataFlags::operator=(uint32_t value) noexcept
 {
-    return *static_cast<DataFlags*>
-        (static_cast<void*>(
-            &(*static_cast<uint32_t*>(
-                static_cast<void*>(this)) = value)));
+    m_flags = value & kValidFlagsMask;
+
+    return *this;
+}
+
+constexpr void DataFlags::addFlags(uint32_t value) noexcept
+{
+    m_flags |= value & kValidFlagsMask;
+}
+
+constexpr void DataFlags::removeFlags(uint32_t value) noexcept
+{
+    m_flags &= ~value;
+}
+
+[[nodiscard]] constexpr bool DataFlags::alignmentMayBeNotEqual() const noexcept
+{
+    return static_cast<bool>(m_flags & kAlignmentMayBeNotEqual);
+}
+
+[[nodiscard]] constexpr bool DataFlags::sizeOfArithmeticTypesMayBeNotEqual() const noexcept
+{
+    return static_cast<bool>(m_flags & kSizeOfArithmeticTypesMayBeNotEqual);
+}
+
+[[nodiscard]] constexpr bool DataFlags::allowUnmanagedPointers() const noexcept
+{
+    return static_cast<bool>(m_flags & kAllowUnmanagedPointers);
+}
+
+[[nodiscard]] constexpr bool DataFlags::checkRecursivePointers() const noexcept
+{
+    return static_cast<bool>(m_flags & kCheckRecursivePointers);
+}
+
+[[nodiscard]] constexpr DataFlags DataFlags::operator|(DataFlags rhs) const noexcept
+{
+    return static_cast<DataFlags>(m_flags | rhs.m_flags);
+}
+
+[[nodiscard]] constexpr DataFlags DataFlags::operator&(const DataFlags& rhs) const noexcept
+{
+    return static_cast<DataFlags>(m_flags & rhs.m_flags);
 }
 
 [[nodiscard]] constexpr bool DataFlags::operator==(DataFlags rhs) const noexcept
 {
-    uint32_t thisValue = static_cast<uint32_t>(*this);
-    uint32_t rhsValue = static_cast<uint32_t>(rhs);
-    return thisValue == rhsValue;
+    return m_flags == rhs.m_flags;
 }
 
 [[nodiscard]] constexpr DataFlags::operator uint32_t() const noexcept
 {
-    return *static_cast<const uint32_t*>(static_cast<const void*>(this));
+    return m_flags;
 }
 
 [[nodiscard]] constexpr DataFlags::operator bool() const noexcept
 {
-    return static_cast<uint32_t>(*this) != 0;
+    return m_flags != 0;
 }
 
 } // namespace common_serialization::csp::context

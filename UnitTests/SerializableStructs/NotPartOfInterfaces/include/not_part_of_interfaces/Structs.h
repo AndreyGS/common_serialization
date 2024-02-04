@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -68,7 +68,7 @@ class DynamicPolymorphic
 public:
     virtual ~DynamicPolymorphic() {}
 
-    static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xad460dc2, 0x429c, 0x4313, 0xa7c5, 0x06fca38389a0);
+    static constexpr cs::csp::Id kId{ 0xad460dc2, 0x429c, 0x4313, 0xa7c5, 0x06fca38389a0 };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
 

@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -23,20 +23,22 @@
 
 #pragma once
 
- // another_yet_interface UUID  : {f7cbb63c-2a5d-44eb-80fc-591bd08941e2}
- // interface version           : 0
-
 #include "common_serialization/common_serialization.h"
-
-#include "another_yet_interface/Structs.h"
-#include "another_yet_interface/Generated/SerializeData.h"
-#include "another_yet_interface/Generated/DeserializeData.h"
 
 namespace another_yet_interface
 {
 
 namespace cs = common_serialization;
 
-constexpr cs::csp::traits::InterfaceProperties properties(cs::helpers::getUuid(0xf7cbb63c, 0x2a5d, 0x44eb, 0x80fc, 0x591bd08941e2), 0);
+constexpr cs::csp::traits::Interface properties(
+      cs::Uuid{ 0xf7cbb63c, 0x2a5d, 0x44eb, 0x80fc, 0x591bd08941e2 }
+    , 0
+    , cs::csp::context::DataFlags{}
+    , cs::csp::context::DataFlags(cs::csp::context::DataFlags::kAllowUnmanagedPointers | cs::csp::context::DataFlags::kCheckRecursivePointers)
+);
 
 } // namespace another_yet_interface
+
+#include "another_yet_interface/Structs.h"
+#include "another_yet_interface/processing/Generated/SerializeData.h"
+#include "another_yet_interface/processing/Generated/DeserializeData.h"

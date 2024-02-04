@@ -1,10 +1,10 @@
 /**
- * @file UnitTests/SerializableStructs/DescendantInterface/include/descendant_interface/SpecialTypesSerializable.h
+ * @file UnitTests/SerializableStructs/DescendantInterface/include/descendant_interface/Structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -26,17 +26,16 @@
 namespace descendant_interface
 {
 
-namespace cs = common_serialization;
-
 template<typename T = cs::Dummy>
 class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<>, T>>
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimpleStruct<>, T>;
 
-    static constexpr cs::csp::Id kId = cs::helpers::getUuid(0xa4073aa8, 0xd9eb, 0x49cf, 0xb9be, 0xfea84ba9f314);
+    static constexpr cs::csp::Id kId{ 0xa4073aa8, 0xd9eb, 0x49cf, 0xb9be, 0xfea84ba9f314 };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 1 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     uint32_t m_i{ 0 };
 
@@ -64,9 +63,10 @@ class DiamondDescendant : public interface_for_test::Diamond<cs::GetCrtpMainType
 public:
     using instance_type = cs::GetCrtpMainType<DiamondDescendant<>, T>;
 
-    static constexpr cs::csp::Id kId = cs::helpers::getUuid(0x59a2dc70, 0x63eb, 0x434b, 0xbfe7, 0xad17dfad8e57);
+    static constexpr cs::csp::Id kId{ 0x59a2dc70, 0x63eb, 0x434b, 0xbfe7, 0xad17dfad8e57 };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 1 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     SimpleStruct<> m_sSt;
 

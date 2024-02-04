@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -24,8 +24,6 @@
 #pragma once
 
 #include "common_serialization/Status.h"
-
-#define NO_SERIALIZATION_NEED
 
 namespace common_serialization
 {
@@ -88,6 +86,18 @@ concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || 
 
 namespace helpers
 {
+
+/// @brief Is current module compiled for 32 bitness
+/// @return True if 32 bitness, false otherwise
+consteval bool isBitness32()
+{
+    return
+#ifndef X32
+        false;
+#else
+        true;
+#endif
+}
 
 /// @brief Is current module compiled with big-endian format
 /// @return True if big-endian, false if little-endian
@@ -156,18 +166,6 @@ constexpr uint32_t reverseEndianessUint32(uint32_t input)
 constexpr uint16_t reverseEndianessUint16(uint16_t input)
 {
     return input >> 8 | input << 8;
-}
-/// @brief Get UUIDv4 from distinct numbers
-/// @param first First number
-/// @param second Second number
-/// @param third Third number
-/// @param fourth Fourth number
-/// @param fifth Fifth number
-/// @return Uuid
-constexpr Uuid getUuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth)
-{
-    return Uuid { static_cast<uint64_t>(first) << 32  | static_cast<uint64_t>(second) << 16 | static_cast<uint64_t>(third),
-                  static_cast<uint64_t>(fourth) << 48 | static_cast<uint64_t>(fifth) };
 }
 
 } // namespace helpers

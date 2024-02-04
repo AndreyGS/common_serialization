@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -23,22 +23,23 @@
 
 #pragma once
 
-// descendant_interface UUID    : {2335b43f-0228-411b-814f-3393a3e8ac3d}
-// interface version            : 1
-
 #include "common_serialization/common_serialization.h"
-
 #include "interface_for_test/Interface.h"
-
-#include "descendant_interface/Structs.h"
-#include "descendant_interface/Generated/SerializeData.h"
-#include "descendant_interface/Generated/DeserializeData.h"
 
 namespace descendant_interface
 {
 
 namespace cs = common_serialization;
 
-constexpr cs::csp::traits::InterfaceProperties properties(cs::helpers::getUuid(0x2335b43f, 0x0228, 0x411b, 0x814f, 0x3393a3e8ac3d), 1);
+constexpr cs::csp::traits::Interface properties(
+      cs::Uuid{ 0x2335b43f, 0x0228, 0x411b, 0x814f, 0x3393a3e8ac3d }
+    , 1
+    , cs::csp::context::DataFlags{}
+    , cs::csp::context::DataFlags{}
+);
 
 } // namespace descendant_interface
+
+#include "descendant_interface/Structs.h"
+#include "descendant_interface/processing/Generated/SerializeData.h"
+#include "descendant_interface/processing/Generated/DeserializeData.h"

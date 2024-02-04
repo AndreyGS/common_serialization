@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -75,35 +75,26 @@ constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::
 }
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusErrorNotSupportedInOutInterfaceVersion(
-      interface_version_t  inMinimumSupportedInterfaceVersion, interface_version_t inMaximumSupportedInterfaceVersion
-    , interface_version_t outMinimumSupportedInterfaceVersion, interface_version_t outMaximumSupportedInterfaceVersion
-    , protocol_version_t protocolVersion
-    , context::CommonFlags commonFlags
-    , S& output) noexcept
+constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
+      interface_version_t minimumInterfaceVersion, const Id& outputTypeId, context::Common<S>& ctx) noexcept
 {
-    context::Common<S> ctx(output, protocolVersion, commonFlags, context::Message::kStatus);
-    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInOutInterfaceVersion));
+    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInterfaceVersion));
 
-    RUN(output.pushBackArithmeticValue(inMinimumSupportedInterfaceVersion));
-    RUN(output.pushBackArithmeticValue(inMaximumSupportedInterfaceVersion));
-    RUN(output.pushBackArithmeticValue(outMinimumSupportedInterfaceVersion));
-    RUN(output.pushBackArithmeticValue(outMaximumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(minimumInterfaceVersion));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(outputTypeId.leftPart));
+    RUN(ctx.getBinaryData().pushBackArithmeticValue(outputTypeId.rightPart));
 
     return Status::kNoError;
 }
 
 template<IDeserializationCapableContainer D>
-constexpr Status deserializeStatusErrorNotSupportedInOutInterfaceVersionBody(
-      context::Common<D>& ctx
-    , interface_version_t& inMinimumSupportedInterfaceVersion, interface_version_t& inMaximumSupportedInterfaceVersion
-    , interface_version_t& outMinimumSupportedInterfaceVersion,interface_version_t& outMaximumSupportedInterfaceVersion
+constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(
+      context::Common<D>& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId
 ) noexcept
 {
-    RUN(ctx.getBinaryData().readArithmeticValue(inMinimumSupportedInterfaceVersion));
-    RUN(ctx.getBinaryData().readArithmeticValue(inMaximumSupportedInterfaceVersion));
-    RUN(ctx.getBinaryData().readArithmeticValue(outMinimumSupportedInterfaceVersion));
-    RUN(ctx.getBinaryData().readArithmeticValue(outMaximumSupportedInterfaceVersion));
+    RUN(ctx.getBinaryData().readArithmeticValue(minimumInterfaceVersion));
+    RUN(ctx.getBinaryData().readArithmeticValue(outputTypeId.leftPart));
+    RUN(ctx.getBinaryData().readArithmeticValue(outputTypeId.rightPart));
 
     return Status::kNoError;
 }

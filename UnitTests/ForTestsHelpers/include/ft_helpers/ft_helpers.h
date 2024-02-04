@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -32,5 +32,4 @@
 #include "ft_helpers/FillingStruct.h"
 #include "ft_helpers/CleanAfterStruct.h"
 #include "ft_helpers/SimpleDataClient.h"
-#include "ft_helpers/TunnedDataClient.h"
 #include "ft_helpers/SimpleDataServers.h"

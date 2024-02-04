@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -442,7 +442,9 @@ public:
     [[nodiscard]] constexpr T* release() noexcept;
 
     [[nodiscard]] constexpr iterator begin() noexcept;
+    [[nodiscard]] constexpr const_iterator begin() const noexcept;
     [[nodiscard]] constexpr iterator end() noexcept;
+    [[nodiscard]] constexpr const_iterator end() const noexcept;
     [[nodiscard]] constexpr const_iterator cbegin() const noexcept;
     [[nodiscard]] constexpr const_iterator cend() const noexcept;
 
@@ -947,7 +949,19 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
+[[nodiscard]] constexpr Vector<T, AllocatorHelper>::const_iterator Vector<T, AllocatorHelper>::begin() const noexcept
+{
+    return m_p;
+}
+
+template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::end() noexcept
+{
+    return m_p + m_dataSize;
+}
+
+template<typename T, typename AllocatorHelper>
+[[nodiscard]] constexpr Vector<T, AllocatorHelper>::const_iterator Vector<T, AllocatorHelper>::end() const noexcept
 {
     return m_p + m_dataSize;
 }

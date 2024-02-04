@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -24,8 +24,7 @@
 #pragma once
 
 #include "common_serialization/csp/context/CommonCapabilities.h"
-#include "common_serialization/csp/messaging/ServiceStructs.h"
-#include "common_serialization/csp/processing/DataServiceStructs.h"
+#include "common_serialization/csp/service_structs/Interface.h"
 
 namespace common_serialization::csp::processing
 {

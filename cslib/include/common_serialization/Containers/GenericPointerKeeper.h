@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -22,8 +22,6 @@
  */
 
 #pragma once
-
-#include "common_serialization/csp/Concepts.h"
 
 namespace common_serialization
 {
@@ -134,7 +132,7 @@ public:
     /// @tparam T Type on which pointer points
     /// @return Stored pointer
     template<typename T>
-    T* get()
+    constexpr T* get()
     {
         return static_cast<T*>(m_p);
     }

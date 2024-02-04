@@ -4,7 +4,7 @@
  *
  * @section LICENSE
  *
- * Copyright 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * Copyright 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "common_serialization/csp/context/DataFlags.h"
+
 namespace common_serialization::csp
 {
 
@@ -37,18 +39,24 @@ inline constexpr protocol_version_t kProtocolVersions[] = { 1 };
 inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;           // it always must be kind of UINTMAX
 inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;   // it always must be kind of UINTMAX
 
-struct InterfaceProperties
+struct Interface
 {
-    Id id;
+    Id id{ kNullUuid };
+
+    /// @brief The only field than allowed to change since interface publication
     interface_version_t version{ kInterfaceVersionUndefined };
 
-    constexpr bool operator==(const InterfaceProperties& rhs) const noexcept
+    context::DataFlags mandatoryDataFlags;
+    context::DataFlags forbiddenDataFlags;
+
+    constexpr bool operator==(const Interface& rhs) const noexcept
     {
-        return id == rhs.id && version == rhs.version;
+        return id == rhs.id && version == rhs.version 
+            && mandatoryDataFlags == rhs.mandatoryDataFlags && forbiddenDataFlags == rhs.forbiddenDataFlags;
     }
 };
 
-constexpr InterfaceProperties kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined };
+constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined };
 
 [[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion()
 {
@@ -83,9 +91,11 @@ constexpr InterfaceProperties kUndefinedInterface{ kNullUuid, kInterfaceVersionU
 template<typename T>
 [[nodiscard]] constexpr interface_version_t getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept
 {
+    const interface_version_t* pPrivateVersions = T::getPrivateVersions();
+
     for (interface_version_t i = 0; i < T::getPrivateVersionsCount(); ++i)
-        if (T::getPrivateVersions()[i] <= compatInterfaceVersion)
-            return T::getPrivateVersions()[i];
+        if (pPrivateVersions[i] <= compatInterfaceVersion)
+            return pPrivateVersions[i];
 
     return kInterfaceVersionUndefined;
 }
