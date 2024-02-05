@@ -67,6 +67,7 @@ public:
     /// @param output Data that should be returned to client
     /// @return Status of operation
     virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, const BinVector& clientId, OutputType& output) = 0;
+    virtual Status checkPoliciesCompliance(const InputType* input, const context::DData<>& ctx, const BinVector& clientId) = 0;
 
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion() override;
 
@@ -96,11 +97,11 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
     context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput
 )
 {
+    RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
+
     // We already checked equality of ID in context and in subscriber
     // so here it is only placeholder
     Id id = InputType::getId();
-
-    //RUN(CheckPoliciesCompliance<InputType, OutputType>(ctx, clientId));
 
     if (Status status = processing::deserializeDataContextPostprocess<InputType>(ctx, id, minimumInterfaceVersion); !statusSuccess(status))
     {

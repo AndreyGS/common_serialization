@@ -412,6 +412,7 @@ public:
     /// @param pNewOffset 
     /// @return 
     constexpr Status insert(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
+    constexpr Status insert(const T& value, size_type offset);
     template<typename ItSrc>
     constexpr Status insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd = nullptr);
 
@@ -719,6 +720,12 @@ constexpr Status Vector<T, AllocatorHelper>::insert(const T* p, size_type n, siz
         *pNewOffset = offsetPlusN;
 
     return Status::kNoError;
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Status Vector<T, AllocatorHelper>::insert(const T& value, size_type offset)
+{
+    return insert(&value, 1, offset);
 }
 
 template<typename T, typename AllocatorHelper>

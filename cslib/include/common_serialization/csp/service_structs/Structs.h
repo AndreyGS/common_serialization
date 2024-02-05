@@ -102,6 +102,11 @@ public:
     InterfaceVersion(const InterfaceVersion&) = default;
     InterfaceVersion(const Id& id, interface_version_t version) : id(id), version(version) { }
 
+    constexpr bool operator==(const InterfaceVersion& rhs) const noexcept
+    {
+        return id == rhs.id && version == rhs.version;
+    }
+
     Id id{ kNullUuid };
     interface_version_t version{ traits::kInterfaceVersionUndefined };
 };

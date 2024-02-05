@@ -65,6 +65,8 @@ TEST(MessagingTests, InitDataClientT)
 
     csp::messaging::DataClient dataClient(new SimpleSpeaker{ commonServer });
 
+    EXPECT_TRUE(dataClient.getDataClientSpeaker());
+
     Vector<csp::protocol_version_t> clientProtocolVersions;
     clientProtocolVersions.pushBack(1);
     clientProtocolVersions.pushBack(0); // 0 is not a valid CSP version and we add it here only for logic test
@@ -76,7 +78,84 @@ TEST(MessagingTests, InitDataClientT)
     clientInterfaces.pushBack(another_yet_interface::properties);
     csp::service_structs::CspPartySettings<> serverSettingsReturned;
 
+    // Valid test 1
     EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
+    EXPECT_EQ(serverSettingsReturned, serverSettings);
+    EXPECT_TRUE(dataClient.isValid());
+    EXPECT_EQ(dataClient.getProtocolVersion(), clientProtocolVersions[0]);
+    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), serverSettings.mandatoryCommonFlags | clientMandatoryCommonFlags);
+    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), serverSettings.forbiddenCommonFlags | clientForbiddenCommonFlags);
+    EXPECT_EQ(dataClient.getInterfaces().size(), 1);
+    EXPECT_EQ(dataClient.getInterfaces()[0], clientInterfaces[2]);
+    EXPECT_EQ(*dataClient.getInterface(clientInterfaces[2].id), clientInterfaces[2]);
+    EXPECT_EQ(dataClient.getInterface(clientInterfaces[1].id), nullptr);
+
+    // Valid test 2
+    clientMandatoryCommonFlags = csp::context::CommonFlags{};
+    clientForbiddenCommonFlags = csp::context::CommonFlags::kPossibleEndianDifference;
+    serverSettingsReturned.clear();
+    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
+    EXPECT_EQ(serverSettingsReturned, serverSettings);
+    EXPECT_TRUE(dataClient.isValid());
+    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), serverSettings.forbiddenCommonFlags | clientForbiddenCommonFlags);
+
+    // No supported interfaces
+    clientInterfaces.erase(2);
+    serverSettingsReturned.clear();
+    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNoSupportedInterfaces);
+    EXPECT_EQ(serverSettingsReturned, serverSettings);
+    EXPECT_FALSE(dataClient.isValid());
+    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
+    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
+
+    // Not compatible common flags settings (between mandatory and forbidden flags)
+    // First, reinit dataClient (to ensure that later it will be reset to not valid state)
+    clientInterfaces.pushBack(another_yet_interface::properties);
+    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
+    EXPECT_TRUE(dataClient.isValid());
+
+    clientMandatoryCommonFlags = serverSettings.forbiddenCommonFlags;
+    serverSettingsReturned.clear();
+    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNotCompatibleCommonFlagsSettings);
+    EXPECT_EQ(serverSettingsReturned, serverSettings);
+    EXPECT_FALSE(dataClient.isValid());
+    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
+    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
+
+    // Not supported protocol version
+    // First, reinit dataClient (to ensure that later it will be reset to not valid state)
+    clientMandatoryCommonFlags = csp::context::CommonFlags{};
+    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
+    EXPECT_TRUE(dataClient.isValid());
+
+    clientProtocolVersions.erase(0);
+    serverSettingsReturned.clear();
+    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNotSupportedProtocolVersion);
+    EXPECT_EQ(serverSettingsReturned.protocolVersions, serverSettings.protocolVersions);
+    EXPECT_FALSE(dataClient.isValid());
+    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
+    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
+
+    // Test of init when data client speaker is not valid
+    clientProtocolVersions.insert(0, 0);
+
+
+    // Test of init when data client speaker is not valid
+    //auto speaker = dataClient.getDataClientSpeaker();
+    //delete speaker.release();
+
+
+}
+
+TEST(MessagingTests, StructSending)
+{
+
 }
 
 TEST(MessagingTests, DataServiceServerTest)

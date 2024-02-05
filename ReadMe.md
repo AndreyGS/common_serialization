@@ -8,7 +8,7 @@ Under development.
 
 ## License
 
-Copyright (c) 2023 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

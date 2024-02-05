@@ -45,25 +45,6 @@ void fillingStruct(another_yet_interface::SimpleStruct<>& output);
 
 namespace cs = common_serialization;
 
-class DataServiceServerTraits
-{
-public:
-    static void fillInterfacesList(cs::Vector<cs::csp::traits::Interface>& list)
-    {
-        // There can be some algorithm to register different interfaces automatically.
-
-        if (list.size() == 0)
-        {
-            // Adding interface_for_test
-            list.pushBack(interface_for_test::properties);
-            // Adding descendant_interface
-            list.pushBack(descendant_interface::properties);
-            // Adding another_yet_interface
-            list.pushBack(another_yet_interface::properties);
-        }
-    }
-};
-
 inline int numberOfMultiEntrances = 0;
 
 template<typename InputStruct, typename OutputStruct>
@@ -95,6 +76,11 @@ public:
         return defaultHandle(input, output);
     }
 
+    cs::Status checkPoliciesCompliance(const interface_for_test::SimpleAssignableAlignedToOne<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    {
+        return cs::Status::kNoError;
+    }
+
     cs::Status handleData(
           const interface_for_test::Diamond<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
@@ -104,6 +90,11 @@ public:
         return defaultHandle(input, output);
     }
 
+    cs::Status checkPoliciesCompliance(const interface_for_test::Diamond<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    {
+        return cs::Status::kNoError;
+    }
+
     cs::Status handleData(
           const interface_for_test::SimpleAssignable<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
@@ -111,6 +102,11 @@ public:
         , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
         ++numberOfMultiEntrances;
+        return cs::Status::kNoError;
+    }
+
+    cs::Status checkPoliciesCompliance(const interface_for_test::SimpleAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    {
         return cs::Status::kNoError;
     }
 };
@@ -127,6 +123,11 @@ public:
         ++numberOfMultiEntrances;
         return cs::Status::kNoError;
     }
+
+    cs::Status checkPoliciesCompliance(const interface_for_test::SimpleAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    {
+        return cs::Status::kNoError;
+    }
 };
 
 class ThirdDataServer
@@ -140,6 +141,11 @@ public:
         , descendant_interface::SimpleStruct<>& output) override
     {
         return defaultHandle(input, output);
+    }
+
+    cs::Status checkPoliciesCompliance(const descendant_interface::DiamondDescendant<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    {
+        return cs::Status::kNoError;
     }
 };
 
@@ -159,6 +165,11 @@ public:
         if (input != test)
             return cs::Status::kErrorInternal;
 
+        return cs::Status::kNoError;
+    }
+
+    cs::Status checkPoliciesCompliance(const another_yet_interface::SimpleStruct<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    {
         return cs::Status::kNoError;
     }
 };

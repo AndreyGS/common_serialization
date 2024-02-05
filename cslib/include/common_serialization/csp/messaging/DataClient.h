@@ -66,6 +66,8 @@ public:
 
     bool isValid() const noexcept;
 
+    UniquePtr<IDataClientSpeaker>& getDataClientSpeaker() noexcept;
+
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
     /// @return Status of operation
@@ -152,7 +154,7 @@ private:
     // Distinct variable is for not having calculate valid condition every time
     bool m_isValid{ false };
 
-    protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
+    protocol_version_t m_protocolVersion{ traits::kProtocolVersionUndefined };
 
     context::CommonFlags m_mandatoryCommonFlags;
     context::CommonFlags m_forbiddenCommonFlags;
@@ -204,6 +206,12 @@ inline Status DataClient::init(
 {
     if (!m_dataClientSpeaker)
         return Status::kErrorNotInited;
+
+    m_protocolVersion = traits::kProtocolVersionUndefined;
+    m_mandatoryCommonFlags = context::CommonFlags{};
+    m_forbiddenCommonFlags = context::CommonFlags{};
+    m_interfaces.clear();
+    m_isValid = false;
 
     Vector<protocol_version_t> serverCspVersions;
     RUN(getServerProtocolVersions(serverCspVersions));
@@ -276,6 +284,11 @@ inline Status DataClient::init(
 inline bool DataClient::isValid() const noexcept
 {
     return m_isValid;
+}
+
+inline UniquePtr<IDataClientSpeaker>& DataClient::getDataClientSpeaker() noexcept
+{
+    return m_dataClientSpeaker;
 }
 
 inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept
@@ -388,9 +401,6 @@ template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status DataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    if (!isValid())
-        return Status::kErrorNotInited;
-
     return handleData(input, output, context::CommonFlags{}, context::DataFlags{}, pUnmanagedPointers);
 }
 
@@ -398,9 +408,6 @@ template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    if (!isValid())
-        return Status::kErrorNotInited;
-
     return handleData(input, output, context::CommonFlags{}, additionalDataFlags, pUnmanagedPointers);
 }
 
@@ -409,6 +416,11 @@ template<typename InputType, typename OutputType, bool forTempUseHeap>
 Status DataClient::handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
     , context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
+    // We are additionally checking of m_dataClientSpeaker ptr state
+    // because DataClient interface allows us to manipulate with it directly
+    if (!isValid() || !m_dataClientSpeaker)
+        return Status::kErrorNotInited;
+
     traits::Interface* pInterface = getInterface(InputType::getInterface().id);
     if (!pInterface)
         return Status::kErrorNotSupportedInterface;

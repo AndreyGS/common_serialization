@@ -33,19 +33,33 @@ class SimpleSpeaker : public cs::csp::messaging::IDataClientSpeaker
 public:
     SimpleSpeaker(cs::csp::messaging::CommonServer& server) : m_server(server) {}
 
+    void setValidState(bool isValid)
+    {
+        m_isValid = isValid;
+    }
+
 private:
     // This function must transfer data from client to server.
     // Way by which it will be done is up to concrete client realization.
     // Here we do not need to overcomplicate things and we simply calling csp::messaging::CommonServer::handleMessage.
     cs::Status speak(cs::BinVector& binInput, cs::BinWalker& binOutput) override
     {
+        if (!isValid())
+            return cs::Status::kErrorNotInited;
+
         cs::BinWalker input;
         input.init(std::move(binInput));
 
         return m_server.handleMessage(input, cs::BinVector{}, binOutput.getVector());
     }
 
+    bool isValid() const noexcept override
+    {
+        return m_isValid;
+    }
+
     cs::csp::messaging::CommonServer& m_server;
+    bool m_isValid{ true };
 };
 
 } // namespace ft_helpers
