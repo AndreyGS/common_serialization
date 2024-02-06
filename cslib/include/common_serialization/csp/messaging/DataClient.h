@@ -421,17 +421,20 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     if (!isValid() || !m_dataClientSpeaker)
         return Status::kErrorNotInited;
 
-    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
+    const traits::Interface& _interface = InputType::getInterface();
+
+    // Check that we have an interface
+    const traits::Interface* pInterface = getInterface(_interface.id);
     if (!pInterface)
         return Status::kErrorNotSupportedInterface;
 
-    if (InputType::getOriginPrivateVersion() > pInterface->version || OutputType::getOriginPrivateVersion() > pInterface->version)
+    if (InputType::getOriginPrivateVersion() > _interface.version || OutputType::getOriginPrivateVersion() > _interface.version)
         return Status::kErrorNotSupportedInterfaceVersion;
 
     if (additionalCommonFlags & m_forbiddenCommonFlags)
         return Status::kErrorNotCompatibleCommonFlagsSettings;
 
-    if (additionalDataFlags & pInterface->forbiddenDataFlags)
+    if (additionalDataFlags & _interface.forbiddenDataFlags)
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
     BinVector binInput;
@@ -440,9 +443,9 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
           binInput
         , m_protocolVersion
         , m_mandatoryCommonFlags | additionalCommonFlags
-        , pInterface->mandatoryDataFlags | InputType::getAddtionalMandatoryDataFlags() | additionalDataFlags
+        , _interface.mandatoryDataFlags | InputType::getAddtionalMandatoryDataFlags() | additionalDataFlags
         , forTempUseHeap
-        , pInterface->version
+        , _interface.version
         , nullptr);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
@@ -485,9 +488,9 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         context::DataFlags outDataFlags = ctxOutData.getDataFlags();
 
         if (   outDataFlags & OutputType::getEffectiveForbiddenDataFlags()
-            || outDataFlags & pInterface->forbiddenDataFlags
+            || outDataFlags & _interface.forbiddenDataFlags
             || (outDataFlags & OutputType::getEffectiveMandatoryDataFlags()) != OutputType::getEffectiveMandatoryDataFlags()
-            || (outDataFlags & pInterface->mandatoryDataFlags) != pInterface->mandatoryDataFlags
+            || (outDataFlags & _interface.mandatoryDataFlags) != _interface.mandatoryDataFlags
         )
             return Status::kErrorDataCorrupted;
 

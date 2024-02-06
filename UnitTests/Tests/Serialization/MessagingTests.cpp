@@ -144,18 +144,52 @@ TEST(MessagingTests, InitDataClientT)
 
     // Test of init when data client speaker is not valid
     clientProtocolVersions.insert(0, 0);
+    dynamic_cast<SimpleSpeaker*>(dataClient.getDataClientSpeaker().get())->setValidState(false);
+    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNotInited);
+    EXPECT_FALSE(dataClient.isValid());
+    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
+    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
 
-
-    // Test of init when data client speaker is not valid
-    //auto speaker = dataClient.getDataClientSpeaker();
-    //delete speaker.release();
-
-
+    // Test of init when DataClient has no speaker
+    auto& speaker = dataClient.getDataClientSpeaker();
+    delete speaker.release();
+    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNotInited);
+    EXPECT_FALSE(dataClient.isValid());
+    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
+    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
+    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
 }
 
-TEST(MessagingTests, StructSending)
+TEST(MessagingTests, DataMessageHandling)
 {
+    csp::messaging::CommonServer commonServer(getServerSettings());
+    FirstDataServer firstDataServer;
 
+    csp::messaging::DataClient dataClient(new SimpleSpeaker{ commonServer });
+
+    Vector<csp::protocol_version_t> clientProtocolVersions;
+    clientProtocolVersions.pushBack(1);
+    csp::context::CommonFlags clientMandatoryCommonFlags;
+    csp::context::CommonFlags clientForbiddenCommonFlags;
+    Vector<csp::traits::Interface> clientInterfaces;
+    clientInterfaces.pushBack(interface_for_test::properties);
+    csp::service_structs::CspPartySettings<> serverSettingsReturned;
+
+    dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned);
+
+    interface_for_test::SimpleAssignableAlignedToOne<> input;
+    fillingStruct(input);
+    interface_for_test::SimpleAssignableDescendant<> output;
+
+    EXPECT_EQ(dataClient.handleData(input, output), Status::kNoError);
+
+    interface_for_test::SimpleAssignableDescendant<> outputReference;
+    fillingStruct(outputReference);
+
+    EXPECT_EQ(output, outputReference);
 }
 
 TEST(MessagingTests, DataServiceServerTest)
