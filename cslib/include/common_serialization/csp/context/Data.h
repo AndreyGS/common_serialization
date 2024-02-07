@@ -188,7 +188,7 @@ public:
         , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Common<Container>(binaryData, traits::getLatestProtocolVersion(), commonFlags, Message::kData)
+        : Common<Container>(binaryData, traits::getLatestProtocolVersion(), Message::kData, commonFlags)
         , m_flags(dataFlags), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 
@@ -231,7 +231,7 @@ public:
         , PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
-            : Common<Container>(binaryData, protocolVersion, commonFlags, Message::kData), m_flags(dataFlags)
+            : Common<Container>(binaryData, protocolVersion, Message::kData, commonFlags), m_flags(dataFlags)
             , m_epp(pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 
@@ -254,7 +254,7 @@ public:
         , PM* pPointersMap = nullptr
     ) noexcept
         requires !serialize
-            : Common<Container>(binaryData, protocolVersion, commonFlags, Message::kData), m_flags(dataFlags)
+            : Common<Container>(binaryData, protocolVersion, Message::kData, commonFlags), m_flags(dataFlags)
             , m_epp(pAddedPointers, pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { }
 

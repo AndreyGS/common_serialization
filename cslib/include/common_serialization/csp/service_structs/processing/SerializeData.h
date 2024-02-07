@@ -59,8 +59,8 @@ constexpr Status DataProcessor::serializeData(const service_structs::CspPartySet
     RUN(serializeData(static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
     RUN(serializeData(value.protocolVersions.data(), static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
 
-    RUN(serializeData(static_cast<uint16_t>(value.mandatoryCommonFlags), ctx));
-    RUN(serializeData(static_cast<uint16_t>(value.forbiddenCommonFlags), ctx));
+    RUN(serializeData(static_cast<uint32_t>(value.mandatoryCommonFlags), ctx));
+    RUN(serializeData(static_cast<uint32_t>(value.forbiddenCommonFlags), ctx));
 
     RUN(serializeData(value.interfaces.size(), ctx));
     RUN(serializeData(value.interfaces.data(), value.interfaces.size(), ctx));

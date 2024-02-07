@@ -32,22 +32,21 @@ class CommonFlags
 public:
     /// @brief Bitness of system on which serialization is performed
     ///     is 32 bits (default is 64 bits, when not set)
-    static constexpr uint16_t kBitness32 = 0x1;
+    static constexpr uint32_t kBitness32 = 0x1;
 
     /// @brief Private parts of message has big-endian format
     /// @remark Currently not implemented
-    static constexpr uint16_t kBigEndianFormat = 0x2;
+    static constexpr uint32_t kBigEndianFormat = 0x2;
 
     /// @brief Private parts of message aware of endianess difference
     /// @remark Currently not implemented
-    static constexpr uint16_t kPossibleEndianDifference = 0x4;
+    static constexpr uint32_t kPossibleEndianDifference = 0x4;
 
-    static constexpr uint16_t kValidFlagsMask = 0x7;
+    static constexpr uint32_t kValidFlagsMask = 0x7;
 
     constexpr CommonFlags() noexcept;
-    //constexpr CommonFlags(bool isBitness32, bool isBigEndianFormat) noexcept : bitness32(isBitness32), bigEndianFormat(isBigEndianFormat) { }
-    explicit constexpr CommonFlags(uint16_t value) noexcept;
-    constexpr CommonFlags& operator=(uint16_t value) noexcept;
+    explicit constexpr CommonFlags(uint32_t value) noexcept;
+    constexpr CommonFlags& operator=(uint32_t value) noexcept;
 
     constexpr void addFlags(uint32_t value) noexcept;
     constexpr void removeFlags(uint32_t value) noexcept;
@@ -59,23 +58,23 @@ public:
     [[nodiscard]] constexpr CommonFlags operator|(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr CommonFlags operator&(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(CommonFlags rhs) const noexcept;
-    [[nodiscard]] constexpr explicit operator uint16_t() const noexcept;
+    [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
 
 private:
-    uint16_t m_flags{ 0 };
+    uint32_t m_flags{ 0 };
 };
 
 constexpr CommonFlags::CommonFlags() noexcept
 { 
 }
 
-constexpr CommonFlags::CommonFlags(uint16_t value) noexcept
+constexpr CommonFlags::CommonFlags(uint32_t value) noexcept
 {
     operator=(value);
 }
 
-constexpr CommonFlags& CommonFlags::operator=(uint16_t value) noexcept
+constexpr CommonFlags& CommonFlags::operator=(uint32_t value) noexcept
 {
     m_flags = value & kValidFlagsMask;
 
@@ -122,7 +121,7 @@ constexpr void CommonFlags::removeFlags(uint32_t value) noexcept
     return m_flags == rhs.m_flags;
 }
 
-[[nodiscard]] constexpr CommonFlags::operator uint16_t() const noexcept
+[[nodiscard]] constexpr CommonFlags::operator uint32_t() const noexcept
 {
     return m_flags;
 }

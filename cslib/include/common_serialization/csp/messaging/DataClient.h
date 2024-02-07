@@ -26,7 +26,6 @@
 #include "common_serialization/csp/Concepts.h"
 #include "common_serialization/Containers/UniquePtr.h"
 #include "common_serialization/csp/messaging/IDataClientSpeaker.h"
-#include "common_serialization/csp/processing/CommonCapabilities.h"
 #include "common_serialization/csp/processing/Contexts.h"
 #include "common_serialization/csp/processing/DataProcessor.h"
 #include "common_serialization/csp/processing/Status.h"
@@ -324,7 +323,7 @@ inline Status DataClient::getServerSettings(protocol_version_t serverCspVersion,
         return Status::kErrorNotInited;
 
     BinVector binInput;
-    context::Common<BinVector> ctxIn(binInput, serverCspVersion, context::CommonFlags{}, context::Message::kGetSettings);
+    context::Common<BinVector> ctxIn(binInput, serverCspVersion, context::Message::kGetSettings, context::CommonFlags{});
     RUN(processing::serializeCommonContext(ctxIn));
 
     BinWalker binOutput;

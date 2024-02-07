@@ -59,11 +59,11 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_s
     value.protocolVersions.setSize(cspVersionsSize);
     RUN(deserializeData(ctx, cspVersionsSize, value.protocolVersions.data()));
 
-    uint16_t mandatoryCommonFlags;
+    uint32_t mandatoryCommonFlags;
     RUN(deserializeData(ctx, mandatoryCommonFlags));
     value.mandatoryCommonFlags = mandatoryCommonFlags;
 
-    uint16_t forbiddenCommonFlags;
+    uint32_t forbiddenCommonFlags;
     RUN(deserializeData(ctx, forbiddenCommonFlags));
     value.forbiddenCommonFlags = forbiddenCommonFlags;
 

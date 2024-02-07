@@ -45,20 +45,24 @@ public:
     /// @param protocolVersion Protocol version that would be used in process (can be changed later)
     /// @param messageType Type of message that should be processed (can be changed later)
     constexpr Common(Container& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
-        , CommonFlags commonFlags = CommonFlags{}, Message messageType = Message::kData
+        , Message messageType = Message::kData, CommonFlags commonFlags = CommonFlags{}
     ) noexcept
         : m_binaryData(binaryData)
         , m_protocolVersion(protocolVersion)
         , m_protocolVersionsNotMatch(traits::getLatestProtocolVersion() != protocolVersion)
-        , m_commonFlags(commonFlags), m_messageType(messageType)
+        , m_messageType(messageType)
+        , m_commonFlags(commonFlags)
     {
         if constexpr (ISerializationCapableContainer<Container>)
             m_binaryData.reserve(256);
     }
 
     constexpr Common(Common& rhs) noexcept
-        : m_binaryData(rhs.m_binaryData), m_protocolVersion(rhs.m_protocolVersion), m_commonFlags(rhs.m_commonFlags)
-        , m_protocolVersionsNotMatch(rhs.m_protocolVersionsNotMatch), m_messageType(rhs.m_messageType)
+        : m_binaryData(rhs.m_binaryData)
+        , m_protocolVersion(rhs.m_protocolVersion)
+        , m_protocolVersionsNotMatch(rhs.m_protocolVersionsNotMatch)
+        , m_commonFlags(rhs.m_commonFlags)
+        , m_messageType(rhs.m_messageType)
     { }
 
     /// @brief Get reference to container that holds processed data in binary
@@ -118,8 +122,8 @@ private:
     Container& m_binaryData;
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
     bool m_protocolVersionsNotMatch = false;
-    CommonFlags m_commonFlags;
     Message m_messageType = Message::kData;
+    CommonFlags m_commonFlags;
 };
 
 } // namespace common_serialization::csp::context
