@@ -63,6 +63,9 @@ TEST(MessagingTests, InitDataClientT)
     serverSettings.interfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
     csp::messaging::CommonServer commonServer(serverSettings);
 
+    interface_for_test::SimpleAssignableAlignedToOne<> dummyInput;
+    interface_for_test::SimpleAssignableDescendant<> dummyOutput;
+
     csp::messaging::DataClient dataClient(new SimpleSpeaker{ commonServer });
 
     EXPECT_TRUE(dataClient.getDataClientSpeaker());
@@ -72,10 +75,10 @@ TEST(MessagingTests, InitDataClientT)
     clientProtocolVersions.pushBack(0); // 0 is not a valid CSP version and we add it here only for logic test
     csp::context::CommonFlags clientMandatoryCommonFlags{ csp::context::CommonFlags::kPossibleEndianDifference };
     csp::context::CommonFlags clientForbiddenCommonFlags;
-    Vector<csp::traits::Interface> clientInterfaces;
-    clientInterfaces.pushBack(interface_for_test::properties);
-    clientInterfaces.pushBack(descendant_interface::properties);
-    clientInterfaces.pushBack(another_yet_interface::properties);
+    Vector<csp::service_structs::InterfaceVersion<>> clientInterfaces;
+    clientInterfaces.pushBack({ interface_for_test::properties.id, interface_for_test::properties.version });
+    clientInterfaces.pushBack({ descendant_interface::properties.id, descendant_interface::properties.version });
+    clientInterfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
     csp::service_structs::CspPartySettings<> serverSettingsReturned;
 
     // Valid test 1
@@ -87,8 +90,8 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(dataClient.getForbiddenCommonFlags(), serverSettings.forbiddenCommonFlags | clientForbiddenCommonFlags);
     EXPECT_EQ(dataClient.getInterfaces().size(), 1);
     EXPECT_EQ(dataClient.getInterfaces()[0], clientInterfaces[2]);
-    EXPECT_EQ(*dataClient.getInterface(clientInterfaces[2].id), clientInterfaces[2]);
-    EXPECT_EQ(dataClient.getInterface(clientInterfaces[1].id), nullptr);
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[2].id), 0);
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[1].id), csp::traits::kInterfaceVersionUndefined);
 
     // Valid test 2
     clientMandatoryCommonFlags = csp::context::CommonFlags{};
@@ -109,10 +112,11 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getInterfaces().size(), 0);
+    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 
     // Not compatible common flags settings (between mandatory and forbidden flags)
     // First, reinit dataClient (to ensure that later it will be reset to not valid state)
-    clientInterfaces.pushBack(another_yet_interface::properties);
+    clientInterfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
     EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
     EXPECT_TRUE(dataClient.isValid());
 
@@ -125,6 +129,7 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getInterfaces().size(), 0);
+    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 
     // Not supported protocol version
     // First, reinit dataClient (to ensure that later it will be reset to not valid state)
@@ -141,6 +146,7 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getInterfaces().size(), 0);
+    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 
     // Test of init when data client speaker is not valid
     clientProtocolVersions.insert(0, 0);
@@ -151,6 +157,7 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getInterfaces().size(), 0);
+    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 
     // Test of init when DataClient has no speaker
     auto& speaker = dataClient.getDataClientSpeaker();
@@ -161,6 +168,7 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
     EXPECT_EQ(dataClient.getInterfaces().size(), 0);
+    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 }
 
 TEST(MessagingTests, DataMessageHandling)
@@ -170,15 +178,11 @@ TEST(MessagingTests, DataMessageHandling)
 
     csp::messaging::DataClient dataClient(new SimpleSpeaker{ commonServer });
 
-    Vector<csp::protocol_version_t> clientProtocolVersions;
-    clientProtocolVersions.pushBack(1);
-    csp::context::CommonFlags clientMandatoryCommonFlags;
-    csp::context::CommonFlags clientForbiddenCommonFlags;
-    Vector<csp::traits::Interface> clientInterfaces;
-    clientInterfaces.pushBack(interface_for_test::properties);
-    csp::service_structs::CspPartySettings<> serverSettingsReturned;
+    // Standard processing
+    Vector<csp::service_structs::InterfaceVersion<>> clientInterfaces;
+    clientInterfaces.pushBack({ interface_for_test::properties.id, interface_for_test::properties.version });
 
-    dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned);
+    EXPECT_EQ(dataClient.init(csp::traits::getLatestProtocolVersion(), csp::context::CommonFlags{}, csp::context::CommonFlags{}, clientInterfaces), Status::kNoError);
 
     interface_for_test::SimpleAssignableAlignedToOne<> input;
     fillingStruct(input);
@@ -190,151 +194,30 @@ TEST(MessagingTests, DataMessageHandling)
     fillingStruct(outputReference);
 
     EXPECT_EQ(output, outputReference);
+
+    // Legacy interface versions
+    clientInterfaces[0].version = 1;
+    dataClient.init(csp::traits::getLatestProtocolVersion(), csp::context::CommonFlags{}, csp::context::CommonFlags{}, clientInterfaces);
+
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[0].id), 1);
+
+    interface_for_test::SimpleAssignableDescendant<> output2;
+
+    EXPECT_EQ(dataClient.handleData(input, output2), Status::kNoError);
+    EXPECT_EQ(output2, outputReference);
+
+    // Struct handler not support interface version
+    clientInterfaces[0].version = 0;
+    dataClient.init(csp::traits::getLatestProtocolVersion(), csp::context::CommonFlags{}, csp::context::CommonFlags{}, clientInterfaces);
+
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[0].id), 0);
+
+    interface_for_test::SimpleAssignableDescendant<> output3;
+
+    EXPECT_EQ(dataClient.handleData(input, output3), Status::kErrorNotSupportedInterfaceVersion);
+    EXPECT_EQ(output3.m_d, 0); // struct wasn't changed
+
+
 }
 
-TEST(MessagingTests, DataServiceServerTest)
-{
-
-    /*
-    // Create client (to request on data server)
-    csp::messaging::DataClient dataClient(new SimpleDataClient);
-
-    // Create DataServiceServer (to response on client requests)
-    csp::messaging::DataServiceServer<ft_helpers::DataServiceServerTraits> serviceServer;
-
-    // Test of getting all availible interfaces on server
-    csp::service_structs::InterfacesList outInterfacesList;
-    EXPECT_EQ(dataClient.handleData(csp::service_structs::GetInterfacesList<>{}, outInterfacesList), Status::kNoError);
-
-    csp::service_structs::InterfacesList interfacesListReference;
-    DataServiceServerTraits::fillInterfacesList(interfacesListReference.list);
-
-    EXPECT_EQ(outInterfacesList, interfacesListReference);
-
-    // Test of getting properties of single interface on server
-    csp::service_structs::GetInterface getInterfaceProps;
-    getInterfaceProps.id = outInterfacesList.list[outInterfacesList.list.size()-1].id;
-    csp::service_structs::OutGetInterface outGetInterfaceProps;
-
-    EXPECT_EQ(dataClient.handleData(getInterfaceProps, outGetInterfaceProps), Status::kNoError);
-    EXPECT_EQ(outGetInterfaceProps.properties, outInterfacesList.list[outInterfacesList.list.size() - 1]);
-
-    // Test of getting properties of single unknown/invalid_id interface on server
-    getInterfaceProps.id = getInterfaceProps.getId();
-
-    EXPECT_EQ(dataClient.handleData(getInterfaceProps, outGetInterfaceProps), Status::kNoError);
-
-    csp::traits::Interface interfacePropsReference;
-    interfacePropsReference.id = getInterfaceProps.id;
-    interfacePropsReference.version = csp::traits::kInterfaceVersionUndefined;
-
-    EXPECT_EQ(outGetInterfaceProps.properties, interfacePropsReference);*/
-}
-/*
-TEST(MessagingTests, MainTest)
-{
-    SimpleDataClient dataClient;
-
-    FirstDataServer dataServer1;
-    SecondDataServer dataServer2;
-    ThirdDataServer dataServer3;
-    FourthDataServer dataServer4;
-
-    interface_for_test::SimpleAssignableAlignedToOne<> saaTo;
-    fillingStruct(saaTo);
-
-    interface_for_test::SimpleAssignableDescendant<> sad;
-
-    // Send with parameters by default
-    EXPECT_EQ(dataClient.handleData(saaTo, sad), Status::kNoError);
-
-    interface_for_test::SimpleAssignableDescendant<> sadReference;
-    fillingStruct(sadReference);
-
-    EXPECT_EQ(sad, sadReference);
-
-    csp::context::DataFlags dataFlags;
-    dataFlags.alignmentMayBeNotEqual = true;
-    dataFlags.sizeOfArithmeticTypesMayBeNotEqual = true;
-    dataFlags.checkRecursivePointers = true;
-
-    interface_for_test::SimpleAssignableDescendant<> sad2;
-
-    Vector<GenericPointerKeeper> unmanagedPointers;
-
-    // Test when we send unsupported struct version, and then resend with supported version
-    EXPECT_EQ(dataClient.handleData(saaTo, sad2, dataFlags, 1, 0, 0, 0, csp::traits::getLatestProtocolVersion(), &unmanagedPointers), Status::kNoError);
-
-    EXPECT_EQ(sad2, sadReference);
-
-    // Test of no output struct
-    interface_for_test::SimpleAssignable<> sa;
-    fillingStruct(sa);
-
-    csp::messaging::ISerializableDummy<> dummy{};
-
-    // Send with parameters by default
-    EXPECT_EQ(dataClient.handleData(sa, dummy), Status::kNoError);
-}
-
-
-class TestSubscriber
-    : csp::messaging::IMethodDataServer<SimpleAssignableAlignedToOne<>, SimpleAssignableDescendant<>
-        , true, false, SimpleAssignableAlignedToOne<>::getOriginPrivateVersion(), 3>
-    , csp::messaging::IStaticDataServer<TestSubscriber, Diamond<>, DynamicPolymorphic<>, false>
-{
-public:
-    Status handleData(const SimpleAssignableAlignedToOne<>& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, SimpleAssignableDescendant<>& output) override
-    {
-        return Status::kNoError;
-    }
-
-    static Status handleDataStatic(const Diamond<>& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, DynamicPolymorphic<>& output)
-    {
-        return Status::kNoError;
-    }
-};
-
-TEST(MessagingTests, Temp)
-{
-    TestSubscriber testSubs;
-
-    SimpleAssignableAlignedToOne testInput;
-    BinWalker bin;
-    csp::context::SInOutData<> ctxIn(bin.getVector());
-    ctxIn.setMessageType(csp::context::Message::kInOutData);
-    ctxIn.setInterfaceVersion(1);
-    ctxIn.setOutputInterfaceVersion(2);
-
-    csp::processing::serializeCommonContext(ctxIn);
-    csp::processing::serializeInOutDataContext<SimpleAssignableAlignedToOne<>>(ctxIn);
-    csp::processing::DataProcessor::serializeData(testInput, ctxIn);
-
-    BinVector binOut;
-    csp::messaging::CommonServer::handleMessage(bin, cs::BinVector{}, binOut);
-
-    SimpleAssignableDescendant testOutput;
-
-    BinWalker binIn;
-    binIn.pushBack(1);
-    
-    Vector<csp::messaging::IDataServerBase*, RawGenericAllocatorHelper<csp::messaging::IDataServerBase*>> subscribers;
-    csp::messaging::GetDataServersKeeper().findServers(testInput.getId(), subscribers);
-    //subscribers[0]->handleDataConcrete(binIn, binOut);
-
-    testSubs.~TestSubscriber();
-
-    Diamond testInput2;
-    DynamicPolymorphic testOutput2;
-
-    csp::messaging::GetDataServersKeeper().findServers(testInput2.getId(), subscribers);
-    
-    //if (subscribers.size())
-        //subscribers[0]->handleDataConcrete(binIn, binOut);
-
-    csp::messaging::DataServiceServer<ft_helpers::DataServiceServerTraits> serviceServer;
-    csp::messaging::InterfacesList list;
-    serviceServer.handleDataStatic(csp::messaging::GetInterfacesList<>{}, nullptr, list);
-}
-*/
 } // namespace anonymous

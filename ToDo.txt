@@ -22,4 +22,5 @@
 22. Think about Status of not conformance Data Flags.
 23. Make Common Flags 32 bits and Message Type 16 bits.
 24. Add unit-tests on Vector::insert(const T& value, size_type offset).
-25. Add unit-tests on Vector::ierase(size_type offset).
+25. Add unit-tests on Vector::erase(size_type offset).
+26. Add Vector::insert overload for rvalues.

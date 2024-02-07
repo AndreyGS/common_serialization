@@ -48,20 +48,20 @@ public:
         , protocol_version_t protocolVersion
         , context::CommonFlags mandatoryCommonFlags
         , context::CommonFlags forbiddenCommonFlags
-        , const Vector<traits::Interface>& interfaces
+        , const Vector<service_structs::InterfaceVersion<>>& interfaces
     );
 
     Status init(
           protocol_version_t protocolVersion
         , context::CommonFlags mandatoryCommonFlags
         , context::CommonFlags forbiddenCommonFlags
-        , const Vector<traits::Interface>& interfaces) noexcept;
+        , const Vector<service_structs::InterfaceVersion<>>& interfaces) noexcept;
 
     Status init(
           const Vector<protocol_version_t>& acceptableCspVersions
         , context::CommonFlags clientMandatoryCommonFlags
         , context::CommonFlags clientForbiddenCommonFlags
-        , const Vector<traits::Interface>& acceptableInterfaces
+        , const Vector<service_structs::InterfaceVersion<>>& acceptableInterfaces
         , service_structs::CspPartySettings<>* pCspPartySettings) noexcept;
 
     bool isValid() const noexcept;
@@ -82,9 +82,9 @@ public:
     constexpr protocol_version_t getProtocolVersion() const noexcept;
     constexpr context::CommonFlags getMandatoryCommonFlags() const noexcept;
     constexpr context::CommonFlags getForbiddenCommonFlags() const noexcept;
-    constexpr const Vector<traits::Interface>& getInterfaces() const noexcept;
+    constexpr const Vector<service_structs::InterfaceVersion<>>& getInterfaces() const noexcept;
 
-    constexpr const traits::Interface* getInterface(const Id& id) const noexcept;
+    constexpr interface_version_t getInterfaceVersion(const Id& id) const noexcept;
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details See another handleData() overloading
@@ -159,7 +159,7 @@ private:
     context::CommonFlags m_mandatoryCommonFlags;
     context::CommonFlags m_forbiddenCommonFlags;
 
-    Vector<traits::Interface> m_interfaces;
+    Vector<service_structs::InterfaceVersion<>> m_interfaces;
 
     UniquePtr<IDataClientSpeaker> m_dataClientSpeaker;
 };
@@ -174,7 +174,7 @@ inline DataClient::DataClient(
     , protocol_version_t protocolVersion
     , context::CommonFlags mandatoryCommonFlags
     , context::CommonFlags forbiddenCommonFlags
-    , const Vector<traits::Interface>& interfaces
+    , const Vector<service_structs::InterfaceVersion<>>& interfaces
 )
     : m_dataClientSpeaker(pDataClientSpeaker)
 {
@@ -185,7 +185,7 @@ inline Status DataClient::init(
       protocol_version_t protocolVersion
     , context::CommonFlags mandatoryCommonFlags
     , context::CommonFlags forbiddenCommonFlags
-    , const Vector<traits::Interface>& interfaces) noexcept
+    , const Vector<service_structs::InterfaceVersion<>>& interfaces) noexcept
 {
     m_protocolVersion = protocolVersion;
     m_mandatoryCommonFlags = mandatoryCommonFlags;
@@ -201,7 +201,7 @@ inline Status DataClient::init(
       const Vector<protocol_version_t>& acceptableCspVersions
     , context::CommonFlags clientMandatoryCommonFlags
     , context::CommonFlags clientForbiddenCommonFlags
-    , const Vector<traits::Interface>& acceptableInterfaces
+    , const Vector<service_structs::InterfaceVersion<>>& acceptableInterfaces
     , service_structs::CspPartySettings<>* pCspPartySettings) noexcept
 {
     if (!m_dataClientSpeaker)
@@ -383,18 +383,18 @@ constexpr context::CommonFlags DataClient::getForbiddenCommonFlags() const noexc
     return m_forbiddenCommonFlags;
 }
 
-constexpr const Vector<traits::Interface>& DataClient::getInterfaces() const noexcept
+constexpr const Vector<service_structs::InterfaceVersion<>>& DataClient::getInterfaces() const noexcept
 {
     return m_interfaces;
 }
 
-constexpr const traits::Interface* DataClient::getInterface(const Id& id) const noexcept
+constexpr interface_version_t DataClient::getInterfaceVersion(const Id& id) const noexcept
 {
     for (const auto& _interface : getInterfaces())
         if (id == _interface.id)
-            return &_interface;
+            return _interface.version;
 
-    return nullptr;
+    return traits::kInterfaceVersionUndefined;
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
@@ -423,12 +423,12 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 
     const traits::Interface& _interface = InputType::getInterface();
 
-    // Check that we have an interface
-    const traits::Interface* pInterface = getInterface(_interface.id);
-    if (!pInterface)
+    interface_version_t interfaceVersionToUse = getInterfaceVersion(_interface.id);
+
+    if (interfaceVersionToUse == traits::kInterfaceVersionUndefined)
         return Status::kErrorNotSupportedInterface;
 
-    if (InputType::getOriginPrivateVersion() > _interface.version || OutputType::getOriginPrivateVersion() > _interface.version)
+    if (InputType::getOriginPrivateVersion() > interfaceVersionToUse || OutputType::getOriginPrivateVersion() > interfaceVersionToUse)
         return Status::kErrorNotSupportedInterfaceVersion;
 
     if (additionalCommonFlags & m_forbiddenCommonFlags)
@@ -445,7 +445,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         , m_mandatoryCommonFlags | additionalCommonFlags
         , _interface.mandatoryDataFlags | InputType::getAddtionalMandatoryDataFlags() | additionalDataFlags
         , forTempUseHeap
-        , _interface.version
+        , interfaceVersionToUse
         , nullptr);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;

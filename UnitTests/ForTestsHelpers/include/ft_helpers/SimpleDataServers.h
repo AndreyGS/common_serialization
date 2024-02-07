@@ -62,7 +62,7 @@ cs::Status defaultHandle(const InputStruct& input, OutputStruct& output)
 }
 
 class FirstDataServer 
-    : cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignableAlignedToOne<>, interface_for_test::SimpleAssignableDescendant<>, true, false, interface_for_test::SimpleAssignableAlignedToOne<>::getOriginPrivateVersion()>
+    : cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignableAlignedToOne<>, interface_for_test::SimpleAssignableDescendant<>, true, false, 1>
     , cs::csp::messaging::IDataServer<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>, false>
     , cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
 {
