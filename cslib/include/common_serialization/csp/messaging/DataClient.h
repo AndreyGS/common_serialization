@@ -340,12 +340,13 @@ Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimum
     if (!isValid())
         return Status::kErrorNotInited;
 
-    traits::Interface* pInterface = getInterface(InputType::getInterface().id);
-    if (!pInterface)
+    const traits::Interface& _interface = InputType::getInterface();
+
+    if (getInterfaceVersion(_interface.id) == traits::kInterfaceVersionUndefined)
         return Status::kErrorNotSupportedInterface;
 
     BinVector binInput;
-    context::SData<> ctxIn(binInput, m_protocolVersion, m_mandatoryCommonFlags, pInterface->mandatoryDataFlags);
+    context::SData<> ctxIn(binInput, m_protocolVersion, m_mandatoryCommonFlags);
 
     RUN(processing::serializeCommonContext(ctxIn));
     RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));

@@ -13,7 +13,7 @@ Common Serialization Protocol (CSP)
   In case of simple saving/restoring data from storage medium there is
   no need in Messaging, but still data is packed in Message format.
   
-  Any program, no matter if it is driver or demon, or user app, which is
+  Any program, no matter if it is driver or daemon, or user app, which is
   interact with CSP implementation, is called User Application.
 
   Instead of use serialization/deserialization process sentense here we
@@ -52,9 +52,9 @@ Common Context Format
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |  CSP version  |    Reserved   |          Common Flags         |
+    |  CSP version  |    Reserved   |          Message Type         |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |                          Message Type                         |
+    |                          Common Flags                         |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
                                 Figure 2
@@ -77,23 +77,25 @@ Common Context Format
   
     Reserved for future use.  Must be zero.
     
-  Common Flags: 16 bits
-  
-    Options that have common meaning to Private parts of Message.
-    
-    Bit 0: using big endian format (default endianess is little-endian.
-    Bit 1: there is possibility of endian difference.
-    Bits 2-15: unused (reserved, must be zero).
- 
-  Message Type: 32 bits
+  Message Type: 16 bits
   
     Type of Message.
     
-    0x0: Status
-    0x1: Data
-    0x2: InOutData
-    0x3: CommonCapabilitiesRequest
-
+    0: Status
+    1: Data
+    2: kGetSettings
+    
+  Common Flags: 32 bits
+  
+    Options that have common meaning to Private parts of Message.
+    
+    Bit 0 (0x1): bitness of system on which serialization is performed
+      is 32 bit (when not set is 64 bits).
+    Bit 1 (0x2): using big endian format (default endianess is
+      little-endian.
+    Bit 2 (0x4): there is possibility of endian difference and
+      serialization was performed with respect of this perspective.
+    Bits 3-15: unused (reserved, must be zero).
 
 Private parts
 
@@ -148,8 +150,9 @@ Status Message
     -4: ErrorNotSupportedProtocolVersion; protocol version that need to
       use in Serialization is not supported by this instance.
 
-    -5: ErrorNotSupportedInterfaceVersion; interface version that need to
-      use in Serialization is not supported by this instance.
+    -5: ErrorNotSupportedInterfaceVersion; Interface version that need
+      to use in Serialization or Messaging is not supported by this
+      instance, or client, or server.
 
     -6: ErrorInvalidHash.
 
@@ -161,7 +164,7 @@ Status Message
       correspond to that which is expect.
 
     -10: ErrorNoSuchHandler; there is no procedure or server that can
-      nandle the request.
+      handle the request.
 
     -11: ErrorInternal; in general any internal error that indicate of
       CSP implementation design isuue.  But it is also may be result
@@ -182,15 +185,24 @@ Status Message
       corruption in Serialization.  But there is also can be internal
       error in CSP implementation which was lead to this condition.
       
-    -15: ErrorNotCompatibleFlagsSettings; if some of the Contexts flags
+    -15: kErrorNotCompatibleCommonFlagsSettings; if some of the common
+      flags have mutual contradictory status.
+      
+    -16: kErrorNotCompatibleDataFlagsSettings; if some of the data flags
       have mutual contradictory status.
 
-    -16: ErrorMoreEntires; implementation specific status, currently may
+    -17: ErrorMoreEntires; implementation specific status, currently may
       be using only in CSP internal procedures.
       
-    -17: ErrorNotSupportedInOutInterfaceVersion; using in Messaging,
-      when server cannot process InOutData Message because if either
-      input or output struct have incompatible versions.
+    -18: kErrorNotInited; party that use CSP is not inited.
+      
+    -19: kErrorNoSupportedInterfaces; using in Messaging to indicate
+      that there is no common CSP Interfaces between client and server.
+      
+    -20: kErrorNotSupportedInterface; using in Messaging to indicate
+      that client struct that should be handled is from Interface that
+      is not supported by client or server.
+      
       
   Status Body
   
@@ -224,37 +236,9 @@ Status Message
       Versions must be sorted in decreasing order, latest version is
       first.
 
-  ErrorNotSupportedInOutInterfaceVersion:
-
-    CSP ErrorNotSupportedInOutInterfaceVersion Status Body Format
-
-     0                   1                   2                   3
-     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |        Input struct minimum supported interface version       |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |        Input struct maximum supported interface version       |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |       Output struct minimum supported interface version       |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |       Output struct maximum supported interface version       |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   
-                                Figure 5
-
-    Full body size of ErrorNotSupportedInOutInterfaceVersion is 128
-      bits.
-      
-      
-    Each field of ErrorNotSupportedInOutInterfaceVersion Body represents
-    respective versions of coresponding structs.  Details of what
-    Interface versions are and how they handled in CSP will be discussed
-    later.
-
   Other statuses:
     
     Does not have Status Body part.
-
 
 Data Message
 
@@ -284,6 +268,11 @@ Data Message
   Struct ID: 128 bits
   
     It represents UUIDv4 of the stuct that take part in Serialization.
+    
+  Interface version: 32 bits
+  
+    Version of Interface on which current struct was serialized.
+    There will be distinct section with Interface definition.
     
   Data flags: 32 bits
 
