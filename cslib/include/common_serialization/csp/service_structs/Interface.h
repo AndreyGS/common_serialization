@@ -23,11 +23,23 @@
 
 #pragma once
 
-// another_yet_interface UUID  : {e47be322-232e-4d66-9175-06eed2110b4b}
-// interface version           : 0
+// Service structs not support version conversion and must always be the same.
+// It is a mandatory part of CSP.
+// Set of structs is completely depend on protocol version. 
 
-// Service structs not support version conversion and must always be the same
-// Set is completely depend on protocol version
+namespace common_serialization::csp::service_structs
+{
+
+    namespace cs = common_serialization;
+
+    constexpr cs::csp::traits::Interface properties(
+          Uuid{ 0xe47be322, 0x232e, 0x4d66, 0x9175, 0x06eed2110b4b }
+        , 1
+        , { }
+        , context::DataFlags{ context::DataFlags::kValidFlagsMask }
+    );
+
+} // namespace common_serialization::csp::service_structs
 
 #include "common_serialization/csp/service_structs/Structs.h"
 #include "common_serialization/csp/service_structs/processing/DeserializeData.h"

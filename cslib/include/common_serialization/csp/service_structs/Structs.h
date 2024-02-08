@@ -31,8 +31,6 @@
 namespace common_serialization::csp::service_structs
 {
 
-constexpr traits::Interface properties(Uuid{0xe47be322, 0x232e, 0x4d66, 0x9175, 0x06eed2110b4b}, 1);
-
 /// @brief Special type - placeholder for Input-Output operations that have no need in ISerializable Output struct
 /// @remark Interfaces which are using that struct as an Output will always receive the Message::kStatus as result
 /// @tparam T Derived class

@@ -83,7 +83,7 @@ Common Context Format
     
     0: Status
     1: Data
-    2: kGetSettings
+    2: GetSettings
     
   Common Flags: 32 bits
   
@@ -95,7 +95,7 @@ Common Context Format
       little-endian.
     Bit 2 (0x4): there is possibility of endian difference and
       serialization was performed with respect of this perspective.
-    Bits 3-15: unused (reserved, must be zero).
+    Bits 3-31: unused (reserved, must be zero).
 
 Private parts
 
@@ -245,7 +245,7 @@ Data Message
   Data Messages are the central part of CSP protocol.  This messages
   include endpoint data that should be serialized and vice versa.
   
-  Data Message Context
+  Data Context Format
 
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -263,7 +263,7 @@ Data Message
     |                           Data flags                          |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-                                Figure 6
+                                Figure 5
 
   Struct ID: 128 bits
   
@@ -276,9 +276,9 @@ Data Message
     
   Data flags: 32 bits
 
-    Options that will influence on Data Body processing.
+    Options that will affect on Data Body processing.
     
-    Bit 0: alignment may be not equal.
+    Bit 0 (0x1): alignment may be not equal.
       
       Alignment of structs that take a part in Data Body in modules that
       serialize and deserialize Message, may be not equal.
@@ -288,12 +288,52 @@ Data Message
       one can use plain memory copy of entire object, of course this
       struct must be simply assignable (not using pointers etc).
       
-    Bit 1: size of arithmetic types may be not equal.
+    Bit 1 (0x2): size of arithmetic types may be not equal.
     
       Indicated that there is possibility of that the compilers that
       built modules that take a part in Serialization may interpret with
       different size any of the arithmetic (fundamental) fields from
       which consists data struct.
+      
+    Bit 2 (0x4): allow unmanaged pointers.
+    
+      In standard processing any pointer that is a part of some
+      serialized struct must be managed by it and Serialization process
+      must include individual procedures to handle it.
+      Any free pointer is threaten as error and no serialization must
+      be done.
+      
+      This flag removes this restriction and allow Serialization of
+      pointers on generic order. Of course any such pointer must point
+      to one and only one object instance. Handling this pointers is up
+      to specific implementation.
+      
+    Bit 3 (0x8): check recursive pointers.
+      In general form there must not be any recursive link in serialized
+      struct. But if architecture of Interface of User Application is
+      allows it, additional check must be made and this flag is indicate
+      this task.
+      
+    Bits 4-31: unused (reserved, must be zero).
+
+  Data Body
+  
+    It is binary form of serialized struct data which is produced
+    with respect of Common and Data Contexts.
+    
+    Concrete rules and principles of Serialization process will be
+    discussed in the same name section.
+    
+GetSettings Message
+
+  GetSettings Message is sends by client in Messaging process when he
+  want to know capabilities and restrictions of server including
+  supported Interfaces.
+  
+  This Message has ho Context and Body.
+  
+  In response to this Message server must send CspPartySettings struct.
+  Its definition will be presented in Special Structs Interface section.
 
 
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>

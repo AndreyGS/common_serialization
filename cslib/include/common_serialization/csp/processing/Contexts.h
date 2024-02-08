@@ -212,13 +212,8 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
     if (dataFlags.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)
         return Status::kErrorInvalidArgument;
     
-    if (dataFlags.checkRecursivePointers())
-    {
-        if (ctx.getPointersMap() == nullptr)
-            return Status::kErrorInvalidArgument;
-        else if (!dataFlags.allowUnmanagedPointers())
-            return Status::kErrorNotCompatibleDataFlagsSettings;
-    }
+    if (dataFlags.checkRecursivePointers() && ctx.getPointersMap() == nullptr)
+        return Status::kErrorInvalidArgument;
 
     return Status::kNoError;
 }

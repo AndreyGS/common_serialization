@@ -30,21 +30,35 @@ namespace common_serialization
 {
 
 /// @brief Something like std::unique_ptr
-/// @note It's class half-finished article, should be upgraded later
+/// @note Class in half-finished state, should be upgraded later
 /// @tparam T Type that internal pointer points to
 /// @tparam D Custom deleter
 template<typename T, typename D = Dummy>
 class UniquePtr
 {
 public:
-    UniquePtr(T* p) noexcept : m_p(p) {}
-
-    ~UniquePtr() noexcept
+    constexpr UniquePtr(T* p) noexcept : m_p(p) {}
+    UniquePtr(const UniquePtr&) = delete;
+    constexpr UniquePtr(UniquePtr&& rhs)
+        : m_p(rhs.m_p)
     {
-        if constexpr (std::is_same_v<D, Dummy>)
-            delete m_p;
-        else
-            D(m_p);
+        rhs.m_p = nullptr;
+    }
+    UniquePtr& operator=(const UniquePtr&) = delete;
+    constexpr UniquePtr& operator=(UniquePtr&& rhs)
+    {
+        if (this == &rhs)
+            return *this;
+
+        destroy();
+
+        m_p = rhs.m_p;
+        rhs.m_p = nullptr;
+    }
+
+    constexpr ~UniquePtr() noexcept
+    {
+        destroy();
     }
 
     /// @brief Get stored pointer
@@ -58,6 +72,16 @@ public:
         T* p = m_p;
         m_p = nullptr;
         return p;
+    }
+
+    constexpr void destroy() noexcept
+    {
+        if constexpr (std::is_same_v<D, Dummy>)
+            delete m_p;
+        else
+            D(m_p);
+
+        m_p = nullptr;
     }
 
     [[nodiscard]] constexpr T* operator->() const noexcept

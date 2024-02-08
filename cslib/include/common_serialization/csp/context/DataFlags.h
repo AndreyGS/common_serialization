@@ -68,9 +68,7 @@ public:
     ///     to use and safe delete this pointers in future.
     static constexpr uint32_t kAllowUnmanagedPointers = 0x4;
 
-    /// @brief Checks if processed pointers are not recursively linked.
-    ///     Works only in conjunction with allowUnmanagedPointers flag
-    ///     which will be set automatically if need.
+    /// @brief Allows processed pointers be recursively linked.
     static constexpr uint32_t kCheckRecursivePointers = 0x8;
 
     static constexpr uint32_t kValidFlagsMask = 0xf;

@@ -34,8 +34,8 @@ namespace cs = common_serialization;
 constexpr cs::csp::traits::Interface properties(
       cs::Uuid{ 0xa1cfd12a, 0x22b2, 0x49d3, 0x8575, 0x02342a630145 }
     , 3
-    , cs::csp::context::DataFlags{}
-    , cs::csp::context::DataFlags{}
+    , {}
+    , {}
 );
 
 } // namespace interface_for_test
