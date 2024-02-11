@@ -112,8 +112,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 
     Id id = T::getId();
 
-    RUN(output.pushBackArithmeticValue(id.leftPart));
-    RUN(output.pushBackArithmeticValue(id.rightPart));
+    RUN(output.pushBackN(id.id, sizeof(id.id)));
 
     constexpr interface_version_t interfaceVersion = T::getInterface().version;
 
@@ -152,8 +151,7 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Id& id)
 {
     D& input = ctx.getBinaryData();
 
-    RUN(input.readArithmeticValue(id.leftPart));
-    RUN(input.readArithmeticValue(id.rightPart));
+    RUN(input.read(id.id, sizeof(id.id)));
 
     interface_version_t inputInterfaceVersion = 0;
     RUN(input.readArithmeticValue(inputInterfaceVersion));

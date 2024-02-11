@@ -32,8 +32,7 @@ namespace common_serialization::csp::processing
 template<>
 constexpr Status DataProcessor::serializeData(const Id& value, context::SData<>& ctx)
 {
-    RUN(serializeData(value.leftPart, ctx));
-    RUN(serializeData(value.rightPart, ctx));
+    RUN(serializeData(value.id, ctx));
 
     return Status::kNoError;
 }
@@ -41,8 +40,7 @@ constexpr Status DataProcessor::serializeData(const Id& value, context::SData<>&
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value)
 {
-    RUN(deserializeData(ctx, value.leftPart));
-    RUN(deserializeData(ctx, value.rightPart));
+    RUN(deserializeData(ctx, value.id));
 
     return Status::kNoError;
 }

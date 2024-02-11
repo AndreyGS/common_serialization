@@ -85,8 +85,7 @@ constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
     RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInterfaceVersion));
 
     RUN(ctx.getBinaryData().pushBackArithmeticValue(minimumInterfaceVersion));
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(outputTypeId.leftPart));
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(outputTypeId.rightPart));
+    RUN(ctx.getBinaryData().pushBackN(outputTypeId.id, sizeof(outputTypeId.id)));
 
     return Status::kNoError;
 }
@@ -97,8 +96,7 @@ constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(
 ) noexcept
 {
     RUN(ctx.getBinaryData().readArithmeticValue(minimumInterfaceVersion));
-    RUN(ctx.getBinaryData().readArithmeticValue(outputTypeId.leftPart));
-    RUN(ctx.getBinaryData().readArithmeticValue(outputTypeId.rightPart));
+    RUN(ctx.getBinaryData().read(outputTypeId.id, sizeof(outputTypeId.id)));
 
     return Status::kNoError;
 }

@@ -49,7 +49,7 @@ struct Interface
     context::DataFlags mandatoryDataFlags;
     context::DataFlags forbiddenDataFlags;
 
-    constexpr bool operator==(const Interface& rhs) const noexcept
+    bool operator==(const Interface& rhs) const noexcept
     {
         return id == rhs.id && version == rhs.version 
             && mandatoryDataFlags == rhs.mandatoryDataFlags && forbiddenDataFlags == rhs.forbiddenDataFlags;

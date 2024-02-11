@@ -13,11 +13,17 @@ Common Serialization Protocol (CSP)
   In case of simple saving/restoring data from storage medium there is
   no need in Messaging, but still data is packed in Message format.
   
-  Any program, no matter if it is driver or daemon, or user app, which is
-  interact with CSP implementation, is called User Application.
+  Any program, no matter if it is driver or daemon, or user app, which
+  is interact with CSP implementation, is called User Application.
 
   Instead of use serialization/deserialization process sentense here we
   will use Serialization keyword for brevity.
+  
+  The data which is processed during Serialization is packaged as
+  structures.  In most of the times we intentionally using word
+  "structs" instead of "types" because the only things that matters to
+  us is data that is holding in structure and it relative position
+  inside "struct", and don't care about this type behavior.
   
 
 Message Format
@@ -177,7 +183,7 @@ Status Message
       it should not go as return value to User Application.
 
     -13: ErrorInvalidType; there is inconsistence of struct and actions
-      that intend to apply to it. May witness of internal errors, but
+      that intend to apply to it.  May witness of internal errors, but
       mostly it is not properly configured Serialization related
       procedures for User Application specific structs.
 
@@ -284,7 +290,7 @@ Data Message
       serialize and deserialize Message, may be not equal.
       
       If this flag is not set some optimizations of Serialization can be
-      made. In particular instead of process some struct field-by-field
+      made.  In particular instead of process some struct field-by-field
       one can use plain memory copy of entire object, of course this
       struct must be simply assignable (not using pointers etc).
       
@@ -304,13 +310,13 @@ Data Message
       be done.
       
       This flag removes this restriction and allow Serialization of
-      pointers on generic order. Of course any such pointer must point
-      to one and only one object instance. Handling this pointers is up
+      pointers on generic order.  Of course any such pointer must point
+      to one and only one object instance.  Handling this pointers is up
       to specific implementation.
       
     Bit 3 (0x8): check recursive pointers.
       In general form there must not be any recursive link in serialized
-      struct. But if architecture of Interface of User Application is
+      struct.  But if architecture of Interface of User Application is
       allows it, additional check must be made and this flag is indicate
       this task.
       
@@ -335,6 +341,119 @@ GetSettings Message
   In response to this Message server must send CspPartySettings struct.
   Its definition will be presented in Special Structs Interface section.
 
+
+CSP Interface
+
+  By CSP Interface we mean the set of structures where every one have
+  several common and several individual properties.  If we say that some
+  instance is supported specific Interface of specific version number,
+  than it means that it has snapshot of every struct in this Interface
+  that is on that version.
+  
+Structures common properties
+  
+  Interface ID
+  
+    UUIDv4 of the struct interface.
+    
+  Version
+  
+    32 bits field, that represents current version of interface.  Its
+    semantic depends on concrete interface.
+    
+  Mandatory data flags
+  
+    Data flags that are always in use in Serialization of interface
+    structs.
+    
+  Forbidden data flags
+  
+    Data flags that cannot be used in Serialization of interface
+    structs.
+    
+Structures individual properties
+
+  Struct ID
+  
+    UUIDv4 of struct itself
+    
+  Struct Interface version
+  
+    Version of interface on which current struct or one of its
+    dependecies were changed last time.  Dependencies mean substructs
+    (fields) from which this one consists.
+    
+  Private versions
+
+    An array of interface versions values.  Value is added every time 
+    when struct was changed.  Sorted in decreasing order.
+    
+    By change we mean adding or removing field from struct or from one
+    of struct parents (structs are allowed to be inherited), or when one
+    of the struct field changed its type (structure).  It is important
+    to note, that only change of field type (structure) is lead to
+    Private version update.  If there is internal change of field struct
+    (update), private version wouldn't change, instead interface version
+    is changed. 
+    
+  Additional mandatory data flags (optional)
+  
+    Data flags that are always in use in Serialization of this struct.
+    It is dijunction of every additional mandatory data flags of every
+    struct dependency and struct private restrictions.
+    Effective mandatory data flags set is disjunction of mandatory data
+    flags and additional mandatory data flags.
+    
+  Additional forbidden data flags (optional)
+  
+    Data flags that cannot be used in Serialization of this struct.
+    It is dijunction of every additional forbidden data flags of every
+    struct dependency and struct private restrictions.
+    Effective forbidden data flags set is disjunction of forbidden data
+    flags and additional forbidden data flags.
+    
+Structure properties notes
+
+  The only struct interface properties that are allowed to be changed
+  are versions.  All of the rest are fixed at the time when struct
+  definition was created and never change.
+  
+Types that are in use in CSP Interfaces
+
+  It is important to say that structs in concrete interface are allowed
+  to be made of types that are not part of this interface.  And there is
+  two distinct scenarios.
+  
+  First, when type (struct) is not part of any CSP interface - it has no
+  CSP Interface properties and it is not allowed to version conversion.
+  Also such types cannot be as root struct in CSP Data Message, only as
+  field of struct from CSP interface.  Example of such types are
+  integers, floating point numbers and any user-defined composite types.
+  
+  Second, struct from parent interface.  More details will be in 
+  Dependent Interfaces section.
+  
+Derived Interfaces
+
+  CSP allows to inherit interfaces.  But descendant interfaces are have
+  one and only one parent.  It must have the same versioning order as
+  parent have.  Start Version property is the same as Struct Interface
+  version property of the most recent changed struct from parent
+  interface that is a part of derived interface as dependency, or the
+  most recent Version property.
+  
+  Every time when dependency from parent interface is updated Version of
+  derived interface must be updated too (and all dependent Struct
+  Interface versions).
+  
+  Derived interface don't allowed to have versions bigger than parent
+  interface has, but parent one don't have any such restrictions.  So if
+  there is need to add or update any of derived interface struct, and
+  the derived interface before this update has the same version as the
+  parent one, than need to wait before parent interface will be updated.
+  
+  
+  
 
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 

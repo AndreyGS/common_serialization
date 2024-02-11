@@ -33,33 +33,46 @@ struct Uuid
 {
     using simply_assignable_tag = std::true_type;
 
-    uint64_t leftPart{ 0 };
-    uint64_t rightPart{ 0 };
+    uint8_t id[16] = { 0 };
 
     constexpr Uuid() {}
     constexpr Uuid(const Uuid& rhs) = default;
 
     constexpr Uuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth)
-        : leftPart(static_cast<uint64_t>(first) << 32 | static_cast<uint64_t>(second) << 16 | static_cast<uint64_t>(third))
-        , rightPart(static_cast<uint64_t>(fourth) << 48 | static_cast<uint64_t>(fifth))
-    { }
-
-    constexpr Uuid(uint64_t lP, uint64_t rP) : leftPart(lP), rightPart(rP) { }
-   
-    constexpr bool operator<(const Uuid& rhs) const noexcept
-    {
-        return leftPart < rhs.leftPart || leftPart == rhs.leftPart && rightPart < rhs.rightPart;
+    { 
+        id[0] = (first & 0xff000000) >> 24;
+        id[1] = (first & 0x00ff0000) >> 16;
+        id[2] = (first & 0x0000ff00) >> 8;
+        id[3] = first & 0x000000ff;
+        id[4] = (second & 0xff00) >> 8;
+        id[5] = second & 0x00ff;
+        id[6] = (third & 0xff00) >> 8;
+        id[7] = third & 0x00ff;
+        id[8] = (fourth & 0xff00) >> 8;
+        id[9] = fourth & 0x00ff;
+        id[10] = (fifth & 0xff0000000000) >> 40;
+        id[11] = (fifth & 0x00ff00000000) >> 32;
+        id[12] = (fifth & 0x0000ff000000) >> 24;
+        id[13] = (fifth & 0x000000ff0000) >> 16;
+        id[14] = (fifth & 0x00000000ff00) >> 8;
+        id[15] = fifth & 0x0000000000ff;
     }
 
-    constexpr bool operator==(const Uuid& rhs) const noexcept
+   
+    bool operator<(const Uuid& rhs) const noexcept
     {
-        return leftPart == rhs.leftPart && rightPart == rhs.rightPart;
+        return memcmp(id, rhs.id, sizeof(id)) < 0;
+    }
+
+    bool operator==(const Uuid& rhs) const noexcept
+    {
+        return memcmp(id, rhs.id, sizeof(id)) == 0;
     }
 };
 
 #pragma pack(pop)
 
-constexpr Uuid kNullUuid{ 0, 0 };
+constexpr Uuid kNullUuid{};
 
 } // namespace common_serialization
 
@@ -68,8 +81,11 @@ struct std::hash<common_serialization::Uuid>
 {
     std::size_t operator()(const common_serialization::Uuid& id) const noexcept
     {
-        std::size_t hash1 = std::hash<uint64_t>{}(id.leftPart);
-        std::size_t hash2 = std::hash<uint64_t>{}(id.rightPart);
-        return hash1 ^ hash2;
+        auto hashFunc = std::hash<uint8_t>{};
+        std::size_t result = 0;
+        for (size_t i = 0; i < sizeof(id.id); ++i)
+            result ^= hashFunc(id.id[i]);
+        
+        return result;
     }
 };

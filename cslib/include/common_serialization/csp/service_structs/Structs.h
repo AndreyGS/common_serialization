@@ -25,9 +25,6 @@
 
 #include "common_serialization/csp/ISerializable.h"
 
-// Service structs not support version conversion and must always be the same
-// Set is completely depend on protocol version
-
 namespace common_serialization::csp::service_structs
 {
 
@@ -75,7 +72,7 @@ public:
     static constexpr Id kId{ 0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1 };
     static constexpr interface_version_t kInterfaceVersion = 1;
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const traits::Interface& getInterface() noexcept { return service_structs::properties; }
 
     traits::Interface properties;
 };
