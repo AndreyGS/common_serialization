@@ -16,8 +16,8 @@ Common Serialization Protocol (CSP)
   Any program, no matter if it is driver or daemon, or user app, which
   is interact with CSP implementation, is called User Application.
 
-  Instead of use serialization/deserialization process sentense here we
-  will use Serialization keyword for brevity.
+  Instead of use serialization/deserialization process sentence here we
+  often will use Serialization keyword for brevity.
   
   The data which is processed during Serialization is packaged as
   structures.  In most of the times we intentionally using word
@@ -342,15 +342,15 @@ GetSettings Message
   Its definition will be presented in Special Structs Interface section.
 
 
-CSP Interface
+CSP Interfaces
 
   By CSP Interface we mean the set of structures where every one have
-  several common and several individual properties.  If we say that some
-  instance is supported specific Interface of specific version number,
-  than it means that it has snapshot of every struct in this Interface
-  that is on that version.
+  several interface properties and several individual properties.  If 
+  we say that some instance is supported specific Interface of specific
+  version number, than it means that it has snapshot of every struct in
+  this Interface that is on that version.
   
-Structures common properties
+Interface properties
   
   Interface ID
   
@@ -359,7 +359,8 @@ Structures common properties
   Version
   
     32 bits field, that represents current version of interface.  Its
-    semantic depends on concrete interface.
+    semantic depends on concrete interface.  This is the only field that
+    allowed to be changed.
     
   Mandatory data flags
   
@@ -370,12 +371,13 @@ Structures common properties
   
     Data flags that cannot be used in Serialization of interface
     structs.
-    
+  
 Structures individual properties
+(applied to those that are part of any CSP Interface)
 
   Struct ID
   
-    UUIDv4 of struct itself
+    UUIDv4 of struct itself. Cannot be changed.
     
   Struct Interface version
   
@@ -411,12 +413,6 @@ Structures individual properties
     struct dependency and struct private restrictions.
     Effective forbidden data flags set is disjunction of forbidden data
     flags and additional forbidden data flags.
-    
-Structure properties notes
-
-  The only struct interface properties that are allowed to be changed
-  are versions.  All of the rest are fixed at the time when struct
-  definition was created and never change.
   
 Types that are in use in CSP Interfaces
 
@@ -433,7 +429,7 @@ Types that are in use in CSP Interfaces
   Second, struct from parent interface.  More details will be in 
   Dependent Interfaces section.
   
-Derived Interfaces
+Dependent Interfaces
 
   CSP allows to inherit interfaces.  But descendant interfaces are have
   one and only one parent.  It must have the same versioning order as
@@ -452,7 +448,85 @@ Derived Interfaces
   the derived interface before this update has the same version as the
   parent one, than need to wait before parent interface will be updated.
   
+Data that can be serialized by CSP
+
+  Primitives
+    
+    Integers and floating point numbers.
+    
+  Pointers (references)
   
+    Pointers on primitives, structures, another pointers.
+  
+  Arrays
+  
+    Arrays of primitives, pointers, structures.
+  
+  Structures (objects)
+  
+    Structures are built from primitives, pointers, other structures,
+    and their arrays in ordered form.
+    They can be multiple inherited.
+    
+How data is serialized
+
+  CSP has quite a lot of flexibility in this question.  It depends on
+  structures tags, Common and Data flags.
+  
+Structures tags
+
+  Empty type tag
+  
+    Struct has no fields.  This type no need to serialize at all.  This
+    can be the case with some special structs, and when such struct is
+    parent or member of another struct that is serialized.
+    
+  Simply assignable tag
+  
+    Struct holds its data only in primitives, arrays of primitives and
+    another structures with the same properties.  If there is guaranty
+    that data exchange will be between CSP instances with the same
+    sizing of primitives and alignment of struct parts is also the same,
+    such struct can be serialized by raw copy.  If we use C-language,
+    than it is possible to express by this sentence:
+      memcpy(serialized_data, &struct, sizeof(struct))
+    
+  Simply assignable aligned to one tag
+    
+    The same thing as just simply assignable tag, but there is no
+    restrictions of CSP instance alignment settings, because such structs
+    must be aligned to 1 on every interface implementation.
+    
+  Next example depict it.
+
+  Imagine next structs scheme
+  
+              +-------------------------------------------+
+              | Struct A       Struct B                   |
+              |   primitive t    A a                      |
+              |   pointer w      array x                  |
+              |                                           |
+              | Struct C       Struct D inherits B and C  |
+              |   primitive y    primitive z              |
+              +-------------------------------------------+
+  
+  Here we can decompose Struct D as:
+  
+                  Struct D
+                    primitive t
+                    primitive w
+                    primitive x
+                    primitive y
+                    primitive z
+
+Serialization rules
+
+  This section explains how Data Body is serialized.
+  
+  As you already know Data Body is the binary form of serialized struct
+  data.
+  
+  Every struct in CSP model is a set of ordered fields.
   
 
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
