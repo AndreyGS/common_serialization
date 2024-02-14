@@ -16,8 +16,10 @@ Common Serialization Protocol (CSP)
   Any program, no matter if it is driver or daemon, or user app, which
   is interact with CSP implementation, is called User Application.
 
-  Instead of use serialization/deserialization process sentence here we
-  often will use Serialization keyword for brevity.
+  Instead of use expression "serialization/deserialization process" here
+  we often will use Serialization keyword (with "S" capitalized) for
+  brevity.  But when serialization word is using with the small letter
+  "s" it is meaning serialization process only.
   
   The data which is processed during Serialization is packaged as
   structures.  In most of the times we intentionally using word
@@ -467,12 +469,9 @@ Data that can be serialized by CSP
     Structures are built from primitives, pointers, other structures,
     and their arrays in ordered form.
     They can be multiple inherited.
-    
-How data is serialized
-
-  CSP has quite a lot of flexibility in this question.  It depends on
-  structures tags, Common and Data flags.
-  
+    Also struct can have one of special CSP tags that can optimize
+    Serialization process.
+   
 Structures tags
 
   Empty type tag
@@ -494,30 +493,80 @@ Structures tags
   Simply assignable aligned to one tag
     
     The same thing as just simply assignable tag, but there is no
-    restrictions of CSP instance alignment settings, because such structs
-    must be aligned to 1 on every interface implementation.
+    restrictions of CSP instance alignment settings, because such
+    structs must be aligned to 1 on every interface implementation.
+  
+  Struct has no tag
+  
+    Struct must be Serialized field-by-field no matter of other options.
     
-  Next example depict it.
+Structures on CSP view
 
-  Imagine next structs scheme
+  Imagine next structs scheme:
   
-              +-------------------------------------------+
-              | Struct A       Struct B                   |
-              |   primitive t    A a                      |
-              |   pointer w      array x                  |
-              |                                           |
-              | Struct C       Struct D inherits B and C  |
-              |   primitive y    primitive z              |
-              +-------------------------------------------+
-  
+      +---------------------------------------------------------+
+      | Struct A                Struct B                        |
+      |   integer i               A a                           |
+      |   pointer to int pi       array of int size 3 ai        |
+      |                                                         |
+      | Struct C                Struct D inherits B and C       |
+      |   array of A size 2 aa    pointer to pointer to int ppi |
+      |                           integer j                     |
+      +---------------------------------------------------------+
+        
+                                Scheme 1
+                                
   Here we can decompose Struct D as:
   
-                  Struct D
-                    primitive t
-                    primitive w
-                    primitive x
-                    primitive y
-                    primitive z
+      +---------------------------------------------------------+
+      | Struct D                                                |
+      |   Stuct B b                                             |
+      |   Struct C c                                            |
+      |   pointer to pointer to int ppi                         |
+      |   integer j                                             |
+      +---------------------------------------------------------+
+      
+                                Scheme 2
+                                
+  Order by which we do it is matter.  First, we get parent one - b,
+  then parent two - c, and after that field one - ppi and field two - j.
+  So we can say that we have 4 fields, and we must process them each
+  with Serialization function.
+  
+  But if Struct has one of the tags that allows to not decompose it in
+  current Serialization context (defined by set of acting flags), then
+  we are consider it as raw memory chunk:
+
+      +---------------------------------------------------------+
+      | Struct E                                                |
+      |   integer x                                             |
+      |   integer y                                             |
+      |                                                         |
+      |   Simply_assignable_tag                                 |
+      +---------------------------------------------------------+
+      
+                                Scheme 3
+                                
+  So, if integer size is 4 octets, than whole E size is 8 octets and we
+  can copy 8 raw octets to Data Body if we Serializing E instance.
+  
+  But despite that, if you wish to use in your CSP Interface some
+  specific compatibility modes, you still need to have ability of
+  Serialize it field-by-field.
+  
+  
+  
+How data is serialized
+
+  CSP has quite a lot of flexibility in this question.  It depends on
+  structures tags, Common and Data flags.
+  
+  
+  
+
+    
+
+
 
 Serialization rules
 
