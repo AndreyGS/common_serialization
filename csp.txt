@@ -554,15 +554,35 @@ Structures on CSP view
   specific compatibility modes, you still need to have ability of
   Serialize it field-by-field.
   
-  
-  
 How data is serialized
 
   CSP has quite a lot of flexibility in this question.  It depends on
-  structures tags, Common and Data flags.
+  structures tags, Common and Data flags.  Next sections will go into
+  deep on processing each type of data that is can be Serialized.  Pay
+  attention that that rules are applied to Data Context and Data Body
+  sections.
   
+Primitives Serialization
+
+  When there are no flags affecting behavior:
   
+    The primitive is copied octet-to-octet according to how it is
+    defined in the current execution environment.  So if we return to
+    Struct E from Scheme 3 and serilize it field-by-field, than we will
+    get two integers that are resides one right after another in memory
+    just as in original struct.  And if Struct E is top-struct, then all
+    Data Body will be 8 octet sized.
+    
+  Common Flag Bitness is 32:
   
+    There is one special primitive, that intentionally has different
+    length in x64 and x32 environments.  It's named as in C-language
+    size_t.  It has length of machinary word.  Every CSP Interface that
+    wish to Serialize types where size_t-like primitives are present
+    (containers for example), must explicitly mark that this type is
+    size_t.  How it mark should be done is implementation defined.
+    
+    According that type have size_t mark and Bitness 32 it should be processed 
 
     
 

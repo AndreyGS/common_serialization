@@ -352,10 +352,10 @@ private:
     bool m_auxUsingHeapAllocation = false;
 };
 
-template<ISerializationCapableContainer S = BinVector, ISerializationPointersMap PM = std::unordered_map<const void*, uint64_t>>
+template<ISerializationCapableContainer S = BinVector, ISerializationPointersMap PM = std::unordered_map<const void*, size_t>>
 using SData = Data<S, true, PM>;
 
-template<IDeserializationCapableContainer D = BinWalker, IDeserializationPointersMap PM = std::unordered_map<uint64_t, void*>>
+template<IDeserializationCapableContainer D = BinWalker, IDeserializationPointersMap PM = std::unordered_map<size_t, void*>>
 using DData = Data<D, false, PM>;
 
 } // namespace common_serialization::csp::context
