@@ -27,6 +27,8 @@ Common Serialization Protocol (CSP)
   us is data that is holding in structure and it relative position
   inside "struct", and don't care about this type behavior.
   
+  Bits ordering of distinct octets in the schemes has big endian
+  format.
 
 Message Format
 
@@ -99,10 +101,11 @@ Common Context Format
     
     Bit 0 (0x1): bitness of system on which serialization is performed
       is 32 bit (when not set is 64 bits).
-    Bit 1 (0x2): using big endian format (default endianess is
+    Bit 1 (0x2): using big endian format (default endianness is
       little-endian.
-    Bit 2 (0x4): there is possibility of endian difference and
-      serialization was performed with respect of this perspective.
+    Bit 2 (0x4): there was endianness difference of "using big endian
+      format" flag and execution environment where serialization
+      performed.
     Bits 3-31: unused (reserved, must be zero).
 
 Private parts
@@ -145,9 +148,11 @@ Status Message
     -1: ErrorNoMemory; there was not enough memory to complete the
       operation.
 
-    -2: ErrorOverflow; general meaning in CSP - there was mismatch in
-      deserialization process in size of deserialized data with expected
-      one.
+    -2: ErrorOverflow; general meanings in CSP:
+      - there was mismatch in deserialization process in size of
+      deserialized data with expected one;
+      - serialized or deserialized data exceeds target or curren
+      environment limits.
 
     -3: ErrorInvalidArgument; lights inconsistence of input arguments in
       CSP procedures.  For instance, if there is recursive pointers flag
@@ -193,21 +198,21 @@ Status Message
       corruption in Serialization.  But there is also can be internal
       error in CSP implementation which was lead to this condition.
       
-    -15: kErrorNotCompatibleCommonFlagsSettings; if some of the common
+    -15: ErrorNotCompatibleCommonFlagsSettings; if some of the common
       flags have mutual contradictory status.
       
-    -16: kErrorNotCompatibleDataFlagsSettings; if some of the data flags
+    -16: ErrorNotCompatibleDataFlagsSettings; if some of the data flags
       have mutual contradictory status.
 
     -17: ErrorMoreEntires; implementation specific status, currently may
       be using only in CSP internal procedures.
       
-    -18: kErrorNotInited; party that use CSP is not inited.
+    -18: ErrorNotInited; party that use CSP is not inited.
       
-    -19: kErrorNoSupportedInterfaces; using in Messaging to indicate
+    -19: ErrorNoSupportedInterfaces; using in Messaging to indicate
       that there is no common CSP Interfaces between client and server.
       
-    -20: kErrorNotSupportedInterface; using in Messaging to indicate
+    -20: ErrorNotSupportedInterface; using in Messaging to indicate
       that client struct that should be handled is from Interface that
       is not supported by client or server.
       
@@ -564,7 +569,7 @@ How data is serialized
   
 Primitives Serialization
 
-  When there are no flags affecting behavior:
+  No flags are set
   
     The primitive is copied octet-to-octet according to how it is
     defined in the current execution environment.  So if we return to
@@ -573,30 +578,145 @@ Primitives Serialization
     just as in original struct.  And if Struct E is top-struct, then all
     Data Body will be 8 octet sized.
     
-  Common Flag Bitness is 32:
+    The only exception is special size_t type which will be described in
+    the subsection bellow.
+    
+  Common Flag Bitness is 32
   
     There is one special primitive, that intentionally has different
     length in x64 and x32 environments.  It's named as in C-language
-    size_t.  It has length of machinary word.  Every CSP Interface that
+    size_t.  It has length of address space.  Every CSP Interface that
     wish to Serialize types where size_t-like primitives are present
     (containers for example), must explicitly mark that this type is
-    size_t.  How it mark should be done is implementation defined.
+    size_t.  How this mark should be done is implementation defined.
     
-    According that type have size_t mark and Bitness 32 it should be processed 
-
+    If bitness on Serialization processes differs from current machine,
+    then additional checks of fields of size_t types must be taken.
     
+    If execution environment is x64 and 32 bitness flag is set.
+    
+      On serialization every size_t field must be checked, that it not
+      exceeds 32 bits boundaries and write to Data Body its 4 low
+      octets, otherwise operation must return status ErrorOverflow.
+      
+      Total size of Message must not exceed 2^32 octets.
 
-
-
-Serialization rules
-
-  This section explains how Data Body is serialized.
+    If execution environment is x32 and 32 bitness flag is not set.
+      
+      On serialization of size_t field it should be appended by high 4
+      zero octets field (it should be written as 8 octet integer with
+      value of size_t).  
+      
+      On deserialization implementation must read 8 octets of every 
+      size_t field and check that it not exceeds current implementation
+      boundary, otherwise operation must return status ErrorOverflow.
+      
+  Common Flag Big endian format
   
-  As you already know Data Body is the binary form of serialized struct
-  data.
+    If execution environment endianness setting is differ from this flag
+    value, then bytes of primitive reversation must be done.
+      
+  Data Flag Size of arithmetic types may be not equal
   
-  Every struct in CSP model is a set of ordered fields.
+    Different environments where Serialization is performed may include
+    such where some primitives sizes are not equal between each other.
+    The most frequent example is most of C/C++ fundamental data types
+    where their specific length is not guarantied by the standard.  The
+    main advice to handle such situations - do not use definitions of
+    primitives with such types in your CSP Interfaces.  The only 
+    exception is the size_t type which is handled in a special way (read
+    just above).  But if for any reason you must implement your
+    Interface with violating this recomendation and environments where
+    Serialization is performed are different - use this flag with
+    affected structs Serialization.
+    
+    When this flag is set, and primitive type is potentially has 
+    different lengths (not every types can have different lengths - 
+    double floating point, for example), on serialization it must be
+    prepended with 1 octet that holds this type size in octets.
+    
+Pointers Serialization
+
+  No flags are set
   
+    Serialization is allowed only when pointer is managed (owned) by
+    some object, its (objects) Serialization function is not generic
+    and pointer itself is Serialized either after derefencing or as an
+    array.  There can be not defined by CSP custom rules of nullptrs
+    in managed objects Serialization.
+    
+  Data Flag Allow unmanaged pointers
+  
+    This flag allows generic processing of unmanaged pointers.  So if
+    some struct has pointer type field and has no custom function to
+    handle it, then this pointer will be dereferenced and Serialized
+    with a few special rules.
+    
+      - if pointer has value nullptr it 1 octet with value of 0 is
+        written, and value of 1 is written otherwise;
+        
+      - if pointer points to another pointer and so on, it will be
+        dereferenced until we get type on which "final" pointer pointed;
+        
+      - type on which "final" pointer is pointed is Serialized as usual;
+        for example, if we have pointer to pointer to integer, then at
+        the very end we get an integer that will be processed as
+        primitive which it is.
+        
+    Let's take a look at simple example
+    
+      +---------------------------------------------------------+
+      | Struct F                                                |
+      |   pointer to pointer to integer ppi1                    |
+      |   pointer to pointer to integer ppi2                    |
+      +---------------------------------------------------------+
+      
+                                Scheme 4
+    
+    Concede we have an object that have this values:
+    
+      **ppi1 = 4;
+      *ppi2 = nullptr;
+      
+    For those of yours who do not familiar with C pointers notation,
+    this mean that on the first field integer on which points pointer on
+    which points pointer to pointer to integer have value of 4, and on 
+    the second field pointer to integer on which points pointer to
+    pointer has value of nullptr.
+    
+    Data Body content (bytes order is little endian)
+    
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                                Figure 6
+    
+    Content description:
+    
+      0 octet: 1 - means that pointer to pointer to int (ppi1) is not
+        nullptr.
+      
+      Then ppi1 dereferenced and recursively:
+      
+      1 octet: 1 - means that pointer to int is not nullptr.
+    
+      Again, recursively pointer to int derefernced:
+    
+      2-5 octet: 4 - value of int.
+    
+      6 octet: 1 - means that pointer to pointer to int (ppi2) is not
+        nullptr.
+  
+      Then ppi2 dereferenced and recursively:
+    
+      7 octet: 0 - means that pointer to int is nullptr.
+    
+    
 
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 

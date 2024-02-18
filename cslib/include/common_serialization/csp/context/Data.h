@@ -189,8 +189,10 @@ public:
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
         : Common<Container>(binaryData, traits::getLatestProtocolVersion(), Message::kData, commonFlags)
-        , m_flags(dataFlags), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
-    { }
+        , m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
+    { 
+        setDataFlags(dataFlags);
+    }
 
     /// @brief Constructor
     /// @param common Reference on Common
@@ -203,14 +205,18 @@ public:
         , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Common<Container>(common), m_flags(dataFlags), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
-    { }
+        : Common<Container>(common), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
+    { 
+        setDataFlags(dataFlags);
+    }
     
     /// @brief Copy constructor
     /// @param rhs Another instance
     constexpr Data(Data<Container, serialize, PM, PC, EPP>& rhs) noexcept
         : Common<Container>(rhs)
-        , m_flags(rhs.m_flags), m_epp(rhs.m_epp), m_interfaceVersion(rhs.m_interfaceVersion), m_auxUsingHeapAllocation(rhs.m_auxUsingHeapAllocation)
+        , m_epp(rhs.m_epp), m_interfaceVersion(rhs.m_interfaceVersion), m_auxUsingHeapAllocation(rhs.m_auxUsingHeapAllocation)
+        , m_alignmentMayBeNotEqual(rhs.m_alignmentMayBeNotEqual), m_sizeOfArithmeticTypesMayBeNotEqual(rhs.m_sizeOfArithmeticTypesMayBeNotEqual)
+        , m_allowUnmanagedPointers(rhs.m_allowUnmanagedPointers), m_checkRecursivePointers(rhs.m_checkRecursivePointers)
     { }
 
     /// @brief Constructor
@@ -231,9 +237,11 @@ public:
         , PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
-            : Common<Container>(binaryData, protocolVersion, Message::kData, commonFlags), m_flags(dataFlags)
+            : Common<Container>(binaryData, protocolVersion, Message::kData, commonFlags)
             , m_epp(pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
-    { }
+    { 
+       setDataFlags(dataFlags);
+    }
 
     /// @brief Constructor
     /// @remark availible only on deserialization mode
@@ -254,17 +262,39 @@ public:
         , PM* pPointersMap = nullptr
     ) noexcept
         requires !serialize
-            : Common<Container>(binaryData, protocolVersion, Message::kData, commonFlags), m_flags(dataFlags)
+            : Common<Container>(binaryData, protocolVersion, Message::kData, commonFlags)
             , m_epp(pAddedPointers, pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
-    { }
+    { 
+       setDataFlags(dataFlags);
+    }
 
     /// @brief Get data processing flags
     /// @return Data processing flags
-    [[nodiscard]] constexpr DataFlags getDataFlags() noexcept { return m_flags; }
+    [[nodiscard]] constexpr DataFlags getDataFlags() noexcept 
+    {
+        return DataFlags
+            {
+                  (m_alignmentMayBeNotEqual ? DataFlags::kAlignmentMayBeNotEqual : 0)
+                | (m_sizeOfArithmeticTypesMayBeNotEqual ? DataFlags::kSizeOfArithmeticTypesMayBeNotEqual : 0)
+                | (m_allowUnmanagedPointers ? DataFlags::kAllowUnmanagedPointers : 0)
+                | (m_checkRecursivePointers ? DataFlags::kCheckRecursivePointers : 0)
+            };
+    }
 
     /// @brief Set data processing flags
     /// @param dataFlags Data processing flags
-    constexpr void setDataFlags(DataFlags dataFlags) { m_flags = dataFlags; }
+    constexpr void setDataFlags(DataFlags dataFlags)
+    { 
+        m_alignmentMayBeNotEqual = dataFlags.alignmentMayBeNotEqual();
+        m_sizeOfArithmeticTypesMayBeNotEqual = dataFlags.sizeOfArithmeticTypesMayBeNotEqual();
+        m_allowUnmanagedPointers = dataFlags.allowUnmanagedPointers();
+        m_checkRecursivePointers = dataFlags.checkRecursivePointers();
+    }
+
+    [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
+    [[nodiscard]] constexpr bool sizeOfArithmeticTypesMayBeNotEqual() const noexcept { return m_sizeOfArithmeticTypesMayBeNotEqual; }
+    [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
+    [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
 
     /// @brief Get target interface version
     /// @return Target interface version
@@ -326,10 +356,13 @@ public:
     void resetToDefaultsExceptDataContents() noexcept override
     {
         Common<Container>::resetToDefaultsExceptDataContents();
-        m_flags = DataFlags{};
+        m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
-        m_epp.clear();
+        m_alignmentMayBeNotEqual = false;
+        m_sizeOfArithmeticTypesMayBeNotEqual = false;
+        m_allowUnmanagedPointers = false;
+        m_checkRecursivePointers = false;
     }
 
     /// @brief Reset all fields to their default values and clears binary data container
@@ -338,18 +371,24 @@ public:
     void clear() noexcept override
     {
         Common<Container>::clear();
-        m_flags = DataFlags{};
+        m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
-        m_epp.clear();
+        m_alignmentMayBeNotEqual = false;
+        m_sizeOfArithmeticTypesMayBeNotEqual = false;
+        m_allowUnmanagedPointers = false;
+        m_checkRecursivePointers = false;
     }
 
 private:
-    DataFlags m_flags = DataFlags{};
     EPP  m_epp;
     interface_version_t m_interfaceVersion{ traits::kInterfaceVersionUndefined };
-    bool m_interfaceVersionsNotMatch = false;
-    bool m_auxUsingHeapAllocation = false;
+    bool m_interfaceVersionsNotMatch{ false };
+    bool m_auxUsingHeapAllocation{ false };
+    bool m_alignmentMayBeNotEqual{ false };
+    bool m_sizeOfArithmeticTypesMayBeNotEqual{ false };
+    bool m_allowUnmanagedPointers{ false };
+    bool m_checkRecursivePointers{ false };
 };
 
 template<ISerializationCapableContainer S = BinVector, ISerializationPointersMap PM = std::unordered_map<const void*, size_t>>

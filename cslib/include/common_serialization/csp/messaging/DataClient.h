@@ -443,20 +443,20 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
           binInput
         , m_protocolVersion
         , m_mandatoryCommonFlags | additionalCommonFlags
-        , _interface.mandatoryDataFlags | InputType::getAddtionalMandatoryDataFlags() | additionalDataFlags
+        , InputType::getEffectiveMandatoryDataFlags() | additionalDataFlags
         , forTempUseHeap
         , interfaceVersionToUse
         , nullptr);
 
     std::unordered_map<const void*, uint64_t> pointersMapIn;
-    if (ctxIn.getDataFlags().checkRecursivePointers())
+    if (ctxIn.checkRecursivePointers())
         ctxIn.setPointersMap(&pointersMapIn);
 
     RUN(processing::serializeCommonContext(ctxIn));
     RUN(processing::serializeDataContext<InputType>(ctxIn));
 
     // Flags may be changed after processing::serializeInOutDataContext
-    if (ctxIn.getDataFlags().allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
+    if (ctxIn.allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
         return Status::kErrorInvalidArgument;
 
     RUN(processing::DataProcessor::serializeData(input, ctxIn));
@@ -497,7 +497,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         ctxOutData.setAddedPointers(pUnmanagedPointers);
 
         std::unordered_map<uint64_t, void*> pointersMapOut;
-        if (outDataFlags.checkRecursivePointers())
+        if (ctxOutData.checkRecursivePointers())
             ctxOutData.setPointersMap(&pointersMapOut);
 
         // Here we no need to check minimum value of output version, because if we run DataClient::handleData

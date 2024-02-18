@@ -41,7 +41,7 @@
            SimplyAssignableType<decltype(value)>                                        \
         || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
     {                                                                                   \
-        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
+        Status status = serializeDataSimplyAssignable((value), (ctx));                  \
         if (status == Status::kNoFurtherProcessingRequired)                             \
             return Status::kNoError;                                                    \
         else if (                                                                       \
@@ -94,7 +94,7 @@
            SimplyAssignableType<decltype(value)>                                        \
         || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
     {                                                                                   \
-        Status status = serializeDataSimpleAssignable((value), (ctx));                  \
+        Status status = serializeDataSimplyAssignable((value), (ctx));                  \
         if (status == Status::kNoFurtherProcessingRequired)                             \
             return Status::kNoError;                                                    \
         else if (                                                                       \

@@ -73,7 +73,7 @@ TEST(MessagingTests, InitDataClientT)
     Vector<csp::protocol_version_t> clientProtocolVersions;
     clientProtocolVersions.pushBack(1);
     clientProtocolVersions.pushBack(0); // 0 is not a valid CSP version and we add it here only for logic test
-    csp::context::CommonFlags clientMandatoryCommonFlags{ csp::context::CommonFlags::kPossibleEndianDifference };
+    csp::context::CommonFlags clientMandatoryCommonFlags{ csp::context::CommonFlags::kEndiannessDifference };
     csp::context::CommonFlags clientForbiddenCommonFlags;
     Vector<csp::service_structs::InterfaceVersion<>> clientInterfaces;
     clientInterfaces.pushBack({ interface_for_test::properties.id, interface_for_test::properties.version });
@@ -95,7 +95,7 @@ TEST(MessagingTests, InitDataClientT)
 
     // Valid test 2
     clientMandatoryCommonFlags = csp::context::CommonFlags{};
-    clientForbiddenCommonFlags = csp::context::CommonFlags::kPossibleEndianDifference;
+    clientForbiddenCommonFlags = csp::context::CommonFlags::kEndiannessDifference;
     serverSettingsReturned.clear();
     EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
     EXPECT_EQ(serverSettingsReturned, serverSettings);

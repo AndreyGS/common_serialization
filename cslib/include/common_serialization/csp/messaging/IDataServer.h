@@ -190,7 +190,7 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
             , ctxIn.getInterfaceVersion()
             , nullptr);
 
-        if (ctxOut.getDataFlags().checkRecursivePointers())
+        if (ctxOut.checkRecursivePointers())
             ctxOut.setPointersMap(&pointersMapOut);
 
         return output.serialize(ctxOut);

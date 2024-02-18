@@ -32,15 +32,16 @@ class CommonFlags
 public:
     /// @brief Bitness of system on which serialization is performed
     ///     is 32 bits (default is 64 bits, when not set)
+    /// @remark Currently not implemented
     static constexpr uint32_t kBitness32 = 0x1;
 
     /// @brief Private parts of message has big-endian format
     /// @remark Currently not implemented
     static constexpr uint32_t kBigEndianFormat = 0x2;
 
-    /// @brief Private parts of message aware of endianess difference
+    /// @brief kBigEndianFormat value and environment property are different 
     /// @remark Currently not implemented
-    static constexpr uint32_t kPossibleEndianDifference = 0x4;
+    static constexpr uint32_t kEndiannessDifference = 0x4;
 
     static constexpr uint32_t kValidFlagsMask = 0x7;
 
@@ -53,7 +54,7 @@ public:
 
     [[nodiscard]] constexpr bool bitness32() const noexcept;
     [[nodiscard]] constexpr bool bigEndianFormat() const noexcept;
-    [[nodiscard]] constexpr bool possibleEndianDifference() const noexcept;
+    [[nodiscard]] constexpr bool endiannessDifference() const noexcept;
 
     [[nodiscard]] constexpr CommonFlags operator|(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr CommonFlags operator&(CommonFlags rhs) const noexcept;
@@ -101,9 +102,9 @@ constexpr void CommonFlags::removeFlags(uint32_t value) noexcept
     return static_cast<bool>(m_flags & kBigEndianFormat);
 }
 
-[[nodiscard]] constexpr bool CommonFlags::possibleEndianDifference() const noexcept
+[[nodiscard]] constexpr bool CommonFlags::endiannessDifference() const noexcept
 {
-    return static_cast<bool>(m_flags & kPossibleEndianDifference);
+    return static_cast<bool>(m_flags & kEndiannessDifference);
 }
 
 [[nodiscard]] constexpr CommonFlags CommonFlags::operator|(CommonFlags rhs) const noexcept

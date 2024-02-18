@@ -51,8 +51,8 @@ public:
         , m_protocolVersion(protocolVersion)
         , m_protocolVersionsNotMatch(traits::getLatestProtocolVersion() != protocolVersion)
         , m_messageType(messageType)
-        , m_commonFlags(commonFlags)
     {
+        setCommonFlags(commonFlags);
         if constexpr (ISerializationCapableContainer<Container>)
             m_binaryData.reserve(256);
     }
@@ -61,9 +61,12 @@ public:
         : m_binaryData(rhs.m_binaryData)
         , m_protocolVersion(rhs.m_protocolVersion)
         , m_protocolVersionsNotMatch(rhs.m_protocolVersionsNotMatch)
-        , m_commonFlags(rhs.m_commonFlags)
         , m_messageType(rhs.m_messageType)
-    { }
+        , m_bitness32(rhs.m_bitness32)
+        , m_bigEndianFormat(rhs.m_bigEndianFormat)
+        , m_endianDifference(rhs.m_endianDifference)
+    { 
+    }
 
     /// @brief Get reference to container that holds processed data in binary
     /// @return Container with binary data
@@ -92,11 +95,28 @@ public:
 
     /// @brief Get Common Flags that are using in this context
     /// @return Common Flags
-    [[nodiscard]] constexpr CommonFlags getCommonFlags() const noexcept { return m_commonFlags; }
+    [[nodiscard]] constexpr CommonFlags getCommonFlags() const noexcept
+    { 
+        return CommonFlags
+            { 
+                  (m_bitness32 ? CommonFlags::kBitness32 : 0)
+                | (m_bigEndianFormat ? CommonFlags::kBigEndianFormat : 0)
+                | (m_endianDifference ? CommonFlags::kEndiannessDifference : 0) 
+            };
+    }
 
-    /// @brief Set Common Flags that will be used by this context
+    /// @brief Set Common Flags values that will be used by this context
     /// @param commonFlags Common Flags
-    constexpr void setCommonFlags(CommonFlags commonFlags) noexcept { m_commonFlags = commonFlags; }
+    constexpr void setCommonFlags(CommonFlags commonFlags) noexcept
+    { 
+        m_bitness32 = commonFlags.bitness32();
+        m_bigEndianFormat = commonFlags.bigEndianFormat();
+        m_endianDifference = commonFlags.endiannessDifference();
+    }
+
+    [[nodiscard]] constexpr bool bitness32() const noexcept { return m_bitness32; }
+    [[nodiscard]] constexpr bool bigEndianFormat() const noexcept { return m_bigEndianFormat; }
+    [[nodiscard]] constexpr bool endiannessDifference() const noexcept { return m_endianDifference; }
 
     /// @brief Reset all fields to their default values, but leaves binary data and common flags unchanged
     /// @note Common flags are not resets to false because because they are 
@@ -121,9 +141,11 @@ public:
 private:
     Container& m_binaryData;
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
-    bool m_protocolVersionsNotMatch = false;
-    Message m_messageType = Message::kData;
-    CommonFlags m_commonFlags;
+    bool m_protocolVersionsNotMatch{ false };
+    Message m_messageType{ Message::kData };
+    bool m_bitness32{ false };
+    bool m_bigEndianFormat{ false };
+    bool m_endianDifference{ false };
 };
 
 } // namespace common_serialization::csp::context
