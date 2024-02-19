@@ -124,8 +124,13 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
     
-    if (ctx.checkRecursivePointers() && ctx.getPointersMap() == nullptr)
-        return Status::kErrorInvalidArgument;
+    if (ctx.checkRecursivePointers())
+    {
+        if (ctx.getPointersMap() == nullptr)
+            return Status::kErrorInvalidArgument;
+        else if (!ctx.allowUnmanagedPointers())
+            return Status::kErrorNotCompatibleDataFlagsSettings;
+    }
 
     context::DataFlags dataFlags = ctx.getDataFlags();
 
@@ -204,8 +209,13 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
     if (ctx.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)
         return Status::kErrorInvalidArgument;
     
-    if (ctx.checkRecursivePointers() && ctx.getPointersMap() == nullptr)
-        return Status::kErrorInvalidArgument;
+    if (ctx.checkRecursivePointers())
+    {
+        if (ctx.getPointersMap() == nullptr)
+            return Status::kErrorInvalidArgument;
+        else if (!ctx.allowUnmanagedPointers())
+            return Status::kErrorNotCompatibleDataFlagsSettings;
+    }
 
     return Status::kNoError;
 }

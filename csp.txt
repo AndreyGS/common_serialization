@@ -327,6 +327,11 @@ Data Message
       allows it, additional check must be made and this flag is indicate
       this task.
       
+      Protocol oblige check recursive pointers mode work only with
+      unmanaged pointers.  So if CSP implementation does not expand this
+      edges to managed pointers, allow unmanaged pointers must be set
+      when flag is used.
+   
     Bits 4-31: unused (reserved, must be zero).
 
   Data Body
@@ -461,7 +466,7 @@ Data that can be serialized by CSP
     
     Integers and floating point numbers.
     
-  Pointers (references)
+  Pointers (references on most languages other than C++)
   
     Pointers on primitives, structures, another pointers.
   
@@ -652,7 +657,7 @@ Pointers Serialization
     handle it, then this pointer will be dereferenced and Serialized
     with a few special rules.
     
-      - if pointer has value nullptr it 1 octet with value of 0 is
+      - if pointer has value nullptr, then octet with value of 0 is
         written, and value of 1 is written otherwise;
         
       - if pointer points to another pointer and so on, it will be
@@ -679,9 +684,9 @@ Pointers Serialization
       *ppi2 = nullptr;
       
     For those of yours who do not familiar with C pointers notation,
-    this mean that on the first field integer on which points pointer on
+    this mean that on the first field integer to which points pointer to
     which points pointer to pointer to integer have value of 4, and on 
-    the second field pointer to integer on which points pointer to
+    the second field pointer to integer to which points pointer to
     pointer has value of nullptr.
     
     Data Body content (bytes order is little endian)
@@ -691,7 +696,7 @@ Pointers Serialization
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0|
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0|
+    |0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0|
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
                                 Figure 6
@@ -716,7 +721,13 @@ Pointers Serialization
     
       7 octet: 0 - means that pointer to int is nullptr.
     
+  Data Flag Check recursive pointers
+  
+    Some structs can hold pointers in form of cycle graph.  To prevent
+    infinite cycles of Serialization care of such pointers must be
+    taken.
     
+    In serialization process every time when pointer is serialized
 
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 
