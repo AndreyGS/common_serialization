@@ -433,7 +433,7 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
     if (!p)
     {
         newPointer = false;
-        RUN(output.pushBackArithmeticValue(static_cast<uint64_t>(0)));
+        RUN(output.pushBackArithmeticValue(static_cast<size_t>(0)));
     }
     else
     {
@@ -442,7 +442,7 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
         if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
             newPointer = true;
-            RUN(output.pushBackArithmeticValue(static_cast<uint64_t>(1)));
+            RUN(output.pushBackArithmeticValue(static_cast<size_t>(1)));
             pointersMap[p] = output.size();
         }
         else
@@ -460,7 +460,7 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T&
 {
     D& input = ctx.getBinaryData();
 
-    uint64_t offset = 0;
+    size_t offset = 0;
 
     RUN(input.readArithmeticValue(offset));
 
@@ -469,20 +469,17 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T&
         newPointer = false;
         p = nullptr;
     }
+    else if (offset == 1)
+        newPointer = true;
     else
     {
         PM& pointersMap = *ctx.getPointersMap();
 
-        if (auto it = pointersMap.find(offset); it == pointersMap.end())
-            newPointer = true;
-        else
-        {
-            newPointer = false;
-            if (offset >= input.tell())
-                return Status::kErrorInternal;
+        newPointer = false;
+        if (offset >= input.tell())
+            return Status::kErrorInternal;
 
-            p = reinterpret_cast<T>(pointersMap[offset]);
-        }
+        p = reinterpret_cast<T>(pointersMap[offset]);
     }
 
     return Status::kNoError;

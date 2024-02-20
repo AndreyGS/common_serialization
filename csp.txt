@@ -29,6 +29,8 @@ Common Serialization Protocol (CSP)
   
   Bits ordering of distinct octets in the schemes has big endian
   format.
+  
+  Some examples will include C notation.
 
 Message Format
 
@@ -678,10 +680,10 @@ Pointers Serialization
       
                                 Scheme 4
     
-    Concede we have an object that have this values:
+    Concede we have this values:
     
-      **ppi1 = 4;
-      *ppi2 = nullptr;
+      **f.ppi1 = 4;
+      *f.ppi2 = nullptr;
       
     For those of yours who do not familiar with C pointers notation,
     this mean that on the first field integer to which points pointer to
@@ -694,40 +696,127 @@ Pointers Serialization
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0|
+    |0 0 0 0 0 0 0 1|0 0 0 0 0 0 0 1|0 0 0 0 0 1 0 0|0 0 0 0 0 0 0 0|
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0|
+    |0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 1|0 0 0 0 0 0 0 0|
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
                                 Figure 6
     
     Content description:
     
-      0 octet: 1 - means that pointer to pointer to int (ppi1) is not
-        nullptr.
+      0 octet: 1 - pointer to pointer to int (f.ppi1) is not nullptr.
+        
+      Then f.ppi1 dereferenced and recursively:
       
-      Then ppi1 dereferenced and recursively:
-      
-      1 octet: 1 - means that pointer to int is not nullptr.
+      1 octet: 1 - pointer to int is not nullptr.
     
       Again, recursively pointer to int derefernced:
     
       2-5 octet: 4 - value of int.
     
-      6 octet: 1 - means that pointer to pointer to int (ppi2) is not
-        nullptr.
-  
-      Then ppi2 dereferenced and recursively:
+      6 octet: 1 - pointer to pointer to int (f.ppi2) is not nullptr.
+
+      Then f.ppi2 dereferenced and recursively:
     
-      7 octet: 0 - means that pointer to int is nullptr.
+      7 octet: 0 - pointer to int is nullptr.
     
   Data Flag Check recursive pointers
   
     Some structs can hold pointers in form of cycle graph.  To prevent
     infinite cycles of Serialization care of such pointers must be
-    taken.
+    taken.  We remind you that protocol obliges to check only free
+    pointers when using this flag.  However specific implementation can
+    expand this borders.
     
-    In serialization process every time when pointer is serialized
+    In serialization process every time when affected pointer is
+    serialized it must be prepended with one of the next size_t values:
+    
+      0: if pointer is nullptr
+      
+      1: if this is new pointer
+      
+      offset from begining of Message: if this is pointer that already
+      was serialized
+      
+    Only new pointer is futher serialized.
+    
+    If Allow unmanaged pointers flag is also set (which is true by
+    default), then rules of prepended values applies only related to
+    Check recursive pointers.  That is - free pointers are not prepended
+    with additional octet.
+    
+    Example
+    
+      +---------------------------------------------------------+
+      | Struct G                                                |
+      |   pointer to integer pi1                                |
+      |   pointer to pointer to integer ppi                     |
+      |   pointer to integer pi2                                |
+      |   pointer to integer pi3                                |
+      |                                                         |
+      | integer i                                               |
+      +---------------------------------------------------------+
+      
+                                Scheme 5
+                                
+    Concede we have this values:
+    
+      integer i = 4
+      
+      g.pi1 = &i
+      g.ppi = &g.pi
+      g.pi2 = &i
+      g.pi3 = nullptr
+    
+    Data Body content (bytes order is little endian and system is x32
+    for brevety, because size_t is 4 octets length in such systems)
+    
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |0 0 0 0 0 0 0 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |0 0 0 0 0 1 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |0 0 0 0 0 0 0 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |0 0 1 0 0 1 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     0 0 1 0 0 1 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    
+                                Figure 7
+                                
+    Content description:
+    
+      0-3 octets: 1 - g.pi1 is new pointer (not serialized yet)
+      
+      Dereferencing g.pi1
+      
+      4-7 octets: 4 - the value of i (to which points g.pi)
+    
+      8-11 octets: 1 - g.ppi is new pointer
+      
+      Dereferncing ppi
+    
+      12-15 octets: 36 - offset from Message begin to place where type
+        to which points g.pi1 (integer i) was serialized.
+        32 octets is for Common and Data Contexts, plus 4 to get to 4-7
+        octets.
+      
+      16-19 octets: 36 - offset from Message begin to place where
+        pointer to i already was serialized (when g.pi1 was serialized).
+      
+      20-23 octets: 0 - g.pi3 is nullptr
+      
+    Note must be taken that every size_t field (0-3, 8-23 octets) would
+    be 8 octets long on when Common Flag Bitness is 32 is not set.
+    
+    
+      
 
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 

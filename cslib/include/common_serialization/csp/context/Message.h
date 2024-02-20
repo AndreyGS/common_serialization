@@ -27,7 +27,7 @@ namespace common_serialization::csp::context
 {
 
 /// @brief Message types that are using in CSP
-enum class Message : uint_fast16_t
+enum class Message : uint16_t
 {
     /// @brief Status message
     /// @details
