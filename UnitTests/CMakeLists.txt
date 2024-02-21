@@ -27,7 +27,7 @@ add_executable(serialization_tests
     "Tests/Serialization/ISerializableCheckRecursivePointersTests.cpp"
     "Tests/Serialization/ISerializableInterfaceVersionsNotMatchTests.cpp"
     "Tests/Serialization/ISerializableBasicModeTests.cpp"
-    "Tests/Serialization/ISerializableSizeOfArithmeticTypesMayBeNotEqualTests.cpp"
+    "Tests/Serialization/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
     "Tests/Serialization/ISerializableAllModesTests.cpp"
     "Tests/Serialization/MessagingTests.cpp"
 )

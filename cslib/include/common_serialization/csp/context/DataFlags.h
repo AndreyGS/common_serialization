@@ -36,7 +36,7 @@ public:
     /// @note To speed up serialization structs marked with simply_assignable_tag 
     ///     and arrays of them would be serialized/deserialized by memcpy
     ///     if their target versions are equal to latest, when this flag not set
-    ///     and sizeOfArithmeticTypesMayBeNotEqual also not set.
+    ///     and sizeOfPrimitivesMayBeNotEqual also not set.
     static constexpr uint32_t kAlignmentMayBeNotEqual = 0x1;  
     
     /// @details Indicates that serialization and deserialization processes
@@ -55,7 +55,7 @@ public:
     ///     except you are really know what you are doing.
     ///     Instead in your interface structs you should using types that have
     ///     "semanticaly fixed" size (uin32_t, uin64_t and others).
-    static constexpr uint32_t kSizeOfArithmeticTypesMayBeNotEqual = 0x2;
+    static constexpr uint32_t kSizeOfPrimitivesMayBeNotEqual = 0x2;
     
     /// @details Allow serialization of pointers without help of DataProcessor
     ///     serializeData/deserializeData specialized class functions.
@@ -83,7 +83,7 @@ public:
     constexpr void removeFlags(uint32_t value) noexcept;
 
     [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept;
-    [[nodiscard]] constexpr bool sizeOfArithmeticTypesMayBeNotEqual() const noexcept;
+    [[nodiscard]] constexpr bool sizeOfPrimitivesMayBeNotEqual() const noexcept;
     [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept;
     [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept;
 
@@ -129,9 +129,9 @@ constexpr void DataFlags::removeFlags(uint32_t value) noexcept
     return static_cast<bool>(m_flags & kAlignmentMayBeNotEqual);
 }
 
-[[nodiscard]] constexpr bool DataFlags::sizeOfArithmeticTypesMayBeNotEqual() const noexcept
+[[nodiscard]] constexpr bool DataFlags::sizeOfPrimitivesMayBeNotEqual() const noexcept
 {
-    return static_cast<bool>(m_flags & kSizeOfArithmeticTypesMayBeNotEqual);
+    return static_cast<bool>(m_flags & kSizeOfPrimitivesMayBeNotEqual);
 }
 
 [[nodiscard]] constexpr bool DataFlags::allowUnmanagedPointers() const noexcept

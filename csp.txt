@@ -303,12 +303,12 @@ Data Message
       one can use plain memory copy of entire object, of course this
       struct must be simply assignable (not using pointers etc).
       
-    Bit 1 (0x2): size of arithmetic types may be not equal.
+    Bit 1 (0x2): size of primitives may be not equal.
     
       Indicated that there is possibility of that the compilers that
       built modules that take a part in Serialization may interpret with
-      different size any of the arithmetic (fundamental) fields from
-      which consists data struct.
+      different size any of the primitives fields.  What is primitive in
+      CSP point of view will be discussed later.
       
     Bit 2 (0x4): allow unmanaged pointers.
     
@@ -647,10 +647,35 @@ Pointers Serialization
   No flags are set
   
     Serialization is allowed only when pointer is managed (owned) by
-    some object, its (objects) Serialization function is not generic
-    and pointer itself is Serialized either after derefencing or as an
-    array.  There can be not defined by CSP custom rules of nullptrs
-    in managed objects Serialization.
+    some object and its (objects) Serialization function is not generic.
+    
+    Every managed pointer serialization starts with placing number of
+    elements first (as size_t).  If pointer is nullptr number is equal
+    to 0.  Next pointer data is serialized by the following rules. 
+    
+      If type on which points pointer is an Empty Type, nothing is
+      serialized.
+      
+      If type on which points pointer is primitive
+        or
+      If there is no Size of primitives may be not equal flag set 
+        and
+      this type is not part of CSP Interface or current Serialization
+      process is not in interface versions not match mode (will be
+      defined later)
+        and
+      this type has Simply assignable aligned to one tag or (has Simply
+      assignable tag and there is no alignment may be not equal flag
+      set)
+        then all data on which points pointer is copied as raw array of
+        octets and if there is Size of primitives may be not equal flag
+        set (can be only if pointer points on primitive), then this data
+        is prepended by size of primitive type on which points pointer.
+    
+      All other cases - every element is dereferenced and serialized
+      individulally.
+      
+    
     
   Data Flag Allow unmanaged pointers
   

@@ -215,7 +215,7 @@ public:
     constexpr Data(Data<Container, serialize, PM, PC, EPP>& rhs) noexcept
         : Common<Container>(rhs)
         , m_epp(rhs.m_epp), m_interfaceVersion(rhs.m_interfaceVersion), m_auxUsingHeapAllocation(rhs.m_auxUsingHeapAllocation)
-        , m_alignmentMayBeNotEqual(rhs.m_alignmentMayBeNotEqual), m_sizeOfArithmeticTypesMayBeNotEqual(rhs.m_sizeOfArithmeticTypesMayBeNotEqual)
+        , m_alignmentMayBeNotEqual(rhs.m_alignmentMayBeNotEqual), m_sizeOfPrimitivesMayBeNotEqual(rhs.m_sizeOfPrimitivesMayBeNotEqual)
         , m_allowUnmanagedPointers(rhs.m_allowUnmanagedPointers), m_checkRecursivePointers(rhs.m_checkRecursivePointers)
     { }
 
@@ -275,7 +275,7 @@ public:
         return DataFlags
             {
                   (m_alignmentMayBeNotEqual ? DataFlags::kAlignmentMayBeNotEqual : 0)
-                | (m_sizeOfArithmeticTypesMayBeNotEqual ? DataFlags::kSizeOfArithmeticTypesMayBeNotEqual : 0)
+                | (m_sizeOfPrimitivesMayBeNotEqual ? DataFlags::kSizeOfPrimitivesMayBeNotEqual : 0)
                 | (m_allowUnmanagedPointers ? DataFlags::kAllowUnmanagedPointers : 0)
                 | (m_checkRecursivePointers ? DataFlags::kCheckRecursivePointers : 0)
             };
@@ -286,13 +286,13 @@ public:
     constexpr void setDataFlags(DataFlags dataFlags)
     { 
         m_alignmentMayBeNotEqual = dataFlags.alignmentMayBeNotEqual();
-        m_sizeOfArithmeticTypesMayBeNotEqual = dataFlags.sizeOfArithmeticTypesMayBeNotEqual();
+        m_sizeOfPrimitivesMayBeNotEqual = dataFlags.sizeOfPrimitivesMayBeNotEqual();
         m_allowUnmanagedPointers = dataFlags.allowUnmanagedPointers();
         m_checkRecursivePointers = dataFlags.checkRecursivePointers();
     }
 
     [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
-    [[nodiscard]] constexpr bool sizeOfArithmeticTypesMayBeNotEqual() const noexcept { return m_sizeOfArithmeticTypesMayBeNotEqual; }
+    [[nodiscard]] constexpr bool sizeOfPrimitivesMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
     [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
     [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
 
@@ -360,7 +360,7 @@ public:
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
         m_alignmentMayBeNotEqual = false;
-        m_sizeOfArithmeticTypesMayBeNotEqual = false;
+        m_sizeOfPrimitivesMayBeNotEqual = false;
         m_allowUnmanagedPointers = false;
         m_checkRecursivePointers = false;
     }
@@ -375,7 +375,7 @@ public:
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
         m_alignmentMayBeNotEqual = false;
-        m_sizeOfArithmeticTypesMayBeNotEqual = false;
+        m_sizeOfPrimitivesMayBeNotEqual = false;
         m_allowUnmanagedPointers = false;
         m_checkRecursivePointers = false;
     }
@@ -386,7 +386,7 @@ private:
     bool m_interfaceVersionsNotMatch{ false };
     bool m_auxUsingHeapAllocation{ false };
     bool m_alignmentMayBeNotEqual{ false };
-    bool m_sizeOfArithmeticTypesMayBeNotEqual{ false };
+    bool m_sizeOfPrimitivesMayBeNotEqual{ false };
     bool m_allowUnmanagedPointers{ false };
     bool m_checkRecursivePointers{ false };
 };

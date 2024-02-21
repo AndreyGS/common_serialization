@@ -93,14 +93,15 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
                     , "References and pointers on functions are not allowed to be serialized");
 
     assert(p && n > 0 || n == 0);
+    assert(n <= SIZE_MAX);
 
     if constexpr (EmptyType<T>)
         return Status::kNoError;
 
     if (
-            std::is_arithmetic_v<T>
+           std::is_arithmetic_v<T>
         || std::is_enum_v<T>
-        || !ctx.sizeOfArithmeticTypesMayBeNotEqual() && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
+        || !ctx.sizeOfPrimitivesMayBeNotEqual() && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
             && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual())
         )
     {
@@ -111,7 +112,7 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
 
             
         if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (ctx.sizeOfArithmeticTypesMayBeNotEqual())
+            if (ctx.sizeOfPrimitivesMayBeNotEqual())
             {
                 RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
             }
@@ -156,7 +157,7 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
     {
         if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (ctx.sizeOfArithmeticTypesMayBeNotEqual())
+            if (ctx.sizeOfPrimitivesMayBeNotEqual())
             {
                 RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
             }
@@ -215,7 +216,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
     if (
             std::is_arithmetic_v<T>
         || std::is_enum_v<T>
-        || !ctx.sizeOfArithmeticTypesMayBeNotEqual() && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
+        || !ctx.sizeOfPrimitivesMayBeNotEqual() && (!IsISerializableBased<T> || !ctx.isInterfaceVersionsNotMatch())
             && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual())
         )
     {
@@ -224,10 +225,10 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
 
         D& input = ctx.getBinaryData();
 
-        // In fact ctx.sizeOfArithmeticTypesMayBeNotEqual() can be true only if (std::is_arithmetic_v<T> || std::is_enum_v<T>) is true,
+        // In fact ctx.sizeOfPrimitivesMayBeNotEqual() can be true only if (std::is_arithmetic_v<T> || std::is_enum_v<T>) is true,
         // but if we do not wrap this in constexpr statement, all SimpleAssignable types would be forced to have deserializeData functions
         if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (ctx.sizeOfArithmeticTypesMayBeNotEqual())
+            if (ctx.sizeOfPrimitivesMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
                 RUN(input.readArithmeticValue(originalTypeSize));
@@ -289,7 +290,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
     {
         if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (ctx.sizeOfArithmeticTypesMayBeNotEqual())
+            if (ctx.sizeOfPrimitivesMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
                 RUN(input.readArithmeticValue(originalTypeSize));
@@ -380,7 +381,7 @@ static constexpr Status DataProcessor::serializeDataSimplyAssignable(const T& va
             return Status::kNoError;
 
     if (
-        !ctx.sizeOfArithmeticTypesMayBeNotEqual()
+        !ctx.sizeOfPrimitivesMayBeNotEqual()
         && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual())
     )
     {
@@ -408,7 +409,7 @@ constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D
             return Status::kNoError;
 
     if (
-        !ctx.sizeOfArithmeticTypesMayBeNotEqual()
+        !ctx.sizeOfPrimitivesMayBeNotEqual()
         && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual())
     )
     {

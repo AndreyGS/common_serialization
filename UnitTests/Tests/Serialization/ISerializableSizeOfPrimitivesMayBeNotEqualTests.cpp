@@ -1,5 +1,5 @@
 /**
- * @file ISerializableSizeOfArithmeticTypesMayBeNotEqualTests.cpp
+ * @file ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -40,7 +40,7 @@ void mainTest()
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfArithmeticTypesMayBeNotEqual));
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfPrimitivesMayBeNotEqual));
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
@@ -66,29 +66,29 @@ void mainTest()
     cleanAfterStruct(input);
 }
 
-TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableAlignedToOneSimilarTypeT)
+TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SimpleAssignableAlignedToOneSimilarTypeT)
 {
     mainTest<SimpleAssignableAlignedToOneSimilarType1<>, SimpleAssignableAlignedToOneSimilarType2<>>();
 }
 
-TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimpleAssignableSimilarTypeT)
+TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SimpleAssignableSimilarTypeT)
 {
     mainTest<SimpleAssignableSimilarType1<>, SimpleAssignableSimilarType2<>>();
 }
 
-TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SimilarTypeT)
+TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SimilarTypeT)
 {
     mainTest<SimilarType1<>, SimilarType2<>>();
 }
 
-TEST(ISerializableSizeOfArithmeticTypesMayBeNotEqualTests, SpecialTBasicT)
+TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SpecialTBasicT)
 {
     SpecialProcessingType input;
     fillingStruct(input);
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfArithmeticTypesMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers));
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfPrimitivesMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers));
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 

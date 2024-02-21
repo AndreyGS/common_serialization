@@ -92,7 +92,7 @@ void allFlags(uint32_t targetVersion)
     mainTest<TS, TD>(dataFlags, targetVersion);
     dataFlags.addFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual);
     mainTest<TS, TD>(dataFlags, targetVersion);
-    dataFlags.addFlags(csp::context::DataFlags::kSizeOfArithmeticTypesMayBeNotEqual);
+    dataFlags.addFlags(csp::context::DataFlags::kSizeOfPrimitivesMayBeNotEqual);
     mainTest<TS, TD>(dataFlags, targetVersion);
     dataFlags.removeFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual);
     mainTest<TS, TD>(dataFlags, targetVersion);

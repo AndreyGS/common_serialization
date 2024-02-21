@@ -694,7 +694,7 @@ public:
 template<typename> 
 class SForAllModesTests_Version2;
 
-// DForAllModesTests shall be used in deserialization of SForAllModesTests, but only with sizeOfArithmeticTypesMayBeNotEqual flag set
+// DForAllModesTests shall be used in deserialization of SForAllModesTests, but only with sizeOfPrimitivesMayBeNotEqual flag set
 template<typename T = cs::Dummy>
 class DForAllModesTests : public cs::csp::ISerializable<cs::GetCrtpMainType<DForAllModesTests<>, T >>
 {
