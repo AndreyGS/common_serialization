@@ -37,9 +37,7 @@
             return status;                                                              \
     }                                                                                   \
                                                                                         \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
+    if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
     {                                                                                   \
         Status status = serializeDataSimplyAssignable((value), (ctx));                  \
         if (status == Status::kNoFurtherProcessingRequired)                             \
@@ -70,9 +68,7 @@
             return status;                                                              \
     }                                                                                   \
                                                                                         \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
+    if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
     {                                                                                   \
         Status status = deserializeDataSimpleAssignable((ctx), (value));                \
         if (status == Status::kNoFurtherProcessingRequired)                             \
@@ -90,9 +86,7 @@
 
 #define CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx)                                  \
 {                                                                                       \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
+    if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
     {                                                                                   \
         Status status = serializeDataSimplyAssignable((value), (ctx));                  \
         if (status == Status::kNoFurtherProcessingRequired)                             \
@@ -110,9 +104,7 @@
 
 #define CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value)                                \
 {                                                                                       \
-    if constexpr (                                                                      \
-           SimplyAssignableType<decltype(value)>                                        \
-        || SimplyAssignableAlignedToOneType<decltype(value)>)                           \
+    if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
     {                                                                                   \
         Status status = deserializeDataSimpleAssignable((ctx), (value));                \
         if (status == Status::kNoFurtherProcessingRequired)                             \

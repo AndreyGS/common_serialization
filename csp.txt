@@ -651,7 +651,7 @@ Pointers Serialization
     
     Every managed pointer serialization starts with placing number of
     elements first (as size_t).  If pointer is nullptr number is equal
-    to 0.  Next pointer data is serialized by the following rules. 
+    to 0.  Next, pointer data is serialized by the following rules: 
     
       If type on which points pointer is an Empty Type, nothing is
       serialized.
@@ -675,7 +675,22 @@ Pointers Serialization
       All other cases - every element is dereferenced and serialized
       individulally.
       
+    Example
     
+      +---------------------------------------------------------+
+      | Struct H                                                |
+      |   Empty_type_tag                                        |
+      |                                                         |
+      | Struct J                                                |
+      |   integer i                                             |
+      |                                                         |
+      | Struct K                                                |
+      |   integer j                                             |
+      |                                                         |
+      | Struct L                                                |
+      +---------------------------------------------------------+
+      
+                                Scheme 4
     
   Data Flag Allow unmanaged pointers
   
@@ -695,7 +710,7 @@ Pointers Serialization
         the very end we get an integer that will be processed as
         primitive which it is.
         
-    Let's take a look at simple example
+    Example
     
       +---------------------------------------------------------+
       | Struct F                                                |
@@ -703,7 +718,7 @@ Pointers Serialization
       |   pointer to pointer to integer ppi2                    |
       +---------------------------------------------------------+
       
-                                Scheme 4
+                                Scheme 5
     
     Concede we have this values:
     
@@ -783,7 +798,7 @@ Pointers Serialization
       | integer i                                               |
       +---------------------------------------------------------+
       
-                                Scheme 5
+                                Scheme 6
                                 
     Concede we have this values:
     

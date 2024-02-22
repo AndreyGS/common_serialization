@@ -111,14 +111,28 @@ concept FixSizedEnumType = std::is_enum_v<T> && FixSizedArithmeticType<std::unde
 template<typename T>
 using normalize_t = std::remove_const_t<std::remove_reference_t<T>>;
 
-// can be copied with memcpy (if alignments are the same and arithmetic types in are fixed length)
+// can be copied with memcpy (if alignments are the same and no kSizeOfPrimitivesMayBeNotEqual flag is set)
 template<typename T>
 concept SimplyAssignableType
     =  requires(T t) { typename normalize_t<T>::simply_assignable_tag; };
 
-// can be copied with memcpy (if all arithmetic types in are fixed length)
+// can be copied with memcpy (if no kSizeOfPrimitivesMayBeNotEqual flag is set)
 template<typename T>
 concept SimplyAssignableAlignedToOneType = SimplyAssignableType<T> && alignof(T) == 1;
+
+// all fields must be primitives an with strictly defined sizes regardless of execution environment
+// can be copied with memcpy (if alignments are the same)
+template<typename T>
+concept SimplyAssignableFixedSizeType
+    =  requires(T t) { typename normalize_t<T>::simply_assignable_fixed_size_tag; };
+
+// same as FixedSizeSimplyAssignableType but with alignment to 1 requirement (type must always have same size)
+// can be copied with memcpy
+template<typename T>
+concept AlwaysSimplyAssignable = SimplyAssignableFixedSizeType<T> && alignof(T) == 1;
+
+template<typename T>
+concept AnySimplyAssignable = AlwaysSimplyAssignable<T> || SimplyAssignableFixedSizeType<T> || SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T>;
 
 template<typename T>
 concept EmptyType 
