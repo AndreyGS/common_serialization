@@ -37,7 +37,7 @@ struct EmptyType
 
 struct SimplyAssignableAlignedToOne
 {
-    using simply_assignable_tag = std::true_type;
+    using simply_assignable_aligned_to_one_tag = std::true_type;
 
     uint16_t a{ 0 };
     uint8_t s{ 0 };

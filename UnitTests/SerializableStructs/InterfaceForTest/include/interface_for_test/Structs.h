@@ -49,7 +49,7 @@ class SimplyAssignableAlignedToOne : public cs::csp::ISerializable<cs::GetCrtpMa
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimplyAssignableAlignedToOne<>, T>;
-    using simply_assignable_tag = std::true_type;
+    using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr cs::csp::Id kId{ 0xf2d69dcd, 0x4e24, 0x4c65, 0x9f76, 0xd517be1daccd };
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;
@@ -235,6 +235,102 @@ struct SimplyAssignableDescendant : public SimplyAssignable<cs::GetCrtpMainType<
     friend SimplyAssignableDescendant_Version0;
 };
 
+#pragma pack(push, 1)
+
+template<typename>
+class AlwaysSimplyAssignable_Version0;
+
+template<typename T = cs::Dummy>
+class AlwaysSimplyAssignable : public cs::csp::ISerializable<cs::GetCrtpMainType<AlwaysSimplyAssignable<>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<AlwaysSimplyAssignable<>, T>;
+    using always_simply_assignable_tag = std::true_type;
+
+    static constexpr cs::csp::Id kId{ 0x06c2c5ec, 0x28b1, 0x4b14, 0xa487, 0xc9f6d98fabfd };
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 2;
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 2, 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+
+    AlwaysSimplyAssignable() { }
+    template<typename T2>
+    cs::Status init(const AlwaysSimplyAssignable_Version0<T2>& rhs);
+
+    AlwaysSimplyAssignable& operator=(const AlwaysSimplyAssignable& rhs) noexcept
+    {
+        if (this == &rhs)
+            return *this;
+
+        m_x = rhs.m_x, m_y = rhs.m_y;
+
+        return *this;
+    }
+
+    [[nodiscard]] bool operator==(const AlwaysSimplyAssignable& rhs) const noexcept
+    {
+        return m_x == rhs.m_x && m_y == rhs.m_y;
+    }
+
+    uint8_t m_x{ 0 };
+    uint8_t m_y{ 0 };
+
+    friend cs::csp::processing::DataProcessor;
+    friend AlwaysSimplyAssignable_Version0;
+};
+
+#pragma pack(pop)
+
+template<typename>
+class SimplyAssignableFixedSize_Version1;
+
+template<typename T = cs::Dummy>
+class SimplyAssignableFixedSize : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignableFixedSize<>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<SimplyAssignableFixedSize<>, T>;
+    using simply_assignable_fixed_size_tag = std::true_type;
+
+    static constexpr cs::csp::Id kId{ 0x33347d40, 0x89c5, 0x4eb1, 0xbde2, 0xf398118ebc2f };
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 2;
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 2, 1 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+
+    SimplyAssignableFixedSize() { }
+    template<typename T2>
+    cs::Status init(const SimplyAssignableFixedSize_Version1<T2>& rhs);
+
+    SimplyAssignableFixedSize& operator=(const SimplyAssignableFixedSize& rhs) noexcept
+    {
+        if (this == &rhs)
+            return *this;
+
+        m_x = rhs.m_x;
+        m_asa = rhs.m_asa;
+
+        for (size_t i = 0; i < 3; ++i)
+            m_arrAsa[i] = rhs.m_arrAsa[i];
+
+        return *this;
+    }
+
+    [[nodiscard]] bool operator==(const SimplyAssignableFixedSize& rhs) const noexcept
+    {
+        for (size_t i = 0; i < 3; ++i)
+            if (m_arrAsa[i] != rhs.m_arrAsa[i])
+                return false;
+
+        return m_x == rhs.m_x && m_asa == rhs.m_asa;
+    }
+
+    uint8_t m_x{ 0 };
+    AlwaysSimplyAssignable<> m_asa;
+
+    AlwaysSimplyAssignable<> m_arrAsa[3];
+
+    friend cs::csp::processing::DataProcessor;
+    friend SimplyAssignableFixedSize_Version1;
+};
+
 template<typename T = cs::Dummy>
 class DynamicPolymorphic : public cs::csp::ISerializable<cs::GetCrtpMainType<DynamicPolymorphic<>, T>>
 {
@@ -359,7 +455,7 @@ class SimplyAssignableAlignedToOneSimilarType1 : public cs::csp::ISerializable<c
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimplyAssignableAlignedToOneSimilarType1<>, T>;
-    using simply_assignable_tag = std::true_type;
+    using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr cs::csp::Id kId{ 0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373 }; // id is same as in SimplyAssignableAlignedToOneSimilarType2 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
@@ -384,7 +480,7 @@ class SimplyAssignableAlignedToOneSimilarType2 : public cs::csp::ISerializable<c
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimplyAssignableAlignedToOneSimilarType2<>, T>;
-    using simply_assignable_tag = std::true_type;
+    using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr cs::csp::Id kId{ 0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373 }; // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;

@@ -77,6 +77,29 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable<>& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_x));
+    RUN(deserializeData(ctx, value.m_y));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize<>& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_x));
+    RUN(deserializeData(ctx, value.m_asa));
+    RUN(deserializeData(ctx, value.m_arrAsa));
+
+    return Status::kNoError;
+}
+
+template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::DynamicPolymorphic<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);

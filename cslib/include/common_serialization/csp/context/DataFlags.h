@@ -33,7 +33,7 @@ public:
     /// @details Alignment of structs that take a part in Data Body in 
     ///     modules that serialize and deserialize Message, may be not equal.
     ///     
-    /// @note To speed up serialization structs marked with simply_assignable_tag 
+    /// @note To speed up serialization structs marked with special tags
     ///     and arrays of them would be serialized/deserialized by memcpy
     ///     if their target versions are equal to latest, when this flag not set
     ///     and sizeOfPrimitivesMayBeNotEqual also not set.

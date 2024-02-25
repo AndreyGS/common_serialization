@@ -504,9 +504,24 @@ Structures tags
     
   Simply assignable aligned to one tag
     
-    The same thing as just simply assignable tag, but there is no
+    The same meaning as just simply assignable tag, but there is no
     restrictions of CSP instance alignment settings, because such
     structs must be aligned to 1 on every interface implementation.
+    
+  Simply assignable fixed size tag
+  
+    The same meaning as Simply assignable tag but here is guaranty that
+    all primitive fields of struct have fixed size in any implementation
+    and all composite types of any other fields in struct must also
+    match this restriction.  Struct that have this tag are not
+    restricted be copied be memcpy() even if Data Flag Size of
+    arithmetic types may be not equal is set.
+    
+  Always simply assignable tag
+    
+    The same meaning as Simply assignable fixed size tag but here is
+    alignment to 1 must be implied.  These structs always have the same
+    size and the same fields and sub-fields offsets.
   
   Struct has no tag
   
@@ -658,15 +673,18 @@ Pointers Serialization
       
       If type on which points pointer is primitive
         or
-      If there is no Size of primitives may be not equal flag set 
-        and
       this type is not part of CSP Interface or current Serialization
       process is not in interface versions not match mode (will be
       defined later)
         and
-      this type has Simply assignable aligned to one tag or (has Simply
-      assignable tag and there is no alignment may be not equal flag
-      set)
+      Type   has Always simply assignable tag)
+          or has Simply assignable fixed size tag and there is no
+             alignment may be not equal flag set
+          or has Simply assignable aligned to one tag and there is no
+             size of primitives may be not equal flag set
+          or has Simply assignable tag and there is no alignment may be
+             not equal and primitives may be not equal flags set
+
         then all data on which points pointer is copied as raw array of
         octets and if there is Size of primitives may be not equal flag
         set (can be only if pointer points on primitive), then this data
@@ -683,6 +701,7 @@ Pointers Serialization
       |                                                         |
       | Struct J                                                |
       |   integer i                                             |
+      |   Always simply 
       |                                                         |
       | Struct K                                                |
       |   integer j                                             |

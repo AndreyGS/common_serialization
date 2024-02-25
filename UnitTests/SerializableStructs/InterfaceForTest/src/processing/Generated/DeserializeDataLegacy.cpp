@@ -76,6 +76,29 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable_Version0<>& value)
+{
+    CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_xx));
+    RUN(deserializeData(ctx, value.m_yy));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize_Version1<>& value)
+{
+    CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.m_xx));
+    RUN(deserializeData(ctx, value.m_asa));
+    RUN(deserializeData(ctx, value.m_arrAsa));
+
+    return Status::kNoError;
+}
+
+template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version0<>& value)
 {
     CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);

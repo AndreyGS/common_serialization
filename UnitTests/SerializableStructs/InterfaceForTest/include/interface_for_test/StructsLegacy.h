@@ -33,7 +33,7 @@ class SimplyAssignableAlignedToOne_Version0 : public cs::csp::ISerializable<cs::
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version0<T>, T>;
-    using simply_assignable_tag = std::true_type;
+    using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = SimplyAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
@@ -284,6 +284,69 @@ cs::Status SimplyAssignableDescendant<T1>::init(const SimplyAssignableDescendant
     return cs::Status::kNoError;
 }
 
+#pragma pack(push, 1)
+
+template<typename T = cs::Dummy>
+class AlwaysSimplyAssignable_Version0 : public cs::csp::ISerializable<cs::GetCrtpMainType<AlwaysSimplyAssignable_Version0<T>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<AlwaysSimplyAssignable_Version0<T>, T>;
+    using always_simply_assignable_tag = std::true_type;
+
+    static constexpr cs::csp::Id kId = AlwaysSimplyAssignable<>::getId();
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+
+    AlwaysSimplyAssignable_Version0() { }
+    template<typename T2>
+    cs::Status init(const AlwaysSimplyAssignable<T2>& rhs);
+
+    AlwaysSimplyAssignable_Version0& operator=(const AlwaysSimplyAssignable_Version0& rhs) noexcept
+    {
+        if (this == &rhs)
+            return *this;
+
+        m_xx = rhs.m_xx;
+        m_yy = rhs.m_yy;
+
+        return *this;
+    }
+
+    [[nodiscard]] bool operator==(const AlwaysSimplyAssignable_Version0& rhs) const noexcept
+    {
+        return m_xx == rhs.m_xx && m_yy == rhs.m_yy;
+    }
+
+    uint16_t m_xx{ 0 };
+    uint16_t m_yy{ 0 };
+
+    friend cs::csp::processing::DataProcessor;
+    friend SimplyAssignableAlignedToOne;
+};
+
+#pragma pack(pop)
+
+template<typename T1>
+template<typename T2>
+cs::Status AlwaysSimplyAssignable_Version0<T1>::init(const AlwaysSimplyAssignable<T2>& rhs)
+{
+    m_xx = rhs.m_x + 1;
+    m_yy = rhs.m_y + 2;
+
+    return cs::Status::kNoError;
+}
+
+template<typename T1>
+template<typename T2>
+cs::Status AlwaysSimplyAssignable<T1>::init(const AlwaysSimplyAssignable_Version0<T2>& rhs)
+{
+    m_x = rhs.m_xx - 1;
+    m_y = rhs.m_yy - 2;
+
+    return cs::Status::kNoError;
+}
+
 template<typename>
 class SForAllModesTests_Version2;
 
@@ -332,7 +395,7 @@ class SimplyAssignableAlignedToOne_Version1 : public cs::csp::ISerializable<cs::
 {
 public:
     using instance_type = cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version1<>, T>;
-    using simply_assignable_tag = std::true_type;
+    using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr cs::csp::Id kId = SimplyAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
@@ -387,6 +450,80 @@ cs::Status SimplyAssignableAlignedToOne<T1>::init(const SimplyAssignableAlignedT
 {
     m_x = rhs.m_x;
     m_y = rhs.m_y;
+
+    return cs::Status::kNoError;
+}
+
+template<typename T = cs::Dummy>
+class SimplyAssignableFixedSize_Version1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignableFixedSize_Version1<T>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<SimplyAssignableFixedSize_Version1<T>, T>;
+    using simply_assignable_fixed_size_tag = std::true_type;
+
+    static constexpr cs::csp::Id kId = SimplyAssignableFixedSize<>::getId();
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 1 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+
+    SimplyAssignableFixedSize_Version1() { }
+    template<typename T2>
+    cs::Status init(const SimplyAssignableFixedSize<T2>& rhs);
+
+    SimplyAssignableFixedSize_Version1& operator=(const SimplyAssignableFixedSize_Version1& rhs) noexcept
+    {
+        if (this == &rhs)
+            return *this;
+
+        m_xx = rhs.m_xx;
+        m_asa = rhs.m_asa;
+
+        for (size_t i = 0; i < 3; ++i)
+            m_arrAsa[i] = rhs.m_arrAsa[i];
+
+        return *this;
+    }
+
+    [[nodiscard]] bool operator==(const SimplyAssignableFixedSize_Version1& rhs) const noexcept
+    {
+        for (size_t i = 0; i < 3; ++i)
+            if (m_arrAsa[i] != rhs.m_arrAsa[i])
+                return false;
+
+        return m_xx == rhs.m_xx && m_asa == rhs.m_asa;
+    }
+
+    uint16_t m_xx{ 0 };
+    AlwaysSimplyAssignable_Version0<> m_asa;
+
+    AlwaysSimplyAssignable_Version0<> m_arrAsa[3];
+
+    friend cs::csp::processing::DataProcessor;
+    friend SimplyAssignableFixedSize;
+};
+
+template<typename T1>
+template<typename T2>
+cs::Status SimplyAssignableFixedSize_Version1<T1>::init(const SimplyAssignableFixedSize<T2>& rhs)
+{
+    m_xx = rhs.m_x + 1;
+    m_asa.init(rhs.m_asa);
+
+    for (size_t i = 0; i < 3; ++i)
+        m_arrAsa[i].init(rhs.m_arrAsa[i]);
+
+    return cs::Status::kNoError;
+}
+
+template<typename T1>
+template<typename T2>
+cs::Status SimplyAssignableFixedSize<T1>::init(const SimplyAssignableFixedSize_Version1<T2>& rhs)
+{
+    m_x = rhs.m_xx - 1;
+    m_asa.init(rhs.m_asa);
+
+    for (size_t i = 0; i < 3; ++i)
+        m_arrAsa[i].init(rhs.m_arrAsa[i]);
 
     return cs::Status::kNoError;
 }

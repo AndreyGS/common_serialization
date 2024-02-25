@@ -35,6 +35,10 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
 template<>
 Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value);
 template<>
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::AlwaysSimplyAssignable<>& value);
+template<>
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableFixedSize<>& value);
+template<>
 Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::DForAllModesTests<>& value);
 
 } // namespace common_serialization::csp::processing

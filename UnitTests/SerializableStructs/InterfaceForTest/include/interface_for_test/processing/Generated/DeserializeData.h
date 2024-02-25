@@ -35,6 +35,10 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant<>& value);
 template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize<>& value);
+template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::DynamicPolymorphic<>& value);
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::Diamond<>& value);

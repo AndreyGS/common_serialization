@@ -35,6 +35,10 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignable<>
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableDescendant<>& value, context::SData<>& ctx);
 template<>
+Status DataProcessor::serializeData(const interface_for_test::AlwaysSimplyAssignable<>& value, context::SData<>& ctx);
+template<>
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableFixedSize<>& value, context::SData<>& ctx);
+template<>
 Status DataProcessor::serializeData(const interface_for_test::DynamicPolymorphic<>& value, context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const interface_for_test::Diamond<>& value, context::SData<>& ctx);

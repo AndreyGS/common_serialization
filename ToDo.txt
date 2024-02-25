@@ -1,6 +1,6 @@
 1. Unit-tests on operator== of Vector and Walker.
 2. Add init Vector and Walker by pointer, size, allocatedSize[, offset].
-3. More unit tests on extendedPointerProcessing mode.
+3. More unit tests on extendedPointerProcessing modes.
 4. Add tests on GenericPointerKeeper.
 5. Add structs and tests for AllModesTests without pointers related flags.
 6. Add endianess support (by context flag (need to add CommonFlags bit-field first) and compiling macro).
@@ -20,7 +20,7 @@
 20. Add unit-tests on AllocatorHelpers, especially for constructN and allocateAndConstruct.
 21. Add IDataServer::CheckPoliciesCompliance function realization.
 22. Think about Status of not conformance Data Flags.
-23. Make Common Flags 32 bits and Message Type 16 bits.
-24. Add unit-tests on Vector::insert(const T& value, size_type offset).
-25. Add unit-tests on Vector::erase(size_type offset).
-26. Add Vector::insert overload for rvalues.
+23. Add unit-tests on Vector::insert(const T& value, size_type offset).
+24. Add unit-tests on Vector::erase(size_type offset).
+25. Add Vector::insert overload for rvalues.
+26. Add more tests on structs with simply_assignable_fixed_size_tag and always_simply_assignable_tag.

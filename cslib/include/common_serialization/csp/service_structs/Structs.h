@@ -86,7 +86,7 @@ struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVer
 {
 public:
     using instance_type = GetCrtpMainType<InterfaceVersion<T>, T>;
-    using simply_assignable_tag = std::true_type;
+    using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr Id kId{ 0xdf1cb40c, 0x9a72, 0x426b, 0xa801, 0xb0993fe76a46 };
     static constexpr interface_version_t kInterfaceVersion = 1;

@@ -102,10 +102,11 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
            std::is_arithmetic_v<T>
         || std::is_enum_v<T>
         || (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
-            && (   AlwaysSimplyAssignable<T> 
+            && (   AlwaysSimplyAssignableType<T> 
                 || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-                || (!ctx.sizeOfPrimitivesMayBeNotEqual() && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual())))
-        )
+                || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
+                || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual())
+    )
     {
         const typename S::size_type bytesSize = sizeof(T) * n;
         assert((n == bytesSize / sizeof(T)));
@@ -219,10 +220,11 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
            std::is_arithmetic_v<T>
         || std::is_enum_v<T>
         || (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
-            && (   AlwaysSimplyAssignable<T> 
+            && (   AlwaysSimplyAssignableType<T> 
                 || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-                || (!ctx.sizeOfPrimitivesMayBeNotEqual() && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual())))
-        )
+                || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
+                || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual())
+    )
     {
         const typename D::size_type bytesSize = sizeof(T) * n;
         assert((n == bytesSize / sizeof(T)));
@@ -384,9 +386,10 @@ static constexpr Status DataProcessor::serializeDataSimplyAssignable(const T& va
         if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
             return Status::kNoError;
 
-    if (   AlwaysSimplyAssignable<T>
+    if (   AlwaysSimplyAssignableType<T>
         || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-        || !ctx.sizeOfPrimitivesMayBeNotEqual() && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual())
+        || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
+        || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual()
     )
     {
         // for simple assignable types it is preferable to get a whole struct at a time
@@ -412,9 +415,10 @@ constexpr Status DataProcessor::deserializeDataSimplyAssignable(context::DData<D
         if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
             return Status::kNoError;
 
-    if (   AlwaysSimplyAssignable<T>
+    if (   AlwaysSimplyAssignableType<T>
         || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-        || !ctx.sizeOfPrimitivesMayBeNotEqual() && (SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual())
+        || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
+        || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual()
     )
     {
         typename D::size_type readSize = 0;

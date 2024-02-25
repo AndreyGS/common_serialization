@@ -77,6 +77,30 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableDe
 }
 
 template<>
+Status DataProcessor::serializeData(const interface_for_test::AlwaysSimplyAssignable<>& value, context::SData<>& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_x, ctx));
+    RUN(serializeData(value.m_y, ctx));
+
+    return Status::kNoError;
+}
+
+
+template<>
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableFixedSize<>& value, context::SData<>& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_x, ctx));
+    RUN(serializeData(value.m_asa, ctx));
+    RUN(serializeData(value.m_arrAsa, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
 Status DataProcessor::serializeData(const interface_for_test::DynamicPolymorphic<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);

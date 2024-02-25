@@ -142,6 +142,46 @@ void fillingStruct(interface_for_test::SimplyAssignableDescendant<>& output)
 }
 
 template<>
+void fillingStruct(interface_for_test::AlwaysSimplyAssignable_Version0<>& output)
+{
+    output.m_xx = 211;
+    output.m_yy = 117;
+}
+
+template<>
+void fillingStruct(interface_for_test::AlwaysSimplyAssignable<>& output)
+{
+    output.m_x = 210;
+    output.m_y = 115;
+}
+
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableFixedSize_Version1<>& output)
+{
+    output.m_xx = 179;
+    fillingStruct(output.m_asa);
+    output.m_arrAsa[0].m_xx = 31;
+    output.m_arrAsa[0].m_yy = 134;
+    output.m_arrAsa[1].m_xx = 89;
+    output.m_arrAsa[1].m_yy = 55;
+    output.m_arrAsa[2].m_xx = 160;
+    output.m_arrAsa[2].m_yy = 229;
+}
+
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableFixedSize<>& output)
+{
+    output.m_x = 178;
+    fillingStruct(output.m_asa);
+    output.m_arrAsa[0].m_x = 30;
+    output.m_arrAsa[0].m_y = 132;
+    output.m_arrAsa[1].m_x = 88;
+    output.m_arrAsa[1].m_y = 53;
+    output.m_arrAsa[2].m_x = 159;
+    output.m_arrAsa[2].m_y = 227;
+}
+
+template<>
 void fillingStruct(not_part_of_interfaces::DynamicPolymorphic& output)
 {
     output.m_r = 10;

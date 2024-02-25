@@ -118,7 +118,8 @@ concept SimplyAssignableType
 
 // can be copied with memcpy (if no kSizeOfPrimitivesMayBeNotEqual flag is set)
 template<typename T>
-concept SimplyAssignableAlignedToOneType = SimplyAssignableType<T> && alignof(T) == 1;
+concept SimplyAssignableAlignedToOneType
+    = requires(T t) { typename normalize_t<T>::simply_assignable_aligned_to_one_tag; } && alignof(T) == 1;
 
 // all fields must be primitives an with strictly defined sizes regardless of execution environment
 // can be copied with memcpy (if alignments are the same)
@@ -129,10 +130,11 @@ concept SimplyAssignableFixedSizeType
 // same as FixedSizeSimplyAssignableType but with alignment to 1 requirement (type must always have same size)
 // can be copied with memcpy
 template<typename T>
-concept AlwaysSimplyAssignable = SimplyAssignableFixedSizeType<T> && alignof(T) == 1;
+concept AlwaysSimplyAssignableType
+    =  requires(T t) { typename normalize_t<T>::always_simply_assignable_tag; } && alignof(T) == 1;
 
 template<typename T>
-concept AnySimplyAssignable = AlwaysSimplyAssignable<T> || SimplyAssignableFixedSizeType<T> || SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T>;
+concept AnySimplyAssignable = AlwaysSimplyAssignableType<T> || SimplyAssignableFixedSizeType<T> || SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T>;
 
 template<typename T>
 concept EmptyType 

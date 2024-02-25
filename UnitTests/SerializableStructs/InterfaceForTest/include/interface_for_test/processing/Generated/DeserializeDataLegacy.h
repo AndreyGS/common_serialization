@@ -35,6 +35,10 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant_Version0<>& value);
 template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable_Version0<>& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize_Version1<>& value);
+template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version0<>& value);
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value);

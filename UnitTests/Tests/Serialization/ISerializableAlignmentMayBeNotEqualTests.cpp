@@ -63,6 +63,16 @@ TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableT)
     mainTest<SimplyAssignable<>>();
 }
 
+TEST(ISerializableAlignmentMayBeNotEqualTests, AlwaysSimplyAssignableT)
+{
+    mainTest<AlwaysSimplyAssignable<>>();
+}
+
+TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableFixedSizeT)
+{
+    mainTest<SimplyAssignableFixedSize<>>();
+}
+
 TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableDataSizeT)
 {
     SimplyAssignable input;

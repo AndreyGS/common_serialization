@@ -31,7 +31,7 @@ namespace common_serialization
 /// @brief Struct for holding UUIDv4
 struct Uuid
 {
-    using simply_assignable_tag = std::true_type;
+    using simply_assignable_aligned_to_one_tag = std::true_type;
 
     uint8_t id[16] = { 0 };
 

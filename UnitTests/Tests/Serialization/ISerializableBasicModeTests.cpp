@@ -72,6 +72,16 @@ TEST(ISerializableBasicModeTests, SimplyAssignableDescendantT)
     mainTest<SimplyAssignableDescendant<>>();
 }
 
+TEST(ISerializableBasicModeTests, AlwaysSimplyAssignableT)
+{
+    mainTest<AlwaysSimplyAssignable<>>();
+}
+
+TEST(ISerializableBasicModeTests, SimplyAssignableFixedSizeT)
+{
+    mainTest<SimplyAssignableFixedSize<>>();
+}
+
 TEST(ISerializableBasicModeTests, DynamicPolymorphicT)
 {
     mainTest<DynamicPolymorphic<>>();
