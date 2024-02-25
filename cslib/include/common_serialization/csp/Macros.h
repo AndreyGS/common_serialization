@@ -70,7 +70,7 @@
                                                                                         \
     if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
     {                                                                                   \
-        Status status = deserializeDataSimpleAssignable((ctx), (value));                \
+        Status status = deserializeDataSimplyAssignable((ctx), (value));                \
         if (status == Status::kNoFurtherProcessingRequired)                             \
             return Status::kNoError;                                                    \
         else if (                                                                       \
@@ -106,7 +106,7 @@
 {                                                                                       \
     if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
     {                                                                                   \
-        Status status = deserializeDataSimpleAssignable((ctx), (value));                \
+        Status status = deserializeDataSimplyAssignable((ctx), (value));                \
         if (status == Status::kNoFurtherProcessingRequired)                             \
             return Status::kNoError;                                                    \
         else if (                                                                       \

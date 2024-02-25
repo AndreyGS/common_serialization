@@ -30,7 +30,7 @@ using namespace ft_helpers;
 
 TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
 {
-    SimpleAssignableAlignedToOne input;
+    SimplyAssignableAlignedToOne input;
     fillingStruct(input);
 
     BinWalker bin;
@@ -39,7 +39,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
     csp::context::DData<> ctxOut(bin);
-    SimpleAssignableAlignedToOne output;
+    SimplyAssignableAlignedToOne output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
 
@@ -50,7 +50,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
 
 TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
 {
-    SimpleAssignable input;
+    SimplyAssignable input;
     fillingStruct(input);
 
     BinWalker bin;
@@ -59,7 +59,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
     csp::context::DData<> ctxOut(bin);
-    SimpleAssignable output;
+    SimplyAssignable output;
 
     // test minimum interface version that is higher than in serialized data
     ctxOut.setInterfaceVersion(2);

@@ -27,14 +27,14 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::convertToOldStruct(const interface_for_test::SimpleAssignableAlignedToOne<>& value, uint32_t targetVersion, context::SData<>& ctx)
+Status DataProcessor::convertToOldStruct(const interface_for_test::SimplyAssignableAlignedToOne<>& value, uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getLatestPrivateVersion() != targetVersion);
 
     ToVersionConverter<
-                        interface_for_test::SimpleAssignableAlignedToOne_Version1<>
-                      , interface_for_test::SimpleAssignableAlignedToOne_Version0<>
+                        interface_for_test::SimplyAssignableAlignedToOne_Version1<>
+                      , interface_for_test::SimplyAssignableAlignedToOne_Version0<>
     > convertTo(targetVersion);
 
     RUN(convertTo.convert(value, ctx));
@@ -43,13 +43,13 @@ Status DataProcessor::convertToOldStruct(const interface_for_test::SimpleAssigna
 }
 
 template<>
-Status DataProcessor::convertToOldStruct(const interface_for_test::SimpleAssignable<>& value, uint32_t targetVersion, context::SData<>& ctx)
+Status DataProcessor::convertToOldStruct(const interface_for_test::SimplyAssignable<>& value, uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getLatestPrivateVersion() != targetVersion);
 
     ToVersionConverter<
-                        interface_for_test::SimpleAssignable_Version0<>
+                        interface_for_test::SimplyAssignable_Version0<>
     > convertTo(targetVersion);
 
     RUN(convertTo.convert(value, ctx));
@@ -58,13 +58,13 @@ Status DataProcessor::convertToOldStruct(const interface_for_test::SimpleAssigna
 }
 
 template<>
-Status DataProcessor::convertToOldStruct(const interface_for_test::SimpleAssignableDescendant<>& value, uint32_t targetVersion, context::SData<>& ctx)
+Status DataProcessor::convertToOldStruct(const interface_for_test::SimplyAssignableDescendant<>& value, uint32_t targetVersion, context::SData<>& ctx)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(value.getLatestPrivateVersion() != targetVersion);
 
     ToVersionConverter<
-                        interface_for_test::SimpleAssignableDescendant_Version0<>
+                        interface_for_test::SimplyAssignableDescendant_Version0<>
     > convertTo(targetVersion);
 
     RUN(convertTo.convert(value, ctx));

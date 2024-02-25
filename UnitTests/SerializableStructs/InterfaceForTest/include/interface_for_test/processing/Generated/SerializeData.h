@@ -29,11 +29,11 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOne<>& value, context::SData<>& ctx);
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOne<>& value, context::SData<>& ctx);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignable<>& value, context::SData<>& ctx);
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignable<>& value, context::SData<>& ctx);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableDescendant<>& value, context::SData<>& ctx);
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableDescendant<>& value, context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const interface_for_test::DynamicPolymorphic<>& value, context::SData<>& ctx);
 template<>
@@ -41,13 +41,13 @@ Status DataProcessor::serializeData(const interface_for_test::Diamond<>& value, 
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SpecialProcessingType<>& value, context::SData<>& ctx);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOneSimilarType1<>& value, context::SData<>& ctx);
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value, context::SData<>& ctx);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOneSimilarType2<>& value, context::SData<>& ctx);
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value, context::SData<>& ctx);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableSimilarType1<>& value, context::SData<>& ctx);
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableSimilarType1<>& value, context::SData<>& ctx);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableSimilarType2<>& value, context::SData<>& ctx);
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableSimilarType2<>& value, context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimilarType1<>& value, context::SData<>& ctx);
 template<>

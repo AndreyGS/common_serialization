@@ -66,14 +66,14 @@ void mainTest()
     cleanAfterStruct(input);
 }
 
-TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SimpleAssignableAlignedToOneSimilarTypeT)
+TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SimplyAssignableAlignedToOneSimilarTypeT)
 {
-    mainTest<SimpleAssignableAlignedToOneSimilarType1<>, SimpleAssignableAlignedToOneSimilarType2<>>();
+    mainTest<SimplyAssignableAlignedToOneSimilarType1<>, SimplyAssignableAlignedToOneSimilarType2<>>();
 }
 
-TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SimpleAssignableSimilarTypeT)
+TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SimplyAssignableSimilarTypeT)
 {
-    mainTest<SimpleAssignableSimilarType1<>, SimpleAssignableSimilarType2<>>();
+    mainTest<SimplyAssignableSimilarType1<>, SimplyAssignableSimilarType2<>>();
 }
 
 TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SimilarTypeT)

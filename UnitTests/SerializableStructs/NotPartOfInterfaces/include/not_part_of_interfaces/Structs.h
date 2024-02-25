@@ -35,14 +35,14 @@ struct EmptyType
 
 #pragma pack(push, 1)
 
-struct SimpleAssignableAlignedToOne
+struct SimplyAssignableAlignedToOne
 {
     using simply_assignable_tag = std::true_type;
 
     uint16_t a{ 0 };
     uint8_t s{ 0 };
 
-    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOne& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOne& rhs) const noexcept
     {
         return a == rhs.a && s == rhs.s;
     }
@@ -50,14 +50,14 @@ struct SimpleAssignableAlignedToOne
 
 #pragma pack(pop)
 
-struct SimpleAssignable
+struct SimplyAssignable
 {
     using simply_assignable_tag = std::true_type;
 
     uint16_t q{ 0 };
     uint64_t w{ 0 };
 
-    [[nodiscard]] bool operator==(const SimpleAssignable& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimplyAssignable& rhs) const noexcept
     {
         return q == rhs.q && w == rhs.w;
     }

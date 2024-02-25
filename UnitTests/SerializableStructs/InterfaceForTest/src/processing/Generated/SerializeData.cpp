@@ -29,7 +29,7 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOne<>& value, context::SData<>& ctx)
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOne<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -40,7 +40,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAl
 }
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignable<>& value, context::SData<>& ctx)
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignable<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -65,11 +65,11 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignable<>
 }
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableDescendant<>& value, context::SData<>& ctx)
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableDescendant<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(static_cast<const interface_for_test::SimpleAssignable<>&>(value), ctx));
+    RUN(serializeData(static_cast<const interface_for_test::SimplyAssignable<>&>(value), ctx));
 
     RUN(serializeData(value.m_d, ctx));
 
@@ -118,7 +118,7 @@ Status DataProcessor::serializeData(const interface_for_test::SpecialProcessingT
 }
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOneSimilarType1<>& value, context::SData<>& ctx)
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -129,7 +129,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAl
 }
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAlignedToOneSimilarType2<>& value, context::SData<>& ctx)
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -140,7 +140,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableAl
 }
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableSimilarType1<>& value, context::SData<>& ctx)
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableSimilarType1<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -151,7 +151,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableSi
 }
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimpleAssignableSimilarType2<>& value, context::SData<>& ctx)
+Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableSimilarType2<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 

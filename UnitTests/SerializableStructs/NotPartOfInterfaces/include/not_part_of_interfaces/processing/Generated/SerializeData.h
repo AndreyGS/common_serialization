@@ -29,9 +29,9 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::SimpleAssignableAlignedToOne& value, context::SData<>& ctx);
+Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignableAlignedToOne& value, context::SData<>& ctx);
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::SimpleAssignable& value, context::SData<>& ctx);
+Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignable& value, context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const not_part_of_interfaces::DynamicPolymorphic& value, context::SData<>& ctx);
 template<>

@@ -29,15 +29,15 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableAlignedToOne_Version0<>& value);
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value);
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignable_Version0<>& value);
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignable_Version0<>& value);
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableDescendant_Version0<>& value);
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant_Version0<>& value);
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version0<>& value);
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableAlignedToOne_Version1<>& value);
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value);
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version2<>& value);
 

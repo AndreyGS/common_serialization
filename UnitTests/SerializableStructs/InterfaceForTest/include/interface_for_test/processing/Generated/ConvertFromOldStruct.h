@@ -29,11 +29,11 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::SimpleAssignableAlignedToOne<>& value);
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::SimplyAssignableAlignedToOne<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimpleAssignable<>& value);
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignable<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimpleAssignableDescendant<>& value);
+Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value);
 template<>
 Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::DForAllModesTests<>& value);
 

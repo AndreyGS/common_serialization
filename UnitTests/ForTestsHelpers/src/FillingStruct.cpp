@@ -29,35 +29,35 @@ namespace ft_helpers
 using namespace common_serialization;
 
 template<>
-void fillingStruct(not_part_of_interfaces::SimpleAssignableAlignedToOne& output)
+void fillingStruct(not_part_of_interfaces::SimplyAssignableAlignedToOne& output)
 {
     output.a = 1;
     output.s = 2;
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableAlignedToOne_Version0<>& output)
+void fillingStruct(interface_for_test::SimplyAssignableAlignedToOne_Version0<>& output)
 {
     output.m_ti.x = 3;
     output.m_ti.y = 4;
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableAlignedToOne<>& output)
+void fillingStruct(interface_for_test::SimplyAssignableAlignedToOne<>& output)
 {
     output.m_x = 3;
     output.m_y = 4;
 }
 
 template<>
-void fillingStruct(not_part_of_interfaces::SimpleAssignable& output)
+void fillingStruct(not_part_of_interfaces::SimplyAssignable& output)
 {
     output.q = 5;
     output.w = 6;
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignable_Version0<>& output)
+void fillingStruct(interface_for_test::SimplyAssignable_Version0<>& output)
 {
     output.m_i = 7;
     output.m_j = 8;
@@ -92,7 +92,7 @@ void fillingStruct(interface_for_test::SimpleAssignable_Version0<>& output)
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignable<>& output)
+void fillingStruct(interface_for_test::SimplyAssignable<>& output)
 {
     output.m_i = 7;
     output.m_j = 8;
@@ -128,16 +128,16 @@ void fillingStruct(interface_for_test::SimpleAssignable<>& output)
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableDescendant_Version0<>& output)
+void fillingStruct(interface_for_test::SimplyAssignableDescendant_Version0<>& output)
 {
-    fillingStruct<interface_for_test::SimpleAssignable_Version0<>>(output);
+    fillingStruct<interface_for_test::SimplyAssignable_Version0<>>(output);
     output.m_d = output.m_i + 2;
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableDescendant<>& output)
+void fillingStruct(interface_for_test::SimplyAssignableDescendant<>& output)
 {
-    fillingStruct<interface_for_test::SimpleAssignable<>>(output);
+    fillingStruct<interface_for_test::SimplyAssignable<>>(output);
     output.m_d = output.m_i + 2;
 }
 
@@ -218,28 +218,28 @@ void fillingStruct(interface_for_test::SpecialProcessingType<>& output)
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableAlignedToOneSimilarType1<>& output)
+void fillingStruct(interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& output)
 {
     output.m_j = 99;
     output.m_k = 15456 | (12345 << 16);
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableAlignedToOneSimilarType2<>& output)
+void fillingStruct(interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& output)
 {
     output.m_j = 99;
     output.m_k = 15456;
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableSimilarType1<>& output)
+void fillingStruct(interface_for_test::SimplyAssignableSimilarType1<>& output)
 {
     output.m_j = 101;
     output.m_k = 8374 | (12345 << 16);
 }
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableSimilarType2<>& output)
+void fillingStruct(interface_for_test::SimplyAssignableSimilarType2<>& output)
 {
     output.m_j = 101;
     output.m_k = 8374;
@@ -340,7 +340,7 @@ template<>
 void fillingStruct(interface_for_test::SForAllModesTests_Version2<>& output)
 {
     fillingStruct(output.m_saS);
-    output.m_i = output.m_saS.m_i + 2;      // == SimpleAssignableDescendant::m_d;
+    output.m_i = output.m_saS.m_i + 2;      // == SimplyAssignableDescendant::m_d;
     output.m_saS.m_i -= 1;
 
     fillingStruct(output.m_diamond);
@@ -355,7 +355,7 @@ template<>
 void fillingStruct(interface_for_test::DForAllModesTests<>& output)
 {
     fillingStruct(output.m_saDs);
-    output.m_saDs.m_i -= 2;                 // == SimpleAssignable::m_i - 2;
+    output.m_saDs.m_i -= 2;                 // == SimplyAssignable::m_i - 2;
 
     fillingStruct(output.m_diamond);
     fillingStruct(output.m_sptCs);

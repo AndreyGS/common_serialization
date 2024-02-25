@@ -63,8 +63,8 @@ TEST(MessagingTests, InitDataClientT)
     serverSettings.interfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
     csp::messaging::CommonServer commonServer(serverSettings);
 
-    interface_for_test::SimpleAssignableAlignedToOne<> dummyInput;
-    interface_for_test::SimpleAssignableDescendant<> dummyOutput;
+    interface_for_test::SimplyAssignableAlignedToOne<> dummyInput;
+    interface_for_test::SimplyAssignableDescendant<> dummyOutput;
 
     csp::messaging::DataClient dataClient(new SimpleSpeaker{ commonServer });
 
@@ -184,13 +184,13 @@ TEST(MessagingTests, DataMessageHandling)
 
     EXPECT_EQ(dataClient.init(csp::traits::getLatestProtocolVersion(), csp::context::CommonFlags{}, csp::context::CommonFlags{}, clientInterfaces), Status::kNoError);
 
-    interface_for_test::SimpleAssignableAlignedToOne<> input;
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
     fillingStruct(input);
-    interface_for_test::SimpleAssignableDescendant<> output;
+    interface_for_test::SimplyAssignableDescendant<> output;
 
     EXPECT_EQ(dataClient.handleData(input, output), Status::kNoError);
 
-    interface_for_test::SimpleAssignableDescendant<> outputReference;
+    interface_for_test::SimplyAssignableDescendant<> outputReference;
     fillingStruct(outputReference);
 
     EXPECT_EQ(output, outputReference);
@@ -201,7 +201,7 @@ TEST(MessagingTests, DataMessageHandling)
 
     EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[0].id), 1);
 
-    interface_for_test::SimpleAssignableDescendant<> output2;
+    interface_for_test::SimplyAssignableDescendant<> output2;
 
     EXPECT_EQ(dataClient.handleData(input, output2), Status::kNoError);
     EXPECT_EQ(output2, outputReference);
@@ -212,7 +212,7 @@ TEST(MessagingTests, DataMessageHandling)
 
     EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[0].id), 0);
 
-    interface_for_test::SimpleAssignableDescendant<> output3;
+    interface_for_test::SimplyAssignableDescendant<> output3;
 
     EXPECT_EQ(dataClient.handleData(input, output3), Status::kErrorNotSupportedInterfaceVersion);
     EXPECT_EQ(output3.m_d, 0); // struct wasn't changed

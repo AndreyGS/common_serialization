@@ -53,19 +53,19 @@ void mainTest()
     cleanAfterStruct(input);
 }
 
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableAlignedToOneT)
+TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableAlignedToOneT)
 {
-    mainTest<SimpleAssignableAlignedToOne<>>();
+    mainTest<SimplyAssignableAlignedToOne<>>();
 }
 
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableT)
+TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableT)
 {
-    mainTest<SimpleAssignable<>>();
+    mainTest<SimplyAssignable<>>();
 }
 
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimpleAssignableDataSizeT)
+TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableDataSizeT)
 {
-    SimpleAssignable input;
+    SimplyAssignable input;
     fillingStruct(input);
 
     BinWalker bin;

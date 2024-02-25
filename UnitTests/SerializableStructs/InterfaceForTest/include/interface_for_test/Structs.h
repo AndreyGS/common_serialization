@@ -42,13 +42,13 @@ public:
 #pragma pack(push, 1)
 
 template<typename>
-class SimpleAssignableAlignedToOne_Version1;
+class SimplyAssignableAlignedToOne_Version1;
 
 template<typename T = cs::Dummy>
-class SimpleAssignableAlignedToOne : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOne<>, T>>
+class SimplyAssignableAlignedToOne : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignableAlignedToOne<>, T>>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOne<>, T>;
+    using instance_type = cs::GetCrtpMainType<SimplyAssignableAlignedToOne<>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId{ 0xf2d69dcd, 0x4e24, 0x4c65, 0x9f76, 0xd517be1daccd };
@@ -56,11 +56,11 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 3, 1, 0 };
     static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
-    SimpleAssignableAlignedToOne() { }
+    SimplyAssignableAlignedToOne() { }
     template<typename T2>
-    cs::Status init(const SimpleAssignableAlignedToOne_Version1<T2>& rhs);
+    cs::Status init(const SimplyAssignableAlignedToOne_Version1<T2>& rhs);
 
-    SimpleAssignableAlignedToOne& operator=(const SimpleAssignableAlignedToOne& rhs) noexcept
+    SimplyAssignableAlignedToOne& operator=(const SimplyAssignableAlignedToOne& rhs) noexcept
     {
         if (this == &rhs)
             return *this;
@@ -70,7 +70,7 @@ public:
         return *this;
     }
 
-    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOne& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOne& rhs) const noexcept
     {
         return m_x == rhs.m_x && m_y == rhs.m_y;
     }
@@ -79,19 +79,19 @@ public:
     uint8_t m_y{ 0 };
 
     friend cs::csp::processing::DataProcessor;
-    friend SimpleAssignableAlignedToOne_Version1;
+    friend SimplyAssignableAlignedToOne_Version1;
 };
 
 #pragma pack(pop)
 
 template<typename>
-class SimpleAssignable_Version0;
+class SimplyAssignable_Version0;
 
 template<typename T = cs::Dummy>
-class SimpleAssignable : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignable<>, T>>
+class SimplyAssignable : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignable<>, T>>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignable<>, T>;
+    using instance_type = cs::GetCrtpMainType<SimplyAssignable<>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId{ 0x81582aae, 0x4a33, 0x4181, 0x8dda, 0xed092c23bccc };
@@ -100,9 +100,9 @@ public:
     static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
     template<typename T2>
-    cs::Status init(const SimpleAssignable_Version0<T2>& rhs);
+    cs::Status init(const SimplyAssignable_Version0<T2>& rhs);
 
-    SimpleAssignable& operator=(const SimpleAssignable<>& rhs) noexcept
+    SimplyAssignable& operator=(const SimplyAssignable<>& rhs) noexcept
     {
         if (this == &rhs)
             return *this;
@@ -134,7 +134,7 @@ public:
         return *this;
     }
 
-    [[nodiscard]] bool operator==(const SimpleAssignable& rhs)                  const noexcept
+    [[nodiscard]] bool operator==(const SimplyAssignable& rhs)                  const noexcept
     {
         return 
                m_i == rhs.m_i
@@ -165,30 +165,30 @@ public:
     uint16_t m_j{ 0 };
     EmptyType<> m_et;
     not_part_of_interfaces::EmptyType m_et2;
-    SimpleAssignableAlignedToOne<> m_saaToS;
-    not_part_of_interfaces::SimpleAssignableAlignedToOne m_saaToNS;
-    not_part_of_interfaces::SimpleAssignable m_saNS;
+    SimplyAssignableAlignedToOne<> m_saaToS;
+    not_part_of_interfaces::SimplyAssignableAlignedToOne m_saaToNS;
+    not_part_of_interfaces::SimplyAssignable m_saNS;
 
     uint32_t m_arrI32[3]{ 0 };
     EmptyType<> m_arrEtS[3]{};
     not_part_of_interfaces::EmptyType m_arrEtNS[3]{};
-    SimpleAssignableAlignedToOne<> m_arrSaaTos[3]{};
-    not_part_of_interfaces::SimpleAssignableAlignedToOne m_arrSaaToNS[3]{};
-    not_part_of_interfaces::SimpleAssignable m_arrSaNS[3]{};
+    SimplyAssignableAlignedToOne<> m_arrSaaTos[3]{};
+    not_part_of_interfaces::SimplyAssignableAlignedToOne m_arrSaaToNS[3]{};
+    not_part_of_interfaces::SimplyAssignable m_arrSaNS[3]{};
 
     uint64_t m_vx{ 0 };
 
     friend cs::csp::processing::DataProcessor;
-    friend SimpleAssignable_Version0;
+    friend SimplyAssignable_Version0;
 };
 
 template<typename>
-class SimpleAssignableDescendant_Version0;
+class SimplyAssignableDescendant_Version0;
 
 template<typename T = cs::Dummy>
-struct SimpleAssignableDescendant : public SimpleAssignable<cs::GetCrtpMainType<SimpleAssignableDescendant<>, T>>
+struct SimplyAssignableDescendant : public SimplyAssignable<cs::GetCrtpMainType<SimplyAssignableDescendant<>, T>>
 {
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableDescendant<>, T>;
+    using instance_type = cs::GetCrtpMainType<SimplyAssignableDescendant<>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId{ 0x81d67474, 0xce11, 0x465e, 0x8558, 0xe10e84939b84 };
@@ -199,40 +199,40 @@ struct SimpleAssignableDescendant : public SimpleAssignable<cs::GetCrtpMainType<
     uint32_t m_d{ 0 };
 
     template<typename T2>
-    cs::Status init(const SimpleAssignableDescendant_Version0<T2>& rhs);
+    cs::Status init(const SimplyAssignableDescendant_Version0<T2>& rhs);
 
-    SimpleAssignableDescendant& operator=(const SimpleAssignableDescendant<>& rhs) noexcept
+    SimplyAssignableDescendant& operator=(const SimplyAssignableDescendant<>& rhs) noexcept
     {
         if (this == &rhs)
             return *this;
 
-        SimpleAssignable<>::operator=(rhs);
+        SimplyAssignable<>::operator=(rhs);
         m_d = rhs.m_d;
 
         return *this;
     }
     
-    [[nodiscard]] operator SimpleAssignable<>& () noexcept
+    [[nodiscard]] operator SimplyAssignable<>& () noexcept
     {
-        return  *static_cast<SimpleAssignable<>*>(
+        return  *static_cast<SimplyAssignable<>*>(
                     static_cast<void*>(
-                        static_cast<SimpleAssignable<instance_type>*>(this)));
+                        static_cast<SimplyAssignable<instance_type>*>(this)));
     }
 
-    [[nodiscard]] operator const SimpleAssignable<>& () const noexcept
+    [[nodiscard]] operator const SimplyAssignable<>& () const noexcept
     {
-        return  *static_cast<const SimpleAssignable<>*>(
+        return  *static_cast<const SimplyAssignable<>*>(
                     static_cast<const void*>(
-                        static_cast<const SimpleAssignable<instance_type>*>(this)));
+                        static_cast<const SimplyAssignable<instance_type>*>(this)));
     }
     
-    [[nodiscard]] bool operator==(const SimpleAssignableDescendant& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimplyAssignableDescendant& rhs) const noexcept
     {
-        return m_d == rhs.m_d && SimpleAssignable<instance_type>::operator==(rhs);
+        return m_d == rhs.m_d && SimplyAssignable<instance_type>::operator==(rhs);
     }
 
     friend cs::csp::processing::DataProcessor;
-    friend SimpleAssignableDescendant_Version0;
+    friend SimplyAssignableDescendant_Version0;
 };
 
 template<typename T = cs::Dummy>
@@ -339,8 +339,8 @@ public:
     }
 
     cs::Vector<Diamond<>> m_vec;
-    not_part_of_interfaces::SimpleAssignableAlignedToOne m_saaToNS;
-    not_part_of_interfaces::SimpleAssignable m_saNS;
+    not_part_of_interfaces::SimplyAssignableAlignedToOne m_saaToNS;
+    not_part_of_interfaces::SimplyAssignable m_saNS;
     cs::Vector<Diamond<>>* m_pVec{ nullptr };
     const int* m_pInt{ nullptr };
     const int** m_ppInt{ nullptr };
@@ -352,26 +352,26 @@ public:
 #pragma pack(push, 1)
 
 template<typename>
-class SimpleAssignableAlignedToOneSimilarType2;
+class SimplyAssignableAlignedToOneSimilarType2;
 
 template<typename T = cs::Dummy>
-class SimpleAssignableAlignedToOneSimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1<>, T >>
+class SimplyAssignableAlignedToOneSimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignableAlignedToOneSimilarType1<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType1<>, T>;
+    using instance_type = cs::GetCrtpMainType<SimplyAssignableAlignedToOneSimilarType1<>, T>;
     using simply_assignable_tag = std::true_type;
 
-    static constexpr cs::csp::Id kId{ 0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373 }; // id is same as in SimpleAssignableAlignedToOneSimilarType2 (need for tests)
+    static constexpr cs::csp::Id kId{ 0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373 }; // id is same as in SimplyAssignableAlignedToOneSimilarType2 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSimilarType1& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOneSimilarType1& rhs) const noexcept
     {
         return m_j == rhs.m_j && m_k == (rhs.m_k & 0xffff);
     }
 
-    SimpleAssignableAlignedToOneSimilarType1<T>& operator=(const SimpleAssignableAlignedToOneSimilarType2<T>& rhs) noexcept;
+    SimplyAssignableAlignedToOneSimilarType1<T>& operator=(const SimplyAssignableAlignedToOneSimilarType2<T>& rhs) noexcept;
 
     char m_j{ 0 };
     int m_k{ 0 };
@@ -380,10 +380,10 @@ public:
 };
 
 template<typename T = cs::Dummy>
-class SimpleAssignableAlignedToOneSimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2<>, T >>
+class SimplyAssignableAlignedToOneSimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignableAlignedToOneSimilarType2<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableAlignedToOneSimilarType2<>, T>;
+    using instance_type = cs::GetCrtpMainType<SimplyAssignableAlignedToOneSimilarType2<>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr cs::csp::Id kId{ 0xc009d078, 0xbd81, 0x41ae, 0xb303, 0xb6a361922373 }; // hash is same as in AlignedToOneSimilarType1Serializable (need for tests)
@@ -391,12 +391,12 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimpleAssignableAlignedToOneSimilarType2& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOneSimilarType2& rhs) const noexcept
     {
         return m_j == rhs.m_j && m_k == rhs.m_k;
     }
 
-    SimpleAssignableAlignedToOneSimilarType2<T>& operator=(const SimpleAssignableAlignedToOneSimilarType1<T>& rhs) noexcept
+    SimplyAssignableAlignedToOneSimilarType2<T>& operator=(const SimplyAssignableAlignedToOneSimilarType1<T>& rhs) noexcept
     {
         m_j = rhs.m_j;
         m_k = static_cast<short>(rhs.m_k);
@@ -411,7 +411,7 @@ public:
 };
 
 template<typename T>
-SimpleAssignableAlignedToOneSimilarType1<T>& SimpleAssignableAlignedToOneSimilarType1<T>::operator=(const SimpleAssignableAlignedToOneSimilarType2<T>& rhs) noexcept
+SimplyAssignableAlignedToOneSimilarType1<T>& SimplyAssignableAlignedToOneSimilarType1<T>::operator=(const SimplyAssignableAlignedToOneSimilarType2<T>& rhs) noexcept
 {
     m_j = rhs.m_j;
     m_k = static_cast<int>(rhs.m_k);
@@ -422,26 +422,26 @@ SimpleAssignableAlignedToOneSimilarType1<T>& SimpleAssignableAlignedToOneSimilar
 #pragma pack(pop)
 
 template<typename>
-class SimpleAssignableSimilarType2;
+class SimplyAssignableSimilarType2;
 
 template<typename T = cs::Dummy>
-class SimpleAssignableSimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableSimilarType1<>, T >>
+class SimplyAssignableSimilarType1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignableSimilarType1<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableSimilarType1<>, T>;
+    using instance_type = cs::GetCrtpMainType<SimplyAssignableSimilarType1<>, T>;
     using simply_assignable_tag = std::true_type;
 
-    static constexpr cs::csp::Id kId{ 0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583 }; // id is same as in SimpleAssignableSimilarType2 (need for tests)
+    static constexpr cs::csp::Id kId{ 0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583 }; // id is same as in SimplyAssignableSimilarType2 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimpleAssignableSimilarType1& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimplyAssignableSimilarType1& rhs) const noexcept
     {
         return m_j == rhs.m_j && m_k == (rhs.m_k & 0xffff);
     }
 
-    SimpleAssignableSimilarType1<T>& operator=(const SimpleAssignableSimilarType2<T>& rhs) noexcept;
+    SimplyAssignableSimilarType1<T>& operator=(const SimplyAssignableSimilarType2<T>& rhs) noexcept;
 
     char m_j{ 0 };
     int m_k{ 0 };
@@ -450,23 +450,23 @@ public:
 };
 
 template<typename T = cs::Dummy>
-class SimpleAssignableSimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleAssignableSimilarType2<>, T >>
+class SimplyAssignableSimilarType2 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignableSimilarType2<>, T >>
 {
 public:
-    using instance_type = cs::GetCrtpMainType<SimpleAssignableSimilarType2<>, T>;
+    using instance_type = cs::GetCrtpMainType<SimplyAssignableSimilarType2<>, T>;
     using simply_assignable_tag = std::true_type;
 
-    static constexpr cs::csp::Id kId{ 0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583 }; // id is same as in SimpleAssignableSimilarType1 (need for tests)
+    static constexpr cs::csp::Id kId{ 0xab625590, 0xcd29, 0x43d0, 0xadfd, 0xc59273696583 }; // id is same as in SimplyAssignableSimilarType1 (need for tests)
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimpleAssignableSimilarType2& rhs) const noexcept
+    [[nodiscard]] bool operator==(const SimplyAssignableSimilarType2& rhs) const noexcept
     {
         return m_j == rhs.m_j && m_k == rhs.m_k;
     }
 
-    SimpleAssignableSimilarType2<T>& operator=(const SimpleAssignableSimilarType1<T>& rhs) noexcept
+    SimplyAssignableSimilarType2<T>& operator=(const SimplyAssignableSimilarType1<T>& rhs) noexcept
     {
         m_j = rhs.m_j;
         m_k = static_cast<short>(rhs.m_k);
@@ -481,7 +481,7 @@ public:
 };
 
 template<typename T>
-SimpleAssignableSimilarType1<T>& SimpleAssignableSimilarType1<T>::operator=(const SimpleAssignableSimilarType2<T>& rhs) noexcept
+SimplyAssignableSimilarType1<T>& SimplyAssignableSimilarType1<T>::operator=(const SimplyAssignableSimilarType2<T>& rhs) noexcept
 {
     m_j = rhs.m_j;
     m_k = static_cast<int>(rhs.m_k);
@@ -526,8 +526,8 @@ public:
     char m_j{ 0 };
     int m_k{ 0 };
     uint8_t m_arrL[5]{ 0 };
-    SimpleAssignableSimilarType1<> m_sasTs[3];
-    SimpleAssignableAlignedToOneSimilarType1<> m_saaToSts[3];
+    SimplyAssignableSimilarType1<> m_sasTs[3];
+    SimplyAssignableAlignedToOneSimilarType1<> m_saaToSts[3];
 
     friend cs::csp::processing::DataProcessor;
 };
@@ -580,8 +580,8 @@ public:
     char m_j{ 0 };
     short m_k{ 0 };
     uint32_t m_arrL[5]{ 0 };
-    SimpleAssignableSimilarType2<> m_sasTs[3];
-    SimpleAssignableAlignedToOneSimilarType2<> m_saaToSts[3];
+    SimplyAssignableSimilarType2<> m_sasTs[3];
+    SimplyAssignableAlignedToOneSimilarType2<> m_saaToSts[3];
 
     friend cs::csp::processing::DataProcessor;
 };
@@ -722,11 +722,11 @@ public:
 
     }
 
-    SimpleAssignableDescendant<> m_saDs;
+    SimplyAssignableDescendant<> m_saDs;
     Diamond<> m_diamond;
     SpecialProcessingType<> m_sptCs;
-    SimpleAssignableAlignedToOneSimilarType2<> m_saaToStS;
-    SimpleAssignableSimilarType2<> m_saStS;
+    SimplyAssignableAlignedToOneSimilarType2<> m_saaToStS;
+    SimplyAssignableSimilarType2<> m_saStS;
     SimilarType2<> m_stS;
     ManyPointersType<> m_mpt;
 

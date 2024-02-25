@@ -27,11 +27,11 @@ namespace ft_helpers
 {
 
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableAlignedToOne<>& output);
+void fillingStruct(interface_for_test::SimplyAssignableAlignedToOne<>& output);
 template<>
-void fillingStruct(not_part_of_interfaces::SimpleAssignable& output);
+void fillingStruct(not_part_of_interfaces::SimplyAssignable& output);
 template<>
-void fillingStruct(interface_for_test::SimpleAssignableDescendant<>& output);
+void fillingStruct(interface_for_test::SimplyAssignableDescendant<>& output);
 template<>
 void fillingStruct(interface_for_test::DynamicPolymorphic<>& output);
 template<>
@@ -62,21 +62,21 @@ cs::Status defaultHandle(const InputStruct& input, OutputStruct& output)
 }
 
 class FirstDataServer 
-    : cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignableAlignedToOne<>, interface_for_test::SimpleAssignableDescendant<>, true, false, 1>
+    : cs::csp::messaging::IDataServer<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, true, false, 1>
     , cs::csp::messaging::IDataServer<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>, false>
-    , cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
+    , cs::csp::messaging::IDataServer<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
 {
 public:
     cs::Status handleData(
-          const interface_for_test::SimpleAssignableAlignedToOne<>& input
+          const interface_for_test::SimplyAssignableAlignedToOne<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
         , const cs::BinVector& clientId
-        , interface_for_test::SimpleAssignableDescendant<>& output) override
+        , interface_for_test::SimplyAssignableDescendant<>& output) override
     {
         return defaultHandle(input, output);
     }
 
-    cs::Status checkPoliciesCompliance(const interface_for_test::SimpleAssignableAlignedToOne<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignableAlignedToOne<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
     {
         return cs::Status::kNoError;
     }
@@ -96,7 +96,7 @@ public:
     }
 
     cs::Status handleData(
-          const interface_for_test::SimpleAssignable<>& input
+          const interface_for_test::SimplyAssignable<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
         , const cs::BinVector& clientId
         , cs::csp::service_structs::ISerializableDummy<>& output) override
@@ -105,17 +105,17 @@ public:
         return cs::Status::kNoError;
     }
 
-    cs::Status checkPoliciesCompliance(const interface_for_test::SimpleAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
     {
         return cs::Status::kNoError;
     }
 };
 
 class SecondDataServer
-    : cs::csp::messaging::IDataServer<interface_for_test::SimpleAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
+    : cs::csp::messaging::IDataServer<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
 {
 public:
-    cs::Status handleData(const interface_for_test::SimpleAssignable<>& input
+    cs::Status handleData(const interface_for_test::SimplyAssignable<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
         , const cs::BinVector& clientId
         , cs::csp::service_structs::ISerializableDummy<>& output) override
@@ -124,7 +124,7 @@ public:
         return cs::Status::kNoError;
     }
 
-    cs::Status checkPoliciesCompliance(const interface_for_test::SimpleAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
     {
         return cs::Status::kNoError;
     }

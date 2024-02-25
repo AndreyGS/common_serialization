@@ -55,10 +55,10 @@ protected:
     static constexpr Status serializeDataSimplyAssignable(const T& value, context::SData<S, PM>& ctx);
 
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    static constexpr Status deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value);
+    static constexpr Status deserializeDataSimplyAssignable(context::DData<D, PM>& ctx, T& value);
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
         requires AnySimplyAssignable<T>
-    static constexpr Status deserializeDataSimpleAssignable(context::DData<D, PM>&ctx, T & value);
+    static constexpr Status deserializeDataSimplyAssignable(context::DData<D, PM>&ctx, T & value);
 
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static constexpr Status addPointerToMap(const T p, context::SData<S, PM>& ctx, bool& newPointer);
@@ -230,7 +230,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
         D& input = ctx.getBinaryData();
 
         // In fact ctx.sizeOfPrimitivesMayBeNotEqual() can be true only if (std::is_arithmetic_v<T> || std::is_enum_v<T>) is true,
-        // but if we do not wrap this in constexpr statement, all SimpleAssignable types would be forced to have deserializeData functions
+        // but if we do not wrap this in constexpr statement, all SimplyAssignable types would be forced to have deserializeData functions
         if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
             if (ctx.sizeOfPrimitivesMayBeNotEqual())
             {
@@ -343,7 +343,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
     }
     // this will work for types that are not ISerializable
     else if constexpr (AnySimplyAssignable<T>)
-        RUN(deserializeDataSimpleAssignable(ctx, value))
+        RUN(deserializeDataSimplyAssignable(ctx, value))
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::deserializeData not found
     else if constexpr (!EmptyType<T>)
         RUN(processing::deserializeData(ctx, value));
@@ -399,14 +399,14 @@ static constexpr Status DataProcessor::serializeDataSimplyAssignable(const T& va
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value)
+constexpr Status DataProcessor::deserializeDataSimplyAssignable(context::DData<D, PM>& ctx, T& value)
 {
     return Status::kErrorInvalidType;
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     requires AnySimplyAssignable<T>
-constexpr Status DataProcessor::deserializeDataSimpleAssignable(context::DData<D, PM>& ctx, T& value)
+constexpr Status DataProcessor::deserializeDataSimplyAssignable(context::DData<D, PM>& ctx, T& value)
 {
     if constexpr (IsISerializableBased<T>)
         if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())

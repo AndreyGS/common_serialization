@@ -29,7 +29,7 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableAlignedToOne<>& value)
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -40,7 +40,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignable<>& value)
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignable<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -65,11 +65,11 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableDescendant<>& value)
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, static_cast<interface_for_test::SimpleAssignable<>&>(value)));
+    RUN(deserializeData(ctx, static_cast<interface_for_test::SimplyAssignable<>&>(value)));
 
     RUN(deserializeData(ctx, value.m_d));
 
@@ -118,7 +118,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableAlignedToOneSimilarType1<>& value)
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -129,7 +129,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableAlignedToOneSimilarType2<>& value)
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -140,7 +140,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableSimilarType1<>& value)
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableSimilarType1<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -151,7 +151,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimpleAssignableSimilarType2<>& value)
+Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableSimilarType2<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 

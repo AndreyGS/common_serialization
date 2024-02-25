@@ -57,19 +57,19 @@ TEST(ISerializableBasicModeTests, EmptyTypeT)
     cleanAfterStruct(input);
 }
 
-TEST(ISerializableBasicModeTests, SimpleAssignableAlignedToOneT)
+TEST(ISerializableBasicModeTests, SimplyAssignableAlignedToOneT)
 {
-    mainTest<SimpleAssignableAlignedToOne<>>();
+    mainTest<SimplyAssignableAlignedToOne<>>();
 }
 
-TEST(ISerializableBasicModeTests, SimpleAssignableT)
+TEST(ISerializableBasicModeTests, SimplyAssignableT)
 {
-    mainTest<SimpleAssignable<>>();
+    mainTest<SimplyAssignable<>>();
 }
 
-TEST(ISerializableBasicModeTests, SimpleAssignableDescendantT)
+TEST(ISerializableBasicModeTests, SimplyAssignableDescendantT)
 {
-    mainTest<SimpleAssignableDescendant<>>();
+    mainTest<SimplyAssignableDescendant<>>();
 }
 
 TEST(ISerializableBasicModeTests, DynamicPolymorphicT)

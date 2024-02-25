@@ -126,7 +126,7 @@ inline cs::Status ErrorProne::currentError = cs::Status::kNoError;
 
 #pragma pack(push, 1)
 
-struct SimpleAssignableAlignedToOneNotInterfaceType
+struct SimplyAssignableAlignedToOneNotInterfaceType
 {
     char j;
     int k;
@@ -136,7 +136,7 @@ struct SimpleAssignableAlignedToOneNotInterfaceType
 
 #pragma pack(pop)
 
-struct SimpleAssignableNotInterfaceType
+struct SimplyAssignableNotInterfaceType
 {
     char j;
     int k;
@@ -144,7 +144,7 @@ struct SimpleAssignableNotInterfaceType
     using simply_assignable_tag = std::true_type;
 };
 
-struct SimpleAssignableTypeWithoutTypeUsingNotInterfaceType
+struct SimplyAssignableTypeWithoutTypeUsingNotInterfaceType
 {
     char j;
     short k;
