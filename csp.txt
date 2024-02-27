@@ -590,7 +590,7 @@ How data is serialized
   attention that that rules are applied to Data Context and Data Body
   sections.
   
-Primitives Serialization
+Serialization of Primitives
 
   No flags are set
   
@@ -658,7 +658,7 @@ Primitives Serialization
     double floating point, for example), on serialization it must be
     prepended with 1 octet that holds this type size in octets.
     
-Pointers Serialization
+Serialization of Pointers
 
   Data Flag Allow unmanaged pointers
   
@@ -928,7 +928,7 @@ Pointers Serialization
       m.sizeL = 2
       m.pl = l
     
-    We are serializing 'm'.
+    We are serializing 'm'. No flags are set.
      
     Data Body content (bytes order is little endian and system is x32
     for brevety, because size_t is 4 octets length in such systems)
@@ -969,7 +969,7 @@ Pointers Serialization
     
                                 Figure 8
     
-  Content description:
+    Content description:
     
       0-3 octets: m.ph elements count
         Note that despite that m.sizeH is octet long we serializing not
@@ -1004,21 +1004,18 @@ Pointers Serialization
         48-51: count of m.pl[1].pi elements
         52-55: m.pl[1].pi[0] 
         55-59: m.pl[1].pi[1]
-      
-  
-  
-    If execution environment endianness setting is differ from this flag
-    value, then bytes of primitive reversation must be done.
     
-Arrays Serialization
+Serialization of Arrays
 
   Any flags settings
   
     Arrays are Serialized by almost the same rules as managed pointers.
-    (see Other flags configurations subsection).  The only difference is
-    in prepended count number.  As arrays have strict defined size
-    already, then we do not need to write it size to Data Body.
-  
+    (see Other flags configurations subsection) but instead read "type
+    on which points pointer" we read "type of array elements".  The only
+    difference is in prepended size_t number which is absent in 
+    Serialization of arrays.  As arrays have strict defined size already,
+    then we do not need to write it size to Data Body.
+    
     Example
   
       +---------------------------------------------------------+
@@ -1028,7 +1025,6 @@ Arrays Serialization
       | Struct O                                                |
       |   array of H arrh[5]                                    |
       |   array of integers arri[1]                             |
-      |   array of integers arrj[0]                             |
       |   array of K arrk[2]                                    |
       |   array of N arrl[2]                                    |
       +---------------------------------------------------------+
@@ -1046,10 +1042,9 @@ Arrays Serialization
       0.arrn[0].arri = { 4 }
       0.arrn[1].arri = { 5 }
     
-    We are serializing '0'.
+    We are serializing '0'. No flags are set.
      
-    Data Body content (bytes order is little endian and system is x32
-    for brevety, because size_t is 4 octets length in such systems)
+    Data Body content (bytes order is little endian)
     
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -1071,7 +1066,30 @@ Arrays Serialization
     
                                 Figure 9
                             
+    Content description:
+    
+      o.arrh is not serialized, as H has Empty_type_tag
+      
+      0-3 octets: o.arri content (copied by memcpy since o.arri is an
+        array of primitives)
 
+      4-19 octets: o.arri content (copied by memcpy since K has 
+        Simply_assignable_tag)
+       
+        Note that because of the aligning 8_bits_integer i field is
+        expanded to 4 octets, full K struct size is 8 octets.
+        
+      20-23 octets: o.arrn[1].arri (copied by memcpy since N.arri is an
+        array of primitives)
+        
+      24-27 octets: o.arrn[2].arri (copied by memcpy since N.arri is an
+        array of primitives)
+      
+      Pay attention that we do not serialized o.arrn field all at once
+      because Struct N does not have Simply_assignable_tag (generally
+      speaking, giving the type of its single field it can have it (tag)
+      but it haven'tm for the sake of current example).
+        
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 
 Permission is hereby granted, free of charge, to any person
