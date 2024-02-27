@@ -686,7 +686,7 @@ Pointers Serialization
       |   pointer to pointer to integer ppi2                    |
       +---------------------------------------------------------+
       
-                                Scheme 5
+                                Scheme 4
     
     Concede we have following values:
     
@@ -768,7 +768,7 @@ Pointers Serialization
       | integer i                                               |
       +---------------------------------------------------------+
       
-                                Scheme 6
+                                Scheme 5
                                 
     Concede we have following values:
     
@@ -841,7 +841,10 @@ Pointers Serialization
       If type on which points pointer is an Empty Type, nothing is
       serialized.
       
-      If type on which points pointer is primitive
+      If Common Flag Big endian format settings is the same as in
+      execution environment
+        and
+      (If type on which points pointer is primitive
         or
       this type is not part of CSP Interface or current Serialization
       process is not in interface versions not match mode (will be
@@ -853,7 +856,7 @@ Pointers Serialization
           or has Simply assignable aligned to one tag and there is no
              size of primitives may be not equal flag set
           or has Simply assignable tag and there is no alignment may be
-             not equal and primitives may be not equal flags set
+             not equal and primitives may be not equal flags set)
 
         then all data on which points pointer is copied as raw array of
         octets and if there is Size of primitives may be not equal flag
@@ -891,7 +894,7 @@ Pointers Serialization
       |   pointer to L pL                                       |
       +---------------------------------------------------------+
       
-                                Scheme 4
+                                Scheme 6
                                 
     Concede we have following values:
     
@@ -964,6 +967,8 @@ Pointers Serialization
  56 |0 0 0 0 0 1 1 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 59
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     
+                                Figure 8
+    
   Content description:
     
       0-3 octets: m.ph elements count
@@ -1000,6 +1005,72 @@ Pointers Serialization
         52-55: m.pl[1].pi[0] 
         55-59: m.pl[1].pi[1]
       
+  
+  
+    If execution environment endianness setting is differ from this flag
+    value, then bytes of primitive reversation must be done.
+    
+Arrays Serialization
+
+  Any flags settings
+  
+    Arrays are Serialized by almost the same rules as managed pointers.
+    (see Other flags configurations subsection).  The only difference is
+    in prepended count number.  As arrays have strict defined size
+    already, then we do not need to write it size to Data Body.
+  
+    Example
+  
+      +---------------------------------------------------------+
+      | Struct N                                                |
+      |   array of integers arri[1]                             |
+      |                                                         |
+      | Struct O                                                |
+      |   array of H arrh[5]                                    |
+      |   array of integers arri[1]                             |
+      |   array of integers arrj[0]                             |
+      |   array of K arrk[2]                                    |
+      |   array of N arrl[2]                                    |
+      +---------------------------------------------------------+
+      
+                                Scheme 7
+                                
+    Concede we have following values:
+    
+      O o
+      0.arri = { 3 }
+      0.arrk[0].i = 10
+      0.arrk[0].j = 32
+      0.arrk[1].i = 15
+      0.arrk[1].j = 5
+      0.arrn[0].arri = { 4 }
+      0.arrn[1].arri = { 5 }
+    
+    We are serializing '0'.
+     
+    Data Body content (bytes order is little endian and system is x32
+    for brevety, because size_t is 4 octets length in such systems)
+    
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  0 |0 0 0 0 0 0 1 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|  3
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  4 |0 0 0 0 1 0 1 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|  7
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  8 |0 0 1 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 11
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 12 |0 0 0 0 1 1 1 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 15
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 16 |0 0 0 0 0 1 0 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 19
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 20 |0 0 0 0 0 1 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 23
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 24 |0 0 0 0 0 1 0 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 27
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    
+                                Figure 9
+                            
 
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 
