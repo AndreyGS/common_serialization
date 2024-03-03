@@ -528,7 +528,7 @@ Structures tags
   
     Struct must be Serialized field-by-field no matter of other options.
     
-Structures on CSP view
+Structures in the CSP view
 
   Imagine next structs scheme:
   
@@ -715,21 +715,21 @@ Serialization of Pointers
     
     Content description:
     
-      0 octet: 1 - pointer to pointer to int (f.ppi1) is not nullptr.
+      0 octet: 1 - pointer to pointer to int (f.ppi1) is not nullptr
         
       Then f.ppi1 dereferenced and recursively:
       
-      1 octet: 1 - pointer to int is not nullptr.
+      1 octet: 1 - pointer to int is not nullptr
     
-      Again, recursively pointer to int derefernced:
+      Again, recursively pointer to int derefernced
     
-      2-5 octets: 4 - value of int.
+      2-5 octets: 4 - value of int
     
-      6 octet: 1 - pointer to pointer to int (f.ppi2) is not nullptr.
+      6 octet: 1 - pointer to pointer to int (f.ppi2) is not nullptr
 
       Then f.ppi2 dereferenced and recursively:
     
-      7 octet: 0 - pointer to int is nullptr.
+      7 octet: 0 - pointer to int is nullptr
     
   Data Flag Check recursive pointers
   
@@ -808,7 +808,7 @@ Serialization of Pointers
       
       Dereferencing g.pi1
       
-      4-7 octets: 4 - the value of i (to which points g.pi)
+      4-7 octets: 4 - value of i (to which points g.pi)
     
       8-11 octets: 1 - g.ppi is new pointer
       
@@ -971,30 +971,30 @@ Serialization of Pointers
     
     Content description:
     
-      0-3 octets: m.ph elements count
+      0-3 octets: m.ph elements count (in size_t format)
         Note that despite that m.sizeH is octet long we serializing not
         its value, but exactly m.ph elements count, and thanks to this
         we have no need to serialize m.sizeH field value separately.
       
       Next field m.ph don't serialized itself as it has Empty_type_tag      
       
-      4-7 octets: m.pi elements count
+      4-7 octets: m.pi elements count (in size_t format)
       
       8-11 octets: dereferenced m.pi value (arr1[1])
       
-      12-15 octets: m.pj elements count
+      12-15 octets: m.pj elements count (in size_t format)
       
       Next field m.pj don't serialized itself as m.sizeJ == 0
       
-      16-19 octets: m.pk elements count
+      16-19 octets: m.pk elements count (in size_t format)
       
       20-35 octets: data on which points m.pk field (copied by memcpy
         since K has Simply_assignable_tag)
        
-        Note that because of the aligning 8_bits_integer i field is
-        expanded to 4 octets, full K struct size is 8 octets.
+        Note that because of the aligning 8_bits_integer, after i field
+        3 padding octets are added and full K struct size is 8 octets.
         
-      36-39 octets: m.pl elements count
+      36-39 octets: m.pl elements count (in size_t format)
       
       40-47 octets: m.pl[0] element
         40-43: count of m.pl[0].pi elements
@@ -1042,7 +1042,7 @@ Serialization of Arrays
       0.arrn[0].arri = { 4 }
       0.arrn[1].arri = { 5 }
     
-    We are serializing '0'. No flags are set.
+    We are serializing 'o'. No flags are set.
      
     Data Body content (bytes order is little endian)
     
@@ -1070,25 +1070,116 @@ Serialization of Arrays
     
       o.arrh is not serialized, as H has Empty_type_tag
       
-      0-3 octets: o.arri content (copied by memcpy since o.arri is an
+      0-3 octets: value of o.arri (copied by memcpy since o.arri is an
         array of primitives)
 
-      4-19 octets: o.arri content (copied by memcpy since K has 
+      4-19 octets: value of o.arri (copied by memcpy since K has 
         Simply_assignable_tag)
        
         Note that because of the aligning 8_bits_integer i field is
         expanded to 4 octets, full K struct size is 8 octets.
         
-      20-23 octets: o.arrn[1].arri (copied by memcpy since N.arri is an
+      20-23 octets: value of o.arrn[1].arri (copied by memcpy since N.arri is an
         array of primitives)
         
-      24-27 octets: o.arrn[2].arri (copied by memcpy since N.arri is an
+      24-27 octets: value of o.arrn[2].arri (copied by memcpy since N.arri is an
         array of primitives)
       
       Pay attention that we do not serialized o.arrn field all at once
       because Struct N does not have Simply_assignable_tag (generally
       speaking, giving the type of its single field it can have it (tag)
       but it haven'tm for the sake of current example).
+      
+Serialization of Structures
+
+  For common rules go to "Structures in the CSP view" section.
+  
+    Example
+    
+    Concede we have following values:
+    
+      D d (Scheme 2)
+      
+      integer i1 = 4
+      integer i2 = 9
+      integer i3 = 11
+      integer i4 = 12
+      pointer to integer pi = &i4
+      
+      d.a.i = 3
+      d.a.pi = &i1
+      d.ai = { 5, 6, 7 }
+      d.aa[0].i = 8
+      d.aa[0].pi = &i2
+      d.aa[1].i = 10
+      d.aa[1].pi = &i3
+      d.ppi = &pi
+      d.j = 15
+      
+    We are serializing 'd'. Data Flag Allow unmanaged pointers is set.
+    
+    Data Body content (bytes order is little endian)
+    
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  0 |0 0 0 0 0 0 1 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|  3
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  4 |0 0 0 0 0 0 0 1|0 0 0 0 0 1 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|  7
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  8 |0 0 0 0 0 0 0 0|0 0 0 0 0 1 0 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 11
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 12 |0 0 0 0 0 0 0 0|0 0 0 0 0 1 1 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 15
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 16 |0 0 0 0 0 0 0 0|0 0 0 0 0 1 1 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 19
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 20 |0 0 0 0 0 0 0 0|0 0 0 0 1 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 23
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 24 |0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 1|0 0 0 0 1 0 0 1|0 0 0 0 0 0 0 0| 27
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 28 |0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 1 0 1 0|0 0 0 0 0 0 0 0| 31
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 32 |0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 1|0 0 0 0 1 0 1 1| 35
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 36 |0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 1| 39
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 40 |0 0 0 0 0 0 0 1|0 0 0 0 1 1 0 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 43
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 44 |0 0 0 0 0 0 0 0|0 0 0 0 1 1 1 1|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0| 47
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 48 |0 0 0 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+
+
+    Content description:
+
+      0-3 octets: value of d.a.i
+      
+      4 octet: 1 - d.a.pi is not nullptr
+      
+      5-8 octets: value of i1 (dereferenced d.a.pi value)
+      
+      9-20 octets: value of d.ai
+       
+      21-24 octets: value of d.aa[0].i
+      
+      25 octet: 1 - d.aa[0].pi is not nullptr
+      
+      26-29 octets: value of i2 (dereferenced d.aa[0].pi value)
+      
+      30-33 octets: value of d.aa[1].i
+      
+      34 octet: 1 - d.aa[1].pi is not nullptr
+      
+      35-38 octets: value of i3 (dereferenced d.aa[1].pi value)
+      
+      39 octet: 1 - d.ppi is not nullptr
+      
+      40 octet: 1 - *d.ppi (pi) is not nullptr
+      
+      41-44 octets: value of i4 (doubly dereferenced d.ppi value)
+      
+      45-48 octets: value of d.j
+      
         
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 
