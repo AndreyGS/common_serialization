@@ -101,7 +101,8 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
     if (
            std::is_arithmetic_v<T>
         || std::is_enum_v<T>
-        || (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
+        || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff() 
+            && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
             && (   AlwaysSimplyAssignableType<T> 
                 || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
                 || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
@@ -194,7 +195,16 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
         RUN(serializeData(*value, ctx));
     }
     else if constexpr (AnySimplyAssignable<T>)
+    {
+        // We can be here only if there is no distinct serializeData function 
+        // of type T. But if we must deserialize with simplyAssignableTagsOptimizationsAreTurnedOff
+        // when interact with another CSP instance that does not support "simply assignable" tags
+        // optimizations, we must to have it (distinct serializeData function).
+        if (ctx.simplyAssignableTagsOptimizationsAreTurnedOff())
+            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+
         RUN(serializeDataSimplyAssignable(value, ctx))
+    }
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::serializeData not found
     else if constexpr (!EmptyType<T>)
         RUN(processing::serializeData(value, ctx));
@@ -219,7 +229,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
     if (
            std::is_arithmetic_v<T>
         || std::is_enum_v<T>
-        || (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
+        || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
+            && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
             && (   AlwaysSimplyAssignableType<T> 
                 || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
                 || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
@@ -345,7 +356,16 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
     }
     // this will work for types that are not ISerializable
     else if constexpr (AnySimplyAssignable<T>)
+    {
+        // We can be here only if there is no distinct deserializeData function 
+        // of type T. But if we must deserialize with simplyAssignableTagsOptimizationsAreTurnedOff
+        // when interact with another CSP instance that does not support "simply assignable" tags
+        // optimizations, we must to have it (distinct deserializeData function).
+        if (ctx.simplyAssignableTagsOptimizationsAreTurnedOff())
+            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+
         RUN(deserializeDataSimplyAssignable(ctx, value))
+    }
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::deserializeData not found
     else if constexpr (!EmptyType<T>)
         RUN(processing::deserializeData(ctx, value));

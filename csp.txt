@@ -188,8 +188,8 @@ Status Message
 
     -12: ErrorNotSupportedSerializationSettingsForStruct; internal error
       which indicate that some of settings are not suitable for current
-      struct.  Normally it may be used for implementing some logic and
-      it should not go as return value to User Application.
+      struct.  It may be used internal for implementing some logic.
+      Another use case is presented is section "Structures tags".
 
     -13: ErrorInvalidType; there is inconsistence of struct and actions
       that intend to apply to it.  May witness of internal errors, but
@@ -334,7 +334,12 @@ Data Message
       edges to managed pointers, allow unmanaged pointers must be set
       when flag is used.
    
-    Bits 4-31: unused (reserved, must be zero).
+    Bit 4 (0x10): simply assignable tags optimizations are turned off.
+      Turns of all optimizations of "simply assignable" tags. Must be
+      used when dealing with CSP implementations that does not support
+      such (like Java, for instance).
+    
+    Bits 5-31: unused (reserved, must be zero).
 
   Data Body
   
@@ -527,6 +532,17 @@ Structures tags
   Struct has no tag
   
     Struct must be Serialized field-by-field no matter of other options.
+    
+  Note that any of simply assignable tags can be implied only when
+  structure is not containing any kind of virtual tables.  So if
+  environment where CSP is running is implying virtual tables to every
+  struct (like Java, for instance) no symply assignable tags
+  optimizations can be made and "simply assignable tags optimizations 
+  are turned off" Data Flag must be set when interacting with such CSP
+  instance.  If at the same time CSP implementation does not have
+  distinct Serialization function to current operation with type that
+  have any of such tags ErrorNotSupportedSerializationSettingsForStruct
+  status must be returned.
     
 Structures in the CSP view
 
@@ -1179,6 +1195,10 @@ Serialization of Structures
       41-44 octets: value of i4 (doubly dereferenced d.ppi value)
       
       45-48 octets: value of d.j
+      
+CSP Interfaces Versioning
+
+  
       
         
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>

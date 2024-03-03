@@ -217,6 +217,7 @@ public:
         , m_epp(rhs.m_epp), m_interfaceVersion(rhs.m_interfaceVersion), m_auxUsingHeapAllocation(rhs.m_auxUsingHeapAllocation)
         , m_alignmentMayBeNotEqual(rhs.m_alignmentMayBeNotEqual), m_sizeOfPrimitivesMayBeNotEqual(rhs.m_sizeOfPrimitivesMayBeNotEqual)
         , m_allowUnmanagedPointers(rhs.m_allowUnmanagedPointers), m_checkRecursivePointers(rhs.m_checkRecursivePointers)
+        , m_simplyAssignableTagsOptimizationsAreTurnedOff(rhs.m_simplyAssignableTagsOptimizationsAreTurnedOff)
     { }
 
     /// @brief Constructor
@@ -278,6 +279,7 @@ public:
                 | (m_sizeOfPrimitivesMayBeNotEqual ? DataFlags::kSizeOfPrimitivesMayBeNotEqual : 0)
                 | (m_allowUnmanagedPointers ? DataFlags::kAllowUnmanagedPointers : 0)
                 | (m_checkRecursivePointers ? DataFlags::kCheckRecursivePointers : 0)
+                | (m_simplyAssignableTagsOptimizationsAreTurnedOff ? DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff : 0)
             };
     }
 
@@ -289,12 +291,14 @@ public:
         m_sizeOfPrimitivesMayBeNotEqual = dataFlags.sizeOfPrimitivesMayBeNotEqual();
         m_allowUnmanagedPointers = dataFlags.allowUnmanagedPointers();
         m_checkRecursivePointers = dataFlags.checkRecursivePointers();
+        m_simplyAssignableTagsOptimizationsAreTurnedOff = dataFlags.simplyAssignableTagsOptimizationsAreTurnedOff();;
     }
 
     [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
     [[nodiscard]] constexpr bool sizeOfPrimitivesMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
     [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
     [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
+    [[nodiscard]] constexpr bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept { return m_simplyAssignableTagsOptimizationsAreTurnedOff; }
 
     /// @brief Get target interface version
     /// @return Target interface version
@@ -363,6 +367,7 @@ public:
         m_sizeOfPrimitivesMayBeNotEqual = false;
         m_allowUnmanagedPointers = false;
         m_checkRecursivePointers = false;
+        m_simplyAssignableTagsOptimizationsAreTurnedOff = false;
     }
 
     /// @brief Reset all fields to their default values and clears binary data container
@@ -378,6 +383,7 @@ public:
         m_sizeOfPrimitivesMayBeNotEqual = false;
         m_allowUnmanagedPointers = false;
         m_checkRecursivePointers = false;
+        m_simplyAssignableTagsOptimizationsAreTurnedOff = false;
     }
 
 private:
@@ -389,6 +395,7 @@ private:
     bool m_sizeOfPrimitivesMayBeNotEqual{ false };
     bool m_allowUnmanagedPointers{ false };
     bool m_checkRecursivePointers{ false };
+    bool m_simplyAssignableTagsOptimizationsAreTurnedOff{ false };
 };
 
 template<ISerializationCapableContainer S = BinVector, ISerializationPointersMap PM = std::unordered_map<const void*, size_t>>

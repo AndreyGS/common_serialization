@@ -73,7 +73,12 @@ public:
     ///     which will be set automatically if need.
     static constexpr uint32_t kCheckRecursivePointers = 0x8;
 
-    static constexpr uint32_t kValidFlagsMask = 0xf;
+    /// @brief Turns of all optimizations of "simply assignable" tags.
+    ///     Must be used when dealing with CSP implementations that does
+    ///     not support such (like Java, for instance). 
+    static constexpr uint32_t kSimplyAssignableTagsOptimizationsAreTurnedOff = 0x10;
+
+    static constexpr uint32_t kValidFlagsMask = 0x1f;
 
     constexpr DataFlags() noexcept;
     explicit constexpr DataFlags(uint32_t value) noexcept;
@@ -86,6 +91,7 @@ public:
     [[nodiscard]] constexpr bool sizeOfPrimitivesMayBeNotEqual() const noexcept;
     [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept;
     [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept;
+    [[nodiscard]] constexpr bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept;
 
     [[nodiscard]] constexpr DataFlags operator|(DataFlags rhs) const noexcept;
     [[nodiscard]] constexpr DataFlags operator&(const DataFlags& rhs) const noexcept;
@@ -142,6 +148,11 @@ constexpr void DataFlags::removeFlags(uint32_t value) noexcept
 [[nodiscard]] constexpr bool DataFlags::checkRecursivePointers() const noexcept
 {
     return static_cast<bool>(m_flags & kCheckRecursivePointers);
+}
+
+[[nodiscard]] constexpr bool DataFlags::simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept
+{
+    return static_cast<bool>(m_flags & kSimplyAssignableTagsOptimizationsAreTurnedOff);
 }
 
 [[nodiscard]] constexpr DataFlags DataFlags::operator|(DataFlags rhs) const noexcept
