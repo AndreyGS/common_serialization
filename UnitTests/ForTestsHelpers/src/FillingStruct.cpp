@@ -424,4 +424,23 @@ void fillingStruct(another_yet_interface::SimpleStruct<>& output)
     output.m_i = 27838;
 }
 
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableWithoutSerializationFunctions<>& output)
+{
+    output.m_i = 24801;
+}
+
+template<>
+void fillingStruct(not_part_of_interfaces::SimplyAssignableWithoutSerializationFunctions& output)
+{
+    output.i = 104;
+}
+
+template<>
+void fillingStruct(interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& output)
+{
+    fillingStruct(output.m_sawsf);
+    fillingStruct(output.m_npfSawsf);
+}
+
 } // namespace ft_helpers

@@ -269,4 +269,15 @@ Status DataProcessor::serializeData(const interface_for_test::DForAllModesTests<
     return Status::kNoError;
 }
 
+template<>
+Status DataProcessor::serializeData(const interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value, context::SData<>& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.m_sawsf, ctx));
+    RUN(serializeData(value.m_npfSawsf, ctx));
+
+    return Status::kNoError;
+}
+
 } // namespace common_serialization::csp::processing

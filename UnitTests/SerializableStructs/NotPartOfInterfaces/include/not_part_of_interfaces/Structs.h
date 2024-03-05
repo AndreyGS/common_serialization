@@ -131,4 +131,16 @@ struct TwoInts
     }
 };
 
-} // namespace not_part_of_interface
+struct SimplyAssignableWithoutSerializationFunctions
+{
+    using simply_assignable_tag = std::true_type;
+
+    [[nodiscard]] bool operator==(const SimplyAssignableWithoutSerializationFunctions& rhs) const
+    {
+        return i == rhs.i;
+    }
+
+    uint8_t i{ 0 };
+};
+
+} // namespace not_part_of_interfaces

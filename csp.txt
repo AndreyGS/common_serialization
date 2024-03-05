@@ -355,7 +355,7 @@ GetSettings Message
   want to know capabilities and restrictions of server including
   supported Interfaces.
   
-  This Message has ho Context and Body.
+  This Message has no Private Context and Body.
   
   In response to this Message server must send CspPartySettings struct.
   Its definition will be presented in Special Structs Interface section.

@@ -830,4 +830,48 @@ public:
     friend SForAllModesTests_Version2;
 };
 
+template<typename T = cs::Dummy>
+class SimplyAssignableWithoutSerializationFunctions : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignableWithoutSerializationFunctions<>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<SimplyAssignableWithoutSerializationFunctions<>, T>;
+    using simply_assignable_tag = std::true_type;
+
+    static constexpr cs::csp::Id kId{ 0x4e613dd4, 0xf408, 0x4f5b, 0xa18f, 0xec9e8f4c86ce };
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+
+    uint32_t m_i{ 0 };
+
+    [[nodiscard]] bool operator==(const SimplyAssignableWithoutSerializationFunctions& rhs) const
+    {
+        return m_i == rhs.m_i;
+    }
+
+    friend cs::csp::processing::DataProcessor;
+};
+
+template<typename T = cs::Dummy>
+class ContainSimplyAssignableWithoutSerializationFunctions : public cs::csp::ISerializable<cs::GetCrtpMainType<ContainSimplyAssignableWithoutSerializationFunctions<>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<ContainSimplyAssignableWithoutSerializationFunctions<>, T>;
+
+    static constexpr cs::csp::Id kId{ 0xf2b9a015, 0x1ec1, 0x4b06, 0xa313, 0x158b97af8fa4 };
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+
+    SimplyAssignableWithoutSerializationFunctions<> m_sawsf;
+    not_part_of_interfaces::SimplyAssignableWithoutSerializationFunctions m_npfSawsf;
+
+    [[nodiscard]] bool operator==(const ContainSimplyAssignableWithoutSerializationFunctions& rhs) const
+    {
+        return m_sawsf == rhs.m_sawsf && m_npfSawsf == rhs.m_npfSawsf;
+    }
+
+    friend cs::csp::processing::DataProcessor;
+};
+
 } // namespace interface_for_test

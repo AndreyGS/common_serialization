@@ -24,11 +24,12 @@ target_precompile_headers(allocators_tests PRIVATE "Tests/Allocators/pch.h")
 add_executable(serialization_tests
     "Tests/Serialization/ISerializableAlignmentMayBeNotEqualTests.cpp"
     "Tests/Serialization/ISerializableAllowUnmanagedPointersTests.cpp"
+    "Tests/Serialization/ISerializableBasicModeTests.cpp"
     "Tests/Serialization/ISerializableCheckRecursivePointersTests.cpp"
     "Tests/Serialization/ISerializableInterfaceVersionsNotMatchTests.cpp"
-    "Tests/Serialization/ISerializableBasicModeTests.cpp"
+    "Tests/Serialization/ISerializableMultiModesTests.cpp"
+    "Tests/Serialization/ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
     "Tests/Serialization/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
-    "Tests/Serialization/ISerializableAllModesTests.cpp"
     "Tests/Serialization/MessagingTests.cpp"
 )
 
