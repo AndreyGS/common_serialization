@@ -597,7 +597,7 @@ Serialization of Pointers
       
                                 Scheme 4
     
-    Concede we have following values:
+    Consider we have following values:
     
       **f.ppi1 = 4;
       *f.ppi2 = nullptr;
@@ -679,7 +679,7 @@ Serialization of Pointers
       
                                 Scheme 5
                                 
-    Concede we have following values:
+    Consider we have following values:
     
       integer i = 4
       
@@ -805,7 +805,7 @@ Serialization of Pointers
       
                                 Scheme 6
                                 
-    Concede we have following values:
+    Consider we have following values:
     
       integer arr1[1] = { 3 }
       integer arr2[1] = { 4 }
@@ -940,7 +940,7 @@ Serialization of Arrays
       
                                 Scheme 7
                                 
-    Concede we have following values:
+    Consider we have following values:
     
       O o
       0.arri = { 3 }
@@ -1005,7 +1005,7 @@ Serialization of Structures
   
     Example
     
-    Concede we have following values:
+    Consider we have following values:
     
       D d (Scheme 2)
       
