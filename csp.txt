@@ -360,113 +360,6 @@ GetSettings Message
   In response to this Message server must send CspPartySettings struct.
   Its definition will be presented in Special Structs Interface section.
 
-
-CSP Interfaces
-
-  By CSP Interface we mean the set of structures where every one have
-  several interface properties and several individual properties.  If 
-  we say that some instance is supported specific Interface of specific
-  version number, than it means that it has snapshot of every struct in
-  this Interface that is on that version.
-  
-Interface properties
-  
-  Interface ID
-  
-    UUIDv4 of the struct interface.
-    
-  Version
-  
-    32 bits field, that represents current version of interface.  Its
-    semantic depends on concrete interface.  This is the only field that
-    allowed to be changed.
-    
-  Mandatory data flags
-  
-    Data flags that are always in use in Serialization of interface
-    structs.
-    
-  Forbidden data flags
-  
-    Data flags that cannot be used in Serialization of interface
-    structs.
-  
-Structures individual properties
-(applied to those that are part of any CSP Interface)
-
-  Struct ID
-  
-    UUIDv4 of struct itself. Cannot be changed.
-    
-  Struct Interface version
-  
-    Version of interface on which current struct or one of its
-    dependecies were changed last time.  Dependencies mean substructs
-    (fields) from which this one consists.
-    
-  Private versions
-
-    An array of interface versions values.  Value is added every time 
-    when struct was changed.  Sorted in decreasing order.
-    
-    By change we mean adding or removing field from struct or from one
-    of struct parents (structs are allowed to be inherited), or when one
-    of the struct field changed its type (structure).  It is important
-    to note, that only change of field type (structure) is lead to
-    Private version update.  If there is internal change of field struct
-    (update), private version wouldn't change, instead interface version
-    is changed. 
-    
-  Additional mandatory data flags (optional)
-  
-    Data flags that are always in use in Serialization of this struct.
-    It is dijunction of every additional mandatory data flags of every
-    struct dependency and struct private restrictions.
-    Effective mandatory data flags set is disjunction of mandatory data
-    flags and additional mandatory data flags.
-    
-  Additional forbidden data flags (optional)
-  
-    Data flags that cannot be used in Serialization of this struct.
-    It is dijunction of every additional forbidden data flags of every
-    struct dependency and struct private restrictions.
-    Effective forbidden data flags set is disjunction of forbidden data
-    flags and additional forbidden data flags.
-  
-Types that are in use in CSP Interfaces
-
-  It is important to say that structs in concrete interface are allowed
-  to be made of types that are not part of this interface.  And there is
-  two distinct scenarios.
-  
-  First, when type (struct) is not part of any CSP interface - it has no
-  CSP Interface properties and it is not allowed to version conversion.
-  Also such types cannot be as root struct in CSP Data Message, only as
-  field of struct from CSP interface.  Example of such types are
-  integers, floating point numbers and any user-defined composite types.
-  
-  Second, struct from parent interface.  More details will be in 
-  Dependent Interfaces section.
-  
-Dependent Interfaces
-
-  CSP allows to inherit interfaces.  But descendant interfaces are have
-  one and only one parent.  It must have the same versioning order as
-  parent have.  Start Version property is the same as Struct Interface
-  version property of the most recent changed struct from parent
-  interface that is a part of derived interface as dependency, or the
-  most recent Version property.
-  
-  Every time when dependency from parent interface is updated Version of
-  derived interface must be updated too (and all dependent Struct
-  Interface versions).
-  
-  Derived interface don't allowed to have versions bigger than parent
-  interface has, but parent one don't have any such restrictions.  So if
-  there is need to add or update any of derived interface struct, and
-  the derived interface before this update has the same version as the
-  parent one, than need to wait before parent interface will be updated.
-  
 Data that can be serialized by CSP
 
   Primitives
@@ -1196,9 +1089,171 @@ Serialization of Structures
       
       45-48 octets: value of d.j
       
+CSP Interfaces
+
+  By CSP Interface we mean the set of structures where every one have
+  several mandatory interface properties and several mandatory
+  individual properties.  If we say that some instance is supported
+  specific Interface of specific version number, than it means that it
+  has snapshot of every struct in this Interface that is on that
+  version.
+  
+Interface properties
+  
+  Interface ID
+  
+    UUIDv4 of the struct interface.
+    
+  Version
+  
+    32 bits field, that represents current version of interface.  Its
+    semantic depends on concrete interface.  This is the only field that
+    allowed to be changed.
+    
+  Mandatory data flags
+  
+    Data flags that are always in use in Serialization of interface
+    structs.
+    
+  Forbidden data flags
+  
+    Data flags that cannot be used in Serialization of interface
+    structs.
+  
+Structures individual properties
+(applied to those that are part of any CSP Interface)
+
+  Struct ID
+  
+    UUIDv4 of struct itself. Cannot be changed.
+    
+  Struct Interface version
+  
+    Version of interface on which current struct or one of its
+    dependecies were changed last time.  Dependencies mean substructs
+    (fields) from which this one consists.
+    
+  Private versions
+
+    An array of interface versions values.  Value is added every time 
+    when struct was changed.  Sorted in decreasing order.
+    
+    By change we mean adding or removing field from struct or from one
+    of struct parents (structs are allowed to be inherited), or when one
+    of the struct field changed its type (structure).  It is important
+    to note, that only change of field type (structure) is lead to
+    Private version update.  If there is internal change of field struct
+    (update), private version wouldn't change, instead interface version
+    is changed. 
+    
+  Additional mandatory data flags (optional)
+  
+    Data flags that are always in use in Serialization of this struct.
+    It is dijunction of every additional mandatory data flags of every
+    struct dependency and struct private restrictions.
+    Effective mandatory data flags set is disjunction of mandatory data
+    flags and additional mandatory data flags.
+    
+  Additional forbidden data flags (optional)
+  
+    Data flags that cannot be used in Serialization of this struct.
+    It is dijunction of every additional forbidden data flags of every
+    struct dependency and struct private restrictions.
+    Effective forbidden data flags set is disjunction of forbidden data
+    flags and additional forbidden data flags.
+  
+Types that are in use in CSP Interfaces
+
+  It is important to say that structs in concrete interface are allowed
+  to be made of types that are not part of this interface.  And there is
+  two distinct scenarios.
+  
+  First, when type (struct) is not part of any CSP interface - it has no
+  CSP Interface properties and it is not allowed to version conversion.
+  Also such types cannot be as root struct in CSP Data Message, only as
+  field of struct from CSP interface.  Example of such types are
+  integers, floating point numbers and any user-defined composite types.
+  
+  Second, struct from parent interface.  More details will be in 
+  Dependent Interfaces section.
+  
+Dependent Interfaces
+
+  CSP allows to inherit interfaces.  But descendant interfaces are have
+  one and only one parent.  It must have the same versioning order as
+  parent have.  Start Version property is the same as Struct Interface
+  version property of the most recent changed struct from parent
+  interface that is a part of derived interface as dependency, or the
+  most recent Version property.
+  
+  Every time when dependency from parent interface is updated Version of
+  derived interface must be updated too (and all dependent Struct
+  Interface versions).
+  
+  Derived interface don't allowed to have versions bigger than parent
+  interface has, but parent one don't have any such restrictions.  So if
+  there is need to add or update any of derived interface struct, and
+  the derived interface before this update has the same version as the
+  parent one, than need to wait before parent interface will be updated.
+      
 CSP Interfaces Versioning
 
+  When struct that is part of current CSP Interface is changed or new
+  struct is added, we mean that CSP Interface is changed and this change
+  must be happening at the same time as Version of interface increasing.
+  Any field or subfield type of CSP Interface struct that is not part of
+  this or parent CSP Interfaces must have permanent definition of parts
+  that take a part in Serialization.
   
+  Example
+  
+    +-------------------------------------------------------------+
+    | Free structs types                                          |
+    |                                                             |
+    |   Struct P                                                  |
+    |     integer i                                               |
+    |                                                             |
+    |   Struct Q                                                  |
+    |     integer i                                               |
+    |     Simply_assignable_tag                                   |
+    |                                                             |
+    | Interface ICsp (version 0)                                  |
+    |                                                             |
+    |   Struct R                                                  |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     P p                                                     |
+    |                                                             |
+    |   Struct S                                                  |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     Simply_assignable_tag                                   |
+    |                                                             |
+    |     Q q                                                     |
+    |                                                             |
+    |   Struct T inherits R and S                                 |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     integer j                                               |
+    |                                                             |
+    |   Struct U                                                  |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     T t                                                     |
+    +-------------------------------------------------------------+
+      
+                                Scheme 8
+                                
+  Interface ICsp is just now created and have version 0.  On the
+  creation time it has only four structs.  Each of them have interface
+  versions as 0 and private versions array contain only one element with
+  0 as value.
+  
+  Consider now that we decided to update struct S and add struct V.
       
         
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>

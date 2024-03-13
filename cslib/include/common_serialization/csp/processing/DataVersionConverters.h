@@ -69,12 +69,7 @@ public:
     template<IsISerializableBased From, ISerializationCapableContainer S, ISerializationPointersMap PM>
     Status convert(const From& from, context::SData<S, PM>& ctx) noexcept
     {
-        if (ctx.isAuxUsingHeapAllocation())
-            RUN(convertOnHeap(from, ctx))
-        else
-            RUN(convertOnStack(from, ctx))
-
-        return Status::kNoError;
+        return ctx.isAuxUsingHeapAllocation() ? convertOnHeap(from, ctx) : convertOnStack(from, ctx);
     }
 
 protected:
@@ -90,11 +85,9 @@ protected:
         RUN(pointerKeeper.get<To>()->init(from));
 
         if (pVersionsHierarchy[0] > getTargetVersion())
-            RUN(base_class::convertOnHeap(*pointerKeeper.get<To>(), ctx))
+            return base_class::convertOnHeap(*pointerKeeper.get<To>(), ctx);
         else
-            RUN(DataProcessor::serializeData(*pointerKeeper.get<To>(), ctx))
-
-            return Status::kNoError;
+            return DataProcessor::serializeData(*pointerKeeper.get<To>(), ctx);
     }
 
     template<IsISerializableBased From, ISerializationCapableContainer S, ISerializationPointersMap PM>
@@ -104,11 +97,9 @@ protected:
         RUN(to.init(from));
 
         if (pVersionsHierarchy[0] > getTargetVersion())
-            RUN(base_class::convertOnStack(to, ctx))
+            return base_class::convertOnStack(to, ctx);
         else
-            RUN(DataProcessor::serializeData(to, ctx))
-
-        return Status::kNoError;
+            return DataProcessor::serializeData(to, ctx);
     }
 
     static constexpr const uint32_t* pVersionsHierarchy = To::kPrivateVersions;
@@ -170,21 +161,15 @@ public:
     {
         // Skip versions that are older than serialized one
         if (base_class::pVersionsHierarchy[0] <= getTargetVersion())
-            RUN(base_class::convert(ctx, to))
+            return base_class::convert(ctx, to);
         else
-        {
-            if (ctx.isAuxUsingHeapAllocation())
-                RUN(convertOnHeap(ctx, to))
-            else
-                RUN(convertOnStack(ctx, to))
-        }
-
-        return Status::kNoError;
+            return ctx.isAuxUsingHeapAllocation() ? convertOnHeap(ctx, to) : convertOnStack(ctx, to);
     }
 
 protected:
     using base_class = FromVersionConverter<NextFrom...>;
     using from_type = From;
+    using base_from = typename base_class::from_type;
 
     static constexpr const uint32_t* pVersionsHierarchy = From::kPrivateVersions;
 
@@ -196,9 +181,8 @@ protected:
             return Status::kErrorNoMemory;
 
         RUN(DataProcessor::deserializeData(ctx, *pointerKeeper.get<From>()));
-        RUN(convertToUpperVersionOnHeap(*pointerKeeper.get<From>(), ctx, to));
 
-        return Status::kNoError;
+        return convertToUpperVersionOnHeap(*pointerKeeper.get<From>(), ctx, to);
     }
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
@@ -206,9 +190,8 @@ protected:
     {
         From from;
         RUN(DataProcessor::deserializeData(ctx, from));
-        RUN(convertToUpperVersionOnStack(from, ctx, to));
 
-        return Status::kNoError;
+        return convertToUpperVersionOnStack(from, ctx, to);
     }
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
@@ -216,8 +199,6 @@ protected:
     {
         if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionUndefined)
         {
-            using base_from = typename base_class::from_type;
-
             GenericPointerKeeper pointerKeeper;
             if (!pointerKeeper.allocateAndConstruct<base_from, GenericAllocatorHelper<base_from, ConstructorNoexceptAllocator<base_from>>>(1))
                 return Status::kErrorNoMemory;
@@ -227,14 +208,12 @@ protected:
             else
                 return Status::kErrorNoSuchHandler;
 
-            RUN(base_class::convertToUpperVersionOnHeap(*pointerKeeper.get<base_from>(), ctx, to));
+            return base_class::convertToUpperVersionOnHeap(*pointerKeeper.get<base_from>(), ctx, to);
         }
         else if constexpr (InitableBySpecialClass<To, From>)
-            RUN(to.init(from))
+            return to.init(from);
         else
             return Status::kErrorNoSuchHandler;
-
-        return Status::kNoError;
     }
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
@@ -242,8 +221,6 @@ protected:
     {
         if (base_class::pVersionsHierarchy[0] != traits::kInterfaceVersionUndefined)
         {
-            using base_from = typename base_class::from_type;
-
             base_from bFrom;
 
             if constexpr (InitableBySpecialClass<To, base_from>)
@@ -251,14 +228,12 @@ protected:
             else
                 return Status::kErrorNoSuchHandler;
 
-            RUN(base_class::convertToUpperVersionOnStack(bFrom, ctx, to));
+            return base_class::convertToUpperVersionOnStack(bFrom, ctx, to);
         }
         else if constexpr (InitableBySpecialClass<To, From>)
-            RUN(to.init(from))
+            return to.init(from);
         else
             return Status::kErrorNoSuchHandler;
-
-        return Status::kNoError;
     }
 };
 
