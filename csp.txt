@@ -1140,7 +1140,7 @@ Structures individual properties
     
     By change we mean adding or removing field from struct or from one
     of struct parents (structs are allowed to be inherited), or when one
-    of the struct field changed its type (structure).  It is important
+    of the struct fields changed its type (structure).  It is important
     to note, that only change of field type (structure) is lead to
     Private version update.  If there is internal change of field struct
     (update), private version wouldn't change, instead interface version
@@ -1244,6 +1244,12 @@ CSP Interfaces Versioning
     |     private_versions [0]                                    |
     |                                                             |
     |     T t                                                     |
+    |                                                             |
+    |   Struct V                                                  |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     array of T t[3]                                         |
     +-------------------------------------------------------------+
       
                                 Scheme 8
@@ -1253,7 +1259,183 @@ CSP Interfaces Versioning
   versions as 0 and private versions array contain only one element with
   0 as value.
   
-  Consider now that we decided to update struct S and add struct V.
+  Consider now that we decided to update structs S and V and add struct
+  W.
+  
+    +-------------------------------------------------------------+
+    | Free structs types                                          |
+    |                                                             |
+    |   --------                                                  |
+    |                                                             |
+    | Interface ICsp (version 1)                                  |
+    |                                                             |
+    |   Struct R                                                  |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     P p                                                     |
+    |                                                             |
+    |   Struct S                                                  |
+    |     interface_version 1                                     |
+    |     private_versions [1, 0]                                 |
+    |                                                             |
+    |     Q q                                                     |
+    |     pointer to integer pi                                   |
+    |                                                             |
+    |   Struct T inherits R and S                                 |
+    |     interface_version 1                                     |
+    |     private_versions [1, 0]                                 |
+    |                                                             |
+    |     integer j                                               |
+    |                                                             |
+    |   Struct U                                                  |
+    |     interface_version 1                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     T t                                                     |
+    |                                                             |
+    |   Struct V                                                  |
+    |     interface_version 1                                     |
+    |     private_versions [1, 0]                                 |
+    |                                                             |
+    |     array of T t[3]                                         |
+    |     integer i                                               |
+    |                                                             |
+    |   Struct W                                                  |
+    |     interface_version 1                                     |
+    |     private_versions [1]                                    |
+    |                                                             |
+    |     array of R ar[3]                                        |
+    |                                                             |
+    |   Struct S_version0                                         |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     Simply_assignable_tag                                   |
+    |                                                             |
+    |     Q q                                                     |
+    |                                                             |
+    |   Struct T_version0 inherits R and S_version0               |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     integer j                                               |
+    |                                                             |
+    |   Struct V_version0                                         |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     array of T_version0 t[3]                                |
+    +-------------------------------------------------------------+
+      
+                                Scheme 9
+                                
+  As you can see private_versions arrays fields of structs S, T and V
+  are additionally populated with 1.  This is because S and V have added
+  fields and T is inherited from S.
+  
+  Interface_version fields of structs S, T, U and V are changed from 0
+  to 1.  Structs S, T and V have added fields (or their parents) and
+  struct U have dependency as field with type T.  Since type T has
+  interface_version of 1, struct U interface_version is also must to
+  be that large.
+  
+  Struct R is not changed itself and it has no dependencies with upper
+  interface_versions it own interface_version is also keeped as 0.
+  
+  Pay attention that struct S now has no Simply_assignable_tag.
+  
+  To implement backward compatibility we must save previous versions of
+  changed structs.  These are the structs that changed their fields
+  composition - structs S, T and V (again T is here as it inherited from
+  S).  This structs are postfixed with _version0, where '0' is private
+  version.
+  
+  In the next ICsp version we change structs R and U.
+  
+    +-------------------------------------------------------------+
+    | Free structs types                                          |
+    |                                                             |
+    |   --------                                                  |
+    |                                                             |
+    | Interface ICsp (version 2)                                  |
+    |                                                             |
+    |   Struct R                                                  |
+    |     interface_version 2                                     |
+    |     private_versions [2, 0]                                 |
+    |                                                             |
+    |     P p                                                     |
+    |     integer i                                               |
+    |                                                             |
+    |   Struct S                                                  |
+    |     interface_version 1                                     |
+    |     private_versions [1, 0]                                 |
+    |                                                             |
+    |     Q q                                                     |
+    |     pointer to integer pi                                   |
+    |                                                             |
+    |   Struct T inherits R and S                                 |
+    |     interface_version 1                                     |
+    |     private_versions [1, 0]                                 |
+    |                                                             |
+    |     integer j                                               |
+    |                                                             |
+    |   Struct U                                                  |
+    |     interface_version 2                                     |
+    |     private_versions [2, 0]                                 |
+    |                                                             |
+    |     integer i                                               |
+    |     integer k                                               |
+    |     integer j                                               |
+    |     pointer to integer pi                                   |
+    |                                                             |
+    |   Struct V                                                  |
+    |     interface_version 1                                     |
+    |     private_versions [1, 0]                                 |
+    |                                                             |
+    |     array of T t[3]                                         |
+    |     integer i                                               |
+    |                                                             |
+    |   Struct W                                                  |
+    |     interface_version 1                                     |
+    |     private_versions [1]                                    |
+    |                                                             |
+    |     array of R ar[3]                                        |
+    |                                                             |
+    |   Struct R_version0                                         |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     P p                                                     |
+    |                                                             |
+    |   Struct S_version0                                         |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     Simply_assignable_tag                                   |
+    |                                                             |
+    |     Q q                                                     |
+    |                                                             |
+    |   Struct T_version0 inherits R_version0 and S_version0      |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     integer j                                               |
+    |                                                             |
+    |   Struct U_version0                                         |
+    |     interface_version 1                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     T t                                                     |
+    |                                                             |
+    |   Struct V_version0                                         |
+    |     interface_version 0                                     |
+    |     private_versions [0]                                    |
+    |                                                             |
+    |     array of T_version0 t[3]                                |
+    +-------------------------------------------------------------+
+      
+                                Scheme 10
       
         
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
