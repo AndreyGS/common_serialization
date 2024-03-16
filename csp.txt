@@ -237,7 +237,7 @@ Status Message
     |                                                               |
     \                          CSP versions                         \
     \                                                               \
-    |                                                               |                     
+    |                                                               |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    
                                 Figure 4
@@ -246,10 +246,39 @@ Status Message
       
       Size of field CSP versions.
         
-    CSP versions: 1-254 octet
+    CSP versions: 1-254 octets
       
       Versions must be sorted in decreasing order, latest version is
       first.
+      
+  ErrorNotSupportedInterfaceVersion:
+  
+    CSP ErrorNotSupportedInterfaceVersion Status Body Format
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |              Minimum supported Interface version              |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    +                                                               +
+    |                                                               |
+    +                       Output Struct ID                        +
+    |                                                               |
+    +                                                               +
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    
+    Minimum supported Interface version: 4 octets
+    
+      Minimum version of CSP Interface that concrete handler on Server
+      supports.
+      
+    Output Struct ID: 16 otets
+    
+      UUIDv4 of the stuct that is returning by Server handler when
+      Data Message would be correctly processed.  This field using in
+      order to make sure of Server handler output capabilities.
 
   Other statuses:
     
@@ -286,8 +315,8 @@ Data Message
     
   Interface version: 32 bits
   
-    Version of Interface on which current struct was serialized.
-    There will be distinct section with Interface definition.
+    Version of CSP Interface on which current struct was serialized.
+    There will be distinct section with CSP Interface definition.
     
   Data flags: 32 bits
 
@@ -1093,16 +1122,16 @@ CSP Interfaces
 
   By CSP Interface we mean the set of structures where every one have
   several mandatory interface properties and several mandatory
-  individual properties.  If we say that some instance is supported
-  specific Interface of specific version number, than it means that it
-  has snapshot of every struct in this Interface that is on that
-  version.
+  individual properties.  
   
 Interface properties
   
   Interface ID
   
-    UUIDv4 of the struct interface.
+    UUIDv4 of the struct interface.  If we say that some instance is supported
+    specific Interface of specific version number, than it means that it
+    has snapshot of every struct in this Interface that is on that
+    version.  And all this structs have this Interface ID.  Cannot be changed.
     
   Version
   
@@ -1113,12 +1142,12 @@ Interface properties
   Mandatory data flags
   
     Data flags that are always in use in Serialization of interface
-    structs.
+    structs.  Cannot be changed.
     
   Forbidden data flags
   
     Data flags that cannot be used in Serialization of interface
-    structs.
+    structs.  Cannot be changed.
   
 Structures individual properties
 (applied to those that are part of any CSP Interface)
@@ -1149,7 +1178,7 @@ Structures individual properties
   Additional mandatory data flags (optional)
   
     Data flags that are always in use in Serialization of this struct.
-    It is dijunction of every additional mandatory data flags of every
+    It is disjunction of every additional mandatory data flags of every
     struct dependency and struct private restrictions.
     Effective mandatory data flags set is disjunction of mandatory data
     flags and additional mandatory data flags.
@@ -1157,7 +1186,7 @@ Structures individual properties
   Additional forbidden data flags (optional)
   
     Data flags that cannot be used in Serialization of this struct.
-    It is dijunction of every additional forbidden data flags of every
+    It is disjunction of every additional forbidden data flags of every
     struct dependency and struct private restrictions.
     Effective forbidden data flags set is disjunction of forbidden data
     flags and additional forbidden data flags.
@@ -1265,7 +1294,7 @@ CSP Interfaces Versioning
     +-------------------------------------------------------------+
     | Free structs types                                          |
     |                                                             |
-    |   --------                                                  |
+    |   (the same as in Scheme 8)                                 |
     |                                                             |
     | Interface ICsp (version 1)                                  |
     |                                                             |
@@ -1306,6 +1335,8 @@ CSP Interfaces Versioning
     |     private_versions [1]                                    |
     |                                                             |
     |     array of R ar[3]                                        |
+    |                                                             |
+    | Legacy section of Interface ICsp                            |
     |                                                             |
     |   Struct S_version0                                         |
     |     interface_version 0                                     |
@@ -1349,14 +1380,14 @@ CSP Interfaces Versioning
   changed structs.  These are the structs that changed their fields
   composition - structs S, T and V (again T is here as it inherited from
   S).  This structs are postfixed with _version0, where '0' is private
-  version.
+  version.  They all placed to Legacy section.
   
-  In the next ICsp version we change structs R and U.
+  In the next ICsp version we change structs R, U and W.
   
     +-------------------------------------------------------------+
     | Free structs types                                          |
     |                                                             |
-    |   --------                                                  |
+    |   (the same as in Scheme 8)                                 |
     |                                                             |
     | Interface ICsp (version 2)                                  |
     |                                                             |
@@ -1397,10 +1428,13 @@ CSP Interfaces Versioning
     |     integer i                                               |
     |                                                             |
     |   Struct W                                                  |
-    |     interface_version 1                                     |
-    |     private_versions [1]                                    |
+    |     interface_version 2                                     |
+    |     private_versions [2, 1]                                 |
     |                                                             |
     |     array of R ar[3]                                        |
+    |     integer i                                               |
+    |                                                             |
+    | Legacy section of Interface ICsp                            |
     |                                                             |
     |   Struct R_version0                                         |
     |     interface_version 0                                     |
@@ -1433,10 +1467,73 @@ CSP Interfaces Versioning
     |     private_versions [0]                                    |
     |                                                             |
     |     array of T_version0 t[3]                                |
+    |                                                             |
+    |   Struct W_version1                                         |
+    |     interface_version 1                                     |
+    |     private_versions [1]                                    |
+    |                                                             |
+    |     array of R_version0 ar[3]                               |
     +-------------------------------------------------------------+
       
                                 Scheme 10
-      
+                                
+  Private_version fields of Structs R, U and W are replenished by
+  element with value 2.  Their interface_version fields are now equal to
+  2.  Their previous versions are placed to Legacy section.
+  
+  Since struct R most recent version is changed and previous one is
+  placed to Legacy section as R_version0, then we need to replace the
+  names of all fields or parent structs that had type R in Legacy
+  structs.  In our example this is struct T, that inherited R and now
+  is inherits R_version0.
+  
+  Struct U_version0 have field of type T. Struct T is not changed since
+  version 1 and here it implicitly using exact this one.
+  
+  Struct W_version1 had field of type R, but because it is changed in
+  ICsp version 2, type of the field is also changed to R_version0.
+  
+  You must be curious - why don't we just directly naming structs with
+  _versionN suffixes instead of renaming later?  Is there any pitfalls
+  in doing such way?
+  
+  The answer is "yes", there is one pitfall.  If we doing that, with
+  each change of one or onother struct in our CSP Interface it would be
+  necessary to update any routine, any code that depends on it.
+  
+  Also there are two far less significant reasons.  First, suffix
+  explicitly shows that struct which we are dealing with is legacy.
+  Second, it's just not very pretty (in my opinion).
+  
+Processing of CSP Interface structs conversions
+
+  The only reason for keeping legacy versions of structs in interface
+  is to have ability to deal with them when version of interface is not
+  the most recent one.
+  
+  There are couple of different situations which we must handle.
+  
+  1. One party serialized data with interface version that is lower then
+    another party that participate in deserialization process has.
+    
+    In such scenario we must have ability to deserialize such legacy
+    struct version and convert from it to actual one.  Optionally it is
+    not necessary to convert precisely to most recent, but it is a
+    default behaviour.
+  
+  2. One party converts data to on of the legacy versions and serialized
+    it in this form.  This can be the case, when another party that
+    participate in deserialization process has lower interface version
+    then one has.
+    
+    Here we must need to have ability to convert struct from highest
+    version to legacy one and serialize it in this form.
+    
+  One important clarification is that if any party declare that supports
+  any specific CSP Interface there is no obligation for that party in
+  handling all legacy structs from it.  If any party receives Data
+  Message with version that it doesn't whant (or can) to handle it must
+  return status with ErrorNotSupportedInterfaceVersion value.
         
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 

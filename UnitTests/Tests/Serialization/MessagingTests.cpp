@@ -216,8 +216,6 @@ TEST(MessagingTests, DataMessageHandling)
 
     EXPECT_EQ(dataClient.handleData(input, output3), Status::kErrorNotSupportedInterfaceVersion);
     EXPECT_EQ(output3.m_d, 0); // struct wasn't changed
-
-
 }
 
 } // namespace anonymous

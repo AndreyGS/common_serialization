@@ -85,7 +85,7 @@ private:
 };
 
 template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
-    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 interface_version_t IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::getMinimumInterfaceVersion()
 {
     return minimumInterfaceVersion;
@@ -103,12 +103,12 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
     // so here it is only placeholder
     Id id = InputType::getId();
 
-    if (Status status = processing::deserializeDataContextPostprocess<InputType>(ctx, id, minimumInterfaceVersion); !statusSuccess(status))
+    if (Status status = processing::deserializeDataContextPostprocess<InputType>(ctx, id, getMinimumInterfaceVersion()); !statusSuccess(status))
     {
         if (status == Status::kErrorNotSupportedInterfaceVersion)
         {
             context::Common<BinVector> ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::kStatus, ctx.getCommonFlags());
-            RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(minimumInterfaceVersion, OutputType::getId(), ctxOut));
+            RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(getMinimumInterfaceVersion(), OutputType::getId(), ctxOut));
         }
         
         return status;

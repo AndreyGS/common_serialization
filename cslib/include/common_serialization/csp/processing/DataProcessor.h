@@ -532,13 +532,13 @@ constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     requires IsNotISerializableBased<T>
-static constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
+constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
 {
     return Status::kErrorInvalidType;
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-static constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
+constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
 {
     D& input = ctx.getBinaryData();
 

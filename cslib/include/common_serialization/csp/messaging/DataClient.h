@@ -487,10 +487,8 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 
         context::DataFlags outDataFlags = ctxOutData.getDataFlags();
 
-        if (   outDataFlags & OutputType::getEffectiveForbiddenDataFlags()
-            || outDataFlags & _interface.forbiddenDataFlags
+        if (    outDataFlags & OutputType::getEffectiveForbiddenDataFlags()
             || (outDataFlags & OutputType::getEffectiveMandatoryDataFlags()) != OutputType::getEffectiveMandatoryDataFlags()
-            || (outDataFlags & _interface.mandatoryDataFlags) != _interface.mandatoryDataFlags
         )
             return Status::kErrorDataCorrupted;
 
