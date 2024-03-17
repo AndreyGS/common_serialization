@@ -31,7 +31,7 @@ namespace common_serialization::csp::processing
 template<>
 Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignableAlignedToOne& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.a, ctx));
     RUN(serializeData(value.s, ctx));
@@ -42,7 +42,7 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignab
 template<>
 Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignable& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.q, ctx));
     RUN(serializeData(value.w, ctx));
@@ -54,7 +54,7 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignab
 template<>
 Status DataProcessor::serializeData(const not_part_of_interfaces::DynamicPolymorphic& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.m_r, ctx));
     RUN(serializeData(value.m_arrR, ctx));
@@ -65,7 +65,7 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::DynamicPolymor
 template<>
 Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondBase& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.m_d0, ctx));
 
@@ -75,7 +75,7 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondBase& v
 template<>
 Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge1& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
     RUN(serializeData(value.m_d1, ctx));
@@ -86,7 +86,7 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge1& 
 template<>
 Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge2& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
     RUN(serializeData(value.m_d2, ctx));
@@ -97,10 +97,32 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge2& 
 template<>
 Status DataProcessor::serializeData(const not_part_of_interfaces::TwoInts& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.x, ctx));
     RUN(serializeData(value.y, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const not_part_of_interfaces::RecursiveTestSpecial1& value, context::SData<>& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.pAny, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::serializeData(const not_part_of_interfaces::RecursiveTestSpecial2& value, context::SData<>& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
+
+    RUN(serializeData(value.pI, ctx));
+    RUN(serializeData(value.pNext, ctx));
+    RUN(serializeData(value.pAny, ctx));
 
     return Status::kNoError;
 }

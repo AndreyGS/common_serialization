@@ -213,28 +213,6 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 }
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::RecursiveTestSpecial1& value)
-{
-    CSP_DESERIALIZE_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.pAny));
-   
-    return Status::kNoError;
-}
-
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::RecursiveTestSpecial2& value)
-{
-    CSP_DESERIALIZE_COMMON(ctx, value);
-
-    RUN(deserializeData(ctx, value.pI));
-    RUN(deserializeData(ctx, value.pNext));
-    RUN(deserializeData(ctx, value.pAny));
-
-    return Status::kNoError;
-}
-
-template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::ManyPointersType<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);

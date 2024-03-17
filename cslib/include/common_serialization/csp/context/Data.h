@@ -273,25 +273,19 @@ public:
     /// @return Data processing flags
     [[nodiscard]] constexpr DataFlags getDataFlags() noexcept 
     {
-        return DataFlags
-            {
-                  (m_alignmentMayBeNotEqual ? DataFlags::kAlignmentMayBeNotEqual : 0)
-                | (m_sizeOfPrimitivesMayBeNotEqual ? DataFlags::kSizeOfPrimitivesMayBeNotEqual : 0)
-                | (m_allowUnmanagedPointers ? DataFlags::kAllowUnmanagedPointers : 0)
-                | (m_checkRecursivePointers ? DataFlags::kCheckRecursivePointers : 0)
-                | (m_simplyAssignableTagsOptimizationsAreTurnedOff ? DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff : 0)
-            };
+        return m_dataFlags;
     }
 
     /// @brief Set data processing flags
     /// @param dataFlags Data processing flags
     constexpr void setDataFlags(DataFlags dataFlags)
-    { 
-        m_alignmentMayBeNotEqual = dataFlags.alignmentMayBeNotEqual();
-        m_sizeOfPrimitivesMayBeNotEqual = dataFlags.sizeOfPrimitivesMayBeNotEqual();
-        m_allowUnmanagedPointers = dataFlags.allowUnmanagedPointers();
-        m_checkRecursivePointers = dataFlags.checkRecursivePointers();
-        m_simplyAssignableTagsOptimizationsAreTurnedOff = dataFlags.simplyAssignableTagsOptimizationsAreTurnedOff();;
+    {
+        m_dataFlags = dataFlags;
+        m_alignmentMayBeNotEqual = m_dataFlags.alignmentMayBeNotEqual();
+        m_sizeOfPrimitivesMayBeNotEqual = m_dataFlags.sizeOfPrimitivesMayBeNotEqual();
+        m_allowUnmanagedPointers = m_dataFlags.allowUnmanagedPointers();
+        m_checkRecursivePointers = m_dataFlags.checkRecursivePointers();
+        m_simplyAssignableTagsOptimizationsAreTurnedOff = m_dataFlags.simplyAssignableTagsOptimizationsAreTurnedOff();;
     }
 
     [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
@@ -363,11 +357,7 @@ public:
         m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
-        m_alignmentMayBeNotEqual = false;
-        m_sizeOfPrimitivesMayBeNotEqual = false;
-        m_allowUnmanagedPointers = false;
-        m_checkRecursivePointers = false;
-        m_simplyAssignableTagsOptimizationsAreTurnedOff = false;
+        setDataFlags(DataFlags{});
     }
 
     /// @brief Reset all fields to their default values and clears binary data container
@@ -379,18 +369,20 @@ public:
         m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
-        m_alignmentMayBeNotEqual = false;
-        m_sizeOfPrimitivesMayBeNotEqual = false;
-        m_allowUnmanagedPointers = false;
-        m_checkRecursivePointers = false;
-        m_simplyAssignableTagsOptimizationsAreTurnedOff = false;
+        setDataFlags(DataFlags{});
     }
 
 private:
     EPP  m_epp;
     interface_version_t m_interfaceVersion{ traits::kInterfaceVersionUndefined };
+    DataFlags m_dataFlags;
     bool m_interfaceVersionsNotMatch{ false };
     bool m_auxUsingHeapAllocation{ false };
+
+    // All next bool members are mirroring m_dataFlags value
+    // they all are precalculated, when m_dataFlags is set up.
+    // We keep both values m_dataFlags and respective booleans
+    // for caching proposes (to speed up calculations).
     bool m_alignmentMayBeNotEqual{ false };
     bool m_sizeOfPrimitivesMayBeNotEqual{ false };
     bool m_allowUnmanagedPointers{ false };

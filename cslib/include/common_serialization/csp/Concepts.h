@@ -25,6 +25,7 @@
 
 #include "common_serialization/Status.h"
 #include "common_serialization/Containers/GenericPointerKeeper.h"
+#include "common_serialization/csp/context/DataFlags.h"
 
 namespace common_serialization::csp
 {
@@ -137,6 +138,9 @@ template<typename T>
 concept AnySimplyAssignable = AlwaysSimplyAssignableType<T> || SimplyAssignableFixedSizeType<T> || SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T>;
 
 template<typename T>
+concept NotSimplyAssignable = !AnySimplyAssignable<T>;
+
+template<typename T>
 concept EmptyType 
     =  requires(T t) { typename normalize_t<T>::empty_type_tag; };
 
@@ -145,5 +149,12 @@ concept IsISerializableBased = std::is_base_of_v<csp::ISerializable<normalize_t<
 
 template<typename T>
 concept IsNotISerializableBased = !IsISerializableBased<T>;
+
+template<typename T>
+concept StructHaveDataFlags = requires
+{
+    { T::getEffectiveMandatoryDataFlags() } -> std::same_as<context::DataFlags>;
+    { T::getEffectiveForbiddenDataFlags() } -> std::same_as<context::DataFlags>;
+};
 
 } // namespace common_serialization::csp

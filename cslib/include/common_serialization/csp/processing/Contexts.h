@@ -104,6 +104,20 @@ constexpr Status deserializeCommonContextNoChecks(context::Common<D>& ctx) noexc
     return Status::kNoError;
 }
 
+template<typename T>
+constexpr bool areDataFlagsNotCompatible(context::DataFlags dataFlags)
+{
+    if constexpr (!StructHaveDataFlags<T>)
+        return true;
+    else
+    {
+        constexpr context::DataFlags effectiveMandatoryDataFlags = T::getEffectiveMandatoryDataFlags();
+        constexpr context::DataFlags effectiveForbiddenDataFlags = T::getEffectiveForbiddenDataFlags();
+
+        return (dataFlags & effectiveMandatoryDataFlags) != effectiveMandatoryDataFlags || (dataFlags & effectiveForbiddenDataFlags);
+    }
+}
+
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
 constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 {
@@ -134,10 +148,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 
     context::DataFlags dataFlags = ctx.getDataFlags();
 
-    constexpr context::DataFlags effectiveMandatoryDataFlags = T::getEffectiveMandatoryDataFlags();
-    constexpr context::DataFlags effectiveForbiddenDataFlags = T::getEffectiveForbiddenDataFlags();
-
-    if ((dataFlags & effectiveMandatoryDataFlags) != effectiveMandatoryDataFlags || static_cast<bool>(dataFlags & effectiveForbiddenDataFlags))
+    if (areDataFlagsNotCompatible<T>(dataFlags))
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
     RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(dataFlags)));
@@ -201,9 +212,7 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
     else if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
-    context::DataFlags dataFlags = ctx.getDataFlags();
-
-    if ((dataFlags & T::getEffectiveMandatoryDataFlags()) != T::getEffectiveMandatoryDataFlags() || static_cast<bool>(dataFlags & T::getEffectiveForbiddenDataFlags()))
+    if (areDataFlagsNotCompatible<T>(ctx.getDataFlags()))
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
     if (ctx.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)

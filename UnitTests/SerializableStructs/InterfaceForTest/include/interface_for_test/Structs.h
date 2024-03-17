@@ -700,21 +700,6 @@ SimilarType1<T>& SimilarType1<T>::operator=(const SimilarType2<T>& rhs) noexcept
     return *this;
 }
 
-struct RecursiveTestSpecial1;
-
-struct RecursiveTestSpecial2
-{
-    int* pI{ nullptr };
-    RecursiveTestSpecial2* pNext{ nullptr };
-    RecursiveTestSpecial1* pAny{ nullptr };
-};
-
-struct RecursiveTestSpecial1
-{
-    RecursiveTestSpecial2* pAny{ nullptr };
-};
-
-
 template<typename T = cs::Dummy>
 class ManyPointersType : public cs::csp::ISerializable<cs::GetCrtpMainType<ManyPointersType<>, T >>
 {
@@ -776,8 +761,8 @@ public:
     cs::Vector<cs::Vector<int*, cs::RawStrategicAllocatorHelper<int*>>*, cs::RawStrategicAllocatorHelper<cs::Vector<int*, cs::RawStrategicAllocatorHelper<int*>>*>> m_vecRecursive;
     cs::Vector<int*, cs::RawStrategicAllocatorHelper<int*>>* m_pVec;
 
-    RecursiveTestSpecial1 m_rtSpec1;
-    RecursiveTestSpecial2 m_rtSpec2;
+    not_part_of_interfaces::RecursiveTestSpecial1 m_rtSpec1;
+    not_part_of_interfaces::RecursiveTestSpecial2 m_rtSpec2;
 
     int* m_pInt{ nullptr };
     int m_intArr[3]{ 0 };

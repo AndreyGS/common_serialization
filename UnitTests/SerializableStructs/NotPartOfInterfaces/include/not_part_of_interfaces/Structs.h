@@ -143,4 +143,18 @@ struct SimplyAssignableWithoutSerializationFunctions
     uint8_t i{ 0 };
 };
 
+struct RecursiveTestSpecial1;
+
+struct RecursiveTestSpecial2
+{
+    int* pI{ nullptr };
+    RecursiveTestSpecial2* pNext{ nullptr };
+    RecursiveTestSpecial1* pAny{ nullptr };
+};
+
+struct RecursiveTestSpecial1
+{
+    RecursiveTestSpecial2* pAny{ nullptr };
+};
+
 } // namespace not_part_of_interfaces

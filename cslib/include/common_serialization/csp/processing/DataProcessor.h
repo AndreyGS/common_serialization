@@ -50,15 +50,8 @@ public:
 protected:
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static constexpr Status serializeDataSimplyAssignable(const T& value, context::SData<S, PM>& ctx);
-    template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-        requires AnySimplyAssignable<T>
-    static constexpr Status serializeDataSimplyAssignable(const T& value, context::SData<S, PM>& ctx);
-
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status deserializeDataSimplyAssignable(context::DData<D, PM>& ctx, T& value);
-    template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-        requires AnySimplyAssignable<T>
-    static constexpr Status deserializeDataSimplyAssignable(context::DData<D, PM>&ctx, T & value);
 
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static constexpr Status addPointerToMap(const T p, context::SData<S, PM>& ctx, bool& newPointer);
@@ -68,18 +61,10 @@ protected:
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static constexpr Status convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx);
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-        requires IsNotISerializableBased<T>
-    static constexpr Status convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx);
-
-    template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static constexpr Status convertToOldStruct(const T& value, uint32_t thisVersionCompat, context::SData<S, PM>& ctx);
 
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value);
-    template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-        requires IsNotISerializableBased<T>
-    static constexpr Status convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value);
-
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t thisVersionCompat, T& value);
 };
@@ -393,65 +378,61 @@ constexpr Status DataProcessor::deserializeData(size_t originalTypeSize, context
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-static constexpr Status DataProcessor::serializeDataSimplyAssignable(const T& value, context::SData<S, PM>& ctx)
-{
-    return Status::kErrorInvalidType;
-}
-
-template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    requires AnySimplyAssignable<T>
 static constexpr Status DataProcessor::serializeDataSimplyAssignable(const T& value, context::SData<S, PM>&ctx)
 {
-    if constexpr (IsISerializableBased<T>)
-        if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
-            return Status::kNoError;
-
-    if (   AlwaysSimplyAssignableType<T>
-        || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-        || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
-        || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual()
-    )
-    {
-        // for simple assignable types it is preferable to get a whole struct at a time
-        RUN(ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), sizeof(T)));
-
-        return Status::kNoFurtherProcessingRequired;
-    }
+    if constexpr (NotSimplyAssignable<T>)
+        return Status::kErrorInvalidType;
     else
-        return Status::kErrorNotSupportedSerializationSettingsForStruct;       
+    {
+        if constexpr (IsISerializableBased<T>)
+            if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
+                return Status::kNoError;
+
+        if (   AlwaysSimplyAssignableType<T>
+            || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
+            || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
+            || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual()
+        )
+        {
+            // for simple assignable types it is preferable to get a whole struct at a time
+            RUN(ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), sizeof(T)));
+
+            return Status::kNoFurtherProcessingRequired;
+        }
+        else
+            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+    }
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
 constexpr Status DataProcessor::deserializeDataSimplyAssignable(context::DData<D, PM>& ctx, T& value)
 {
-    return Status::kErrorInvalidType;
-}
-
-template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    requires AnySimplyAssignable<T>
-constexpr Status DataProcessor::deserializeDataSimplyAssignable(context::DData<D, PM>& ctx, T& value)
-{
-    if constexpr (IsISerializableBased<T>)
-        if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
-            return Status::kNoError;
-
-    if (   AlwaysSimplyAssignableType<T>
-        || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-        || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
-        || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual()
-    )
-    {
-        typename D::size_type readSize = 0;
-        // for simple assignable types it is preferable to get a whole struct at a time
-        RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T), &readSize));
-
-        if (readSize != sizeof(T))
-            return Status::kErrorOverflow;
-
-        return Status::kNoFurtherProcessingRequired;
-    }
+    if constexpr (NotSimplyAssignable<T>)
+        return Status::kErrorInvalidType;
     else
-        return Status::kErrorNotSupportedSerializationSettingsForStruct;
+    {
+        if constexpr (IsISerializableBased<T>)
+            if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
+                return Status::kNoError;
+
+        if (   AlwaysSimplyAssignableType<T>
+            || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
+            || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
+            || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual()
+        )
+        {
+            typename D::size_type readSize = 0;
+            // for simple assignable types it is preferable to get a whole struct at a time
+            RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T), &readSize));
+
+            if (readSize != sizeof(T))
+                return Status::kErrorOverflow;
+
+            return Status::kNoFurtherProcessingRequired;
+        }
+        else
+            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+    }
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
@@ -517,47 +498,43 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T&
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
 constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
 {
-    uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
-
-    S& output = ctx.getBinaryData();
-
-    if (targetVersion == value.getLatestPrivateVersion())
-        return Status::kNoError;
-    // Normaly, next condition shall never succeed
-    else if (targetVersion == traits::kInterfaceVersionUndefined)
-        return Status::kErrorInternal;
+    if constexpr (IsNotISerializableBased<T>)
+        return Status::kErrorInvalidType;
     else
-        return convertToOldStruct(value, targetVersion, ctx);
-}
+    {
+        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
 
-template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    requires IsNotISerializableBased<T>
-constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
-{
-    return Status::kErrorInvalidType;
+        S& output = ctx.getBinaryData();
+
+        if (targetVersion == value.getLatestPrivateVersion())
+            return Status::kNoError;
+        // Normaly, next condition shall never succeed
+        else if (targetVersion == traits::kInterfaceVersionUndefined)
+            return Status::kErrorInternal;
+        else
+            return convertToOldStruct(value, targetVersion, ctx);
+    }
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
 constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
 {
-    D& input = ctx.getBinaryData();
-
-    uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
-
-    if (targetVersion == value.getLatestPrivateVersion())
-        return Status::kNoError;
-    // Normaly, next condition shall never succeed
-    else if (targetVersion == traits::kInterfaceVersionUndefined)
-        return Status::kErrorInternal;
+    if constexpr (IsNotISerializableBased<T>)
+        return Status::kErrorInvalidType;
     else
-        return convertFromOldStruct(ctx, targetVersion, value);
-}
+    {
+        D& input = ctx.getBinaryData();
 
-template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    requires IsNotISerializableBased<T>
-constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
-{
-    return Status::kErrorInvalidType;
+        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
+
+        if (targetVersion == value.getLatestPrivateVersion())
+            return Status::kNoError;
+        // Normaly, next condition shall never succeed
+        else if (targetVersion == traits::kInterfaceVersionUndefined)
+            return Status::kErrorInternal;
+        else
+            return convertFromOldStruct(ctx, targetVersion, value);
+    }
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>

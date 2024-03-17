@@ -57,10 +57,6 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimilarType2<>& value);
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::RecursiveTestSpecial1& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::RecursiveTestSpecial2& value);
-template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::ManyPointersType<>& value);
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::DForAllModesTests<>& value);

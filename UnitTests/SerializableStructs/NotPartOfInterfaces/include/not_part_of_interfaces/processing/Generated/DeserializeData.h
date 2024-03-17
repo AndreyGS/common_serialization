@@ -42,5 +42,9 @@ template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge2& value);
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::TwoInts& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial1& value);
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial2& value);
 
 } // namespace common_serialization::csp::processing

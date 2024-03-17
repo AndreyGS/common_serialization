@@ -214,28 +214,6 @@ Status DataProcessor::serializeData(const interface_for_test::SimilarType2<>& va
 }
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::RecursiveTestSpecial1& value, context::SData<>& ctx)
-{
-    CSP_SERIALIZE_COMMON(value, ctx);
-
-    RUN(serializeData(value.pAny, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
-Status DataProcessor::serializeData(const interface_for_test::RecursiveTestSpecial2& value, context::SData<>& ctx)
-{
-    CSP_SERIALIZE_COMMON(value, ctx);
-
-    RUN(serializeData(value.pI, ctx));
-    RUN(serializeData(value.pNext, ctx));
-    RUN(serializeData(value.pAny, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
 Status DataProcessor::serializeData(const interface_for_test::ManyPointersType<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);

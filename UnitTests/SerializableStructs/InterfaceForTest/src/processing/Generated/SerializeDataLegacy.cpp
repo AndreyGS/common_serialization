@@ -31,7 +31,7 @@ namespace common_serialization::csp::processing
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.m_ti, ctx));
 
@@ -41,7 +41,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAl
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimplyAssignable_Version0<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.m_i, ctx));
     RUN(serializeData(value.m_j, ctx));
@@ -66,7 +66,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignable_V
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableDescendant_Version0<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(static_cast<const interface_for_test::SimplyAssignable_Version0<>&>(value), ctx));
 
@@ -78,7 +78,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableDe
 template<>
 Status DataProcessor::serializeData(const interface_for_test::AlwaysSimplyAssignable_Version0<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.m_xx, ctx));
     RUN(serializeData(value.m_yy, ctx));
@@ -89,7 +89,7 @@ Status DataProcessor::serializeData(const interface_for_test::AlwaysSimplyAssign
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableFixedSize_Version1<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.m_xx, ctx));
     RUN(serializeData(value.m_asa, ctx));
@@ -101,7 +101,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableFi
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version0<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.m_saDs, ctx));
     RUN(serializeData(value.m_diamond, ctx));
@@ -117,7 +117,7 @@ Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.m_x, ctx));
     RUN(serializeData(value.m_y, ctx));
@@ -128,7 +128,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAl
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version2<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_NO_CONVERSION_COMMON(value, ctx);
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
     RUN(serializeData(value.m_saS, ctx));
     RUN(serializeData(value.m_diamond, ctx));

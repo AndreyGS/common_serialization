@@ -31,7 +31,7 @@ namespace common_serialization::csp::processing
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignableAlignedToOne& value)
 {
-    CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
     RUN(deserializeData(ctx, value.a));
     RUN(deserializeData(ctx, value.s));
@@ -42,7 +42,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignable& value)
 {
-    CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
     RUN(deserializeData(ctx, value.q));
     RUN(deserializeData(ctx, value.w));
@@ -53,7 +53,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::DynamicPolymorphic& value)
 {
-    CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
     RUN(deserializeData(ctx, value.m_r));
     RUN(deserializeData(ctx, value.m_arrR));
@@ -64,7 +64,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::DiamondBase& value)
 {
-    CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
     RUN(deserializeData(ctx, value.m_d0));
 
@@ -74,7 +74,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge1& value)
 {
-    CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
     RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondBase&>(value)));
     RUN(deserializeData(ctx, value.m_d1));
@@ -85,7 +85,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge2& value)
 {
-    CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
     RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondBase&>(value)));
     RUN(deserializeData(ctx, value.m_d2));
@@ -97,10 +97,32 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::TwoInts& value)
 {
-    CSP_DESERIALIZE_NO_CONVERSION_COMMON(ctx, value);
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
     RUN(deserializeData(ctx, value.x));
     RUN(deserializeData(ctx, value.y));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial1& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.pAny));
+
+    return Status::kNoError;
+}
+
+template<>
+Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial2& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    RUN(deserializeData(ctx, value.pI));
+    RUN(deserializeData(ctx, value.pNext));
+    RUN(deserializeData(ctx, value.pAny));
 
     return Status::kNoError;
 }

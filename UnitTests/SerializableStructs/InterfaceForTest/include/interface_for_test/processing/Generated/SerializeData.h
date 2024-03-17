@@ -57,10 +57,6 @@ Status DataProcessor::serializeData(const interface_for_test::SimilarType1<>& va
 template<>
 Status DataProcessor::serializeData(const interface_for_test::SimilarType2<>& value, context::SData<>& ctx);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::RecursiveTestSpecial1& value, context::SData<>& ctx);
-template<>
-Status DataProcessor::serializeData(const interface_for_test::RecursiveTestSpecial2& value, context::SData<>& ctx);
-template<>
 Status DataProcessor::serializeData(const interface_for_test::ManyPointersType<>& value, context::SData<>& ctx);
 template<>
 Status DataProcessor::serializeData(const interface_for_test::DForAllModesTests<>& value, context::SData<>& ctx);
