@@ -26,3 +26,4 @@
 26. Add more tests on structs with simply_assignable_fixed_size_tag and always_simply_assignable_tag.
 27. Add tests on not compatible CSP data flags settings, including interface version not match situation.
 28. Add Experemental field in CSP Common context (?).
+29. Write tests on this situation: CSP Interface is 3, Context Interface is 1, struct private version is 0 (or 1) and struct latest interface version is 2.

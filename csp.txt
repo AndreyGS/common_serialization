@@ -410,6 +410,9 @@ Data that can be serialized by CSP
     They can be multiple inherited.
     Also struct can have one of special CSP tags that can optimize
     Serialization process.
+    Data Messages are always contain a single Top-struct, which itself
+    can hold any others data (depending on its internal structure).
+    This Top-struct is must to belong to one of CSP Interfaces. 
    
 Structures tags
 
@@ -536,7 +539,7 @@ Serialization of Primitives
     defined in the current execution environment.  So if we return to
     Struct E from Scheme 3 and serilize it field-by-field, than we will
     get two integers that are resides one right after another in memory
-    just as in original struct.  And if Struct E is top-struct, then all
+    just as in original struct.  And if Struct E is Top-struct, then all
     Data Body will be 8 octet sized.
     
     The only exception is special size_t type which will be described in
@@ -1513,15 +1516,8 @@ Processing of CSP Interface structs conversions
   
   There are couple of different situations which we must handle.
   
-  1. One party serialized data with interface version that is lower then
-    another party that participate in deserialization process has.
-    
-    In such scenario we must have ability to deserialize such legacy
-    struct version and convert from it to actual one.  Optionally it is
-    not necessary to convert precisely to most recent, but it is a
-    default behaviour.
-  
-  2. One party converts data to on of the legacy versions and serialized
+  1.  Serialization to legacy versions.
+    One party converts data to one of the legacy versions and serialized
     it in this form.  This can be the case, when another party that
     participate in deserialization process has lower interface version
     then one has.
@@ -1529,11 +1525,76 @@ Processing of CSP Interface structs conversions
     Here we must need to have ability to convert struct from highest
     version to legacy one and serialize it in this form.
     
+  2.  Deserialization from legacy versions.
+    One party serialized data with interface version that is lower then
+    another party that participate in deserialization process has.
+    
+    In such scenario we must have ability to deserialize such legacy
+    struct version and convert from it to actual one.  Optionally it is
+    not necessary to convert precisely to most recent, but it is a
+    default behaviour.
+  
+  Data Context contains "interface version" field.  This field is
+  contain target interface version that would be participate in
+  Serialization.  Any value that is higher or equal to Top-struct Struct
+  Interface version property means that no conversion need to be
+  applied and must be applied otherwise.
+  
   One important clarification is that if any party declare that supports
   any specific CSP Interface there is no obligation for that party in
   handling all legacy structs from it.  If any party receives Data
-  Message with version that it doesn't whant (or can) to handle it must
+  Message with version that it doesn't want (or can) to handle it must
   return status with ErrorNotSupportedInterfaceVersion value.
+
+  Serialization to legacy versions
+  
+    1.  Checking of Context interface version.  If it is lower than
+      current value of Top-struct interface version field, then we are
+      in compatibility ("interface versions not match") mode.  But if it
+      is lower than lowest Top-struct private version, then settings are
+      incompatible and processing must be stoped.
+      
+      For example.  If Context interface version is equal to 4, and
+      Top-struct private versions array is [7, 6, 3, 2], then 4 is in
+      the range [2, 7), so we are in compatibility mode.
+      
+    Next steps are doing after Data Context fully processed and we start
+    serializing Data Body.
+      
+    2.  Compare Context interface version value against versions of
+      current struct private versions array field begining with the most
+      recent private version (element with 0 offset in the array).  We
+      need to find maximum element of private versions that is equal or
+      less than Data Context interface version.
+      
+      For example.  Let values be as in item 1, then struct private
+      version satisfying the above condition is 3.  Because 7 and 6 are
+      bigger then 4.
+      
+    3.  Compare version found in previous item with most latest private
+      version of current struct. If they are equal, then go to item 5.
+      
+    4.  Struct is converted to version that was found at item 2.
+      
+    5.  If struct have any of Simply Assignable tags and there is no
+      Data Flag simply assignable tags optimizations are turned off is
+      set, then.
+      
+      a.  If struct Interface version is bigger then Context interface
+        version, then go to item 6.
+        
+      b.  If Data Flags are compatible with this struct simply
+        assignable optimizations (see rules of this type of structs
+        serialization), then standard serialization must be performed.
+      
+      c.  Else go to item 6.
+      
+    6.  Struct is serialized field-by-field using standard rules.  And
+      every time when serialization recursively comming to another
+      struct that is a part of CSP Interface it serialization is
+      begining with item 2.
+      
+
         
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 

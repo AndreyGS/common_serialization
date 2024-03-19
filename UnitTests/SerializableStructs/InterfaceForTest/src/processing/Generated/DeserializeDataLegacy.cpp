@@ -31,7 +31,7 @@ namespace common_serialization::csp::processing
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_ti));
 
@@ -41,7 +41,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignable_Version0<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_i));
     RUN(deserializeData(ctx, value.m_j));
@@ -66,7 +66,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant_Version0<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, static_cast<interface_for_test::SimplyAssignable_Version0<>&>(value)));
 
@@ -78,7 +78,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable_Version0<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_xx));
     RUN(deserializeData(ctx, value.m_yy));
@@ -89,7 +89,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize_Version1<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_xx));
     RUN(deserializeData(ctx, value.m_asa));
@@ -101,7 +101,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version0<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_saDs));
     RUN(deserializeData(ctx, value.m_diamond));
@@ -117,7 +117,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_x));
     RUN(deserializeData(ctx, value.m_y));
@@ -128,7 +128,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 template<>
 Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version2<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     RUN(deserializeData(ctx, value.m_saS));
     RUN(deserializeData(ctx, value.m_diamond));
