@@ -1586,15 +1586,70 @@ Processing of CSP Interface structs conversions
       b.  If Data Flags are compatible with this struct simply
         assignable optimizations (see rules of this type of structs
         serialization), then standard serialization must be performed.
+        Then go to next field in item 6 processing of framing struct
+        or if current struct is Top-struct already, finish
+        serialization.
       
       c.  Else go to item 6.
       
-    6.  Struct is serialized field-by-field using standard rules.  And
-      every time when serialization recursively comming to another
-      struct that is a part of CSP Interface it serialization is
-      begining with item 2.
+    6.  Struct is serialized field-by-field begining every time from
+      item 2 for CSP Interface structs, item 5 for Symply assignable
+      stucts and standard serialization is performed with all other
+      types.  If current struct is not Top-struct after last field
+      is processed processing conitnues with next field in framing 
+      struct.  And if it is Top-struct after last field the
+      serialization is finished.
       
+    Deserialization from legacy versions
+    
+    First two items are the same as in "Serialization to legacy
+    versions" paragraph.
+      
+    3.  Compare version found in previous item with most latest private
+      version of current struct to choose compatible version of struct
+      to make deserialization.  If they are equal, then we using most
+      recent version of the struct, and if not, Struct will be
+      deserialized using legacy version definition before assigning to
+      actual one object.
 
+      If we take example from "Serialization to legacy versions" item 1,
+      then deserialization of Top-struct will be performed using
+      Top-struct_version3 choice.
+      
+    4.  If struct have any of Simply Assignable tags and there is no
+      Data Flag simply assignable tags optimizations are turned off is
+      set, then.
+      
+      a.  If struct Interface version is bigger then Context interface
+        version, then go to item 5.
+        
+       b.  If Data Flags are compatible with this struct simply
+        assignable optimizations (see rules of this type of structs
+        serialization), then standard serialization must be performed.
+        Then go to next field in item 5 processing of framing struct
+        or if current struct is Top-struct already then go to item 6.
+      
+      c.  Else go to item 5.
+      
+    5.  Struct is serialized field-by-field begining every time from
+      item 2 for CSP Interface structs, item 4 for Symply assignable
+      stucts and standard serialization is performed with all other
+      types.  After final field of current struct is finished go to
+      item 6 if this struct is part of CSP Interface and to framing
+      struct if it is not.
+      
+    6.  If this struct version is not the latest one then it must be
+      converted and then assigned to actual object to which we
+      deserializing.  If this struct is Top-struct, deserialization is
+      finished now and if it is not, then go to next field in item 5 of
+      framing struct.
+      
+      
+    
+    
+    
+      
+    
         
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 
