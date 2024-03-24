@@ -1571,7 +1571,7 @@ Processing of CSP Interface structs conversions
       version satisfying the above condition is 3.  Because 7 and 6 are
       bigger then 4.
       
-    3.  Compare version found in previous item with most latest private
+    3.  Compare version found in previous item with the latest private
       version of current struct. If they are equal, then go to item 5.
       
     4.  Struct is converted to version that was found at item 2.
@@ -1632,7 +1632,7 @@ Processing of CSP Interface structs conversions
       c.  Else go to item 5.
       
     5.  Struct is serialized field-by-field begining every time from
-      item 2 for CSP Interface structs, item 4 for Symply assignable
+      item 2 for CSP Interface structs, item 4 for Simply assignable
       stucts and standard serialization is performed with all other
       types.  After final field of current struct is finished go to
       item 6 if this struct is part of CSP Interface and to framing
@@ -1644,7 +1644,20 @@ Processing of CSP Interface structs conversions
       finished now and if it is not, then go to next field in item 5 of
       framing struct.
       
-      
+CSP Messaging
+
+  There are two participants in Messaging process: Client and Server.
+  
+  Server
+  
+    Receives requests from client and answers them.
+    
+    On GetSettings Message it must answer with CspPartySettings struct.
+    This struct contains list of CSP protocol versions, mandatory Common
+    flags, forbidden Common flags and list of CSP Interfaces with their
+    versions that Server supports.
+    
+    On Data Message Server checks in its database 
     
     
     
