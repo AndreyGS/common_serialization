@@ -32,7 +32,7 @@ namespace common_serialization::csp::processing
 template<>
 constexpr Status DataProcessor::serializeData(const Id& value, context::SData<>& ctx)
 {
-    RUN(serializeData(value.id, ctx));
+    CS_RUN(serializeData(value.id, ctx));
 
     return Status::kNoError;
 }
@@ -40,7 +40,7 @@ constexpr Status DataProcessor::serializeData(const Id& value, context::SData<>&
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value)
 {
-    RUN(deserializeData(ctx, value.id));
+    CS_RUN(deserializeData(ctx, value.id));
 
     return Status::kNoError;
 }
@@ -48,7 +48,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value
 template<>
 constexpr Status DataProcessor::serializeData(const context::DataFlags& value, context::SData<>& ctx)
 {
-    RUN(serializeData(static_cast<uint32_t>(value), ctx));
+    CS_RUN(serializeData(static_cast<uint32_t>(value), ctx));
 
     return Status::kNoError;
 }
@@ -57,7 +57,7 @@ template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, context::DataFlags& value)
 {
     uint32_t dataFlags{ 0 };
-    RUN(deserializeData(ctx, dataFlags));
+    CS_RUN(deserializeData(ctx, dataFlags));
     value = dataFlags;
 
     return Status::kNoError;
@@ -66,10 +66,10 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, context::
 template<>
 constexpr Status DataProcessor::serializeData(const traits::Interface& value, context::SData<>& ctx)
 {
-    RUN(serializeData(value.id, ctx));
-    RUN(serializeData(value.version, ctx));
-    RUN(serializeData(value.mandatoryDataFlags, ctx));
-    RUN(serializeData(value.forbiddenDataFlags, ctx));
+    CS_RUN(serializeData(value.id, ctx));
+    CS_RUN(serializeData(value.version, ctx));
+    CS_RUN(serializeData(value.mandatoryDataFlags, ctx));
+    CS_RUN(serializeData(value.forbiddenDataFlags, ctx));
 
     return Status::kNoError;
 }
@@ -77,10 +77,10 @@ constexpr Status DataProcessor::serializeData(const traits::Interface& value, co
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, traits::Interface& value)
 {
-    RUN(deserializeData(ctx, value.id));
-    RUN(deserializeData(ctx, value.version));
-    RUN(deserializeData(ctx, value.mandatoryDataFlags));
-    RUN(deserializeData(ctx, value.forbiddenDataFlags));
+    CS_RUN(deserializeData(ctx, value.id));
+    CS_RUN(deserializeData(ctx, value.version));
+    CS_RUN(deserializeData(ctx, value.mandatoryDataFlags));
+    CS_RUN(deserializeData(ctx, value.forbiddenDataFlags));
 
     return Status::kNoError;
 }

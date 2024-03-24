@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Concurency/GuardRW.h
+ * @file cslib/include/common_serialization/Concurrency/Concepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,49 +23,17 @@
 
 #pragma once
 
-#include "common_serialization/Concurency/Concepts.h"
-
 namespace common_serialization
 {
-
-/// @brief Simple RAII guard for RW mutex
-/// @tparam SM Mutex which implement ISharedMutex interface
-/// @tparam write Flag that indicates that guard required for write
-template<ISharedMutex SM, bool write>
-class GuardRW
+    
+/// @brief Interface that shared mutex must implement
+template<typename T>
+concept ISharedMutex = requires(T t)
 {
-public:
-    /// @brief Init constructor
-    /// @param sharedMutex Managed mutex
-    GuardRW(SM& sharedMutex)
-        : m_sharedMutex(sharedMutex)
-    {
-        if constexpr (write)
-            m_sharedMutex.lock();
-        else
-            m_sharedMutex.lock_shared();
-    }
-
-    ~GuardRW()
-    {
-        if constexpr (write)
-            m_sharedMutex.unlock();
-        else
-            m_sharedMutex.unlock_shared();
-    }
-
-private:
-    SM& m_sharedMutex;
+    { t.lock() };
+    { t.lock_shared() };
+    { t.unlock() };
+    { t.unlock_shared() };
 };
-
-/// @brief Shared read GuardRW<>
-/// @tparam SM Mutex which implement ISharedMutex interface
-template<ISharedMutex SM>
-using RGuard = GuardRW<SM, false>;
-
-/// @brief Exclusive Write GuardRW<>
-/// @tparam SM Mutex which implement ISharedMutex interface
-template<ISharedMutex SM>
-using WGuard = GuardRW<SM, true>;
 
 } // namespace common_serialization

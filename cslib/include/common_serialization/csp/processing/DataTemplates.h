@@ -32,8 +32,8 @@ namespace common_serialization::csp::processing
 template<typename T, typename A, typename X>
 Status serializeData(const Vector<T, A>& value, X& ctx)
 {
-    RUN(DataProcessor::serializeData(value.size(), ctx));
-    RUN(DataProcessor::serializeData(value.data(), value.size(), ctx));
+    CS_RUN(DataProcessor::serializeData(value.size(), ctx));
+    CS_RUN(DataProcessor::serializeData(value.data(), value.size(), ctx));
     
     return Status::kNoError;
 }
@@ -44,9 +44,9 @@ Status deserializeData(X& ctx, Vector<T, A>& value)
     value.clear();
 
     typename Vector<T, A>::size_type size = 0;
-    RUN(DataProcessor::deserializeData(ctx, size));
-    RUN(value.reserve(size));
-    RUN(DataProcessor::deserializeData(ctx, size, value.data()));
+    CS_RUN(DataProcessor::deserializeData(ctx, size));
+    CS_RUN(value.reserve(size));
+    CS_RUN(DataProcessor::deserializeData(ctx, size, value.data()));
     value.m_dataSize = size;
 
     return Status::kNoError;

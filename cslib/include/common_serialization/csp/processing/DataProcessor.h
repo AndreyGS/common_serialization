@@ -103,10 +103,10 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
         if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
             if (ctx.sizeOfPrimitivesMayBeNotEqual())
             {
-                RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
+                CS_RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
             }
 
-        RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
+        CS_RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
     }
     else
     {
@@ -115,7 +115,7 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
             if (ctx.checkRecursivePointers())
                 (*ctx.getPointersMap())[&p[i]] = ctx.getBinaryData().size();
 
-            RUN(serializeData(p[i], ctx));
+            CS_RUN(serializeData(p[i], ctx));
         }
     }
 
@@ -148,10 +148,10 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
         if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
             if (ctx.sizeOfPrimitivesMayBeNotEqual())
             {
-                RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
+                CS_RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
             }
 
-        RUN(output.pushBackArithmeticValue(value))
+        CS_RUN(output.pushBackArithmeticValue(value))
     }
     else if constexpr (std::is_pointer_v<T>)
     {
@@ -161,7 +161,7 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
         if (ctx.checkRecursivePointers())
         {
             bool newPointer = false;
-            RUN(addPointerToMap(value, ctx, newPointer));
+            CS_RUN(addPointerToMap(value, ctx, newPointer));
 
             if (!newPointer)
                 return Status::kNoError;
@@ -170,14 +170,14 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
         {
             if (value == nullptr)
             {
-                RUN(output.pushBackArithmeticValue(uint8_t(0)));
+                CS_RUN(output.pushBackArithmeticValue(uint8_t(0)));
                 return Status::kNoError;
             }
             else
-                RUN(output.pushBackArithmeticValue(uint8_t(1)));
+                CS_RUN(output.pushBackArithmeticValue(uint8_t(1)));
         }
 
-        RUN(serializeData(*value, ctx));
+        CS_RUN(serializeData(*value, ctx));
     }
     else if constexpr (AnySimplyAssignable<T>)
     {
@@ -188,11 +188,11 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
         if (ctx.simplyAssignableTagsOptimizationsAreTurnedOff())
             return Status::kErrorNotSupportedSerializationSettingsForStruct;
 
-        RUN(serializeDataSimplyAssignable(value, ctx))
+        CS_RUN(serializeDataSimplyAssignable(value, ctx))
     }
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::serializeData not found
     else if constexpr (!EmptyType<T>)
-        RUN(processing::serializeData(value, ctx));
+        CS_RUN(processing::serializeData(value, ctx));
 
     return Status::kNoError;
 }
@@ -233,11 +233,11 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
             if (ctx.sizeOfPrimitivesMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
-                RUN(input.readArithmeticValue(originalTypeSize));
+                CS_RUN(input.readArithmeticValue(originalTypeSize));
                 if (originalTypeSize != sizeof(T))
                 {
                     for (typename D::size_type i = 0; i < n; ++i)
-                        RUN(deserializeData(originalTypeSize, ctx, p[i]));
+                        CS_RUN(deserializeData(originalTypeSize, ctx, p[i]));
 
                     return Status::kNoError;
                 }
@@ -245,7 +245,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
 
         typename D::size_type readSize = 0;
 
-        RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
+        CS_RUN(input.read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
 
         if (readSize != bytesSize)
             return Status::kErrorOverflow;
@@ -259,7 +259,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
             if (ctx.checkRecursivePointers())
                 (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<T*>>(pItem);
 
-            RUN(deserializeData(ctx, *pItem));
+            CS_RUN(deserializeData(ctx, *pItem));
         }
     }
 
@@ -295,16 +295,16 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
             if (ctx.sizeOfPrimitivesMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
-                RUN(input.readArithmeticValue(originalTypeSize));
+                CS_RUN(input.readArithmeticValue(originalTypeSize));
                 if (originalTypeSize != sizeof(T))
                 {
-                    RUN(deserializeData(originalTypeSize, ctx, value));
+                    CS_RUN(deserializeData(originalTypeSize, ctx, value));
 
                     return Status::kNoError;
                 }
             }
 
-        RUN(input.readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
+        CS_RUN(input.readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
     }
     else if constexpr (std::is_pointer_v<T>)
     {
@@ -314,7 +314,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         if (ctx.checkRecursivePointers())
         {
             bool newPointer = false;
-            RUN(getPointerFromMap(ctx, value, newPointer));
+            CS_RUN(getPointerFromMap(ctx, value, newPointer));
 
             if (!newPointer)
                 return Status::kNoError;
@@ -322,7 +322,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         else
         {
             uint8_t isValidPtr = 0;
-            RUN(input.readArithmeticValue(isValidPtr));
+            CS_RUN(input.readArithmeticValue(isValidPtr));
             if (!isValidPtr)
             {
                 value = nullptr;
@@ -337,7 +337,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         if (ctx.checkRecursivePointers())
             (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);
 
-        RUN(deserializeData(ctx, *value));
+        CS_RUN(deserializeData(ctx, *value));
     }
     // this will work for types that are not ISerializable
     else if constexpr (AnySimplyAssignable<T>)
@@ -349,11 +349,11 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         if (ctx.simplyAssignableTagsOptimizationsAreTurnedOff())
             return Status::kErrorNotSupportedSerializationSettingsForStruct;
 
-        RUN(deserializeDataSimplyAssignable(ctx, value))
+        CS_RUN(deserializeDataSimplyAssignable(ctx, value))
     }
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::deserializeData not found
     else if constexpr (!EmptyType<T>)
-        RUN(processing::deserializeData(ctx, value));
+        CS_RUN(processing::deserializeData(ctx, value));
 
     return Status::kNoError;
 }
@@ -367,7 +367,7 @@ constexpr Status DataProcessor::deserializeData(size_t originalTypeSize, context
 
     uint8_t arr[64] = { 0 };
     typename D::size_type readSize = 0;
-    RUN(ctx.getBinaryData().read(arr, originalTypeSize, &readSize));
+    CS_RUN(ctx.getBinaryData().read(arr, originalTypeSize, &readSize));
 
     if (readSize != originalTypeSize)
         return Status::kErrorOverflow;
@@ -395,7 +395,7 @@ static constexpr Status DataProcessor::serializeDataSimplyAssignable(const T& va
         )
         {
             // for simple assignable types it is preferable to get a whole struct at a time
-            RUN(ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), sizeof(T)));
+            CS_RUN(ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), sizeof(T)));
 
             return Status::kNoFurtherProcessingRequired;
         }
@@ -423,7 +423,7 @@ constexpr Status DataProcessor::deserializeDataSimplyAssignable(context::DData<D
         {
             typename D::size_type readSize = 0;
             // for simple assignable types it is preferable to get a whole struct at a time
-            RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T), &readSize));
+            CS_RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(&value)), sizeof(T), &readSize));
 
             if (readSize != sizeof(T))
                 return Status::kErrorOverflow;
@@ -443,7 +443,7 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
     if (!p)
     {
         newPointer = false;
-        RUN(output.pushBackArithmeticValue(static_cast<size_t>(0)));
+        CS_RUN(output.pushBackArithmeticValue(static_cast<size_t>(0)));
     }
     else
     {
@@ -452,13 +452,13 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
         if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
             newPointer = true;
-            RUN(output.pushBackArithmeticValue(static_cast<size_t>(1)));
+            CS_RUN(output.pushBackArithmeticValue(static_cast<size_t>(1)));
             pointersMap[p] = output.size();
         }
         else
         {
             newPointer = false;
-            RUN(output.pushBackArithmeticValue(it->second));
+            CS_RUN(output.pushBackArithmeticValue(it->second));
         }
     }
 
@@ -472,7 +472,7 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T&
 
     size_t offset = 0;
 
-    RUN(input.readArithmeticValue(offset));
+    CS_RUN(input.readArithmeticValue(offset));
 
     if (!offset)
     {

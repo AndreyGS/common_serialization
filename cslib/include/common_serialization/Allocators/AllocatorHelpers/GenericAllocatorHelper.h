@@ -174,7 +174,7 @@ constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::copyDir
                 if (pDest < pDirtyMemoryFinish)
                     this->getAllocator().destroy(pDest);
 
-                RUN(this->getAllocator().construct(pDest--, *pSrc--));
+                CS_RUN(this->getAllocator().construct(pDest--, *pSrc--));
             }
         }
         else
@@ -200,7 +200,7 @@ constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::copyDir
             if (pDest < pDirtyMemoryFinish)
                 this->getAllocator().destroy(pDest);
 
-            RUN(this->getAllocator().construct(pDest++, *pSrc++));
+            CS_RUN(this->getAllocator().construct(pDest++, *pSrc++));
         }
     else
         memcpy(pDest, pSrc, n * sizeof(T));
@@ -229,7 +229,7 @@ constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::moveImp
                 if (pDest < pDirtyMemoryFinish)
                     this->getAllocator().destroy(pDest);
 
-                RUN(this->getAllocator().construct(pDest++, std::move(*pSrc)));
+                CS_RUN(this->getAllocator().construct(pDest++, std::move(*pSrc)));
                 (pSrc++)->~T(); // as a precaution if T is not moveable
             }
         }
@@ -256,7 +256,7 @@ constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::moveNoO
             if (pDest < pDirtyMemoryFinish)
                 this->getAllocator().destroy(pDest);
 
-            RUN(this->getAllocator().construct(pDest++, std::move(*pSrc)));
+            CS_RUN(this->getAllocator().construct(pDest++, std::move(*pSrc)));
             (pSrc++)->~T(); // as a precaution if T is not moveable
         }
     else

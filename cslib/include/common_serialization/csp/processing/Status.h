@@ -32,11 +32,11 @@ template<ISerializationCapableContainer S>
 constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status statusOut, bool noChecks = false) noexcept
 {
     if (!noChecks)
-        RUN(serializeCommonContext(ctx))
+        CS_RUN(serializeCommonContext(ctx))
     else
-        RUN(serializeCommonContextNoChecks(ctx));
+        CS_RUN(serializeCommonContextNoChecks(ctx));
         
-    RUN(serializeStatusContext(ctx, statusOut));
+    CS_RUN(serializeStatusContext(ctx, statusOut));
 
     return Status::kNoError;
 }
@@ -45,7 +45,7 @@ template<ISerializationCapableContainer S>
 constexpr Status serializeStatusFullContext(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut) noexcept
 {
     context::Common<S> ctx(output, protocolVersion, context::Message::kStatus, commonFlags);
-    RUN(serializeStatusFullContext(ctx, statusOut));
+    CS_RUN(serializeStatusFullContext(ctx, statusOut));
 
     return Status::kNoError;
 }
@@ -55,10 +55,10 @@ constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, cons
 {
     // For unsupported protocol version always using kProtocolVersionUndefined in response context
     context::Common<S> ctx(output, traits::kProtocolVersionUndefined, context::Message::kStatus, commonFlags);
-    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedProtocolVersion, true));
+    CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedProtocolVersion, true));
 
-    RUN(output.pushBackArithmeticValue(static_cast<protocol_version_t>(supportedProtocolVersions.size())));
-    RUN(output.pushBackN(supportedProtocolVersions.data(), static_cast<protocol_version_t>(supportedProtocolVersions.size())));
+    CS_RUN(output.pushBackArithmeticValue(static_cast<protocol_version_t>(supportedProtocolVersions.size())));
+    CS_RUN(output.pushBackN(supportedProtocolVersions.data(), static_cast<protocol_version_t>(supportedProtocolVersions.size())));
 
     return Status::kNoError;
 }
@@ -69,10 +69,10 @@ constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::
     value.clear();
 
     protocol_version_t protocolVersionsSize = 0;
-    RUN(ctx.getBinaryData().readArithmeticValue(protocolVersionsSize));
+    CS_RUN(ctx.getBinaryData().readArithmeticValue(protocolVersionsSize));
 
-    RUN(value.reserve(protocolVersionsSize));
-    RUN(ctx.getBinaryData().read(value.data(), protocolVersionsSize));
+    CS_RUN(value.reserve(protocolVersionsSize));
+    CS_RUN(ctx.getBinaryData().read(value.data(), protocolVersionsSize));
     value.setSize(protocolVersionsSize);
     
     return Status::kNoError;
@@ -82,10 +82,10 @@ template<ISerializationCapableContainer S>
 constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
       interface_version_t minimumInterfaceVersion, const Id& outputTypeId, context::Common<S>& ctx) noexcept
 {
-    RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInterfaceVersion));
+    CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInterfaceVersion));
 
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(minimumInterfaceVersion));
-    RUN(ctx.getBinaryData().pushBackN(outputTypeId.id, sizeof(outputTypeId.id)));
+    CS_RUN(ctx.getBinaryData().pushBackArithmeticValue(minimumInterfaceVersion));
+    CS_RUN(ctx.getBinaryData().pushBackN(outputTypeId.id, sizeof(outputTypeId.id)));
 
     return Status::kNoError;
 }
@@ -95,8 +95,8 @@ constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(
       context::Common<D>& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId
 ) noexcept
 {
-    RUN(ctx.getBinaryData().readArithmeticValue(minimumInterfaceVersion));
-    RUN(ctx.getBinaryData().read(outputTypeId.id, sizeof(outputTypeId.id)));
+    CS_RUN(ctx.getBinaryData().readArithmeticValue(minimumInterfaceVersion));
+    CS_RUN(ctx.getBinaryData().read(outputTypeId.id, sizeof(outputTypeId.id)));
 
     return Status::kNoError;
 }

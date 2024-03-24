@@ -137,10 +137,10 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
 
         clear();
 
-        RUN(protocolVersions.init(rhs.protocolVersions));
+        CS_RUN(protocolVersions.init(rhs.protocolVersions));
         mandatoryCommonFlags = rhs.mandatoryCommonFlags;
         forbiddenCommonFlags = rhs.forbiddenCommonFlags;
-        RUN(interfaces.init(rhs.interfaces));
+        CS_RUN(interfaces.init(rhs.interfaces));
 
         return Status::kNoError;
     }
@@ -152,10 +152,10 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
 
         clear();
 
-        RUN(protocolVersions.init(std::move(rhs.protocolVersions)));
+        CS_RUN(protocolVersions.init(std::move(rhs.protocolVersions)));
         mandatoryCommonFlags = rhs.mandatoryCommonFlags;
         forbiddenCommonFlags = rhs.forbiddenCommonFlags;
-        RUN(interfaces.init(std::move(rhs.interfaces)));
+        CS_RUN(interfaces.init(std::move(rhs.interfaces)));
 
         return Status::kNoError;
     }
@@ -182,7 +182,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
             for (auto rhsVersion : rhs.protocolVersions)
                 if (lhsVersion == rhsVersion)
                 {
-                    RUN(output.protocolVersions.pushBack(lhsVersion));
+                    CS_RUN(output.protocolVersions.pushBack(lhsVersion));
                     break;
                 }
 
@@ -193,7 +193,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
             for (const auto& rhsInterface : rhs.interfaces)
                 if (lhsInterface.id == rhsInterface.id)
                 {
-                    RUN(output.interfaces.pushBack(lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version));
+                    CS_RUN(output.interfaces.pushBack(lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version));
                     break;
                 }
     }

@@ -43,7 +43,7 @@
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 
 #include "common_serialization/Allocators/PlatformDependent/UserModeMemoryManagement.h"
-#include "common_serialization/Concurency/PlatformDependent/UserModeConcurency.h"
+#include "common_serialization/Concurrency/PlatformDependent/UserModeConcurency.h"
 
 #else // !USER_MODE
 
@@ -65,7 +65,7 @@
 
 #include "common_serialization/Types.h"
 #include "common_serialization/Helpers.h"
-#include "common_serialization/Concurency/GuardRW.h"
+#include "common_serialization/Concurrency/GuardRW.h"
 #include "common_serialization/Allocators/Concepts.h"
 #include "common_serialization/Allocators/RawKeeperAllocator.h"
 #include "common_serialization/Containers/Walker.h"

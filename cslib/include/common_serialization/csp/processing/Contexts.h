@@ -36,9 +36,9 @@ constexpr Status serializeCommonContext(context::Common<S>& ctx) noexcept
     if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
         return Status::kErrorNotSupportedProtocolVersion;
 
-    RUN(output.pushBackArithmeticValue(static_cast<uint16_t>(ctx.getProtocolVersion())));
-    RUN(output.pushBackArithmeticValue(ctx.getMessageType()));
-    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getCommonFlags())));
+    CS_RUN(output.pushBackArithmeticValue(static_cast<uint16_t>(ctx.getProtocolVersion())));
+    CS_RUN(output.pushBackArithmeticValue(ctx.getMessageType()));
+    CS_RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getCommonFlags())));
 
     return Status::kNoError;
 }
@@ -49,7 +49,7 @@ constexpr Status deserializeCommonContext(context::Common<D>& ctx) noexcept
     D& input = ctx.getBinaryData();
 
     uint16_t version = 0;
-    RUN(input.readArithmeticValue(version));
+    CS_RUN(input.readArithmeticValue(version));
     protocol_version_t minimumSupportedVersion = ctx.getProtocolVersion();
     ctx.setProtocolVersion(static_cast<protocol_version_t>(version));
 
@@ -57,12 +57,12 @@ constexpr Status deserializeCommonContext(context::Common<D>& ctx) noexcept
         return Status::kErrorNotSupportedProtocolVersion;
 
     context::Message messageType = context::Message::kData;
-    RUN(input.readArithmeticValue(messageType));
+    CS_RUN(input.readArithmeticValue(messageType));
 
     ctx.setMessageType(messageType);
 
     uint32_t intFlags = 0;
-    RUN(input.readArithmeticValue(intFlags));
+    CS_RUN(input.readArithmeticValue(intFlags));
     context::CommonFlags commonFlags(intFlags);
     ctx.setCommonFlags(commonFlags);
 
@@ -74,9 +74,9 @@ constexpr Status serializeCommonContextNoChecks(context::Common<S>& ctx) noexcep
 {
     S& output = ctx.getBinaryData();
 
-    RUN(output.pushBackArithmeticValue(static_cast<uint16_t>(ctx.getProtocolVersion())));
-    RUN(output.pushBackArithmeticValue(ctx.getMessageType()));
-    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getCommonFlags())));
+    CS_RUN(output.pushBackArithmeticValue(static_cast<uint16_t>(ctx.getProtocolVersion())));
+    CS_RUN(output.pushBackArithmeticValue(ctx.getMessageType()));
+    CS_RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getCommonFlags())));
 
     return Status::kNoError;
 }
@@ -87,17 +87,17 @@ constexpr Status deserializeCommonContextNoChecks(context::Common<D>& ctx) noexc
     D& input = ctx.getBinaryData();
 
     uint16_t version = 0;
-    RUN(input.readArithmeticValue(version));
+    CS_RUN(input.readArithmeticValue(version));
     protocol_version_t minimumSupportedVersion = ctx.getProtocolVersion();
     ctx.setProtocolVersion(static_cast<protocol_version_t>(version));
 
     context::Message messageType = context::Message::kData;
-    RUN(input.readArithmeticValue(messageType));
+    CS_RUN(input.readArithmeticValue(messageType));
 
     ctx.setMessageType(messageType);
 
     uint32_t intFlags = 0;
-    RUN(input.readArithmeticValue(intFlags));
+    CS_RUN(input.readArithmeticValue(intFlags));
     context::CommonFlags commonFlags(intFlags);
     ctx.setCommonFlags(commonFlags);
 
@@ -125,14 +125,14 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
 
     Id id = T::getId();
 
-    RUN(output.pushBackN(id.id, sizeof(id.id)));
+    CS_RUN(output.pushBackN(id.id, sizeof(id.id)));
 
     constexpr interface_version_t interfaceVersion = T::getInterface().version;
 
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), interfaceVersion))
         return Status::kErrorNotSupportedInterfaceVersion;
 
-    RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
+    CS_RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
 
     // Only set interface versions not match when some conversion will be need
     if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
@@ -151,7 +151,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     if (areDataFlagsNotCompatible<T>(dataFlags))
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
-    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(dataFlags)));
+    CS_RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(dataFlags)));
 
     return Status::kNoError;
 }
@@ -161,14 +161,14 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Id& id)
 {
     D& input = ctx.getBinaryData();
 
-    RUN(input.read(id.id, sizeof(id.id)));
+    CS_RUN(input.read(id.id, sizeof(id.id)));
 
     interface_version_t inputInterfaceVersion = 0;
-    RUN(input.readArithmeticValue(inputInterfaceVersion));
+    CS_RUN(input.readArithmeticValue(inputInterfaceVersion));
     ctx.setInterfaceVersion(inputInterfaceVersion);
 
     uint32_t intFlags = 0;
-    RUN(input.readArithmeticValue(intFlags));
+    CS_RUN(input.readArithmeticValue(intFlags));
     context::DataFlags dataFlags(intFlags);
     ctx.setDataFlags(dataFlags);
 
@@ -182,15 +182,15 @@ constexpr Status serializeDataContextNoChecks(context::SData<S, PM>& ctx) noexce
 
     Id id = T::getId();
 
-    RUN(output.pushBackArithmeticValue(id.leftPart));
-    RUN(output.pushBackArithmeticValue(id.rightPart));
-    RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
+    CS_RUN(output.pushBackArithmeticValue(id.leftPart));
+    CS_RUN(output.pushBackArithmeticValue(id.rightPart));
+    CS_RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
 
     // Only set interface versions not match when some conversion will be need
     if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
-    RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getDataFlags())));
+    CS_RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getDataFlags())));
     
     return Status::kNoError;
 }
@@ -232,7 +232,7 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
 template<ISerializationCapableContainer S>
 constexpr Status serializeStatusContext(context::Common<S>& ctx, Status statusOut) noexcept
 {
-    RUN(ctx.getBinaryData().pushBackArithmeticValue(statusOut));
+    CS_RUN(ctx.getBinaryData().pushBackArithmeticValue(statusOut));
 
     return Status::kNoError;
 }
@@ -240,7 +240,7 @@ constexpr Status serializeStatusContext(context::Common<S>& ctx, Status statusOu
 template<IDeserializationCapableContainer D>
 constexpr Status deserializeStatusContext(context::Common<D>& ctx, Status& statusOut) noexcept
 {
-    RUN(ctx.getBinaryData().readArithmeticValue(statusOut));
+    CS_RUN(ctx.getBinaryData().readArithmeticValue(statusOut));
 
     return Status::kNoError;
 }

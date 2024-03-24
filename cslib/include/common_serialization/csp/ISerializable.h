@@ -166,8 +166,8 @@ constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const n
     if (ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined)
         ctx.setInterfaceVersion(getLatestInterfaceVersion());
 
-    RUN(processing::serializeCommonContext(ctx));
-    RUN(processing::serializeDataContext<T>(ctx));
+    CS_RUN(processing::serializeCommonContext(ctx));
+    CS_RUN(processing::serializeDataContext<T>(ctx));
 
     return processing::DataProcessor::serializeData(static_cast<const T&>(*this), ctx);
 }
@@ -185,13 +185,13 @@ template<typename T>
 template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
 constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
 {
-    RUN(processing::deserializeCommonContext(ctx));
+    CS_RUN(processing::deserializeCommonContext(ctx));
 
     Id id;
     uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? getOriginPrivateVersion() : ctx.getInterfaceVersion();
 
-    RUN(processing::deserializeDataContext(ctx, id));
-    RUN(processing::deserializeDataContextPostprocess<T>(ctx, id, minimumInterfaceVersion));
+    CS_RUN(processing::deserializeDataContext(ctx, id));
+    CS_RUN(processing::deserializeDataContextPostprocess<T>(ctx, id, minimumInterfaceVersion));
     
     return processing::DataProcessor::deserializeData(ctx, static_cast<T&>(*this));
 }

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Concurency/Concepts.h
+ * @file cslib/include/common_serialization/Concurrency/PlatformDependent/UserModeConcurency.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -25,15 +25,7 @@
 
 namespace common_serialization
 {
-    
-/// @brief Interface that shared mutex must implement
-template<typename T>
-concept ISharedMutex = requires(T t)
-{
-    { t.lock() };
-    { t.lock_shared() };
-    { t.unlock() };
-    { t.unlock_shared() };
-};
+
+using SharedMutex = std::shared_mutex;
 
 } // namespace common_serialization

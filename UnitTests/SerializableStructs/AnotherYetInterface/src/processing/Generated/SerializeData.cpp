@@ -34,7 +34,7 @@ Status DataProcessor::serializeData(const another_yet_interface::SimpleStruct<>&
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.m_i, ctx));
+    CS_RUN(serializeData(value.m_i, ctx));
 
 
     return Status::kNoError;

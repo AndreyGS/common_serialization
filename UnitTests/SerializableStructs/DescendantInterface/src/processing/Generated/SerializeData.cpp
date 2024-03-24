@@ -34,7 +34,7 @@ Status DataProcessor::serializeData(const descendant_interface::SimpleStruct<>& 
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.m_i, ctx));
+    CS_RUN(serializeData(value.m_i, ctx));
 
 
     return Status::kNoError;
@@ -45,9 +45,9 @@ Status DataProcessor::serializeData(const descendant_interface::DiamondDescendan
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(static_cast<const interface_for_test::Diamond<>&>(value), ctx));
+    CS_RUN(serializeData(static_cast<const interface_for_test::Diamond<>&>(value), ctx));
 
-    RUN(serializeData(value.m_sSt, ctx));
+    CS_RUN(serializeData(value.m_sSt, ctx));
 
 
     return Status::kNoError;

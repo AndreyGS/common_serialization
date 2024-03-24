@@ -189,7 +189,7 @@ inline Status DataClient::init(
     m_protocolVersion = protocolVersion;
     m_mandatoryCommonFlags = mandatoryCommonFlags;
     m_forbiddenCommonFlags = forbiddenCommonFlags;
-    RUN(m_interfaces.init(interfaces));
+    CS_RUN(m_interfaces.init(interfaces));
 
     m_isValid = isValidInternal();
 
@@ -213,7 +213,7 @@ inline Status DataClient::init(
     m_isValid = false;
 
     Vector<protocol_version_t> serverCspVersions;
-    RUN(getServerProtocolVersions(serverCspVersions));
+    CS_RUN(getServerProtocolVersions(serverCspVersions));
 
     protocol_version_t tempServerProtocolVersion = traits::kProtocolVersionUndefined;
 
@@ -237,16 +237,16 @@ inline Status DataClient::init(
     if (tempServerProtocolVersion == traits::kProtocolVersionUndefined)
     {
         if (pCspPartySettings)
-            RUN(pCspPartySettings->protocolVersions.init(std::move(serverCspVersions)));
+            CS_RUN(pCspPartySettings->protocolVersions.init(std::move(serverCspVersions)));
 
         return Status::kErrorNotSupportedProtocolVersion;
     }
 
     service_structs::CspPartySettings<> cspPartySettings;
-    RUN(getServerSettings(tempServerProtocolVersion, cspPartySettings));
+    CS_RUN(getServerSettings(tempServerProtocolVersion, cspPartySettings));
 
     if (pCspPartySettings)
-        RUN(pCspPartySettings->init(std::move(cspPartySettings)));
+        CS_RUN(pCspPartySettings->init(std::move(cspPartySettings)));
 
     service_structs::CspPartySettings<>& cspPartySettingsR = pCspPartySettings ? *pCspPartySettings : cspPartySettings;
 
@@ -261,7 +261,7 @@ inline Status DataClient::init(
         {
             if (serverInterfaceVersion.id == clientInterface.id)
             {
-                RUN(m_interfaces.pushBack(clientInterface));
+                CS_RUN(m_interfaces.pushBack(clientInterface));
                 m_interfaces[m_interfaces.size() - 1].version = serverInterfaceVersion.version > clientInterface.version ? clientInterface.version : serverInterfaceVersion.version;
                 break;
             }
@@ -297,19 +297,19 @@ inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& 
 
     BinVector binInput;
     context::Common<BinVector> ctxIn(binInput, traits::kProtocolVersionUndefined);
-    RUN(processing::serializeCommonContextNoChecks(ctxIn));
+    CS_RUN(processing::serializeCommonContextNoChecks(ctxIn));
 
     BinWalker binOutput;
-    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+    CS_RUN(m_dataClientSpeaker->speak(binInput, binOutput));
 
     context::Common<BinWalker> ctxOut(binOutput);
-    RUN(processing::deserializeCommonContextNoChecks(ctxOut));
+    CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::kStatus)
         return Status::kErrorDataCorrupted;
 
     Status statusOut = Status::kNoError;
-    RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+    CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
     if (statusOut != Status::kErrorNotSupportedProtocolVersion)
         return Status::kErrorDataCorrupted;
@@ -324,11 +324,11 @@ inline Status DataClient::getServerSettings(protocol_version_t serverCspVersion,
 
     BinVector binInput;
     context::Common<BinVector> ctxIn(binInput, serverCspVersion, context::Message::kGetSettings, context::CommonFlags{});
-    RUN(processing::serializeCommonContext(ctxIn));
+    CS_RUN(processing::serializeCommonContext(ctxIn));
 
     BinWalker binOutput;
 
-    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+    CS_RUN(m_dataClientSpeaker->speak(binInput, binOutput));
 
     return cspPartySettings.deserialize(binOutput);
 }
@@ -348,11 +348,11 @@ Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimum
     BinVector binInput;
     context::SData<> ctxIn(binInput, m_protocolVersion, m_mandatoryCommonFlags);
 
-    RUN(processing::serializeCommonContext(ctxIn));
-    RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
+    CS_RUN(processing::serializeCommonContext(ctxIn));
+    CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
 
     BinWalker binOutput;
-    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+    CS_RUN(m_dataClientSpeaker->speak(binInput, binOutput));
 
     context::Common<BinWalker> ctxOut(binOutput);
 
@@ -360,7 +360,7 @@ Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimum
         return Status::kErrorDataCorrupted;
 
     Status statusOut = Status::kNoError;
-    RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+    CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
     if (statusOut != Status::kErrorNotSupportedInterfaceVersion)
         return Status::kErrorDataCorrupted;
@@ -452,26 +452,26 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     if (ctxIn.checkRecursivePointers())
         ctxIn.setPointersMap(&pointersMapIn);
 
-    RUN(processing::serializeCommonContext(ctxIn));
-    RUN(processing::serializeDataContext<InputType>(ctxIn));
+    CS_RUN(processing::serializeCommonContext(ctxIn));
+    CS_RUN(processing::serializeDataContext<InputType>(ctxIn));
 
     // Flags may be changed after processing::serializeInOutDataContext
     if (ctxIn.allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
         return Status::kErrorInvalidArgument;
 
-    RUN(processing::DataProcessor::serializeData(input, ctxIn));
+    CS_RUN(processing::DataProcessor::serializeData(input, ctxIn));
 
     pointersMapIn.clear();
 
     BinWalker binOutput;
 
-    RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+    CS_RUN(m_dataClientSpeaker->speak(binInput, binOutput));
 
     ctxIn.clear();
 
     context::Common<BinWalker> ctxOut(binOutput);
 
-    RUN(processing::deserializeCommonContext(ctxOut));
+    CS_RUN(processing::deserializeCommonContext(ctxOut));
 
     if (ctxIn.getCommonFlags() != ctxOut.getCommonFlags())
         return Status::kErrorDataCorrupted;
@@ -483,7 +483,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         Id outId;
         context::DData<> ctxOutData(ctxOut);
 
-        RUN(processing::deserializeDataContext(ctxOutData, outId));
+        CS_RUN(processing::deserializeDataContext(ctxOutData, outId));
 
         context::DataFlags outDataFlags = ctxOutData.getDataFlags();
 
@@ -500,14 +500,14 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 
         // Here we no need to check minimum value of output version, because if we run DataClient::handleData
         // we're already agreed with interface version that server have
-        RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOutData, outId, OutputType::getOriginPrivateVersion()));
+        CS_RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOutData, outId, OutputType::getOriginPrivateVersion()));
 
-        RUN(processing::DataProcessor::deserializeData(ctxOutData, output));
+        CS_RUN(processing::DataProcessor::deserializeData(ctxOutData, output));
     }
     else if (ctxOut.getMessageType() == context::Message::kStatus)
     {
         Status statusOut = Status::kNoError;
-        RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+        CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
         return statusOut;
     }

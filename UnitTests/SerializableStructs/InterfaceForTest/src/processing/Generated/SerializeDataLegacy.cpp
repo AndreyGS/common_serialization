@@ -33,7 +33,7 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAl
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.m_ti, ctx));
+    CS_RUN(serializeData(value.m_ti, ctx));
 
     return Status::kNoError;
 }
@@ -43,22 +43,22 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignable_V
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.m_i, ctx));
-    RUN(serializeData(value.m_j, ctx));
-    RUN(serializeData(value.m_et, ctx));
-    RUN(serializeData(value.m_et2, ctx));
-    RUN(serializeData(value.m_saaToS, ctx));
-    RUN(serializeData(value.m_saaToNS, ctx));
-    RUN(serializeData(value.m_saNS, ctx));
+    CS_RUN(serializeData(value.m_i, ctx));
+    CS_RUN(serializeData(value.m_j, ctx));
+    CS_RUN(serializeData(value.m_et, ctx));
+    CS_RUN(serializeData(value.m_et2, ctx));
+    CS_RUN(serializeData(value.m_saaToS, ctx));
+    CS_RUN(serializeData(value.m_saaToNS, ctx));
+    CS_RUN(serializeData(value.m_saNS, ctx));
 
-    RUN(serializeData(value.m_arrI32, ctx));
-    RUN(serializeData(value.m_arrEtS, ctx));
-    RUN(serializeData(value.m_arrEtNS, ctx));
-    RUN(serializeData(value.m_arrSaaTos, ctx));
-    RUN(serializeData(value.m_arrSaaToNS, ctx));
-    RUN(serializeData(value.m_arrSaNS, ctx));
+    CS_RUN(serializeData(value.m_arrI32, ctx));
+    CS_RUN(serializeData(value.m_arrEtS, ctx));
+    CS_RUN(serializeData(value.m_arrEtNS, ctx));
+    CS_RUN(serializeData(value.m_arrSaaTos, ctx));
+    CS_RUN(serializeData(value.m_arrSaaToNS, ctx));
+    CS_RUN(serializeData(value.m_arrSaNS, ctx));
 
-    RUN(serializeData(value.m_vt, ctx));
+    CS_RUN(serializeData(value.m_vt, ctx));
 
     return Status::kNoError;
 }
@@ -68,9 +68,9 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableDe
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(static_cast<const interface_for_test::SimplyAssignable_Version0<>&>(value), ctx));
+    CS_RUN(serializeData(static_cast<const interface_for_test::SimplyAssignable_Version0<>&>(value), ctx));
 
-    RUN(serializeData(value.m_d, ctx));
+    CS_RUN(serializeData(value.m_d, ctx));
 
     return Status::kNoError;
 }
@@ -80,8 +80,8 @@ Status DataProcessor::serializeData(const interface_for_test::AlwaysSimplyAssign
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.m_xx, ctx));
-    RUN(serializeData(value.m_yy, ctx));
+    CS_RUN(serializeData(value.m_xx, ctx));
+    CS_RUN(serializeData(value.m_yy, ctx));
 
     return Status::kNoError;
 }
@@ -91,9 +91,9 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableFi
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.m_xx, ctx));
-    RUN(serializeData(value.m_asa, ctx));
-    RUN(serializeData(value.m_arrAsa, ctx));
+    CS_RUN(serializeData(value.m_xx, ctx));
+    CS_RUN(serializeData(value.m_asa, ctx));
+    CS_RUN(serializeData(value.m_arrAsa, ctx));
 
     return Status::kNoError;
 }
@@ -103,13 +103,13 @@ Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.m_saDs, ctx));
-    RUN(serializeData(value.m_diamond, ctx));
-    RUN(serializeData(value.m_sptCs, ctx));
-    RUN(serializeData(value.m_saaToStS, ctx));
-    RUN(serializeData(value.m_saStS, ctx));
-    RUN(serializeData(value.m_stS, ctx));
-    RUN(serializeData(value.m_mpt, ctx));
+    CS_RUN(serializeData(value.m_saDs, ctx));
+    CS_RUN(serializeData(value.m_diamond, ctx));
+    CS_RUN(serializeData(value.m_sptCs, ctx));
+    CS_RUN(serializeData(value.m_saaToStS, ctx));
+    CS_RUN(serializeData(value.m_saStS, ctx));
+    CS_RUN(serializeData(value.m_stS, ctx));
+    CS_RUN(serializeData(value.m_mpt, ctx));
 
     return Status::kNoError;
 }
@@ -119,8 +119,8 @@ Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAl
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.m_x, ctx));
-    RUN(serializeData(value.m_y, ctx));
+    CS_RUN(serializeData(value.m_x, ctx));
+    CS_RUN(serializeData(value.m_y, ctx));
 
     return Status::kNoError;
 }
@@ -130,15 +130,15 @@ Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.m_saS, ctx));
-    RUN(serializeData(value.m_diamond, ctx));
-    RUN(serializeData(value.m_sptCs, ctx));
-    RUN(serializeData(value.m_saaToStS, ctx));
-    RUN(serializeData(value.m_saStS, ctx));
-    RUN(serializeData(value.m_stS, ctx));
-    RUN(serializeData(value.m_mpt, ctx));
+    CS_RUN(serializeData(value.m_saS, ctx));
+    CS_RUN(serializeData(value.m_diamond, ctx));
+    CS_RUN(serializeData(value.m_sptCs, ctx));
+    CS_RUN(serializeData(value.m_saaToStS, ctx));
+    CS_RUN(serializeData(value.m_saStS, ctx));
+    CS_RUN(serializeData(value.m_stS, ctx));
+    CS_RUN(serializeData(value.m_mpt, ctx));
 
-    RUN(serializeData(value.m_i, ctx));
+    CS_RUN(serializeData(value.m_i, ctx));
 
     return Status::kNoError;
 }

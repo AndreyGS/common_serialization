@@ -33,8 +33,8 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignab
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    RUN(serializeData(value.a, ctx));
-    RUN(serializeData(value.s, ctx));
+    CS_RUN(serializeData(value.a, ctx));
+    CS_RUN(serializeData(value.s, ctx));
 
     return Status::kNoError;
 }
@@ -44,8 +44,8 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignab
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    RUN(serializeData(value.q, ctx));
-    RUN(serializeData(value.w, ctx));
+    CS_RUN(serializeData(value.q, ctx));
+    CS_RUN(serializeData(value.w, ctx));
 
     return Status::kNoError;
 }
@@ -56,8 +56,8 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::DynamicPolymor
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    RUN(serializeData(value.m_r, ctx));
-    RUN(serializeData(value.m_arrR, ctx));
+    CS_RUN(serializeData(value.m_r, ctx));
+    CS_RUN(serializeData(value.m_arrR, ctx));
 
     return Status::kNoError;
 }
@@ -67,7 +67,7 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondBase& v
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    RUN(serializeData(value.m_d0, ctx));
+    CS_RUN(serializeData(value.m_d0, ctx));
 
     return Status::kNoError;
 }
@@ -77,8 +77,8 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge1& 
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
-    RUN(serializeData(value.m_d1, ctx));
+    CS_RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
+    CS_RUN(serializeData(value.m_d1, ctx));
 
     return Status::kNoError;
 }
@@ -88,8 +88,8 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge2& 
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
-    RUN(serializeData(value.m_d2, ctx));
+    CS_RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
+    CS_RUN(serializeData(value.m_d2, ctx));
 
     return Status::kNoError;
 }
@@ -99,8 +99,8 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::TwoInts& value
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    RUN(serializeData(value.x, ctx));
-    RUN(serializeData(value.y, ctx));
+    CS_RUN(serializeData(value.x, ctx));
+    CS_RUN(serializeData(value.y, ctx));
 
     return Status::kNoError;
 }
@@ -110,7 +110,7 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::RecursiveTestS
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.pAny, ctx));
+    CS_RUN(serializeData(value.pAny, ctx));
 
     return Status::kNoError;
 }
@@ -120,9 +120,9 @@ Status DataProcessor::serializeData(const not_part_of_interfaces::RecursiveTestS
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    RUN(serializeData(value.pI, ctx));
-    RUN(serializeData(value.pNext, ctx));
-    RUN(serializeData(value.pAny, ctx));
+    CS_RUN(serializeData(value.pI, ctx));
+    CS_RUN(serializeData(value.pNext, ctx));
+    CS_RUN(serializeData(value.pAny, ctx));
 
     return Status::kNoError;
 }

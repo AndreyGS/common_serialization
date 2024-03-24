@@ -33,8 +33,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    RUN(deserializeData(ctx, value.a));
-    RUN(deserializeData(ctx, value.s));
+    CS_RUN(deserializeData(ctx, value.a));
+    CS_RUN(deserializeData(ctx, value.s));
 
     return Status::kNoError;
 }
@@ -44,8 +44,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    RUN(deserializeData(ctx, value.q));
-    RUN(deserializeData(ctx, value.w));
+    CS_RUN(deserializeData(ctx, value.q));
+    CS_RUN(deserializeData(ctx, value.w));
 
     return Status::kNoError;
 }
@@ -55,8 +55,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_r));
-    RUN(deserializeData(ctx, value.m_arrR));
+    CS_RUN(deserializeData(ctx, value.m_r));
+    CS_RUN(deserializeData(ctx, value.m_arrR));
 
     return Status::kNoError;
 }
@@ -66,7 +66,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_d0));
+    CS_RUN(deserializeData(ctx, value.m_d0));
 
     return Status::kNoError;
 }
@@ -76,8 +76,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondBase&>(value)));
-    RUN(deserializeData(ctx, value.m_d1));
+    CS_RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondBase&>(value)));
+    CS_RUN(deserializeData(ctx, value.m_d1));
 
     return Status::kNoError;
 }
@@ -87,8 +87,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondBase&>(value)));
-    RUN(deserializeData(ctx, value.m_d2));
+    CS_RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondBase&>(value)));
+    CS_RUN(deserializeData(ctx, value.m_d2));
 
     return Status::kNoError;
 }
@@ -99,8 +99,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    RUN(deserializeData(ctx, value.x));
-    RUN(deserializeData(ctx, value.y));
+    CS_RUN(deserializeData(ctx, value.x));
+    CS_RUN(deserializeData(ctx, value.y));
 
     return Status::kNoError;
 }
@@ -110,7 +110,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.pAny));
+    CS_RUN(deserializeData(ctx, value.pAny));
 
     return Status::kNoError;
 }
@@ -120,9 +120,9 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfa
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.pI));
-    RUN(deserializeData(ctx, value.pNext));
-    RUN(deserializeData(ctx, value.pAny));
+    CS_RUN(deserializeData(ctx, value.pI));
+    CS_RUN(deserializeData(ctx, value.pNext));
+    CS_RUN(deserializeData(ctx, value.pAny));
 
     return Status::kNoError;
 }

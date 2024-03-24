@@ -151,7 +151,7 @@ constexpr Status Walker<T, AllocatorHelper>::init(const Walker& rhs)
 {
     if (this != &rhs)
     {
-        RUN(m_vector.init(rhs.m_vector));
+        CS_RUN(m_vector.init(rhs.m_vector));
         m_offset = rhs.m_offset;
     }
 
@@ -163,7 +163,7 @@ constexpr Status Walker<T, AllocatorHelper>::init(Walker&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        RUN(m_vector.init(std::move(rhs.m_vector)));
+        CS_RUN(m_vector.init(std::move(rhs.m_vector)));
         m_offset = rhs.m_offset;
         rhs.m_offset = 0;
     }
@@ -176,7 +176,7 @@ constexpr Status Walker<T, AllocatorHelper>::init(const Vector<T, AllocatorHelpe
 {
     if (&this->getVector() != &rhs)
     {
-        RUN(m_vector.init(rhs));
+        CS_RUN(m_vector.init(rhs));
         m_offset = 0;
     }
 
@@ -188,7 +188,7 @@ constexpr Status Walker<T, AllocatorHelper>::init(Vector<T, AllocatorHelper>&& r
 {
     if (&this->getVector() != &rhs)
     {
-        RUN(m_vector.init(std::move(rhs)));
+        CS_RUN(m_vector.init(std::move(rhs)));
         m_offset = 0;
     }
 
@@ -257,7 +257,7 @@ template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::replace(const T* p, size_type n, size_type offset)
 {
     setValidOffset(offset);
-    RUN(m_vector.replace(p, n, offset));
+    CS_RUN(m_vector.replace(p, n, offset));
     m_offset += n;
 
     return Status::kNoError;
@@ -269,7 +269,7 @@ constexpr Status Walker<T, AllocatorHelper>::insert(const T* p, size_type n, siz
     size_type oldSize = size();
     setValidOffset(offset);
 
-    RUN(m_vector.insert(p, n, offset));
+    CS_RUN(m_vector.insert(p, n, offset));
     m_offset += size() - oldSize;
 
     return Status::kNoError;
@@ -283,7 +283,7 @@ constexpr Status Walker<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
     size_type newOffset = destBegin - m_vector.begin();
     setValidOffset(newOffset);
 
-    RUN(m_vector.insert(srcBegin, srcEnd, destBegin, pDestEnd));
+    CS_RUN(m_vector.insert(srcBegin, srcEnd, destBegin, pDestEnd));
     m_offset += size() - oldSize;
 
     return Status::kNoError;
@@ -315,7 +315,7 @@ constexpr Status Walker<T, AllocatorHelper>::read(T* p, size_type n, size_type* 
 {
     T* pNew = nullptr;
 
-    RUN(m_vector.copyN(m_offset, n, p, &pNew));
+    CS_RUN(m_vector.copyN(m_offset, n, p, &pNew));
     
     size_type nReal = pNew - p;
     m_offset += nReal;

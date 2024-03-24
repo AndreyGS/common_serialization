@@ -33,7 +33,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interfac
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_i));
+    CS_RUN(deserializeData(ctx, value.m_i));
 
     return Status::kNoError;
 }
@@ -43,9 +43,9 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interfac
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, static_cast<interface_for_test::Diamond<>&>(value)));
+    CS_RUN(deserializeData(ctx, static_cast<interface_for_test::Diamond<>&>(value)));
 
-    RUN(deserializeData(ctx, value.m_sSt));
+    CS_RUN(deserializeData(ctx, value.m_sSt));
 
     return Status::kNoError;
 }

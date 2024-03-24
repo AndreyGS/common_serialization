@@ -97,7 +97,7 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
     context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput
 )
 {
-    RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
+    CS_RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
 
     // We already checked equality of ID in context and in subscriber
     // so here it is only placeholder
@@ -108,7 +108,7 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
         if (status == Status::kErrorNotSupportedInterfaceVersion)
         {
             context::Common<BinVector> ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::kStatus, ctx.getCommonFlags());
-            RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(getMinimumInterfaceVersion(), OutputType::getId(), ctxOut));
+            CS_RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(getMinimumInterfaceVersion(), OutputType::getId(), ctxOut));
         }
         
         return status;
@@ -171,9 +171,9 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
     InputType& input, context::DData<>& ctxIn, const BinVector& clientId, OutputType& output, BinVector& binOutput
 )
 {
-    RUN(processing::DataProcessor::deserializeData(ctxIn, input));
+    CS_RUN(processing::DataProcessor::deserializeData(ctxIn, input));
     
-    RUN(this->handleData(input, ctxIn.getAddedPointers(), clientId, output))
+    CS_RUN(this->handleData(input, ctxIn.getAddedPointers(), clientId, output))
 
     if constexpr (!std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
     {

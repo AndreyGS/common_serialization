@@ -33,7 +33,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_s
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    RUN(deserializeData(ctx, value.properties));
+    CS_RUN(deserializeData(ctx, value.properties));
 
     return Status::kNoError;
 }
@@ -43,7 +43,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_s
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    RUN(deserializeData(ctx, value.id));
+    CS_RUN(deserializeData(ctx, value.id));
 
     return Status::kNoError;
 }
@@ -55,22 +55,22 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_s
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
     protocol_version_t cspVersionsSize{ 0 };
-    RUN(deserializeData(ctx, cspVersionsSize));
+    CS_RUN(deserializeData(ctx, cspVersionsSize));
     value.protocolVersions.setSize(cspVersionsSize);
-    RUN(deserializeData(ctx, cspVersionsSize, value.protocolVersions.data()));
+    CS_RUN(deserializeData(ctx, cspVersionsSize, value.protocolVersions.data()));
 
     uint32_t mandatoryCommonFlags;
-    RUN(deserializeData(ctx, mandatoryCommonFlags));
+    CS_RUN(deserializeData(ctx, mandatoryCommonFlags));
     value.mandatoryCommonFlags = mandatoryCommonFlags;
 
     uint32_t forbiddenCommonFlags;
-    RUN(deserializeData(ctx, forbiddenCommonFlags));
+    CS_RUN(deserializeData(ctx, forbiddenCommonFlags));
     value.forbiddenCommonFlags = forbiddenCommonFlags;
 
     size_t interfacesSize{ 0 };
-    RUN(deserializeData(ctx, interfacesSize));
+    CS_RUN(deserializeData(ctx, interfacesSize));
     value.interfaces.setSize(interfacesSize);
-    RUN(deserializeData(ctx, interfacesSize, value.interfaces.data()));
+    CS_RUN(deserializeData(ctx, interfacesSize, value.interfaces.data()));
 
     return Status::kNoError;
 }

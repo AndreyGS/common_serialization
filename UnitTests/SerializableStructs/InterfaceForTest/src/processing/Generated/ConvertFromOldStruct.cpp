@@ -37,7 +37,7 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
                         , interface_for_test::SimplyAssignableAlignedToOne_Version1<>
     > convertFrom(targetVersion);
 
-    RUN(convertFrom.convert(ctx, value));
+    CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::kNoFurtherProcessingRequired;
 }
@@ -52,7 +52,7 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
                           interface_for_test::SimplyAssignable_Version0<>
     > convertFrom(targetVersion);
 
-    RUN(convertFrom.convert(ctx, value));
+    CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::kNoFurtherProcessingRequired;
 }
@@ -67,7 +67,7 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
                           interface_for_test::SimplyAssignableDescendant_Version0<>
     > convertFrom(targetVersion);
 
-    RUN(convertFrom.convert(ctx, value));
+    CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::kNoFurtherProcessingRequired;
 }
@@ -79,10 +79,10 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
     assert(interface_for_test::AlwaysSimplyAssignable<>::getLatestPrivateVersion() != targetVersion);
 
     FromVersionConverter<
-        interface_for_test::AlwaysSimplyAssignable_Version0<>
+                          interface_for_test::AlwaysSimplyAssignable_Version0<>
     > convertFrom(targetVersion);
 
-    RUN(convertFrom.convert(ctx, value));
+    CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::kNoFurtherProcessingRequired;
 }
@@ -94,10 +94,10 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
     assert(interface_for_test::SimplyAssignableFixedSize<>::getLatestPrivateVersion() != targetVersion);
 
     FromVersionConverter<
-        interface_for_test::SimplyAssignableFixedSize_Version1<>
+                          interface_for_test::SimplyAssignableFixedSize_Version1<>
     > convertFrom(targetVersion);
 
-    RUN(convertFrom.convert(ctx, value));
+    CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::kNoFurtherProcessingRequired;
 }
@@ -113,7 +113,7 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
                         , interface_for_test::SForAllModesTests_Version2<>
     > convertFrom(targetVersion);
 
-    RUN(convertFrom.convert(ctx, value));
+    CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::kNoFurtherProcessingRequired;
 }

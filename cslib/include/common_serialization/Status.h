@@ -23,13 +23,13 @@
 
 #pragma once
 
-#ifdef RUN
-#undef RUN
-#endif // RUN
-#define RUN(x)                                                                  \
-{                                                                               \
-    if (Status status = (x); !statusSuccess(status))                            \
-        return status;                                                          \
+#ifdef CS_RUN
+#undef CS_RUN
+#endif // CS_RUN
+#define CS_RUN(x)                                                                   \
+{                                                                                   \
+    if (Status status = (x); !statusSuccess(status))                                \
+        return status;                                                              \
 }
 
 #ifdef SET_NEW_ERROR

@@ -60,7 +60,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
     context::DData<> ctx(ctxCommon);
     Id id;
 
-    RUN(processing::deserializeDataContext(ctx, id));
+    CS_RUN(processing::deserializeDataContext(ctx, id));
     
     Vector<GenericPointerKeeper> addedPointers;
     if (ctx.allowUnmanagedPointers())
@@ -81,7 +81,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
     else if (status == Status::kErrorMoreEntires)
     {
         Vector<IDataServerBase*, RawStrategicAllocatorHelper<IDataServerBase*>> servers;
-        RUN(GetDataServersKeeper().findServers(id, servers));
+        CS_RUN(GetDataServersKeeper().findServers(id, servers));
 
         status = Status::kNoError;
 

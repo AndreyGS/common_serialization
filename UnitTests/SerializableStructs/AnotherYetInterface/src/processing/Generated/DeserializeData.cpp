@@ -33,7 +33,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, another_yet_interfa
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_i));
+    CS_RUN(deserializeData(ctx, value.m_i));
 
     return Status::kNoError;
 }

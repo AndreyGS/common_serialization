@@ -33,8 +33,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_x));
-    RUN(deserializeData(ctx, value.m_y));
+    CS_RUN(deserializeData(ctx, value.m_x));
+    CS_RUN(deserializeData(ctx, value.m_y));
 
     return Status::kNoError;
 }
@@ -44,22 +44,22 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_i));
-    RUN(deserializeData(ctx, value.m_j));
-    RUN(deserializeData(ctx, value.m_et));
-    RUN(deserializeData(ctx, value.m_et2));
-    RUN(deserializeData(ctx, value.m_saaToS));
-    RUN(deserializeData(ctx, value.m_saaToNS));
-    RUN(deserializeData(ctx, value.m_saNS));
+    CS_RUN(deserializeData(ctx, value.m_i));
+    CS_RUN(deserializeData(ctx, value.m_j));
+    CS_RUN(deserializeData(ctx, value.m_et));
+    CS_RUN(deserializeData(ctx, value.m_et2));
+    CS_RUN(deserializeData(ctx, value.m_saaToS));
+    CS_RUN(deserializeData(ctx, value.m_saaToNS));
+    CS_RUN(deserializeData(ctx, value.m_saNS));
 
-    RUN(deserializeData(ctx, value.m_arrI32));
-    RUN(deserializeData(ctx, value.m_arrEtS));
-    RUN(deserializeData(ctx, value.m_arrEtNS));
-    RUN(deserializeData(ctx, value.m_arrSaaTos));
-    RUN(deserializeData(ctx, value.m_arrSaaToNS));
-    RUN(deserializeData(ctx, value.m_arrSaNS));
+    CS_RUN(deserializeData(ctx, value.m_arrI32));
+    CS_RUN(deserializeData(ctx, value.m_arrEtS));
+    CS_RUN(deserializeData(ctx, value.m_arrEtNS));
+    CS_RUN(deserializeData(ctx, value.m_arrSaaTos));
+    CS_RUN(deserializeData(ctx, value.m_arrSaaToNS));
+    CS_RUN(deserializeData(ctx, value.m_arrSaNS));
 
-    RUN(deserializeData(ctx, value.m_vx));
+    CS_RUN(deserializeData(ctx, value.m_vx));
 
     return Status::kNoError;
 }
@@ -69,9 +69,9 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, static_cast<interface_for_test::SimplyAssignable<>&>(value)));
+    CS_RUN(deserializeData(ctx, static_cast<interface_for_test::SimplyAssignable<>&>(value)));
 
-    RUN(deserializeData(ctx, value.m_d));
+    CS_RUN(deserializeData(ctx, value.m_d));
 
     return Status::kNoError;
 }
@@ -81,8 +81,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_x));
-    RUN(deserializeData(ctx, value.m_y));
+    CS_RUN(deserializeData(ctx, value.m_x));
+    CS_RUN(deserializeData(ctx, value.m_y));
 
     return Status::kNoError;
 }
@@ -92,9 +92,9 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_x));
-    RUN(deserializeData(ctx, value.m_asa));
-    RUN(deserializeData(ctx, value.m_arrAsa));
+    CS_RUN(deserializeData(ctx, value.m_x));
+    CS_RUN(deserializeData(ctx, value.m_asa));
+    CS_RUN(deserializeData(ctx, value.m_arrAsa));
 
     return Status::kNoError;
 }
@@ -104,11 +104,11 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_o));
-    RUN(deserializeData(ctx, value.m_dpNS));
+    CS_RUN(deserializeData(ctx, value.m_o));
+    CS_RUN(deserializeData(ctx, value.m_dpNS));
 
-    RUN(deserializeData(ctx, value.m_arrO));
-    RUN(deserializeData(ctx, value.m_arrDpNS));
+    CS_RUN(deserializeData(ctx, value.m_arrO));
+    CS_RUN(deserializeData(ctx, value.m_arrDpNS));
 
     return Status::kNoError;
 }
@@ -118,8 +118,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondEdge1&>(value)));
-    RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondEdge2&>(value)));
+    CS_RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondEdge1&>(value)));
+    CS_RUN(deserializeData(ctx, static_cast<not_part_of_interfaces::DiamondEdge2&>(value)));
 
     return Status::kNoError;
 }
@@ -129,13 +129,13 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_vec));
-    RUN(deserializeData(ctx, value.m_saaToNS));
-    RUN(deserializeData(ctx, value.m_saNS));
-    RUN(deserializeData(ctx, value.m_pVec));
-    RUN(deserializeData(ctx, value.m_pInt));
-    RUN(deserializeData(ctx, value.m_ppInt));
-    RUN(deserializeData(ctx, value.m_nullptrInt));
+    CS_RUN(deserializeData(ctx, value.m_vec));
+    CS_RUN(deserializeData(ctx, value.m_saaToNS));
+    CS_RUN(deserializeData(ctx, value.m_saNS));
+    CS_RUN(deserializeData(ctx, value.m_pVec));
+    CS_RUN(deserializeData(ctx, value.m_pInt));
+    CS_RUN(deserializeData(ctx, value.m_ppInt));
+    CS_RUN(deserializeData(ctx, value.m_nullptrInt));
 
     return Status::kNoError;
 }
@@ -145,8 +145,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_j));
-    RUN(deserializeData(ctx, value.m_k));
+    CS_RUN(deserializeData(ctx, value.m_j));
+    CS_RUN(deserializeData(ctx, value.m_k));
 
     return Status::kNoError;
 }
@@ -156,8 +156,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_j));
-    RUN(deserializeData(ctx, value.m_k));
+    CS_RUN(deserializeData(ctx, value.m_j));
+    CS_RUN(deserializeData(ctx, value.m_k));
 
     return Status::kNoError;
 }
@@ -167,8 +167,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_j));
-    RUN(deserializeData(ctx, value.m_k));
+    CS_RUN(deserializeData(ctx, value.m_j));
+    CS_RUN(deserializeData(ctx, value.m_k));
 
     return Status::kNoError;
 }
@@ -178,8 +178,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_j));
-    RUN(deserializeData(ctx, value.m_k));
+    CS_RUN(deserializeData(ctx, value.m_j));
+    CS_RUN(deserializeData(ctx, value.m_k));
 
     return Status::kNoError;
 }
@@ -189,11 +189,11 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_j));
-    RUN(deserializeData(ctx, value.m_k));
-    RUN(deserializeData(ctx, value.m_arrL));
-    RUN(deserializeData(ctx, value.m_sasTs));
-    RUN(deserializeData(ctx, value.m_saaToSts));
+    CS_RUN(deserializeData(ctx, value.m_j));
+    CS_RUN(deserializeData(ctx, value.m_k));
+    CS_RUN(deserializeData(ctx, value.m_arrL));
+    CS_RUN(deserializeData(ctx, value.m_sasTs));
+    CS_RUN(deserializeData(ctx, value.m_saaToSts));
 
     return Status::kNoError;
 }
@@ -203,11 +203,11 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_j));
-    RUN(deserializeData(ctx, value.m_k));
-    RUN(deserializeData(ctx, value.m_arrL));
-    RUN(deserializeData(ctx, value.m_sasTs));
-    RUN(deserializeData(ctx, value.m_saaToSts));
+    CS_RUN(deserializeData(ctx, value.m_j));
+    CS_RUN(deserializeData(ctx, value.m_k));
+    CS_RUN(deserializeData(ctx, value.m_arrL));
+    CS_RUN(deserializeData(ctx, value.m_sasTs));
+    CS_RUN(deserializeData(ctx, value.m_saaToSts));
 
     return Status::kNoError;
 }
@@ -217,15 +217,15 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_vec));
-    RUN(deserializeData(ctx, value.m_vecRecursive));
-    RUN(deserializeData(ctx, value.m_pVec));
-    RUN(deserializeData(ctx, value.m_rtSpec1));
-    RUN(deserializeData(ctx, value.m_rtSpec2));
-    RUN(deserializeData(ctx, value.m_pInt));
-    RUN(deserializeData(ctx, value.m_intArr));
-    RUN(deserializeData(ctx, value.m_ppInt));
-    RUN(deserializeData(ctx, value.m_nullptrInt));
+    CS_RUN(deserializeData(ctx, value.m_vec));
+    CS_RUN(deserializeData(ctx, value.m_vecRecursive));
+    CS_RUN(deserializeData(ctx, value.m_pVec));
+    CS_RUN(deserializeData(ctx, value.m_rtSpec1));
+    CS_RUN(deserializeData(ctx, value.m_rtSpec2));
+    CS_RUN(deserializeData(ctx, value.m_pInt));
+    CS_RUN(deserializeData(ctx, value.m_intArr));
+    CS_RUN(deserializeData(ctx, value.m_ppInt));
+    CS_RUN(deserializeData(ctx, value.m_nullptrInt));
 
     return Status::kNoError;
 }
@@ -235,13 +235,13 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_saDs));
-    RUN(deserializeData(ctx, value.m_diamond));
-    RUN(deserializeData(ctx, value.m_sptCs));
-    RUN(deserializeData(ctx, value.m_saaToStS));
-    RUN(deserializeData(ctx, value.m_saStS));
-    RUN(deserializeData(ctx, value.m_stS));
-    RUN(deserializeData(ctx, value.m_mpt));
+    CS_RUN(deserializeData(ctx, value.m_saDs));
+    CS_RUN(deserializeData(ctx, value.m_diamond));
+    CS_RUN(deserializeData(ctx, value.m_sptCs));
+    CS_RUN(deserializeData(ctx, value.m_saaToStS));
+    CS_RUN(deserializeData(ctx, value.m_saStS));
+    CS_RUN(deserializeData(ctx, value.m_stS));
+    CS_RUN(deserializeData(ctx, value.m_mpt));
 
     return Status::kNoError;
 }
@@ -251,8 +251,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_sawsf));
-    RUN(deserializeData(ctx, value.m_npfSawsf));
+    CS_RUN(deserializeData(ctx, value.m_sawsf));
+    CS_RUN(deserializeData(ctx, value.m_npfSawsf));
 
     return Status::kNoError;
 }

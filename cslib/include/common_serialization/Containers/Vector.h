@@ -533,7 +533,7 @@ constexpr Status Vector<T, AllocatorHelper>::init(const Vector& rhs)
                 return Status::kErrorNoMemory;
         }
 
-        RUN(m_allocatorHelper.copyNoOverlap(m_p, rhs.m_p, rhs.m_dataSize));
+        CS_RUN(m_allocatorHelper.copyNoOverlap(m_p, rhs.m_p, rhs.m_dataSize));
         m_dataSize = rhs.m_dataSize;
     }
 
@@ -561,7 +561,7 @@ template<typename T, typename AllocatorHelper>
 constexpr Status Vector<T, AllocatorHelper>::setSize(size_type n) noexcept
     requires std::is_trivially_copyable_v<T>
 {
-    RUN(reserveInternal(n, false));
+    CS_RUN(reserveInternal(n, false));
     m_dataSize = n;
     return Status::kNoError;
 }
@@ -575,9 +575,9 @@ constexpr Status Vector<T, AllocatorHelper>::reserve(size_type n)
 template<typename T, typename AllocatorHelper>
 constexpr Status Vector<T, AllocatorHelper>::pushBack(const T& value)
 {
-    RUN(addSpaceIfNeed(1));
+    CS_RUN(addSpaceIfNeed(1));
 
-    RUN(m_allocatorHelper.construct(m_p + m_dataSize, value));
+    CS_RUN(m_allocatorHelper.construct(m_p + m_dataSize, value));
     ++m_dataSize;
 
     return Status::kNoError;
@@ -586,9 +586,9 @@ constexpr Status Vector<T, AllocatorHelper>::pushBack(const T& value)
 template<typename T, typename AllocatorHelper>
 constexpr Status Vector<T, AllocatorHelper>::pushBack(T&& value)
 {
-    RUN(addSpaceIfNeed(1));
+    CS_RUN(addSpaceIfNeed(1));
 
-    RUN(m_allocatorHelper.moveNoOverlap(m_p + m_dataSize, &value, 1));
+    CS_RUN(m_allocatorHelper.moveNoOverlap(m_p + m_dataSize, &value, 1));
     ++m_dataSize;
 
     return Status::kNoError;
@@ -600,9 +600,9 @@ constexpr Status Vector<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
     if (p == nullptr && n != 0)
         return Status::kErrorInvalidArgument;
 
-    RUN(addSpaceIfNeed(n));
+    CS_RUN(addSpaceIfNeed(n));
 
-    RUN(m_allocatorHelper.copyNoOverlap(m_p + m_dataSize, p, n));
+    CS_RUN(m_allocatorHelper.copyNoOverlap(m_p + m_dataSize, p, n));
     m_dataSize += n;
 
     return Status::kNoError;
@@ -615,7 +615,7 @@ constexpr Status Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value) no
 {
     Status status = Status::kNoError;
 
-    RUN(addSpaceIfNeed(sizeof(V)));
+    CS_RUN(addSpaceIfNeed(sizeof(V)));
 
     *static_cast<V*>(static_cast<void*>(m_p + m_dataSize)) = value;
     m_dataSize += sizeof(V);
@@ -644,8 +644,8 @@ constexpr Status Vector<T, AllocatorHelper>::replace(const T* p, size_type n, si
         if (newMp)
         {
             m_allocatedSize = newAllocatedSize;
-            RUN(m_allocatorHelper.moveNoOverlap(newMp, m_p, offset));
-            RUN(m_allocatorHelper.copyNoOverlap(newMp + offset, p, n));
+            CS_RUN(m_allocatorHelper.moveNoOverlap(newMp, m_p, offset));
+            CS_RUN(m_allocatorHelper.copyNoOverlap(newMp + offset, p, n));
             m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);
 
             m_p = newMp;
@@ -658,7 +658,7 @@ constexpr Status Vector<T, AllocatorHelper>::replace(const T* p, size_type n, si
         if constexpr (constructor_allocator::value)
             m_allocatorHelper.destroyN(m_p + offset, n >= m_dataSize - offset ? m_dataSize - offset : n);
 
-        RUN(m_allocatorHelper.copyNoOverlap(m_p + offset, p, n));
+        CS_RUN(m_allocatorHelper.copyNoOverlap(m_p + offset, p, n));
     }
 
     m_dataSize = newDataSize;
@@ -691,11 +691,11 @@ constexpr Status Vector<T, AllocatorHelper>::insert(const T* p, size_type n, siz
         if (newMp)
         {
             m_allocatedSize = newAllocatedSize;
-            RUN(m_allocatorHelper.moveNoOverlap(newMp, m_p, offset));
-            RUN(m_allocatorHelper.copyNoOverlap(newMp + offset, p, n));
+            CS_RUN(m_allocatorHelper.moveNoOverlap(newMp, m_p, offset));
+            CS_RUN(m_allocatorHelper.copyNoOverlap(newMp + offset, p, n));
 
             if (offset != m_dataSize) // if we do not push back
-                RUN(m_allocatorHelper.moveNoOverlap(newMp + offsetPlusN, m_p + offset, rightDataPartSize));
+                CS_RUN(m_allocatorHelper.moveNoOverlap(newMp + offsetPlusN, m_p + offset, rightDataPartSize));
 
             m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);
 
@@ -707,9 +707,9 @@ constexpr Status Vector<T, AllocatorHelper>::insert(const T* p, size_type n, siz
     else if (newDataSize > m_dataSize)
     {
         if (offset != m_dataSize)
-            RUN(m_allocatorHelper.moveDirty(m_p + offsetPlusN, m_p + m_dataSize, m_p + offset, rightDataPartSize));
+            CS_RUN(m_allocatorHelper.moveDirty(m_p + offsetPlusN, m_p + m_dataSize, m_p + offset, rightDataPartSize));
 
-        RUN(m_allocatorHelper.copyNoOverlap(m_p + offset, p, n));
+        CS_RUN(m_allocatorHelper.copyNoOverlap(m_p + offset, p, n));
     }
     else if (newDataSize < m_dataSize)
         return Status::kErrorOverflow;
@@ -746,17 +746,17 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
             pointer pCurrent = m_p + currentOffset;
             if (m_dataSize > currentOffset)
             {
-                RUN(temp.pushBack(std::move(*pCurrent)));
+                CS_RUN(temp.pushBack(std::move(*pCurrent)));
                 m_allocatorHelper.destroy(pCurrent); // if T is not moveable we should destroying its objects explicitly
                 ++currentOffset;
             }
             else
                 m_dataSize = ++currentOffset;
 
-            RUN(m_allocatorHelper.copyNoOverlap(pCurrent, &*srcBegin++, 1));
+            CS_RUN(m_allocatorHelper.copyNoOverlap(pCurrent, &*srcBegin++, 1));
         }
         else
-            RUN(reserveInternal(currentOffset + 1, false));
+            CS_RUN(reserveInternal(currentOffset + 1, false));
     }
 
     if (temp.size())
@@ -766,17 +766,17 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
             if constexpr (constructor_allocator::value)
                 for (size_type i = currentOffset; i < oldDataSize; ++i)
                 {
-                    RUN(temp.pushBack(std::move(*(m_p + i))));
+                    CS_RUN(temp.pushBack(std::move(*(m_p + i))));
                     m_allocatorHelper.destroy(m_p + i); // if T is not moveable we should destroying its objects explicitly
                 }
             else
-                RUN(temp.pushBackN(m_p + currentOffset, oldDataSize - currentOffset));
+                CS_RUN(temp.pushBackN(m_p + currentOffset, oldDataSize - currentOffset));
         }
 
         m_dataSize = currentOffset;
-        RUN(addSpaceIfNeed(temp.size()));
+        CS_RUN(addSpaceIfNeed(temp.size()));
 
-        RUN(m_allocatorHelper.moveNoOverlap(m_p + currentOffset, temp.data(), temp.size()));
+        CS_RUN(m_allocatorHelper.moveNoOverlap(m_p + currentOffset, temp.data(), temp.size()));
         m_dataSize = currentOffset + temp.size();
     }
 
@@ -808,7 +808,7 @@ constexpr Status Vector<T, AllocatorHelper>::erase(size_type offset, size_type n
     difference_type rightNStart = offset + n;
     difference_type rightN = m_dataSize - rightNStart;
 
-    RUN(m_allocatorHelper.move(m_p + offset, m_p + rightNStart, rightN));
+    CS_RUN(m_allocatorHelper.move(m_p + offset, m_p + rightNStart, rightN));
     m_allocatorHelper.destroyN(m_p + rightNStart, rightN); // if T is not moveable we should destroying its objects explicitly
 
     m_dataSize = offset + rightN;
@@ -836,7 +836,7 @@ constexpr Status Vector<T, AllocatorHelper>::erase(iterator destBegin, iterator 
     difference_type leftN = destBegin - begin();
     difference_type rightN = m_dataSize - n - leftN;
 
-    RUN(m_allocatorHelper.move(destBegin.getPointer(), destEnd.getPointer(), rightN));
+    CS_RUN(m_allocatorHelper.move(destBegin.getPointer(), destEnd.getPointer(), rightN));
     m_allocatorHelper.destroyN(destEnd.getPointer(), rightN); // if T is not moveable we should destroying its objects explicitly
 
     m_dataSize = leftN + rightN;
@@ -855,7 +855,7 @@ constexpr Status Vector<T, AllocatorHelper>::copyN(size_type offset, size_type n
 
     difference_type nReal = offset + n > m_dataSize ? m_dataSize - offset : n;
 
-    RUN(m_allocatorHelper.copyDirty(p, p + offset, m_p + offset, nReal));
+    CS_RUN(m_allocatorHelper.copyDirty(p, p + offset, m_p + offset, nReal));
 
     if (ppNew)
         *ppNew = p + nReal;
@@ -878,7 +878,7 @@ constexpr Status Vector<T, AllocatorHelper>::copyN(iterator srcBegin, iterator s
 
     while (srcBegin != srcEnd)
     {
-        RUN(m_allocatorHelper.copyDirty(&*destBegin, &*destBegin + 1, srcBegin++.getPointer(), 1));
+        CS_RUN(m_allocatorHelper.copyDirty(&*destBegin, &*destBegin + 1, srcBegin++.getPointer(), 1));
         ++destBegin;
     }
 
@@ -1014,7 +1014,7 @@ template<typename T, typename AllocatorHelper>
         {
             m_allocatedSize = n;
 
-            RUN(m_allocatorHelper.moveNoOverlap(newMp, m_p, m_dataSize));
+            CS_RUN(m_allocatorHelper.moveNoOverlap(newMp, m_p, m_dataSize));
             m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);
             m_p = newMp;
         }

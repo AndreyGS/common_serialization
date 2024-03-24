@@ -34,7 +34,7 @@ constexpr Status DataProcessor::serializeData(const service_structs::OutGetInter
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    RUN(serializeData(value.properties, ctx));
+    CS_RUN(serializeData(value.properties, ctx));
 
     return Status::kNoError;
 }
@@ -44,7 +44,7 @@ constexpr Status DataProcessor::serializeData(const service_structs::GetInterfac
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    RUN(serializeData(value.id, ctx));
+    CS_RUN(serializeData(value.id, ctx));
 
     return Status::kNoError;
 }
@@ -56,14 +56,14 @@ constexpr Status DataProcessor::serializeData(const service_structs::CspPartySet
 
     assert(value.protocolVersions.size() < traits::kProtocolVersionUndefined);
 
-    RUN(serializeData(static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
-    RUN(serializeData(value.protocolVersions.data(), static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
+    CS_RUN(serializeData(static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
+    CS_RUN(serializeData(value.protocolVersions.data(), static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
 
-    RUN(serializeData(static_cast<uint32_t>(value.mandatoryCommonFlags), ctx));
-    RUN(serializeData(static_cast<uint32_t>(value.forbiddenCommonFlags), ctx));
+    CS_RUN(serializeData(static_cast<uint32_t>(value.mandatoryCommonFlags), ctx));
+    CS_RUN(serializeData(static_cast<uint32_t>(value.forbiddenCommonFlags), ctx));
 
-    RUN(serializeData(value.interfaces.size(), ctx));
-    RUN(serializeData(value.interfaces.data(), value.interfaces.size(), ctx));
+    CS_RUN(serializeData(value.interfaces.size(), ctx));
+    CS_RUN(serializeData(value.interfaces.data(), value.interfaces.size(), ctx));
 
     return Status::kNoError;
 }

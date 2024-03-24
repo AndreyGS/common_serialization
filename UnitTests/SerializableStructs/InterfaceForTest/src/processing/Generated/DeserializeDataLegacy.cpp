@@ -33,7 +33,7 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_ti));
+    CS_RUN(deserializeData(ctx, value.m_ti));
 
     return Status::kNoError;
 }
@@ -43,22 +43,22 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_i));
-    RUN(deserializeData(ctx, value.m_j));
-    RUN(deserializeData(ctx, value.m_et));
-    RUN(deserializeData(ctx, value.m_et2));
-    RUN(deserializeData(ctx, value.m_saaToS));
-    RUN(deserializeData(ctx, value.m_saaToNS));
-    RUN(deserializeData(ctx, value.m_saNS));
+    CS_RUN(deserializeData(ctx, value.m_i));
+    CS_RUN(deserializeData(ctx, value.m_j));
+    CS_RUN(deserializeData(ctx, value.m_et));
+    CS_RUN(deserializeData(ctx, value.m_et2));
+    CS_RUN(deserializeData(ctx, value.m_saaToS));
+    CS_RUN(deserializeData(ctx, value.m_saaToNS));
+    CS_RUN(deserializeData(ctx, value.m_saNS));
 
-    RUN(deserializeData(ctx, value.m_arrI32));
-    RUN(deserializeData(ctx, value.m_arrEtS));
-    RUN(deserializeData(ctx, value.m_arrEtNS));
-    RUN(deserializeData(ctx, value.m_arrSaaTos));
-    RUN(deserializeData(ctx, value.m_arrSaaToNS));
-    RUN(deserializeData(ctx, value.m_arrSaNS));
+    CS_RUN(deserializeData(ctx, value.m_arrI32));
+    CS_RUN(deserializeData(ctx, value.m_arrEtS));
+    CS_RUN(deserializeData(ctx, value.m_arrEtNS));
+    CS_RUN(deserializeData(ctx, value.m_arrSaaTos));
+    CS_RUN(deserializeData(ctx, value.m_arrSaaToNS));
+    CS_RUN(deserializeData(ctx, value.m_arrSaNS));
 
-    RUN(deserializeData(ctx, value.m_vt));
+    CS_RUN(deserializeData(ctx, value.m_vt));
 
     return Status::kNoError;
 }
@@ -68,9 +68,9 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, static_cast<interface_for_test::SimplyAssignable_Version0<>&>(value)));
+    CS_RUN(deserializeData(ctx, static_cast<interface_for_test::SimplyAssignable_Version0<>&>(value)));
 
-    RUN(deserializeData(ctx, value.m_d));
+    CS_RUN(deserializeData(ctx, value.m_d));
 
     return Status::kNoError;
 }
@@ -80,8 +80,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_xx));
-    RUN(deserializeData(ctx, value.m_yy));
+    CS_RUN(deserializeData(ctx, value.m_xx));
+    CS_RUN(deserializeData(ctx, value.m_yy));
 
     return Status::kNoError;
 }
@@ -91,9 +91,9 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_xx));
-    RUN(deserializeData(ctx, value.m_asa));
-    RUN(deserializeData(ctx, value.m_arrAsa));
+    CS_RUN(deserializeData(ctx, value.m_xx));
+    CS_RUN(deserializeData(ctx, value.m_asa));
+    CS_RUN(deserializeData(ctx, value.m_arrAsa));
 
     return Status::kNoError;
 }
@@ -103,13 +103,13 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_saDs));
-    RUN(deserializeData(ctx, value.m_diamond));
-    RUN(deserializeData(ctx, value.m_sptCs));
-    RUN(deserializeData(ctx, value.m_saaToStS));
-    RUN(deserializeData(ctx, value.m_saStS));
-    RUN(deserializeData(ctx, value.m_stS));
-    RUN(deserializeData(ctx, value.m_mpt));
+    CS_RUN(deserializeData(ctx, value.m_saDs));
+    CS_RUN(deserializeData(ctx, value.m_diamond));
+    CS_RUN(deserializeData(ctx, value.m_sptCs));
+    CS_RUN(deserializeData(ctx, value.m_saaToStS));
+    CS_RUN(deserializeData(ctx, value.m_saStS));
+    CS_RUN(deserializeData(ctx, value.m_stS));
+    CS_RUN(deserializeData(ctx, value.m_mpt));
 
     return Status::kNoError;
 }
@@ -119,8 +119,8 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_x));
-    RUN(deserializeData(ctx, value.m_y));
+    CS_RUN(deserializeData(ctx, value.m_x));
+    CS_RUN(deserializeData(ctx, value.m_y));
 
     return Status::kNoError;
 }
@@ -130,15 +130,15 @@ Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test:
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    RUN(deserializeData(ctx, value.m_saS));
-    RUN(deserializeData(ctx, value.m_diamond));
-    RUN(deserializeData(ctx, value.m_sptCs));
-    RUN(deserializeData(ctx, value.m_saaToStS));
-    RUN(deserializeData(ctx, value.m_saStS));
-    RUN(deserializeData(ctx, value.m_stS));
-    RUN(deserializeData(ctx, value.m_mpt));
+    CS_RUN(deserializeData(ctx, value.m_saS));
+    CS_RUN(deserializeData(ctx, value.m_diamond));
+    CS_RUN(deserializeData(ctx, value.m_sptCs));
+    CS_RUN(deserializeData(ctx, value.m_saaToStS));
+    CS_RUN(deserializeData(ctx, value.m_saStS));
+    CS_RUN(deserializeData(ctx, value.m_stS));
+    CS_RUN(deserializeData(ctx, value.m_mpt));
 
-    RUN(deserializeData(ctx, value.m_i));
+    CS_RUN(deserializeData(ctx, value.m_i));
 
     return Status::kNoError;
 }

@@ -82,7 +82,7 @@ protected:
         if (!pointerKeeper.allocateAndConstruct<To, GenericAllocatorHelper<To, ConstructorNoexceptAllocator<To>>>(1))
             return Status::kErrorNoMemory;
 
-        RUN(pointerKeeper.get<To>()->init(from));
+        CS_RUN(pointerKeeper.get<To>()->init(from));
 
         if (privateVersion > getTargetVersion())
             return base_class::convertOnHeap(*pointerKeeper.get<To>(), ctx);
@@ -94,7 +94,7 @@ protected:
     Status convertOnStack(const From& from, context::SData<S, PM>& ctx) noexcept
     {
         To to;
-        RUN(to.init(from));
+        CS_RUN(to.init(from));
 
         if (privateVersion > getTargetVersion())
             return base_class::convertOnStack(to, ctx);
@@ -180,7 +180,7 @@ protected:
         if (!pointerKeeper.allocateAndConstruct<From, GenericAllocatorHelper<From, ConstructorNoexceptAllocator<From>>>(1))
             return Status::kErrorNoMemory;
 
-        RUN(DataProcessor::deserializeData(ctx, *pointerKeeper.get<From>()));
+        CS_RUN(DataProcessor::deserializeData(ctx, *pointerKeeper.get<From>()));
 
         return convertToUpperVersionOnHeap(*pointerKeeper.get<From>(), ctx, to);
     }
@@ -189,7 +189,7 @@ protected:
     Status convertOnStack(context::DData<D, PM>& ctx, To& to) noexcept
     {
         From from;
-        RUN(DataProcessor::deserializeData(ctx, from));
+        CS_RUN(DataProcessor::deserializeData(ctx, from));
 
         return convertToUpperVersionOnStack(from, ctx, to);
     }
@@ -204,7 +204,7 @@ protected:
                 return Status::kErrorNoMemory;
 
             if constexpr (InitableBySpecialClass<To, base_from>)
-                RUN(pointerKeeper.get<base_from>()->init(from))
+                CS_RUN(pointerKeeper.get<base_from>()->init(from))
             else
                 return Status::kErrorNoSuchHandler;
 
@@ -224,7 +224,7 @@ protected:
             base_from bFrom;
 
             if constexpr (InitableBySpecialClass<To, base_from>)
-                RUN(bFrom.init(from))
+                CS_RUN(bFrom.init(from))
             else
                 return Status::kErrorNoSuchHandler;
 
