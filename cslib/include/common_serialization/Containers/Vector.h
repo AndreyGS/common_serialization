@@ -31,22 +31,6 @@
 namespace common_serialization
 {
 
-// serialization functions forward declarations
-template<typename,typename> class Vector;
-namespace csp
-{
-namespace processing
-{
-
-template<typename T, typename A, typename X>
-Status serializeData(const Vector<T, A>& value, X& ctx);
-
-template<typename T, typename A, typename X>
-Status deserializeData(X& ctx, Vector<T, A>& value);
-
-} // namespace processing
-} // namespace csp
-
 template<typename Vec>
 class ConstVectorIterator
 {
@@ -470,6 +454,10 @@ private:
     AllocatorHelper m_allocatorHelper;
 
 private:
+    // It's not mandatory to have friend csp::processing::deserializeData function 
+    // to have deserialization capability.
+    // The only reason this is done is because it allows some optimizations in
+    // processing when we have direct access to private fields.
     template<typename T, typename A, typename X>
     friend Status csp::processing::deserializeData(X& ctx, Vector<T, A>& value);
 };

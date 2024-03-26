@@ -1,6 +1,9 @@
 /**
- * @file cslib/include/common_serialization/csp/processing/DataTemplates.h
+ * @file cslib/include/common_serialization/TemplatesSerialization/Declarations.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
+ * 
+ * @details Templates must have free functions to CSP serialization and deserialization and they must be declared
+ *      before DataProcessor, so it could find them
  *
  * @section LICENSE
  *
@@ -23,33 +26,21 @@
 
 #pragma once
 
-#include "common_serialization/Containers/Vector.h"
-#include "common_serialization/csp/processing/DataProcessor.h"
+namespace common_serialization
+{
+
+template<typename, typename>
+class Vector;
+
+}
 
 namespace common_serialization::csp::processing
 {
 
-template<typename T, typename A, typename X>
-Status serializeData(const Vector<T, A>& value, X& ctx)
-{
-    CS_RUN(DataProcessor::serializeData(value.size(), ctx));
-    CS_RUN(DataProcessor::serializeData(value.data(), value.size(), ctx));
-    
-    return Status::kNoError;
-}
+template<typename T, typename A, typename C>
+Status serializeData(const Vector<T, A>& value, C& ctx);
 
-template<typename T, typename A, typename X>
-Status deserializeData(X& ctx, Vector<T, A>& value)
-{
-    value.clear();
-
-    typename Vector<T, A>::size_type size = 0;
-    CS_RUN(DataProcessor::deserializeData(ctx, size));
-    CS_RUN(value.reserve(size));
-    CS_RUN(DataProcessor::deserializeData(ctx, size, value.data()));
-    value.m_dataSize = size;
-
-    return Status::kNoError;
-}
+template<typename T, typename A, typename C>
+Status deserializeData(C& ctx, Vector<T, A>& value);
 
 } // namespace common_serialization::csp::processing

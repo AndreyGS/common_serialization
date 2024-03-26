@@ -47,7 +47,7 @@ namespace common_serialization
 /// @brief Status messages that are using in all procedures 
 ///     of common_serialization namespace and are part of CSP
 /// @note Negative numbers are errors, others are success
-enum class Status : int_fast32_t
+enum class Status : int32_t
 {
     // No error
     kNoError                                        =        0,
@@ -75,12 +75,13 @@ enum class Status : int_fast32_t
     kErrorMoreEntires                               =      -17,
     kErrorNotInited                                 =      -18,
     kErrorNoSupportedInterfaces                     =      -19,
-    kErrorNotSupportedInterface                     =      -20
+    kErrorNotSupportedInterface                     =      -20,
+    kErrorTypeSizeIsTooBig                          =      -21
 };
 
 constexpr bool statusSuccess(Status status)
 {
-    return static_cast<int_fast32_t>(status) >= 0;
+    return static_cast<int32_t>(status) >= 0;
 }
 
 } // namespace common_serialization

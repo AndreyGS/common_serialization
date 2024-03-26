@@ -123,7 +123,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     Vector<protocol_version_t> protocolVersions;
 
     /// @brief Mandatory Common Flags in interactions with party
-    context::CommonFlags mandatoryCommonFlags{ helpers::isModuleIsBigEndian() };
+    context::CommonFlags mandatoryCommonFlags{ helpers::isBigEndianPlatform() };
     /// @brief Forbidden Common Flags on party
     context::CommonFlags forbiddenCommonFlags;
 

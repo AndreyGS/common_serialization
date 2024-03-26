@@ -154,7 +154,7 @@ template<typename T>
 template<ISerializationCapableContainer S>
 constexpr Status ISerializable<T>::serialize(S& output) const noexcept
 {
-    context::SData<S> ctx(output, context::CommonFlags{ helpers::isModuleIsBigEndian() }, context::DataFlags{}, getLatestInterfaceVersion());
+    context::SData<S> ctx(output, context::CommonFlags{ helpers::isBigEndianPlatform() }, context::DataFlags{}, getLatestInterfaceVersion());
 
     return serialize(ctx);
 }
@@ -176,7 +176,7 @@ template<typename T>
 template<IDeserializationCapableContainer D>
 constexpr Status ISerializable<T>::deserialize(D& input)
 {
-    context::DData<D> ctx(input, context::CommonFlags{ helpers::isModuleIsBigEndian() }, context::DataFlags{}, getOriginPrivateVersion());
+    context::DData<D> ctx(input, context::CommonFlags{ helpers::isBigEndianPlatform() }, context::DataFlags{}, getOriginPrivateVersion());
 
     return deserialize(ctx);
 }

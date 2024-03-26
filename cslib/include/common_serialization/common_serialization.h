@@ -21,9 +21,6 @@
  *
  */
 
- // After cmake support of modules will be not experemental (with 3.28.0)
- // this header should be transformed to module, with respective lib changes
-
 #pragma once
 
 #ifdef USER_MODE // must be defined when c++ standard library is availible
@@ -39,6 +36,7 @@
 #endif // USER_MODE
 
 #include "common_serialization/Status.h"
+#include "common_serialization/TemplatesSerialization/Declarations.h"
 
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 
@@ -72,7 +70,8 @@
 #include "common_serialization/csp/ISerializable.h"
 #include "common_serialization/csp/Macros.h"
 #include "common_serialization/csp/processing/DataCsStructs.h"
-#include "common_serialization/csp/processing/DataTemplates.h"
 #include "common_serialization/csp/processing/DataVersionConverters.h"
 #include "common_serialization/csp/messaging/DataClient.h"
 #include "common_serialization/csp/messaging/IDataServer.h"
+#include "common_serialization/TemplatesSerialization/SerializeData.h"
+#include "common_serialization/TemplatesSerialization/DeserializeData.h"

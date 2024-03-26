@@ -101,7 +101,7 @@ consteval bool isBitness32()
 
 /// @brief Is current module compiled with big-endian format
 /// @return True if big-endian, false if little-endian
-consteval bool isModuleIsBigEndian()
+consteval bool isBigEndianPlatform()
 {
     return
 #ifndef BIG_ENDIAN
@@ -109,6 +109,13 @@ consteval bool isModuleIsBigEndian()
 #else
         true;
 #endif
+}
+
+/// @brief Is current module compiled with little-endian format
+/// @return True if little-endian, false if big-endian
+consteval bool isLittleEndianPlatform()
+{
+    return !isBigEndianPlatform();
 }
 
 /// @brief Test for overlapping memory regions of same sized arrays

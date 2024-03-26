@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/csp/processing/DataTemplates.h"
-
 namespace common_serialization::csp::processing
 {
 
