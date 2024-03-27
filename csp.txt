@@ -150,11 +150,9 @@ Status Message
     -1: ErrorNoMemory; there was not enough memory to complete the
       operation.
 
-    -2: ErrorOverflow; general meanings in CSP:
-      - there was mismatch in deserialization process in size of
-      deserialized data with expected one;
-      - serialized or deserialized data exceeds target or curren
-      environment limits.
+    -2: ErrorOverflow; general meanings in CSP - there was mismatch in
+      deserialization process in size of deserialized data with
+      the expected one.
 
     -3: ErrorInvalidArgument; lights inconsistence of input arguments in
       CSP procedures.  For instance, if there is recursive pointers flag
@@ -217,6 +215,15 @@ Status Message
     -20: ErrorNotSupportedInterface; using in Messaging to indicate
       that client struct that should be handled is from Interface that
       is not supported by client or server.
+      
+    -21: ErrorTypeSizeIsTooBig; size of integral that need to be
+      processed is exceeded maximum integral size in current
+      implementation.
+      
+    -22: ErrorValueOverflow; returns if Serialized integral have
+      different size in source and destination and its value in one of
+      its forms is exceeds maximum value that can be hold by another
+      one.
       
       
   Status Body
@@ -332,12 +339,11 @@ Data Message
       one can use plain memory copy of entire object, of course this
       struct must be simply assignable (not using pointers etc).
       
-    Bit 1 (0x2): size of primitives may be not equal.
+    Bit 1 (0x2): size of integers may be not equal.
     
       Indicated that there is possibility of that the compilers that
       built modules that take a part in Serialization may interpret with
-      different size any of the primitives fields.  What is primitive in
-      CSP point of view will be discussed later.
+      different size any of the integers fields.
       
     Bit 2 (0x4): allow unmanaged pointers.
     
@@ -561,7 +567,7 @@ Serialization of Primitives
     
       On serialization every size_t field must be checked, that it not
       exceeds 32 bits boundaries and write to Data Body its 4 low
-      octets, otherwise operation must return status ErrorOverflow.
+      octets, otherwise operation must return status ErrorValueOverflow.
       
       Total size of Message must not exceed 2^32 octets.
 
@@ -573,31 +579,31 @@ Serialization of Primitives
       
       On deserialization implementation must read 8 octets of every 
       size_t field and check that it not exceeds current implementation
-      boundary, otherwise operation must return status ErrorOverflow.
+      boundary, otherwise operation must return status
+      ErrorValueOverflow.
       
   Common Flag Big endian format
   
     If execution environment endianness setting is differ from this flag
     value, then bytes of primitive reversation must be done.
       
-  Data Flag Size of arithmetic types may be not equal
+  Data Flag Size of integer types may be not equal
   
     Different environments where Serialization is performed may include
-    such where some primitives sizes are not equal between each other.
+    such where some integers sizes are not equal between each other.
     The most frequent example is most of C/C++ fundamental data types
     where their specific length is not guarantied by the standard.  The
     main advice to handle such situations - do not use definitions of
-    primitives with such types in your CSP Interfaces.  The only 
+    integers with such types in your CSP Interfaces.  The only 
     exception is the size_t type which is handled in a special way (read
     just above).  But if for any reason you must implement your
     Interface with violating this recomendation and environments where
     Serialization is performed are different - use this flag with
     affected structs Serialization.
     
-    When this flag is set, and primitive type is potentially has 
-    different lengths (not every types can have different lengths - 
-    double floating point, for example), on serialization it must be
-    prepended with 1 octet that holds this type size in octets.
+    When this flag is set, and integers type is potentially has 
+    different lengths, on serialization it must be  prepended with 1
+    octet that holds this type size in octets.
     
 Serialization of Pointers
 
@@ -795,14 +801,14 @@ Serialization of Pointers
           or has Simply assignable fixed size tag and there is no
              alignment may be not equal flag set
           or has Simply assignable aligned to one tag and there is no
-             size of primitives may be not equal flag set
+             size of integers may be not equal flag set
           or has Simply assignable tag and there is no alignment may be
-             not equal and primitives may be not equal flags set)
+             not equal and integers may be not equal flags set)
 
         then all data on which points pointer is copied as raw array of
-        octets and if there is Size of primitives may be not equal flag
-        set (can be only if pointer points on primitive), then this data
-        is prepended by size of primitive type on which points pointer.
+        octets and if there is Size of integers may be not equal flag
+        set (can be only if pointer points on integers), then this data
+        is prepended by size of integers type on which points pointer.
     
       All other cases - every element is dereferenced and serialized
       individulally.

@@ -282,14 +282,14 @@ public:
     {
         m_dataFlags = dataFlags;
         m_alignmentMayBeNotEqual = m_dataFlags.alignmentMayBeNotEqual();
-        m_sizeOfPrimitivesMayBeNotEqual = m_dataFlags.sizeOfPrimitivesMayBeNotEqual();
+        m_sizeOfPrimitivesMayBeNotEqual = m_dataFlags.sizeOfIntegersMayBeNotEqual();
         m_allowUnmanagedPointers = m_dataFlags.allowUnmanagedPointers();
         m_checkRecursivePointers = m_dataFlags.checkRecursivePointers();
         m_simplyAssignableTagsOptimizationsAreTurnedOff = m_dataFlags.simplyAssignableTagsOptimizationsAreTurnedOff();;
     }
 
     [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
-    [[nodiscard]] constexpr bool sizeOfPrimitivesMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
+    [[nodiscard]] constexpr bool sizeOfIntegersMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
     [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
     [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
     [[nodiscard]] constexpr bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept { return m_simplyAssignableTagsOptimizationsAreTurnedOff; }

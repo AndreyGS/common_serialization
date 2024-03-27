@@ -76,7 +76,8 @@ enum class Status : int32_t
     kErrorNotInited                                 =      -18,
     kErrorNoSupportedInterfaces                     =      -19,
     kErrorNotSupportedInterface                     =      -20,
-    kErrorTypeSizeIsTooBig                          =      -21
+    kErrorTypeSizeIsTooBig                          =      -21,
+    kErrorValueOverflow                             =      -22
 };
 
 constexpr bool statusSuccess(Status status)

@@ -40,7 +40,7 @@ void mainTest()
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfPrimitivesMayBeNotEqual));
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual));
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
@@ -88,7 +88,7 @@ TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SpecialTBasicT)
 
     BinWalker bin;
     csp::context::SData<> ctxIn(bin.getVector());
-    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfPrimitivesMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers));
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers));
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 

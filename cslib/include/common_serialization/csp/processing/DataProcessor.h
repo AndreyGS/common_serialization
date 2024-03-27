@@ -38,6 +38,9 @@ public:
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static constexpr Status serializeData(const T& value, context::SData<S, PM>& ctx);
 
+    template<ISerializationCapableContainer S, ISerializationPointersMap PM>
+    static constexpr Status serializeDataSizeT(const size_t& value, context::SData<S, PM>& ctx);
+
     /// @brief For now using for size_t serialization only
     /// @tparam T size_t
     /// @tparam S ISerializationCapableContainer
@@ -56,7 +59,10 @@ public:
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status deserializeData(context::DData<D, PM>& ctx, T& value);
 
-    /// @brief Using for sizeOfPrimitivesMayBeNotEqual mode and size_t deserialization
+    template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+    static constexpr Status deserializeDataSizeT(context::DData<D, PM>& ctx, size_t& value);
+
+    /// @brief Using for sizeOfIntegersMayBeNotEqual mode and size_t deserialization
     /// @tparam T Integral type or enum
     /// @tparam D IDeserializationCapableContainer
     /// @tparam PM IDeserializationPointersMap
@@ -89,7 +95,7 @@ protected:
     static constexpr Status convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t thisVersionCompat, T& value);
 
 private:
-    static constexpr size_t kMaxSizeOfPrimitive = 64;   // maximum allowed size of primitive type
+    static constexpr size_t kMaxSizeOfIntegral = 8;   // maximum allowed size of integral type
 };
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
@@ -113,8 +119,8 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
             && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
             && (   AlwaysSimplyAssignableType<T> 
                 || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-                || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
-                || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual())
+                || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
     )
     {
         const typename S::size_type bytesSize = sizeof(T) * n;
@@ -124,7 +130,7 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
 
             
         if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (ctx.sizeOfPrimitivesMayBeNotEqual())
+            if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 CS_RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
             }
@@ -169,7 +175,7 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
     {
         if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (ctx.sizeOfPrimitivesMayBeNotEqual())
+            if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 CS_RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
             }
@@ -220,17 +226,26 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
     return Status::kNoError;
 }
 
+template<ISerializationCapableContainer S, ISerializationPointersMap PM>
+static constexpr Status DataProcessor::serializeDataSizeT(const size_t& value, context::SData<S, PM>& ctx)
+{
+    return serializeData(ctx.bitness32() ? 4 : 8, value, ctx);
+}
+
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
 constexpr Status DataProcessor::serializeData(size_t targetTypeSize, const T& value, context::SData<S, PM>& ctx)
 {
-    static_assert((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
+    static_assert((std::is_integral_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
         , "Current serializeData function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
+
+    if (kMaxSizeOfIntegral < targetTypeSize)
+        return Status::kErrorTypeSizeIsTooBig;
 
     if (sizeof(T) == targetTypeSize)
         return ctx.getBinaryData().pushBackArithmeticValue(value);
     if (sizeof(T) < targetTypeSize)
     {
-        constexpr uint8_t arr[kMaxSizeOfPrimitive] = { 0 };
+        constexpr uint8_t arr[kMaxSizeOfIntegral] = { 0 };
 
         S& output = ctx.getBinaryData();
 
@@ -246,6 +261,9 @@ constexpr Status DataProcessor::serializeData(size_t targetTypeSize, const T& va
     }
     else
     {
+        if (value >> (sizeof(T) - targetTypeSize) * 8)
+            return Status::kErrorValueOverflow;
+
         if constexpr (helpers::isLittleEndianPlatform())
             return ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), targetTypeSize);
         else
@@ -274,8 +292,8 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
             && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
             && (   AlwaysSimplyAssignableType<T> 
                 || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-                || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
-                || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual())
+                || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
     )
     {
         const typename D::size_type bytesSize = sizeof(T) * n;
@@ -283,10 +301,10 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
 
         D& input = ctx.getBinaryData();
 
-        // In fact ctx.sizeOfPrimitivesMayBeNotEqual() can be true only if (std::is_arithmetic_v<T> || std::is_enum_v<T>) is true,
+        // In fact ctx.sizeOfIntegersMayBeNotEqual() can be true only if (std::is_arithmetic_v<T> || std::is_enum_v<T>) is true,
         // but if we do not wrap this in constexpr statement, all SimplyAssignable types would be forced to have deserializeData functions
         if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (ctx.sizeOfPrimitivesMayBeNotEqual())
+            if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
                 CS_RUN(input.readArithmeticValue(originalTypeSize));
@@ -348,19 +366,14 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
     if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
     {
         if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
-            if (ctx.sizeOfPrimitivesMayBeNotEqual())
+            if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
                 CS_RUN(input.readArithmeticValue(originalTypeSize));
-                if (originalTypeSize != sizeof(T))
-                {
-                    CS_RUN(deserializeData(originalTypeSize, ctx, value));
-
-                    return Status::kNoError;
-                }
+                return deserializeData(originalTypeSize, ctx, value);
             }
 
-        CS_RUN(input.readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
+        return input.readArithmeticValue(const_cast<std::remove_const_t<T>&>(value));
     }
     else if constexpr (std::is_pointer_v<T>)
     {
@@ -393,7 +406,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         if (ctx.checkRecursivePointers())
             (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);
 
-        CS_RUN(deserializeData(ctx, *value));
+        return deserializeData(ctx, *value);
     }
     // this will work for types that are not ISerializable
     else if constexpr (AnySimplyAssignable<T>)
@@ -405,13 +418,17 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         if (ctx.simplyAssignableTagsOptimizationsAreTurnedOff())
             return Status::kErrorNotSupportedSerializationSettingsForStruct;
 
-        CS_RUN(deserializeDataSimplyAssignable(ctx, value))
+        return deserializeDataSimplyAssignable(ctx, value);
     }
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::deserializeData not found
     else if constexpr (!EmptyType<T>)
-        CS_RUN(processing::deserializeData(ctx, value));
+        return processing::deserializeData(ctx, value);
+}
 
-    return Status::kNoError;
+template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+static constexpr Status DataProcessor::deserializeDataSizeT(context::DData<D, PM>& ctx, size_t& value)
+{
+    return deserializeData(ctx.bitness32() ? 4 : 8, ctx, value);
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
@@ -420,17 +437,44 @@ constexpr Status DataProcessor::deserializeData(size_t originalTypeSize, context
     static_assert((std::is_integral_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
         , "Current deserializeData function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
 
-    if (kMaxSizeOfPrimitive < originalTypeSize)
+    if (kMaxSizeOfIntegral < originalTypeSize)
         return Status::kErrorTypeSizeIsTooBig;
 
-    uint8_t arr[kMaxSizeOfPrimitive] = { 0 };
+    uint8_t arr[kMaxSizeOfIntegral] = { 0 };
     typename D::size_type readSize = 0;
     CS_RUN(ctx.getBinaryData().read(arr, originalTypeSize, &readSize));
 
     if (readSize != originalTypeSize)
-        return Status::kErrorOverflow;
+        return Status::kErrorDataCorrupted;
 
-    const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
+    if (sizeof(T) == originalTypeSize)
+        const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
+    if (sizeof(T) < originalTypeSize)
+    {
+        if (ctx.bigEndianFormat())
+        {
+            for (size_t i = 0; i < originalTypeSize - sizeof(T); ++i)
+                if (arr[i])
+                    return Status::kErrorValueOverflow;
+
+            const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr + originalTypeSize - sizeof(T)));
+        }
+        else
+        {
+            for (size_t i = sizeof(T); i < originalTypeSize; ++i)
+                if (arr[i])
+                    return Status::kErrorValueOverflow;
+
+            const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
+        }
+    }
+    else
+    {
+        if constexpr (helpers::isLittleEndianPlatform())
+            const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
+        else
+            const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr)) >> (sizeof(T) - originalTypeSize) * 8;
+    }
 
     return Status::kNoError;
 }
@@ -448,8 +492,8 @@ static constexpr Status DataProcessor::serializeDataSimplyAssignable(const T& va
 
         if (   AlwaysSimplyAssignableType<T>
             || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-            || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
-            || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual()
+            || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+            || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
         )
         {
             // for simple assignable types it is preferable to get a whole struct at a time
@@ -475,8 +519,8 @@ constexpr Status DataProcessor::deserializeDataSimplyAssignable(context::DData<D
 
         if (   AlwaysSimplyAssignableType<T>
             || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-            || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfPrimitivesMayBeNotEqual()
-            || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfPrimitivesMayBeNotEqual()
+            || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+            || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
         )
         {
             typename D::size_type readSize = 0;
@@ -501,7 +545,7 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
     if (!p)
     {
         newPointer = false;
-        CS_RUN(output.pushBackArithmeticValue(static_cast<size_t>(0)));
+        CS_RUN(serializeDataSizeT(0, ctx));
     }
     else
     {
@@ -510,13 +554,13 @@ constexpr Status DataProcessor::addPointerToMap(const T p, context::SData<S, PM>
         if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
             newPointer = true;
-            CS_RUN(output.pushBackArithmeticValue(static_cast<size_t>(1)));
+            CS_RUN(serializeDataSizeT(1, ctx));
             pointersMap[p] = output.size();
         }
         else
         {
             newPointer = false;
-            CS_RUN(output.pushBackArithmeticValue(it->second));
+            CS_RUN(serializeDataSizeT(it->second, ctx));
         }
     }
 
@@ -530,7 +574,7 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T&
 
     size_t offset = 0;
 
-    CS_RUN(input.readArithmeticValue(offset));
+    CS_RUN(deserializeDataSizeT(ctx, offset));
 
     if (!offset)
     {

@@ -31,7 +31,7 @@ namespace common_serialization::csp::processing
 template<typename T, typename A, typename X>
 Status serializeData(const Vector<T, A>& value, X& ctx)
 {
-    CS_RUN(DataProcessor::serializeData(ctx.bitness32() ? 4 : 8, value.size(), ctx));
+    CS_RUN(DataProcessor::serializeDataSizeT(value.size(), ctx));
     CS_RUN(DataProcessor::serializeData(value.data(), value.size(), ctx));
     
     return Status::kNoError;

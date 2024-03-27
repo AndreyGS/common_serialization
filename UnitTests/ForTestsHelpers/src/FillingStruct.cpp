@@ -261,7 +261,7 @@ template<>
 void fillingStruct(interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& output)
 {
     output.m_j = 99;
-    output.m_k = 15456 | (12345 << 16);
+    output.m_k = 15456;
 }
 
 template<>
@@ -275,7 +275,7 @@ template<>
 void fillingStruct(interface_for_test::SimplyAssignableSimilarType1<>& output)
 {
     output.m_j = 101;
-    output.m_k = 8374 | (12345 << 16);
+    output.m_k = 8374;
 }
 
 template<>
@@ -289,7 +289,7 @@ template<>
 void fillingStruct(interface_for_test::SimilarType1<>& output)
 {
     output.m_j = 102;
-    output.m_k = 9951 | (12345 << 16);
+    output.m_k = 9951;
 
     output.m_arrL[0] = 34;
     output.m_arrL[1] = 44;

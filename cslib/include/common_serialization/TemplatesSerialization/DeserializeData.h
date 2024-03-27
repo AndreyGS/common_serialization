@@ -34,7 +34,7 @@ Status deserializeData(X& ctx, Vector<T, A>& value)
     value.clear();
 
     typename Vector<T, A>::size_type size = 0;
-    CS_RUN(DataProcessor::deserializeData(ctx.bitness32() ? 4 : 8, ctx, size));
+    CS_RUN(DataProcessor::deserializeDataSizeT(ctx, size));
     CS_RUN(value.reserve(size));
     CS_RUN(DataProcessor::deserializeData(ctx, size, value.data()));
     value.m_dataSize = size;

@@ -112,12 +112,12 @@ concept FixSizedEnumType = std::is_enum_v<T> && FixSizedArithmeticType<std::unde
 template<typename T>
 using normalize_t = std::remove_const_t<std::remove_reference_t<T>>;
 
-// can be copied with memcpy (if alignments are the same and no kSizeOfPrimitivesMayBeNotEqual flag is set)
+// can be copied with memcpy (if alignments are the same and no kSizeOfIntegersMayBeNotEqual flag is set)
 template<typename T>
 concept SimplyAssignableType
     =  requires(T t) { typename normalize_t<T>::simply_assignable_tag; };
 
-// can be copied with memcpy (if no kSizeOfPrimitivesMayBeNotEqual flag is set)
+// can be copied with memcpy (if no kSizeOfIntegersMayBeNotEqual flag is set)
 template<typename T>
 concept SimplyAssignableAlignedToOneType
     = requires(T t) { typename normalize_t<T>::simply_assignable_aligned_to_one_tag; } && alignof(T) == 1;

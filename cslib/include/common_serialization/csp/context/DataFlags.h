@@ -36,8 +36,8 @@ public:
     /// @note To speed up serialization structs marked with special tags
     ///     and arrays of them would be serialized/deserialized by memcpy
     ///     if their target versions are equal to latest, when this flag not set
-    ///     and sizeOfPrimitivesMayBeNotEqual also not set.
-    static constexpr uint32_t kAlignmentMayBeNotEqual = 0x1;  
+    ///     and kSizeOfIntegersMayBeNotEqual also not set.
+    static constexpr uint32_t kAlignmentMayBeNotEqual = 0x1;
     
     /// @details Indicates that serialization and deserialization processes
     ///     may be made on modules that are built on different compilers 
@@ -50,12 +50,13 @@ public:
     ///     is checks by FixSizedArithmeticType and FixSizedEnumType concepts.
     ///     Notice that most frequent used types are not strictly sized,
     ///     including uin32_t, uin64_t and others.
+    ///         This flag has no influence on size_t processing (if it happens
+    ///     through serializeDataSizeT or deserializeDataSizeT DataProcessor functions).
     ///     
-    /// @remark This flag is very dangerous and it should never be used,
-    ///     except you are really know what you are doing.
-    ///     Instead in your interface structs you should using types that have
-    ///     "semanticaly fixed" size (uin32_t, uin64_t and others).
-    static constexpr uint32_t kSizeOfPrimitivesMayBeNotEqual = 0x2;
+    /// @remark To avoid unnecessary overhead you should design your interfaces
+    ///     with integers that are strictly sized. But if you must do this,
+    ///     always set kSizeOfIntegersMayBeNotEqual flag.
+    static constexpr uint32_t kSizeOfIntegersMayBeNotEqual = 0x2;
     
     /// @details Allow serialization of pointers without help of DataProcessor
     ///     serializeData/deserializeData specialized class functions.
@@ -88,7 +89,7 @@ public:
     constexpr void removeFlags(uint32_t value) noexcept;
 
     [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept;
-    [[nodiscard]] constexpr bool sizeOfPrimitivesMayBeNotEqual() const noexcept;
+    [[nodiscard]] constexpr bool sizeOfIntegersMayBeNotEqual() const noexcept;
     [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept;
     [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept;
     [[nodiscard]] constexpr bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept;
@@ -135,9 +136,9 @@ constexpr void DataFlags::removeFlags(uint32_t value) noexcept
     return static_cast<bool>(m_flags & kAlignmentMayBeNotEqual);
 }
 
-[[nodiscard]] constexpr bool DataFlags::sizeOfPrimitivesMayBeNotEqual() const noexcept
+[[nodiscard]] constexpr bool DataFlags::sizeOfIntegersMayBeNotEqual() const noexcept
 {
-    return static_cast<bool>(m_flags & kSizeOfPrimitivesMayBeNotEqual);
+    return static_cast<bool>(m_flags & kSizeOfIntegersMayBeNotEqual);
 }
 
 [[nodiscard]] constexpr bool DataFlags::allowUnmanagedPointers() const noexcept
