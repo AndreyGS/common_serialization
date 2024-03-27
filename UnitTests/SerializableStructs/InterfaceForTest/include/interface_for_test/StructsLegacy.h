@@ -62,7 +62,7 @@ public:
     not_part_of_interfaces::TwoInts m_ti{ 0 };
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignableAlignedToOne_Version1;
+    friend SimplyAssignableAlignedToOne_Version1<T>;
 };
 
 template<typename T = cs::Dummy>
@@ -160,7 +160,7 @@ public:
     uint32_t m_vt{ 0 };
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignable;
+    friend SimplyAssignable<T>;
 };
 
 template<typename T1>
@@ -260,7 +260,7 @@ struct SimplyAssignableDescendant_Version0 : public SimplyAssignable_Version0<cs
     }
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignableDescendant;
+    friend SimplyAssignableDescendant<T>;
 };
 
 
@@ -322,7 +322,7 @@ public:
     uint16_t m_yy{ 0 };
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignableAlignedToOne;
+    friend SimplyAssignableAlignedToOne<T>;
 };
 
 #pragma pack(pop)
@@ -386,7 +386,7 @@ public:
     ManyPointersType<> m_mpt;
 
     friend cs::csp::processing::DataProcessor;
-    friend SForAllModesTests_Version2;
+    friend SForAllModesTests_Version2<T>;
 };
 
 
@@ -430,8 +430,8 @@ public:
     uint16_t m_y{ 0 };
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignableAlignedToOne_Version0;
-    friend SimplyAssignableAlignedToOne;
+    friend SimplyAssignableAlignedToOne_Version0<T>;
+    friend SimplyAssignableAlignedToOne<T>;
 };
 
 template<typename T1>
@@ -499,7 +499,7 @@ public:
     AlwaysSimplyAssignable_Version0<> m_arrAsa[3];
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignableFixedSize;
+    friend SimplyAssignableFixedSize<T>;
 };
 
 template<typename T1>
@@ -568,8 +568,8 @@ public:
     int m_i{ 0 }; // duplicated m_saDs.m_i
 
     friend cs::csp::processing::DataProcessor;
-    friend SForAllModesTests_Version0;
-    friend DForAllModesTests;
+    friend SForAllModesTests_Version0<T>;
+    friend DForAllModesTests<T>;
 };
 
 template<typename T1>

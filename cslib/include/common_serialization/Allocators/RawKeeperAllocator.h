@@ -59,7 +59,7 @@ public:
     /// @brief Copy constructor
     /// @remark This overload only for compatibility and does nothing
     /// @param rhs Another RawKeeperAllocator object
-    constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { return operator=<T>(rhs); }
+    constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { operator=<T>(rhs); }
 
     /// @brief Move constructor
     /// @tparam R Type of ojects that rhs allocator is allocate
@@ -222,7 +222,7 @@ constexpr void RawKeeperAllocator<T>::destroy(T* p) const noexcept
 
 template<typename T>
     requires std::is_trivially_copyable_v<T>
-constexpr RawKeeperAllocator<T>::size_type RawKeeperAllocator<T>::max_size() const noexcept
+constexpr typename RawKeeperAllocator<T>::size_type RawKeeperAllocator<T>::max_size() const noexcept
 {
     return m_memorySize;
 }

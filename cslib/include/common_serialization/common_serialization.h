@@ -24,6 +24,7 @@
 #pragma once
 
 #ifdef USER_MODE // must be defined when c++ standard library is availible
+#include <string.h>
 #include <cstdint>
 #include <cstdlib>
 #include <cassert>

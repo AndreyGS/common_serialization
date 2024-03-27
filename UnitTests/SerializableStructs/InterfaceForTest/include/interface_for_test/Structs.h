@@ -79,7 +79,7 @@ public:
     uint8_t m_y{ 0 };
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignableAlignedToOne_Version1;
+    friend SimplyAssignableAlignedToOne_Version1<T>;
 };
 
 #pragma pack(pop)
@@ -179,7 +179,7 @@ public:
     uint64_t m_vx{ 0 };
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignable_Version0;
+    friend SimplyAssignable_Version0<T>;
 };
 
 template<typename>
@@ -232,7 +232,7 @@ struct SimplyAssignableDescendant : public SimplyAssignable<cs::GetCrtpMainType<
     }
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignableDescendant_Version0;
+    friend SimplyAssignableDescendant_Version0<T>;
 };
 
 #pragma pack(push, 1)
@@ -275,7 +275,7 @@ public:
     uint8_t m_y{ 0 };
 
     friend cs::csp::processing::DataProcessor;
-    friend AlwaysSimplyAssignable_Version0;
+    friend AlwaysSimplyAssignable_Version0<T>;
 };
 
 #pragma pack(pop)
@@ -328,7 +328,7 @@ public:
     AlwaysSimplyAssignable<> m_arrAsa[3];
 
     friend cs::csp::processing::DataProcessor;
-    friend SimplyAssignableFixedSize_Version1;
+    friend SimplyAssignableFixedSize_Version1<T>;
 };
 
 template<typename T = cs::Dummy>
@@ -812,7 +812,7 @@ public:
     ManyPointersType<> m_mpt;
 
     friend cs::csp::processing::DataProcessor;
-    friend SForAllModesTests_Version2;
+    friend SForAllModesTests_Version2<T>;
 };
 
 template<typename T = cs::Dummy>

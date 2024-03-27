@@ -127,7 +127,7 @@ public:
     /// @return Pointer of costructed object
     template<typename T>
         requires IConstructorAllocator<Allocator<T>>
-    [[nodiscard]] T* allocateAndDefaultConstruct() const noexcept
+    [[nodiscard]] T* allocateAndDefaultConstruct() noexcept
     {
         if (!m_pAddedPointers)
             assert(false); // this situation shall never exists
@@ -167,7 +167,7 @@ private:
 template< 
           typename Container
         , bool serialize = true
-        , IPointersMap PM = std::conditional_t<serialize, std::unordered_map<const void*, uint64_t>, std::unordered_map<uint64_t, void*>>
+        , IPointersMap PM = std::conditional_t<serialize, std::unordered_map<const void*, size_t>, std::unordered_map<size_t, void*>>
         , IGenericPointersKeeperContainer PC = Vector<GenericPointerKeeper>
         , typename EPP = std::conditional_t<serialize, SerializeExtendedPointersProcessing<PM>, DeserializeExtendedPointersProcessing<PC, PM>>
 >
@@ -262,7 +262,7 @@ public:
         , PC* pAddedPointers = nullptr
         , PM* pPointersMap = nullptr
     ) noexcept
-        requires !serialize
+        requires (!serialize)
             : Common<Container>(binaryData, protocolVersion, Message::kData, commonFlags)
             , m_epp(pAddedPointers, pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { 
@@ -330,15 +330,15 @@ public:
     /// @brief Get pointer to added free pointers container.
     /// @remark availible only on deserialization mode
     /// @return Pointer to added free pointers container
-    [[nodiscard]] constexpr PC* getAddedPointers() noexcept requires !serialize { return m_epp.getAddedPointers(); }
-    [[nodiscard]] constexpr const PC* getAddedPointers() const noexcept requires !serialize { return m_epp.getAddedPointers(); }
+    [[nodiscard]] constexpr PC* getAddedPointers() noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
+    [[nodiscard]] constexpr const PC* getAddedPointers() const noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
 
     /// @brief Set holding pointer to added pointers container
     /// @note When we set map to Data it will not owns it
     ///     and does not clears its contents on destruction.
     /// @remark availible only on deserialization mode
     /// @param pAddedPointers Pointer to added free pointers container
-    constexpr void setAddedPointers(PC* pAddedPointers) noexcept requires !serialize { m_epp.setAddedPointers(pAddedPointers); }
+    constexpr void setAddedPointers(PC* pAddedPointers) noexcept requires (!serialize) { m_epp.setAddedPointers(pAddedPointers); }
 
     /// @brief Allocates memory for type T and costructs default T-object,
     ///     and then places it to container of added free pointers.
@@ -346,7 +346,7 @@ public:
     /// @tparam T Type of object to allocate and construct
     /// @return Pointer of costructed object
     template<typename T>
-    [[nodiscard]] T* allocateAndDefaultConstruct() const noexcept requires !serialize { return m_epp.allocateAndDefaultConstruct<T>(); }
+    [[nodiscard]] T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<T>(); }
 
     /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
     /// @note Flag of using heap allocation also not resets to false,

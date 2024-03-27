@@ -25,6 +25,14 @@
 
 #include "common_serialization/csp/context/Data.h"
 
+namespace common_serialization::csp
+{
+
+template<typename T>
+consteval interface_version_t getLatestInterfaceVersion();
+
+}
+
 namespace common_serialization::csp::processing
 {
 
@@ -227,7 +235,7 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
 }
 
 template<ISerializationCapableContainer S, ISerializationPointersMap PM>
-static constexpr Status DataProcessor::serializeDataSizeT(const size_t& value, context::SData<S, PM>& ctx)
+constexpr Status DataProcessor::serializeDataSizeT(const size_t& value, context::SData<S, PM>& ctx)
 {
     return serializeData(ctx.bitness32() ? 4 : 8, value, ctx);
 }
@@ -399,7 +407,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
             }
         }
 
-        value = ctx.allocateAndDefaultConstruct<std::remove_const_t<std::remove_pointer_t<T>>>();
+        value = ctx.template allocateAndDefaultConstruct<std::remove_const_t<std::remove_pointer_t<T>>>();
         if (!value)
             return Status::kErrorNoMemory;
 
@@ -426,7 +434,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
 }
 
 template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-static constexpr Status DataProcessor::deserializeDataSizeT(context::DData<D, PM>& ctx, size_t& value)
+constexpr Status DataProcessor::deserializeDataSizeT(context::DData<D, PM>& ctx, size_t& value)
 {
     return deserializeData(ctx.bitness32() ? 4 : 8, ctx, value);
 }
@@ -469,18 +477,13 @@ constexpr Status DataProcessor::deserializeData(size_t originalTypeSize, context
         }
     }
     else
-    {
-        if constexpr (helpers::isLittleEndianPlatform())
-            const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
-        else
-            const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr)) >> (sizeof(T) - originalTypeSize) * 8;
-    }
+        const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
 
     return Status::kNoError;
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-static constexpr Status DataProcessor::serializeDataSimplyAssignable(const T& value, context::SData<S, PM>&ctx)
+constexpr Status DataProcessor::serializeDataSimplyAssignable(const T& value, context::SData<S, PM>&ctx)
 {
     if constexpr (NotSimplyAssignable<T>)
         return Status::kErrorInvalidType;
@@ -646,7 +649,7 @@ constexpr Status DataProcessor::convertToOldStruct(const T& value, uint32_t targ
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-static constexpr Status DataProcessor::convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t targetVersion, T& value)
+constexpr Status DataProcessor::convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t targetVersion, T& value)
 {
     return Status::kErrorNoSuchHandler;
 }

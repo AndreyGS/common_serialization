@@ -458,8 +458,8 @@ private:
     // to have deserialization capability.
     // The only reason this is done is because it allows some optimizations in
     // processing when we have direct access to private fields.
-    template<typename T, typename A, typename X>
-    friend Status csp::processing::deserializeData(X& ctx, Vector<T, A>& value);
+    template<typename C, typename A, typename X>
+    friend Status csp::processing::deserializeData(X& ctx, Vector<C, A>& value);
 };
 
 template<typename T, typename AllocatorHelper>

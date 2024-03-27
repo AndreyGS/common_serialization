@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/csp/traits.h"
+#include "common_serialization/csp/Traits.h"
 #include "common_serialization/csp/processing/DataProcessor.h"
 
 namespace common_serialization::csp::processing

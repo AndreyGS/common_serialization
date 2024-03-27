@@ -41,7 +41,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAllowUnmanagedPointers | csp::context::DataFlags::kCheckRecursivePointers));
     ctxIn.setInterfaceVersion(targetVersion);
 
-    std::unordered_map<const void*, uint64_t> sMap;
+    std::unordered_map<const void*, size_t> sMap;
     ctxIn.setPointersMap(&sMap);
 
     // In this function we need special processing to emulate behavior of real interface.
@@ -58,7 +58,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     
     TD output;
     csp::context::DData<> ctxOut(bin);
-    std::unordered_map<uint64_t, void*> dMap;
+    std::unordered_map<size_t, void*> dMap;
     ctxOut.setPointersMap(&dMap);
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(&addedPointers);

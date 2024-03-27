@@ -182,8 +182,7 @@ constexpr Status serializeDataContextNoChecks(context::SData<S, PM>& ctx) noexce
 
     Id id = T::getId();
 
-    CS_RUN(output.pushBackArithmeticValue(id.leftPart));
-    CS_RUN(output.pushBackArithmeticValue(id.rightPart));
+    CS_RUN(output.pushBackN(id.id, sizeof(id.id)));
     CS_RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
 
     // Only set interface versions not match when some conversion will be need

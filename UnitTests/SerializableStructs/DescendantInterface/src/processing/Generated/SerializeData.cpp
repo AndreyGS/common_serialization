@@ -21,8 +21,6 @@
  *
  */
 
-#pragma once
-
 #include "descendant_interface/processing/Generated/SerializeData.h"
 
 namespace common_serialization::csp::processing

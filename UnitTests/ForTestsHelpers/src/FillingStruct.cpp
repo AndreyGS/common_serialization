@@ -299,9 +299,9 @@ void fillingStruct(interface_for_test::SimilarType1<>& output)
 
     output.m_sasTs[0].m_j = 105;
     output.m_sasTs[0].m_k = 11123;
-    output.m_sasTs[1].m_j = 200;
+    output.m_sasTs[1].m_j = 100;
     output.m_sasTs[1].m_k = 20110;
-    output.m_sasTs[2].m_j = 655;
+    output.m_sasTs[2].m_j = 105;
     output.m_sasTs[2].m_k = 25548;
 
     output.m_saaToSts[0].m_j = 21;
@@ -326,9 +326,9 @@ void fillingStruct(interface_for_test::SimilarType2<>& output)
 
     output.m_sasTs[0].m_j = 105;
     output.m_sasTs[0].m_k = 11123;
-    output.m_sasTs[1].m_j = 200;
+    output.m_sasTs[1].m_j = 100;
     output.m_sasTs[1].m_k = 20110;
-    output.m_sasTs[2].m_j = 655;
+    output.m_sasTs[2].m_j = 105;
     output.m_sasTs[2].m_k = 25548;
 
     output.m_saaToSts[0].m_j = 21;

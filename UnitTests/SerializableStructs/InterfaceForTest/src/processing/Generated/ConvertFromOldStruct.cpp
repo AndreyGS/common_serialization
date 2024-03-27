@@ -21,8 +21,6 @@
  *
  */
 
-#pragma once
-
 namespace common_serialization::csp::processing
 {
 

@@ -21,8 +21,6 @@
  *
  */
 
-#pragma once
-
 #include "not_part_of_interfaces/processing/Generated/DeserializeData.h"
 
 namespace common_serialization::csp::processing

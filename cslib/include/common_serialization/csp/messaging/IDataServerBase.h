@@ -45,7 +45,7 @@ public:
     /// @return Status of operation
     static Status handleDataCommon(context::Common<BinWalker>& ctxCommon, const BinVector& clientId, BinVector& binOutput);
 
-    virtual [[nodiscard]] interface_version_t getMinimumInterfaceVersion() = 0;
+    [[nodiscard]] virtual interface_version_t getMinimumInterfaceVersion() = 0;
 
 protected:
     constexpr IDataServerBase() { }

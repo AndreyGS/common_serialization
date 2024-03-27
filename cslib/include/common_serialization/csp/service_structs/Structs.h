@@ -193,7 +193,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
             for (const auto& rhsInterface : rhs.interfaces)
                 if (lhsInterface.id == rhsInterface.id)
                 {
-                    CS_RUN(output.interfaces.pushBack(lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version));
+                    CS_RUN(output.interfaces.pushBack({ lhsInterface.id, lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version }));
                     break;
                 }
     }

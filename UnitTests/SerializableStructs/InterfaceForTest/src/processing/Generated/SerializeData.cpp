@@ -21,8 +21,6 @@
  *
  */
 
-#pragma once
-
 #include "interface_for_test/processing/Generated/SerializeData.h"
 
 namespace common_serialization::csp::processing
