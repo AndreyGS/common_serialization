@@ -38,7 +38,7 @@ public:
     static constexpr cs::csp::Id kId = SimplyAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
     SimplyAssignableAlignedToOne_Version0() { }
     template<typename T2>
@@ -75,7 +75,7 @@ public:
     static constexpr cs::csp::Id kId = SimplyAssignable<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;         // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
     template<typename T2>
     cs::Status init(const SimplyAssignable<T2>& rhs);
@@ -221,7 +221,7 @@ struct SimplyAssignableDescendant_Version0 : public SimplyAssignable_Version0<cs
     static constexpr cs::csp::Id kId = SimplyAssignableDescendant<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
     uint32_t m_d{ 0 };
 
@@ -296,7 +296,7 @@ public:
     static constexpr cs::csp::Id kId = AlwaysSimplyAssignable<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
     AlwaysSimplyAssignable_Version0() { }
     template<typename T2>
@@ -359,7 +359,7 @@ public:
     static constexpr cs::csp::Id kId = DForAllModesTests<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
     template<typename T2>
     cs::Status init(const SForAllModesTests_Version2<T2>& rhs);
@@ -400,7 +400,7 @@ public:
     static constexpr cs::csp::Id kId = SimplyAssignableAlignedToOne<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 1, 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
     SimplyAssignableAlignedToOne_Version1() { }
     template<typename T2>
@@ -464,7 +464,7 @@ public:
     static constexpr cs::csp::Id kId = SimplyAssignableFixedSize<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 1 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
     SimplyAssignableFixedSize_Version1() { }
     template<typename T2>
@@ -537,7 +537,7 @@ public:
     static constexpr cs::csp::Id kId = DForAllModesTests<>::getId();
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 2;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 2, 0 };
-    static consteval const cs::csp::traits::Interface& getInterface() noexcept { return properties; }
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
     template<typename T2>
     cs::Status init(const SForAllModesTests_Version0<T2>& rhs);

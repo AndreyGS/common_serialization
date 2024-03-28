@@ -48,7 +48,7 @@ public:
     using instance_type = GetCrtpMainType<StrategicAllocatorHelper<T, Allocator>, MostDerivedClass>;
 
     /// @brief IAllocatorHelper interface
-    using interface_type = IAllocatorHelper<T, Allocator, instance_type>::interface_type;
+    using interface_type = typename IAllocatorHelper<T, Allocator, instance_type>::interface_type;
     using value_type = typename interface_type::value_type;
     using size_type = typename interface_type::size_type;
     using difference_type = typename interface_type::difference_type;

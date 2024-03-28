@@ -124,7 +124,7 @@ constexpr void RawNoexceptAllocator<T>::destroy(T* p) const noexcept
 
 template<typename T>
     requires std::is_trivially_copyable_v<T>
-constexpr RawNoexceptAllocator<T>::size_type RawNoexceptAllocator<T>::max_size() const noexcept
+constexpr typename RawNoexceptAllocator<T>::size_type RawNoexceptAllocator<T>::max_size() const noexcept
 {
     return max_size_v;
 }

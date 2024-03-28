@@ -127,7 +127,7 @@ public:
 
     /// @brief Get properties of interface to which current struct beholds
     /// @return Interface properties
-    [[nodiscard]] static consteval const traits::Interface& getInterface() noexcept;
+    [[nodiscard]] static consteval const Interface& getInterface() noexcept;
 
     /// @brief Get additional (to interace defined) mandatory data flags with which
     ///     current struct must be serialized
@@ -154,7 +154,7 @@ template<typename T>
 template<ISerializationCapableContainer S>
 constexpr Status ISerializable<T>::serialize(S& output) const noexcept
 {
-    context::SData<S> ctx(output, context::CommonFlags{ helpers::isBigEndianPlatform() }, context::DataFlags{}, getLatestInterfaceVersion());
+    context::SData<S> ctx(output, context::CommonFlags{ helpers::isBigEndianPlatform() }, context::DataFlags{}, this->getLatestInterfaceVersion());
 
     return serialize(ctx);
 }
@@ -164,7 +164,7 @@ template<ISerializationCapableContainer S, ISerializationPointersMap PM>
 constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const noexcept
 {
     if (ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined)
-        ctx.setInterfaceVersion(getLatestInterfaceVersion());
+        ctx.setInterfaceVersion(this->getLatestInterfaceVersion());
 
     CS_RUN(processing::serializeCommonContext(ctx));
     CS_RUN(processing::serializeDataContext<T>(ctx));
@@ -176,7 +176,7 @@ template<typename T>
 template<IDeserializationCapableContainer D>
 constexpr Status ISerializable<T>::deserialize(D& input)
 {
-    context::DData<D> ctx(input, context::CommonFlags{ helpers::isBigEndianPlatform() }, context::DataFlags{}, getOriginPrivateVersion());
+    context::DData<D> ctx(input, context::CommonFlags{ helpers::isBigEndianPlatform() }, context::DataFlags{}, this->getOriginPrivateVersion());
 
     return deserialize(ctx);
 }
@@ -188,7 +188,7 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
     CS_RUN(processing::deserializeCommonContext(ctx));
 
     Id id;
-    uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? getOriginPrivateVersion() : ctx.getInterfaceVersion();
+    uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? this->getOriginPrivateVersion() : ctx.getInterfaceVersion();
 
     CS_RUN(processing::deserializeDataContext(ctx, id));
     CS_RUN(processing::deserializeDataContextPostprocess<T>(ctx, id, minimumInterfaceVersion));
@@ -233,7 +233,7 @@ template<typename T>
 }
 
 template<typename T>
-[[nodiscard]] consteval const traits::Interface& ISerializable<T>::getInterface() noexcept
+[[nodiscard]] consteval const Interface& ISerializable<T>::getInterface() noexcept
 {
     return T::getInterface();
 }

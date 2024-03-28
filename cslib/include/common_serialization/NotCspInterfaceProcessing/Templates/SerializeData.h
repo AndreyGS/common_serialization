@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/SerializationFreeFunctions/SerializeData.h
+ * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Templates/SerializeData.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

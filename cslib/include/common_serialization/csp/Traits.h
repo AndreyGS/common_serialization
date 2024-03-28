@@ -39,24 +39,36 @@ inline constexpr protocol_version_t kProtocolVersions[] = { 1 };
 inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;           // it always must be kind of UINTMAX
 inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;   // it always must be kind of UINTMAX
 
+} // namespace traits
+
 struct Interface
 {
+    using simply_assignable_fixed_size_tag = std::true_type;
+
     Id id{ kNullUuid };
 
-    /// @brief The only field than allowed to change since interface publication
-    interface_version_t version{ kInterfaceVersionUndefined };
+    /// @brief The only field that allowed to change since interface publication
+    interface_version_t version{ traits::kInterfaceVersionUndefined };
 
     context::DataFlags mandatoryDataFlags;
     context::DataFlags forbiddenDataFlags;
 
+    constexpr Interface() {}
+    constexpr Interface(const Id& id, interface_version_t version, context::DataFlags mandatoryDataFlags, context::DataFlags forbiddenDataFlags)
+        : id(id), version(version), mandatoryDataFlags(mandatoryDataFlags), forbiddenDataFlags(forbiddenDataFlags)
+    { }
+
     bool operator==(const Interface& rhs) const noexcept
     {
-        return id == rhs.id && version == rhs.version 
+        return id == rhs.id && version == rhs.version
             && mandatoryDataFlags == rhs.mandatoryDataFlags && forbiddenDataFlags == rhs.forbiddenDataFlags;
     }
 };
 
-constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined };
+namespace traits
+{
+
+constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined, context::DataFlags{}, context::DataFlags{} };
 
 [[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion()
 {

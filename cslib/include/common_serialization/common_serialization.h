@@ -37,7 +37,7 @@
 #endif // USER_MODE
 
 #include "common_serialization/Status.h"
-#include "common_serialization/TemplatesSerialization/Declarations.h"
+#include "common_serialization/NotCspInterfaceProcessing/Templates/Declarations.h"
 
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 
@@ -70,9 +70,11 @@
 #include "common_serialization/Containers/Walker.h"
 #include "common_serialization/csp/ISerializable.h"
 #include "common_serialization/csp/Macros.h"
-#include "common_serialization/csp/processing/DataCsStructs.h"
+#include "common_serialization/NotCspInterfaceProcessing/Others/Declarations.h"
 #include "common_serialization/csp/processing/DataVersionConverters.h"
 #include "common_serialization/csp/messaging/DataClient.h"
 #include "common_serialization/csp/messaging/IDataServer.h"
-#include "common_serialization/TemplatesSerialization/SerializeData.h"
-#include "common_serialization/TemplatesSerialization/DeserializeData.h"
+#include "common_serialization/NotCspInterfaceProcessing/Templates/SerializeData.h"
+#include "common_serialization/NotCspInterfaceProcessing/Templates/DeserializeData.h"
+#include "common_serialization/NotCspInterfaceProcessing/Others/SerializeData.h"
+#include "common_serialization/NotCspInterfaceProcessing/Others/DeserializeData.h"

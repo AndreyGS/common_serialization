@@ -30,10 +30,10 @@ namespace another_yet_interface
 
 namespace cs = common_serialization;
 
-constexpr cs::csp::traits::Interface properties(
+constexpr cs::csp::Interface properties(
       cs::Uuid{ 0xf7cbb63c, 0x2a5d, 0x44eb, 0x80fc, 0x591bd08941e2 }
     , 0
-    , {}
+    , cs::csp::context::DataFlags{}
     , cs::csp::context::DataFlags(cs::csp::context::DataFlags::kAllowUnmanagedPointers | cs::csp::context::DataFlags::kCheckRecursivePointers)
 );
 

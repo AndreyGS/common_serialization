@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "common_serialization/Allocators/RawNoexceptAllocator.h"
 #include "common_serialization/Allocators/AllocatorHelpers/IAllocatorHelper.h"
 #include "common_serialization/Helpers.h"
 
@@ -42,7 +43,7 @@ public:
     using instance_type = GetCrtpMainType<GenericAllocatorHelper<T, Allocator>, MostDerivedClass>;
 
     /// @brief IAllocatorHelper interface
-    using interface_type = IAllocatorHelper<T, Allocator, instance_type>::interface_type;
+    using interface_type = typename IAllocatorHelper<T, Allocator, instance_type>::interface_type;
     using value_type = typename interface_type::value_type;
     using size_type = typename interface_type::size_type;
     using difference_type = typename interface_type::difference_type;
@@ -297,7 +298,7 @@ constexpr void GenericAllocatorHelper<T, Allocator, MostDerivedClass>::destroyNI
 }
 
 template<typename T, IAllocator Allocator, typename MostDerivedClass>
-constexpr GenericAllocatorHelper<T, Allocator, MostDerivedClass>::size_type GenericAllocatorHelper<T, Allocator, MostDerivedClass>::max_size_impl() const noexcept
+constexpr typename GenericAllocatorHelper<T, Allocator, MostDerivedClass>::size_type GenericAllocatorHelper<T, Allocator, MostDerivedClass>::max_size_impl() const noexcept
 {
     return this->getAllocator().max_size();
 }

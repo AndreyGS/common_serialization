@@ -29,7 +29,7 @@ namespace common_serialization::csp::processing
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_structs::OutGetInterface<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     CS_RUN(deserializeData(ctx, value.properties));
 
@@ -39,7 +39,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_s
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_structs::GetInterface<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     CS_RUN(deserializeData(ctx, value.id));
 
@@ -50,7 +50,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_s
 template<>
 constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_structs::CspPartySettings<>& value)
 {
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
+    CSP_DESERIALIZE_COMMON(ctx, value);
 
     protocol_version_t cspVersionsSize{ 0 };
     CS_RUN(deserializeData(ctx, cspVersionsSize));

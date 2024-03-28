@@ -368,19 +368,19 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::size() const noexcept
+[[nodiscard]] constexpr typename Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::size() const noexcept
 {
     return m_vector.size();
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::max_size() const noexcept
+[[nodiscard]] constexpr typename Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::max_size() const noexcept
 {
     return m_vector.max_size();
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::capacity() const noexcept
+[[nodiscard]] constexpr typename Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::capacity() const noexcept
 {
     return m_vector.capacity();
 }
@@ -428,7 +428,7 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::tell() const noexcept
+[[nodiscard]] constexpr typename Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::tell() const noexcept
 {
     return m_offset;
 }

@@ -340,7 +340,7 @@ Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimum
     if (!isValid())
         return Status::kErrorNotInited;
 
-    const traits::Interface& _interface = InputType::getInterface();
+    const Interface& _interface = InputType::getInterface();
 
     if (getInterfaceVersion(_interface.id) == traits::kInterfaceVersionUndefined)
         return Status::kErrorNotSupportedInterface;
@@ -421,7 +421,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     if (!isValid() || !m_dataClientSpeaker)
         return Status::kErrorNotInited;
 
-    const traits::Interface& _interface = InputType::getInterface();
+    const Interface& _interface = InputType::getInterface();
 
     interface_version_t interfaceVersionToUse = getInterfaceVersion(_interface.id);
 

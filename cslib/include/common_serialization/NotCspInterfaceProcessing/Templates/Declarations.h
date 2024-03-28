@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/TemplatesSerialization/Declarations.h
+ * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Templates/Declarations.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  * 
  * @details Templates must have free functions to CSP serialization and deserialization and they must be declared

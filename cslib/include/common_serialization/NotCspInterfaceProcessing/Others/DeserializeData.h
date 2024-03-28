@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/SerializationFreeFunctions/DeserializeData.h
+ * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Others/DeserializeData.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,21 +23,39 @@
 
 #pragma once
 
+#include "common_serialization/csp/Traits.h"
 #include "common_serialization/csp/processing/DataProcessor.h"
 
 namespace common_serialization::csp::processing
 {
 
-template<typename T, typename A, typename X>
-Status deserializeData(X& ctx, Vector<T, A>& value)
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value)
 {
-    value.clear();
+    CS_RUN(deserializeData(ctx, value.id));
 
-    typename Vector<T, A>::size_type size = 0;
-    CS_RUN(DataProcessor::deserializeDataSizeT(ctx, size));
-    CS_RUN(value.reserve(size));
-    CS_RUN(DataProcessor::deserializeData(ctx, size, value.data()));
-    value.m_dataSize = size;
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, context::DataFlags& value)
+{
+    uint32_t dataFlags{ 0 };
+    CS_RUN(deserializeData(ctx, dataFlags));
+    value = dataFlags;
+
+    return Status::kNoError;
+}
+
+template<>
+constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Interface& value)
+{
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)
+
+    CS_RUN(deserializeData(ctx, value.id));
+    CS_RUN(deserializeData(ctx, value.version));
+    CS_RUN(deserializeData(ctx, value.mandatoryDataFlags));
+    CS_RUN(deserializeData(ctx, value.forbiddenDataFlags));
 
     return Status::kNoError;
 }

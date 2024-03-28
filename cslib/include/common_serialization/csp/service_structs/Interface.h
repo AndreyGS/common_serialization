@@ -23,21 +23,20 @@
 
 #pragma once
 
-// Service structs not support version conversion and must always be the same.
-// It is a mandatory part of CSP.
+// Service structs is a mandatory part of CSP.
 // Set of structs is completely depend on protocol version. 
 
 namespace common_serialization::csp::service_structs
 {
 
-    namespace cs = common_serialization;
+namespace cs = common_serialization;
 
-    constexpr cs::csp::traits::Interface properties(
-          Uuid{ 0xe47be322, 0x232e, 0x4d66, 0x9175, 0x06eed2110b4b }
-        , 1
-        , { }
-        , context::DataFlags{ context::DataFlags::kValidFlagsMask }
-    );
+constexpr cs::csp::Interface properties(
+      Uuid{ 0xe47be322, 0x232e, 0x4d66, 0x9175, 0x06eed2110b4b }
+    , 1
+    , context::DataFlags{}
+    , context::DataFlags{ context::DataFlags::kSizeOfIntegersMayBeNotEqual | context::DataFlags::kAllowUnmanagedPointers | context::DataFlags::kCheckRecursivePointers }
+);
 
 } // namespace common_serialization::csp::service_structs
 

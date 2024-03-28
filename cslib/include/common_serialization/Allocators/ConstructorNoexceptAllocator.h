@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/Allocators/RawNoexceptAllocator.h"
 #include "common_serialization/Concepts.h"
 
 namespace common_serialization
@@ -146,7 +145,7 @@ constexpr void ConstructorNoexceptAllocator<T>::destroy(T* p) const noexcept
 }
 
 template<typename T>
-constexpr ConstructorNoexceptAllocator<T>::size_type ConstructorNoexceptAllocator<T>::max_size() const noexcept
+constexpr typename ConstructorNoexceptAllocator<T>::size_type ConstructorNoexceptAllocator<T>::max_size() const noexcept
 {
     return max_size_v;
 }

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/processing/DataCsStructs.h
+ * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Others/SerializeData.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -38,14 +38,6 @@ constexpr Status DataProcessor::serializeData(const Id& value, context::SData<>&
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value)
-{
-    CS_RUN(deserializeData(ctx, value.id));
-
-    return Status::kNoError;
-}
-
-template<>
 constexpr Status DataProcessor::serializeData(const context::DataFlags& value, context::SData<>& ctx)
 {
     CS_RUN(serializeData(static_cast<uint32_t>(value), ctx));
@@ -54,33 +46,14 @@ constexpr Status DataProcessor::serializeData(const context::DataFlags& value, c
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, context::DataFlags& value)
+constexpr Status DataProcessor::serializeData(const Interface& value, context::SData<>& ctx)
 {
-    uint32_t dataFlags{ 0 };
-    CS_RUN(deserializeData(ctx, dataFlags));
-    value = dataFlags;
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::serializeData(const traits::Interface& value, context::SData<>& ctx)
-{
     CS_RUN(serializeData(value.id, ctx));
     CS_RUN(serializeData(value.version, ctx));
     CS_RUN(serializeData(value.mandatoryDataFlags, ctx));
     CS_RUN(serializeData(value.forbiddenDataFlags, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, traits::Interface& value)
-{
-    CS_RUN(deserializeData(ctx, value.id));
-    CS_RUN(deserializeData(ctx, value.version));
-    CS_RUN(deserializeData(ctx, value.mandatoryDataFlags));
-    CS_RUN(deserializeData(ctx, value.forbiddenDataFlags));
 
     return Status::kNoError;
 }

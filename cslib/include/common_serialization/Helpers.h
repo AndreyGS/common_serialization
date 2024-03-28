@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/Status.h"
-
 namespace common_serialization
 {
 
@@ -104,7 +102,7 @@ consteval bool isBitness32()
 consteval bool isBigEndianPlatform()
 {
     return
-#ifndef BIG_ENDIAN
+#ifndef BIG_ENDIAN_PLATFORM
         false;
 #else
         true;

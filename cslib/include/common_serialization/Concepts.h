@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/Status.h"
-
 namespace common_serialization
 {
 

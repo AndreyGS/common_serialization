@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/SpecialTypesSerializable.h
+ * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Templates/DeserializeData.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,38 +23,23 @@
 
 #pragma once
 
-namespace another_yet_interface
+#include "common_serialization/csp/processing/DataProcessor.h"
+
+namespace common_serialization::csp::processing
 {
 
-template<typename T = cs::Dummy>
-class SimpleStruct : public cs::csp::ISerializable<cs::GetCrtpMainType<SimpleStruct<>, T>>
+template<typename T, typename A, typename X>
+Status deserializeData(X& ctx, Vector<T, A>& value)
 {
-public:
-    using instance_type = cs::GetCrtpMainType<SimpleStruct<>, T>;
+    value.clear();
 
-    static constexpr cs::csp::Id kId{ 0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd };
-    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
-    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
-    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
+    typename Vector<T, A>::size_type size = 0;
+    CS_RUN(DataProcessor::deserializeDataSizeT(ctx, size));
+    CS_RUN(value.reserve(size));
+    CS_RUN(DataProcessor::deserializeData(ctx, size, value.data()));
+    value.m_dataSize = size;
 
-    uint32_t m_i{ 0 };
+    return Status::kNoError;
+}
 
-    SimpleStruct& operator=(const SimpleStruct<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_i = rhs.m_i;
-
-        return *this;
-    }
-
-    [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
-    {
-        return m_i == rhs.m_i;
-    }
-
-    friend cs::csp::processing::DataProcessor;
-};
-
-} // namespace another_yet_interface
+} // namespace common_serialization::csp::processing

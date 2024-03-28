@@ -30,7 +30,7 @@ namespace common_serialization::csp::processing
 template<>
 constexpr Status DataProcessor::serializeData(const service_structs::OutGetInterface<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     CS_RUN(serializeData(value.properties, ctx));
 
@@ -40,7 +40,7 @@ constexpr Status DataProcessor::serializeData(const service_structs::OutGetInter
 template<>
 constexpr Status DataProcessor::serializeData(const service_structs::GetInterface<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     CS_RUN(serializeData(value.id, ctx));
 
@@ -50,7 +50,7 @@ constexpr Status DataProcessor::serializeData(const service_structs::GetInterfac
 template<>
 constexpr Status DataProcessor::serializeData(const service_structs::CspPartySettings<>& value, context::SData<>& ctx)
 {
-    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
+    CSP_SERIALIZE_COMMON(value, ctx);
 
     assert(value.protocolVersions.size() < traits::kProtocolVersionUndefined);
 
