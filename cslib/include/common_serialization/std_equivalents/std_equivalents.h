@@ -456,8 +456,8 @@ template<typename T>
 inline constexpr bool is_trivial_v = __is_trivially_constructible(T) && __is_trivially_copyable(T);
 
 // std::size
-template <typename T, std::size_t N>
-std::size_t size(T(&)[N])
+template <typename T, size_t N>
+size_t size(T(&)[N])
 {
     return N;
 }
@@ -476,5 +476,18 @@ struct conditional<false, T1, T2>
 
 template<bool Test, class T1, class T2>
 using conditional_t = typename conditional<Test, T1, T2>::type;
+
+enum class endian
+{
+#if defined(_MSC_VER) && !defined(__clang__)
+    little = 0,
+    big    = 1,
+    native = little
+#else
+    little = __ORDER_LITTLE_ENDIAN__,
+    big    = __ORDER_BIG_ENDIAN__,
+    native = __BYTE_ORDER__
+#endif
+};
 
 } // namespace std

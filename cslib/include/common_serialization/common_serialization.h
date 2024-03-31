@@ -31,6 +31,7 @@
 #include <concepts>
 #include <type_traits>
 #include <limits>
+#include <bit>
 #include <shared_mutex>
 #include <unordered_map>    // temporary header, must be replaced by internal map implementation
                             // to support environments without std libs, like OSes kernel modes

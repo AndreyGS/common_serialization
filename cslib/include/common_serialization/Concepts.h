@@ -46,4 +46,16 @@ concept InitableBySpecialClass = requires(T t)
     { t.init(*(new SpecClass)) } -> std::same_as<Status>;
 };
 
+template<typename T>
+concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || std::is_function_v<T> || std::is_member_function_pointer_v<T>);
+
+template<typename T>
+concept IsEndiannessReversable = (std::is_integral_v<T> || std::is_enum_v<T>) && sizeof(T) > 1 && sizeof(T) <= 8;
+
+template<typename T>
+concept IsSigned
+        =      std::is_arithmetic_v<T>
+        && (   std::is_same_v<T, signed char> || std::is_same_v<T, short> || std::is_same_v<T, int> || std::is_same_v<T, long>
+            || std::is_same_v<T, long long> || std::is_same_v<T, float> || std::is_same_v<T, double> || std::is_same_v<T, long double>);
+
 } // namespace common_serialization

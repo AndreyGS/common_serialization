@@ -47,18 +47,9 @@ public:
     static constexpr Status serializeData(const T& value, context::SData<S, PM>& ctx);
 
     template<ISerializationCapableContainer S, ISerializationPointersMap PM>
-    static constexpr Status serializeDataSizeT(const size_t& value, context::SData<S, PM>& ctx);
-
-    /// @brief For now using for size_t serialization only
-    /// @tparam T size_t
-    /// @tparam S ISerializationCapableContainer
-    /// @tparam PM ISerializationPointersMap
-    /// @param targetTypeSize Size of type to which will be serialized
-    /// @param value size_t value
-    /// @param ctx CSP Full Data Context
-    /// @return Status of operation
+    static CS_ALWAYS_INLINE constexpr Status serializeDataSizeT(const size_t& value, context::SData<S, PM>& ctx);
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    static constexpr Status serializeData(size_t targetTypeSize, const T& value, context::SData<S, PM>& ctx);
+    static CS_ALWAYS_INLINE constexpr Status serializeDataPrimitive(const T& value, context::SData<S, PM>& ctx);
 
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status deserializeData(context::DData<D, PM>& ctx, typename D::size_type n, T* p);
@@ -68,7 +59,21 @@ public:
     static constexpr Status deserializeData(context::DData<D, PM>& ctx, T& value);
 
     template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    static constexpr Status deserializeDataSizeT(context::DData<D, PM>& ctx, size_t& value);
+    static CS_ALWAYS_INLINE constexpr Status deserializeDataSizeT(context::DData<D, PM>& ctx, size_t& value);
+    template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+    static CS_ALWAYS_INLINE constexpr Status deserializeDataPrimitive(context::DData<D, PM>& ctx, T& value);
+
+protected:
+    /// @brief For now using for size_t serialization only
+    /// @tparam T size_t
+    /// @tparam S ISerializationCapableContainer
+    /// @tparam PM ISerializationPointersMap
+    /// @param targetTypeSize Size of type to which will be serialized
+    /// @param value size_t value
+    /// @param ctx CSP Full Data Context
+    /// @return Status of operation
+    template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+    static CS_ALWAYS_INLINE constexpr Status serializeData(size_t targetTypeSize, const T& value, context::SData<S, PM>& ctx);
 
     /// @brief Using for sizeOfIntegersMayBeNotEqual mode and size_t deserialization
     /// @tparam T Integral type or enum
@@ -79,9 +84,13 @@ public:
     /// @param value Output value
     /// @return Status of operation
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    static constexpr Status deserializeData(size_t originalTypeSize, context::DData<D, PM>& ctx, T& value);
+    static CS_ALWAYS_INLINE constexpr Status deserializeData(size_t originalTypeSize, context::DData<D, PM>& ctx, T& value);
 
-protected:
+    template<size_t targetTypeSize, typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+    static CS_ALWAYS_INLINE constexpr Status serializeDataToAnotherSize(const T& value, context::SData<S, PM>& ctx);
+    template<size_t originalTypeSize,typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+    static CS_ALWAYS_INLINE constexpr Status deserializeDataFromAnotherSize(context::DData<D, PM>& ctx, T& value);
+
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static constexpr Status serializeDataSimplyAssignable(const T& value, context::SData<S, PM>& ctx);
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
@@ -234,49 +243,59 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
     return Status::kNoError;
 }
 
+template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+CS_ALWAYS_INLINE constexpr Status DataProcessor::serializeData(size_t targetTypeSize, const T& value, context::SData<S, PM>& ctx)
+{
+    if (targetTypeSize == 8)
+        return serializeDataToAnotherSize<8>(value, ctx);
+    else if (targetTypeSize == 4)
+        return serializeDataToAnotherSize<4>(value, ctx);
+    else if (targetTypeSize == 2)
+        return serializeDataToAnotherSize<2>(value, ctx);
+    else if (targetTypeSize == 1)
+        return serializeDataToAnotherSize<1>(value, ctx);
+}
+
+template<size_t targetTypeSize, typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+constexpr Status DataProcessor::serializeDataToAnotherSize(const T& value, context::SData<S, PM>& ctx)
+{
+    static_assert((std::is_integral_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
+        , "Current serializeData function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
+
+    if constexpr (kMaxSizeOfIntegral < targetTypeSize)
+        return Status::kErrorTypeSizeIsTooBig;
+
+    if constexpr (sizeof(T) == targetTypeSize)
+        return serializeDataPrimitive(value, ctx);
+
+    helpers::fixed_width_integer_t<targetTypeSize, IsSigned<T>> targetValue = 0;
+
+    if constexpr (sizeof(T) < targetTypeSize)
+        helpers::castToBiggerType(value, targetValue);
+    else
+        CS_RUN(helpers::castToSmallerType<targetTypeSize>(value, targetValue));
+
+    return serializeDataPrimitive(targetValue, ctx);
+}
+
 template<ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status DataProcessor::serializeDataSizeT(const size_t& value, context::SData<S, PM>& ctx)
+CS_ALWAYS_INLINE constexpr Status DataProcessor::serializeDataSizeT(const size_t& value, context::SData<S, PM>& ctx)
 {
     return serializeData(ctx.bitness32() ? 4 : 8, value, ctx);
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status DataProcessor::serializeData(size_t targetTypeSize, const T& value, context::SData<S, PM>& ctx)
+CS_ALWAYS_INLINE constexpr Status DataProcessor::serializeDataPrimitive(const T& value, context::SData<S, PM>& ctx)
 {
-    static_assert((std::is_integral_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
-        , "Current serializeData function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
-
-    if (kMaxSizeOfIntegral < targetTypeSize)
-        return Status::kErrorTypeSizeIsTooBig;
-
-    if (sizeof(T) == targetTypeSize)
-        return ctx.getBinaryData().pushBackArithmeticValue(value);
-    if (sizeof(T) < targetTypeSize)
+    if constexpr (IsEndiannessReversable<T>)
     {
-        constexpr uint8_t arr[kMaxSizeOfIntegral] = { 0 };
-
-        S& output = ctx.getBinaryData();
-
-        if (ctx.bigEndianFormat())
-            CS_RUN(output.pushBackN(arr, targetTypeSize - sizeof(T)));
-
-        CS_RUN(output.pushBackArithmeticValue(value));
-
-        if (!ctx.bigEndianFormat())
-            return output.pushBackN(arr, targetTypeSize - sizeof(T));
+        if (ctx.endiannessDifference())
+            return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
         else
-            return Status::kNoError;
+            return ctx.getBinaryData().pushBackArithmeticValue(value);
     }
     else
-    {
-        if (value >> (sizeof(T) - targetTypeSize) * 8)
-            return Status::kErrorValueOverflow;
-
-        if constexpr (helpers::isLittleEndianPlatform())
-            return ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)), targetTypeSize);
-        else
-            return ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(&value)) + sizeof(T) - targetTypeSize, targetTypeSize);
-    }
+        return ctx.getBinaryData().pushBackArithmeticValue(value);
 }
 
 // common function for pointers of known size
@@ -433,53 +452,72 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         return processing::deserializeData(ctx, value);
 }
 
+template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+CS_ALWAYS_INLINE constexpr Status DataProcessor::deserializeData(size_t originalTypeSize, context::DData<D, PM>& ctx, T& value)
+{
+    if (originalTypeSize == 8)
+        return deserializeDataFromAnotherSize<8>(ctx, value);
+    else if (originalTypeSize == 4)
+        return deserializeDataFromAnotherSize<4>(ctx, value);
+    else if (originalTypeSize == 2)
+        return deserializeDataFromAnotherSize<2>(ctx, value);
+    else if (originalTypeSize == 1)
+        return deserializeDataFromAnotherSize<1>(ctx, value);
+}
+
+template<size_t originalTypeSize, typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+constexpr Status DataProcessor::deserializeDataFromAnotherSize(context::DData<D, PM>& ctx, T& value)
+{
+    static_assert((std::is_integral_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
+        , "Current deserializeData function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
+
+    if constexpr (kMaxSizeOfIntegral < originalTypeSize)
+        return Status::kErrorTypeSizeIsTooBig;
+
+    Status status = Status::kNoError;
+
+    helpers::fixed_width_integer_t<originalTypeSize, IsSigned<T>> originalValue = 0;
+    status = deserializeDataPrimitive(ctx, originalValue);
+
+    if (!statusSuccess(status))
+    {
+        if (status == Status::kErrorOverflow)
+            return Status::kErrorDataCorrupted;
+        return status;
+    }
+
+    if constexpr (sizeof(T) == originalTypeSize)
+        const_cast<std::remove_const_t<T>&>(value) = originalValue;
+    else if constexpr (sizeof(T) < originalTypeSize)
+        CS_RUN(helpers::castToSmallerType<sizeof(T)>(originalValue, *static_cast<helpers::fixed_width_integer_t<sizeof(T), IsSigned<T>>*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value)))))
+    else
+        helpers::castToBiggerType<sizeof(T)>(originalValue, *static_cast<helpers::fixed_width_integer_t<sizeof(T), IsSigned<T>>*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value))));
+
+    return Status::kNoError;
+}
+
 template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status DataProcessor::deserializeDataSizeT(context::DData<D, PM>& ctx, size_t& value)
+CS_ALWAYS_INLINE constexpr Status DataProcessor::deserializeDataSizeT(context::DData<D, PM>& ctx, size_t& value)
 {
     return deserializeData(ctx.bitness32() ? 4 : 8, ctx, value);
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status DataProcessor::deserializeData(size_t originalTypeSize, context::DData<D, PM>& ctx, T& value)
+CS_ALWAYS_INLINE constexpr Status DataProcessor::deserializeDataPrimitive(context::DData<D, PM>& ctx, T& value)
 {
-    static_assert((std::is_integral_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
-        , "Current deserializeData function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
-
-    if (kMaxSizeOfIntegral < originalTypeSize)
-        return Status::kErrorTypeSizeIsTooBig;
-
-    uint8_t arr[kMaxSizeOfIntegral] = { 0 };
-    typename D::size_type readSize = 0;
-    CS_RUN(ctx.getBinaryData().read(arr, originalTypeSize, &readSize));
-
-    if (readSize != originalTypeSize)
-        return Status::kErrorDataCorrupted;
-
-    if (sizeof(T) == originalTypeSize)
-        const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
-    if (sizeof(T) < originalTypeSize)
+    if constexpr (IsEndiannessReversable<T>)
     {
-        if (ctx.bigEndianFormat())
+        if (ctx.endiannessDifference())
         {
-            for (size_t i = 0; i < originalTypeSize - sizeof(T); ++i)
-                if (arr[i])
-                    return Status::kErrorValueOverflow;
-
-            const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr + originalTypeSize - sizeof(T)));
+            CS_RUN(ctx.getBinaryData().readArithmeticValue(value));
+            value = helpers::reverseEndianess(value);
+            return Status::kNoError;
         }
         else
-        {
-            for (size_t i = sizeof(T); i < originalTypeSize; ++i)
-                if (arr[i])
-                    return Status::kErrorValueOverflow;
-
-            const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
-        }
+            return ctx.getBinaryData().readArithmeticValue(value);
     }
     else
-        const_cast<std::remove_const_t<T>&>(value) = *static_cast<T*>(static_cast<void*>(arr));
-
-    return Status::kNoError;
+        return ctx.getBinaryData().readArithmeticValue(value);
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>

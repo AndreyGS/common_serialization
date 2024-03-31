@@ -23,6 +23,17 @@
 
 #pragma once
 
+#include "common_serialization/Concepts.h"
+
+#ifdef CS_ALWAYS_INLINE
+#undef CS_ALWAYS_INLINE
+#endif // #ifdef CS_ALWAYS_INLINE
+#if defined(_MSC_VER) && !defined(__clang__)
+#define CS_ALWAYS_INLINE __forceinline
+#else
+#define CS_ALWAYS_INLINE __attribute__((always_inline))
+#endif // #if defined(_MSC_VER) && !defined(__clang__)
+
 namespace common_serialization
 {
 
@@ -79,9 +90,6 @@ template<typename T>
     requires std::is_pointer_v<T>
 using from_ptr_to_const_to_ptr_t = typename pointer_level_traits<T>::from_ptr_to_const_to_ptr;
 
-template<typename T>
-concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || std::is_function_v<T> || std::is_member_function_pointer_v<T>);
-
 namespace helpers
 {
 
@@ -101,12 +109,7 @@ consteval bool isBitness32()
 /// @return True if big-endian, false if little-endian
 consteval bool isBigEndianPlatform()
 {
-    return
-#ifndef BIG_ENDIAN_PLATFORM
-        false;
-#else
-        true;
-#endif
+    return std::endian::native == std::endian::big;
 }
 
 /// @brief Is current module compiled with little-endian format
@@ -140,37 +143,149 @@ consteval size_t countof(T(&arr)[N])
 }
 
 /// @brief Convert uint64_t endianness from little-endian to big-endian and vice versa
+/// @tparam T 8-bytes length integer
 /// @param input Number
 /// @return Converted number
-constexpr uint64_t reverseEndianessUint64(uint64_t input)
+template<typename T>
+    requires (sizeof(T) == 8)
+constexpr T reverseEndianessInt64(T input)
 {
     return input >> 56
         | (input >> 40 & 0x000000000000ff00)
         | (input >> 24 & 0x0000000000ff0000)
-        | (input >> 8 & 0x00000000ff000000)
-        | (input << 8 & 0x000000ff00000000)
+        | (input >>  8 & 0x00000000ff000000)
+        | (input <<  8 & 0x000000ff00000000)
         | (input << 24 & 0x0000ff0000000000)
         | (input << 40 & 0x00ff000000000000)
-        | input << 56;
+        |  input << 56;
 }
 
-/// @brief Convert uint32_t endianness from little-endian to big-endian and vice versa
+/// @brief Convert 32 bit integer endianness from little-endian to big-endian and vice versa
+/// @tparam T 4-bytes length integer
 /// @param input Number
 /// @return Converted number
-constexpr uint32_t reverseEndianessUint32(uint32_t input)
+template<typename T>
+    requires (sizeof(T) == 4)
+constexpr T reverseEndianessInt32(T input)
 {
     return input >> 24
-        | (input >> 8 & 0x0000ff00)
-        | (input << 8 & 0x00ff0000)
-        | input << 24;
+        | (input >>  8 & 0x0000ff00)
+        | (input <<  8 & 0x00ff0000)
+        |  input << 24;
 }
 
 /// @brief Convert uint16_t endianness from little-endian to big-endian and vice versa
+/// @tparam T 2-bytes length integer
 /// @param input Number
 /// @return Converted number
-constexpr uint16_t reverseEndianessUint16(uint16_t input)
+template<typename T>
+    requires (sizeof(T) == 2)
+constexpr T reverseEndianessInt16(T input)
 {
     return input >> 8 | input << 8;
+}
+
+template<typename T>
+    requires IsEndiannessReversable<T>
+CS_ALWAYS_INLINE constexpr T reverseEndianess(T input)
+{
+    if constexpr (sizeof(T) == 2)
+        return reverseEndianessInt16(input);
+    else if constexpr (sizeof(T) == 4)
+        return reverseEndianessInt32(input);
+    else
+        return reverseEndianessInt64(input);
+}
+
+template<size_t targetSize, bool isSigned>
+struct fixed_width_integer;
+
+template<>
+struct fixed_width_integer<8, true>
+{
+    using type = int64_t;
+    static constexpr type min = -9223372036854775808LL;
+    static constexpr type max = 9223372036854775807LL;
+};
+
+template<>
+struct fixed_width_integer<8, false>
+{
+    using type = uint64_t;
+    static constexpr type min = 0ULL;
+    static constexpr type max = 18446744073709551615ULL;
+};
+
+template<>
+struct fixed_width_integer<4, true>
+{
+    using type = int32_t;
+    static constexpr type min = -2147483648;
+    static constexpr type max = 2147483647;
+};
+
+template<>
+struct fixed_width_integer<4, false>
+{
+    using type = uint32_t;
+    static constexpr type min = 0;
+    static constexpr type max = 4294967295U;
+};
+
+template<>
+struct fixed_width_integer<2, true>
+{
+    using type = int16_t;
+    static constexpr type min = -32768;
+    static constexpr type max = 32767;
+};
+
+template<>
+struct fixed_width_integer<2, false>
+{
+    using type = uint16_t;
+    static constexpr type min = 0;
+    static constexpr type max = 65535;
+};
+
+template<>
+struct fixed_width_integer<1, true>
+{
+    using type = int8_t;
+    static constexpr type min = -128;
+    static constexpr type max = 127;
+};
+
+template<>
+struct fixed_width_integer<1, false>
+{
+    using type = uint8_t;
+    static constexpr type min = 0;
+    static constexpr type max = 255;
+};
+
+template<size_t targetSize, bool isSigned>
+using fixed_width_integer_t = typename fixed_width_integer<targetSize, isSigned>::type;
+
+template<size_t targetSize, typename T>
+    requires (std::is_integral_v<T> && targetSize <= sizeof(T))
+constexpr Status castToSmallerType(T input, fixed_width_integer_t<targetSize, IsSigned<T>>& output)
+{
+    using output_type = fixed_width_integer<targetSize, IsSigned<T>>;
+
+    if (input > output_type::max || input < output_type::min)
+        return Status::kErrorValueOverflow;
+
+    output = static_cast<typename output_type::type>(input);
+
+    return Status::kNoError;
+}
+
+template<size_t targetSize, typename T>
+    requires (std::is_integral_v<T> && targetSize >= sizeof(T))
+CS_ALWAYS_INLINE constexpr void castToBiggerType(T input, fixed_width_integer_t<targetSize, IsSigned<T>>& output)
+{
+    output = static_cast<fixed_width_integer_t<targetSize, IsSigned<T>>>(input);
 }
 
 } // namespace helpers

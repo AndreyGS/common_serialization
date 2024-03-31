@@ -64,7 +64,7 @@ public:
         , m_messageType(rhs.m_messageType)
         , m_bitness32(rhs.m_bitness32)
         , m_bigEndianFormat(rhs.m_bigEndianFormat)
-        , m_endianDifference(rhs.m_endianDifference)
+        , m_endiannessDifference(rhs.m_endiannessDifference)
     { 
     }
 
@@ -101,7 +101,7 @@ public:
             { 
                   (m_bitness32 ? CommonFlags::kBitness32 : 0)
                 | (m_bigEndianFormat ? CommonFlags::kBigEndianFormat : 0)
-                | (m_endianDifference ? CommonFlags::kEndiannessDifference : 0) 
+                | (m_endiannessDifference ? CommonFlags::kEndiannessDifference : 0)
             };
     }
 
@@ -111,12 +111,12 @@ public:
     { 
         m_bitness32 = commonFlags.bitness32();
         m_bigEndianFormat = commonFlags.bigEndianFormat();
-        m_endianDifference = commonFlags.endiannessDifference();
+        m_endiannessDifference = commonFlags.endiannessDifference();
     }
 
     [[nodiscard]] constexpr bool bitness32() const noexcept { return m_bitness32; }
     [[nodiscard]] constexpr bool bigEndianFormat() const noexcept { return m_bigEndianFormat; }
-    [[nodiscard]] constexpr bool endiannessDifference() const noexcept { return m_endianDifference; }
+    [[nodiscard]] constexpr bool endiannessDifference() const noexcept { return m_endiannessDifference; }
 
     /// @brief Reset all fields to their default values, but leaves binary data and common flags unchanged
     /// @note Common flags are not resets to false because because they are 
@@ -140,12 +140,12 @@ public:
 
 private:
     Container& m_binaryData;
+    Message m_messageType{ Message::kData };
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
     bool m_protocolVersionsNotMatch{ false };
-    Message m_messageType{ Message::kData };
     bool m_bitness32{ false };
     bool m_bigEndianFormat{ false };
-    bool m_endianDifference{ false };
+    bool m_endiannessDifference{ false };
 };
 
 } // namespace common_serialization::csp::context
