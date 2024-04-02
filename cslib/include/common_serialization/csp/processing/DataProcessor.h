@@ -48,6 +48,13 @@ public:
 
     template<ISerializationCapableContainer S, ISerializationPointersMap PM>
     static CS_ALWAYS_INLINE constexpr Status serializeDataSizeT(const size_t& value, context::SData<S, PM>& ctx);
+
+    /// @brief Function that performs serializing of all primitives
+    /// @tparam S ISerializationCapableContainer
+    /// @tparam PM ISerializationPointersMap
+    /// @param value
+    /// @param ctx
+    /// @return
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static CS_ALWAYS_INLINE constexpr Status serializeDataPrimitive(const T& value, context::SData<S, PM>& ctx);
 
@@ -130,29 +137,27 @@ constexpr Status DataProcessor::serializeData(const T* p, typename S::size_type 
         return Status::kNoError;
 
     if (
-           std::is_arithmetic_v<T>
-        || std::is_enum_v<T>
-        || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff() 
-            && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
-            && (   AlwaysSimplyAssignableType<T> 
-                || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-                || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-                || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
+           !ctx.endiannessDifference()
+        && (   std::is_arithmetic_v<T>
+            || std::is_enum_v<T>
+            || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
+                && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
+                && (   AlwaysSimplyAssignableType<T>
+                    || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
+                    || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                    || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
+            )
+        || std::is_floating_point_v<T>
     )
     {
         const typename S::size_type bytesSize = sizeof(T) * n;
         assert((n == bytesSize / sizeof(T)));
-
-        S& output = ctx.getBinaryData();
-
             
         if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
-            {
-                CS_RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
-            }
+                CS_RUN(serializeDataPrimitive(static_cast<uint8_t>(sizeof(T)), ctx));
 
-        CS_RUN(output.pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
+        CS_RUN(ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize));
     }
     else
     {
@@ -193,11 +198,9 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
     {
         if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
-            {
-                CS_RUN(output.pushBackArithmeticValue(static_cast<uint8_t>(sizeof(T))));
-            }
+                CS_RUN(serializeDataPrimitive(static_cast<uint8_t>(sizeof(T)), ctx));
 
-        CS_RUN(output.pushBackArithmeticValue(value))
+        CS_RUN(serializeDataPrimitive(value, ctx));
     }
     else if constexpr (std::is_pointer_v<T>)
     {
@@ -216,11 +219,11 @@ constexpr Status DataProcessor::serializeData(const T& value, context::SData<S, 
         {
             if (value == nullptr)
             {
-                CS_RUN(output.pushBackArithmeticValue(uint8_t(0)));
+                CS_RUN(serializeDataPrimitive(uint8_t(0), ctx));
                 return Status::kNoError;
             }
             else
-                CS_RUN(output.pushBackArithmeticValue(uint8_t(1)));
+                CS_RUN(serializeDataPrimitive(uint8_t(1), ctx));
         }
 
         CS_RUN(serializeData(*value, ctx));
@@ -290,12 +293,27 @@ CS_ALWAYS_INLINE constexpr Status DataProcessor::serializeDataPrimitive(const T&
     if constexpr (IsEndiannessReversable<T>)
     {
         if (ctx.endiannessDifference())
-            return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
+        {
+            if constexpr (std::is_enum_v<T>)
+                return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(*static_cast<std::underlying_type_t<T>*>(static_cast<void*>(&value))));
+            else
+                return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
+        }
+        else
+        {
+            if constexpr (std::is_enum_v<T>)
+                return ctx.getBinaryData().pushBackArithmeticValue(*static_cast<std::underlying_type_t<T>*>(static_cast<void*>(&value)));
+            else
+                return ctx.getBinaryData().pushBackArithmeticValue(value);
+        }
+    }
+    else
+    {
+        if constexpr (std::is_enum_v<T>)
+            return ctx.getBinaryData().pushBackArithmeticValue(*static_cast<std::underlying_type_t<T>*>(static_cast<void*>(&value)));
         else
             return ctx.getBinaryData().pushBackArithmeticValue(value);
     }
-    else
-        return ctx.getBinaryData().pushBackArithmeticValue(value);
 }
 
 // common function for pointers of known size
@@ -313,14 +331,17 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
         return Status::kNoError;
 
     if (
-           std::is_arithmetic_v<T>
-        || std::is_enum_v<T>
-        || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-            && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
-            && (   AlwaysSimplyAssignableType<T> 
-                || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-                || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-                || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
+           !ctx.endiannessDifference()
+        && (   std::is_arithmetic_v<T>
+            || std::is_enum_v<T>
+            || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
+                && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
+                && (   AlwaysSimplyAssignableType<T>
+                    || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
+                    || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                    || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
+            )
+        || std::is_floating_point_v<T>
     )
     {
         const typename D::size_type bytesSize = sizeof(T) * n;
@@ -334,7 +355,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, type
             if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
-                CS_RUN(input.readArithmeticValue(originalTypeSize));
+                CS_RUN(deserializeDataPrimitive(ctx, originalTypeSize));
                 if (originalTypeSize != sizeof(T))
                 {
                     for (typename D::size_type i = 0; i < n; ++i)
@@ -396,11 +417,11 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
             if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
-                CS_RUN(input.readArithmeticValue(originalTypeSize));
+                CS_RUN(deserializeDataPrimitive(ctx, originalTypeSize));
                 return deserializeData(originalTypeSize, ctx, value);
             }
 
-        return input.readArithmeticValue(const_cast<std::remove_const_t<T>&>(value));
+        return deserializeDataPrimitive(ctx, const_cast<std::remove_const_t<T>&>(value));
     }
     else if constexpr (std::is_pointer_v<T>)
     {
@@ -418,7 +439,7 @@ constexpr Status DataProcessor::deserializeData(context::DData<D, PM>& ctx, T& v
         else
         {
             uint8_t isValidPtr = 0;
-            CS_RUN(input.readArithmeticValue(isValidPtr));
+            CS_RUN(deserializeDataPrimitive(ctx, isValidPtr));
             if (!isValidPtr)
             {
                 value = nullptr;
@@ -486,12 +507,14 @@ constexpr Status DataProcessor::deserializeDataFromAnotherSize(context::DData<D,
         return status;
     }
 
+    using sameSizedInteger = helpers::fixed_width_integer_t<sizeof(T), IsSigned<T>>;
+
     if constexpr (sizeof(T) == originalTypeSize)
         const_cast<std::remove_const_t<T>&>(value) = originalValue;
     else if constexpr (sizeof(T) < originalTypeSize)
-        CS_RUN(helpers::castToSmallerType<sizeof(T)>(originalValue, *static_cast<helpers::fixed_width_integer_t<sizeof(T), IsSigned<T>>*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value)))))
+        CS_RUN(helpers::castToSmallerType<sizeof(T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value)))))
     else
-        helpers::castToBiggerType<sizeof(T)>(originalValue, *static_cast<helpers::fixed_width_integer_t<sizeof(T), IsSigned<T>>*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value))));
+        helpers::castToBiggerType<sizeof(T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value))));
 
     return Status::kNoError;
 }
@@ -509,7 +532,7 @@ CS_ALWAYS_INLINE constexpr Status DataProcessor::deserializeDataPrimitive(contex
     {
         if (ctx.endiannessDifference())
         {
-            CS_RUN(ctx.getBinaryData().readArithmeticValue(value));
+            CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
             value = helpers::reverseEndianess(value);
             return Status::kNoError;
         }
