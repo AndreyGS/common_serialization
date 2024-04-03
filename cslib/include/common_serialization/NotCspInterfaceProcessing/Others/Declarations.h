@@ -24,22 +24,22 @@
 #pragma once
 
 #include "common_serialization/csp/Traits.h"
-#include "common_serialization/csp/processing/DataProcessor.h"
+#include "common_serialization/csp/processing/BodyProcessor.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<>
-constexpr Status DataProcessor::serializeData(const Id& value, context::SData<>& ctx);
+constexpr Status BodyProcessor::serialize(const Id& value, context::SData<>& ctx);
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value);
+constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, Id& value);
 template<>
-constexpr Status DataProcessor::serializeData(const context::DataFlags& value, context::SData<>& ctx);
+constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData<>& ctx);
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, context::DataFlags& value);
+constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, context::DataFlags& value);
 template<>
-constexpr Status DataProcessor::serializeData(const Interface& value, context::SData<>& ctx);
+constexpr Status BodyProcessor::serialize(const Interface& value, context::SData<>& ctx);
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Interface& value);
+constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, Interface& value);
 
 } // namespace common_serialization::csp::processing

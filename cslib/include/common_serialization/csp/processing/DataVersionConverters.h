@@ -21,7 +21,7 @@
  *
  */
 
-#include "common_serialization/csp/processing/DataProcessor.h"
+#include "common_serialization/csp/processing/BodyProcessor.h"
 
 namespace common_serialization::csp::processing::data_version_converters
 {
@@ -146,7 +146,7 @@ protected:
         if (privateVersion > getTargetVersion())
             return base_class::convertOnHeap(*pointerKeeper.get<To>(), ctx);
         else
-            return DataProcessor::serializeData(*pointerKeeper.get<To>(), ctx);
+            return BodyProcessor::serialize(*pointerKeeper.get<To>(), ctx);
     }
 
     template<IsISerializableBased From, ISerializationCapableContainer S, ISerializationPointersMap PM>
@@ -158,7 +158,7 @@ protected:
         if (privateVersion > getTargetVersion())
             return base_class::convertOnStack(to, ctx);
         else
-            return DataProcessor::serializeData(to, ctx);
+            return BodyProcessor::serialize(to, ctx);
     }
 
     static constexpr interface_version_t privateVersion = To::getLatestPrivateVersion();
@@ -239,7 +239,7 @@ protected:
         if (!pointerKeeper.allocateAndConstruct<From, GenericAllocatorHelper<From, ConstructorNoexceptAllocator<From>>>(1))
             return Status::kErrorNoMemory;
 
-        CS_RUN(DataProcessor::deserializeData(ctx, *pointerKeeper.get<From>()));
+        CS_RUN(BodyProcessor::deserialize(ctx, *pointerKeeper.get<From>()));
 
         return convertToUpperVersionOnHeap(*pointerKeeper.get<From>(), ctx, to);
     }
@@ -248,7 +248,7 @@ protected:
     Status convertOnStack(context::DData<D, PM>& ctx, To& to) noexcept
     {
         From from;
-        CS_RUN(DataProcessor::deserializeData(ctx, from));
+        CS_RUN(BodyProcessor::deserialize(ctx, from));
 
         return convertToUpperVersionOnStack(from, ctx, to);
     }

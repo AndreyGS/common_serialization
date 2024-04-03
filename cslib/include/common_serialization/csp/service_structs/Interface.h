@@ -41,5 +41,5 @@ constexpr cs::csp::Interface properties(
 } // namespace common_serialization::csp::service_structs
 
 #include "common_serialization/csp/service_structs/Structs.h"
-#include "common_serialization/csp/service_structs/processing/DeserializeData.h"
-#include "common_serialization/csp/service_structs/processing/SerializeData.h"
+#include "common_serialization/csp/service_structs/processing/Deserialize.h"
+#include "common_serialization/csp/service_structs/processing/Serialize.h"

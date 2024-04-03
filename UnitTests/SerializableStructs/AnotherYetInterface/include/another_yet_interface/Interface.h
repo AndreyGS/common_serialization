@@ -40,5 +40,5 @@ constexpr cs::csp::Interface properties(
 } // namespace another_yet_interface
 
 #include "another_yet_interface/Structs.h"
-#include "another_yet_interface/processing/Generated/SerializeData.h"
-#include "another_yet_interface/processing/Generated/DeserializeData.h"
+#include "another_yet_interface/processing/Generated/Serialize.h"
+#include "another_yet_interface/processing/Generated/Deserialize.h"

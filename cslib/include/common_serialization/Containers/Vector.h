@@ -453,12 +453,12 @@ private:
     AllocatorHelper m_allocatorHelper;
 
 private:
-    // It's not mandatory to have friend csp::processing::deserializeData function 
+    // It's not mandatory to have friend csp::processing::deserialize function 
     // to have deserialization capability.
     // The only reason this is done is because it allows some optimizations in
     // processing when we have direct access to private fields.
     template<typename C, typename A, typename X>
-    friend Status csp::processing::deserializeData(X& ctx, Vector<C, A>& value);
+    friend Status csp::processing::templates::deserialize(X& ctx, Vector<C, A>& value);
 };
 
 template<typename T, typename AllocatorHelper>

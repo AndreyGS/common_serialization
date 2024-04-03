@@ -78,7 +78,7 @@ public:
     uint8_t m_x{ 0 };
     uint8_t m_y{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignableAlignedToOne_Version1<T>;
 };
 
@@ -178,7 +178,7 @@ public:
 
     uint64_t m_vx{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignable_Version0<T>;
 };
 
@@ -231,7 +231,7 @@ struct SimplyAssignableDescendant : public SimplyAssignable<cs::GetCrtpMainType<
         return m_d == rhs.m_d && SimplyAssignable<instance_type>::operator==(rhs);
     }
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignableDescendant_Version0<T>;
 };
 
@@ -274,7 +274,7 @@ public:
     uint8_t m_x{ 0 };
     uint8_t m_y{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend AlwaysSimplyAssignable_Version0<T>;
 };
 
@@ -327,7 +327,7 @@ public:
 
     AlwaysSimplyAssignable<> m_arrAsa[3];
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignableFixedSize_Version1<T>;
 };
 
@@ -361,7 +361,7 @@ public:
     uint8_t m_arrO[3]{ 0 };
     not_part_of_interfaces::DynamicPolymorphic m_arrDpNS[3]{};
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T = cs::Dummy>
@@ -395,7 +395,7 @@ public:
         return m_d0 == rhs.m_d0 && m_d1 == rhs.m_d1 && m_d2 == rhs.m_d2;
     }
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T = cs::Dummy>
@@ -442,7 +442,7 @@ public:
     const int** m_ppInt{ nullptr };
     const int* m_nullptrInt{ nullptr };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 #pragma pack(push, 1)
@@ -472,7 +472,7 @@ public:
     char m_j{ 0 };
     int m_k{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T = cs::Dummy>
@@ -503,7 +503,7 @@ public:
     char m_j{ 0 };
     short m_k{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T>
@@ -542,7 +542,7 @@ public:
     char m_j{ 0 };
     int m_k{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T = cs::Dummy>
@@ -573,7 +573,7 @@ public:
     char m_j{ 0 };
     short m_k{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T>
@@ -625,7 +625,7 @@ public:
     SimplyAssignableSimilarType1<> m_sasTs[3];
     SimplyAssignableAlignedToOneSimilarType1<> m_saaToSts[3];
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T = cs::Dummy>
@@ -679,7 +679,7 @@ public:
     SimplyAssignableSimilarType2<> m_sasTs[3];
     SimplyAssignableAlignedToOneSimilarType2<> m_saaToSts[3];
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T>
@@ -769,7 +769,7 @@ public:
     int** m_ppInt{ nullptr };
     int* m_nullptrInt{ nullptr };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename> 
@@ -811,7 +811,7 @@ public:
     SimilarType2<> m_stS;
     ManyPointersType<> m_mpt;
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SForAllModesTests_Version2<T>;
 };
 
@@ -834,7 +834,7 @@ public:
         return m_i == rhs.m_i;
     }
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T = cs::Dummy>
@@ -856,7 +856,7 @@ public:
         return m_sawsf == rhs.m_sawsf && m_npfSawsf == rhs.m_npfSawsf;
     }
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 } // namespace interface_for_test

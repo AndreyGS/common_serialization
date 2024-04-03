@@ -51,15 +51,15 @@ public:
     ///     Notice that most frequent used types are not strictly sized,
     ///     including uin32_t, uin64_t and others.
     ///         This flag has no influence on size_t processing (if it happens
-    ///     through serializeDataSizeT or deserializeDataSizeT DataProcessor functions).
+    ///     through serializeSizeT or deserializeSizeT BodyProcessor functions).
     ///     
     /// @remark To avoid unnecessary overhead you should design your interfaces
     ///     with integers that are strictly sized. But if you must do this,
     ///     always set kSizeOfIntegersMayBeNotEqual flag.
     static constexpr uint32_t kSizeOfIntegersMayBeNotEqual = 0x2;
     
-    /// @details Allow serialization of pointers without help of DataProcessor
-    ///     serializeData/deserializeData specialized class functions.
+    /// @details Allow serialization of pointers without help of BodyProcessor
+    ///     serialize/deserialize specialized class functions.
     ///     
     /// @note May be used for containers that holds pointers on objects
     ///     without special handling functions.

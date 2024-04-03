@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/NotPartOfInterfaces/src/processing/Generated/SerializeData.cpp
+ * @file UnitTests/SerializableStructs/NotPartOfInterfaces/src/processing/Generated/Serialize.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,106 +21,106 @@
  *
  */
 
-#include "not_part_of_interfaces/processing/Generated/SerializeData.h"
+#include "not_part_of_interfaces/processing/Generated/Serialize.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignableAlignedToOne& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignableAlignedToOne& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serializeData(value.a, ctx));
-    CS_RUN(serializeData(value.s, ctx));
+    CS_RUN(serialize(value.a, ctx));
+    CS_RUN(serialize(value.s, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignable& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignable& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serializeData(value.q, ctx));
-    CS_RUN(serializeData(value.w, ctx));
+    CS_RUN(serialize(value.q, ctx));
+    CS_RUN(serialize(value.w, ctx));
 
     return Status::kNoError;
 }
 
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::DynamicPolymorphic& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::DynamicPolymorphic& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serializeData(value.m_r, ctx));
-    CS_RUN(serializeData(value.m_arrR, ctx));
+    CS_RUN(serialize(value.m_r, ctx));
+    CS_RUN(serialize(value.m_arrR, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondBase& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondBase& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serializeData(value.m_d0, ctx));
+    CS_RUN(serialize(value.m_d0, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge1& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge1& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
-    CS_RUN(serializeData(value.m_d1, ctx));
+    CS_RUN(serialize(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
+    CS_RUN(serialize(value.m_d1, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge2& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge2& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serializeData(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
-    CS_RUN(serializeData(value.m_d2, ctx));
+    CS_RUN(serialize(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
+    CS_RUN(serialize(value.m_d2, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::TwoInts& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::TwoInts& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serializeData(value.x, ctx));
-    CS_RUN(serializeData(value.y, ctx));
+    CS_RUN(serialize(value.x, ctx));
+    CS_RUN(serialize(value.y, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::RecursiveTestSpecial1& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpecial1& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serializeData(value.pAny, ctx));
+    CS_RUN(serialize(value.pAny, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::RecursiveTestSpecial2& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpecial2& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serializeData(value.pI, ctx));
-    CS_RUN(serializeData(value.pNext, ctx));
-    CS_RUN(serializeData(value.pAny, ctx));
+    CS_RUN(serialize(value.pI, ctx));
+    CS_RUN(serialize(value.pNext, ctx));
+    CS_RUN(serialize(value.pAny, ctx));
 
     return Status::kNoError;
 }

@@ -171,7 +171,7 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
     InputType& input, context::DData<>& ctxIn, const BinVector& clientId, OutputType& output, BinVector& binOutput
 )
 {
-    CS_RUN(processing::DataProcessor::deserializeData(ctxIn, input));
+    CS_RUN(processing::BodyProcessor::deserialize(ctxIn, input));
     
     CS_RUN(this->handleData(input, ctxIn.getAddedPointers(), clientId, output))
 

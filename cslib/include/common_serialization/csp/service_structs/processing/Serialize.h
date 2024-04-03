@@ -1,6 +1,6 @@
 
 /**
- * @file cslib/include/common_serialization/csp/service_structs/processing/SerializeData.h
+ * @file cslib/include/common_serialization/csp/service_structs/processing/Serialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -28,40 +28,40 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-constexpr Status DataProcessor::serializeData(const service_structs::OutGetInterface<>& value, context::SData<>& ctx)
+constexpr Status BodyProcessor::serialize(const service_structs::OutGetInterface<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serializeData(value.properties, ctx));
+    CS_RUN(serialize(value.properties, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const service_structs::GetInterface<>& value, context::SData<>& ctx)
+constexpr Status BodyProcessor::serialize(const service_structs::GetInterface<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serializeData(value.id, ctx));
+    CS_RUN(serialize(value.id, ctx));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status DataProcessor::serializeData(const service_structs::CspPartySettings<>& value, context::SData<>& ctx)
+constexpr Status BodyProcessor::serialize(const service_structs::CspPartySettings<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
     assert(value.protocolVersions.size() < traits::kProtocolVersionUndefined);
 
-    CS_RUN(serializeData(static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
-    CS_RUN(serializeData(value.protocolVersions.data(), static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
+    CS_RUN(serialize(static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
+    CS_RUN(serialize(value.protocolVersions.data(), static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
 
-    CS_RUN(serializeData(static_cast<uint32_t>(value.mandatoryCommonFlags), ctx));
-    CS_RUN(serializeData(static_cast<uint32_t>(value.forbiddenCommonFlags), ctx));
+    CS_RUN(serialize(static_cast<uint32_t>(value.mandatoryCommonFlags), ctx));
+    CS_RUN(serialize(static_cast<uint32_t>(value.forbiddenCommonFlags), ctx));
 
-    CS_RUN(serializeData(value.interfaces.size(), ctx));
-    CS_RUN(serializeData(value.interfaces.data(), value.interfaces.size(), ctx));
+    CS_RUN(serialize(value.interfaces.size(), ctx));
+    CS_RUN(serialize(value.interfaces.data(), value.interfaces.size(), ctx));
 
     return Status::kNoError;
 }

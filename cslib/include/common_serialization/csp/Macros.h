@@ -30,7 +30,7 @@
     {                                                                                       \
         if (!ctx.simplyAssignableTagsOptimizationsAreTurnedOff())                           \
         {                                                                                   \
-            Status status = serializeDataSimplyAssignable(value, ctx);                      \
+            Status status = serializeSimplyAssignable(value, ctx);                          \
             if (status == Status::kNoFurtherProcessingRequired)                             \
                 return Status::kNoError;                                                    \
             else if (                                                                       \
@@ -51,7 +51,7 @@
     {                                                                                       \
         if (!ctx.simplyAssignableTagsOptimizationsAreTurnedOff())                           \
         {                                                                                   \
-            Status status = deserializeDataSimplyAssignable(ctx, value);                    \
+            Status status = deserializeSimplyAssignable(ctx, value);                        \
             if (status == Status::kNoFurtherProcessingRequired)                             \
                 return Status::kNoError;                                                    \
             else if (                                                                       \

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/service_structs/Generated/DeserializeData.h
+ * @file UnitTests/SerializableStructs/DescendantInterface/src/Generated/Deserialize.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,54 +21,29 @@
  *
  */
 
-#pragma once
+#include "descendant_interface/processing/Generated/Deserialize.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_structs::OutGetInterface<>& value)
+Status BodyProcessor::deserialize(context::DData<>& ctx, descendant_interface::SimpleStruct<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserializeData(ctx, value.properties));
+    CS_RUN(deserialize(ctx, value.m_i));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_structs::GetInterface<>& value)
+Status BodyProcessor::deserialize(context::DData<>& ctx, descendant_interface::DiamondDescendant<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserializeData(ctx, value.id));
+    CS_RUN(deserialize(ctx, static_cast<interface_for_test::Diamond<>&>(value)));
 
-    return Status::kNoError;
-}
-
-
-template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, service_structs::CspPartySettings<>& value)
-{
-    CSP_DESERIALIZE_COMMON(ctx, value);
-
-    protocol_version_t cspVersionsSize{ 0 };
-    CS_RUN(deserializeData(ctx, cspVersionsSize));
-    value.protocolVersions.setSize(cspVersionsSize);
-    CS_RUN(deserializeData(ctx, cspVersionsSize, value.protocolVersions.data()));
-
-    uint32_t mandatoryCommonFlags;
-    CS_RUN(deserializeData(ctx, mandatoryCommonFlags));
-    value.mandatoryCommonFlags = mandatoryCommonFlags;
-
-    uint32_t forbiddenCommonFlags;
-    CS_RUN(deserializeData(ctx, forbiddenCommonFlags));
-    value.forbiddenCommonFlags = forbiddenCommonFlags;
-
-    size_t interfacesSize{ 0 };
-    CS_RUN(deserializeData(ctx, interfacesSize));
-    value.interfaces.setSize(interfacesSize);
-    CS_RUN(deserializeData(ctx, interfacesSize, value.interfaces.data()));
+    CS_RUN(deserialize(ctx, value.m_sSt));
 
     return Status::kNoError;
 }

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Others/DeserializeData.h
+ * @file cslib/include/common_serialization/csp/messaging/service_structs/Generated/Deserialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,39 +23,52 @@
 
 #pragma once
 
-#include "common_serialization/csp/Traits.h"
-#include "common_serialization/csp/processing/DataProcessor.h"
-
 namespace common_serialization::csp::processing
 {
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Id& value)
+constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, service_structs::OutGetInterface<>& value)
 {
-    CS_RUN(deserializeData(ctx, value.id));
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    CS_RUN(deserialize(ctx, value.properties));
 
     return Status::kNoError;
 }
 
 template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, context::DataFlags& value)
+constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, service_structs::GetInterface<>& value)
 {
-    uint32_t dataFlags{ 0 };
-    CS_RUN(deserializeData(ctx, dataFlags));
-    value = dataFlags;
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    CS_RUN(deserialize(ctx, value.id));
 
     return Status::kNoError;
 }
 
-template<>
-constexpr Status DataProcessor::deserializeData(context::DData<>& ctx, Interface& value)
-{
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)
 
-    CS_RUN(deserializeData(ctx, value.id));
-    CS_RUN(deserializeData(ctx, value.version));
-    CS_RUN(deserializeData(ctx, value.mandatoryDataFlags));
-    CS_RUN(deserializeData(ctx, value.forbiddenDataFlags));
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, service_structs::CspPartySettings<>& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    protocol_version_t cspVersionsSize{ 0 };
+    CS_RUN(deserialize(ctx, cspVersionsSize));
+    value.protocolVersions.setSize(cspVersionsSize);
+    CS_RUN(deserialize(ctx, cspVersionsSize, value.protocolVersions.data()));
+
+    uint32_t mandatoryCommonFlags;
+    CS_RUN(deserialize(ctx, mandatoryCommonFlags));
+    value.mandatoryCommonFlags = mandatoryCommonFlags;
+
+    uint32_t forbiddenCommonFlags;
+    CS_RUN(deserialize(ctx, forbiddenCommonFlags));
+    value.forbiddenCommonFlags = forbiddenCommonFlags;
+
+    size_t interfacesSize{ 0 };
+    CS_RUN(deserialize(ctx, interfacesSize));
+    value.interfaces.setSize(interfacesSize);
+    CS_RUN(deserialize(ctx, interfacesSize, value.interfaces.data()));
 
     return Status::kNoError;
 }

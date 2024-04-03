@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Templates/DeserializeData.h
+ * @file UnitTests/SerializableStructs/DescendantInterface/include/descendant_interface/processing/Generated/Deserialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,23 +23,14 @@
 
 #pragma once
 
-#include "common_serialization/csp/processing/DataProcessor.h"
+#include "descendant_interface/Structs.h"
 
 namespace common_serialization::csp::processing
 {
 
-template<typename T, typename A, typename X>
-Status deserializeData(X& ctx, Vector<T, A>& value)
-{
-    value.clear();
-
-    typename Vector<T, A>::size_type size = 0;
-    CS_RUN(DataProcessor::deserializeDataSizeT(ctx, size));
-    CS_RUN(value.reserve(size));
-    CS_RUN(DataProcessor::deserializeData(ctx, size, value.data()));
-    value.m_dataSize = size;
-
-    return Status::kNoError;
-}
+template<>
+Status BodyProcessor::deserialize(context::DData<>& ctx, descendant_interface::SimpleStruct<>& value);
+template<>
+Status BodyProcessor::deserialize(context::DData<>& ctx, descendant_interface::DiamondDescendant<>& value);
 
 } // namespace common_serialization::csp::processing

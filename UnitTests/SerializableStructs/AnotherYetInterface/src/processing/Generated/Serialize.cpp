@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/AnotherYetInterface/src/processing/Generated/SerializeData.cpp
+ * @file UnitTests/SerializableStructs/AnotherYetInterface/src/processing/Generated/Serialize.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,18 +21,18 @@
  *
  */
 
-#include "another_yet_interface/processing/Generated/SerializeData.h"
+#include "another_yet_interface/processing/Generated/Serialize.h"
 
 namespace common_serialization::csp::processing
 {
 
 
 template<>
-Status DataProcessor::serializeData(const another_yet_interface::SimpleStruct<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const another_yet_interface::SimpleStruct<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serializeData(value.m_i, ctx));
+    CS_RUN(serialize(value.m_i, ctx));
 
 
     return Status::kNoError;

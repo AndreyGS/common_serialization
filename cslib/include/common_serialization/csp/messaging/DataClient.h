@@ -27,7 +27,7 @@
 #include "common_serialization/Containers/UniquePtr.h"
 #include "common_serialization/csp/messaging/IDataClientSpeaker.h"
 #include "common_serialization/csp/processing/Contexts.h"
-#include "common_serialization/csp/processing/DataProcessor.h"
+#include "common_serialization/csp/processing/BodyProcessor.h"
 #include "common_serialization/csp/processing/Status.h"
 
 namespace common_serialization::csp::messaging
@@ -459,7 +459,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     if (ctxIn.allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
         return Status::kErrorInvalidArgument;
 
-    CS_RUN(processing::DataProcessor::serializeData(input, ctxIn));
+    CS_RUN(processing::BodyProcessor::serialize(input, ctxIn));
 
     pointersMapIn.clear();
 
@@ -502,7 +502,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         // we're already agreed with interface version that server have
         CS_RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOutData, outId, OutputType::getOriginPrivateVersion()));
 
-        CS_RUN(processing::DataProcessor::deserializeData(ctxOutData, output));
+        CS_RUN(processing::BodyProcessor::deserialize(ctxOutData, output));
     }
     else if (ctxOut.getMessageType() == context::Message::kStatus)
     {

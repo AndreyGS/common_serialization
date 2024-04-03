@@ -41,5 +41,5 @@ constexpr cs::csp::Interface properties(
 } // namespace descendant_interface
 
 #include "descendant_interface/Structs.h"
-#include "descendant_interface/processing/Generated/SerializeData.h"
-#include "descendant_interface/processing/Generated/DeserializeData.h"
+#include "descendant_interface/processing/Generated/Serialize.h"
+#include "descendant_interface/processing/Generated/Deserialize.h"

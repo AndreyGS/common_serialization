@@ -3,7 +3,7 @@
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  * 
  * @details Templates must have free functions to CSP serialization and deserialization and they must be declared
- *      before DataProcessor, so it could find them
+ *      before BodyProcessor, so it could find them
  *
  * @section LICENSE
  *
@@ -34,13 +34,13 @@ class Vector;
 
 }
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::templates
 {
 
 template<typename T, typename A, typename C>
-Status serializeData(const Vector<T, A>& value, C& ctx);
+Status serialize(const Vector<T, A>& value, C& ctx);
 
 template<typename T, typename A, typename C>
-Status deserializeData(C& ctx, Vector<T, A>& value);
+Status deserialize(C& ctx, Vector<T, A>& value);
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::templates

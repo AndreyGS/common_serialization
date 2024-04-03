@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Templates/SerializeData.h
+ * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/processing/Generated/SerializeLegacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,18 +23,26 @@
 
 #pragma once
 
-#include "common_serialization/csp/processing/DataProcessor.h"
+#include "interface_for_test/StructsLegacy.h"
 
 namespace common_serialization::csp::processing
 {
 
-template<typename T, typename A, typename X>
-Status serializeData(const Vector<T, A>& value, X& ctx)
-{
-    CS_RUN(DataProcessor::serializeDataSizeT(value.size(), ctx));
-    CS_RUN(DataProcessor::serializeData(value.data(), value.size(), ctx));
-    
-    return Status::kNoError;
-}
+template<>
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignable_Version0<>& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableDescendant_Version0<>& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const interface_for_test::AlwaysSimplyAssignable_Version0<>& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableFixedSize_Version1<>& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const interface_for_test::SForAllModesTests_Version0<>& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const interface_for_test::SForAllModesTests_Version2<>& value, context::SData<>& ctx);
 
 } // namespace common_serialization::csp::processing

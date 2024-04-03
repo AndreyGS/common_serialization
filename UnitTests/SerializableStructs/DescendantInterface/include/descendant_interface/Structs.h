@@ -54,7 +54,7 @@ public:
         return m_i == rhs.m_i;
     }
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 template<typename T = cs::Dummy>
@@ -99,7 +99,7 @@ public:
         return m_sSt == rhs.m_sSt;;
     }
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
 };
 
 } // namespace descendant_interface

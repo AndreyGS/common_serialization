@@ -24,6 +24,7 @@
 #pragma once
 
 #include "common_serialization/csp/context/Data.h"
+#include "common_serialization/csp/processing/Rw.h"
 
 namespace common_serialization::csp::processing
 {
@@ -31,14 +32,16 @@ namespace common_serialization::csp::processing
 template<ISerializationCapableContainer S>
 constexpr Status serializeCommonContext(context::Common<S>& ctx) noexcept
 {
-    S& output = ctx.getBinaryData();
-
     if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
         return Status::kErrorNotSupportedProtocolVersion;
 
-    CS_RUN(output.pushBackArithmeticValue(static_cast<uint16_t>(ctx.getProtocolVersion())));
-    CS_RUN(output.pushBackArithmeticValue(ctx.getMessageType()));
-    CS_RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getCommonFlags())));
+    // Common context must always be serialized by the same rules
+    // no matter of CommonFlags impact - it must always be in little-endian format
+    context::Common<S> commonContextSpecial(ctx.getBinaryData(), ctx.getProtocolVersion(), ctx.getMessageType());
+
+    CS_RUN(writePrimitive(static_cast<uint16_t>(ctx.getProtocolVersion()), commonContextSpecial));
+    CS_RUN(writePrimitive(ctx.getMessageType(), commonContextSpecial));
+    CS_RUN(writePrimitive(static_cast<uint32_t>(ctx.getCommonFlags()), commonContextSpecial));
 
     return Status::kNoError;
 }

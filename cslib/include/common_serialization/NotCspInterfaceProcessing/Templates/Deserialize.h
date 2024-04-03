@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/processing/Generated/SerializeData.h
+ * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Templates/Deserialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,12 +23,23 @@
 
 #pragma once
 
-#include "another_yet_interface/Structs.h"
+#include "common_serialization/csp/processing/BodyProcessor.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::templates
 {
 
-template<>
-Status DataProcessor::serializeData(const another_yet_interface::SimpleStruct<>& value, context::SData<>& ctx);
+template<typename T, typename A, typename X>
+Status deserialize(X& ctx, Vector<T, A>& value)
+{
+    value.clear();
 
-} // namespace common_serialization::csp::processing
+    typename Vector<T, A>::size_type size = 0;
+    CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
+    CS_RUN(value.reserve(size));
+    CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
+    value.m_dataSize = size;
+
+    return Status::kNoError;
+}
+
+} // namespace common_serialization::csp::processing::templates

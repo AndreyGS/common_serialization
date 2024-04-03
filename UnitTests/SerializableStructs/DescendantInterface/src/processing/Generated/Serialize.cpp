@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/DescendantInterface/src/Generated/SerializeData.cpp
+ * @file UnitTests/SerializableStructs/DescendantInterface/src/Generated/Serialize.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,31 +21,31 @@
  *
  */
 
-#include "descendant_interface/processing/Generated/SerializeData.h"
+#include "descendant_interface/processing/Generated/Serialize.h"
 
 namespace common_serialization::csp::processing
 {
 
 
 template<>
-Status DataProcessor::serializeData(const descendant_interface::SimpleStruct<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const descendant_interface::SimpleStruct<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serializeData(value.m_i, ctx));
+    CS_RUN(serialize(value.m_i, ctx));
 
 
     return Status::kNoError;
 }
 
 template<>
-Status DataProcessor::serializeData(const descendant_interface::DiamondDescendant<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>& value, context::SData<>& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serializeData(static_cast<const interface_for_test::Diamond<>&>(value), ctx));
+    CS_RUN(serialize(static_cast<const interface_for_test::Diamond<>&>(value), ctx));
 
-    CS_RUN(serializeData(value.m_sSt, ctx));
+    CS_RUN(serialize(value.m_sSt, ctx));
 
 
     return Status::kNoError;

@@ -43,10 +43,10 @@ constexpr cs::csp::Interface properties(
 #include "interface_for_test/Structs.h"
 #include "interface_for_test/StructsLegacy.h"
 
-#include "interface_for_test/processing/Generated/SerializeData.h"
-#include "interface_for_test/processing/Generated/SerializeDataLegacy.h"
-#include "interface_for_test/processing/Generated/DeserializeData.h"
-#include "interface_for_test/processing/Generated/DeserializeDataLegacy.h"
+#include "interface_for_test/processing/Generated/Serialize.h"
+#include "interface_for_test/processing/Generated/SerializeLegacy.h"
+#include "interface_for_test/processing/Generated/Deserialize.h"
+#include "interface_for_test/processing/Generated/DeserializeLegacy.h"
 
 #include "interface_for_test/processing/Generated/ConvertToOldStruct.h"
 #include "interface_for_test/processing/Generated/ConvertFromOldStruct.h"

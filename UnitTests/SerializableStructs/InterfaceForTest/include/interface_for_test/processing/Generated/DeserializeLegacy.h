@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/processing/Generated/SerializeDataLegacy.h
+ * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/processing/Generated/DeserializeLegacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -29,20 +29,20 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimplyAssignable_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignable_Version0<>& value);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableDescendant_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant_Version0<>& value);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::AlwaysSimplyAssignable_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable_Version0<>& value);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableFixedSize_Version1<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize_Version1<>& value);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version0<>& value);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value);
 template<>
-Status DataProcessor::serializeData(const interface_for_test::SForAllModesTests_Version2<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version2<>& value);
 
 } // namespace common_serialization::csp::processing

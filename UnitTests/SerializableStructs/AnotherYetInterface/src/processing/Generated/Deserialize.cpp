@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/processing/Generated/DeserializeDataLegacy.h
+ * @file UnitTests/SerializableStructs/AnotherYetInterface/src/processing/Generated/Deserialize.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,28 +21,19 @@
  *
  */
 
-#pragma once
-
-#include "interface_for_test/StructsLegacy.h"
+#include "another_yet_interface/processing/Generated/Deserialize.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignable_Version0<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant_Version0<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable_Version0<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize_Version1<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version0<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version2<>& value);
+Status BodyProcessor::deserialize(context::DData<>& ctx, another_yet_interface::SimpleStruct<>& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    CS_RUN(deserialize(ctx, value.m_i));
+
+    return Status::kNoError;
+}
 
 } // namespace common_serialization::csp::processing

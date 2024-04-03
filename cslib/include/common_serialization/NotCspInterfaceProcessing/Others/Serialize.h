@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/NotPartOfInterfaces/include/not_part_of_interfaces/processing/Generated/DeserializeData.h
+ * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Others/Serialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,28 +23,39 @@
 
 #pragma once
 
-#include "not_part_of_interfaces/Structs.h"
+#include "common_serialization/csp/Traits.h"
+#include "common_serialization/csp/processing/BodyProcessor.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignableAlignedToOne& value);
+constexpr Status BodyProcessor::serialize(const Id& value, context::SData<>& ctx)
+{
+    CS_RUN(serialize(value.id, ctx));
+
+    return Status::kNoError;
+}
+
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignable& value);
+constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData<>& ctx)
+{
+    CS_RUN(serialize(static_cast<uint32_t>(value), ctx));
+
+    return Status::kNoError;
+}
+
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::DynamicPolymorphic& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::DiamondBase& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge1& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge2& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::TwoInts& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial1& value);
-template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial2& value);
+constexpr Status BodyProcessor::serialize(const Interface& value, context::SData<>& ctx)
+{
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
+
+    CS_RUN(serialize(value.id, ctx));
+    CS_RUN(serialize(value.version, ctx));
+    CS_RUN(serialize(value.mandatoryDataFlags, ctx));
+    CS_RUN(serialize(value.forbiddenDataFlags, ctx));
+
+    return Status::kNoError;
+}
 
 } // namespace common_serialization::csp::processing

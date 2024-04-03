@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/NotPartOfInterfaces/include/not_part_of_interfaces/processing/Generated/SerializeData.h
+ * @file UnitTests/SerializableStructs/NotPartOfInterfaces/include/not_part_of_interfaces/processing/Generated/Deserialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -29,22 +29,22 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignableAlignedToOne& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignableAlignedToOne& value);
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::SimplyAssignable& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignable& value);
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::DynamicPolymorphic& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DynamicPolymorphic& value);
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondBase& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DiamondBase& value);
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge1& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge1& value);
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::DiamondEdge2& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge2& value);
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::TwoInts& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::TwoInts& value);
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::RecursiveTestSpecial1& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial1& value);
 template<>
-Status DataProcessor::serializeData(const not_part_of_interfaces::RecursiveTestSpecial2& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial2& value);
 
 } // namespace common_serialization::csp::processing

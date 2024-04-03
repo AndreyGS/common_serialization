@@ -190,11 +190,35 @@ template<typename T>
 CS_ALWAYS_INLINE constexpr T reverseEndianess(T input)
 {
     if constexpr (sizeof(T) == 2)
-        return reverseEndianessInt16(input);
+    {
+        if constexpr (std::is_enum_v<T>)
+        {
+            int16_t temp = reverseEndianessInt16(*static_cast<int16_t*>(static_cast<void*>(&input)));
+            return *static_cast<T*>(static_cast<void*>(&temp));
+        }
+        else
+            return reverseEndianessInt16(input);
+    }
     else if constexpr (sizeof(T) == 4)
-        return reverseEndianessInt32(input);
+    {
+        if constexpr (std::is_enum_v<T>)
+        {
+            int32_t temp = reverseEndianessInt32(*static_cast<int32_t*>(static_cast<void*>(&input)));
+            return *static_cast<T*>(static_cast<void*>(&temp));
+        }
+        else
+            return reverseEndianessInt32(input);
+    }
     else
-        return reverseEndianessInt64(input);
+    {
+        if constexpr (std::is_enum_v<T>)
+        {
+            int64_t temp = reverseEndianessInt64(*static_cast<int64_t*>(static_cast<void*>(&input)));
+            return *static_cast<T*>(static_cast<void*>(&temp));
+        }
+        else
+            return reverseEndianessInt64(input);
+    }
 }
 
 template<size_t targetSize, bool isSigned>

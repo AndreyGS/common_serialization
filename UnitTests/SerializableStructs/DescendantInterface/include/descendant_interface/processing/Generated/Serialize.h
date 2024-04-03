@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/AnotherYetInterface/src/processing/Generated/DeserializeData.cpp
+ * @file UnitTests/SerializableStructs/DescendantInterface/include/descendant_interface/processing/Generated/Serialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,19 +21,16 @@
  *
  */
 
-#include "another_yet_interface/processing/Generated/DeserializeData.h"
+#pragma once
+
+#include "descendant_interface/Structs.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, another_yet_interface::SimpleStruct<>& value)
-{
-    CSP_DESERIALIZE_COMMON(ctx, value);
-
-    CS_RUN(deserializeData(ctx, value.m_i));
-
-    return Status::kNoError;
-}
+Status BodyProcessor::serialize(const descendant_interface::SimpleStruct<>& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>& value, context::SData<>& ctx);
 
 } // namespace common_serialization::csp::processing

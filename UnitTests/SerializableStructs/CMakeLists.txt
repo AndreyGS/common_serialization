@@ -1,19 +1,19 @@
 add_library(SerializableStructs STATIC 
-    "InterfaceForTest/src/processing/Generated/SerializeData.cpp"
-    "InterfaceForTest/src/processing/Generated/DeserializeData.cpp"
-    "InterfaceForTest/src/processing/Generated/SerializeDataLegacy.cpp"
-    "InterfaceForTest/src/processing/Generated/DeserializeDataLegacy.cpp"
+    "InterfaceForTest/src/processing/Generated/Serialize.cpp"
+    "InterfaceForTest/src/processing/Generated/Deserialize.cpp"
+    "InterfaceForTest/src/processing/Generated/SerializeLegacy.cpp"
+    "InterfaceForTest/src/processing/Generated/DeserializeLegacy.cpp"
     "InterfaceForTest/src/processing/Generated/ConvertToOldStruct.cpp"
     "InterfaceForTest/src/processing/Generated/ConvertFromOldStruct.cpp" 
 
-    "DescendantInterface/src/processing/Generated/SerializeData.cpp"
-    "DescendantInterface/src/processing/Generated/DeserializeData.cpp"
+    "DescendantInterface/src/processing/Generated/Serialize.cpp"
+    "DescendantInterface/src/processing/Generated/Deserialize.cpp"
 
-    "AnotherYetInterface/src/processing/Generated/SerializeData.cpp"
-    "AnotherYetInterface/src/processing/Generated/DeserializeData.cpp"
+    "AnotherYetInterface/src/processing/Generated/Serialize.cpp"
+    "AnotherYetInterface/src/processing/Generated/Deserialize.cpp"
     
-    "NotPartOfInterfaces/src/processing/Generated/SerializeData.cpp"
-    "NotPartOfInterfaces/src/processing/Generated/DeserializeData.cpp"
+    "NotPartOfInterfaces/src/processing/Generated/Serialize.cpp"
+    "NotPartOfInterfaces/src/processing/Generated/Deserialize.cpp"
  )
 
 target_compile_definitions(SerializableStructs PRIVATE USER_MODE)

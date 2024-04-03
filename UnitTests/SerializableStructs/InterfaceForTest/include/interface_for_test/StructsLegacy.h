@@ -61,7 +61,7 @@ public:
 
     not_part_of_interfaces::TwoInts m_ti{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignableAlignedToOne_Version1<T>;
 };
 
@@ -159,7 +159,7 @@ public:
 
     uint32_t m_vt{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignable<T>;
 };
 
@@ -259,7 +259,7 @@ struct SimplyAssignableDescendant_Version0 : public SimplyAssignable_Version0<cs
         return m_d == rhs.m_d && SimplyAssignable_Version0<instance_type>::operator==(rhs);
     }
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignableDescendant<T>;
 };
 
@@ -321,7 +321,7 @@ public:
     uint16_t m_xx{ 0 };
     uint16_t m_yy{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignableAlignedToOne<T>;
 };
 
@@ -385,7 +385,7 @@ public:
     SimilarType1<> m_stS;
     ManyPointersType<> m_mpt;
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SForAllModesTests_Version2<T>;
 };
 
@@ -429,7 +429,7 @@ public:
     uint8_t m_x{ 0 };
     uint16_t m_y{ 0 };
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignableAlignedToOne_Version0<T>;
     friend SimplyAssignableAlignedToOne<T>;
 };
@@ -498,7 +498,7 @@ public:
 
     AlwaysSimplyAssignable_Version0<> m_arrAsa[3];
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SimplyAssignableFixedSize<T>;
 };
 
@@ -567,7 +567,7 @@ public:
     SimplyAssignable<> m_saS;
     int m_i{ 0 }; // duplicated m_saDs.m_i
 
-    friend cs::csp::processing::DataProcessor;
+    friend cs::csp::processing::BodyProcessor;
     friend SForAllModesTests_Version0<T>;
     friend DForAllModesTests<T>;
 };

@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/DescendantInterface/include/descendant_interface/processing/Generated/DeserializeData.h
+ * @file UnitTests/SerializableStructs/NotPartOfInterfaces/include/not_part_of_interfaces/processing/Generated/Serialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,14 +23,28 @@
 
 #pragma once
 
-#include "descendant_interface/Structs.h"
+#include "not_part_of_interfaces/Structs.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interface::SimpleStruct<>& value);
+Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignableAlignedToOne& value, context::SData<>& ctx);
 template<>
-Status DataProcessor::deserializeData(context::DData<>& ctx, descendant_interface::DiamondDescendant<>& value);
+Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignable& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const not_part_of_interfaces::DynamicPolymorphic& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondBase& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge1& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge2& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const not_part_of_interfaces::TwoInts& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpecial1& value, context::SData<>& ctx);
+template<>
+Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpecial2& value, context::SData<>& ctx);
 
 } // namespace common_serialization::csp::processing
