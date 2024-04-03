@@ -292,7 +292,7 @@ CS_ALWAYS_INLINE constexpr Status DataProcessor::serializeDataPrimitive(const T&
 {
     if constexpr (IsEndiannessReversable<T>)
     {
-        if (ctx.endiannessDifference())
+        if (ctx.isEndiannessNotMatch())
         {
             if constexpr (std::is_enum_v<T>)
                 return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(*static_cast<std::underlying_type_t<T>*>(static_cast<void*>(&value))));

@@ -53,6 +53,8 @@ public:
         , m_messageType(messageType)
     {
         setCommonFlags(commonFlags);
+        m_endiannessNotMatch = bigEndianFormat() != helpers::isBigEndianPlatform();
+
         if constexpr (ISerializationCapableContainer<Container>)
             m_binaryData.reserve(256);
     }
@@ -61,6 +63,7 @@ public:
         : m_binaryData(rhs.m_binaryData)
         , m_protocolVersion(rhs.m_protocolVersion)
         , m_protocolVersionsNotMatch(rhs.m_protocolVersionsNotMatch)
+        , m_endiannessNotMatch(rhs.m_endiannessNotMatch)
         , m_messageType(rhs.m_messageType)
         , m_bitness32(rhs.m_bitness32)
         , m_bigEndianFormat(rhs.m_bigEndianFormat)
@@ -93,6 +96,18 @@ public:
         m_protocolVersionsNotMatch = traits::isProtocolVersionSameAsLatestOur(m_protocolVersion);
     }
 
+    /// @brief Is target protocol version same as the latest our
+    /// @return Flag indicating that protocol versions not match
+    [[nodiscard]] constexpr bool isProtocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
+
+    /// @brief Is target endianness differs from current platform
+    /// @note "Endianness not match" is not the same as "endiann difference". The first one is simply
+    ///     precalculated value to determining the need of primitives bytes order change, and the last one
+    ///     is the mode that drops off most of optimizations in processing so that there is an opportunity
+    ///     to deserialize binary data on platform with any endianness.
+    /// @return Flag indicating that endianness of current platform differs from target one
+    [[nodiscard]] constexpr bool isEndiannessNotMatch() const noexcept { return m_endiannessNotMatch; }
+
     /// @brief Get Common Flags that are using in this context
     /// @return Common Flags
     [[nodiscard]] constexpr CommonFlags getCommonFlags() const noexcept
@@ -112,6 +127,7 @@ public:
         m_bitness32 = commonFlags.bitness32();
         m_bigEndianFormat = commonFlags.bigEndianFormat();
         m_endiannessDifference = commonFlags.endiannessDifference();
+        m_endiannessNotMatch = bigEndianFormat() != helpers::isBigEndianPlatform();
     }
 
     [[nodiscard]] constexpr bool bitness32() const noexcept { return m_bitness32; }
@@ -143,6 +159,7 @@ private:
     Message m_messageType{ Message::kData };
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
     bool m_protocolVersionsNotMatch{ false };
+    bool m_endiannessNotMatch{ false };
     bool m_bitness32{ false };
     bool m_bigEndianFormat{ false };
     bool m_endiannessDifference{ false };
