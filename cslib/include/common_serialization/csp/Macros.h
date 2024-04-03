@@ -30,7 +30,7 @@
     {                                                                                       \
         if (!ctx.simplyAssignableTagsOptimizationsAreTurnedOff())                           \
         {                                                                                   \
-            Status status = serializeDataSimplyAssignable((value), (ctx));                  \
+            Status status = serializeDataSimplyAssignable(value, ctx);                      \
             if (status == Status::kNoFurtherProcessingRequired)                             \
                 return Status::kNoError;                                                    \
             else if (                                                                       \
@@ -51,7 +51,7 @@
     {                                                                                       \
         if (!ctx.simplyAssignableTagsOptimizationsAreTurnedOff())                           \
         {                                                                                   \
-            Status status = deserializeDataSimplyAssignable((ctx), (value));                \
+            Status status = deserializeDataSimplyAssignable(ctx, value);                    \
             if (status == Status::kNoFurtherProcessingRequired)                             \
                 return Status::kNoError;                                                    \
             else if (                                                                       \
@@ -73,7 +73,7 @@
         && ctx.isInterfaceVersionsNotMatch()                                                \
     )                                                                                       \
     {                                                                                       \
-        Status status = convertToOldStructIfNeed((value), (ctx));                           \
+        Status status = data_version_converters::toOldStructIfNeed(value, ctx);             \
         if (status == Status::kNoFurtherProcessingRequired)                                 \
             return Status::kNoError;                                                        \
         else if (!statusSuccess(status))                                                    \
@@ -95,7 +95,7 @@
         && ctx.isInterfaceVersionsNotMatch()                                                \
     )                                                                                       \
     {                                                                                       \
-        Status status = convertFromOldStructIfNeed((ctx), (value));                         \
+        Status status = data_version_converters::fromOldStructIfNeed(ctx, value);           \
                                                                                             \
         if (status == Status::kNoFurtherProcessingRequired)                                 \
             return Status::kNoError;                                                        \

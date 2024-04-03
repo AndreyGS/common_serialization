@@ -23,17 +23,76 @@
 
 #include "common_serialization/csp/processing/DataProcessor.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data_version_converters
 {
+
+template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+constexpr Status toOldStruct(const T& value, uint32_t targetVersion, context::SData<S, PM>& ctx);
+template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+constexpr Status fromOldStruct(context::DData<D, PM>& ctx, uint32_t targetVersion, T& value);
+
+template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+constexpr Status toOldStruct(const T& value, uint32_t targetVersion, context::SData<S, PM>& ctx)
+{
+    return Status::kErrorNoSuchHandler;
+}
+
+template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+constexpr Status fromOldStruct(context::DData<D, PM>& ctx, uint32_t targetVersion, T& value)
+{
+    return Status::kErrorNoSuchHandler;
+}
+
+template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+constexpr Status toOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
+{
+    if constexpr (IsNotISerializableBased<T>)
+        return Status::kErrorInvalidType;
+    else
+    {
+        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
+
+        S& output = ctx.getBinaryData();
+
+        if (targetVersion == value.getLatestPrivateVersion())
+            return Status::kNoError;
+        // Normaly, next condition shall never succeed
+        else if (targetVersion == traits::kInterfaceVersionUndefined)
+            return Status::kErrorInternal;
+        else
+            return toOldStruct(value, targetVersion, ctx);
+    }
+}
+
+template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+constexpr Status fromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
+{
+    if constexpr (IsNotISerializableBased<T>)
+        return Status::kErrorInvalidType;
+    else
+    {
+        D& input = ctx.getBinaryData();
+
+        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
+
+        if (targetVersion == value.getLatestPrivateVersion())
+            return Status::kNoError;
+        // Normaly, next condition shall never succeed
+        else if (targetVersion == traits::kInterfaceVersionUndefined)
+            return Status::kErrorInternal;
+        else
+            return fromOldStruct(ctx, targetVersion, value);
+    }
+}
 
 template<typename... NextTo>
-struct ToVersionConverter;
+struct ToVersion;
 
 template<>
-class ToVersionConverter<>
+class ToVersion<>
 {
 public:
-    ToVersionConverter(uint32_t targetVersion)
+    ToVersion(uint32_t targetVersion)
         : m_targetVersion(targetVersion)
     { }
 
@@ -57,11 +116,11 @@ private:
 };
 
 template<IsISerializableBased To, typename... NextTo>
-class ToVersionConverter<To, NextTo...> : public ToVersionConverter<NextTo...>
+class ToVersion<To, NextTo...> : public ToVersion<NextTo...>
 {
 public:
-    ToVersionConverter(interface_version_t targetVersion)
-        : ToVersionConverter<NextTo...>(targetVersion)
+    ToVersion(interface_version_t targetVersion)
+        : ToVersion<NextTo...>(targetVersion)
     { }
 
     constexpr uint32_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
@@ -73,7 +132,7 @@ public:
     }
 
 protected:
-    using base_class = ToVersionConverter<NextTo...>;
+    using base_class = ToVersion<NextTo...>;
 
     template<IsISerializableBased From, ISerializationCapableContainer S, ISerializationPointersMap PM>
     Status convertOnHeap(const From& from, context::SData<S, PM>& ctx) noexcept
@@ -106,13 +165,13 @@ protected:
 };
 
 template<typename... NextFrom>
-struct FromVersionConverter;
+struct FromVersion;
 
 template<>
-class FromVersionConverter<>
+class FromVersion<>
 {
 public:
-    FromVersionConverter(interface_version_t targetVersion)
+    FromVersion(interface_version_t targetVersion)
         : m_targetVersion(targetVersion)
     { }
 
@@ -147,11 +206,11 @@ private:
 
 
 template<IsISerializableBased From, typename... NextFrom>
-class FromVersionConverter<From, NextFrom...> : public FromVersionConverter<NextFrom...>
+class FromVersion<From, NextFrom...> : public FromVersion<NextFrom...>
 {
 public:
-    FromVersionConverter(interface_version_t targetVersion)
-        : FromVersionConverter<NextFrom...>(targetVersion)
+    FromVersion(interface_version_t targetVersion)
+        : FromVersion<NextFrom...>(targetVersion)
     { }
 
     constexpr interface_version_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
@@ -167,7 +226,7 @@ public:
     }
 
 protected:
-    using base_class = FromVersionConverter<NextFrom...>;
+    using base_class = FromVersion<NextFrom...>;
     using from_type = From;
     using base_from = typename base_class::from_type;
 
@@ -237,4 +296,4 @@ protected:
     }
 };
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data_version_converters

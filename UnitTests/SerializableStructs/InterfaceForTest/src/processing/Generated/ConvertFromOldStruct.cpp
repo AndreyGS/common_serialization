@@ -21,18 +21,18 @@
  *
  */
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data_version_converters
 {
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableAlignedToOne<>& value)
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableAlignedToOne<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::SimplyAssignableAlignedToOne<>::getLatestPrivateVersion() != targetVersion);
 
-    FromVersionConverter<
-                          interface_for_test::SimplyAssignableAlignedToOne_Version0<>
-                        , interface_for_test::SimplyAssignableAlignedToOne_Version1<>
+    FromVersion<
+                interface_for_test::SimplyAssignableAlignedToOne_Version0<>
+              , interface_for_test::SimplyAssignableAlignedToOne_Version1<>
     > convertFrom(targetVersion);
 
     CS_RUN(convertFrom.convert(ctx, value));
@@ -41,13 +41,13 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
 }
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignable<>& value)
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignable<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::SimplyAssignable<>::getLatestPrivateVersion() != targetVersion);
 
-    FromVersionConverter<
-                          interface_for_test::SimplyAssignable_Version0<>
+    FromVersion<
+                interface_for_test::SimplyAssignable_Version0<>
     > convertFrom(targetVersion);
 
     CS_RUN(convertFrom.convert(ctx, value));
@@ -56,13 +56,13 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
 }
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value)
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::SimplyAssignableDescendant<>::getLatestPrivateVersion() != targetVersion);
 
-    FromVersionConverter<
-                          interface_for_test::SimplyAssignableDescendant_Version0<>
+    FromVersion<
+                interface_for_test::SimplyAssignableDescendant_Version0<>
     > convertFrom(targetVersion);
 
     CS_RUN(convertFrom.convert(ctx, value));
@@ -71,13 +71,13 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
 }
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::AlwaysSimplyAssignable<>& value)
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::AlwaysSimplyAssignable<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::AlwaysSimplyAssignable<>::getLatestPrivateVersion() != targetVersion);
 
-    FromVersionConverter<
-                          interface_for_test::AlwaysSimplyAssignable_Version0<>
+    FromVersion<
+                interface_for_test::AlwaysSimplyAssignable_Version0<>
     > convertFrom(targetVersion);
 
     CS_RUN(convertFrom.convert(ctx, value));
@@ -86,13 +86,13 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
 }
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableFixedSize<>& value)
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableFixedSize<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::SimplyAssignableFixedSize<>::getLatestPrivateVersion() != targetVersion);
 
-    FromVersionConverter<
-                          interface_for_test::SimplyAssignableFixedSize_Version1<>
+    FromVersion<
+                interface_for_test::SimplyAssignableFixedSize_Version1<>
     > convertFrom(targetVersion);
 
     CS_RUN(convertFrom.convert(ctx, value));
@@ -101,14 +101,14 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
 }
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::DForAllModesTests<>& value)
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::DForAllModesTests<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::DForAllModesTests<>::getLatestPrivateVersion() != targetVersion);
 
-    FromVersionConverter<
-                          interface_for_test::SForAllModesTests_Version0<>
-                        , interface_for_test::SForAllModesTests_Version2<>
+    FromVersion<
+                interface_for_test::SForAllModesTests_Version0<>
+              , interface_for_test::SForAllModesTests_Version2<>
     > convertFrom(targetVersion);
 
     CS_RUN(convertFrom.convert(ctx, value));
@@ -116,4 +116,4 @@ Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targe
     return Status::kNoFurtherProcessingRequired;
 }
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data_version_converters

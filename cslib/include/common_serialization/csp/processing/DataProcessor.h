@@ -108,15 +108,6 @@ protected:
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status getPointerFromMap(context::DData<D, PM>& ctx, T& p, bool& newPointer);
 
-    template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    static constexpr Status convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx);
-    template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    static constexpr Status convertToOldStruct(const T& value, uint32_t thisVersionCompat, context::SData<S, PM>& ctx);
-
-    template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    static constexpr Status convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value);
-    template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    static constexpr Status convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t thisVersionCompat, T& value);
 
 private:
     static constexpr size_t kMaxSizeOfIntegral = 8;   // maximum allowed size of integral type
@@ -257,6 +248,11 @@ CS_ALWAYS_INLINE constexpr Status DataProcessor::serializeData(size_t targetType
         return serializeDataToAnotherSize<2>(value, ctx);
     else if (targetTypeSize == 1)
         return serializeDataToAnotherSize<1>(value, ctx);
+    else
+    {
+        assert(false);
+        return Status::kErrorInternal;
+    }
 }
 
 template<size_t targetTypeSize, typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
@@ -293,27 +289,12 @@ CS_ALWAYS_INLINE constexpr Status DataProcessor::serializeDataPrimitive(const T&
     if constexpr (IsEndiannessReversable<T>)
     {
         if (ctx.isEndiannessNotMatch())
-        {
-            if constexpr (std::is_enum_v<T>)
-                return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(*static_cast<std::underlying_type_t<T>*>(static_cast<void*>(&value))));
-            else
-                return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
-        }
-        else
-        {
-            if constexpr (std::is_enum_v<T>)
-                return ctx.getBinaryData().pushBackArithmeticValue(*static_cast<std::underlying_type_t<T>*>(static_cast<void*>(&value)));
-            else
-                return ctx.getBinaryData().pushBackArithmeticValue(value);
-        }
-    }
-    else
-    {
-        if constexpr (std::is_enum_v<T>)
-            return ctx.getBinaryData().pushBackArithmeticValue(*static_cast<std::underlying_type_t<T>*>(static_cast<void*>(&value)));
+            return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
         else
             return ctx.getBinaryData().pushBackArithmeticValue(value);
     }
+    else
+        return ctx.getBinaryData().pushBackArithmeticValue(value);
 }
 
 // common function for pointers of known size
@@ -484,6 +465,11 @@ CS_ALWAYS_INLINE constexpr Status DataProcessor::deserializeData(size_t original
         return deserializeDataFromAnotherSize<2>(ctx, value);
     else if (originalTypeSize == 1)
         return deserializeDataFromAnotherSize<1>(ctx, value);
+    else
+    {
+        assert(false);
+        return Status::kErrorInternal;
+    }
 }
 
 template<size_t originalTypeSize, typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
@@ -530,7 +516,7 @@ CS_ALWAYS_INLINE constexpr Status DataProcessor::deserializeDataPrimitive(contex
 {
     if constexpr (IsEndiannessReversable<T>)
     {
-        if (ctx.endiannessDifference())
+        if (ctx.isEndiannessNotMatch())
         {
             CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
             value = helpers::reverseEndianess(value);
@@ -659,60 +645,6 @@ constexpr Status DataProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T&
     }
 
     return Status::kNoError;
-}
-
-template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status DataProcessor::convertToOldStructIfNeed(const T& value, context::SData<S, PM>& ctx)
-{
-    if constexpr (IsNotISerializableBased<T>)
-        return Status::kErrorInvalidType;
-    else
-    {
-        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
-
-        S& output = ctx.getBinaryData();
-
-        if (targetVersion == value.getLatestPrivateVersion())
-            return Status::kNoError;
-        // Normaly, next condition shall never succeed
-        else if (targetVersion == traits::kInterfaceVersionUndefined)
-            return Status::kErrorInternal;
-        else
-            return convertToOldStruct(value, targetVersion, ctx);
-    }
-}
-
-template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status DataProcessor::convertFromOldStructIfNeed(context::DData<D, PM>& ctx, T& value)
-{
-    if constexpr (IsNotISerializableBased<T>)
-        return Status::kErrorInvalidType;
-    else
-    {
-        D& input = ctx.getBinaryData();
-
-        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
-
-        if (targetVersion == value.getLatestPrivateVersion())
-            return Status::kNoError;
-        // Normaly, next condition shall never succeed
-        else if (targetVersion == traits::kInterfaceVersionUndefined)
-            return Status::kErrorInternal;
-        else
-            return convertFromOldStruct(ctx, targetVersion, value);
-    }
-}
-
-template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status DataProcessor::convertToOldStruct(const T& value, uint32_t targetVersion, context::SData<S, PM>& ctx)
-{
-    return Status::kErrorNoSuchHandler;
-}
-
-template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status DataProcessor::convertFromOldStruct(context::DData<D, PM>& ctx, uint32_t targetVersion, T& value)
-{
-    return Status::kErrorNoSuchHandler;
 }
 
 } // namespace common_serialization::csp::processing

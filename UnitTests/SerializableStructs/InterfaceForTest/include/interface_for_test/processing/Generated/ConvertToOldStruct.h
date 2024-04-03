@@ -25,20 +25,20 @@
 
 #include "interface_for_test/StructsLegacy.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data_version_converters
 {
 
 template<>
-Status DataProcessor::convertToOldStruct(const interface_for_test::SimplyAssignableAlignedToOne<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
+Status toOldStruct(const interface_for_test::SimplyAssignableAlignedToOne<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
 template<>
-Status DataProcessor::convertToOldStruct(const interface_for_test::SimplyAssignable<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
+Status toOldStruct(const interface_for_test::SimplyAssignable<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
 template<>
-Status DataProcessor::convertToOldStruct(const interface_for_test::SimplyAssignableDescendant<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
+Status toOldStruct(const interface_for_test::SimplyAssignableDescendant<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
 template<>
-Status DataProcessor::convertToOldStruct(const interface_for_test::AlwaysSimplyAssignable<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
+Status toOldStruct(const interface_for_test::AlwaysSimplyAssignable<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
 template<>
-Status DataProcessor::convertToOldStruct(const interface_for_test::SimplyAssignableFixedSize<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
+Status toOldStruct(const interface_for_test::SimplyAssignableFixedSize<>& value, uint32_t thisVersionCompat, context::SData<>& ctx);
 template<>
-Status DataProcessor::convertToOldStruct(const interface_for_test::DForAllModesTests<>& value, uint32_t targetVersion, context::SData<>& ctx);
+Status toOldStruct(const interface_for_test::DForAllModesTests<>& value, uint32_t targetVersion, context::SData<>& ctx);
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data_version_converters

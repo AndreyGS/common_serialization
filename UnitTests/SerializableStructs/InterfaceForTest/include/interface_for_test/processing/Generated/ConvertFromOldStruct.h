@@ -25,20 +25,20 @@
 
 #include "interface_for_test/StructsLegacy.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data_version_converters
 {
 
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::SimplyAssignableAlignedToOne<>& value);
+Status fromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::SimplyAssignableAlignedToOne<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignable<>& value);
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignable<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value);
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::AlwaysSimplyAssignable<>& value);
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::AlwaysSimplyAssignable<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableFixedSize<>& value);
+Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableFixedSize<>& value);
 template<>
-Status DataProcessor::convertFromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::DForAllModesTests<>& value);
+Status fromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::DForAllModesTests<>& value);
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data_version_converters
