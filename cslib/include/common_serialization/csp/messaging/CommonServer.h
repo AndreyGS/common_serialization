@@ -98,11 +98,9 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& 
 
     else if (ctx.getMessageType() == context::Message::kData)
     {
-        if (    ctx.getCommonFlags() & m_serverSettings.forbiddenCommonFlags
-            || (ctx.getCommonFlags() & m_serverSettings.mandatoryCommonFlags) != m_serverSettings.mandatoryCommonFlags
-        )
-            status = Status::kErrorNotCompatibleCommonFlagsSettings;
-        status = IDataServerBase::handleDataCommon(ctx, clientId, binOutput);
+        status = processing::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_serverSettings.forbiddenCommonFlags, m_serverSettings.mandatoryCommonFlags);
+        if (statusSuccess(status))
+            status = IDataServerBase::handleDataCommon(ctx, clientId, binOutput);
     }
     else
         status = Status::kErrorDataCorrupted;

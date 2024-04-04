@@ -152,14 +152,10 @@ private:
 
     // Distinct variable is for not having calculate valid condition every time
     bool m_isValid{ false };
-
     protocol_version_t m_protocolVersion{ traits::kProtocolVersionUndefined };
-
     context::CommonFlags m_mandatoryCommonFlags;
     context::CommonFlags m_forbiddenCommonFlags;
-
     Vector<service_structs::InterfaceVersion<>> m_interfaces;
-
     UniquePtr<IDataClientSpeaker> m_dataClientSpeaker;
 };
 
@@ -487,10 +483,8 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 
         context::DataFlags outDataFlags = ctxOutData.getDataFlags();
 
-        if (    outDataFlags & OutputType::getEffectiveForbiddenDataFlags()
-            || (outDataFlags & OutputType::getEffectiveMandatoryDataFlags()) != OutputType::getEffectiveMandatoryDataFlags()
-        )
-            return Status::kErrorDataCorrupted;
+        if (Status status = processing::testDataFlagsCompatibility<OutputType>(outDataFlags); !statusSuccess(status))
+            return status == Status::kErrorNotCompatibleDataFlagsSettings ? Status::kErrorDataCorrupted : status;
 
         ctxOutData.setAddedPointers(pUnmanagedPointers);
 

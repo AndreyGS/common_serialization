@@ -46,6 +46,7 @@ CS_ALWAYS_INLINE constexpr Status writePrimitive(const T& value, context::Common
 template<typename T, ISerializationCapableContainer S>
 CS_ALWAYS_INLINE constexpr Status writeRawData(const T* p, typename S::size_type n, context::Common<S>& ctx)
 {
+    assert(p && n > 0 || n == 0);
     const typename S::size_type bytesSize = sizeof(T) * n;
     assert((n == bytesSize / sizeof(T)));
 
@@ -73,6 +74,7 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::Common<D>& ctx, T& valu
 template<typename T, IDeserializationCapableContainer D>
 CS_ALWAYS_INLINE constexpr Status readRawData(context::Common<D>& ctx, typename D::size_type n, T* p)
 {
+    assert(p && n > 0 || n == 0);
     const typename D::size_type bytesSize = sizeof(T) * n;
     assert((n == bytesSize / sizeof(T)));
     typename D::size_type readSize = 0;

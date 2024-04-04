@@ -59,46 +59,37 @@ public:
             m_binaryData.reserve(256);
     }
 
-    constexpr Common(Common& rhs) noexcept
-        : m_binaryData(rhs.m_binaryData)
-        , m_protocolVersion(rhs.m_protocolVersion)
-        , m_protocolVersionsNotMatch(rhs.m_protocolVersionsNotMatch)
-        , m_endiannessNotMatch(rhs.m_endiannessNotMatch)
-        , m_messageType(rhs.m_messageType)
-        , m_bitness32(rhs.m_bitness32)
-        , m_bigEndianFormat(rhs.m_bigEndianFormat)
-        , m_endiannessDifference(rhs.m_endiannessDifference)
-    { 
-    }
+    virtual ~Common() {}
 
     /// @brief Get reference to container that holds processed data in binary
     /// @return Container with binary data
-    [[nodiscard]] constexpr Container& getBinaryData() noexcept { return m_binaryData; }
-    [[nodiscard]] constexpr const Container& getBinaryData() const noexcept { return m_binaryData; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr Container& getBinaryData() noexcept { return m_binaryData; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr const Container& getBinaryData() const noexcept { return m_binaryData; }
 
     /// @brief Get type of CSP message that holds by this context
     /// @return Type of CSP message
-    [[nodiscard]] constexpr Message getMessageType() const noexcept { return m_messageType; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr Message getMessageType() const noexcept { return m_messageType; }
 
     /// @brief Set CSP message type to current context
     /// @param messageType Type of CSP message
-    constexpr void setMessageType(Message messageType) { m_messageType = messageType; }
+    CS_ALWAYS_INLINE constexpr Common& setMessageType(Message messageType) noexcept { m_messageType = messageType; return *this; }
 
     /// @brief Get CSP version that is using in this context
     /// @return CSP version
-    [[nodiscard]] constexpr protocol_version_t getProtocolVersion() const noexcept { return m_protocolVersion; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr protocol_version_t getProtocolVersion() const noexcept { return m_protocolVersion; }
 
     /// @brief Set CSP version that will be used by this context
     /// @param protocolVersion CSP version
-    constexpr void setProtocolVersion(protocol_version_t protocolVersion) noexcept
+    CS_ALWAYS_INLINE constexpr Common& setProtocolVersion(protocol_version_t protocolVersion) noexcept
     { 
         m_protocolVersion = protocolVersion; 
         m_protocolVersionsNotMatch = traits::isProtocolVersionSameAsLatestOur(m_protocolVersion);
+        return *this;
     }
 
     /// @brief Is target protocol version same as the latest our
     /// @return Flag indicating that protocol versions not match
-    [[nodiscard]] constexpr bool isProtocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isProtocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
 
     /// @brief Is target endianness differs from current platform
     /// @note "Endianness not match" is not the same as "endiann difference". The first one is simply
@@ -106,7 +97,7 @@ public:
     ///     is the mode that drops off most of optimizations in processing so that there is an opportunity
     ///     to deserialize binary data on platform with any endianness.
     /// @return Flag indicating that endianness of current platform differs from target one
-    [[nodiscard]] constexpr bool isEndiannessNotMatch() const noexcept { return m_endiannessNotMatch; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isEndiannessNotMatch() const noexcept { return m_endiannessNotMatch; }
 
     /// @brief Get Common Flags that are using in this context
     /// @return Common Flags
@@ -122,36 +113,44 @@ public:
 
     /// @brief Set Common Flags values that will be used by this context
     /// @param commonFlags Common Flags
-    constexpr void setCommonFlags(CommonFlags commonFlags) noexcept
+    constexpr Common& setCommonFlags(CommonFlags commonFlags) noexcept
     { 
         m_bitness32 = commonFlags.bitness32();
         m_bigEndianFormat = commonFlags.bigEndianFormat();
         m_endiannessDifference = commonFlags.endiannessDifference();
         m_endiannessNotMatch = bigEndianFormat() != helpers::isBigEndianPlatform();
+        return *this;
     }
 
-    [[nodiscard]] constexpr bool bitness32() const noexcept { return m_bitness32; }
-    [[nodiscard]] constexpr bool bigEndianFormat() const noexcept { return m_bigEndianFormat; }
-    [[nodiscard]] constexpr bool endiannessDifference() const noexcept { return m_endiannessDifference; }
+    CS_ALWAYS_INLINE constexpr Common& setCommonFlags(uint32_t commonFlags) noexcept
+    {
+        return setCommonFlags(static_cast<CommonFlags>(commonFlags));
+    }
+
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool bitness32() const noexcept { return m_bitness32; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool bigEndianFormat() const noexcept { return m_bigEndianFormat; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool endiannessDifference() const noexcept { return m_endiannessDifference; }
 
     /// @brief Reset all fields to their default values, but leaves binary data and common flags unchanged
     /// @note Common flags are not resets to false because because they are 
     ///     rather environment tool option instead of struct/operation specific.
-    virtual void resetToDefaultsExceptDataContents() noexcept
+    virtual Common& resetToDefaultsExceptDataContents() noexcept
     {
         if constexpr (IDeserializationCapableContainer<Container>)
             m_binaryData.seek(0);
         m_protocolVersion = traits::getLatestProtocolVersion();
         m_messageType = Message::kData;
+        return *this;
     }
 
     /// @brief Reset all fields to their default values and clears binary data container
     /// @note Common flags are not resets to false because because they are 
     ///     rather environment tool option instead of struct/operation specific.
-    virtual void clear() noexcept
+    virtual Common& clear() noexcept
     {
         resetToDefaultsExceptDataContents();
         m_binaryData.clear();
+        return *this;
     }
 
 private:

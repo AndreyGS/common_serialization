@@ -80,6 +80,7 @@ public:
     static constexpr uint32_t kSimplyAssignableTagsOptimizationsAreTurnedOff = 0x10;
 
     static constexpr uint32_t kValidFlagsMask = 0x1f;
+    static constexpr uint32_t kNoFlagsMask = 0x0;
 
     constexpr DataFlags() noexcept;
     explicit constexpr DataFlags(uint32_t value) noexcept;

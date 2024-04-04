@@ -44,13 +44,14 @@ public:
     static constexpr uint32_t kEndiannessDifference = 0x4;
 
     static constexpr uint32_t kValidFlagsMask = 0x7;
+    static constexpr uint32_t kNoFlagsMask = 0x0;
 
     constexpr CommonFlags() noexcept;
     explicit constexpr CommonFlags(uint32_t value) noexcept;
-    constexpr CommonFlags& operator=(uint32_t value) noexcept;
+    constexpr CommonFlags operator=(uint32_t value) noexcept;
 
-    constexpr void addFlags(uint32_t value) noexcept;
-    constexpr void removeFlags(uint32_t value) noexcept;
+    constexpr CommonFlags addFlags(uint32_t value) noexcept;
+    constexpr CommonFlags removeFlags(uint32_t value) noexcept;
 
     [[nodiscard]] constexpr bool bitness32() const noexcept;
     [[nodiscard]] constexpr bool bigEndianFormat() const noexcept;
@@ -67,7 +68,8 @@ private:
 };
 
 constexpr CommonFlags::CommonFlags() noexcept
-{ 
+{
+    m_flags = (helpers::isBitness32() ? kBitness32 : 0) | (helpers::isBigEndianPlatform() ? kBigEndianFormat : 0);
 }
 
 constexpr CommonFlags::CommonFlags(uint32_t value) noexcept
@@ -75,21 +77,23 @@ constexpr CommonFlags::CommonFlags(uint32_t value) noexcept
     operator=(value);
 }
 
-constexpr CommonFlags& CommonFlags::operator=(uint32_t value) noexcept
+constexpr CommonFlags CommonFlags::operator=(uint32_t value) noexcept
 {
     m_flags = value & kValidFlagsMask;
 
     return *this;
 }
 
-constexpr void CommonFlags::addFlags(uint32_t value) noexcept
+constexpr CommonFlags CommonFlags::addFlags(uint32_t value) noexcept
 {
     m_flags |= value & kValidFlagsMask;
+    return *this;
 }
 
-constexpr void CommonFlags::removeFlags(uint32_t value) noexcept
+constexpr CommonFlags CommonFlags::removeFlags(uint32_t value) noexcept
 {
     m_flags &= ~value;
+    return *this;
 }
 
 [[nodiscard]] constexpr bool CommonFlags::bitness32() const noexcept

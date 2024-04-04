@@ -78,11 +78,12 @@
             return Status::kNoError;                                                        \
         else if (!statusSuccess(status))                                                    \
             return status;                                                                  \
-        else if (areDataFlagsNotCompatible<std::remove_reference_t                          \
-                                            <std::remove_cv_t                               \
-                                                <decltype(value)>>>(ctx.getDataFlags())     \
-        )                                                                                   \
-            return Status::kErrorNotCompatibleDataFlagsSettings;                            \
+        else                                                                                \
+            CS_RUN(                                                                         \
+                processing::testDataFlagsCompatibility                                      \
+                    <std::remove_reference_t                                                \
+                        <std::remove_cv_t                                                   \
+                            <decltype(value)>>>(ctx.getDataFlags()));                       \
     }                                                                                       \
                                                                                             \
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx)                                         \
@@ -101,11 +102,12 @@
             return Status::kNoError;                                                        \
         else if (!statusSuccess(status))                                                    \
             return status;                                                                  \
-        else if (areDataFlagsNotCompatible<std::remove_reference_t                          \
-                                            <std::remove_cv_t                               \
-                                                <decltype(value)>>>(ctx.getDataFlags())     \
-        )                                                                                   \
-            return Status::kErrorNotCompatibleDataFlagsSettings;                            \
+        else                                                                                \
+            CS_RUN(                                                                         \
+                processing::testDataFlagsCompatibility                                      \
+                    <std::remove_reference_t                                                \
+                        <std::remove_cv_t                                                   \
+                            <decltype(value)>>>(ctx.getDataFlags()));                       \
     }                                                                                       \
                                                                                             \
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)                                       \

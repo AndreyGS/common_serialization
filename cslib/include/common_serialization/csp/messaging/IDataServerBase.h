@@ -49,7 +49,7 @@ public:
 
 protected:
     constexpr IDataServerBase() { }
-    constexpr ~IDataServerBase() { }
+    virtual ~IDataServerBase() { }
 
 private:
     virtual Status handleDataConcrete(context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput) = 0;

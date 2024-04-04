@@ -209,16 +209,6 @@ public:
     { 
         setDataFlags(dataFlags);
     }
-    
-    /// @brief Copy constructor
-    /// @param rhs Another instance
-    constexpr Data(Data<Container, serialize, PM, PC, EPP>& rhs) noexcept
-        : Common<Container>(rhs)
-        , m_epp(rhs.m_epp), m_interfaceVersion(rhs.m_interfaceVersion), m_auxUsingHeapAllocation(rhs.m_auxUsingHeapAllocation)
-        , m_alignmentMayBeNotEqual(rhs.m_alignmentMayBeNotEqual), m_sizeOfPrimitivesMayBeNotEqual(rhs.m_sizeOfPrimitivesMayBeNotEqual)
-        , m_allowUnmanagedPointers(rhs.m_allowUnmanagedPointers), m_checkRecursivePointers(rhs.m_checkRecursivePointers)
-        , m_simplyAssignableTagsOptimizationsAreTurnedOff(rhs.m_simplyAssignableTagsOptimizationsAreTurnedOff)
-    { }
 
     /// @brief Constructor
     /// @remark availible only on serialization mode
@@ -271,74 +261,80 @@ public:
 
     /// @brief Get data processing flags
     /// @return Data processing flags
-    [[nodiscard]] constexpr DataFlags getDataFlags() noexcept 
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr DataFlags getDataFlags() noexcept
     {
         return m_dataFlags;
     }
 
     /// @brief Set data processing flags
     /// @param dataFlags Data processing flags
-    constexpr void setDataFlags(DataFlags dataFlags)
+    constexpr Data& setDataFlags(DataFlags dataFlags)
     {
         m_dataFlags = dataFlags;
         m_alignmentMayBeNotEqual = m_dataFlags.alignmentMayBeNotEqual();
         m_sizeOfPrimitivesMayBeNotEqual = m_dataFlags.sizeOfIntegersMayBeNotEqual();
         m_allowUnmanagedPointers = m_dataFlags.allowUnmanagedPointers();
         m_checkRecursivePointers = m_dataFlags.checkRecursivePointers();
-        m_simplyAssignableTagsOptimizationsAreTurnedOff = m_dataFlags.simplyAssignableTagsOptimizationsAreTurnedOff();;
+        m_simplyAssignableTagsOptimizationsAreTurnedOff = m_dataFlags.simplyAssignableTagsOptimizationsAreTurnedOff();
+        return *this;
     }
 
-    [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
-    [[nodiscard]] constexpr bool sizeOfIntegersMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
-    [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
-    [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
-    [[nodiscard]] constexpr bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept { return m_simplyAssignableTagsOptimizationsAreTurnedOff; }
+    CS_ALWAYS_INLINE constexpr Data& setDataFlags(uint32_t dataFlags)
+    {
+        return setDataFlags(static_cast<DataFlags>(dataFlags));
+    }
+
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool sizeOfIntegersMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept { return m_simplyAssignableTagsOptimizationsAreTurnedOff; }
 
     /// @brief Get target interface version
     /// @return Target interface version
-    [[nodiscard]] constexpr interface_version_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
-    constexpr void setInterfaceVersion(interface_version_t interfaceVersion) { m_interfaceVersion = interfaceVersion; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr interface_version_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
+    CS_ALWAYS_INLINE constexpr Data& setInterfaceVersion(interface_version_t interfaceVersion) { m_interfaceVersion = interfaceVersion; return *this; }
 
     /// @brief Is target interface version differs of latest version of top struct that is processed
     /// @return Flag indicating that interface versions are not match
-    [[nodiscard]] constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
 
     /// @brief If target interface version is differs from top struct interface version, true must be set.
     /// @note Should be used before start of data processing.
     /// @param interfaceVersionsNotMatch Flag indicating that interface versions are not match
-    constexpr void setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; }
+    CS_ALWAYS_INLINE constexpr Data& setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; return *this; }
 
     /// @brief Test if allocation of temp data would be used on heap instead of stack
     /// @return Is allocation of temp data would be used on heap instead of stack
-    [[nodiscard]] constexpr bool isAuxUsingHeapAllocation() const noexcept { return m_auxUsingHeapAllocation; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isAuxUsingHeapAllocation() const noexcept { return m_auxUsingHeapAllocation; }
     
     /// @brief Set that allocation of temp data should use heap or stack
     /// @param auxUsingHeapAllocation Flag indicating type of temp allocation
-    constexpr void setAuxUsingHeapAllocation(bool auxUsingHeapAllocation) { m_auxUsingHeapAllocation = auxUsingHeapAllocation; }
+    CS_ALWAYS_INLINE constexpr Data& setAuxUsingHeapAllocation(bool auxUsingHeapAllocation) { m_auxUsingHeapAllocation = auxUsingHeapAllocation; return *this; }
 
     /// @brief Get pointer to holding pointers map
     /// @return Pointer to pointers map
-    [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_epp.getPointersMap(); }
-    [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_epp.getPointersMap(); }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr PM* getPointersMap() noexcept { return m_epp.getPointersMap(); }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr const PM* getPointersMap() const noexcept { return m_epp.getPointersMap(); }
 
     /// @brief Set holding pointers map.
     ///     You should notice that when we set map to Data 
     ///     it will not owns this map and does not clears its contents on destruction.
     /// @param pPointersMap Set pointer map to this
-    constexpr void setPointersMap(PM* pPointersMap) noexcept { m_epp.setPointersMap(pPointersMap); }
+    CS_ALWAYS_INLINE constexpr Data& setPointersMap(PM* pPointersMap) noexcept { m_epp.setPointersMap(pPointersMap); return *this; }
 
     /// @brief Get pointer to added free pointers container.
     /// @remark availible only on deserialization mode
     /// @return Pointer to added free pointers container
-    [[nodiscard]] constexpr PC* getAddedPointers() noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
-    [[nodiscard]] constexpr const PC* getAddedPointers() const noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr PC* getAddedPointers() noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
+    [[nodiscard]] CS_ALWAYS_INLINE const PC* getAddedPointers() const noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
 
     /// @brief Set holding pointer to added pointers container
     /// @note When we set map to Data it will not owns it
     ///     and does not clears its contents on destruction.
     /// @remark availible only on deserialization mode
     /// @param pAddedPointers Pointer to added free pointers container
-    constexpr void setAddedPointers(PC* pAddedPointers) noexcept requires (!serialize) { m_epp.setAddedPointers(pAddedPointers); }
+    CS_ALWAYS_INLINE constexpr Data& setAddedPointers(PC* pAddedPointers) noexcept requires (!serialize) { m_epp.setAddedPointers(pAddedPointers); return *this; }
 
     /// @brief Allocates memory for type T and costructs default T-object,
     ///     and then places it to container of added free pointers.
@@ -346,30 +342,32 @@ public:
     /// @tparam T Type of object to allocate and construct
     /// @return Pointer of costructed object
     template<typename T>
-    [[nodiscard]] T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<T>(); }
+    [[nodiscard]] CS_ALWAYS_INLINE T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<T>(); }
 
     /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
     /// @note Flag of using heap allocation also not resets to false,
     ///     because it's rather environment tool option instead of struct/operation specific.
-    void resetToDefaultsExceptDataContents() noexcept override
+    Data& resetToDefaultsExceptDataContents() noexcept override
     {
         Common<Container>::resetToDefaultsExceptDataContents();
         m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
         setDataFlags(DataFlags{});
+        return *this;
     }
 
     /// @brief Reset all fields to their default values and clears binary data container
     /// @note Flag of using heap allocation not resets to false,
     ///     because it's rather environment tool option instead of struct/operation specific.
-    void clear() noexcept override
+    Data& clear() noexcept override
     {
         Common<Container>::clear();
         m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
         setDataFlags(DataFlags{});
+        return *this;
     }
 
 private:

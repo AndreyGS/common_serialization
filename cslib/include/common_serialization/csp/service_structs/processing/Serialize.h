@@ -52,8 +52,6 @@ constexpr Status BodyProcessor::serialize(const service_structs::CspPartySetting
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    assert(value.protocolVersions.size() < traits::kProtocolVersionUndefined);
-
     CS_RUN(serialize(static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
     CS_RUN(serialize(value.protocolVersions.data(), static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
 
