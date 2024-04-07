@@ -145,7 +145,7 @@ constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), interfaceVersion))
         return Status::kErrorNotSupportedInterfaceVersion;
 
-    CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx))
+    CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx));
 
     // Only set interface versions not match when some conversion will be need
     if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
@@ -194,14 +194,14 @@ constexpr Status serializeDataContextNoChecks(context::SData<S, PM>& ctx) noexce
 
     Id id = T::getId();
 
-    CS_RUN(output.pushBackN(id.id, sizeof(id.id)));
-    CS_RUN(output.pushBackArithmeticValue(ctx.getInterfaceVersion()))
+    CS_RUN(writeRawData(&id, 1, ctx));
+    CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx));
 
     // Only set interface versions not match when some conversion will be need
     if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
-    CS_RUN(output.pushBackArithmeticValue(static_cast<uint32_t>(ctx.getDataFlags())));
+    CS_RUN(writePrimitive(static_cast<uint32_t>(ctx.getDataFlags()), ctx));
     
     return Status::kNoError;
 }
@@ -242,7 +242,7 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
 template<ISerializationCapableContainer S>
 constexpr Status serializeStatusContext(context::Common<S>& ctx, Status statusOut) noexcept
 {
-    CS_RUN(ctx.getBinaryData().pushBackArithmeticValue(statusOut));
+    CS_RUN(writePrimitive(statusOut, ctx));
 
     return Status::kNoError;
 }
@@ -250,7 +250,7 @@ constexpr Status serializeStatusContext(context::Common<S>& ctx, Status statusOu
 template<IDeserializationCapableContainer D>
 constexpr Status deserializeStatusContext(context::Common<D>& ctx, Status& statusOut) noexcept
 {
-    CS_RUN(ctx.getBinaryData().readArithmeticValue(statusOut));
+    CS_RUN(readPrimitive(ctx, statusOut));
 
     return Status::kNoError;
 }

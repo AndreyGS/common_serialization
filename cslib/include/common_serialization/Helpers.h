@@ -143,12 +143,9 @@ consteval size_t countof(T(&arr)[N])
 }
 
 /// @brief Convert uint64_t endianness from little-endian to big-endian and vice versa
-/// @tparam T 8-bytes length integer
 /// @param input Number
 /// @return Converted number
-template<typename T>
-    requires (sizeof(T) == 8)
-constexpr T reverseEndianessInt64(T input)
+constexpr uint64_t reverseEndianessUInt64(uint64_t input)
 {
     return input >> 56
         | (input >> 40 & 0x000000000000ff00)
@@ -160,13 +157,10 @@ constexpr T reverseEndianessInt64(T input)
         |  input << 56;
 }
 
-/// @brief Convert 32 bit integer endianness from little-endian to big-endian and vice versa
-/// @tparam T 4-bytes length integer
+/// @brief Convert uint32_t endianness from little-endian to big-endian and vice versa
 /// @param input Number
 /// @return Converted number
-template<typename T>
-    requires (sizeof(T) == 4)
-constexpr T reverseEndianessInt32(T input)
+constexpr uint32_t reverseEndianessUInt32(uint32_t input)
 {
     return input >> 24
         | (input >>  8 & 0x0000ff00)
@@ -175,12 +169,9 @@ constexpr T reverseEndianessInt32(T input)
 }
 
 /// @brief Convert uint16_t endianness from little-endian to big-endian and vice versa
-/// @tparam T 2-bytes length integer
 /// @param input Number
 /// @return Converted number
-template<typename T>
-    requires (sizeof(T) == 2)
-constexpr T reverseEndianessInt16(T input)
+constexpr uint16_t reverseEndianessUInt16(uint16_t input)
 {
     return input >> 8 | input << 8;
 }
@@ -193,31 +184,31 @@ CS_ALWAYS_INLINE constexpr T reverseEndianess(T input)
     {
         if constexpr (std::is_enum_v<T>)
         {
-            int16_t temp = reverseEndianessInt16(*static_cast<int16_t*>(static_cast<void*>(&input)));
+            uint16_t temp = reverseEndianessUInt16(*static_cast<uint16_t*>(static_cast<void*>(&input)));
             return *static_cast<T*>(static_cast<void*>(&temp));
         }
         else
-            return reverseEndianessInt16(input);
+            return reverseEndianessUInt16(input);
     }
     else if constexpr (sizeof(T) == 4)
     {
         if constexpr (std::is_enum_v<T>)
         {
-            int32_t temp = reverseEndianessInt32(*static_cast<int32_t*>(static_cast<void*>(&input)));
+            uint32_t temp = reverseEndianessUInt32(*static_cast<uint32_t*>(static_cast<void*>(&input)));
             return *static_cast<T*>(static_cast<void*>(&temp));
         }
         else
-            return reverseEndianessInt32(input);
+            return reverseEndianessUInt32(input);
     }
     else
     {
         if constexpr (std::is_enum_v<T>)
         {
-            int64_t temp = reverseEndianessInt64(*static_cast<int64_t*>(static_cast<void*>(&input)));
+            uint64_t temp = reverseEndianessUInt64(*static_cast<uint64_t*>(static_cast<void*>(&input)));
             return *static_cast<T*>(static_cast<void*>(&temp));
         }
         else
-            return reverseEndianessInt64(input);
+            return reverseEndianessUInt64(input);
     }
 }
 

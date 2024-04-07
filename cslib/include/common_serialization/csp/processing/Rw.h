@@ -84,4 +84,4 @@ CS_ALWAYS_INLINE constexpr Status readRawData(context::Common<D>& ctx, typename 
     return readSize == bytesSize ? Status::kNoError : Status::kErrorOverflow;
 }
 
-}
+} // namespace common_serialization::csp::processing

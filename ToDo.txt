@@ -18,7 +18,7 @@
 18. Add crc32 of serialization flag support.
 19. Add empty() method to Vector and Walker.
 20. Add unit-tests on AllocatorHelpers, especially for constructN and allocateAndConstruct.
-21. Add IDataServer::CheckPoliciesCompliance function realization.
+21. Add IDataServer::checkPoliciesCompliance function realization.
 22. Think about Status of not conformance Data Flags.
 23. Add unit-tests on Vector::insert(const T& value, size_type offset).
 24. Add unit-tests on Vector::erase(size_type offset).
@@ -31,3 +31,4 @@
 31. Add tests on bitness32 flag.
 32. Add posibility to set additional data flags to not interface struct.
 33. Think about adding precalculated effective data flags with dependencies of interface struct.
+34. Add tests on endianness difference mode.

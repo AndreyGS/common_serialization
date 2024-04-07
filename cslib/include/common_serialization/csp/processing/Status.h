@@ -57,8 +57,8 @@ constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, cons
     context::Common<S> ctx(output, traits::kProtocolVersionUndefined, context::Message::kStatus, commonFlags);
     CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedProtocolVersion, true));
 
-    CS_RUN(output.pushBackArithmeticValue(static_cast<protocol_version_t>(supportedProtocolVersions.size())));
-    CS_RUN(output.pushBackN(supportedProtocolVersions.data(), static_cast<protocol_version_t>(supportedProtocolVersions.size())));
+    CS_RUN(writePrimitive(static_cast<protocol_version_t>(supportedProtocolVersions.size()), ctx));
+    CS_RUN(writeRawData(supportedProtocolVersions.data(), supportedProtocolVersions.size(), ctx));
 
     return Status::kNoError;
 }
@@ -69,10 +69,10 @@ constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::
     value.clear();
 
     protocol_version_t protocolVersionsSize = 0;
-    CS_RUN(ctx.getBinaryData().readArithmeticValue(protocolVersionsSize));
+    CS_RUN(readPrimitive(ctx, protocolVersionsSize));
 
     CS_RUN(value.reserve(protocolVersionsSize));
-    CS_RUN(ctx.getBinaryData().read(value.data(), protocolVersionsSize));
+    CS_RUN(readRawData(ctx, protocolVersionsSize, value.data()));
     value.setSize(protocolVersionsSize);
     
     return Status::kNoError;
@@ -84,8 +84,8 @@ constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
 {
     CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInterfaceVersion));
 
-    CS_RUN(ctx.getBinaryData().pushBackArithmeticValue(minimumInterfaceVersion));
-    CS_RUN(ctx.getBinaryData().pushBackN(outputTypeId.id, sizeof(outputTypeId.id)));
+    CS_RUN(writePrimitive(minimumInterfaceVersion, ctx));
+    CS_RUN(writeRawData(&outputTypeId, 1, ctx));
 
     return Status::kNoError;
 }
@@ -95,8 +95,8 @@ constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(
       context::Common<D>& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId
 ) noexcept
 {
-    CS_RUN(ctx.getBinaryData().readArithmeticValue(minimumInterfaceVersion));
-    CS_RUN(ctx.getBinaryData().read(outputTypeId.id, sizeof(outputTypeId.id)));
+    CS_RUN(readPrimitive(ctx, minimumInterfaceVersion));
+    CS_RUN(readRawData(ctx, 1, &outputTypeId));
 
     return Status::kNoError;
 }
