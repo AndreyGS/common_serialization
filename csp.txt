@@ -104,9 +104,12 @@ Common Context Format
     Bit 0 (0x1): bitness of system on which serialization is performed
       is 32 bit (when not set is 64 bits).
     Bit 1 (0x2): using big endian format (default endianness is
-      little-endian.
+      little-endian.  This flag is take effect only on integers that are
+      larger than 1 byte, so floating point numbers are not the case - 
+      for now translation of them is implementation defined and not
+      part of current standard.
     Bit 2 (0x4): there was endianness difference of "using big endian
-      format" flag and execution environment where serialization
+      format" flag and execution environment where serialization was
       performed.
     Bits 3-31: unused (reserved, must be zero).
 
@@ -459,6 +462,13 @@ Structures tags
     The same meaning as Simply assignable fixed size tag but here is
     alignment to 1 must be implied.  These structs always have the same
     size and the same fields and sub-fields offsets.
+    
+  Endianness tolerant tag
+  
+    If struct have no primitive in its fields, subfields, parent fields
+    etc. that are influenced to endianness changes according to CSP view
+    (read "using big endian format" Common flag description), that it
+    can be marked with this tag. 
   
   Struct has no tag
   
@@ -585,7 +595,8 @@ Serialization of Primitives
   Common Flag Big endian format
   
     If execution environment endianness setting is differ from this flag
-    value, then bytes of primitive reversation must be done.
+    value, for each integer that is larger than 1 byte, bytes
+    reversation must be done.
       
   Data Flag Size of integer types may be not equal
   
@@ -789,21 +800,23 @@ Serialization of Pointers
       serialized.
       
       If Common Flag Big endian format settings is the same as in
-      execution environment
+      execution environment or current type is endianness tolerant
         and
       (If type on which points pointer is primitive
         or
-      this type is not part of CSP Interface or current Serialization
-      process is not in interface versions not match mode (will be
-      defined later)
-        and
-      Type   has Always simply assignable tag)
-          or has Simply assignable fixed size tag and there is no
-             alignment may be not equal flag set
-          or has Simply assignable aligned to one tag and there is no
-             size of integers may be not equal flag set
-          or has Simply assignable tag and there is no alignment may be
-             not equal and integers may be not equal flags set)
+      simply assignable tags optimizations are turned off
+          and
+        this type is not part of CSP Interface or its version less or
+        equal to context interface version)
+          and
+        Type has Always simply assignable tag)
+            or has Simply assignable fixed size tag and there is no
+               alignment may be not equal flag set
+            or has Simply assignable aligned to one tag and there is no
+               size of integers may be not equal flag set
+            or has Simply assignable tag and there is no alignment may
+             be not equal and integers may be not equal flags set
+      )
 
         then all data on which points pointer is copied as raw array of
         octets and if there is Size of integers may be not equal flag

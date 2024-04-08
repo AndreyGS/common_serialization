@@ -32,7 +32,7 @@ namespace common_serialization::csp::processing
 constexpr Status testCommonFlagsCompatibility(context::CommonFlags commonFlags
     , context::CommonFlags forbiddenCommonFlags, context::CommonFlags mandatoryCommonFlags)
 {
-    return commonFlags & forbiddenCommonFlags || (commonFlags & mandatoryCommonFlags) != mandatoryCommonFlags
+    return commonFlags & (forbiddenCommonFlags | context::CommonFlags::kForbiddenFlagsMask) || (commonFlags & mandatoryCommonFlags) != mandatoryCommonFlags
         ? Status::kErrorNotCompatibleCommonFlagsSettings
         : Status::kNoError;
 }
@@ -127,7 +127,7 @@ constexpr Status testDataFlagsCompatibility(context::DataFlags dataFlags)
         constexpr context::DataFlags effectiveMandatoryDataFlags = T::getEffectiveMandatoryDataFlags();
         constexpr context::DataFlags effectiveForbiddenDataFlags = T::getEffectiveForbiddenDataFlags();
 
-        return dataFlags & effectiveForbiddenDataFlags || (dataFlags & effectiveMandatoryDataFlags) != effectiveMandatoryDataFlags
+        return dataFlags & (effectiveForbiddenDataFlags | context::DataFlags::kForbiddenFlagsMask) || (dataFlags & effectiveMandatoryDataFlags) != effectiveMandatoryDataFlags
             ? Status::kErrorNotCompatibleDataFlagsSettings
             : Status::kNoError;
     }

@@ -80,6 +80,7 @@ public:
     static constexpr uint32_t kSimplyAssignableTagsOptimizationsAreTurnedOff = 0x10;
 
     static constexpr uint32_t kValidFlagsMask = 0x1f;
+    static constexpr uint32_t kForbiddenFlagsMask = ~kValidFlagsMask;
     static constexpr uint32_t kNoFlagsMask = 0x0;
 
     constexpr DataFlags() noexcept;
@@ -96,7 +97,9 @@ public:
     [[nodiscard]] constexpr bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept;
 
     [[nodiscard]] constexpr DataFlags operator|(DataFlags rhs) const noexcept;
-    [[nodiscard]] constexpr DataFlags operator&(const DataFlags& rhs) const noexcept;
+    [[nodiscard]] constexpr DataFlags operator&(DataFlags rhs) const noexcept;
+    [[nodiscard]] constexpr DataFlags operator|(uint32_t rhs) const noexcept;
+    [[nodiscard]] constexpr DataFlags operator&(uint32_t rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(DataFlags rhs) const noexcept;
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
@@ -162,9 +165,19 @@ constexpr void DataFlags::removeFlags(uint32_t value) noexcept
     return static_cast<DataFlags>(m_flags | rhs.m_flags);
 }
 
-[[nodiscard]] constexpr DataFlags DataFlags::operator&(const DataFlags& rhs) const noexcept
+[[nodiscard]] constexpr DataFlags DataFlags::operator&(DataFlags rhs) const noexcept
 {
     return static_cast<DataFlags>(m_flags & rhs.m_flags);
+}
+
+[[nodiscard]] constexpr DataFlags DataFlags::operator|(uint32_t rhs) const noexcept
+{
+    return *this | static_cast<DataFlags>(rhs);
+}
+
+[[nodiscard]] constexpr DataFlags DataFlags::operator&(uint32_t rhs) const noexcept
+{
+    return *this & static_cast<DataFlags>(rhs);
 }
 
 [[nodiscard]] constexpr bool DataFlags::operator==(DataFlags rhs) const noexcept

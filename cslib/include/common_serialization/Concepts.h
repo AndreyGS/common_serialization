@@ -47,6 +47,9 @@ concept InitableBySpecialClass = requires(T t)
 };
 
 template<typename T>
+using normalize_t = std::remove_const_t<std::remove_reference_t<T>>;
+
+template<typename T>
 concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || std::is_function_v<T> || std::is_member_function_pointer_v<T>);
 
 template<typename T>

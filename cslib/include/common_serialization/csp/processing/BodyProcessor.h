@@ -117,17 +117,16 @@ constexpr Status BodyProcessor::serialize(const T* p, typename S::size_type n, c
         return Status::kNoError;
 
     if (
-           !ctx.endiannessDifference()
+           (!ctx.endiannessDifference() || EndiannessTolerant<T>)
         && (   std::is_arithmetic_v<T>
             || std::is_enum_v<T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
                 && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
-                && (   AlwaysSimplyAssignableType<T>
-                    || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-                    || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-                    || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
+                && (   AlwaysSimplyAssignable<T>
+                    || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
+                    || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                    || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
             )
-        || std::is_floating_point_v<T>
     )
     {   
         if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
@@ -282,17 +281,16 @@ constexpr Status BodyProcessor::deserialize(context::DData<D, PM>& ctx, typename
         return Status::kNoError;
 
     if (
-           !ctx.endiannessDifference()
+           (!ctx.endiannessDifference() || EndiannessTolerant<T>)
         && (   std::is_arithmetic_v<T>
             || std::is_enum_v<T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
                 && (!IsISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
-                && (   AlwaysSimplyAssignableType<T>
-                    || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-                    || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-                    || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
+                && (   AlwaysSimplyAssignable<T>
+                    || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
+                    || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                    || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
             )
-        || std::is_floating_point_v<T>
     )
     {
         // In fact ctx.sizeOfIntegersMayBeNotEqual() can be true only if (std::is_arithmetic_v<T> || std::is_enum_v<T>) is true,
@@ -482,10 +480,14 @@ constexpr Status BodyProcessor::serializeSimplyAssignable(const T& value, contex
             if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
                 return Status::kNoError;
 
-        if (   AlwaysSimplyAssignableType<T>
-            || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-            || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-            || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
+        if constexpr (!EndiannessTolerant<T>)
+            if (ctx.endiannessDifference())
+                return Status::kNoError;
+
+        if (   AlwaysSimplyAssignable<T>
+            || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
+            || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+            || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
         )
         {
             // for simple assignable types it is preferable to get a whole struct at a time
@@ -509,10 +511,14 @@ constexpr Status BodyProcessor::deserializeSimplyAssignable(context::DData<D, PM
             if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
                 return Status::kNoError;
 
-        if (   AlwaysSimplyAssignableType<T>
-            || SimplyAssignableFixedSizeType<T> && !ctx.alignmentMayBeNotEqual()
-            || SimplyAssignableAlignedToOneType<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-            || SimplyAssignableType<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
+        if constexpr (!EndiannessTolerant<T>)
+            if (ctx.endiannessDifference())
+                return Status::kNoError;
+
+        if (   AlwaysSimplyAssignable<T>
+            || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
+            || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+            || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
         )
         {
             // for simple assignable types it is preferable to get a whole struct at a time

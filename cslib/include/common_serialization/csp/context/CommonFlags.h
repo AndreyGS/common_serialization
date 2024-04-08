@@ -44,6 +44,7 @@ public:
     static constexpr uint32_t kEndiannessDifference = 0x4;
 
     static constexpr uint32_t kValidFlagsMask = 0x7;
+    static constexpr uint32_t kForbiddenFlagsMask = ~kValidFlagsMask;
     static constexpr uint32_t kNoFlagsMask = 0x0;
 
     constexpr CommonFlags() noexcept;
@@ -59,6 +60,8 @@ public:
 
     [[nodiscard]] constexpr CommonFlags operator|(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr CommonFlags operator&(CommonFlags rhs) const noexcept;
+    [[nodiscard]] constexpr CommonFlags operator|(uint32_t rhs) const noexcept;
+    [[nodiscard]] constexpr CommonFlags operator&(uint32_t rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(CommonFlags rhs) const noexcept;
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
@@ -119,6 +122,16 @@ constexpr CommonFlags CommonFlags::removeFlags(uint32_t value) noexcept
 [[nodiscard]] constexpr CommonFlags CommonFlags::operator&(CommonFlags rhs) const noexcept
 {
     return static_cast<CommonFlags>(m_flags & rhs.m_flags);
+}
+
+[[nodiscard]] constexpr CommonFlags CommonFlags::operator|(uint32_t rhs) const noexcept
+{
+    return *this | static_cast<CommonFlags>(rhs);
+}
+
+[[nodiscard]] constexpr CommonFlags CommonFlags::operator&(uint32_t rhs) const noexcept
+{
+    return *this & static_cast<CommonFlags>(rhs);
 }
 
 [[nodiscard]] constexpr bool CommonFlags::operator==(CommonFlags rhs) const noexcept

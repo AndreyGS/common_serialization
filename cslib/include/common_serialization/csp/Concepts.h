@@ -108,33 +108,36 @@ concept FixSizedArithmeticType
 template<typename T>
 concept FixSizedEnumType = std::is_enum_v<T> && FixSizedArithmeticType<std::underlying_type_t<T>>;
 
-template<typename T>
-using normalize_t = std::remove_const_t<std::remove_reference_t<T>>;
-
 // can be copied with memcpy (if alignments are the same and no kSizeOfIntegersMayBeNotEqual flag is set)
 template<typename T>
-concept SimplyAssignableType
+concept SimplyAssignable
     =  requires(T t) { typename normalize_t<T>::simply_assignable_tag; };
 
 // can be copied with memcpy (if no kSizeOfIntegersMayBeNotEqual flag is set)
 template<typename T>
-concept SimplyAssignableAlignedToOneType
+concept SimplyAssignableAlignedToOne
     = requires(T t) { typename normalize_t<T>::simply_assignable_aligned_to_one_tag; } && alignof(T) == 1;
 
 // all fields must be primitives an with strictly defined sizes regardless of execution environment
 // can be copied with memcpy (if alignments are the same)
 template<typename T>
-concept SimplyAssignableFixedSizeType
+concept SimplyAssignableFixedSize
     =  requires(T t) { typename normalize_t<T>::simply_assignable_fixed_size_tag; };
 
 // same as FixedSizeSimplyAssignableType but with alignment to 1 requirement (type must always have same size)
 // can be copied with memcpy
 template<typename T>
-concept AlwaysSimplyAssignableType
+concept AlwaysSimplyAssignable
     =  requires(T t) { typename normalize_t<T>::always_simply_assignable_tag; } && alignof(T) == 1;
 
 template<typename T>
-concept AnySimplyAssignable = AlwaysSimplyAssignableType<T> || SimplyAssignableFixedSizeType<T> || SimplyAssignableAlignedToOneType<T> || SimplyAssignableType<T>;
+concept AnySimplyAssignable = AlwaysSimplyAssignable<T> || SimplyAssignableFixedSize<T> || SimplyAssignableAlignedToOne<T> || SimplyAssignable<T>;
+
+template<typename T>
+concept EndiannessTolerant 
+    = requires(T t) { typename normalize_t<T>::endianness_tolerant_tag; } 
+    || std::is_floating_point_v<T> 
+    || ((std::is_integral_v<T> || std::is_enum_v<T>) && sizeof(T) == 1);
 
 template<typename T>
 concept NotSimplyAssignable = !AnySimplyAssignable<T>;
