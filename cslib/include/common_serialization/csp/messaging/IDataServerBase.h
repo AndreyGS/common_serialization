@@ -43,7 +43,7 @@ public:
     /// @param ctxCommon Deserialized from input common context
     /// @param binOutput Binary data output
     /// @return Status of operation
-    static Status handleDataCommon(context::Common<BinWalker>& ctxCommon, const BinVector& clientId, BinVector& binOutput);
+    static Status handleDataCommon(context::Common<BinWalker>& ctxCommon, const GenericPointerKeeper& clientId, BinVector& binOutput);
 
     [[nodiscard]] virtual interface_version_t getMinimumInterfaceVersion() = 0;
 
@@ -52,10 +52,10 @@ protected:
     virtual ~IDataServerBase() { }
 
 private:
-    virtual Status handleDataConcrete(context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput) = 0;
+    virtual Status handleDataConcrete(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput) = 0;
 };
 
-inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, const BinVector& clientId, BinVector& binOutput)
+inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, const GenericPointerKeeper& clientId, BinVector& binOutput)
 {
     context::DData<> ctx(ctxCommon);
     Id id;

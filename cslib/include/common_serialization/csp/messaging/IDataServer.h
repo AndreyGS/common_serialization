@@ -66,8 +66,8 @@ public:
     ///     that may help in processing decisions
     /// @param output Data that should be returned to client
     /// @return Status of operation
-    virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, const BinVector& clientId, OutputType& output) = 0;
-    virtual Status checkPoliciesCompliance(const InputType* input, const context::DData<>& ctx, const BinVector& clientId) = 0;
+    virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, const GenericPointerKeeper& clientId, OutputType& output) = 0;
+    virtual Status checkPoliciesCompliance(const InputType* input, const context::DData<>& ctx, const GenericPointerKeeper& clientId) = 0;
 
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion() override;
 
@@ -76,12 +76,12 @@ protected:
     ~IDataServer();
 
 private:
-    Status handleDataConcrete(context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput) override;
+    Status handleDataConcrete(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput) override;
 
-    Status handleDataOnStack(context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput);
-    Status handleDataOnHeap(context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput);
+    Status handleDataOnStack(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput);
+    Status handleDataOnHeap(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput);
     // This is the common code between handleDataOnStack and handleDataOnHeap
-    Status handleDataMain(InputType& input, context::DData<>& ctx, const BinVector& clientId, OutputType& output, BinVector& binOutput);
+    Status handleDataMain(InputType& input, context::DData<>& ctx, const GenericPointerKeeper& clientId, OutputType& output, BinVector& binOutput);
 };
 
 template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
@@ -94,7 +94,7 @@ interface_version_t IDataServer<InputType, OutputType, forTempUseHeap, multicast
 template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::handleDataConcrete(
-    context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput
+    context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput
 )
 {
     CS_RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
@@ -139,7 +139,7 @@ IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVe
 template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::handleDataOnStack(
-    context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput
+    context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput
 )
 {
     InputType input;
@@ -151,7 +151,7 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
 template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::handleDataOnHeap(
-    context::DData<>& ctx, const BinVector& clientId, BinVector& binOutput
+    context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput
 )
 {
     GenericPointerKeeper input;
@@ -168,7 +168,7 @@ Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInte
 template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::handleDataMain(
-    InputType& input, context::DData<>& ctxIn, const BinVector& clientId, OutputType& output, BinVector& binOutput
+    InputType& input, context::DData<>& ctxIn, const GenericPointerKeeper& clientId, OutputType& output, BinVector& binOutput
 )
 {
     CS_RUN(processing::BodyProcessor::deserialize(ctxIn, input));

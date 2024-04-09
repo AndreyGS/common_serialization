@@ -45,7 +45,7 @@ public:
     /// @param binInput Binary data received from client
     /// @param binOutput Binary data that should be send back to client
     /// @return Status of operation
-    Status handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput) const noexcept;
+    Status handleMessage(BinWalker& binInput, const GenericPointerKeeper& clientId, BinVector& binOutput) const noexcept;
 
 private:
     Status handleGetSettingsRequest(protocol_version_t cspVersion, BinVector& binOutput) const noexcept;
@@ -73,7 +73,7 @@ constexpr bool CommonServer::isValid() const noexcept
     return m_serverSettings.isValid();
 }
 
-inline Status CommonServer::handleMessage(BinWalker& binInput, const BinVector& clientId, BinVector& binOutput) const noexcept
+inline Status CommonServer::handleMessage(BinWalker& binInput, const GenericPointerKeeper& clientId, BinVector& binOutput) const noexcept
 {
     if (!isValid())
         return Status::kErrorNotInited;

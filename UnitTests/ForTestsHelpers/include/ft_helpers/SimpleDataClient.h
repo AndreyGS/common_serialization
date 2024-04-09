@@ -50,7 +50,7 @@ private:
         cs::BinWalker input;
         input.init(std::move(binInput));
 
-        return m_server.handleMessage(input, cs::BinVector{}, binOutput.getVector());
+        return m_server.handleMessage(input, cs::GenericPointerKeeper{}, binOutput.getVector());
     }
 
     bool isValid() const noexcept override

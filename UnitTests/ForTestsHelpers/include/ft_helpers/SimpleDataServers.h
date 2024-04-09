@@ -70,13 +70,13 @@ public:
     cs::Status handleData(
           const interface_for_test::SimplyAssignableAlignedToOne<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
-        , const cs::BinVector& clientId
+        , const cs::GenericPointerKeeper& clientId
         , interface_for_test::SimplyAssignableDescendant<>& output) override
     {
         return defaultHandle(input, output);
     }
 
-    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignableAlignedToOne<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignableAlignedToOne<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
     {
         return cs::Status::kNoError;
     }
@@ -84,13 +84,13 @@ public:
     cs::Status handleData(
           const interface_for_test::Diamond<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
-        , const cs::BinVector& clientId
+        , const cs::GenericPointerKeeper& clientId
         , interface_for_test::DynamicPolymorphic<>& output) override
     {
         return defaultHandle(input, output);
     }
 
-    cs::Status checkPoliciesCompliance(const interface_for_test::Diamond<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    cs::Status checkPoliciesCompliance(const interface_for_test::Diamond<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
     {
         return cs::Status::kNoError;
     }
@@ -98,14 +98,14 @@ public:
     cs::Status handleData(
           const interface_for_test::SimplyAssignable<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
-        , const cs::BinVector& clientId
+        , const cs::GenericPointerKeeper& clientId
         , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
         ++numberOfMultiEntrances;
         return cs::Status::kNoError;
     }
 
-    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
     {
         return cs::Status::kNoError;
     }
@@ -117,14 +117,14 @@ class SecondDataServer
 public:
     cs::Status handleData(const interface_for_test::SimplyAssignable<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
-        , const cs::BinVector& clientId
+        , const cs::GenericPointerKeeper& clientId
         , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
         ++numberOfMultiEntrances;
         return cs::Status::kNoError;
     }
 
-    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
     {
         return cs::Status::kNoError;
     }
@@ -137,13 +137,13 @@ public:
     cs::Status handleData(
           const descendant_interface::DiamondDescendant<>& input
         , cs::Vector<cs::GenericPointerKeeper>* unmanagedPointers
-        , const cs::BinVector& clientId
+        , const cs::GenericPointerKeeper& clientId
         , descendant_interface::SimpleStruct<>& output) override
     {
         return defaultHandle(input, output);
     }
 
-    cs::Status checkPoliciesCompliance(const descendant_interface::DiamondDescendant<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    cs::Status checkPoliciesCompliance(const descendant_interface::DiamondDescendant<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
     {
         return cs::Status::kNoError;
     }
@@ -156,7 +156,7 @@ public:
     cs::Status handleData(
           const another_yet_interface::SimpleStruct<>& input
         , cs::Vector<cs::GenericPointerKeeper>* unmanagedPointers
-        , const cs::BinVector& clientId
+        , const cs::GenericPointerKeeper& clientId
         , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
         another_yet_interface::SimpleStruct<> test;
@@ -168,7 +168,7 @@ public:
         return cs::Status::kNoError;
     }
 
-    cs::Status checkPoliciesCompliance(const another_yet_interface::SimpleStruct<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::BinVector& clientId) override
+    cs::Status checkPoliciesCompliance(const another_yet_interface::SimpleStruct<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
     {
         return cs::Status::kNoError;
     }
