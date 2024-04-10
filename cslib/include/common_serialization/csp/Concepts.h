@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/Containers/GenericPointerKeeper.h"
 #include "common_serialization/csp/context/DataFlags.h"
 
 namespace common_serialization::csp

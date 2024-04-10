@@ -29,5 +29,6 @@
 
 #include "common_serialization/common_serialization.h"
 #include "interface_for_test/Interface.h"
+#include "with_std_included_interface/Interface.h"
 #include "ft_helpers/ft_helpers.h"
 

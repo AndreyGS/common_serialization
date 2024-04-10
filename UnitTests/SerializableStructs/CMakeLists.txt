@@ -14,7 +14,7 @@ add_library(SerializableStructs STATIC
     
     "NotPartOfInterfaces/src/processing/Generated/Serialize.cpp"
     "NotPartOfInterfaces/src/processing/Generated/Deserialize.cpp"
- )
+)
 
 target_compile_definitions(SerializableStructs PRIVATE USER_MODE)
 target_link_libraries(SerializableStructs PRIVATE cslib)
@@ -23,6 +23,7 @@ target_include_directories(SerializableStructs PUBLIC
     "DescendantInterface/include"
     "AnotherYetInterface/include"
     "NotPartOfInterfaces/include"
+    "WithStdIncludedInterface/include"
 )
 
 target_precompile_headers(SerializableStructs PRIVATE 
@@ -30,4 +31,5 @@ target_precompile_headers(SerializableStructs PRIVATE
     "DescendantInterface/include/descendant_interface/Interface.h"
     "AnotherYetInterface/include/another_yet_interface/Interface.h"
     "NotPartOfInterfaces/include/not_part_of_interfaces/NotInterface.h"
+    "WithStdIncludedInterface/include/with_std_included_interface/Interface.h"
 )

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Containers/Concepts.h
+ * @file UnitTests/SerializableStructs/WithStdIncludedInterface/include/with_std_included_interface/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,33 +23,26 @@
 
 #pragma once
 
-#include "common_serialization/Containers/GenericPointerKeeper.h"
+#include <string>
+#include <vector>
+#include <map>
+#include <tuple>
 
-namespace common_serialization
+#include "common_serialization/common_serialization.h"
+
+namespace with_std_included_interface
 {
 
-class GenericPointerKeeper;
+namespace cs = common_serialization;
 
-/// @brief Interface of container that holds
-///     GenericPointerKeeper objects
-template<typename S>
-concept IGenericPointersKeeperContainer
-    =  requires(S e)
-         {
-             typename S::value_type;
-             typename S::constructor_allocator;
+constexpr cs::csp::Interface properties(
+    cs::Uuid{ 0x81ea8b21, 0xd3eb, 0x4e21, 0xa7f6, 0xab5f2449ce66 }
+    , 0
+    , cs::csp::context::DataFlags{}
+    , cs::csp::context::DataFlags{}
+);
 
-             { e.clear() };
-             { e.begin() };
-             { e.end() };
-             { e.erase(0, 1) };
-             { e.data() } -> std::same_as<typename S::value_type*>;
-             { e.size() } -> std::same_as<typename S::size_type>;
-             { e.capacity() } -> std::same_as<typename S::size_type>;
+} // namespace with_std_included_interface
 
-             { e.reserve(1) } -> std::same_as<Status>;
-             { e.pushBack(*(new GenericPointerKeeper)) } -> std::same_as<Status>;
-         } 
-    && std::is_same_v<typename S::value_type, GenericPointerKeeper> && std::is_same_v<typename S::constructor_allocator, std::true_type>;
-
-} // namespace common_serialization
+#include "with_std_included_interface/Structs.h"
+#include "with_std_included_interface/processing/Serialize.h"

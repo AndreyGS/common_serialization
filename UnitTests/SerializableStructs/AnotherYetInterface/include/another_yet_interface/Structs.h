@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/SpecialTypesSerializable.h
+ * @file UnitTests/SerializableStructs/AnotherYetInterface/include/another_yet_interface/Structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

@@ -104,6 +104,12 @@ TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SpecialTBasicT)
     EXPECT_EQ(input, output);
 
     cleanAfterStruct(input);
+    /*
+    ctxIn.clear();
+    bin.clear();
+    auto tpl = std::make_tuple(1, 1);
+    csp::processing::serialize(tpl, ctxIn);*/
+
 }
 
 } // namespace anonymous
