@@ -83,7 +83,7 @@ Status deserializeTuple(X& ctx, std::index_sequence<Is...>, Tuple& value)
 {
     Status status = Status::kNoError;
 
-    (((status = BodyProcessor::deserialize(ctx, std::get<Is>(value)), statusSuccess(status)) && ...);
+    (((status = BodyProcessor::deserialize(ctx, std::get<Is>(value))), statusSuccess(status)) && ...);
 
     return status;
 }
