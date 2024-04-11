@@ -39,17 +39,30 @@ public:
 
     bool operator==(const OneBigType& rhs) const noexcept
     {
-        if (m_string != rhs.m_string || m_vector.size() != rhs.m_vector.size() || m_map.size() != rhs.m_map.size())
+        if (m_string1 != rhs.m_string1 || m_string2 != rhs.m_string2 
+            || m_vector1.size() != rhs.m_vector1.size() 
+            || m_vector2.size() != rhs.m_vector2.size()
+            || m_map1.size() != rhs.m_map1.size()
+            || m_map2.size() != rhs.m_map2.size()
+        )
             return false;
 
-        for (size_t i = 0; i < m_vector.size(); ++i)
-            if (m_vector[i] != rhs.m_vector[i])
+        for (size_t i = 0; i < m_vector1.size(); ++i)
+            if (m_vector1[i] != rhs.m_vector1[i])
+                return false;
+
+        for (size_t i = 0; i < m_vector2.size(); ++i)
+            if (m_vector2[i] != rhs.m_vector2[i])
                 return false;
 
         try
         {
-            for (auto [key, value] : m_map)
-                if (m_map[key] != rhs.m_map[key])
+            for (auto [key, value] : m_map1)
+                if (m_map1[key] != rhs.m_map1[key])
+                    return false;
+
+            for (auto [key, value] : m_map2)
+                if (m_map2[key] != rhs.m_map2[key])
                     return false;
         }
         catch (...)
@@ -57,7 +70,7 @@ public:
             return false;
         }
 
-        if (std::get<0>(m_tuple1) != std::get<0>(rhs.m_tuple1)
+        if (   std::get<0>(m_tuple1) != std::get<0>(rhs.m_tuple1)
             || std::get<1>(m_tuple1) != std::get<1>(rhs.m_tuple1)
             || std::get<2>(m_tuple1) != std::get<2>(rhs.m_tuple1)
             || std::get<0>(m_tuple2) != std::get<0>(rhs.m_tuple2)
@@ -67,9 +80,12 @@ public:
         return true;
     }
 
-    std::string m_string;
-    std::vector<std::string> m_vector;
-    std::map<uint8_t, float> m_map;
+    std::string m_string1;
+    std::wstring m_string2;
+    std::vector<std::string> m_vector1;
+    std::vector<uint32_t> m_vector2;
+    std::map<uint8_t, float> m_map1;
+    std::map<std::string, std::vector<uint8_t>> m_map2;
     std::tuple<uint8_t, int64_t, std::string> m_tuple1;
     std::tuple<double> m_tuple2;
 };

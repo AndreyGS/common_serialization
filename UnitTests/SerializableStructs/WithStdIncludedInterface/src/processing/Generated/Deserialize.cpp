@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/DescendantInterface/include/descendant_interface/processing/Generated/Serialize.h
+ * @file UnitTests/SerializableStructs/WithStdIncludedInterface/src/Generated/Deserialize.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,14 +21,26 @@
  *
  */
 
-#pragma once
+#include "with_std_included_interface/Interface.h"
 
 namespace common_serialization::csp::processing
 {
 
 template<>
-Status BodyProcessor::serialize(const descendant_interface::SimpleStruct<>& value, context::SData<>& ctx);
-template<>
-Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, with_std_included_interface::OneBigType<>& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    CS_RUN(deserialize(ctx, value.m_string1));
+    CS_RUN(deserialize(ctx, value.m_string2));
+    CS_RUN(deserialize(ctx, value.m_vector1));
+    CS_RUN(deserialize(ctx, value.m_vector2));
+    CS_RUN(deserialize(ctx, value.m_map1));
+    CS_RUN(deserialize(ctx, value.m_map2));
+    CS_RUN(deserialize(ctx, value.m_tuple1));
+    CS_RUN(deserialize(ctx, value.m_tuple2));
+
+    return Status::kNoError;
+}
 
 } // namespace common_serialization::csp::processing

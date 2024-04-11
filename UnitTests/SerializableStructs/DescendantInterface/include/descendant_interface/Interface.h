@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
 #include "interface_for_test/Interface.h"
 
 namespace descendant_interface

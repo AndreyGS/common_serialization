@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "another_yet_interface/Structs.h"
-
 namespace common_serialization::csp::processing
 {
 

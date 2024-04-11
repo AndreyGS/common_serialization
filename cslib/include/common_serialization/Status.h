@@ -23,6 +23,11 @@
 
 #pragma once
 
+// header for fixed size integers for non-std environments is not ready yet
+#ifdef USER_MODE // must be defined when c++ standard library is availible
+#include <cstdint>
+#endif // USER_MODE
+
 #ifdef CS_RUN
 #undef CS_RUN
 #endif // CS_RUN

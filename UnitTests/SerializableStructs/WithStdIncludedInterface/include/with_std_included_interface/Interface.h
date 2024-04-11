@@ -28,8 +28,6 @@
 #include <map>
 #include <tuple>
 
-#include "common_serialization/common_serialization.h"
-
 namespace with_std_included_interface
 {
 
@@ -45,4 +43,5 @@ constexpr cs::csp::Interface properties(
 } // namespace with_std_included_interface
 
 #include "with_std_included_interface/Structs.h"
-#include "with_std_included_interface/processing/Serialize.h"
+#include "with_std_included_interface/processing/Generated/Serialize.h"
+#include "with_std_included_interface/processing/Generated/Deserialize.h"

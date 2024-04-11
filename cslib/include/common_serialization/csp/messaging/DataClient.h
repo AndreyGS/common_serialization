@@ -252,8 +252,8 @@ inline Status DataClient::init(
     if (tempMandatoryCommonFlags & tempForbiddenCommonFlags)
         return Status::kErrorNotCompatibleCommonFlagsSettings;
 
-    for (auto serverInterfaceVersion : cspPartySettingsR.interfaces)
-        for (auto clientInterface : acceptableInterfaces)
+    for (auto& serverInterfaceVersion : cspPartySettingsR.interfaces)
+        for (auto& clientInterface : acceptableInterfaces)
         {
             if (serverInterfaceVersion.id == clientInterface.id)
             {

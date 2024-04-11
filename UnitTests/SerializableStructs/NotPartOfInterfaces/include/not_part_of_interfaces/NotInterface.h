@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
-
 #include "not_part_of_interfaces/Structs.h"
 #include "not_part_of_interfaces/processing/Generated/Deserialize.h"
 #include "not_part_of_interfaces/processing/Generated/Serialize.h"

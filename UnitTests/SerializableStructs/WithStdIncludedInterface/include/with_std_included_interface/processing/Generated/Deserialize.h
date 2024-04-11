@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/DescendantInterface/include/descendant_interface/processing/Generated/Serialize.h
+ * @file UnitTests/SerializableStructs/WithStdIncludedInterface/include/with_std_included_interface/processing/Generated/Deserialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -27,8 +27,6 @@ namespace common_serialization::csp::processing
 {
 
 template<>
-Status BodyProcessor::serialize(const descendant_interface::SimpleStruct<>& value, context::SData<>& ctx);
-template<>
-Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>& value, context::SData<>& ctx);
+Status BodyProcessor::deserialize(context::DData<>& ctx, with_std_included_interface::OneBigType<>& value);
 
 } // namespace common_serialization::csp::processing

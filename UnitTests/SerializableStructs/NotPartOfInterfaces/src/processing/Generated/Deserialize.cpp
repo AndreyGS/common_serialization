@@ -21,7 +21,7 @@
  *
  */
 
-#include "not_part_of_interfaces/processing/Generated/Deserialize.h"
+#include "not_part_of_interfaces/NotInterface.h"
 
 namespace common_serialization::csp::processing
 {

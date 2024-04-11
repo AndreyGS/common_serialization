@@ -21,7 +21,7 @@
  *
  */
 
-#include "descendant_interface/processing/Generated/Serialize.h"
+#include "descendant_interface/Interface.h"
 
 namespace common_serialization::csp::processing
 {

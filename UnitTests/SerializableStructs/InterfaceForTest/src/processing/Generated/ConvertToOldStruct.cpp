@@ -21,6 +21,8 @@
  *
  */
 
+#include "interface_for_test/Interface.h"
+
 namespace common_serialization::csp::processing::data_version_converters
 {
 

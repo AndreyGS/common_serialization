@@ -27,7 +27,14 @@
 #include <string>
 #include <list>
 
+#include "common_serialization/Status.h"
+#include "std_structs_serialization/processing/Declarations.h"
+
 #include "common_serialization/common_serialization.h"
+
+#include "std_structs_serialization/processing/Serialize.h"
+#include "std_structs_serialization/processing/Deserialize.h"
+
 #include "interface_for_test/Interface.h"
 #include "with_std_included_interface/Interface.h"
 #include "ft_helpers/ft_helpers.h"

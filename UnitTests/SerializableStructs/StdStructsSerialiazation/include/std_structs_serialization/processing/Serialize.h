@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/WithStdIncludedInterface/include/with_std_included_interface/processing/Serialize.h
+ * @file UnitTests/SerializableStructs/StdStructsSerialiazation/include/std_structs_serialization/processing/Serialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,11 +23,11 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::templates
 {
 
-template<typename T, typename Traits, typename Allocator>
-Status serialize(const std::basic_string<T, Traits, Allocator>& value, context::SData<>& ctx)
+template<typename T, typename Traits, typename Allocator, typename X>
+Status serialize(const std::basic_string<T, Traits, Allocator>& value, X& ctx)
 {
     CS_RUN(BodyProcessor::serialize(value.length() + 1, ctx));
     CS_RUN(BodyProcessor::serialize(value.c_str(), value.length() + 1, ctx));
@@ -35,8 +35,8 @@ Status serialize(const std::basic_string<T, Traits, Allocator>& value, context::
     return Status::kNoError;
 }
 
-template<typename T, typename Allocator>
-Status serialize(const std::vector<T, Allocator>& value, context::SData<>& ctx)
+template<typename T, typename Allocator, typename X>
+Status serialize(const std::vector<T, Allocator>& value, X& ctx)
 {
     CS_RUN(BodyProcessor::serialize(value.size(), ctx));
     CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
@@ -44,17 +44,17 @@ Status serialize(const std::vector<T, Allocator>& value, context::SData<>& ctx)
     return Status::kNoError;
 }
 
-template<typename T1, typename T2>
-Status serialize(const std::pair<T1, T2>& value, context::SData<>& ctx)
+template<typename T1, typename T2, typename X>
+Status serialize(const std::pair<T1, T2>& value, X& ctx)
 {
     CS_RUN(BodyProcessor::serialize(value.first, ctx));
-    CS_RUN(BodyProcessor::serialize(value.second, value.size(), ctx));
+    CS_RUN(BodyProcessor::serialize(value.second, ctx));
 
     return Status::kNoError;
 }
 
-template<typename K, typename V, class Compare, class Allocator>
-Status serialize(const std::map<K, V, Compare, Allocator>& value, context::SData<>& ctx)
+template<typename K, typename V, class Compare, class Allocator, typename X>
+Status serialize(const std::map<K, V, Compare, Allocator>& value, X& ctx)
 {
     CS_RUN(BodyProcessor::serialize(value.size(), ctx));
 
@@ -64,23 +64,20 @@ Status serialize(const std::map<K, V, Compare, Allocator>& value, context::SData
     return Status::kNoError;
 }
 
-template<typename Tuple, size_t... Is>
-Status serializeTuple(const Tuple& value, std::index_sequence<Is...>, context::SData<>& ctx)
+template<typename Tuple, typename X, size_t... Is>
+Status serializeTuple(const Tuple& value, std::index_sequence<Is...>, X& ctx)
 {
-    ([&]
-        {
-            CS_RUN(BodyProcessor::serialize(std::get<Is>(value), ctx));
-        }()
-    , ...);
+    Status status = Status::kNoError;
 
-    return Status::kNoError;
+    (((status = BodyProcessor::serialize(std::get<Is>(value), ctx)), statusSuccess(status)) && ...);
+
+    return status;
 }
 
-template<typename... Ts>
-Status serialize(const std::tuple<Ts...>& value, context::SData<>& ctx)
+template<typename X, typename... Ts>
+Status serialize(const std::tuple<Ts...>& value, X& ctx)
 {
     return serializeTuple(value, std::make_index_sequence<sizeof...(Ts)>{}, ctx);
 }
 
-
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::templates

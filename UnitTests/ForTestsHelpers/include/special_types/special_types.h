@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/common_serialization.h"
-
 namespace special_types
 {
 

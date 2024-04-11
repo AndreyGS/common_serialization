@@ -21,7 +21,7 @@
  *
  */
 
-#include "interface_for_test/processing/Generated/SerializeLegacy.h"
+#include "interface_for_test/Interface.h"
 
 namespace common_serialization::csp::processing
 {

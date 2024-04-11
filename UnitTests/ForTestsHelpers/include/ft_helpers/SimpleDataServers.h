@@ -76,11 +76,6 @@ public:
         return defaultHandle(input, output);
     }
 
-    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignableAlignedToOne<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
-    {
-        return cs::Status::kNoError;
-    }
-
     cs::Status handleData(
           const interface_for_test::Diamond<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
@@ -90,11 +85,6 @@ public:
         return defaultHandle(input, output);
     }
 
-    cs::Status checkPoliciesCompliance(const interface_for_test::Diamond<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
-    {
-        return cs::Status::kNoError;
-    }
-
     cs::Status handleData(
           const interface_for_test::SimplyAssignable<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
@@ -102,11 +92,6 @@ public:
         , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
         ++numberOfMultiEntrances;
-        return cs::Status::kNoError;
-    }
-
-    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
-    {
         return cs::Status::kNoError;
     }
 };
@@ -123,11 +108,6 @@ public:
         ++numberOfMultiEntrances;
         return cs::Status::kNoError;
     }
-
-    cs::Status checkPoliciesCompliance(const interface_for_test::SimplyAssignable<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
-    {
-        return cs::Status::kNoError;
-    }
 };
 
 class ThirdDataServer
@@ -141,11 +121,6 @@ public:
         , descendant_interface::SimpleStruct<>& output) override
     {
         return defaultHandle(input, output);
-    }
-
-    cs::Status checkPoliciesCompliance(const descendant_interface::DiamondDescendant<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
-    {
-        return cs::Status::kNoError;
     }
 };
 
@@ -165,11 +140,6 @@ public:
         if (input != test)
             return cs::Status::kErrorInternal;
 
-        return cs::Status::kNoError;
-    }
-
-    cs::Status checkPoliciesCompliance(const another_yet_interface::SimpleStruct<>* pNotUsing, const cs::csp::context::DData<>& ctx, const cs::GenericPointerKeeper& clientId) override
-    {
         return cs::Status::kNoError;
     }
 };

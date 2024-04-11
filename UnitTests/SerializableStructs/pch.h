@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/DescendantInterface/include/descendant_interface/processing/Generated/Serialize.h
+ * @file UnitTests/SerializableStructs/pch.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,12 +23,13 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing
-{
+// must be included before common_serialization.h header because
+// it contains declarations of serialization functions that are not
+// parsed properly later if BodyProcessor class is declared before them
+#include "common_serialization/Status.h"
+#include "std_structs_serialization/processing/Declarations.h"
 
-template<>
-Status BodyProcessor::serialize(const descendant_interface::SimpleStruct<>& value, context::SData<>& ctx);
-template<>
-Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>& value, context::SData<>& ctx);
+#include "common_serialization/common_serialization.h"
 
-} // namespace common_serialization::csp::processing
+#include "std_structs_serialization/processing/Serialize.h"
+#include "std_structs_serialization/processing/Deserialize.h"

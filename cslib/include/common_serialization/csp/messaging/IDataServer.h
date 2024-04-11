@@ -67,7 +67,7 @@ public:
     /// @param output Data that should be returned to client
     /// @return Status of operation
     virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, const GenericPointerKeeper& clientId, OutputType& output) = 0;
-    virtual Status checkPoliciesCompliance(const InputType* input, const context::DData<>& ctx, const GenericPointerKeeper& clientId) = 0;
+    virtual Status checkPoliciesCompliance(const InputType* input, const context::DData<>& ctx, const GenericPointerKeeper& clientId);
 
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion() override;
 
@@ -83,6 +83,14 @@ private:
     // This is the common code between handleDataOnStack and handleDataOnHeap
     Status handleDataMain(InputType& input, context::DData<>& ctx, const GenericPointerKeeper& clientId, OutputType& output, BinVector& binOutput);
 };
+
+template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
+    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
+Status IDataServer<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::checkPoliciesCompliance(
+    const InputType* input, const context::DData<>& ctx, const GenericPointerKeeper& clientId)
+{
+    return Status::kNoError;
+}
 
 template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
