@@ -31,6 +31,11 @@ namespace common_serialization::csp
 using Id = Uuid;
 using interface_version_t = uint32_t;
 using protocol_version_t = uint8_t;
+#ifdef X32
+using csp_size_t = uint32_t;
+#else
+using csp_size_t = uint64_t;
+#endif // #ifdef X32
 
 namespace traits
 {

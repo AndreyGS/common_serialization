@@ -47,8 +47,8 @@ public:
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static constexpr Status serialize(const T& value, context::SData<S, PM>& ctx);
 
-    template<ISerializationCapableContainer S, ISerializationPointersMap PM>
-    static CS_ALWAYS_INLINE constexpr Status serializeSizeT(const size_t& value, context::SData<S, PM>& ctx);
+    template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+    static CS_ALWAYS_INLINE constexpr Status serializeSizeT(T value, context::SData<S, PM>& ctx);
 
     /// @brief For now using for size_t serialization only
     /// @tparam T size_t
@@ -59,7 +59,7 @@ public:
     /// @param ctx CSP Full Data Context
     /// @return Status of operation
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    static CS_ALWAYS_INLINE constexpr Status serializeToAnotherSize(size_t targetTypeSize, const T& value, context::SData<S, PM>& ctx);
+    static CS_ALWAYS_INLINE constexpr Status serializeToAnotherSize(size_t targetTypeSize, T value, context::SData<S, PM>& ctx);
 
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status deserialize(context::DData<D, PM>& ctx, typename D::size_type n, T* p);
@@ -68,8 +68,8 @@ public:
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status deserialize(context::DData<D, PM>& ctx, T& value);
 
-    template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    static CS_ALWAYS_INLINE constexpr Status deserializeSizeT(context::DData<D, PM>& ctx, size_t& value);
+    template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+    static CS_ALWAYS_INLINE constexpr Status deserializeSizeT(context::DData<D, PM>& ctx, T& value);
 
     /// @brief Using for sizeOfIntegersMayBeNotEqual mode and size_t deserialization
     /// @tparam T Integral type or enum
@@ -84,7 +84,7 @@ public:
 
 protected:
     template<size_t targetTypeSize, typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    static constexpr Status serializeToAnotherSizeInternal(const T& value, context::SData<S, PM>& ctx);
+    static constexpr Status serializeToAnotherSizeInternal(T value, context::SData<S, PM>& ctx);
     template<size_t originalTypeSize,typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
     static constexpr Status deserializeFromAnotherSizeInternal(context::DData<D, PM>& ctx, T& value);
 
@@ -220,32 +220,29 @@ constexpr Status BodyProcessor::serialize(const T& value, context::SData<S, PM>&
     return Status::kNoError;
 }
 
-template<ISerializationCapableContainer S, ISerializationPointersMap PM>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSizeT(const size_t& value, context::SData<S, PM>& ctx)
+template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSizeT(T value, context::SData<S, PM>& ctx)
 {
-    return serializeToAnotherSize(ctx.bitness32() ? 4 : 8, value, ctx);
+    return serializeToAnotherSize(!ctx.bitness32() ? 8 : 4, value, ctx);
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeToAnotherSize(size_t targetTypeSize, const T& value, context::SData<S, PM>& ctx)
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeToAnotherSize(size_t targetTypeSize, T value, context::SData<S, PM>& ctx)
 {
-    if (targetTypeSize == 8)
-        return serializeToAnotherSizeInternal<8>(value, ctx);
-    else if (targetTypeSize == 4)
-        return serializeToAnotherSizeInternal<4>(value, ctx);
-    else if (targetTypeSize == 2)
-        return serializeToAnotherSizeInternal<2>(value, ctx);
-    else if (targetTypeSize == 1)
-        return serializeToAnotherSizeInternal<1>(value, ctx);
-    else
+    switch (targetTypeSize)
     {
+    case 8: return serializeToAnotherSizeInternal<8>(value, ctx);
+    case 4: return serializeToAnotherSizeInternal<4>(value, ctx);
+    case 2: return serializeToAnotherSizeInternal<2>(value, ctx);
+    case 1: return serializeToAnotherSizeInternal<1>(value, ctx);
+    default:
         assert(false);
         return Status::kErrorInternal;
     }
 }
 
 template<size_t targetTypeSize, typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status BodyProcessor::serializeToAnotherSizeInternal(const T& value, context::SData<S, PM>& ctx)
+constexpr Status BodyProcessor::serializeToAnotherSizeInternal(T value, context::SData<S, PM>& ctx)
 {
     static_assert((std::is_integral_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
         , "Current serialize function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
@@ -412,25 +409,22 @@ constexpr Status BodyProcessor::deserialize(context::DData<D, PM>& ctx, T& value
         return templates::deserialize(ctx, value);
 }
 
-template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSizeT(context::DData<D, PM>& ctx, size_t& value)
+template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSizeT(context::DData<D, PM>& ctx, T& value)
 {
-    return deserializeFromAnotherSize(ctx.bitness32() ? 4 : 8, ctx, value);
+    return deserializeFromAnotherSize(!ctx.bitness32() ? 8 : 4, ctx, value);
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
 CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeFromAnotherSize(size_t originalTypeSize, context::DData<D, PM>& ctx, T& value)
 {
-    if (originalTypeSize == 8)
-        return deserializeFromAnotherSizeInternal<8>(ctx, value);
-    else if (originalTypeSize == 4)
-        return deserializeFromAnotherSizeInternal<4>(ctx, value);
-    else if (originalTypeSize == 2)
-        return deserializeFromAnotherSizeInternal<2>(ctx, value);
-    else if (originalTypeSize == 1)
-        return deserializeFromAnotherSizeInternal<1>(ctx, value);
-    else
+    switch (originalTypeSize)
     {
+    case 8: return deserializeFromAnotherSizeInternal<8>(ctx, value);
+    case 4: return deserializeFromAnotherSizeInternal<4>(ctx, value);
+    case 2: return deserializeFromAnotherSizeInternal<2>(ctx, value);
+    case 1: return deserializeFromAnotherSizeInternal<1>(ctx, value);
+    default:
         assert(false);
         return Status::kErrorInternal;
     }
@@ -537,7 +531,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const T p, cont
     if (!p)
     {
         newPointer = false;
-        CS_RUN(serializeSizeT(0, ctx));
+        CS_RUN(serializeSizeT(static_cast<csp_size_t>(0), ctx));
     }
     else
     {
@@ -546,7 +540,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const T p, cont
         if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
             newPointer = true;
-            CS_RUN(serializeSizeT(1, ctx));
+            CS_RUN(serializeSizeT(static_cast<csp_size_t>(1), ctx));
             pointersMap[p] = ctx.getBinaryData().size();
         }
         else
@@ -562,7 +556,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const T p, cont
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
 CS_ALWAYS_INLINE constexpr Status BodyProcessor::getPointerFromMap(context::DData<D, PM>& ctx, T& p, bool& newPointer)
 {
-    size_t offset = 0;
+    csp_size_t offset = 0;
 
     CS_RUN(deserializeSizeT(ctx, offset));
 

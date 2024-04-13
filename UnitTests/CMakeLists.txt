@@ -31,6 +31,7 @@ add_executable(serialization_tests
     "Tests/Serialization/ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
     "Tests/Serialization/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
     "Tests/Serialization/MessagingTests.cpp"
+    "Tests/Serialization/StdIncludedTests.cpp"
 )
 
 target_compile_definitions(serialization_tests PRIVATE USER_MODE)

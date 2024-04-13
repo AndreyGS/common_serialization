@@ -415,13 +415,13 @@ Data that can be serialized by CSP
   Structures (objects)
   
     Structures are built from primitives, pointers, other structures,
-    and their arrays in ordered form.
+    and their arrays in the ordered form.
     They can be multiple inherited.
     Also struct can have one of special CSP tags that can optimize
     Serialization process.
     Data Messages are always contain a single Top-struct, which itself
     can hold any others data (depending on its internal structure).
-    This Top-struct is must to belong to one of CSP Interfaces. 
+    This Top-struct is must to belong to one of CSP Interfaces.
    
 Structures tags
 
@@ -1193,9 +1193,13 @@ Structures individual properties
     of struct parents (structs are allowed to be inherited), or when one
     of the struct fields changed its type (structure).  It is important
     to note, that only change of field type (structure) is lead to
-    Private version update.  If there is internal change of field struct
-    (update), private version wouldn't change, instead interface version
-    is changed. 
+    Private version update.  If there is internal change of type of
+    field struct (update), private version wouldn't change, instead
+    interface version is changed.
+    
+    Because order of fields in Serializable structs is matter, any
+    changes of it is also applied to private version update. You are
+    strongly discouraged to do so.
     
   Additional mandatory data flags (optional)
   

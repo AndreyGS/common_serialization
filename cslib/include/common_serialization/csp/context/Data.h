@@ -167,7 +167,7 @@ private:
 template< 
           typename Container
         , bool serialize = true
-        , IPointersMap PM = std::conditional_t<serialize, std::unordered_map<const void*, size_t>, std::unordered_map<size_t, void*>>
+        , IPointersMap PM = std::conditional_t<serialize, std::unordered_map<const void*, csp_size_t>, std::unordered_map<csp_size_t, void*>>
         , IGenericPointersKeeperContainer PC = Vector<GenericPointerKeeper>
         , typename EPP = std::conditional_t<serialize, SerializeExtendedPointersProcessing<PM>, DeserializeExtendedPointersProcessing<PC, PM>>
 >

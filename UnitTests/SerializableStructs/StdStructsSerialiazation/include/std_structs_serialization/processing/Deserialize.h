@@ -33,8 +33,9 @@ Status deserialize(X& ctx, std::basic_string<T, Traits, Allocator>& value)
 
     assert(sizeof(size_type) <= sizeof(size_t));
 
+    value.clear();
     size_type size = 0;
-    CS_RUN(BodyProcessor::deserializeSizeT(ctx, static_cast<size_t&>(size)));
+    CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
     value.resize(size);
     CS_RUN(BodyProcessor::deserialize(ctx, size + 1, value.data()));
 
@@ -50,7 +51,7 @@ Status deserialize(X& ctx, std::vector<T, Allocator>& value)
 
     value.clear();
     size_type size = 0;
-    CS_RUN(BodyProcessor::deserializeSizeT(ctx, static_cast<size_t&>(size)));
+    CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
     value.resize(size);
     CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
 
@@ -75,7 +76,7 @@ Status deserialize(X& ctx, std::map<K, V, Compare, Allocator>& value)
 
     value.clear();
     size_type size = 0;
-    CS_RUN(BodyProcessor::deserializeSizeT(ctx, static_cast<size_t&>(size)));
+    CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
 
     for (size_type i = 0; i < size; ++i)
     {

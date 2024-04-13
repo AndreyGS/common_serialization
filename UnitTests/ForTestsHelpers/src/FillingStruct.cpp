@@ -466,8 +466,8 @@ void fillingStruct(with_std_included_interface::OneBigType<>& output)
     output.m_vector2.push_back(5);
     output.m_vector2.push_back(12);
     output.m_vector2.push_back(35456453);
-    output.m_map1.emplace(std::make_pair(123, .324));
-    output.m_map1.emplace(std::make_pair(17, 65468.324));
+    output.m_map1.emplace(std::make_pair(123, .324f));
+    output.m_map1.emplace(std::make_pair(17, 65468.324f));
     output.m_map2.emplace(std::make_pair("wete", std::vector<uint8_t>{54, 124, 21, 19}));
     output.m_map2.emplace(std::make_pair("wtassac", std::vector<uint8_t>{23, 2, 0, 139}));
     output.m_map2.emplace(std::make_pair(" b34b", std::vector<uint8_t>{2, 78, 235, 16}));

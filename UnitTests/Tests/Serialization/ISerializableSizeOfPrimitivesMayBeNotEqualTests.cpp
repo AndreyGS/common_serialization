@@ -104,24 +104,6 @@ TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SpecialTBasicT)
     EXPECT_EQ(input, output);
 
     cleanAfterStruct(input);
-    
-    with_std_included_interface::OneBigType<> obt;
-    ctxIn.clear();
-    bin.clear();
-
-    fillingStruct(obt);
-    obt.serialize(ctxIn);
-
-    with_std_included_interface::OneBigType<> obtOut;
-    obtOut.deserialize(bin);
-
-    with_std_included_interface::OneBigType<> obtRef;
-    fillingStruct(obtRef);
-    EXPECT_EQ(obtOut, obtRef);
-
-   //auto tpl = std::make_tuple(1, 1);
-    //csp::processing::templates::serialize(tpl, ctxIn);
-
 }
 
 } // namespace anonymous
