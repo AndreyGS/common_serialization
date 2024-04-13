@@ -29,10 +29,14 @@ namespace common_serialization::csp::processing::templates
 template<typename T, typename Traits, typename Allocator, typename X>
 Status deserialize(X& ctx, std::basic_string<T, Traits, Allocator>& value)
 {
-    typename std::basic_string<T, Traits, Allocator>::size_type size = 0;
-    CS_RUN(BodyProcessor::deserialize(ctx, size));
+    using size_type = typename std::basic_string<T, Traits, Allocator>::size_type;
+
+    assert(sizeof(size_type) <= sizeof(size_t));
+
+    size_type size = 0;
+    CS_RUN(BodyProcessor::deserializeSizeT(ctx, static_cast<size_t&>(size)));
     value.resize(size);
-    CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
+    CS_RUN(BodyProcessor::deserialize(ctx, size + 1, value.data()));
 
     return Status::kNoError;
 }
@@ -40,10 +44,13 @@ Status deserialize(X& ctx, std::basic_string<T, Traits, Allocator>& value)
 template<typename T, typename Allocator, typename X>
 Status deserialize(X& ctx, std::vector<T, Allocator>& value)
 {
-    value.clear();
+    using size_type = typename std::vector<T, Allocator>::size_type;
 
-    typename std::vector<T, Allocator>::size_type size = 0;
-    CS_RUN(BodyProcessor::deserialize(ctx, size));
+    assert(sizeof(size_type) <= sizeof(size_t));
+
+    value.clear();
+    size_type size = 0;
+    CS_RUN(BodyProcessor::deserializeSizeT(ctx, static_cast<size_t&>(size)));
     value.resize(size);
     CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
 
@@ -62,11 +69,13 @@ Status deserialize(X& ctx, std::pair<T1, T2>& value)
 template<typename K, typename V, class Compare, class Allocator, typename X>
 Status deserialize(X& ctx, std::map<K, V, Compare, Allocator>& value)
 {
-    value.clear();
+    using size_type = std::map<K, V, Compare, Allocator>::size_type;
 
-    using size_type = typename std::map<K, V, Compare, Allocator>::size_type;
+    assert(sizeof(size_type) <= sizeof(size_t));
+
+    value.clear();
     size_type size = 0;
-    CS_RUN(BodyProcessor::deserialize(ctx, size));
+    CS_RUN(BodyProcessor::deserializeSizeT(ctx, static_cast<size_t&>(size)));
 
     for (size_type i = 0; i < size; ++i)
     {

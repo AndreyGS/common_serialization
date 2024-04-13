@@ -25,15 +25,6 @@
 
 #include "common_serialization/Concepts.h"
 
-#ifdef CS_ALWAYS_INLINE
-#undef CS_ALWAYS_INLINE
-#endif // #ifdef CS_ALWAYS_INLINE
-#if defined(_MSC_VER) && !defined(__clang__)
-#define CS_ALWAYS_INLINE __forceinline
-#else
-#define CS_ALWAYS_INLINE __attribute__((always_inline))
-#endif // #if defined(_MSC_VER) && !defined(__clang__)
-
 namespace common_serialization
 {
 

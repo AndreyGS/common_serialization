@@ -29,7 +29,7 @@ namespace common_serialization::csp::processing::templates
 template<typename T, typename Traits, typename Allocator, typename X>
 Status serialize(const std::basic_string<T, Traits, Allocator>& value, X& ctx)
 {
-    CS_RUN(BodyProcessor::serialize(value.length() + 1, ctx));
+    CS_RUN(BodyProcessor::serializeSizeT(value.length(), ctx));
     CS_RUN(BodyProcessor::serialize(value.c_str(), value.length() + 1, ctx));
 
     return Status::kNoError;
@@ -38,7 +38,7 @@ Status serialize(const std::basic_string<T, Traits, Allocator>& value, X& ctx)
 template<typename T, typename Allocator, typename X>
 Status serialize(const std::vector<T, Allocator>& value, X& ctx)
 {
-    CS_RUN(BodyProcessor::serialize(value.size(), ctx));
+    CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
     CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
 
     return Status::kNoError;
@@ -56,7 +56,7 @@ Status serialize(const std::pair<T1, T2>& value, X& ctx)
 template<typename K, typename V, class Compare, class Allocator, typename X>
 Status serialize(const std::map<K, V, Compare, Allocator>& value, X& ctx)
 {
-    CS_RUN(BodyProcessor::serialize(value.size(), ctx));
+    CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
 
     for (auto& pair : value)
         CS_RUN(serialize(pair, ctx));

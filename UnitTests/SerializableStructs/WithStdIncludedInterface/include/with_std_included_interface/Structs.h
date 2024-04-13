@@ -58,11 +58,11 @@ public:
         try
         {
             for (auto [key, value] : m_map1)
-                if (m_map1[key] != rhs.m_map1[key])
+                if (m_map1.at(key) != rhs.m_map1.at(key))
                     return false;
 
             for (auto [key, value] : m_map2)
-                if (m_map2[key] != rhs.m_map2[key])
+                if (m_map2.at(key) != rhs.m_map2.at(key))
                     return false;
         }
         catch (...)

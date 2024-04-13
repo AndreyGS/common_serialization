@@ -443,4 +443,36 @@ void fillingStruct(interface_for_test::ContainSimplyAssignableWithoutSerializati
     fillingStruct(output.m_npfSawsf);
 }
 
+template<>
+void fillingStruct(std::string& output)
+{
+    output = "asdfg";
+}
+
+template<>
+void fillingStruct(std::wstring& output)
+{
+    output = L"asdfg";
+}
+
+template<>
+void fillingStruct(with_std_included_interface::OneBigType<>& output)
+{
+    fillingStruct(output.m_string1);
+    fillingStruct(output.m_string2);
+    output.m_vector1.push_back(output.m_string1 + "123");
+    output.m_vector1.push_back(output.m_string1 + "456");
+    output.m_vector1.push_back(output.m_string1 + "789");
+    output.m_vector2.push_back(5);
+    output.m_vector2.push_back(12);
+    output.m_vector2.push_back(35456453);
+    output.m_map1.emplace(std::make_pair(123, .324));
+    output.m_map1.emplace(std::make_pair(17, 65468.324));
+    output.m_map2.emplace(std::make_pair("wete", std::vector<uint8_t>{54, 124, 21, 19}));
+    output.m_map2.emplace(std::make_pair("wtassac", std::vector<uint8_t>{23, 2, 0, 139}));
+    output.m_map2.emplace(std::make_pair(" b34b", std::vector<uint8_t>{2, 78, 235, 16}));
+    output.m_tuple1 = { 93, 3209857239, "099234" };
+    output.m_tuple2 = { 35232632.2 };
+}
+
 } // namespace ft_helpers

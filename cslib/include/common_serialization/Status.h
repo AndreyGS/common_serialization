@@ -23,6 +23,15 @@
 
 #pragma once
 
+#ifdef CS_ALWAYS_INLINE
+#undef CS_ALWAYS_INLINE
+#endif // #ifdef CS_ALWAYS_INLINE
+#if defined(_MSC_VER) && !defined(__clang__)
+#define CS_ALWAYS_INLINE __forceinline
+#else
+#define CS_ALWAYS_INLINE __attribute__((always_inline))
+#endif // #if defined(_MSC_VER) && !defined(__clang__)
+
 // header for fixed size integers for non-std environments is not ready yet
 #ifdef USER_MODE // must be defined when c++ standard library is availible
 #include <cstdint>
@@ -85,7 +94,7 @@ enum class Status : int32_t
     kErrorValueOverflow                             =      -22
 };
 
-constexpr bool statusSuccess(Status status)
+[[nodiscard]] CS_ALWAYS_INLINE constexpr bool statusSuccess(Status status)
 {
     return static_cast<int32_t>(status) >= 0;
 }

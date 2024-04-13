@@ -23,7 +23,6 @@
 
 #pragma once
 
-
 #include "common_serialization/common_serialization.h"
 
 #include "not_part_of_interfaces/NotInterface.h"
