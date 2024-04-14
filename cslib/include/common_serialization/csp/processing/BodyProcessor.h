@@ -133,7 +133,7 @@ constexpr Status BodyProcessor::serialize(const T* p, typename S::size_type n, c
             if (ctx.sizeOfIntegersMayBeNotEqual())
                 CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(T)), ctx));
 
-        CS_RUN(writeRawData(p, n, ctx));
+        return writeRawData(p, n, ctx);
     }
     else
     {
@@ -144,9 +144,9 @@ constexpr Status BodyProcessor::serialize(const T* p, typename S::size_type n, c
 
             CS_RUN(serialize(p[i], ctx));
         }
-    }
 
-    return Status::kNoError;
+        return Status::kNoError;
+    }
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM, typename S::size_type N>
@@ -174,7 +174,7 @@ constexpr Status BodyProcessor::serialize(const T& value, context::SData<S, PM>&
             if (ctx.sizeOfIntegersMayBeNotEqual())
                 CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(T)), ctx));
 
-        CS_RUN(writePrimitive(value, ctx));
+        return writePrimitive(value, ctx);
     }
     else if constexpr (std::is_pointer_v<T>)
     {
@@ -200,7 +200,7 @@ constexpr Status BodyProcessor::serialize(const T& value, context::SData<S, PM>&
                 CS_RUN(writePrimitive(uint8_t(1), ctx));
         }
 
-        CS_RUN(serialize(*value, ctx));
+        return serialize(*value, ctx);
     }
     else if constexpr (AnySimplyAssignable<T>)
     {
@@ -211,13 +211,11 @@ constexpr Status BodyProcessor::serialize(const T& value, context::SData<S, PM>&
         if (ctx.simplyAssignableTagsOptimizationsAreTurnedOff())
             return Status::kErrorNotSupportedSerializationSettingsForStruct;
 
-        CS_RUN(serializeSimplyAssignable(value, ctx))
+        return serializeSimplyAssignable(value, ctx);
     }
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::serialize not found
     else if constexpr (!EmptyType<T>)
-        CS_RUN(templates::serialize(value, ctx));
-
-    return Status::kNoError;
+        return templates::serialize(value, ctx);
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
@@ -308,7 +306,7 @@ constexpr Status BodyProcessor::deserialize(context::DData<D, PM>& ctx, typename
 
         typename D::size_type readSize = 0;
 
-        CS_RUN(readRawData(ctx, n, p));
+        return readRawData(ctx, n, p);
     }
     else
     {
@@ -321,9 +319,9 @@ constexpr Status BodyProcessor::deserialize(context::DData<D, PM>& ctx, typename
 
             CS_RUN(deserialize(ctx, *pItem));
         }
-    }
 
-    return Status::kNoError;
+        return Status::kNoError;
+    }
 }
 
 // common function for arrays
@@ -531,7 +529,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const T p, cont
     if (!p)
     {
         newPointer = false;
-        CS_RUN(serializeSizeT(static_cast<csp_size_t>(0), ctx));
+        return serializeSizeT(static_cast<csp_size_t>(0), ctx);
     }
     else
     {
@@ -542,15 +540,14 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const T p, cont
             newPointer = true;
             CS_RUN(serializeSizeT(static_cast<csp_size_t>(1), ctx));
             pointersMap[p] = ctx.getBinaryData().size();
+            return Status::kNoError;
         }
         else
         {
             newPointer = false;
-            CS_RUN(serializeSizeT(it->second, ctx));
+            return serializeSizeT(it->second, ctx);
         }
     }
-
-    return Status::kNoError;
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
