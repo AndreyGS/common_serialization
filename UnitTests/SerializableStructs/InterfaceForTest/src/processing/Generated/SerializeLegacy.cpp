@@ -23,7 +23,7 @@
 
 #include "interface_for_test/Interface.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 template<>
@@ -141,4 +141,4 @@ Status BodyProcessor::serialize(const interface_for_test::SForAllModesTests_Vers
     return Status::kNoError;
 }
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

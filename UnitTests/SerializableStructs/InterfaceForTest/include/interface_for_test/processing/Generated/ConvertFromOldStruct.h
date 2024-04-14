@@ -23,7 +23,7 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing::data_version_converters
+namespace common_serialization::csp::processing::data::version_converters
 {
 
 template<>
@@ -39,4 +39,4 @@ Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_fo
 template<>
 Status fromOldStruct(context::DData<>& ctx, uint32_t thisVersionCompat, interface_for_test::DForAllModesTests<>& value);
 
-} // namespace common_serialization::csp::processing::data_version_converters
+} // namespace common_serialization::csp::processing::data::version_converters

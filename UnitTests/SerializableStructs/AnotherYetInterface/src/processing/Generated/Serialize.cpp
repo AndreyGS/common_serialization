@@ -23,7 +23,7 @@
 
 #include "another_yet_interface/Interface.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 
@@ -38,4 +38,4 @@ Status BodyProcessor::serialize(const another_yet_interface::SimpleStruct<>& val
     return Status::kNoError;
 }
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

@@ -23,10 +23,10 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 template<>
 Status BodyProcessor::deserialize(context::DData<>& ctx, with_std_included_interface::OneBigType<>& value);
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

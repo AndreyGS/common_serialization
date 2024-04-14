@@ -23,7 +23,7 @@
 
 #include "not_part_of_interfaces/NotInterface.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 template<>
@@ -125,4 +125,4 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces:
     return Status::kNoError;
 }
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

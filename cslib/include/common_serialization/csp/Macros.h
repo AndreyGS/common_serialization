@@ -73,7 +73,7 @@
         && ctx.isInterfaceVersionsNotMatch()                                                \
     )                                                                                       \
     {                                                                                       \
-        Status status = data_version_converters::toOldStructIfNeed(value, ctx);             \
+        Status status = version_converters::toOldStructIfNeed(value, ctx);                  \
         if (status == Status::kNoFurtherProcessingRequired)                                 \
             return Status::kNoError;                                                        \
         else if (!statusSuccess(status))                                                    \
@@ -96,7 +96,7 @@
         && ctx.isInterfaceVersionsNotMatch()                                                \
     )                                                                                       \
     {                                                                                       \
-        Status status = data_version_converters::fromOldStructIfNeed(ctx, value);           \
+        Status status = version_converters::fromOldStructIfNeed(ctx, value);                \
                                                                                             \
         if (status == Status::kNoFurtherProcessingRequired)                                 \
             return Status::kNoError;                                                        \

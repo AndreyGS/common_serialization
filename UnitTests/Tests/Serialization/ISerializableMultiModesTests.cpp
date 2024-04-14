@@ -54,7 +54,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     if (TS::getLatestInterfaceVersion() == 2)
         ctxIn.setInterfaceVersionsNotMatch(true);
 
-    EXPECT_EQ(csp::processing::BodyProcessor::serialize(input, ctxIn), Status::kNoError);
+    EXPECT_EQ(csp::processing::data::BodyProcessor::serialize(input, ctxIn), Status::kNoError);
     
     TD output;
     csp::context::DData<> ctxOut(bin);
@@ -74,7 +74,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     if (TD::getLatestInterfaceVersion() == 2)
         ctxOut.setInterfaceVersionsNotMatch(true);
 
-    EXPECT_EQ(csp::processing::BodyProcessor::deserialize(ctxOut, output), Status::kNoError);
+    EXPECT_EQ(csp::processing::data::BodyProcessor::deserialize(ctxOut, output), Status::kNoError);
 
     TD reference;
     fillingStruct(reference);

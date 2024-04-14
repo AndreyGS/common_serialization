@@ -23,7 +23,7 @@
 
 #include "descendant_interface/Interface.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 
@@ -51,4 +51,4 @@ Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>&
     return Status::kNoError;
 }
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

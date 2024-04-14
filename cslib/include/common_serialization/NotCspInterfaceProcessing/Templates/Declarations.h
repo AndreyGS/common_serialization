@@ -34,7 +34,7 @@ class Vector;
 
 }
 
-namespace common_serialization::csp::processing::templates
+namespace common_serialization::csp::processing::data::templates
 {
 
 template<typename T, typename A, typename C>
@@ -43,4 +43,4 @@ Status serialize(const Vector<T, A>& value, C& ctx);
 template<typename T, typename A, typename C>
 Status deserialize(C& ctx, Vector<T, A>& value);
 
-} // namespace common_serialization::csp::processing::templates
+} // namespace common_serialization::csp::processing::data::templates

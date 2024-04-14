@@ -23,7 +23,7 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 template<>
@@ -45,4 +45,4 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpeci
 template<>
 Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpecial2& value, context::SData<>& ctx);
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

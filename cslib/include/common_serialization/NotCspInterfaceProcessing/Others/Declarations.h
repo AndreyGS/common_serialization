@@ -24,9 +24,9 @@
 #pragma once
 
 #include "common_serialization/csp/Traits.h"
-#include "common_serialization/csp/processing/BodyProcessor.h"
+#include "common_serialization/csp/processing/DataBodyProcessor.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 template<>
@@ -42,4 +42,4 @@ constexpr Status BodyProcessor::serialize(const Interface& value, context::SData
 template<>
 constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, Interface& value);
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

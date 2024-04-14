@@ -23,7 +23,7 @@
 
 #include "interface_for_test/Interface.h"
 
-namespace common_serialization::csp::processing::data_version_converters
+namespace common_serialization::csp::processing::data::version_converters
 {
 
 template<>
@@ -118,4 +118,4 @@ Status toOldStruct(const interface_for_test::DForAllModesTests<>& value, uint32_
     return Status::kNoFurtherProcessingRequired;
 }
 
-} // namespace common_serialization::csp::processing::data_version_converters
+} // namespace common_serialization::csp::processing::data::version_converters

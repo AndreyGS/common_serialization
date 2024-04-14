@@ -23,7 +23,7 @@
 
 #include "with_std_included_interface/Interface.h"
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 template<>
@@ -43,4 +43,4 @@ Status BodyProcessor::serialize(const with_std_included_interface::OneBigType<>&
     return Status::kNoError;
 }
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

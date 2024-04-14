@@ -23,7 +23,7 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 template<>
@@ -61,4 +61,4 @@ Status BodyProcessor::serialize(const interface_for_test::DForAllModesTests<>& v
 template<>
 Status BodyProcessor::serialize(const interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value, context::SData<>& ctx);
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

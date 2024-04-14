@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/processing/BodyProcessor.h
+ * @file cslib/include/common_serialization/csp/processing/DataBodyProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -34,7 +34,7 @@ consteval interface_version_t getLatestInterfaceVersion();
 
 }
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 class BodyProcessor
@@ -578,4 +578,4 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::getPointerFromMap(context::DDat
     return Status::kNoError;
 }
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

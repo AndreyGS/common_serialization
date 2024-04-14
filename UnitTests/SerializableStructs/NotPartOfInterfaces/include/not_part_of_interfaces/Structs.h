@@ -80,7 +80,7 @@ public:
     uint8_t m_r{ 0 };
     uint8_t m_arrR[3]{ 0 };
 
-    friend cs::csp::processing::BodyProcessor;
+    friend cs::csp::processing::data::BodyProcessor;
 };
 
 
@@ -103,7 +103,7 @@ struct DiamondEdge1 : virtual public DiamondBase
 
     uint32_t m_d1{ 0 };
 
-    friend cs::csp::processing::BodyProcessor;
+    friend cs::csp::processing::data::BodyProcessor;
 };
 
 struct DiamondEdge2 : virtual public DiamondBase
@@ -115,7 +115,7 @@ struct DiamondEdge2 : virtual public DiamondBase
 
     uint32_t m_d2{ 0 };
 
-    friend cs::csp::processing::BodyProcessor;
+    friend cs::csp::processing::data::BodyProcessor;
 };
 
 struct TwoInts

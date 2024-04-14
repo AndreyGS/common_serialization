@@ -23,7 +23,7 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing::templates
+namespace common_serialization::csp::processing::data::templates
 {
 
 template<typename T, typename Traits, typename Allocator, typename X>
@@ -69,7 +69,11 @@ Status serializeTuple(const Tuple& value, std::index_sequence<Is...>, X& ctx)
 {
     Status status = Status::kNoError;
 
-    (((status = BodyProcessor::serialize(std::get<Is>(value), ctx)), statusSuccess(status)) && ...);
+    // There is a warning that statusSuccess return value is discarded,
+    // but this is not the case. I can transform this expression
+    // in lambda that return this expression but I don't think that
+    // we should be lead by analyzer mistakes.
+    (statusSuccess(status = BodyProcessor::serialize(std::get<Is>(value), ctx)) && ...);
 
     return status;
 }
@@ -80,4 +84,4 @@ Status serialize(const std::tuple<Ts...>& value, X& ctx)
     return serializeTuple(value, std::make_index_sequence<sizeof...(Ts)>{}, ctx);
 }
 
-} // namespace common_serialization::csp::processing::templates
+} // namespace common_serialization::csp::processing::data::templates

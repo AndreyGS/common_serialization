@@ -21,9 +21,9 @@
  *
  */
 
-#include "common_serialization/csp/processing/BodyProcessor.h"
+#include "common_serialization/csp/processing/DataBodyProcessor.h"
 
-namespace common_serialization::csp::processing::data_version_converters
+namespace common_serialization::csp::processing::data::version_converters
 {
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
@@ -296,4 +296,4 @@ protected:
     }
 };
 
-} // namespace common_serialization::csp::processing::data_version_converters
+} // namespace common_serialization::csp::processing::data::version_converters

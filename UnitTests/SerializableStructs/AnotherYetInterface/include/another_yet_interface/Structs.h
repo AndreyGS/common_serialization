@@ -54,7 +54,7 @@ public:
         return m_i == rhs.m_i;
     }
 
-    friend cs::csp::processing::BodyProcessor;
+    friend cs::csp::processing::data::BodyProcessor;
 };
 
 } // namespace another_yet_interface

@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/csp/processing/Contexts.h"
-#include "common_serialization/csp/processing/BodyProcessor.h"
+#include "common_serialization/csp/processing/DataBodyProcessor.h"
 
 namespace common_serialization::csp
 {
@@ -169,7 +169,7 @@ constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const n
     CS_RUN(processing::serializeCommonContext(ctx));
     CS_RUN(processing::serializeDataContext<T>(ctx));
 
-    return processing::BodyProcessor::serialize(static_cast<const T&>(*this), ctx);
+    return processing::data::BodyProcessor::serialize(static_cast<const T&>(*this), ctx);
 }
 
 template<typename T>
@@ -193,7 +193,7 @@ constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
     CS_RUN(processing::deserializeDataContext(ctx, id));
     CS_RUN(processing::deserializeDataContextPostprocess<T>(ctx, id, minimumInterfaceVersion));
     
-    return processing::BodyProcessor::deserialize(ctx, static_cast<T&>(*this));
+    return processing::data::BodyProcessor::deserialize(ctx, static_cast<T&>(*this));
 }
 
 template<typename T>

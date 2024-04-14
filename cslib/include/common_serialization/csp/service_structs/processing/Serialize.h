@@ -24,7 +24,7 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 template<>
@@ -64,4 +64,4 @@ constexpr Status BodyProcessor::serialize(const service_structs::CspPartySetting
     return Status::kNoError;
 }
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

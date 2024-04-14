@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include "common_serialization/csp/processing/BodyProcessor.h"
+#include "common_serialization/csp/processing/DataBodyProcessor.h"
 
-namespace common_serialization::csp::processing::templates
+namespace common_serialization::csp::processing::data::templates
 {
 
 template<typename T, typename A, typename X>
@@ -37,4 +37,4 @@ Status serialize(const Vector<T, A>& value, X& ctx)
     return Status::kNoError;
 }
 
-} // namespace common_serialization::csp::processing::templates
+} // namespace common_serialization::csp::processing::data::templates

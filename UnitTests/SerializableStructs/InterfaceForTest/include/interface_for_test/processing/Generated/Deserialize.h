@@ -23,7 +23,7 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::data
 {
 
 template<>
@@ -61,4 +61,4 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::DFo
 template<>
 Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value);
 
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::data

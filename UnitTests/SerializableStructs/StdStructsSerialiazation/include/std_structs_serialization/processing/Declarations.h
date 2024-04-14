@@ -28,7 +28,7 @@
 #include <map>
 #include <tuple>
 
-namespace common_serialization::csp::processing::templates
+namespace common_serialization::csp::processing::data::templates
 {
 
 template<typename T, typename Traits, typename Allocator, typename X>
@@ -57,4 +57,4 @@ Status deserializeTuple(X& ctx, std::index_sequence<Is...>, Tuple& value);
 template<typename X, typename... Ts>
 Status deserialize(X& ctx, std::tuple<Ts...>& value);
 
-} // namespace common_serialization::csp::processing::templates
+} // namespace common_serialization::csp::processing::data::templates
