@@ -32,3 +32,4 @@
 32. Add posibility to set additional data flags to not interface struct.
 33. Think about adding precalculated effective data flags with dependencies of interface struct.
 34. Add tests on endianness difference mode.
+35. Add tests on endianness tolerant tag.

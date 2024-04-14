@@ -32,6 +32,7 @@ namespace common_serialization
 struct Uuid
 {
     using always_simply_assignable_tag = std::true_type;
+    using endianness_tolerant_tag = std::true_type;
 
     uint8_t id[16] = { 0 };
 

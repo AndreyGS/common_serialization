@@ -2,9 +2,10 @@ Common Serialization Protocol (CSP)
 
   CSP is the protocol of serialization that provide fast serialization
   process, with low memory consumption.  It supports versioning of
-  Interfaces, work in different compatibility modes (flexibility), and
-  versioning of protocol with backward compatibility (extensibility).
-  Also CSP provide client-server data exchange mechanism.
+  structures (Interfaces), work in different compatibility modes
+  (flexibility), and versioning of protocol itself with backward
+  compatibility (extensibility). Also CSP provide client-server data
+  exchange mechanism.
 
   Central role in CSP is occupied by CSP Message.  It is the data that
   is packed by CSP handling.
@@ -467,7 +468,7 @@ Structures tags
   
     If struct have no primitive in its fields, subfields, parent fields
     etc. that are influenced to endianness changes according to CSP view
-    (read "using big endian format" Common flag description), that it
+    (read "using big endian format" Common flag description), then it
     can be marked with this tag. 
   
   Struct has no tag
