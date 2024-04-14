@@ -24,92 +24,86 @@
 #pragma once
 
 
-#define CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx)                                     \
-{                                                                                           \
-    if constexpr (AnySimplyAssignable<decltype(value)>)                                     \
-    {                                                                                       \
-        if (!ctx.simplyAssignableTagsOptimizationsAreTurnedOff())                           \
-        {                                                                                   \
-            Status status = serializeSimplyAssignable(value, ctx);                          \
-            if (status == Status::kNoFurtherProcessingRequired)                             \
-                return Status::kNoError;                                                    \
-            else if (                                                                       \
-                        !statusSuccess(status)                                              \
-                    && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-            )                                                                               \
-                return status;                                                              \
-                                                                                            \
-            /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-            /* than we should serialize it field-by-field */                                \
-        }                                                                                   \
-    }                                                                                       \
+#define CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx)                                 \
+{                                                                                       \
+    if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
+    {                                                                                   \
+        Status status = serializeSimplyAssignable(value, ctx);                          \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (                                                                       \
+                    !statusSuccess(status)                                              \
+                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
+        )                                                                               \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* than we should serialize it field-by-field */                                \
+    }                                                                                   \
 }
 
-#define CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)                                   \
-{                                                                                           \
-    if constexpr (AnySimplyAssignable<decltype(value)>)                                     \
-    {                                                                                       \
-        if (!ctx.simplyAssignableTagsOptimizationsAreTurnedOff())                           \
-        {                                                                                   \
-            Status status = deserializeSimplyAssignable(ctx, value);                        \
-            if (status == Status::kNoFurtherProcessingRequired)                             \
-                return Status::kNoError;                                                    \
-            else if (                                                                       \
-                       !statusSuccess(status)                                               \
-                    && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
-            )                                                                               \
-                return status;                                                              \
-                                                                                            \
-            /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
-            /* than we should deserialize it field-by-field */                              \
-        }                                                                                   \
-   }                                                                                        \
+#define CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)                               \
+{                                                                                       \
+    if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
+    {                                                                                   \
+        Status status = deserializeSimplyAssignable(ctx, value);                        \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (                                                                       \
+                    !statusSuccess(status)                                              \
+                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
+        )                                                                               \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* than we should deserialize it field-by-field */                              \
+   }                                                                                    \
 }
 
-#define CSP_SERIALIZE_COMMON(value, ctx)                                                    \
-{                                                                                           \
-    if (                                                                                    \
-           IsISerializableBased<decltype(value)>                                            \
-        && ctx.isInterfaceVersionsNotMatch()                                                \
-    )                                                                                       \
-    {                                                                                       \
-        Status status = version_converters::toOldStructIfNeed(value, ctx);                  \
-        if (status == Status::kNoFurtherProcessingRequired)                                 \
-            return Status::kNoError;                                                        \
-        else if (!statusSuccess(status))                                                    \
-            return status;                                                                  \
-        else                                                                                \
-            CS_RUN(                                                                         \
-                processing::testDataFlagsCompatibility                                      \
-                    <std::remove_reference_t                                                \
-                        <std::remove_cv_t                                                   \
-                            <decltype(value)>>>(ctx.getDataFlags()));                       \
-    }                                                                                       \
-                                                                                            \
-    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx)                                         \
-}
+#define CSP_SERIALIZE_COMMON(value, ctx)                                                \
+{                                                                                       \
+    if (                                                                                \
+           IsISerializableBased<decltype(value)>                                        \
+        && ctx.isInterfaceVersionsNotMatch()                                            \
+    )                                                                                   \
+    {                                                                                   \
+        Status status = version_converters::toOldStructIfNeed(value, ctx);              \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (!statusSuccess(status))                                                \
+            return status;                                                              \
+        else                                                                            \
+            CS_RUN(                                                                     \
+                processing::testDataFlagsCompatibility                                  \
+                    <std::remove_reference_t                                            \
+                        <std::remove_cv_t                                               \
+                            <decltype(value)>>>(ctx.getDataFlags()));                   \
+    }                                                                                   \
+                                                                                        \
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx)                                     \
+}                                                                                       
 
-#define CSP_DESERIALIZE_COMMON(ctx, value)                                                  \
-{                                                                                           \
-    if (                                                                                    \
-           IsISerializableBased<decltype(value)>                                            \
-        && ctx.isInterfaceVersionsNotMatch()                                                \
-    )                                                                                       \
-    {                                                                                       \
-        Status status = version_converters::fromOldStructIfNeed(ctx, value);                \
-                                                                                            \
-        if (status == Status::kNoFurtherProcessingRequired)                                 \
-            return Status::kNoError;                                                        \
-        else if (!statusSuccess(status))                                                    \
-            return status;                                                                  \
-        else                                                                                \
-            CS_RUN(                                                                         \
-                processing::testDataFlagsCompatibility                                      \
-                    <std::remove_reference_t                                                \
-                        <std::remove_cv_t                                                   \
-                            <decltype(value)>>>(ctx.getDataFlags()));                       \
-    }                                                                                       \
-                                                                                            \
-    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)                                       \
+#define CSP_DESERIALIZE_COMMON(ctx, value)                                              \
+{                                                                                       \
+    if (                                                                                \
+           IsISerializableBased<decltype(value)>                                        \
+        && ctx.isInterfaceVersionsNotMatch()                                            \
+    )                                                                                   \
+    {                                                                                   \
+        Status status = version_converters::fromOldStructIfNeed(ctx, value);            \
+                                                                                        \
+        if (status == Status::kNoFurtherProcessingRequired)                             \
+            return Status::kNoError;                                                    \
+        else if (!statusSuccess(status))                                                \
+            return status;                                                              \
+        else                                                                            \
+            CS_RUN(                                                                     \
+                processing::testDataFlagsCompatibility                                  \
+                    <std::remove_reference_t                                            \
+                        <std::remove_cv_t                                               \
+                            <decltype(value)>>>(ctx.getDataFlags()));                   \
+    }                                                                                   \
+                                                                                        \
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)                                   \
 }
 

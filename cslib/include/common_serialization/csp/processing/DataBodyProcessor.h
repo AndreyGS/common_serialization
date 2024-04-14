@@ -203,16 +203,7 @@ constexpr Status BodyProcessor::serialize(const T& value, context::SData<S, PM>&
         return serialize(*value, ctx);
     }
     else if constexpr (AnySimplyAssignable<T>)
-    {
-        // We can be here only if there is no distinct serialize function 
-        // of type T. But if we must deserialize with simplyAssignableTagsOptimizationsAreTurnedOff
-        // when interact with another CSP instance that does not support "simply assignable" tags
-        // optimizations, we must to have it (distinct serialize function).
-        if (ctx.simplyAssignableTagsOptimizationsAreTurnedOff())
-            return Status::kErrorNotSupportedSerializationSettingsForStruct;
-
         return serializeSimplyAssignable(value, ctx);
-    }
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::serialize not found
     else if constexpr (!EmptyType<T>)
         return templates::serialize(value, ctx);
@@ -392,16 +383,7 @@ constexpr Status BodyProcessor::deserialize(context::DData<D, PM>& ctx, T& value
     }
     // this will work for types that are not ISerializable
     else if constexpr (AnySimplyAssignable<T>)
-    {
-        // We can be here only if there is no distinct deserialize function 
-        // of type T. But if we must deserialize with simplyAssignableTagsOptimizationsAreTurnedOff
-        // when interact with another CSP instance that does not support "simply assignable" tags
-        // optimizations, we must to have it (distinct deserialize function).
-        if (ctx.simplyAssignableTagsOptimizationsAreTurnedOff())
-            return Status::kErrorNotSupportedSerializationSettingsForStruct;
-
         return deserializeSimplyAssignable(ctx, value);
-    }
     // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::deserialize not found
     else if constexpr (!EmptyType<T>)
         return templates::deserialize(ctx, value);
@@ -476,10 +458,12 @@ constexpr Status BodyProcessor::serializeSimplyAssignable(const T& value, contex
             if (ctx.endiannessDifference())
                 return Status::kNoError;
 
-        if (   AlwaysSimplyAssignable<T>
-            || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
-            || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-            || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
+        if (   !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
+            && (   AlwaysSimplyAssignable<T>
+                || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
+                || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
+               )
         )
         {
             // for simple assignable types it is preferable to get a whole struct at a time
@@ -507,10 +491,12 @@ constexpr Status BodyProcessor::deserializeSimplyAssignable(context::DData<D, PM
             if (ctx.endiannessDifference())
                 return Status::kNoError;
 
-        if (   AlwaysSimplyAssignable<T>
-            || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
-            || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-            || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
+        if (   !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
+            && (   AlwaysSimplyAssignable<T>
+                || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
+                || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
+               )
         )
         {
             // for simple assignable types it is preferable to get a whole struct at a time
