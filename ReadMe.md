@@ -1,8 +1,23 @@
 # Common Serialization Library
 
-This library will introduce another yet serialization protocol for C++ projects 
-that are built for different environments including those where no standard library is present, such as Windows or Linux kernels. \
-So, one of the milestones is to add fully functional containers to operate with data.
+This project presenting serialization protocol wich is named Common Serialization Protocol (CSP) and its implementation on C++ language.
+
+Definition of the protocol itself can be found in file csp.txt in the repository root directory.
+The main parts of the protocol are already defined there, but some paragraphs not finished yet.
+
+A few words about implementation.
+
+It was assumed that this library will be used in different environments including
+those where no C++ standard library is present, such as Windows or Linux kernels.
+So, one of the milestones was to add fully functional classes of allocators, 
+containers, synchronization primitives etc. to operate with.
+Currently only allocators, some containers and std meta functions equivalents are defined.
+It is so due to the fact that my interest is primarily focused on the implementation of CSP.
+When it would be finished (including documentation) and when I will add scripts to generate 
+some header files that I have to manually entering for now, I'll take care of remaining classes.
+
+At this time all main modules of CSP are ready. For most of its parts defined unit-tests
+(but there must be done more). And I polish individual components.
 
 Under development.
 
