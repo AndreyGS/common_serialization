@@ -32,6 +32,8 @@ add_executable(serialization_tests
     "Tests/Serialization/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
     "Tests/Serialization/MessagingTests.cpp"
     "Tests/Serialization/StdIncludedTests.cpp"
+    "Tests/Serialization/ISerializableAnotherEndianness.cpp" 
+    "Tests/Serialization/ISerializableAnotherBitness.cpp"
 )
 
 target_compile_definitions(serialization_tests PRIVATE USER_MODE)

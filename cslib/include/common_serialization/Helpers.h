@@ -89,11 +89,18 @@ namespace helpers
 consteval bool isBitness32()
 {
     return
-#ifndef X32
+#ifndef X32_PLATFORM
         false;
 #else
         true;
 #endif
+}
+
+/// @brief Is current module compiled for 64 bitness
+/// @return True if 64 bitness, false otherwise
+consteval bool isBitness64()
+{
+    return !isBitness32();
 }
 
 /// @brief Is current module compiled with big-endian format

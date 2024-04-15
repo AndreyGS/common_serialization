@@ -4,7 +4,7 @@ Common Serialization Protocol (CSP)
   process, with low memory consumption.  It supports versioning of
   structures (Interfaces), work in different compatibility modes
   (flexibility), and versioning of protocol itself with backward
-  compatibility (extensibility). Also CSP provide client-server data
+  compatibility (extensibility).  Also CSP provide client-server data
   exchange mechanism.
 
   Central role in CSP is occupied by CSP Message.  It is the data that
@@ -396,8 +396,9 @@ GetSettings Message
   
   This Message has no Private Context and Body.
   
-  In response to this Message server must send CspPartySettings struct.
-  Its definition will be presented in Special Structs Interface section.
+  In response to this Message server must send CspPartySettings struct
+  packed in Data Message.  Its definition will be presented in Special
+  Structs Interface section.
 
 Data that can be serialized by CSP
 
@@ -1672,20 +1673,60 @@ CSP Messaging
 
   There are two participants in Messaging process: Client and Server.
   
+  Client
+  
+    Sends requests to Server and receives answers from it.
+  
   Server
   
-    Receives requests from client and answers them.
+    Receives requests from Client and answers them.
     
-    On GetSettings Message it must answer with CspPartySettings struct.
-    This struct contains list of CSP protocol versions, mandatory Common
-    flags, forbidden Common flags and list of CSP Interfaces with their
-    versions that Server supports.
+    The main requests is Data Messages.  According to Top-struct in Data
+    Message server choose handler(s) to process it.
     
-    On Data Message Server checks in its database 
+    Handler is the routine that receives struct that part of Interface
+    as input and returns another one as output to Client if need.
     
+    Handler types:
     
+      unicast: server can have only one routine where concrete
+        Top-struct is input struct;
+        
+      multicast: server may have any count of routines where concrete
+        Top-struct is input struct, but every such routine must have
+        no output struct.
     
+    Server and any distinct handler may also contain security related
+    procedures to check rights of particular Client against its request,
+    but it is not mandatory and not part of CSP.
+
+  Properties of Client and Server
+  
+    Every instance of Client and Server must have several mandatory
+    properties:
+    
+      supported CSP versions;
+      mandatory common flags;
+      forbidden common flags;
+      list of supported CSP Interfaces with their versions.
       
+    It is strongly recommended that Servers are using common flags that
+    are related to platform on which they running.
+    
+  Initializing of Client instance
+  
+    There are two options:
+    
+      1. Client applying some settings predefined settings (properties).
+        
+      2. Client requests settings from particular Server and applying
+        them with respect to settings appropriate for itself.
+        
+    Standard order of operations of second option:
+    
+      - Client sends pseudo-message with only Common Context included,
+        and with Protocol Version Undefined in CSP Version field;
+
     
         
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>

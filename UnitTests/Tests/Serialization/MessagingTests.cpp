@@ -47,7 +47,7 @@ TEST(MessagingTests, InitCommonServerT)
 {
     csp::messaging::CommonServer commonServer(getServerSettings());
     EXPECT_TRUE(commonServer.isValid());
-    EXPECT_EQ(commonServer.init(csp::service_structs::CspPartySettings<>{}), Status::kErrorInvalidArgument);
+    EXPECT_EQ(commonServer.init({}), Status::kErrorInvalidArgument);
     EXPECT_FALSE(commonServer.isValid());
     EXPECT_EQ(commonServer.init(getServerSettings()), Status::kNoError);
     EXPECT_TRUE(commonServer.isValid());
@@ -182,7 +182,7 @@ TEST(MessagingTests, DataMessageHandling)
     Vector<csp::service_structs::InterfaceVersion<>> clientInterfaces;
     clientInterfaces.pushBack({ interface_for_test::properties.id, interface_for_test::properties.version });
 
-    EXPECT_EQ(dataClient.init(csp::traits::getLatestProtocolVersion(), csp::context::CommonFlags{}, csp::context::CommonFlags{}, clientInterfaces), Status::kNoError);
+    EXPECT_EQ(dataClient.init(csp::traits::getLatestProtocolVersion(), {}, {}, clientInterfaces), Status::kNoError);
 
     interface_for_test::SimplyAssignableAlignedToOne<> input;
     fillingStruct(input);
@@ -197,7 +197,7 @@ TEST(MessagingTests, DataMessageHandling)
 
     // Legacy interface versions
     clientInterfaces[0].version = 1;
-    dataClient.init(csp::traits::getLatestProtocolVersion(), csp::context::CommonFlags{}, csp::context::CommonFlags{}, clientInterfaces);
+    dataClient.init(csp::traits::getLatestProtocolVersion(), {}, {}, clientInterfaces);
 
     EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[0].id), 1);
 
@@ -208,7 +208,7 @@ TEST(MessagingTests, DataMessageHandling)
 
     // Struct handler not support interface version
     clientInterfaces[0].version = 0;
-    dataClient.init(csp::traits::getLatestProtocolVersion(), csp::context::CommonFlags{}, csp::context::CommonFlags{}, clientInterfaces);
+    dataClient.init(csp::traits::getLatestProtocolVersion(), {}, {}, clientInterfaces);
 
     EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[0].id), 0);
 

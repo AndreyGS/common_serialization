@@ -15,7 +15,7 @@
 15. Add unit-tests for Walker init by Vector functions.
 16. Add unit-tests on Walker::setSize.
 17. Add Vector and Walker emplace() methods.
-18. Add crc32 of serialization flag support.
+18. Add crc32 of serialization flag to CSP. (?)
 19. Add empty() method to Vector and Walker.
 20. Add unit-tests on AllocatorHelpers, especially for constructN and allocateAndConstruct.
 21. Add IDataServer::checkPoliciesCompliance function realization.
@@ -28,8 +28,6 @@
 28. Add Experemental field in CSP Common context (?).
 29. Write tests on this situation: CSP Interface is 3, Context Interface is 1, struct private version is 0 (or 1) and struct latest interface version is 2.
 30. Add tests on Status::kErrorValueOverflow.
-31. Add tests on bitness32 flag.
-32. Add posibility to set additional data flags to not interface struct.
-33. Think about adding precalculated effective data flags with dependencies of interface struct.
-34. Add tests on endianness difference mode.
-35. Add tests on endianness tolerant tag.
+31. Add posibility to set additional data flags to not interface struct.
+32. Think about adding precalculated effective data flags with dependencies of interface struct.
+33. Add tests on endianness tolerant tag.
