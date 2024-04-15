@@ -2,10 +2,10 @@ Common Serialization Protocol (CSP)
 
   CSP is the protocol of serialization that provide fast serialization
   process, with low memory consumption.  It supports versioning of
-  structures (Interfaces), work in different compatibility modes
-  (flexibility), and versioning of protocol itself with backward
-  compatibility (extensibility).  Also CSP provide client-server data
-  exchange mechanism.
+  structures, work in different compatibility modes (flexibility), and
+  versioning of protocol itself with backward compatibility
+  (extensibility).  Also CSP provide client-server data exchange
+  mechanism.
 
   Central role in CSP is occupied by CSP Message.  It is the data that
   is packed by CSP handling.

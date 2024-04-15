@@ -1,20 +1,20 @@
 # Common Serialization Library
 
-This project presenting serialization protocol wich is named Common Serialization Protocol (CSP)
-and its implementation on C++ language.
-
-Definition of the protocol itself can be found in file ***csp.txt*** in the repository root directory.
-The main parts of the protocol are already defined there, but some paragraphs not finished yet.
+This project presenting serialization protocol wich is named **Common Serialization Protocol (CSP)**
+and its implementation in C++.
 
 CSP provide fast serialization process, with low memory consumption.
-It supports versioning of structures (Interfaces), work in different compatibility modes (flexibility),
+It supports versioning of structures, work in different compatibility modes (flexibility),
 and versioning of protocol itself with backward compatibility (extensibility).
 Also CSP provide client-server data exchange mechanism.
 
-A few words about implementation.
+Definition of the CSP can be found in file ***CSP.txt*** in the repository root directory.
+The main parts of the protocol are already defined there, but some paragraphs not finished yet.
 
-To achive maximum speed most interfaces using CRTP pattern and other templates tools
-instead of polymorphic classses. The only part where polymorphism is used is CSP Messaging, 
+### A few words about implementation.
+
+To achieve maximum speed most interfaces using CRTP pattern and other tools of templates 
+instead of polymorphic classes. The only part where polymorphism is used is CSP Messaging, 
 because in this case it does not have any significant impact on execution speed.
 
 It was assumed that this library will be used in different environments including
