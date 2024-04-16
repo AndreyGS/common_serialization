@@ -57,7 +57,7 @@ private:
 
 inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxCommon, const GenericPointerKeeper& clientId, BinVector& binOutput)
 {
-    context::DData<> ctx(ctxCommon);
+    context::DData<> ctx(std::move(ctxCommon));
     Id id;
 
     CS_RUN(processing::deserializeDataContext(ctx, id));
@@ -89,9 +89,7 @@ inline Status IDataServerBase::handleDataCommon(context::Common<BinWalker>& ctxC
 
         for (auto pServer : servers)
         {
-            context::DData<> ctxTemp(ctx);
-            SET_NEW_ERROR(pServer->handleDataConcrete(ctxTemp, clientId, binOutput));
-
+            SET_NEW_ERROR(pServer->handleDataConcrete(ctx, clientId, binOutput));
             ctx.getBinaryData().seek(bodyPosition);
         }
     }

@@ -41,27 +41,10 @@ class DataClient
 {
 public:
     DataClient(IDataClientSpeaker* pDataClientSpeaker);
+    DataClient(IDataClientSpeaker* pDataClientSpeaker, const service_structs::CspPartySettings<>& settings);
 
-    DataClient(
-          IDataClientSpeaker* pDataClientSpeaker
-        , protocol_version_t protocolVersion
-        , context::CommonFlags mandatoryCommonFlags
-        , context::CommonFlags forbiddenCommonFlags
-        , const Vector<service_structs::InterfaceVersion<>>& interfaces
-    );
-
-    Status init(
-          protocol_version_t protocolVersion
-        , context::CommonFlags mandatoryCommonFlags
-        , context::CommonFlags forbiddenCommonFlags
-        , const Vector<service_structs::InterfaceVersion<>>& interfaces) noexcept;
-
-    Status init(
-          const Vector<protocol_version_t>& acceptableCspVersions
-        , context::CommonFlags clientMandatoryCommonFlags
-        , context::CommonFlags clientForbiddenCommonFlags
-        , const Vector<service_structs::InterfaceVersion<>>& acceptableInterfaces
-        , service_structs::CspPartySettings<>* pCspPartySettings) noexcept;
+    Status init(const service_structs::CspPartySettings<>& settings) noexcept;
+    Status init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept;
 
     bool isValid() const noexcept;
 
@@ -72,16 +55,18 @@ public:
     /// @return Status of operation
     Status getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept;
 
-    Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept;
+    Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& serverSettings) const noexcept;
 
+    /// @brief Get server handler minimum supported interface version and ID of its output type
+    /// @tparam InputType Handler input struct type
+    /// @param minimumInterfaceVersion Minimum supported interface version
+    /// @param outputTypeId Handler output type
+    /// @return Status of operation
     template<typename InputType>
         requires IsISerializableBased<InputType>
-    Status getServerStructInterfaceSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
+    Status getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
 
-    constexpr protocol_version_t getProtocolVersion() const noexcept;
-    constexpr context::CommonFlags getMandatoryCommonFlags() const noexcept;
-    constexpr context::CommonFlags getForbiddenCommonFlags() const noexcept;
-    constexpr const Vector<service_structs::InterfaceVersion<>>& getInterfaces() const noexcept;
+    constexpr const service_structs::CspPartySettings<>& getSettings() const noexcept;
 
     constexpr interface_version_t getInterfaceVersion(const Id& id) const noexcept;
 
@@ -152,11 +137,8 @@ private:
 
     // Distinct variable is for not having calculate valid condition every time
     bool m_isValid{ false };
-    protocol_version_t m_protocolVersion{ traits::kProtocolVersionUndefined };
-    context::CommonFlags m_mandatoryCommonFlags;
-    context::CommonFlags m_forbiddenCommonFlags;
-    Vector<service_structs::InterfaceVersion<>> m_interfaces;
     UniquePtr<IDataClientSpeaker> m_dataClientSpeaker;
+    service_structs::CspPartySettings<> m_settings;
 };
 
 inline DataClient::DataClient(IDataClientSpeaker* pDataClientSpeaker)
@@ -164,48 +146,29 @@ inline DataClient::DataClient(IDataClientSpeaker* pDataClientSpeaker)
 {
 }
 
-inline DataClient::DataClient(
-      IDataClientSpeaker* pDataClientSpeaker
-    , protocol_version_t protocolVersion
-    , context::CommonFlags mandatoryCommonFlags
-    , context::CommonFlags forbiddenCommonFlags
-    , const Vector<service_structs::InterfaceVersion<>>& interfaces
-)
+inline DataClient::DataClient(IDataClientSpeaker* pDataClientSpeaker, const service_structs::CspPartySettings<>& settings)
     : m_dataClientSpeaker(pDataClientSpeaker)
 {
-    init(protocolVersion, mandatoryCommonFlags, forbiddenCommonFlags, interfaces);
+    init(settings);
 }
 
-inline Status DataClient::init(
-      protocol_version_t protocolVersion
-    , context::CommonFlags mandatoryCommonFlags
-    , context::CommonFlags forbiddenCommonFlags
-    , const Vector<service_structs::InterfaceVersion<>>& interfaces) noexcept
+inline Status DataClient::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
-    m_protocolVersion = protocolVersion;
-    m_mandatoryCommonFlags = mandatoryCommonFlags;
-    m_forbiddenCommonFlags = forbiddenCommonFlags;
-    CS_RUN(m_interfaces.init(interfaces));
+    m_settings.clear();
+
+    CS_RUN(m_settings.init(settings))
 
     m_isValid = isValidInternal();
 
     return m_isValid ? Status::kNoError : Status::kErrorNotInited;
 }
 
-inline Status DataClient::init(
-      const Vector<protocol_version_t>& acceptableCspVersions
-    , context::CommonFlags clientMandatoryCommonFlags
-    , context::CommonFlags clientForbiddenCommonFlags
-    , const Vector<service_structs::InterfaceVersion<>>& acceptableInterfaces
-    , service_structs::CspPartySettings<>* pCspPartySettings) noexcept
+inline Status DataClient::init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept
 {
     if (!m_dataClientSpeaker)
         return Status::kErrorNotInited;
 
-    m_protocolVersion = traits::kProtocolVersionUndefined;
-    m_mandatoryCommonFlags = context::CommonFlags{};
-    m_forbiddenCommonFlags = context::CommonFlags{};
-    m_interfaces.clear();
+    m_settings.clear();
     m_isValid = false;
 
     Vector<protocol_version_t> serverCspVersions;
@@ -215,7 +178,7 @@ inline Status DataClient::init(
 
     for (auto serverProtocolVersion : serverCspVersions)
     {
-        for (auto clientProtocolVersion : acceptableCspVersions)
+        for (auto clientProtocolVersion : clientSettings.protocolVersions)
         {
             if (clientProtocolVersion < serverProtocolVersion)
                 break;
@@ -232,46 +195,12 @@ inline Status DataClient::init(
 
     if (tempServerProtocolVersion == traits::kProtocolVersionUndefined)
     {
-        if (pCspPartySettings)
-            CS_RUN(pCspPartySettings->protocolVersions.init(std::move(serverCspVersions)));
-
+        CS_RUN(serverSettings.protocolVersions.init(std::move(serverCspVersions)));
         return Status::kErrorNotSupportedProtocolVersion;
     }
 
-    service_structs::CspPartySettings<> cspPartySettings;
-    CS_RUN(getServerSettings(tempServerProtocolVersion, cspPartySettings));
-
-    if (pCspPartySettings)
-        CS_RUN(pCspPartySettings->init(std::move(cspPartySettings)));
-
-    service_structs::CspPartySettings<>& cspPartySettingsR = pCspPartySettings ? *pCspPartySettings : cspPartySettings;
-
-    context::CommonFlags tempMandatoryCommonFlags = clientMandatoryCommonFlags | cspPartySettingsR.mandatoryCommonFlags;
-    context::CommonFlags tempForbiddenCommonFlags = clientForbiddenCommonFlags | cspPartySettingsR.forbiddenCommonFlags;
-
-    if (tempMandatoryCommonFlags & tempForbiddenCommonFlags)
-        return Status::kErrorNotCompatibleCommonFlagsSettings;
-
-    for (const auto& serverInterfaceVersion : cspPartySettingsR.interfaces)
-        for (const auto& clientInterface : acceptableInterfaces)
-        {
-            if (serverInterfaceVersion.id == clientInterface.id)
-            {
-                CS_RUN(m_interfaces.pushBack(clientInterface));
-                m_interfaces[m_interfaces.size() - 1].version = serverInterfaceVersion.version > clientInterface.version 
-                    ? clientInterface.version 
-                    : serverInterfaceVersion.version;
-                break;
-            }
-        }
-
-    if (m_interfaces.size() == 0)
-        return Status::kErrorNoSupportedInterfaces;
-
-    // if we are here, than everything is ok and we should init DataClient member fields
-    m_protocolVersion = tempServerProtocolVersion;
-    m_mandatoryCommonFlags = tempMandatoryCommonFlags;
-    m_forbiddenCommonFlags = tempForbiddenCommonFlags;
+    CS_RUN(getServerSettings(tempServerProtocolVersion, serverSettings));
+    CS_RUN(m_settings.getCompatibleSettings(clientSettings, serverSettings));
 
     m_isValid = true;
 
@@ -321,7 +250,7 @@ inline Status DataClient::getServerSettings(protocol_version_t serverCspVersion,
         return Status::kErrorNotInited;
 
     BinVector binInput;
-    context::Common<BinVector> ctxIn(binInput, serverCspVersion, context::Message::kGetSettings, context::CommonFlags{});
+    context::Common<BinVector> ctxIn(binInput, serverCspVersion, context::Message::kGetSettings, {});
     CS_RUN(processing::serializeCommonContext(ctxIn));
 
     BinWalker binOutput;
@@ -333,18 +262,18 @@ inline Status DataClient::getServerSettings(protocol_version_t serverCspVersion,
 
 template<typename InputType>
     requires IsISerializableBased<InputType>
-Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
+Status DataClient::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
 {
     if (!isValid())
         return Status::kErrorNotInited;
 
-    const Interface& _interface = InputType::getInterface();
+    const Interface& interface_ = InputType::getInterface();
 
-    if (getInterfaceVersion(_interface.id) == traits::kInterfaceVersionUndefined)
+    if (getInterfaceVersion(interface_.id) == traits::kInterfaceVersionUndefined)
         return Status::kErrorNotSupportedInterface;
 
     BinVector binInput;
-    context::SData<> ctxIn(binInput, m_protocolVersion, m_mandatoryCommonFlags);
+    context::SData<> ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
 
     CS_RUN(processing::serializeCommonContext(ctxIn));
     CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
@@ -366,31 +295,16 @@ Status DataClient::getServerStructInterfaceSettings(interface_version_t& minimum
     return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 
-constexpr protocol_version_t DataClient::getProtocolVersion() const noexcept
+constexpr const service_structs::CspPartySettings<>& DataClient::getSettings() const noexcept
 {
-    return m_protocolVersion;
-}
-
-constexpr context::CommonFlags DataClient::getMandatoryCommonFlags() const noexcept
-{
-    return m_mandatoryCommonFlags;
-}
-
-constexpr context::CommonFlags DataClient::getForbiddenCommonFlags() const noexcept
-{
-    return m_forbiddenCommonFlags;
-}
-
-constexpr const Vector<service_structs::InterfaceVersion<>>& DataClient::getInterfaces() const noexcept
-{
-    return m_interfaces;
+    return m_settings;
 }
 
 constexpr interface_version_t DataClient::getInterfaceVersion(const Id& id) const noexcept
 {
-    for (const auto& _interface : getInterfaces())
-        if (id == _interface.id)
-            return _interface.version;
+    for (const auto& interface_ : m_settings.interfaces)
+        if (id == interface_.id)
+            return interface_.version;
 
     return traits::kInterfaceVersionUndefined;
 }
@@ -399,14 +313,14 @@ template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status DataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    return handleData(input, output, context::CommonFlags{}, context::DataFlags{}, pUnmanagedPointers);
+    return handleData(input, output, {}, {}, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
 Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    return handleData(input, output, context::CommonFlags{}, additionalDataFlags, pUnmanagedPointers);
+    return handleData(input, output, {}, additionalDataFlags, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
@@ -419,9 +333,9 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     if (!isValid() || !m_dataClientSpeaker)
         return Status::kErrorNotInited;
 
-    const Interface& _interface = InputType::getInterface();
+    const Interface& interface_ = InputType::getInterface();
 
-    interface_version_t interfaceVersionToUse = getInterfaceVersion(_interface.id);
+    interface_version_t interfaceVersionToUse = getInterfaceVersion(interface_.id);
 
     if (interfaceVersionToUse == traits::kInterfaceVersionUndefined)
         return Status::kErrorNotSupportedInterface;
@@ -429,18 +343,18 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     if (InputType::getOriginPrivateVersion() > interfaceVersionToUse || OutputType::getOriginPrivateVersion() > interfaceVersionToUse)
         return Status::kErrorNotSupportedInterfaceVersion;
 
-    if (additionalCommonFlags & m_forbiddenCommonFlags)
+    if (additionalCommonFlags & m_settings.forbiddenCommonFlags)
         return Status::kErrorNotCompatibleCommonFlagsSettings;
 
-    if (additionalDataFlags & _interface.forbiddenDataFlags)
+    if (additionalDataFlags & interface_.forbiddenDataFlags)
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
     BinVector binInput;
 
     context::SData<> ctxIn(
           binInput
-        , m_protocolVersion
-        , m_mandatoryCommonFlags | additionalCommonFlags
+        , m_settings.protocolVersions[0]
+        , m_settings.mandatoryCommonFlags | additionalCommonFlags
         , InputType::getEffectiveMandatoryDataFlags() | additionalDataFlags
         , forTempUseHeap
         , interfaceVersionToUse
@@ -479,7 +393,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         ctxIn.clear();
 
         Id outId;
-        context::DData<> ctxOutData(ctxOut);
+        context::DData<> ctxOutData(std::move(ctxOut));
 
         CS_RUN(processing::deserializeDataContext(ctxOutData, outId));
 
@@ -513,11 +427,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 
 constexpr bool DataClient::isValidInternal() const noexcept
 {
-    return static_cast<bool>(m_dataClientSpeaker)
-        && m_dataClientSpeaker->isValid()
-        && m_protocolVersion != traits::kProtocolVersionUndefined
-        && !static_cast<bool>(m_mandatoryCommonFlags & m_forbiddenCommonFlags)
-        && m_interfaces.size() > 0;
+    return static_cast<bool>(m_dataClientSpeaker) && m_dataClientSpeaker->isValid() && m_settings.isValid();
 }
 
 } // namespace common_serialization::csp::messaging

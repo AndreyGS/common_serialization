@@ -183,8 +183,8 @@ public:
     /// @param interfaceVersion Target interface version
     constexpr Data(
           Container& binaryData
-        , CommonFlags commonFlags = CommonFlags{}
-        , DataFlags dataFlags = DataFlags{}
+        , CommonFlags commonFlags = {}
+        , DataFlags dataFlags = {}
         , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
@@ -200,12 +200,12 @@ public:
     /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
     constexpr Data(
-          Common<Container>& common
-        , DataFlags dataFlags = DataFlags{}
+          Common<Container>&& common
+        , DataFlags dataFlags = {}
         , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Common<Container>(common), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
+        : Common<Container>(std::move(common)), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { 
         setDataFlags(dataFlags);
     }
@@ -221,8 +221,8 @@ public:
     constexpr Data(
           Container& binaryData
         , protocol_version_t protocolVersion
-        , CommonFlags commonFlags = CommonFlags{}
-        , DataFlags dataFlags = DataFlags{}
+        , CommonFlags commonFlags = {}
+        , DataFlags dataFlags = {}
         , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
         , PM* pPointersMap = nullptr
@@ -246,8 +246,9 @@ public:
     constexpr Data(
           Container& binaryData
         , protocol_version_t protocolVersion
-        , CommonFlags commonFlags = CommonFlags{}
-        , DataFlags dataFlags = DataFlags{}, bool auxUsingHeapAllocation = true
+        , CommonFlags commonFlags = {}
+        , DataFlags dataFlags = {}
+        , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
         , PC* pAddedPointers = nullptr
         , PM* pPointersMap = nullptr
@@ -353,7 +354,7 @@ public:
         m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
-        setDataFlags(DataFlags{});
+        setDataFlags({});
         return *this;
     }
 
@@ -366,7 +367,7 @@ public:
         m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
-        setDataFlags(DataFlags{});
+        setDataFlags({});
         return *this;
     }
 

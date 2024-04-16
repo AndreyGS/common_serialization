@@ -45,7 +45,7 @@ public:
     /// @param protocolVersion Protocol version that would be used in process (can be changed later)
     /// @param messageType Type of message that should be processed (can be changed later)
     constexpr Common(Container& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
-        , Message messageType = Message::kData, CommonFlags commonFlags = CommonFlags{}
+        , Message messageType = Message::kData, CommonFlags commonFlags = {}
     ) noexcept
         : m_binaryData(binaryData)
         , m_protocolVersion(protocolVersion)
@@ -58,6 +58,12 @@ public:
         if constexpr (ISerializationCapableContainer<Container>)
             m_binaryData.reserve(256);
     }
+
+    Common(const Common&) = delete;
+    Common& operator=(const Common&) = delete;
+
+    Common(Common&&) = default;
+    Common& operator=(Common&&) = default;
 
     virtual ~Common() {}
 

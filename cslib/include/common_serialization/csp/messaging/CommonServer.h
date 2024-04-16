@@ -50,27 +50,27 @@ public:
 private:
     Status handleGetSettingsRequest(protocol_version_t cspVersion, BinVector& binOutput) const noexcept;
 
-    service_structs::CspPartySettings<> m_serverSettings;
+    service_structs::CspPartySettings<> m_settings;
 };
 
-inline CommonServer::CommonServer(const service_structs::CspPartySettings<>& serverSettings)
+inline CommonServer::CommonServer(const service_structs::CspPartySettings<>& settings)
 {
-    init(serverSettings);
+    init(settings);
 }
 
-inline Status CommonServer::init(const service_structs::CspPartySettings<>& serverSettings) noexcept
+inline Status CommonServer::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
-    m_serverSettings.clear();
+    m_settings.clear();
 
-    if (!serverSettings.isValid())
+    if (!settings.isValid())
         return Status::kErrorInvalidArgument;
 
-    return m_serverSettings.init(serverSettings);
+    return m_settings.init(settings);
 }
 
 constexpr bool CommonServer::isValid() const noexcept
 {
-    return m_serverSettings.isValid();
+    return m_settings.isValid();
 }
 
 inline Status CommonServer::handleMessage(BinWalker& binInput, const GenericPointerKeeper& clientId, BinVector& binOutput) const noexcept
@@ -78,14 +78,14 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, const GenericPoin
     if (!isValid())
         return Status::kErrorNotInited;
 
-    context::Common<BinWalker> ctx(binInput, m_serverSettings.protocolVersions[m_serverSettings.protocolVersions.size() - 1]);
+    context::Common<BinWalker> ctx(binInput, m_settings.protocolVersions[m_settings.protocolVersions.size() - 1]);
 
     if (Status status = processing::deserializeCommonContext(ctx); !statusSuccess(status))
     {
         if (status == Status::kErrorNotSupportedProtocolVersion)
         {
             binOutput.clear();
-            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_serverSettings.protocolVersions, m_serverSettings.mandatoryCommonFlags);
+            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_settings.protocolVersions, m_settings.mandatoryCommonFlags);
         }
         else
             return status;
@@ -98,7 +98,7 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, const GenericPoin
 
     else if (ctx.getMessageType() == context::Message::kData)
     {
-        status = processing::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_serverSettings.forbiddenCommonFlags, m_serverSettings.mandatoryCommonFlags);
+        status = processing::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_settings.forbiddenCommonFlags, m_settings.mandatoryCommonFlags);
         if (statusSuccess(status))
             status = IDataServerBase::handleDataCommon(ctx, clientId, binOutput);
     }
@@ -106,7 +106,7 @@ inline Status CommonServer::handleMessage(BinWalker& binInput, const GenericPoin
         status = Status::kErrorDataCorrupted;
 
     if (binOutput.size() == 0)
-        status = processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), m_serverSettings.mandatoryCommonFlags, status);
+        status = processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), m_settings.mandatoryCommonFlags, status);
 
     return status;
 }
@@ -115,9 +115,9 @@ inline Status CommonServer::handleGetSettingsRequest(protocol_version_t cspVersi
 {
     binOutput.clear();
 
-    context::SData<BinVector> ctxOut(binOutput, cspVersion, m_serverSettings.mandatoryCommonFlags, context::DataFlags{}, true, cspVersion);
+    context::SData<BinVector> ctxOut(binOutput, cspVersion, m_settings.mandatoryCommonFlags, context::DataFlags{}, true, cspVersion);
 
-    return m_serverSettings.serialize(ctxOut);
+    return m_settings.serialize(ctxOut);
 }
 
 } // namespace common_serialization::csp::messaging

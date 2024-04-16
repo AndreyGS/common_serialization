@@ -504,9 +504,9 @@ constexpr Status Vector<T, AllocatorHelper>::init(const Vector& rhs)
 {
     if (this != &rhs)
     {
-        m_allocatorHelper = rhs.m_allocatorHelper;
+        clear();
 
-        m_allocatorHelper.destroyN(m_p, m_dataSize);
+        m_allocatorHelper = rhs.m_allocatorHelper;
 
         if (rhs.m_dataSize > m_allocatedSize)
         {

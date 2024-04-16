@@ -83,7 +83,7 @@ public:
     static constexpr uint32_t kForbiddenFlagsMask = ~kValidFlagsMask;
     static constexpr uint32_t kNoFlagsMask = 0x0;
 
-    constexpr DataFlags() noexcept;
+    constexpr DataFlags() = default;
     explicit constexpr DataFlags(uint32_t value) noexcept;
     constexpr DataFlags& operator=(uint32_t value) noexcept;
 
@@ -101,17 +101,13 @@ public:
     [[nodiscard]] constexpr DataFlags operator|(uint32_t rhs) const noexcept;
     [[nodiscard]] constexpr DataFlags operator&(uint32_t rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(DataFlags rhs) const noexcept;
+
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
 
 private:
     uint32_t m_flags{ 0 };
 };
-
-constexpr DataFlags::DataFlags() noexcept
-{
-
-}
 
 constexpr DataFlags::DataFlags(uint32_t value) noexcept
 {

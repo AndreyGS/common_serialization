@@ -35,9 +35,9 @@ const csp::service_structs::CspPartySettings<>& getServerSettings()
     {
         serverSettings.protocolVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
 
-        serverSettings.interfaces.pushBack({ interface_for_test::properties.id, interface_for_test::properties.version });
-        serverSettings.interfaces.pushBack({ descendant_interface::properties.id, descendant_interface::properties.version });
-        serverSettings.interfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
+        serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ interface_for_test::properties });
+        serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ descendant_interface::properties });
+        serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
     }
 
     return serverSettings;
@@ -60,7 +60,7 @@ TEST(MessagingTests, InitDataClientT)
     serverSettings.protocolVersions.pushBack(1);
     serverSettings.mandatoryCommonFlags = csp::context::CommonFlags::kBigEndianFormat;
     serverSettings.forbiddenCommonFlags = csp::context::CommonFlags::kBitness32;
-    serverSettings.interfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
+    serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
     csp::messaging::CommonServer commonServer(serverSettings);
 
     interface_for_test::SimplyAssignableAlignedToOne<> dummyInput;
@@ -70,104 +70,82 @@ TEST(MessagingTests, InitDataClientT)
 
     EXPECT_TRUE(dataClient.getDataClientSpeaker());
 
-    Vector<csp::protocol_version_t> clientProtocolVersions;
-    clientProtocolVersions.pushBack(1);
-    clientProtocolVersions.pushBack(0); // 0 is not a valid CSP version and we add it here only for logic test
-    csp::context::CommonFlags clientMandatoryCommonFlags{ csp::context::CommonFlags::kEndiannessDifference };
-    csp::context::CommonFlags clientForbiddenCommonFlags;
-    Vector<csp::service_structs::InterfaceVersion<>> clientInterfaces;
-    clientInterfaces.pushBack({ interface_for_test::properties.id, interface_for_test::properties.version });
-    clientInterfaces.pushBack({ descendant_interface::properties.id, descendant_interface::properties.version });
-    clientInterfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
+    csp::service_structs::CspPartySettings<> clientSettings;
+    clientSettings.protocolVersions.pushBack(1);
+    clientSettings.protocolVersions.pushBack(0); // 0 is not a valid CSP version and we add it here only for logic test
+    clientSettings.mandatoryCommonFlags = csp::context::CommonFlags::kEndiannessDifference;
+    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ interface_for_test::properties });
+    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ descendant_interface::properties });
+    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
     csp::service_structs::CspPartySettings<> serverSettingsReturned;
 
     // Valid test 1
-    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
+    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kNoError);
     EXPECT_EQ(serverSettingsReturned, serverSettings);
     EXPECT_TRUE(dataClient.isValid());
-    EXPECT_EQ(dataClient.getProtocolVersion(), clientProtocolVersions[0]);
-    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), serverSettings.mandatoryCommonFlags | clientMandatoryCommonFlags);
-    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), serverSettings.forbiddenCommonFlags | clientForbiddenCommonFlags);
-    EXPECT_EQ(dataClient.getInterfaces().size(), 1);
-    EXPECT_EQ(dataClient.getInterfaces()[0], clientInterfaces[2]);
-    EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[2].id), 0);
-    EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[1].id), csp::traits::kInterfaceVersionUndefined);
+    EXPECT_EQ(dataClient.getSettings().protocolVersions[0], clientSettings.protocolVersions[0]);
+    EXPECT_EQ(dataClient.getSettings().mandatoryCommonFlags, serverSettings.mandatoryCommonFlags | clientSettings.mandatoryCommonFlags);
+    EXPECT_EQ(dataClient.getSettings().forbiddenCommonFlags, serverSettings.forbiddenCommonFlags | clientSettings.forbiddenCommonFlags);
+    EXPECT_EQ(dataClient.getSettings().interfaces.size(), 1);
+    EXPECT_EQ(dataClient.getSettings().interfaces[0], clientSettings.interfaces[2]);
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientSettings.interfaces[2].id), 0);
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientSettings.interfaces[1].id), csp::traits::kInterfaceVersionUndefined);
 
     // Valid test 2
-    clientMandatoryCommonFlags = csp::context::CommonFlags{};
-    clientForbiddenCommonFlags = csp::context::CommonFlags::kEndiannessDifference;
+    clientSettings.mandatoryCommonFlags = csp::context::CommonFlags{};
+    clientSettings.forbiddenCommonFlags = csp::context::CommonFlags::kEndiannessDifference;
     serverSettingsReturned.clear();
-    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
+    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kNoError);
     EXPECT_EQ(serverSettingsReturned, serverSettings);
     EXPECT_TRUE(dataClient.isValid());
-    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), serverSettings.forbiddenCommonFlags | clientForbiddenCommonFlags);
+    EXPECT_EQ(dataClient.getSettings().forbiddenCommonFlags, serverSettings.forbiddenCommonFlags | clientSettings.forbiddenCommonFlags);
 
     // No supported interfaces
-    clientInterfaces.erase(2);
+    clientSettings.interfaces.erase(2);
     serverSettingsReturned.clear();
-    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNoSupportedInterfaces);
+    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNoSupportedInterfaces);
     EXPECT_EQ(serverSettingsReturned, serverSettings);
     EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
-    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
     EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 
     // Not compatible common flags settings (between mandatory and forbidden flags)
     // First, reinit dataClient (to ensure that later it will be reset to not valid state)
-    clientInterfaces.pushBack({ another_yet_interface::properties.id, another_yet_interface::properties.version });
-    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
+    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
+    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kNoError);
     EXPECT_TRUE(dataClient.isValid());
 
-    clientMandatoryCommonFlags = serverSettings.forbiddenCommonFlags;
+    clientSettings.mandatoryCommonFlags = serverSettings.forbiddenCommonFlags;
     serverSettingsReturned.clear();
-    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNotCompatibleCommonFlagsSettings);
+    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNotCompatibleCommonFlagsSettings);
     EXPECT_EQ(serverSettingsReturned, serverSettings);
     EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
-    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
     EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 
     // Not supported protocol version
     // First, reinit dataClient (to ensure that later it will be reset to not valid state)
-    clientMandatoryCommonFlags = csp::context::CommonFlags{};
-    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kNoError);
+    clientSettings.mandatoryCommonFlags = csp::context::CommonFlags{};
+    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kNoError);
     EXPECT_TRUE(dataClient.isValid());
 
-    clientProtocolVersions.erase(0);
+    clientSettings.protocolVersions.erase(0);
     serverSettingsReturned.clear();
-    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNotSupportedProtocolVersion);
+    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNotSupportedProtocolVersion);
     EXPECT_EQ(serverSettingsReturned.protocolVersions, serverSettings.protocolVersions);
     EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
-    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
     EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 
     // Test of init when data client speaker is not valid
-    clientProtocolVersions.insert(0, 0);
+    clientSettings.protocolVersions.insert(0, 0);
     dynamic_cast<SimpleSpeaker*>(dataClient.getDataClientSpeaker().get())->setValidState(false);
-    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNotInited);
+    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNotInited);
     EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
-    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
     EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 
     // Test of init when DataClient has no speaker
     auto& speaker = dataClient.getDataClientSpeaker();
     delete speaker.release();
-    EXPECT_EQ(dataClient.init(clientProtocolVersions, clientMandatoryCommonFlags, clientForbiddenCommonFlags, clientInterfaces, &serverSettingsReturned), Status::kErrorNotInited);
+    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNotInited);
     EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.getProtocolVersion(), csp::traits::kProtocolVersionUndefined);
-    EXPECT_EQ(dataClient.getMandatoryCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getForbiddenCommonFlags(), csp::context::CommonFlags{});
-    EXPECT_EQ(dataClient.getInterfaces().size(), 0);
     EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
 }
 
@@ -177,12 +155,11 @@ TEST(MessagingTests, DataMessageHandling)
     FirstDataServer firstDataServer;
 
     csp::messaging::DataClient dataClient(new SimpleSpeaker{ commonServer });
+    csp::service_structs::CspPartySettings<> clientSettings;
+    clientSettings.protocolVersions.pushBack(csp::traits::getLatestProtocolVersion());
+    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ interface_for_test::properties });
 
-    // Standard processing
-    Vector<csp::service_structs::InterfaceVersion<>> clientInterfaces;
-    clientInterfaces.pushBack({ interface_for_test::properties.id, interface_for_test::properties.version });
-
-    EXPECT_EQ(dataClient.init(csp::traits::getLatestProtocolVersion(), {}, {}, clientInterfaces), Status::kNoError);
+    EXPECT_EQ(dataClient.init(clientSettings), Status::kNoError);
 
     interface_for_test::SimplyAssignableAlignedToOne<> input;
     fillingStruct(input);
@@ -196,10 +173,10 @@ TEST(MessagingTests, DataMessageHandling)
     EXPECT_EQ(output, outputReference);
 
     // Legacy interface versions
-    clientInterfaces[0].version = 1;
-    dataClient.init(csp::traits::getLatestProtocolVersion(), {}, {}, clientInterfaces);
+    clientSettings.interfaces[0].version = 1;
+    dataClient.init(clientSettings);
 
-    EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[0].id), 1);
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientSettings.interfaces[0].id), 1);
 
     interface_for_test::SimplyAssignableDescendant<> output2;
 
@@ -207,10 +184,10 @@ TEST(MessagingTests, DataMessageHandling)
     EXPECT_EQ(output2, outputReference);
 
     // Struct handler not support interface version
-    clientInterfaces[0].version = 0;
-    dataClient.init(csp::traits::getLatestProtocolVersion(), {}, {}, clientInterfaces);
+    clientSettings.interfaces[0].version = 0;
+    dataClient.init(clientSettings);
 
-    EXPECT_EQ(dataClient.getInterfaceVersion(clientInterfaces[0].id), 0);
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientSettings.interfaces[0].id), 0);
 
     interface_for_test::SimplyAssignableDescendant<> output3;
 

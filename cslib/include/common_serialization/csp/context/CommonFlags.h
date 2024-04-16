@@ -63,6 +63,7 @@ public:
     [[nodiscard]] constexpr CommonFlags operator|(uint32_t rhs) const noexcept;
     [[nodiscard]] constexpr CommonFlags operator&(uint32_t rhs) const noexcept;
     [[nodiscard]] constexpr bool operator==(CommonFlags rhs) const noexcept;
+
     [[nodiscard]] constexpr explicit operator uint32_t() const noexcept;
     [[nodiscard]] constexpr explicit operator bool() const noexcept;
 

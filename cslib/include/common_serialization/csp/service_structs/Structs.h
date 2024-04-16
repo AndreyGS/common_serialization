@@ -96,6 +96,7 @@ public:
     InterfaceVersion() = default;
     InterfaceVersion(const InterfaceVersion&) = default;
     InterfaceVersion(const Id& id, interface_version_t version) : id(id), version(version) { }
+    explicit InterfaceVersion(const Interface& interface_) : id(interface_.id), version(interface_.version) { }
 
     constexpr bool operator==(const InterfaceVersion& rhs) const noexcept
     {
@@ -160,6 +161,22 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
         return Status::kNoError;
     }
 
+    Status init(
+          const Vector<protocol_version_t>& protocolVersions_
+        , context::CommonFlags mandatoryCommonFlags_
+        , context::CommonFlags forbiddenCommonFlags_
+        , const Vector<InterfaceVersion<>>& interfaces_) noexcept
+    {
+        clear();
+
+        CS_RUN(protocolVersions.init(protocolVersions_));
+        mandatoryCommonFlags = mandatoryCommonFlags_;
+        forbiddenCommonFlags = forbiddenCommonFlags_;
+        CS_RUN(interfaces.init(interfaces_));
+
+        return Status::kNoError;
+    }
+
     constexpr bool operator==(const CspPartySettings& rhs) const noexcept
     {
         return protocolVersions == rhs.protocolVersions
@@ -176,26 +193,37 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
             && interfaces.size() > 0;
     }
 
-    static Status getCompatibleSettings(const CspPartySettings<>& lhs, const CspPartySettings<>& rhs, CspPartySettings<>& output) noexcept
+    Status getCompatibleSettings(const CspPartySettings<>& lhs, const CspPartySettings<>& rhs) noexcept
     {
         for (auto lhsVersion : lhs.protocolVersions)
             for (auto rhsVersion : rhs.protocolVersions)
                 if (lhsVersion == rhsVersion)
                 {
-                    CS_RUN(output.protocolVersions.pushBack(lhsVersion));
+                    CS_RUN(protocolVersions.pushBack(lhsVersion));
                     break;
                 }
 
-        output.mandatoryCommonFlags = lhs.mandatoryCommonFlags | rhs.mandatoryCommonFlags;
-        output.forbiddenCommonFlags = lhs.forbiddenCommonFlags | rhs.forbiddenCommonFlags;
+        if (protocolVersions.size() == 0)
+            return Status::kErrorNotSupportedProtocolVersion;
+
+        mandatoryCommonFlags = lhs.mandatoryCommonFlags | rhs.mandatoryCommonFlags;
+        forbiddenCommonFlags = lhs.forbiddenCommonFlags | rhs.forbiddenCommonFlags;
+
+        if (mandatoryCommonFlags & forbiddenCommonFlags)
+            return Status::kErrorNotCompatibleCommonFlagsSettings;
 
         for (const auto& lhsInterface : lhs.interfaces)
             for (const auto& rhsInterface : rhs.interfaces)
                 if (lhsInterface.id == rhsInterface.id)
                 {
-                    CS_RUN(output.interfaces.pushBack({ lhsInterface.id, lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version }));
+                    CS_RUN(interfaces.pushBack({ lhsInterface.id, lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version }));
                     break;
                 }
+
+        if (interfaces.size() == 0)
+            return Status::kErrorNoSupportedInterfaces;
+
+        return Status::kNoError;
     }
 
     void clear() noexcept
