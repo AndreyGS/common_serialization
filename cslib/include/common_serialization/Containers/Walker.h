@@ -62,7 +62,7 @@ public:
     constexpr Status pushBackN(const T* p, size_type n);
 
     template<typename V>
-    constexpr Status pushBackArithmeticValue(V value) noexcept
+    constexpr Status pushBackArithmeticValue(V value)
         requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
     constexpr Status replace(const T* p, size_type n, size_type offset);
@@ -85,8 +85,8 @@ public:
 
     [[nodiscard]] constexpr T* data() noexcept;
     [[nodiscard]] constexpr const T* data() const noexcept;
-    [[nodiscard]] constexpr T& operator[](size_type offset) noexcept;
-    [[nodiscard]] constexpr const T& operator[](size_type offset) const noexcept;
+    [[nodiscard]] constexpr T& operator[](size_type offset);
+    [[nodiscard]] constexpr const T& operator[](size_type offset) const;
 
     [[nodiscard]] constexpr size_type size() const noexcept;
     [[nodiscard]] constexpr size_type max_size() const noexcept;
@@ -245,7 +245,7 @@ constexpr Status Walker<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
 
 template<typename T, typename AllocatorHelper>
 template<typename V>
-constexpr Status Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
+constexpr Status Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value)
     requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
 {
     Status status = m_vector.pushBackArithmeticValue(value);
@@ -354,14 +354,14 @@ template<typename T, typename AllocatorHelper>
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr T& Walker<T, AllocatorHelper>::operator[](size_type offset) noexcept
+[[nodiscard]] constexpr T& Walker<T, AllocatorHelper>::operator[](size_type offset)
 { 
     setValidOffset(offset);
     return m_vector[offset];
 }
 
 template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const T& Walker<T, AllocatorHelper>::operator[](size_type offset) const noexcept
+[[nodiscard]] constexpr const T& Walker<T, AllocatorHelper>::operator[](size_type offset) const
 {
     setValidOffset(offset);
     return m_vector[offset];

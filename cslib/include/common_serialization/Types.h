@@ -36,11 +36,11 @@ struct Uuid
 
     uint8_t id[16] = { 0 };
 
-    constexpr Uuid() {}
+    constexpr Uuid() = default;
     constexpr Uuid(const Uuid& rhs) = default;
 
-    constexpr Uuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth)
-    { 
+    constexpr Uuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth) noexcept
+    {
         id[0] = (first & 0xff000000) >> 24;
         id[1] = (first & 0x00ff0000) >> 16;
         id[2] = (first & 0x0000ff00) >> 8;

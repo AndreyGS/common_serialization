@@ -36,7 +36,7 @@ class CommonServer
 public:
     CommonServer() = default;
 
-    CommonServer(const service_structs::CspPartySettings<>& serverSettings);
+    CommonServer(const service_structs::CspPartySettings<>& serverSettings) noexcept;
 
     Status init(const service_structs::CspPartySettings<>& serverSettings) noexcept;
     constexpr bool isValid() const noexcept;
@@ -45,7 +45,7 @@ public:
     /// @param binInput Binary data received from client
     /// @param binOutput Binary data that should be send back to client
     /// @return Status of operation
-    Status handleMessage(BinWalker& binInput, const GenericPointerKeeper& clientId, BinVector& binOutput) const noexcept;
+    Status handleMessage(BinWalker& binInput, const GenericPointerKeeper& clientId, BinVector& binOutput) const;
 
 private:
     Status handleGetSettingsRequest(protocol_version_t cspVersion, BinVector& binOutput) const noexcept;
@@ -53,7 +53,7 @@ private:
     service_structs::CspPartySettings<> m_settings;
 };
 
-inline CommonServer::CommonServer(const service_structs::CspPartySettings<>& settings)
+inline CommonServer::CommonServer(const service_structs::CspPartySettings<>& settings) noexcept
 {
     init(settings);
 }
@@ -73,7 +73,7 @@ constexpr bool CommonServer::isValid() const noexcept
     return m_settings.isValid();
 }
 
-inline Status CommonServer::handleMessage(BinWalker& binInput, const GenericPointerKeeper& clientId, BinVector& binOutput) const noexcept
+inline Status CommonServer::handleMessage(BinWalker& binInput, const GenericPointerKeeper& clientId, BinVector& binOutput) const
 {
     if (!isValid())
         return Status::kErrorNotInited;

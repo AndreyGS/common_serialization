@@ -127,7 +127,7 @@ public:
     /// @return Pointer of costructed object
     template<typename T>
         requires IConstructorAllocator<Allocator<T>>
-    [[nodiscard]] T* allocateAndDefaultConstruct() noexcept
+    [[nodiscard]] T* allocateAndDefaultConstruct()
     {
         if (!m_pAddedPointers)
             assert(false); // this situation shall never exists

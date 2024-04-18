@@ -38,7 +38,7 @@ constexpr Status testCommonFlagsCompatibility(context::CommonFlags commonFlags
 }
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeCommonContextNoChecks(context::Common<S>& ctx) noexcept
+constexpr Status serializeCommonContextNoChecks(context::Common<S>& ctx)
 {
     // Common context must always be serialized by the same rules
     // no matter of CommonFlags impact - it must always be in little-endian format
@@ -53,7 +53,7 @@ constexpr Status serializeCommonContextNoChecks(context::Common<S>& ctx) noexcep
 }
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeCommonContext(context::Common<S>& ctx) noexcept
+constexpr Status serializeCommonContext(context::Common<S>& ctx)
 {
     if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
         return Status::kErrorNotSupportedProtocolVersion;
@@ -62,7 +62,7 @@ constexpr Status serializeCommonContext(context::Common<S>& ctx) noexcept
 }
 
 template<IDeserializationCapableContainer D>
-constexpr Status deserializeCommonContext(context::Common<D>& ctx) noexcept
+constexpr Status deserializeCommonContext(context::Common<D>& ctx)
 {
     // Common context must always be deserialized by the same rules
     // no matter of CommonFlags impact - it must always be in little-endian format
@@ -92,7 +92,7 @@ constexpr Status deserializeCommonContext(context::Common<D>& ctx) noexcept
 
 
 template<IDeserializationCapableContainer D>
-constexpr Status deserializeCommonContextNoChecks(context::Common<D>& ctx) noexcept
+constexpr Status deserializeCommonContextNoChecks(context::Common<D>& ctx)
 {
     // Common context must always be deserialized by the same rules
     // no matter of CommonFlags impact - it must always be in little-endian format
@@ -134,7 +134,7 @@ constexpr Status testDataFlagsCompatibility(context::DataFlags dataFlags)
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status serializeDataContext(context::SData<S, PM>& ctx) noexcept
+constexpr Status serializeDataContext(context::SData<S, PM>& ctx)
 {
     Id id = T::getId();
 
@@ -188,7 +188,7 @@ constexpr Status deserializeDataContext(context::DData<D, PM>& ctx, Id& id)
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status serializeDataContextNoChecks(context::SData<S, PM>& ctx) noexcept
+constexpr Status serializeDataContextNoChecks(context::SData<S, PM>& ctx)
 {
     S& output = ctx.getBinaryData();
 
@@ -207,7 +207,7 @@ constexpr Status serializeDataContextNoChecks(context::SData<S, PM>& ctx) noexce
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, const Id& id, interface_version_t minimumSupportedInterfaceVersion)
+constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, const Id& id, interface_version_t minimumSupportedInterfaceVersion) noexcept
 {
     Id tUuid = T::getId();
     if (tUuid != id)
@@ -240,7 +240,7 @@ constexpr Status deserializeDataContextPostprocess(context::DData<D, PM>& ctx, c
 }
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusContext(context::Common<S>& ctx, Status statusOut) noexcept
+constexpr Status serializeStatusContext(context::Common<S>& ctx, Status statusOut)
 {
     CS_RUN(writePrimitive(statusOut, ctx));
 
@@ -248,7 +248,7 @@ constexpr Status serializeStatusContext(context::Common<S>& ctx, Status statusOu
 }
 
 template<IDeserializationCapableContainer D>
-constexpr Status deserializeStatusContext(context::Common<D>& ctx, Status& statusOut) noexcept
+constexpr Status deserializeStatusContext(context::Common<D>& ctx, Status& statusOut)
 {
     CS_RUN(readPrimitive(ctx, statusOut));
 

@@ -52,9 +52,9 @@ public:
     [[nodiscard]] constexpr bool operator>=(const ConstVectorIterator& rhs) const noexcept;
     [[nodiscard]] constexpr bool operator>(const ConstVectorIterator& rhs) const noexcept;
     [[nodiscard]] constexpr bool operator<=(const ConstVectorIterator& rhs) const noexcept;
-    [[nodiscard]] constexpr const_reference operator*() const noexcept;
-    [[nodiscard]] constexpr const_pointer operator->() const noexcept;
-    [[nodiscard]] constexpr const_reference operator[](difference_type n) const noexcept;
+    [[nodiscard]] constexpr const_reference operator*() const;
+    [[nodiscard]] constexpr const_pointer operator->() const;
+    [[nodiscard]] constexpr const_reference operator[](difference_type n) const;
     constexpr ConstVectorIterator operator++() noexcept;
     constexpr ConstVectorIterator operator++(int) noexcept;
     constexpr ConstVectorIterator operator--() noexcept;
@@ -113,19 +113,19 @@ template<typename Vec>
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr typename ConstVectorIterator<Vec>::const_reference ConstVectorIterator<Vec>::operator*() const noexcept
+[[nodiscard]] constexpr typename ConstVectorIterator<Vec>::const_reference ConstVectorIterator<Vec>::operator*() const
 {
     return *m_p;
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr typename ConstVectorIterator<Vec>::const_pointer ConstVectorIterator<Vec>::operator->() const noexcept
+[[nodiscard]] constexpr typename ConstVectorIterator<Vec>::const_pointer ConstVectorIterator<Vec>::operator->() const
 {
     return m_p;
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr typename ConstVectorIterator<Vec>::const_reference ConstVectorIterator<Vec>::operator[](difference_type n) const noexcept
+[[nodiscard]] constexpr typename ConstVectorIterator<Vec>::const_reference ConstVectorIterator<Vec>::operator[](difference_type n) const
 {
     return *(m_p + n);
 }
@@ -200,9 +200,9 @@ public:
     constexpr VectorIterator(pointer p) : Base(p) { }
     constexpr VectorIterator(const VectorIterator& it) : Base(it.m_p) { }
 
-    [[nodiscard]] constexpr reference operator*() const noexcept;
-    [[nodiscard]] constexpr pointer operator->() const noexcept;
-    [[nodiscard]] constexpr reference operator[](difference_type n) const noexcept;
+    [[nodiscard]] constexpr reference operator*() const;
+    [[nodiscard]] constexpr pointer operator->() const;
+    [[nodiscard]] constexpr reference operator[](difference_type n) const;
     constexpr VectorIterator operator++() noexcept;
     constexpr VectorIterator operator++(int) noexcept;
     constexpr VectorIterator operator--() noexcept;
@@ -222,19 +222,19 @@ public:
 };
 
 template<typename Vec>
-[[nodiscard]] constexpr typename VectorIterator<Vec>::reference VectorIterator<Vec>::operator*() const noexcept
+[[nodiscard]] constexpr typename VectorIterator<Vec>::reference VectorIterator<Vec>::operator*() const
 {
     return const_cast<reference>(Base::operator*());
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr typename VectorIterator<Vec>::pointer VectorIterator<Vec>::operator->() const noexcept
+[[nodiscard]] constexpr typename VectorIterator<Vec>::pointer VectorIterator<Vec>::operator->() const
 {
     return const_cast<pointer>(Base::operator->());
 }
 
 template<typename Vec>
-[[nodiscard]] constexpr typename VectorIterator<Vec>::reference VectorIterator<Vec>::operator[](difference_type n) const noexcept
+[[nodiscard]] constexpr typename VectorIterator<Vec>::reference VectorIterator<Vec>::operator[](difference_type n) const
 {
     return const_cast<reference>(Base::operator[](n));
 }
@@ -372,7 +372,7 @@ public:
     /// @param value Value that need to append
     /// @return Status of operation
     template<typename V>
-    constexpr Status pushBackArithmeticValue(V value) noexcept
+    constexpr Status pushBackArithmeticValue(V value)
         requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
     /// @brief Replace N elements from offset
@@ -597,7 +597,7 @@ constexpr Status Vector<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
 
 template<typename T, typename AllocatorHelper>
 template<typename V>
-constexpr Status Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value) noexcept
+constexpr Status Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value)
     requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
 {
     Status status = Status::kNoError;

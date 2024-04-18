@@ -58,8 +58,8 @@ struct Interface
     context::DataFlags mandatoryDataFlags;
     context::DataFlags forbiddenDataFlags;
 
-    constexpr Interface() {}
-    constexpr Interface(const Id& id, interface_version_t version, context::DataFlags mandatoryDataFlags, context::DataFlags forbiddenDataFlags)
+    constexpr Interface() = default;
+    constexpr Interface(const Id& id, interface_version_t version, context::DataFlags mandatoryDataFlags, context::DataFlags forbiddenDataFlags) noexcept
         : id(id), version(version), mandatoryDataFlags(mandatoryDataFlags), forbiddenDataFlags(forbiddenDataFlags)
     { }
 
@@ -75,17 +75,17 @@ namespace traits
 
 constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined, context::DataFlags{}, context::DataFlags{} };
 
-[[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion()
+[[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion() noexcept
 {
     return kProtocolVersions[0];
 }
 
-[[nodiscard]] constexpr bool isProtocolVersionSameAsLatestOur(protocol_version_t foreignProtocolVersion)
+[[nodiscard]] constexpr bool isProtocolVersionSameAsLatestOur(protocol_version_t foreignProtocolVersion) noexcept
 {
     return getLatestProtocolVersion() == foreignProtocolVersion;
 }
 
-[[nodiscard]] constexpr protocol_version_t getProtocolVersionsCount()
+[[nodiscard]] constexpr protocol_version_t getProtocolVersionsCount() noexcept
 {
     return std::size(kProtocolVersions);
 }

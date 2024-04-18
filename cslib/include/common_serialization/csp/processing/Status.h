@@ -29,7 +29,7 @@ namespace common_serialization::csp::processing
 {
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status statusOut, bool noChecks = false) noexcept
+constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status statusOut, bool noChecks = false)
 {
     if (!noChecks)
         CS_RUN(serializeCommonContext(ctx))
@@ -42,7 +42,7 @@ constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status stat
 }
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusFullContext(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut) noexcept
+constexpr Status serializeStatusFullContext(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut)
 {
     context::Common<S> ctx(output, protocolVersion, context::Message::kStatus, commonFlags);
     CS_RUN(serializeStatusFullContext(ctx, statusOut));
@@ -51,7 +51,7 @@ constexpr Status serializeStatusFullContext(S& output, protocol_version_t protoc
 }
 
 template<ISerializationCapableContainer S>
-constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, const Vector<protocol_version_t>& supportedProtocolVersions, context::CommonFlags commonFlags) noexcept
+constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, const Vector<protocol_version_t>& supportedProtocolVersions, context::CommonFlags commonFlags)
 {
     // For unsupported protocol version always using kProtocolVersionUndefined in response context
     context::Common<S> ctx(output, traits::kProtocolVersionUndefined, context::Message::kStatus, commonFlags);
@@ -64,7 +64,7 @@ constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, cons
 }
 
 template<IDeserializationCapableContainer D>
-constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::Common<D>& ctx, Vector<protocol_version_t>& value) noexcept
+constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::Common<D>& ctx, Vector<protocol_version_t>& value)
 {
     value.clear();
 
@@ -80,7 +80,7 @@ constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::
 
 template<ISerializationCapableContainer S>
 constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
-      interface_version_t minimumInterfaceVersion, const Id& outputTypeId, context::Common<S>& ctx) noexcept
+      interface_version_t minimumInterfaceVersion, const Id& outputTypeId, context::Common<S>& ctx)
 {
     CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInterfaceVersion));
 
@@ -93,7 +93,7 @@ constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
 template<IDeserializationCapableContainer D>
 constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(
       context::Common<D>& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId
-) noexcept
+)
 {
     CS_RUN(readPrimitive(ctx, minimumInterfaceVersion));
     CS_RUN(readRawData(ctx, 1, &outputTypeId));

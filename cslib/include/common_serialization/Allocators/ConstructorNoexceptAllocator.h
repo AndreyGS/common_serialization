@@ -71,7 +71,7 @@ public:
     /// @param ...args Parameters that go to constructor
     /// @return Status of operation
     template<typename... Args>
-    constexpr Status construct(T* p, Args&&... args) const noexcept;
+    constexpr Status construct(T* p, Args&&... args) const;
 
     /// @brief Call default constructor on memory pointed by p
     ///     and then call init() method of T if args pack not empty
@@ -80,7 +80,7 @@ public:
     /// @param ...args Parameters that go to init() method
     /// @return Status of operation
     template<typename... Args>
-    constexpr Status construct(T* p, Args&&... args) const noexcept
+    constexpr Status construct(T* p, Args&&... args) const
         requires Initable<T>;
 
     /// @brief Call destructor on object pointed by p
@@ -115,7 +115,7 @@ constexpr void ConstructorNoexceptAllocator<T>::deallocate(T* p, size_type n) co
 
 template<typename T>
 template<typename... Args>
-constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
+constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const
 {
     assert(p);
 
@@ -125,7 +125,7 @@ constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args
 
 template<typename T>
 template<typename... Args>
-constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
+constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const
     requires Initable<T>
 {
     assert(p);

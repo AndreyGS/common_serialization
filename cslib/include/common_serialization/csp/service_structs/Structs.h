@@ -95,8 +95,8 @@ public:
 
     InterfaceVersion() = default;
     InterfaceVersion(const InterfaceVersion&) = default;
-    InterfaceVersion(const Id& id, interface_version_t version) : id(id), version(version) { }
-    explicit InterfaceVersion(const Interface& interface_) : id(interface_.id), version(interface_.version) { }
+    InterfaceVersion(const Id& id, interface_version_t version) noexcept : id(id), version(version) { }
+    explicit InterfaceVersion(const Interface& interface_) noexcept : id(interface_.id), version(interface_.version) { }
 
     constexpr bool operator==(const InterfaceVersion& rhs) const noexcept
     {

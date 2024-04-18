@@ -126,7 +126,7 @@ public:
     constexpr uint32_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
     template<IsISerializableBased From, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    Status convert(const From& from, context::SData<S, PM>& ctx) noexcept
+    Status convert(const From& from, context::SData<S, PM>& ctx)
     {
         return ctx.isAuxUsingHeapAllocation() ? convertOnHeap(from, ctx) : convertOnStack(from, ctx);
     }
@@ -135,7 +135,7 @@ protected:
     using base_class = ToVersion<NextTo...>;
 
     template<IsISerializableBased From, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    Status convertOnHeap(const From& from, context::SData<S, PM>& ctx) noexcept
+    Status convertOnHeap(const From& from, context::SData<S, PM>& ctx)
     {
         GenericPointerKeeper pointerKeeper;
         if (!pointerKeeper.allocateAndConstruct<To, GenericAllocatorHelper<To, ConstructorNoexceptAllocator<To>>>(1))
@@ -150,7 +150,7 @@ protected:
     }
 
     template<IsISerializableBased From, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    Status convertOnStack(const From& from, context::SData<S, PM>& ctx) noexcept
+    Status convertOnStack(const From& from, context::SData<S, PM>& ctx)
     {
         To to;
         CS_RUN(to.init(from));
@@ -216,7 +216,7 @@ public:
     constexpr interface_version_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    Status convert(context::DData<D, PM>& ctx, To& to) noexcept
+    Status convert(context::DData<D, PM>& ctx, To& to)
     {
         // Skip versions that are older than serialized one
         if (base_class::privateVersion <= getTargetVersion())
@@ -233,7 +233,7 @@ protected:
     static constexpr interface_version_t privateVersion = From::getLatestPrivateVersion();
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    Status convertOnHeap(context::DData<D, PM>& ctx, To& to) noexcept
+    Status convertOnHeap(context::DData<D, PM>& ctx, To& to)
     {
         GenericPointerKeeper pointerKeeper;
         if (!pointerKeeper.allocateAndConstruct<From, GenericAllocatorHelper<From, ConstructorNoexceptAllocator<From>>>(1))
@@ -245,7 +245,7 @@ protected:
     }
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    Status convertOnStack(context::DData<D, PM>& ctx, To& to) noexcept
+    Status convertOnStack(context::DData<D, PM>& ctx, To& to)
     {
         From from;
         CS_RUN(BodyProcessor::deserialize(ctx, from));
@@ -254,7 +254,7 @@ protected:
     }
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    Status convertToUpperVersionOnHeap(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
+    Status convertToUpperVersionOnHeap(const From& from, context::DData<D, PM>& ctx, To& to)
     {
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)
         {
@@ -276,7 +276,7 @@ protected:
     }
 
     template<IsISerializableBased To, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    Status convertToUpperVersionOnStack(const From& from, context::DData<D, PM>& ctx, To& to) noexcept
+    Status convertToUpperVersionOnStack(const From& from, context::DData<D, PM>& ctx, To& to)
     {
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)
         {

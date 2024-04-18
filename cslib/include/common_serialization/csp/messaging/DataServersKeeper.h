@@ -53,7 +53,7 @@ public:
     /// @brief Removes server from servers database
     /// @param id Input-struct id that server was handling
     /// @param pInstance Server instance that must be deleted
-    void removeServer(const Id& id, IDataServerBase* pInstance);
+    void removeServer(const Id& id, IDataServerBase* pInstance) noexcept;
 
     /// @brief Find all servers that subscribed to handle Input-struct with given id
     /// @tparam T Container capable to hold set of servers
@@ -63,7 +63,7 @@ public:
     ///     If no servers were found, Status::kErrorNoSuchHandler is returned.
     template<typename T>
         requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
-    Status findServers(const Id& id, T& servers);
+    Status findServers(const Id& id, T& servers) const noexcept;
 
     /// @brief Find single server that is subsribed to handle Input-struct with given id
     /// @param id Input-struct id related to handler
@@ -71,17 +71,17 @@ public:
     /// @return Status of operation.
     ///     If no server was found, Status::kErrorNoSuchHandler is returned.
     ///     If there is more than one server that handle this id, Status::kErrorMoreEntires is returned.
-    Status findServer(const Id& id, IDataServerBase*& pServer);
+    Status findServer(const Id& id, IDataServerBase*& pServer) const noexcept;
 
 private:
-    DataServersKeeper() {}
+    DataServersKeeper() = default;
     DataServersKeeper(const DataServersKeeper&) = delete;
     DataServersKeeper( DataServersKeeper&&) noexcept = delete;
     DataServersKeeper& operator=(const DataServersKeeper&) = delete;
     DataServersKeeper& operator=(DataServersKeeper&&) noexcept = delete;
 
     std::unordered_multimap<Id, IDataServerBase*> m_serversList;
-    SharedMutex m_serversListMutex;
+    mutable SharedMutex m_serversListMutex;
 };
 
 inline DataServersKeeper& DataServersKeeper::GetDataServersKeeper()
@@ -102,7 +102,7 @@ inline Status DataServersKeeper::addServer(const Id& id, bool multicast, IDataSe
     return Status::kNoError;
 }
 
-inline void DataServersKeeper::removeServer(const Id& id, IDataServerBase* pInstance)
+inline void DataServersKeeper::removeServer(const Id& id, IDataServerBase* pInstance) noexcept
 {
     WGuard guard(m_serversListMutex);
 
@@ -116,7 +116,7 @@ inline void DataServersKeeper::removeServer(const Id& id, IDataServerBase* pInst
 
 template<typename T>
     requires requires (T t) { { t.pushBack(*(new IDataServerBase*)) }; { t.clear() }; { t.size() }; }
-Status DataServersKeeper::findServers(const Id& id, T& servers)
+Status DataServersKeeper::findServers(const Id& id, T& servers) const noexcept
 {
     servers.clear();
 
@@ -132,7 +132,7 @@ Status DataServersKeeper::findServers(const Id& id, T& servers)
     return servers.size() ? Status::kNoError : Status::kErrorNoSuchHandler;
 }
 
-inline Status DataServersKeeper::findServer(const Id& id, IDataServerBase*& pServer)
+inline Status DataServersKeeper::findServer(const Id& id, IDataServerBase*& pServer) const noexcept
 {
     RGuard guard(m_serversListMutex);
 
