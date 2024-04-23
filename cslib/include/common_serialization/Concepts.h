@@ -53,7 +53,10 @@ template<typename T>
 concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || std::is_function_v<T> || std::is_member_function_pointer_v<T>);
 
 template<typename T>
-concept IsEndiannessReversable = (std::is_integral_v<T> || std::is_enum_v<T>) && sizeof(T) > 1 && sizeof(T) <= 8;
+concept IsEndiannessReversable 
+    = sizeof(T) > 1 
+        && ((  std::is_arithmetic_v<T> || std::is_enum_v<T>) && sizeof(T) <= 8 
+            || std::is_floating_point_v<T> && (sizeof(T) == 10 || sizeof(T) == 16));
 
 template<typename T>
 concept IsSigned

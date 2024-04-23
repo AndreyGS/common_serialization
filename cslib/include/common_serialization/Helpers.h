@@ -180,33 +180,51 @@ CS_ALWAYS_INLINE constexpr T reverseEndianess(T input)
 {
     if constexpr (sizeof(T) == 2)
     {
-        if constexpr (std::is_enum_v<T>)
+        if constexpr (std::is_integral_v<T>)
+            return reverseEndianessUInt16(input);
+        else
         {
             uint16_t temp = reverseEndianessUInt16(*static_cast<uint16_t*>(static_cast<void*>(&input)));
             return *static_cast<T*>(static_cast<void*>(&temp));
         }
-        else
-            return reverseEndianessUInt16(input);
     }
     else if constexpr (sizeof(T) == 4)
     {
-        if constexpr (std::is_enum_v<T>)
+        
+        if constexpr (std::is_integral_v<T>)
+            return reverseEndianessUInt32(input);
+        else
         {
             uint32_t temp = reverseEndianessUInt32(*static_cast<uint32_t*>(static_cast<void*>(&input)));
             return *static_cast<T*>(static_cast<void*>(&temp));
         }
-        else
-            return reverseEndianessUInt32(input);
     }
-    else
+    else if constexpr (sizeof(T) == 8)
     {
-        if constexpr (std::is_enum_v<T>)
+        if constexpr (std::is_integral_v<T>)
+            return reverseEndianessUInt64(input);
+        else
         {
             uint64_t temp = reverseEndianessUInt64(*static_cast<uint64_t*>(static_cast<void*>(&input)));
             return *static_cast<T*>(static_cast<void*>(&temp));
         }
-        else
-            return reverseEndianessUInt64(input);
+    }
+    else if constexpr (sizeof(T) == 10)
+    {
+        uint16_t temp[5] = { 0 };
+        temp[0] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 4));
+        temp[1] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 3));
+        temp[2] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 2));
+        temp[3] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 1));
+        temp[4] = reverseEndianessUInt16(*static_cast<uint16_t*>(static_cast<void*>(&input)));
+        return *static_cast<T*>(static_cast<void*>(temp));
+    }
+    else
+    {
+        uint64_t temp[2] = { 0 };
+        temp[0] = reverseEndianessUInt64(*(static_cast<uint64_t*>(static_cast<void*>(&input)) + 1));
+        temp[1] = reverseEndianessUInt64(*static_cast<uint64_t*>(static_cast<void*>(&input)));
+        return *static_cast<T*>(static_cast<void*>(temp));
     }
 }
 

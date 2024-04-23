@@ -31,3 +31,4 @@
 31. Add posibility to set additional data flags to not interface struct.
 32. Think about adding precalculated effective data flags with dependencies of interface struct.
 33. Add tests on endianness tolerant tag.
+34. Add reallocate method to IAllocator.

@@ -136,6 +136,15 @@ Status BodyProcessor::serialize(const interface_for_test::SpecialProcessingType<
     CS_RUN(serialize(value.m_ppInt, ctx));
     CS_RUN(serialize(value.m_nullptrInt, ctx));
 
+    CS_RUN(serialize(value.m_c, ctx));
+    CS_RUN(serialize(value.m_sh, ctx));
+    CS_RUN(serialize(value.m_m, ctx));
+    CS_RUN(serialize(value.m_tEnum, ctx));
+    CS_RUN(serialize(value.m_ll, ctx));
+    CS_RUN(serialize(value.m_float, ctx));
+    CS_RUN(serialize(value.m_double, ctx));
+    CS_RUN(serialize(value.m_ldouble, ctx));
+
     return Status::kNoError;
 }
 

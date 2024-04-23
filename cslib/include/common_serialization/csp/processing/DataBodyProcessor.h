@@ -346,7 +346,7 @@ constexpr Status BodyProcessor::deserialize(context::DData<D, PM>& ctx, T& value
                 return deserializeFromAnotherSize(originalTypeSize, ctx, value);
             }
 
-        return readPrimitive(ctx, const_cast<std::remove_const_t<T>&>(value));
+        return readPrimitive(ctx, value);
     }
     else if constexpr (std::is_pointer_v<T>)
     {
@@ -419,6 +419,9 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
     if constexpr (kMaxSizeOfIntegral < originalTypeSize)
         return Status::kErrorTypeSizeIsTooBig;
 
+    if constexpr (sizeof(T) == originalTypeSize)
+        return readPrimitive(ctx, value);
+
     Status status = Status::kNoError;
 
     helpers::fixed_width_integer_t<originalTypeSize, IsSigned<T>> originalValue = 0;
@@ -433,9 +436,7 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
 
     using sameSizedInteger = helpers::fixed_width_integer_t<sizeof(T), IsSigned<T>>;
 
-    if constexpr (sizeof(T) == originalTypeSize)
-        const_cast<std::remove_const_t<T>&>(value) = originalValue;
-    else if constexpr (sizeof(T) < originalTypeSize)
+    if constexpr (sizeof(T) < originalTypeSize)
         CS_RUN(helpers::castToSmallerType<sizeof(T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value)))))
     else
         helpers::castToBiggerType<sizeof(T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value))));

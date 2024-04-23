@@ -105,10 +105,8 @@ Common Context Format
     Bit 0 (0x1): bitness of system on which serialization is performed
       is 32 bit (when not set is 64 bits).
     Bit 1 (0x2): using big endian format (default endianness is
-      little-endian.  This flag is take effect only on integers that are
-      larger than 1 byte, so floating point numbers are not the case - 
-      for now translation of them is implementation defined and not
-      part of current standard.
+      little-endian.  This flag is take effect only on primitives that
+      are larger than 1 byte.
     Bit 2 (0x4): there was endianness difference of "using big endian
       format" flag and execution environment where serialization was
       performed.
@@ -597,7 +595,7 @@ Serialization of Primitives
   Common Flag Big endian format
   
     If execution environment endianness setting is differ from this flag
-    value, for each integer that is larger than 1 byte, bytes
+    value, for each primitive that is larger than 1 octet, bytes
     reversation must be done.
       
   Data Flag Size of integer types may be not equal

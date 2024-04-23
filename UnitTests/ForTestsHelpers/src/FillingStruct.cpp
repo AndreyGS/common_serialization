@@ -255,6 +255,17 @@ void fillingStruct(interface_for_test::SpecialProcessingType<>& output)
     output.m_ppInt = new const int*;
     *output.m_ppInt = new int;
     **const_cast<int**&>(output.m_ppInt) = 548505248;
+
+    output.m_nullptrInt = nullptr;
+
+    output.m_c = -824;
+    output.m_sh = 48893;
+    output.m_m = cs::csp::context::Message::kData;
+    output.m_tEnum = interface_for_test::SpecialProcessingType<>::TEnum::ValN2;
+    output.m_ll = -83242399125;
+    output.m_float = 0.326236329032f;
+    output.m_double = -13523623623.25;
+    output.m_ldouble = 0.982345792387523523l;
 }
 
 template<>

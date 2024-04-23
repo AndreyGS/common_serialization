@@ -99,10 +99,14 @@ concept IDeserializationPointersMap
 template<typename PM>
 concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;
 
+// FixSizedArithmeticType is type that can't be changed in its size
+// So long double is also match this criteria, despite its size is different
+// on one or another platforms. Because of this, care must be taken
+// to well-define Interface wwith respect to long double size.
 template<typename T>
 concept FixSizedArithmeticType
     =  std::is_same_v<std::remove_cv_t<T>, char8_t> || std::is_same_v<std::remove_cv_t<T>, char16_t> || std::is_same_v<std::remove_cv_t<T>, char32_t>
-    || std::is_same_v<std::remove_cv_t<T>, float> || std::is_same_v<std::remove_cv_t<T>, double>;
+    || std::is_floating_point_v<T>;
 
 template<typename T>
 concept FixSizedEnumType = std::is_enum_v<T> && FixSizedArithmeticType<std::underlying_type_t<T>>;
@@ -134,8 +138,7 @@ concept AnySimplyAssignable = AlwaysSimplyAssignable<T> || SimplyAssignableFixed
 
 template<typename T>
 concept EndiannessTolerant 
-    = requires(T t) { typename normalize_t<T>::endianness_tolerant_tag; } 
-    || std::is_floating_point_v<T> 
+    = requires(T t) { typename normalize_t<T>::endianness_tolerant_tag; }
     || ((std::is_integral_v<T> || std::is_enum_v<T>) && sizeof(T) == 1);
 
 template<typename T>

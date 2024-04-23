@@ -409,6 +409,13 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
+    enum class TEnum : uint64_t
+    {
+        Val0 = 0,
+        ValN = 8192058,
+        ValN2 = 2309348230323
+    };
+
     SpecialProcessingType& operator=(const SpecialProcessingType<>& rhs)
     {
         if (this == &rhs)
@@ -422,6 +429,13 @@ public:
         m_ppInt = rhs.m_ppInt;
         m_nullptrInt = rhs.m_nullptrInt;
 
+        m_c = rhs.m_c;
+        m_sh = rhs.m_sh;
+        m_tEnum = rhs.m_tEnum;
+        m_float = rhs.m_float;
+        m_double = rhs.m_double;
+        m_ldouble = rhs.m_ldouble;
+
         return *this;
     }
 
@@ -431,7 +445,14 @@ public:
             && m_saaToNS == rhs.m_saaToNS
             && m_saNS == rhs.m_saNS
             && *m_pVec == *rhs.m_pVec   // this claass only for testing proposes, so there is no redundant nullptr checks
-            && **m_ppInt == **m_ppInt;
+            && **m_ppInt == **rhs.m_ppInt
+            && m_nullptrInt == rhs.m_nullptrInt
+            && m_c == rhs.m_c
+            && m_sh == rhs.m_sh
+            && m_tEnum == rhs.m_tEnum
+            && m_float == rhs.m_float
+            && m_double == rhs.m_double
+            && m_ldouble == rhs.m_ldouble;
     }
 
     cs::Vector<Diamond<>> m_vec;
@@ -440,7 +461,16 @@ public:
     cs::Vector<Diamond<>>* m_pVec{ nullptr };
     const int* m_pInt{ nullptr };
     const int** m_ppInt{ nullptr };
-    const int* m_nullptrInt{ nullptr };
+    const int* m_nullptrInt{ reinterpret_cast<const int*>(-1) }; // must be set to nullptr at filling struct function
+
+    char m_c{ 0 };
+    unsigned short m_sh{ 0 };
+    cs::csp::context::Message m_m{ cs::csp::context::Message::kStatus };
+    TEnum m_tEnum{ TEnum::Val0 };
+    int64_t m_ll{ 0 };
+    float m_float{ 0 };
+    double m_double{ 0 };
+    long double m_ldouble{ 0 };
 
     friend cs::csp::processing::data::BodyProcessor;
 };

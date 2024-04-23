@@ -61,14 +61,14 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::Common<D>& ctx, T& valu
         if (ctx.isEndiannessNotMatch())
         {
             CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
-            value = helpers::reverseEndianess(value);
+            (const_cast<std::remove_const_t<T>&>(value)) = helpers::reverseEndianess(value);
             return Status::kNoError;
         }
         else
-            return ctx.getBinaryData().readArithmeticValue(value);
+            return ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value));
     }
     else
-        return ctx.getBinaryData().readArithmeticValue(value);
+        return ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value));
 }
 
 template<typename T, IDeserializationCapableContainer D>

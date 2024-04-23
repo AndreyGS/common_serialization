@@ -135,6 +135,15 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Spe
     CS_RUN(deserialize(ctx, value.m_ppInt));
     CS_RUN(deserialize(ctx, value.m_nullptrInt));
 
+    CS_RUN(deserialize(ctx, value.m_c));
+    CS_RUN(deserialize(ctx, value.m_sh));
+    CS_RUN(deserialize(ctx, value.m_m));
+    CS_RUN(deserialize(ctx, value.m_tEnum));
+    CS_RUN(deserialize(ctx, value.m_ll));
+    CS_RUN(deserialize(ctx, value.m_float));
+    CS_RUN(deserialize(ctx, value.m_double));
+    CS_RUN(deserialize(ctx, value.m_ldouble));
+
     return Status::kNoError;
 }
 
