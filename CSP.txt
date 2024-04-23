@@ -402,8 +402,19 @@ Data that can be serialized by CSP
 
   Primitives
     
-    Integers and floating point numbers.
-    
+    Integers: 1, 2, 4 and 8 octets length;
+    Floating point numbers: IEEE 754 single-precision and
+    double-precision formats.
+
+    There can be any other formats of integral and floating-point
+    numbers defined in specific implementations but they are not part of
+    current standard.
+
+    Generally speaking there is no hard restrictions on support any
+    primitive type, but considering that CSP must work in different
+    operational modes there is no reason to expand supported list more,
+    for now.
+
   Pointers (references on most languages other than C++)
   
     Pointers on primitives, structures, another pointers.
@@ -651,11 +662,7 @@ Serialization of Pointers
       **f.ppi1 = 4;
       *f.ppi2 = nullptr;
       
-    For those of you who do not familiar with C pointers notation, this
-    mean that on the first field integer to which points pointer to
-    which points pointer to pointer to integer have value of 4, and on 
-    the second field pointer to integer to which points pointer to
-    pointer has value of nullptr.
+    Here we are using C-style pointers notation.
     
     We are serializing 'f'.
     

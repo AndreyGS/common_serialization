@@ -102,7 +102,7 @@ concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointers
 // FixSizedArithmeticType is type that can't be changed in its size
 // So long double is also match this criteria, despite its size is different
 // on one or another platforms. Because of this, care must be taken
-// to well-define Interface wwith respect to long double size.
+// to well-defined Interface with respect to long double size.
 template<typename T>
 concept FixSizedArithmeticType
     =  std::is_same_v<std::remove_cv_t<T>, char8_t> || std::is_same_v<std::remove_cv_t<T>, char16_t> || std::is_same_v<std::remove_cv_t<T>, char32_t>

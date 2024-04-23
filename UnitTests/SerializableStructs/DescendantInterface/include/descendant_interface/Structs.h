@@ -90,14 +90,17 @@ public:
             return *this;
 
         m_sSt = rhs.m_sSt;
+        m_ldouble = rhs.m_ldouble;
 
         return *this;
     }
 
     [[nodiscard]] bool operator==(const DiamondDescendant& rhs) const noexcept
     {
-        return m_sSt == rhs.m_sSt;;
+        return m_sSt == rhs.m_sSt && m_ldouble == rhs.m_ldouble;
     }
+
+    long double m_ldouble{ 0 };
 
     friend cs::csp::processing::data::BodyProcessor;
 };

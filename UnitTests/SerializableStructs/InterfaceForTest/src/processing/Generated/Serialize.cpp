@@ -143,7 +143,6 @@ Status BodyProcessor::serialize(const interface_for_test::SpecialProcessingType<
     CS_RUN(serialize(value.m_ll, ctx));
     CS_RUN(serialize(value.m_float, ctx));
     CS_RUN(serialize(value.m_double, ctx));
-    CS_RUN(serialize(value.m_ldouble, ctx));
 
     return Status::kNoError;
 }

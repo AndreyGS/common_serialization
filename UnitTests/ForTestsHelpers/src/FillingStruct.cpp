@@ -258,14 +258,13 @@ void fillingStruct(interface_for_test::SpecialProcessingType<>& output)
 
     output.m_nullptrInt = nullptr;
 
-    output.m_c = -824;
+    output.m_c = -82;
     output.m_sh = 48893;
     output.m_m = cs::csp::context::Message::kData;
     output.m_tEnum = interface_for_test::SpecialProcessingType<>::TEnum::ValN2;
     output.m_ll = -83242399125;
     output.m_float = 0.326236329032f;
     output.m_double = -13523623623.25;
-    output.m_ldouble = 0.982345792387523523l;
 }
 
 template<>
@@ -427,6 +426,7 @@ void fillingStruct(descendant_interface::DiamondDescendant<>& output)
 {
     fillingStruct(static_cast<interface_for_test::Diamond<>&>(output));
     fillingStruct(output.m_sSt);
+    output.m_ldouble = 0.982345792387523523l;
 }
 
 template<>

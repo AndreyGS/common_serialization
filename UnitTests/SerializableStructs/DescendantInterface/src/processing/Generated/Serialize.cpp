@@ -46,7 +46,7 @@ Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>&
     CS_RUN(serialize(static_cast<const interface_for_test::Diamond<>&>(value), ctx));
 
     CS_RUN(serialize(value.m_sSt, ctx));
-
+    CS_RUN(serialize(value.m_ldouble, ctx));
 
     return Status::kNoError;
 }

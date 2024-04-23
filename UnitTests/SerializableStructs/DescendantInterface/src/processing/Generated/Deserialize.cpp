@@ -44,6 +44,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, descendant_interface::D
     CS_RUN(deserialize(ctx, static_cast<interface_for_test::Diamond<>&>(value)));
 
     CS_RUN(deserialize(ctx, value.m_sSt));
+    CS_RUN(deserialize(ctx, value.m_ldouble));
 
     return Status::kNoError;
 }

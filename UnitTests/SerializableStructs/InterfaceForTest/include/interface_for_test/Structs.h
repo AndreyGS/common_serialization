@@ -434,7 +434,6 @@ public:
         m_tEnum = rhs.m_tEnum;
         m_float = rhs.m_float;
         m_double = rhs.m_double;
-        m_ldouble = rhs.m_ldouble;
 
         return *this;
     }
@@ -451,8 +450,7 @@ public:
             && m_sh == rhs.m_sh
             && m_tEnum == rhs.m_tEnum
             && m_float == rhs.m_float
-            && m_double == rhs.m_double
-            && m_ldouble == rhs.m_ldouble;
+            && m_double == rhs.m_double;
     }
 
     cs::Vector<Diamond<>> m_vec;
@@ -470,7 +468,6 @@ public:
     int64_t m_ll{ 0 };
     float m_float{ 0 };
     double m_double{ 0 };
-    long double m_ldouble{ 0 };
 
     friend cs::csp::processing::data::BodyProcessor;
 };

@@ -35,7 +35,12 @@ CS_ALWAYS_INLINE constexpr Status writePrimitive(const T& value, context::Common
     if constexpr (IsEndiannessReversable<T>)
     {
         if (ctx.isEndiannessNotMatch())
+        {
+            if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
+                return Status::kErrorNotSupportedSerializationSettingsForStruct;
+
             return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
+        }
         else
             return ctx.getBinaryData().pushBackArithmeticValue(value);
     }
@@ -60,6 +65,9 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::Common<D>& ctx, T& valu
     {
         if (ctx.isEndiannessNotMatch())
         {
+            if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
+                return Status::kErrorNotSupportedSerializationSettingsForStruct;
+
             CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
             (const_cast<std::remove_const_t<T>&>(value)) = helpers::reverseEndianess(value);
             return Status::kNoError;
