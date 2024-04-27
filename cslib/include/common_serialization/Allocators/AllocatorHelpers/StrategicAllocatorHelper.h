@@ -70,7 +70,7 @@ protected:
     [[nodiscard]] constexpr T* allocateImpl(size_type n, size_type* pAllocatedN) const;
 
 private:
-    AllocationStrategy m_allocation_strategy;
+    AllocationStrategy m_allocation_strategy{ AllocationStrategy::doubleOfDataSize };
 };
 
 template<typename T, IAllocator Allocator, typename MostDerivedClass>

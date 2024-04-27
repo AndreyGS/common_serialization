@@ -39,16 +39,6 @@ public:
 
     uint32_t m_i{ 0 };
 
-    SimpleStruct& operator=(const SimpleStruct<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_i = rhs.m_i;
-
-        return *this;
-    }
-
     [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
     {
         return m_i == rhs.m_i;

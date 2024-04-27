@@ -40,7 +40,7 @@ namespace common_serialization::csp::messaging
 class DataClient
 {
 public:
-    DataClient(IDataClientSpeaker* pDataClientSpeaker);
+    explicit DataClient(IDataClientSpeaker* pDataClientSpeaker);
     DataClient(IDataClientSpeaker* pDataClientSpeaker, const service_structs::CspPartySettings<>& settings);
 
     Status init(const service_structs::CspPartySettings<>& settings) noexcept;

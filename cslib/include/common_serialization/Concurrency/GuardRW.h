@@ -37,7 +37,7 @@ class GuardRW
 public:
     /// @brief Init constructor
     /// @param sharedMutex Managed mutex
-    GuardRW(SM& sharedMutex)
+    explicit GuardRW(SM& sharedMutex)
         : m_sharedMutex(sharedMutex)
     {
         if constexpr (write)
@@ -45,6 +45,11 @@ public:
         else
             m_sharedMutex.lock_shared();
     }
+    
+    GuardRW(const GuardRW&) = delete;
+    GuardRW(GuardRW&&) = delete;
+    GuardRW& operator=(const GuardRW&) = delete;
+    GuardRW& operator=(GuardRW&&) = delete;
 
     ~GuardRW()
     {

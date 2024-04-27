@@ -92,7 +92,7 @@ template<>
 class ToVersion<>
 {
 public:
-    ToVersion(uint32_t targetVersion)
+    explicit ToVersion(uint32_t targetVersion)
         : m_targetVersion(targetVersion)
     { }
 
@@ -119,7 +119,7 @@ template<IsISerializableBased To, typename... NextTo>
 class ToVersion<To, NextTo...> : public ToVersion<NextTo...>
 {
 public:
-    ToVersion(interface_version_t targetVersion)
+    explicit ToVersion(interface_version_t targetVersion)
         : ToVersion<NextTo...>(targetVersion)
     { }
 
@@ -171,7 +171,7 @@ template<>
 class FromVersion<>
 {
 public:
-    FromVersion(interface_version_t targetVersion)
+    explicit FromVersion(interface_version_t targetVersion)
         : m_targetVersion(targetVersion)
     { }
 
@@ -209,7 +209,7 @@ template<IsISerializableBased From, typename... NextFrom>
 class FromVersion<From, NextFrom...> : public FromVersion<NextFrom...>
 {
 public:
-    FromVersion(interface_version_t targetVersion)
+    explicit FromVersion(interface_version_t targetVersion)
         : FromVersion<NextFrom...>(targetVersion)
     { }
 

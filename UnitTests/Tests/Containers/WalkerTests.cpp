@@ -205,7 +205,6 @@ TEST(WalkerTest, Destructor)
     EXPECT_EQ(vec.size(), 0);
     EXPECT_EQ(vec.capacity(), 0);
     EXPECT_EQ(vec.data(), nullptr);
-    EXPECT_EQ(vec.tell(), 0);
 }
 
 template<typename T>

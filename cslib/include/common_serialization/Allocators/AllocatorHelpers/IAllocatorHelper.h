@@ -249,31 +249,6 @@ public:
         return m_allocator;
     }
 
-protected:
-    constexpr IAllocatorHelper() { }
-
-    constexpr IAllocatorHelper(const IAllocatorHelper& rhs)
-    {
-        operator=(rhs);
-    }
-
-    constexpr IAllocatorHelper(IAllocatorHelper&& rhs) noexcept
-    {
-        operator=(std::move(rhs));
-    }
-
-    constexpr IAllocatorHelper& operator=(const IAllocatorHelper& rhs)
-    {
-        m_allocator = rhs.m_allocator;
-        return *this;
-    }
-
-    constexpr IAllocatorHelper& operator=(IAllocatorHelper&& rhs) noexcept
-    {
-        m_allocator = std::move(rhs.m_allocator);
-        return *this;
-    }
-
 private:
     Allocator m_allocator;
 };

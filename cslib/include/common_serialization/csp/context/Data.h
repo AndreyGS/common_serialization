@@ -25,7 +25,6 @@
 
 #include "common_serialization/csp/context/Common.h"
 #include "common_serialization/csp/context/DataFlags.h"
-#include "common_serialization/Containers/HashMap.h"
 
 namespace common_serialization::csp::context
 {
@@ -45,7 +44,7 @@ public:
 
     /// @brief Constructor from IPointersMap
     /// @param pPointersMap Pointer to map that implements ISerializationPointersMap interface
-    SerializeExtendedPointersProcessing(PM* pPointersMap)
+    explicit SerializeExtendedPointersProcessing(PM* pPointersMap)
         : m_pPointersMap(pPointersMap)
     { }
 

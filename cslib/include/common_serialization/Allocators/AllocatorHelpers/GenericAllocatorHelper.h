@@ -49,8 +49,6 @@ public:
     using difference_type = typename interface_type::difference_type;
     using constructor_allocator = typename interface_type::constructor_allocator;
 
-    constexpr GenericAllocatorHelper() : IAllocatorHelper<T, Allocator, instance_type>() { }
-
 protected:
     friend interface_type;
 

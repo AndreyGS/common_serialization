@@ -73,6 +73,10 @@ public:
 
 protected:
     IDataServer();
+    IDataServer(const IDataServer&) = delete;
+    IDataServer(IDataServer&&) = delete;
+    IDataServer& operator=(const IDataServer&) = delete;
+    IDataServer& operator=(IDataServer&&) = delete;
     ~IDataServer();
 
 private:

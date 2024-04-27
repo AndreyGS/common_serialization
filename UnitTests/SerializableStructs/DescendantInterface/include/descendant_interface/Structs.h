@@ -39,16 +39,6 @@ public:
 
     uint32_t m_i{ 0 };
 
-    SimpleStruct& operator=(const SimpleStruct<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_i = rhs.m_i;
-
-        return *this;
-    }
-
     [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
     {
         return m_i == rhs.m_i;
@@ -82,17 +72,6 @@ public:
         return  *static_cast<const interface_for_test::Diamond<>*>(
             static_cast<const void*>(
                 static_cast<const interface_for_test::Diamond<instance_type>*>(this)));
-    }
-
-    DiamondDescendant& operator=(const DiamondDescendant<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_sSt = rhs.m_sSt;
-        m_ldouble = rhs.m_ldouble;
-
-        return *this;
     }
 
     [[nodiscard]] bool operator==(const DiamondDescendant& rhs) const noexcept

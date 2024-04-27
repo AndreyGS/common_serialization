@@ -36,7 +36,7 @@ class CommonServer
 public:
     CommonServer() = default;
 
-    CommonServer(const service_structs::CspPartySettings<>& serverSettings) noexcept;
+    explicit CommonServer(const service_structs::CspPartySettings<>& serverSettings) noexcept;
 
     Status init(const service_structs::CspPartySettings<>& serverSettings) noexcept;
     constexpr bool isValid() const noexcept;

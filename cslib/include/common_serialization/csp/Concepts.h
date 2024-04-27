@@ -138,8 +138,7 @@ concept AnySimplyAssignable = AlwaysSimplyAssignable<T> || SimplyAssignableFixed
 
 template<typename T>
 concept EndiannessTolerant 
-    = requires(T t) { typename normalize_t<T>::endianness_tolerant_tag; }
-    || ((std::is_integral_v<T> || std::is_enum_v<T>) && sizeof(T) == 1);
+    = requires(T t) { typename normalize_t<T>::endianness_tolerant_tag; } || sizeof(T) == 1;
 
 template<typename T>
 concept NotSimplyAssignable = !AnySimplyAssignable<T>;

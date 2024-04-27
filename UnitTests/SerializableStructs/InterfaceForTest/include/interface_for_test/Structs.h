@@ -56,19 +56,8 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 3, 1, 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    SimplyAssignableAlignedToOne() { }
     template<typename T2>
     cs::Status init(const SimplyAssignableAlignedToOne_Version1<T2>& rhs);
-
-    SimplyAssignableAlignedToOne& operator=(const SimplyAssignableAlignedToOne& rhs) noexcept
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_x = rhs.m_x, m_y = rhs.m_y;
-
-        return *this;
-    }
 
     [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOne& rhs) const noexcept
     {
@@ -101,38 +90,6 @@ public:
 
     template<typename T2>
     cs::Status init(const SimplyAssignable_Version0<T2>& rhs);
-
-    SimplyAssignable& operator=(const SimplyAssignable<>& rhs) noexcept
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_i = rhs.m_i;
-        m_j = rhs.m_j;
-        m_saaToS = rhs.m_saaToS;
-        m_saaToNS = rhs.m_saaToNS;
-        m_saNS = rhs.m_saNS;
-        memcpy(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32));
-        for (size_t i = 0; i < 3; ++i)
-        {
-            m_arrSaaTos[i].m_x = rhs.m_arrSaaTos[i].m_x;
-            m_arrSaaTos[i].m_y = rhs.m_arrSaaTos[i].m_y;
-        }
-        for (size_t i = 0; i < 3; ++i)
-        {
-            m_arrSaaToNS[i].a = rhs.m_arrSaaToNS[i].a;
-            m_arrSaaToNS[i].s = rhs.m_arrSaaToNS[i].s;
-        }
-        for (size_t i = 0; i < 3; ++i)
-        {
-            m_arrSaNS[i].q = rhs.m_arrSaNS[i].q;
-            m_arrSaNS[i].w = rhs.m_arrSaNS[i].w;
-        }
-
-        m_vx = rhs.m_vx;
-
-        return *this;
-    }
 
     [[nodiscard]] bool operator==(const SimplyAssignable& rhs)                  const noexcept
     {
@@ -200,17 +157,6 @@ struct SimplyAssignableDescendant : public SimplyAssignable<cs::GetCrtpMainType<
 
     template<typename T2>
     cs::Status init(const SimplyAssignableDescendant_Version0<T2>& rhs);
-
-    SimplyAssignableDescendant& operator=(const SimplyAssignableDescendant<>& rhs) noexcept
-    {
-        if (this == &rhs)
-            return *this;
-
-        SimplyAssignable<>::operator=(rhs);
-        m_d = rhs.m_d;
-
-        return *this;
-    }
     
     [[nodiscard]] operator SimplyAssignable<>& () noexcept
     {
@@ -252,19 +198,8 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 2, 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    AlwaysSimplyAssignable() { }
     template<typename T2>
     cs::Status init(const AlwaysSimplyAssignable_Version0<T2>& rhs);
-
-    AlwaysSimplyAssignable& operator=(const AlwaysSimplyAssignable& rhs) noexcept
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_x = rhs.m_x, m_y = rhs.m_y;
-
-        return *this;
-    }
 
     [[nodiscard]] bool operator==(const AlwaysSimplyAssignable& rhs) const noexcept
     {
@@ -295,23 +230,8 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 2, 1 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    SimplyAssignableFixedSize() { }
     template<typename T2>
     cs::Status init(const SimplyAssignableFixedSize_Version1<T2>& rhs);
-
-    SimplyAssignableFixedSize& operator=(const SimplyAssignableFixedSize& rhs) noexcept
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_x = rhs.m_x;
-        m_asa = rhs.m_asa;
-
-        for (size_t i = 0; i < 3; ++i)
-            m_arrAsa[i] = rhs.m_arrAsa[i];
-
-        return *this;
-    }
 
     [[nodiscard]] bool operator==(const SimplyAssignableFixedSize& rhs) const noexcept
     {
@@ -378,18 +298,6 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    Diamond& operator=(const Diamond<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_d0 = rhs.m_d0;
-        m_d1 = rhs.m_d1;
-        m_d2 = rhs.m_d2;
-
-        return *this;
-    }
-
     [[nodiscard]] bool operator==(const Diamond& rhs) const noexcept
     {
         return m_d0 == rhs.m_d0 && m_d1 == rhs.m_d1 && m_d2 == rhs.m_d2;
@@ -415,28 +323,6 @@ public:
         ValN = 8192058,
         ValN2 = 2309348230323
     };
-
-    SpecialProcessingType& operator=(const SpecialProcessingType<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_vec = rhs.m_vec;
-        m_saaToNS = rhs.m_saaToNS;
-        m_saNS = rhs.m_saNS;
-        m_pVec = rhs.m_pVec;
-        m_pInt = rhs.m_pInt;
-        m_ppInt = rhs.m_ppInt;
-        m_nullptrInt = rhs.m_nullptrInt;
-
-        m_c = rhs.m_c;
-        m_sh = rhs.m_sh;
-        m_tEnum = rhs.m_tEnum;
-        m_float = rhs.m_float;
-        m_double = rhs.m_double;
-
-        return *this;
-    }
 
     [[nodiscard]] bool operator==(const SpecialProcessingType& rhs) const noexcept
     {
@@ -644,7 +530,6 @@ public:
     }
 
     SimilarType1<T>& operator=(const SimilarType2<T>& rhs) noexcept;
-    
 
     char m_j{ 0 };
     int m_k{ 0 };
@@ -737,25 +622,6 @@ public:
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
-
-    ManyPointersType& operator=(const ManyPointersType<>& rhs)
-    {
-        if (this == &rhs)
-            return *this;
-
-        m_vec = rhs.m_vec;
-        m_vecRecursive = rhs.m_vecRecursive;
-        m_pVec = rhs.m_pVec;
-        m_rtSpec1 = rhs.m_rtSpec1;
-        m_rtSpec2 = rhs.m_rtSpec2;
-        
-        m_pInt = rhs.m_pInt;
-        memcpy(m_intArr, rhs.m_intArr, sizeof(m_intArr));
-        m_ppInt = rhs.m_ppInt;
-        m_nullptrInt = rhs.m_nullptrInt;
-
-        return *this;
-    }
 
     [[nodiscard]] bool operator==(const ManyPointersType& rhs) const noexcept
     {
