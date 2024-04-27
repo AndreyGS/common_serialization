@@ -94,7 +94,6 @@ public:
     static consteval const Interface& getInterface() noexcept { return properties; }
 
     InterfaceVersion() = default;
-    InterfaceVersion(const InterfaceVersion&) = default;
     InterfaceVersion(const Id& id, interface_version_t version) noexcept : id(id), version(version) { }
     explicit InterfaceVersion(const Interface& interface_) noexcept : id(interface_.id), version(interface_.version) { }
 
