@@ -28,49 +28,60 @@
 namespace common_serialization
 {
 
-/// @brief Simple RAII guard for RW mutex
-/// @tparam SM Mutex which implement ISharedMutex interface
-/// @tparam write Flag that indicates that guard required for write
-template<ISharedMutex SM, bool write>
-class GuardRW
+/// @brief Simple RAII guard for shared mutex
+/// @tparam T Mutex which implement ISharedMutex interface
+template<ISharedMutex T>
+class RGuard
 {
 public:
     /// @brief Init constructor
-    /// @param sharedMutex Managed mutex
-    explicit GuardRW(SM& sharedMutex)
-        : m_sharedMutex(sharedMutex)
+    /// @param mutex Shared mutex
+    explicit RGuard(T& mutex)
+        : m_mutex(mutex)
     {
-        if constexpr (write)
-            m_sharedMutex.lock();
-        else
-            m_sharedMutex.lock_shared();
+        m_mutex.lock_shared();
     }
-    
-    GuardRW(const GuardRW&) = delete;
-    GuardRW(GuardRW&&) = delete;
-    GuardRW& operator=(const GuardRW&) = delete;
-    GuardRW& operator=(GuardRW&&) = delete;
 
-    ~GuardRW()
+    RGuard(const RGuard&) = delete;
+    RGuard(RGuard&&) = delete;
+    RGuard& operator=(const RGuard&) = delete;
+    RGuard& operator=(RGuard&&) = delete;
+
+    ~RGuard()
     {
-        if constexpr (write)
-            m_sharedMutex.unlock();
-        else
-            m_sharedMutex.unlock_shared();
+        m_mutex.unlock_shared();
     }
 
 private:
-    SM& m_sharedMutex;
+    T& m_mutex;
 };
 
-/// @brief Shared read GuardRW<>
-/// @tparam SM Mutex which implement ISharedMutex interface
-template<ISharedMutex SM>
-using RGuard = GuardRW<SM, false>;
+/// @brief Simple RAII guard for exclusive mutex
+/// @tparam T Mutex which implement IExclusiveMutex interface
+template<IExclusiveMutex T>
+class WGuard
+{
+public:
+    /// @brief Init constructor
+    /// @param mutex Exclusive mutex
+    explicit WGuard(T& mutex)
+        : m_mutex(mutex)
+    {
+        m_mutex.lock();
+    }
 
-/// @brief Exclusive Write GuardRW<>
-/// @tparam SM Mutex which implement ISharedMutex interface
-template<ISharedMutex SM>
-using WGuard = GuardRW<SM, true>;
+    WGuard(const WGuard&) = delete;
+    WGuard(WGuard&&) = delete;
+    WGuard& operator=(const WGuard&) = delete;
+    WGuard& operator=(WGuard&&) = delete;
+
+    ~WGuard()
+    {
+        m_mutex.unlock();
+    }
+
+private:
+    T& m_mutex;
+};
 
 } // namespace common_serialization

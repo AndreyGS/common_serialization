@@ -36,4 +36,12 @@ concept ISharedMutex = requires(T t)
     { t.unlock_shared() };
 };
 
+/// @brief Interface that exclusive mutex must implement
+template<typename T>
+concept IExclusiveMutex = requires(T t)
+{
+    { t.lock() };
+    { t.unlock() };
+};
+
 } // namespace common_serialization

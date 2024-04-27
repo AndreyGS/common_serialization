@@ -37,15 +37,18 @@ template<typename T, typename D = Dummy>
 class UniquePtr
 {
 public:
-    constexpr UniquePtr(T* p) noexcept : m_p(p) {}
+    UniquePtr() = default;
+
+    explicit constexpr UniquePtr(T* p) noexcept : m_p(p) {}
+
     UniquePtr(const UniquePtr&) = delete;
-    constexpr UniquePtr(UniquePtr&& rhs)
+    constexpr UniquePtr(UniquePtr&& rhs) noexcept
         : m_p(rhs.m_p)
     {
         rhs.m_p = nullptr;
     }
     UniquePtr& operator=(const UniquePtr&) = delete;
-    constexpr UniquePtr& operator=(UniquePtr&& rhs)
+    constexpr UniquePtr& operator=(UniquePtr&& rhs) noexcept
     {
         if (this == &rhs)
             return *this;

@@ -81,7 +81,7 @@ private:
     DataServersKeeper& operator=(DataServersKeeper&&) noexcept = delete;
 
     std::unordered_multimap<Id, IDataServerBase*> m_serversList;
-    mutable SharedMutex m_serversListMutex;
+    mutable SharedMutex m_serverListMutex;
 };
 
 inline DataServersKeeper& DataServersKeeper::GetDataServersKeeper()
@@ -92,7 +92,7 @@ inline DataServersKeeper& DataServersKeeper::GetDataServersKeeper()
 
 inline Status DataServersKeeper::addServer(const Id& id, bool multicast, IDataServerBase* pInstance)
 {
-    WGuard guard(m_serversListMutex);
+    WGuard guard(m_serverListMutex);
 
     if (!multicast && m_serversList.contains(id))
         assert(false);
@@ -104,7 +104,7 @@ inline Status DataServersKeeper::addServer(const Id& id, bool multicast, IDataSe
 
 inline void DataServersKeeper::removeServer(const Id& id, IDataServerBase* pInstance) noexcept
 {
-    WGuard guard(m_serversListMutex);
+    WGuard guard(m_serverListMutex);
 
     auto range = m_serversList.equal_range(id);
     while (range.first != range.second)
@@ -120,7 +120,7 @@ Status DataServersKeeper::findServers(const Id& id, T& servers) const noexcept
 {
     servers.clear();
 
-    RGuard guard(m_serversListMutex);
+    RGuard guard(m_serverListMutex);
 
     auto range = m_serversList.equal_range(id);
     while (range.first != range.second)
@@ -134,7 +134,7 @@ Status DataServersKeeper::findServers(const Id& id, T& servers) const noexcept
 
 inline Status DataServersKeeper::findServer(const Id& id, IDataServerBase*& pServer) const noexcept
 {
-    RGuard guard(m_serversListMutex);
+    RGuard guard(m_serverListMutex);
 
     auto range = m_serversList.equal_range(id);
     if (range.first != range.second)

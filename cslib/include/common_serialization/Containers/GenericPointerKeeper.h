@@ -45,7 +45,7 @@ public:
     /// @brief Function that destroys and deallocates holding pointer
     using DestroyAndDeallocateFunc = void(*)(void*, size_t);
 
-    GenericPointerKeeper() noexcept { }
+    GenericPointerKeeper() = default;
 
     /// @brief Copy constructor
     /// @remark I'm not sure about necessity of this costructor,
