@@ -31,6 +31,8 @@ namespace cs = common_serialization;
 struct EmptyType
 {
     using empty_type_tag = std::true_type;
+
+    [[nodiscard]] auto operator<=>(const EmptyType&) const = default;
 };
 
 #pragma pack(push, 1)
@@ -39,13 +41,10 @@ struct SimplyAssignableAlignedToOne
 {
     using simply_assignable_aligned_to_one_tag = std::true_type;
 
+    [[nodiscard]] auto operator<=>(const SimplyAssignableAlignedToOne&) const = default;
+
     uint16_t a{ 0 };
     uint8_t s{ 0 };
-
-    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOne& rhs) const noexcept
-    {
-        return a == rhs.a && s == rhs.s;
-    }
 };
 
 #pragma pack(pop)
@@ -54,13 +53,10 @@ struct SimplyAssignable
 {
     using simply_assignable_tag = std::true_type;
 
+    [[nodiscard]] auto operator<=>(const SimplyAssignable&) const = default;
+
     uint16_t q{ 0 };
     uint64_t w{ 0 };
-
-    [[nodiscard]] bool operator==(const SimplyAssignable& rhs) const noexcept
-    {
-        return q == rhs.q && w == rhs.w;
-    }
 };
 
 class DynamicPolymorphic
@@ -72,10 +68,7 @@ public:
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
 
-    [[nodiscard]] bool operator==(const DynamicPolymorphic& rhs) const noexcept
-    {
-        return m_r == rhs.m_r && memcmp(m_arrR, rhs.m_arrR, sizeof(m_arrR)) == 0;
-    }
+    [[nodiscard]] auto operator<=>(const DynamicPolymorphic&) const = default;
 
     uint8_t m_r{ 0 };
     uint8_t m_arrR[3]{ 0 };
@@ -86,59 +79,40 @@ public:
 
 struct DiamondBase
 {
-    [[nodiscard]] bool operator==(const DiamondBase& rhs) const noexcept
-    {
-        return m_d0 == rhs.m_d0;
-    }
+    [[nodiscard]] auto operator<=>(const DiamondBase&) const = default;
 
     uint32_t m_d0{ 0 };
 };
 
 struct DiamondEdge1 : virtual public DiamondBase
 {
-    [[nodiscard]] bool operator==(const DiamondEdge1& rhs) const noexcept
-    {
-        return m_d1 == rhs.m_d1;
-    }
+    [[nodiscard]] auto operator<=>(const DiamondEdge1&) const = default;
 
     uint32_t m_d1{ 0 };
-
-    friend cs::csp::processing::data::BodyProcessor;
 };
 
 struct DiamondEdge2 : virtual public DiamondBase
 {
-    [[nodiscard]] bool operator==(const DiamondEdge2& rhs) const noexcept
-    {
-        return m_d2 == rhs.m_d2;
-    }
+    [[nodiscard]] auto operator<=>(const DiamondEdge2&) const = default;
 
     uint32_t m_d2{ 0 };
-
-    friend cs::csp::processing::data::BodyProcessor;
 };
 
 struct TwoInts
 {
     using simply_assignable_tag = std::true_type;
 
+    [[nodiscard]] auto operator<=>(const TwoInts&) const = default;
+
     uint8_t x{ 0 };
     uint16_t y{ 0 };
-
-    [[nodiscard]] bool operator == (const TwoInts& rhs) const noexcept
-    {
-        return x == rhs.x && y == rhs.y;
-    }
 };
 
 struct SimplyAssignableWithoutSerializationFunctions
 {
     using simply_assignable_tag = std::true_type;
 
-    [[nodiscard]] bool operator==(const SimplyAssignableWithoutSerializationFunctions& rhs) const
-    {
-        return i == rhs.i;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableWithoutSerializationFunctions&) const = default;
 
     uint8_t i{ 0 };
 };

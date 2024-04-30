@@ -43,10 +43,7 @@ public:
     template<typename T2>
     cs::Status init(const SimplyAssignableAlignedToOne_Version1<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOne_Version0& rhs) const noexcept
-    {
-        return m_ti == rhs.m_ti;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableAlignedToOne_Version0&) const = default;
 
     not_part_of_interfaces::TwoInts m_ti{ 0 };
 
@@ -69,36 +66,7 @@ public:
     template<typename T2>
     cs::Status init(const SimplyAssignable<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const SimplyAssignable_Version0& rhs)                  const noexcept
-    {
-        return 
-               m_i == rhs.m_i
-            && m_j == rhs.m_j
-            && m_saaToS == rhs.m_saaToS
-            && m_saaToNS == rhs.m_saaToNS
-            && m_saNS == rhs.m_saNS
-
-            && memcmp(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32)) == 0
-
-            && m_arrSaaTos[0] == rhs.m_arrSaaTos[0]
-            && m_arrSaaTos[1] == rhs.m_arrSaaTos[1]
-            && m_arrSaaTos[2] == rhs.m_arrSaaTos[2]
-
-            && m_arrSaaToNS[0] == rhs.m_arrSaaToNS[0]
-            && m_arrSaaToNS[1] == rhs.m_arrSaaToNS[1]
-            && m_arrSaaToNS[2] == rhs.m_arrSaaToNS[2]
-
-            && m_arrSaNS[0] == rhs.m_arrSaNS[0]
-            && m_arrSaNS[1] == rhs.m_arrSaNS[1]
-            && m_arrSaNS[2] == rhs.m_arrSaNS[2]
-
-            && m_arrSaNS[0] == rhs.m_arrSaNS[0]
-            && m_arrSaNS[1] == rhs.m_arrSaNS[1]
-            && m_arrSaNS[2] == rhs.m_arrSaNS[2]
-            
-            && m_vt == rhs.m_vt
-            ;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignable_Version0&) const = default;
 
     uint8_t m_i{ 0 };
     uint16_t m_j{ 0 };
@@ -200,10 +168,7 @@ struct SimplyAssignableDescendant_Version0 : public SimplyAssignable_Version0<cs
                 static_cast<const SimplyAssignable_Version0<instance_type>*>(this)));
     }
 
-    [[nodiscard]] bool operator==(const SimplyAssignableDescendant_Version0& rhs) const noexcept
-    {
-        return m_d == rhs.m_d && SimplyAssignable_Version0<instance_type>::operator==(rhs);
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableDescendant_Version0&) const = default;
 
     friend cs::csp::processing::data::BodyProcessor;
     friend SimplyAssignableDescendant<T>;
@@ -247,10 +212,7 @@ public:
     template<typename T2>
     cs::Status init(const AlwaysSimplyAssignable<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const AlwaysSimplyAssignable_Version0& rhs) const noexcept
-    {
-        return m_xx == rhs.m_xx && m_yy == rhs.m_yy;
-    }
+    [[nodiscard]] auto operator<=>(const AlwaysSimplyAssignable_Version0&) const = default;
 
     uint16_t m_xx{ 0 };
     uint16_t m_yy{ 0 };
@@ -298,18 +260,7 @@ public:
     template<typename T2>
     cs::Status init(const SForAllModesTests_Version2<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const SForAllModesTests_Version0<>& rhs) const noexcept
-    {
-        return
-            m_saDs == rhs.m_saDs
-            && m_diamond == rhs.m_diamond
-            && m_sptCs == rhs.m_sptCs
-            && m_saaToStS == rhs.m_saaToStS
-            && m_saStS == rhs.m_saStS
-            && m_stS == rhs.m_stS
-            && m_mpt == rhs.m_mpt;
-
-    }
+    [[nodiscard]] auto operator<=>(const SForAllModesTests_Version0&) const = default;
 
     SimplyAssignableDescendant_Version0<> m_saDs;
     Diamond<> m_diamond;
@@ -354,10 +305,7 @@ public:
         return cs::Status::kNoError;
     }
 
-    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOne_Version1& rhs) const noexcept
-    {
-        return m_x == rhs.m_x && m_y == rhs.m_y;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableAlignedToOne_Version1&) const = default;
 
     uint8_t m_x{ 0 };
     uint16_t m_y{ 0 };
@@ -402,18 +350,10 @@ public:
     template<typename T2>
     cs::Status init(const SimplyAssignableFixedSize<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const SimplyAssignableFixedSize_Version1& rhs) const noexcept
-    {
-        for (size_t i = 0; i < 3; ++i)
-            if (m_arrAsa[i] != rhs.m_arrAsa[i])
-                return false;
-
-        return m_xx == rhs.m_xx && m_asa == rhs.m_asa;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableFixedSize_Version1&) const = default;
 
     uint16_t m_xx{ 0 };
     AlwaysSimplyAssignable_Version0<> m_asa;
-
     AlwaysSimplyAssignable_Version0<> m_arrAsa[3];
 
     friend cs::csp::processing::data::BodyProcessor;
@@ -462,18 +402,7 @@ public:
     template<typename T2>
     cs::Status init(const DForAllModesTests<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const SForAllModesTests_Version2<>& rhs) const noexcept
-    {
-        return
-               m_saS == rhs.m_saS
-            && m_i == rhs.m_i
-            && m_diamond == rhs.m_diamond
-            && m_sptCs == rhs.m_sptCs
-            && m_saaToStS == rhs.m_saaToStS
-            && m_saStS == rhs.m_saStS
-            && m_stS == rhs.m_stS
-            && m_mpt == rhs.m_mpt;
-    }
+    [[nodiscard]] auto operator<=>(const SForAllModesTests_Version2&) const = default;
 
     Diamond<> m_diamond;
     SpecialProcessingType<> m_sptCs;

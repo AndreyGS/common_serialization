@@ -37,12 +37,12 @@ template<IPointersMap PM>
 class SerializeExtendedPointersProcessing
 {
 public:
-    /// @brief Default constructor
+    /// @brief Default ctor
     SerializeExtendedPointersProcessing()
         : m_pPointersMap(nullptr)
     { }
 
-    /// @brief Constructor from IPointersMap
+    /// @brief Ctor from IPointersMap
     /// @param pPointersMap Pointer to map that implements ISerializationPointersMap interface
     explicit SerializeExtendedPointersProcessing(PM* pPointersMap)
         : m_pPointersMap(pPointersMap)
@@ -180,7 +180,7 @@ public:
     /// @param dataFlags Data flags that are using in processing
     /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
-    constexpr Data(
+    explicit constexpr Data(
           Container& binaryData
         , CommonFlags commonFlags = {}
         , DataFlags dataFlags = {}
@@ -198,7 +198,7 @@ public:
     /// @param dataFlags Data flags that are using in processing
     /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
-    constexpr Data(
+    explicit constexpr Data(
           Common<Container>&& common
         , DataFlags dataFlags = {}
         , bool auxUsingHeapAllocation = true

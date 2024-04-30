@@ -97,10 +97,7 @@ public:
     InterfaceVersion(const Id& id, interface_version_t version) noexcept : id(id), version(version) { }
     explicit InterfaceVersion(const Interface& interface_) noexcept : id(interface_.id), version(interface_.version) { }
 
-    constexpr bool operator==(const InterfaceVersion& rhs) const noexcept
-    {
-        return id == rhs.id && version == rhs.version;
-    }
+    [[nodiscard]] constexpr auto operator<=>(const InterfaceVersion&) const = default;
 
     Id id{ kNullUuid };
     interface_version_t version{ traits::kInterfaceVersionUndefined };
@@ -176,13 +173,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
         return Status::kNoError;
     }
 
-    constexpr bool operator==(const CspPartySettings& rhs) const noexcept
-    {
-        return protocolVersions == rhs.protocolVersions
-            && mandatoryCommonFlags == rhs.mandatoryCommonFlags
-            && forbiddenCommonFlags == rhs.forbiddenCommonFlags
-            && interfaces == rhs.interfaces;
-    }
+    [[nodiscard]] constexpr auto operator<=>(const CspPartySettings&) const = default;
 
     constexpr bool isValid() const noexcept
     {

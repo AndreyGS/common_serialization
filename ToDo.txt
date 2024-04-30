@@ -1,4 +1,4 @@
-1. Unit-tests on operator== of Vector and Walker.
+1. Unit-tests on Vector operator==.
 2. Add init Vector and Walker by pointer, size, allocatedSize[, offset].
 3. More unit tests on extendedPointerProcessing modes.
 4. Add tests on GenericPointerKeeper.

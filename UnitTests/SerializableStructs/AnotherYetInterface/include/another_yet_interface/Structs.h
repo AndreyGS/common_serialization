@@ -39,10 +39,7 @@ public:
 
     uint32_t m_i{ 0 };
 
-    [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
-    {
-        return m_i == rhs.m_i;
-    }
+    [[nodiscard]] auto operator<=>(const SimpleStruct&) const = default;
 
     friend cs::csp::processing::data::BodyProcessor;
 };

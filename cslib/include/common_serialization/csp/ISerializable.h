@@ -148,6 +148,10 @@ public:
     ///     current struct must be serialized
     /// @return AddtioEffectivenal forbidden DataFlags
     [[nodiscard]] static consteval context::DataFlags getEffectiveForbiddenDataFlags() noexcept;
+
+    /// @brief Default comparison operator to allow classes 
+    ///     that implements ISerializable use it freely
+    [[nodiscard]] constexpr auto operator<=>(const ISerializable&) const = default;
 };
 
 template<typename T>

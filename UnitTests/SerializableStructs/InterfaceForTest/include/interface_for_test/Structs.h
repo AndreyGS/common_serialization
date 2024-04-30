@@ -37,6 +37,8 @@ public:
     static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
+
+    auto operator<=>(const EmptyType&) const = default;
 };
 
 #pragma pack(push, 1)
@@ -59,10 +61,7 @@ public:
     template<typename T2>
     cs::Status init(const SimplyAssignableAlignedToOne_Version1<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOne& rhs) const noexcept
-    {
-        return m_x == rhs.m_x && m_y == rhs.m_y;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableAlignedToOne&) const = default;
 
     uint8_t m_x{ 0 };
     uint8_t m_y{ 0 };
@@ -91,32 +90,7 @@ public:
     template<typename T2>
     cs::Status init(const SimplyAssignable_Version0<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const SimplyAssignable& rhs)                  const noexcept
-    {
-        return 
-               m_i == rhs.m_i
-            && m_j == rhs.m_j
-            && m_saaToS == rhs.m_saaToS
-            && m_saaToNS == rhs.m_saaToNS
-            && m_saNS == rhs.m_saNS
-
-            && memcmp(m_arrI32, rhs.m_arrI32, sizeof(m_arrI32)) == 0
-
-            && m_arrSaaTos[0] == rhs.m_arrSaaTos[0]
-            && m_arrSaaTos[1] == rhs.m_arrSaaTos[1]
-            && m_arrSaaTos[2] == rhs.m_arrSaaTos[2]
-
-            && m_arrSaaToNS[0] == rhs.m_arrSaaToNS[0]
-            && m_arrSaaToNS[1] == rhs.m_arrSaaToNS[1]
-            && m_arrSaaToNS[2] == rhs.m_arrSaaToNS[2]
-
-            && m_arrSaNS[0] == rhs.m_arrSaNS[0]
-            && m_arrSaNS[1] == rhs.m_arrSaNS[1]
-            && m_arrSaNS[2] == rhs.m_arrSaNS[2]
-
-            && m_vx == rhs.m_vx
-            ;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignable&) const = default;
 
     uint8_t m_i{ 0 };
     uint16_t m_j{ 0 };
@@ -172,10 +146,7 @@ struct SimplyAssignableDescendant : public SimplyAssignable<cs::GetCrtpMainType<
                         static_cast<const SimplyAssignable<instance_type>*>(this)));
     }
     
-    [[nodiscard]] bool operator==(const SimplyAssignableDescendant& rhs) const noexcept
-    {
-        return m_d == rhs.m_d && SimplyAssignable<instance_type>::operator==(rhs);
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableDescendant&) const = default;
 
     friend cs::csp::processing::data::BodyProcessor;
     friend SimplyAssignableDescendant_Version0<T>;
@@ -201,10 +172,7 @@ public:
     template<typename T2>
     cs::Status init(const AlwaysSimplyAssignable_Version0<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const AlwaysSimplyAssignable& rhs) const noexcept
-    {
-        return m_x == rhs.m_x && m_y == rhs.m_y;
-    }
+    [[nodiscard]] auto operator<=>(const AlwaysSimplyAssignable&) const = default;
 
     uint8_t m_x{ 0 };
     uint8_t m_y{ 0 };
@@ -233,18 +201,10 @@ public:
     template<typename T2>
     cs::Status init(const SimplyAssignableFixedSize_Version1<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const SimplyAssignableFixedSize& rhs) const noexcept
-    {
-        for (size_t i = 0; i < 3; ++i)
-            if (m_arrAsa[i] != rhs.m_arrAsa[i])
-                return false;
-
-        return m_x == rhs.m_x && m_asa == rhs.m_asa;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableFixedSize&) const = default;
 
     uint8_t m_x{ 0 };
     AlwaysSimplyAssignable<> m_asa;
-
     AlwaysSimplyAssignable<> m_arrAsa[3];
 
     friend cs::csp::processing::data::BodyProcessor;
@@ -264,16 +224,7 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const DynamicPolymorphic& rhs) const noexcept
-    {
-        return 
-               m_o == rhs.m_o 
-            && memcmp(m_arrO, rhs.m_arrO, sizeof(m_arrO)) == 0 
-            && m_dpNS == rhs.m_dpNS 
-            && m_arrDpNS[0] == rhs.m_arrDpNS[0]
-            && m_arrDpNS[1] == rhs.m_arrDpNS[1]
-            && m_arrDpNS[2] == rhs.m_arrDpNS[2];
-    }
+    [[nodiscard]] auto operator<=>(const DynamicPolymorphic&) const = default;
 
     uint8_t m_o{ 0 };
     not_part_of_interfaces::DynamicPolymorphic m_dpNS{};
@@ -298,10 +249,7 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const Diamond& rhs) const noexcept
-    {
-        return m_d0 == rhs.m_d0 && m_d1 == rhs.m_d1 && m_d2 == rhs.m_d2;
-    }
+    [[nodiscard]] auto operator<=>(const Diamond&) const = default;
 
     friend cs::csp::processing::data::BodyProcessor;
 };
@@ -329,7 +277,7 @@ public:
         return m_vec == rhs.m_vec
             && m_saaToNS == rhs.m_saaToNS
             && m_saNS == rhs.m_saNS
-            && *m_pVec == *rhs.m_pVec   // this claass only for testing proposes, so there is no redundant nullptr checks
+            && *m_pVec == *rhs.m_pVec   // this class only for testing proposes, so there is no redundant nullptr checks
             && **m_ppInt == **rhs.m_ppInt
             && m_nullptrInt == rhs.m_nullptrInt
             && m_c == rhs.m_c
@@ -375,10 +323,7 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOneSimilarType1& rhs) const noexcept
-    {
-        return m_j == rhs.m_j && m_k == (rhs.m_k & 0xffff);
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableAlignedToOneSimilarType1&) const = default;
 
     SimplyAssignableAlignedToOneSimilarType1<T>& operator=(const SimplyAssignableAlignedToOneSimilarType2<T>& rhs) noexcept;
 
@@ -400,10 +345,7 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimplyAssignableAlignedToOneSimilarType2& rhs) const noexcept
-    {
-        return m_j == rhs.m_j && m_k == rhs.m_k;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableAlignedToOneSimilarType2&) const = default;
 
     SimplyAssignableAlignedToOneSimilarType2<T>& operator=(const SimplyAssignableAlignedToOneSimilarType1<T>& rhs) noexcept
     {
@@ -445,10 +387,7 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimplyAssignableSimilarType1& rhs) const noexcept
-    {
-        return m_j == rhs.m_j && m_k == (rhs.m_k & 0xffff);
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableSimilarType1&) const = default;
 
     SimplyAssignableSimilarType1<T>& operator=(const SimplyAssignableSimilarType2<T>& rhs) noexcept;
 
@@ -470,10 +409,7 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimplyAssignableSimilarType2& rhs) const noexcept
-    {
-        return m_j == rhs.m_j && m_k == rhs.m_k;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableSimilarType2&) const = default;
 
     SimplyAssignableSimilarType2<T>& operator=(const SimplyAssignableSimilarType1<T>& rhs) noexcept
     {
@@ -512,22 +448,7 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimilarType1& rhs) const noexcept
-    {
-        for (size_t i = 0; i < std::size(m_arrL); ++i)
-            if (m_arrL[i] != rhs.m_arrL[i])
-                return false;
-
-        for (size_t i = 0; i < std::size(m_sasTs); ++i)
-            if (m_sasTs[i] != rhs.m_sasTs[i])
-                return false;
-
-        for (size_t i = 0; i < std::size(m_saaToSts); ++i)
-            if (m_saaToSts[i] != rhs.m_saaToSts[i])
-                return false;
-
-        return m_j == rhs.m_j && m_k == (rhs.m_k & 0xffff);
-    }
+    [[nodiscard]] auto operator<=>(const SimilarType1&) const = default;
 
     SimilarType1<T>& operator=(const SimilarType2<T>& rhs) noexcept;
 
@@ -551,22 +472,7 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] bool operator==(const SimilarType2& rhs) const noexcept
-    {
-        for (size_t i = 0; i < std::size(m_arrL); ++i)
-            if (m_arrL[i] != rhs.m_arrL[i])
-                return false;
-
-        for (size_t i = 0; i < std::size(m_sasTs); ++i)
-            if (m_sasTs[i] != rhs.m_sasTs[i])
-                return false;
-
-        for (size_t i = 0; i < std::size(m_saaToSts); ++i)
-            if (m_saaToSts[i] != rhs.m_saaToSts[i])
-                return false;
-
-        return m_j == rhs.m_j && m_k == rhs.m_k;
-    }
+    [[nodiscard]] auto operator<=>(const SimilarType2&) const = default;
 
     SimilarType2<T>& operator=(const SimilarType1<T>& rhs) noexcept
     {
@@ -683,18 +589,7 @@ public:
     template<typename T2>
     cs::Status init(const SForAllModesTests_Version2<T2>& rhs);
 
-    [[nodiscard]] bool operator==(const DForAllModesTests<>& rhs) const noexcept
-    {
-        return
-            m_saDs == rhs.m_saDs
-            && m_diamond == rhs.m_diamond
-            && m_sptCs == rhs.m_sptCs
-            && m_saaToStS == rhs.m_saaToStS
-            && m_saStS == rhs.m_saStS
-            && m_stS == rhs.m_stS
-            && m_mpt == rhs.m_mpt;
-
-    }
+    [[nodiscard]] auto operator<=>(const DForAllModesTests&) const = default;
 
     SimplyAssignableDescendant<> m_saDs;
     Diamond<> m_diamond;
@@ -722,10 +617,7 @@ public:
 
     uint32_t m_i{ 0 };
 
-    [[nodiscard]] bool operator==(const SimplyAssignableWithoutSerializationFunctions& rhs) const
-    {
-        return m_i == rhs.m_i;
-    }
+    [[nodiscard]] auto operator<=>(const SimplyAssignableWithoutSerializationFunctions&) const = default;
 
     friend cs::csp::processing::data::BodyProcessor;
 };
@@ -741,13 +633,10 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
+    [[nodiscard]] auto operator<=>(const ContainSimplyAssignableWithoutSerializationFunctions&) const = default;
+
     SimplyAssignableWithoutSerializationFunctions<> m_sawsf;
     not_part_of_interfaces::SimplyAssignableWithoutSerializationFunctions m_npfSawsf;
-
-    [[nodiscard]] bool operator==(const ContainSimplyAssignableWithoutSerializationFunctions& rhs) const
-    {
-        return m_sawsf == rhs.m_sawsf && m_npfSawsf == rhs.m_npfSawsf;
-    }
 
     friend cs::csp::processing::data::BodyProcessor;
 };

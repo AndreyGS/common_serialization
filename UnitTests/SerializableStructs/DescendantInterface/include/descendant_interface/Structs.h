@@ -39,10 +39,7 @@ public:
 
     uint32_t m_i{ 0 };
 
-    [[nodiscard]] bool operator==(const SimpleStruct& rhs) const noexcept
-    {
-        return m_i == rhs.m_i;
-    }
+    [[nodiscard]] auto operator<=>(const SimpleStruct&) const = default;
 
     friend cs::csp::processing::data::BodyProcessor;
 };
@@ -74,10 +71,7 @@ public:
                 static_cast<const interface_for_test::Diamond<instance_type>*>(this)));
     }
 
-    [[nodiscard]] bool operator==(const DiamondDescendant& rhs) const noexcept
-    {
-        return m_sSt == rhs.m_sSt && m_ldouble == rhs.m_ldouble;
-    }
+    [[nodiscard]] auto operator<=>(const DiamondDescendant&) const = default;
 
     long double m_ldouble{ 0 };
 

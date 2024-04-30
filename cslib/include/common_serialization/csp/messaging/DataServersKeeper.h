@@ -79,6 +79,7 @@ private:
     DataServersKeeper( DataServersKeeper&&) noexcept = delete;
     DataServersKeeper& operator=(const DataServersKeeper&) = delete;
     DataServersKeeper& operator=(DataServersKeeper&&) noexcept = delete;
+    ~DataServersKeeper() = default;
 
     std::unordered_multimap<Id, IDataServerBase*> m_serversList;
     mutable SharedMutex m_serverListMutex;

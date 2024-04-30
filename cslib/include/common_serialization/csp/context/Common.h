@@ -44,7 +44,7 @@ public:
     /// @param binaryData Container that hold or would hold binary data of processing
     /// @param protocolVersion Protocol version that would be used in process (can be changed later)
     /// @param messageType Type of message that should be processed (can be changed later)
-    constexpr Common(Container& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
+    explicit constexpr Common(Container& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
         , Message messageType = Message::kData, CommonFlags commonFlags = {}
     ) noexcept
         : m_binaryData(binaryData)

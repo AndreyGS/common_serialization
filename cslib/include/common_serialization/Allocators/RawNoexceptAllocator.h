@@ -39,14 +39,18 @@ public:
     using difference_type = ptrdiff_t;
     using constructor_allocator = std::false_type;
 
-    /// @brief Default constructor
-    constexpr RawNoexceptAllocator() noexcept {}
+    /// @brief Default ctor
+    constexpr RawNoexceptAllocator() = default;
 
-    /// @brief Copy constructor
+    /// @brief Copy ctor
     /// @remark This overload only for compatibility
     /// @tparam R Type of ojects that rhs allocator would allocate
     template <class R>
-    constexpr RawNoexceptAllocator(const RawNoexceptAllocator<R>&) noexcept {}
+    explicit constexpr RawNoexceptAllocator(const RawNoexceptAllocator<R>&) noexcept {}
+
+    /// @brief Copy ctor
+    /// @remark This overload only for compatibility
+    constexpr RawNoexceptAllocator(const RawNoexceptAllocator&) = default;
 
     /// @brief Allocate storage with bytes_size = n*sizeof(T)
     /// @param n Number of elements of type T that storage must be capable to hold
@@ -63,11 +67,11 @@ public:
     /// @param n Size of storage (not used)
     constexpr void deallocate(T* p, size_type n) const noexcept;
 
-    /// @brief Call constructor with args on memory pointed by p
+    /// @brief Call ctor with args on memory pointed by p
     /// @remark This method only for compatibility
-    /// @tparam ...Args Parameters types that go to constructor
+    /// @tparam ...Args Parameters types that go to ctor
     /// @param p Pointer to memory where object shall be created
-    /// @param ...args Parameters that go to constructor
+    /// @param ...args Parameters that go to ctor
     /// @return Status of operation
     template<typename... Args>
     constexpr Status construct(T* p, Args&&... args) const noexcept;

@@ -41,33 +41,33 @@ public:
     using difference_type = ptrdiff_t;
     using constructor_allocator = std::false_type;
 
-    /// @brief Default constructor
-    constexpr RawKeeperAllocator() noexcept {}
+    /// @brief Default ctor
+    constexpr RawKeeperAllocator() = default;
 
-    /// @brief Init constructor
+    /// @brief Init ctor
     /// @param p Pointer on storage
     /// @param memorySize Size of storage in T units
     constexpr RawKeeperAllocator(T* p, size_type memorySize) noexcept;
 
-    /// @brief Copy constructor
+    /// @brief Copy ctor
     /// @remark This overload only for compatibility and does nothing
     /// @tparam R Type of ojects that rhs allocator is allocate
     /// @param rhs Another RawKeeperAllocator object
     template <class R>
     constexpr RawKeeperAllocator(const RawKeeperAllocator<R>& rhs) noexcept { operator=(rhs); }
 
-    /// @brief Copy constructor
+    /// @brief Copy ctor
     /// @remark This overload only for compatibility and does nothing
     /// @param rhs Another RawKeeperAllocator object
     constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { operator=<T>(rhs); }
 
-    /// @brief Move constructor
+    /// @brief Move ctor
     /// @tparam R Type of ojects that rhs allocator is allocate
     /// @param rhs Another RawKeeperAllocator object
     template <class R>
     constexpr RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept;
 
-    /// @brief Move constructor
+    /// @brief Move ctor
     /// @param rhs Another RawKeeperAllocator object
     constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept { operator=<T>(std::move(rhs)); }
 
@@ -116,13 +116,13 @@ public:
     /// @param n Number of elements
     constexpr void deallocate(T* p, size_type n) const noexcept;
 
-    /// @brief Call constructor with args on memory pointed by p
+    /// @brief Call ctor with args on memory pointed by p
     /// @note If p is out of storage memory range or if it does not
     ///     aligned to sizeof(T) unit boundaries, returns error.
     /// @remark This method only for compatibility
-    /// @tparam ...Args Parameters types that go to constructor
+    /// @tparam ...Args Parameters types that go to ctor
     /// @param p Pointer to memory where object shall be created
-    /// @param ...args Parameters that go to constructor
+    /// @param ...args Parameters that go to ctor
     /// @return Status of operation
     template<typename... Args>
     constexpr Status construct(T* p, Args&&... args) const noexcept;

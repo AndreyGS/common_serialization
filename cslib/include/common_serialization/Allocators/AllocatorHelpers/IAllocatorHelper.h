@@ -79,10 +79,10 @@ public:
         return static_cast<const AllocatorHelper*>(this)->allocateStrictImpl(n);
     }
 
-    /// @brief Call constructor with args on memory pointed by p
-    /// @tparam ...Args Parameters types that go to constructors
+    /// @brief Call ctor with args on memory pointed by p
+    /// @tparam ...Args Parameters types that go to ctors
     /// @param p Pointer to memory where object must be created
-    /// @param ...args Parameters that are go to constructors
+    /// @param ...args Parameters that are go to ctors
     /// @return Status of operation
     template<typename... Args>
     constexpr Status construct(T* p, Args&&... args) const
@@ -90,13 +90,13 @@ public:
         return static_cast<const AllocatorHelper*>(this)->constructImpl(p, std::forward<Args>(args)...);
     }
 
-    /// @brief Call constructor for n elements with args on memory pointed by p
-    /// @tparam ...Args Parameters types that go to constructors
+    /// @brief Call ctor for n elements with args on memory pointed by p
+    /// @tparam ...Args Parameters types that go to ctors
     /// @param p Pointer to memory where object must be created
     /// @param pNError Pointer on pointer to memory where an error was occurred.
     ///     If there is no error, returned value of pNError is undefined.
     /// @param n Number of elements to construct
-    /// @param ...args Parameters that go to constructors
+    /// @param ...args Parameters that go to ctors
     /// @return Status of operation
     template<typename... Args>
     constexpr Status constructN(T* p, T** pNError, size_type n, Args&&... args) const
@@ -104,7 +104,7 @@ public:
         return static_cast<const AllocatorHelper*>(this)->constructNImpl(p, pNError, n, std::forward<Args>(args)...);
     }
 
-    /// @brief Copy elements using copy constructors
+    /// @brief Copy elements using copy ctors
     /// @param pDest Pointer to destination array of elements
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
@@ -114,7 +114,7 @@ public:
         return static_cast<const AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDest, pSrc, n);
     }
 
-    /// @brief Copy elements using copy constructors when
+    /// @brief Copy elements using copy ctors when
     ///     there is guaranteed no overlapping in memory regions
     /// @param pDest Pointer to destination array of elements
     /// @param pSrc Pointer to source array of elements
@@ -125,7 +125,7 @@ public:
         return static_cast<const AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDest, pSrc, n);
     }
 
-    /// @brief Copy elements using copy constructors when
+    /// @brief Copy elements using copy ctors when
     ///     some part of destination memory already has initialized objects
     /// @param pDest Pointer to destination array of elements
     /// @param pDirtyMemoryFinish Pointer to one of the elements of the destination array
@@ -138,7 +138,7 @@ public:
         return static_cast<const AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
-    /// @brief Copy elements using copy constructors when
+    /// @brief Copy elements using copy ctors when
     ///     there is guaranteed no overlapping in memory regions,
     ///     but some part of destination memory already has initialized objects
     /// @param pDest Pointer to destination array of elements
@@ -152,7 +152,7 @@ public:
         return static_cast<const AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
-    /// @brief Move elements using move constructors
+    /// @brief Move elements using move ctors
     /// @param pDest Pointer to destination array of elements
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
@@ -162,7 +162,7 @@ public:
         return static_cast<const AllocatorHelper*>(this)->moveImpl(pDest, pDest, pSrc, n);
     }
 
-    /// @brief Move elements using move constructors when
+    /// @brief Move elements using move ctors when
     ///     there is guaranteed no overlapping in memory regions
     /// @param pDest Pointer to destination array of elements
     /// @param pSrc Pointer to source array of elements
@@ -173,7 +173,7 @@ public:
         return static_cast<const AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDest, pSrc, n);
     }
 
-    /// @brief Move elements using move constructors when
+    /// @brief Move elements using move ctors when
     ///     some part of destination memory already has initialized objects
     /// @param pDest Pointer to destination array of elements
     /// @param pDirtyMemoryFinish Pointer to one of the elements of the destination array
@@ -186,7 +186,7 @@ public:
         return static_cast<const AllocatorHelper*>(this)->moveImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
-    /// @brief Move elements using move constructors when
+    /// @brief Move elements using move ctors when
     ///     there is guaranteed no overlapping in memory regions,
     ///     but some part of destination memory already has initialized objects
     /// @param pDest Pointer to destination array of elements

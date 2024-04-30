@@ -58,17 +58,8 @@ struct Uuid
         id[14] = (fifth & 0x00000000ff00) >> 8;
         id[15] = fifth & 0x0000000000ff;
     }
-
    
-    bool operator<(const Uuid& rhs) const noexcept
-    {
-        return memcmp(id, rhs.id, sizeof(id)) < 0;
-    }
-
-    bool operator==(const Uuid& rhs) const noexcept
-    {
-        return memcmp(id, rhs.id, sizeof(id)) == 0;
-    }
+    [[nodiscard]] constexpr auto operator<=>(const Uuid&) const = default;
 };
 
 #pragma pack(pop)

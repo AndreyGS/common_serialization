@@ -37,48 +37,7 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    bool operator==(const OneBigType& rhs) const noexcept
-    {
-        if (m_string1 != rhs.m_string1 || m_string2 != rhs.m_string2 
-            || m_vector1.size() != rhs.m_vector1.size() 
-            || m_vector2.size() != rhs.m_vector2.size()
-            || m_map1.size() != rhs.m_map1.size()
-            || m_map2.size() != rhs.m_map2.size()
-        )
-            return false;
-
-        for (size_t i = 0; i < m_vector1.size(); ++i)
-            if (m_vector1[i] != rhs.m_vector1[i])
-                return false;
-
-        for (size_t i = 0; i < m_vector2.size(); ++i)
-            if (m_vector2[i] != rhs.m_vector2[i])
-                return false;
-
-        try
-        {
-            for (auto [key, value] : m_map1)
-                if (m_map1.at(key) != rhs.m_map1.at(key))
-                    return false;
-
-            for (auto [key, value] : m_map2)
-                if (m_map2.at(key) != rhs.m_map2.at(key))
-                    return false;
-        }
-        catch (...)
-        {
-            return false;
-        }
-
-        if (   std::get<0>(m_tuple1) != std::get<0>(rhs.m_tuple1)
-            || std::get<1>(m_tuple1) != std::get<1>(rhs.m_tuple1)
-            || std::get<2>(m_tuple1) != std::get<2>(rhs.m_tuple1)
-            || std::get<0>(m_tuple2) != std::get<0>(rhs.m_tuple2)
-        )
-            return false;
-
-        return true;
-    }
+    [[nodiscard]] auto operator<=>(const OneBigType&) const = default;
 
     std::string m_string1;
     std::wstring m_string2;

@@ -56,7 +56,7 @@ concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_all
 ///     used with trivially copyable structs and they do not use destructors 
 ///     on destroying objects. Allocator Helpers that are using Raw Allocators 
 ///     may use memcpy and memmove procedures in many scenarios instead 
-///     of calling constructors and destructors.
+///     of calling ctors and dtors.
 template<typename T>
 concept IConstructorAllocator = IAllocator<T> && std::is_same_v<std::true_type, typename T::constructor_allocator>;
 

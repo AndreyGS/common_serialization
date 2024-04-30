@@ -45,12 +45,7 @@ public:
 
     explicit constexpr ConstVectorIterator(pointer p) : m_p(p) { }
 
-    [[nodiscard]] constexpr bool operator==(const ConstVectorIterator& rhs) const noexcept;
-    [[nodiscard]] constexpr bool operator!=(const ConstVectorIterator& rhs) const noexcept;
-    [[nodiscard]] constexpr bool operator<(const ConstVectorIterator& rhs) const noexcept;
-    [[nodiscard]] constexpr bool operator>=(const ConstVectorIterator& rhs) const noexcept;
-    [[nodiscard]] constexpr bool operator>(const ConstVectorIterator& rhs) const noexcept;
-    [[nodiscard]] constexpr bool operator<=(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr auto operator<=>(const ConstVectorIterator&) const = default;
     [[nodiscard]] constexpr const_reference operator*() const;
     [[nodiscard]] constexpr const_pointer operator->() const;
     [[nodiscard]] constexpr const_reference operator[](difference_type n) const;
@@ -74,42 +69,6 @@ public:
 protected:
     pointer m_p{ nullptr };
 };
-
-template<typename Vec>
-[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator==(const ConstVectorIterator& rhs) const noexcept
-{
-    return m_p == rhs.m_p;
-}
-
-template<typename Vec>
-[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator!=(const ConstVectorIterator& rhs) const noexcept
-{
-    return !operator==(rhs);
-}
-
-template<typename Vec>
-[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator<(const ConstVectorIterator& rhs) const noexcept
-{
-    return rhs.m_p > m_p;
-}
-
-template<typename Vec>
-[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator>=(const ConstVectorIterator& rhs) const noexcept
-{
-    return !operator<(rhs);
-}
-
-template<typename Vec>
-[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator>(const ConstVectorIterator& rhs) const noexcept
-{
-    return rhs.m_p < m_p;
-}
-
-template<typename Vec>
-[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator<=(const ConstVectorIterator& rhs) const noexcept
-{
-    return !operator>(rhs);
-}
 
 template<typename Vec>
 [[nodiscard]] constexpr typename ConstVectorIterator<Vec>::const_reference ConstVectorIterator<Vec>::operator*() const
@@ -198,6 +157,7 @@ public:
 
     explicit constexpr VectorIterator(pointer p) : Base(p) { }
 
+    [[nodiscard]] constexpr auto operator<=>(const VectorIterator&) const = default;
     [[nodiscard]] constexpr reference operator*() const;
     [[nodiscard]] constexpr pointer operator->() const;
     [[nodiscard]] constexpr reference operator[](difference_type n) const;
@@ -435,9 +395,7 @@ public:
     [[nodiscard]] constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
 
     [[nodiscard]] constexpr bool operator==(const Vector& rhs) const
-        requires IsNotPointer<T>;
-    [[nodiscard]] constexpr bool operator!=(const Vector& rhs) const
-        requires IsNotPointer<T>;
+        requires (IsNotPointer<T> || IsNotPointer<std::remove_pointer_t<T>>);
 
 private:
     [[nodiscard]] constexpr Status reserveInternal(size_type n, bool strict);
@@ -1025,23 +983,27 @@ template<typename T, typename AllocatorHelper>
 
 template<typename T, typename AllocatorHelper>
 [[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::operator==(const Vector& rhs) const
-    requires IsNotPointer<T>
+    requires (IsNotPointer<T> || IsNotPointer<std::remove_pointer_t<T>>)
 {
     if (size() != rhs.size())
         return false;
 
     for (size_type i = 0; i < size(); ++i)
-        if (m_p[i] != rhs.m_p[i])
-            return false;
+        if constexpr (IsNotPointer<T>)
+        {
+            if (m_p[i] != rhs.m_p[i])
+                return false;
+        }
+        else // if constexpr (IsNotPointer<std::remove_pointer_t<T>>)
+        {
+            if (m_p[i] == nullptr || rhs.m_p[i] == nullptr)
+                return m_p[i] == rhs.m_p[i];
+            
+            if (*m_p[i] != *rhs.m_p[i])
+                return false;
+        }
 
     return true;
-}
-
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::operator!=(const Vector& rhs) const
-    requires IsNotPointer<T>
-{
-    return !operator==(rhs);
 }
 
 template<typename T>

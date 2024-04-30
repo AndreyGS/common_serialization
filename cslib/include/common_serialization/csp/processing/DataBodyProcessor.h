@@ -89,9 +89,9 @@ protected:
     static constexpr Status deserializeFromAnotherSizeInternal(context::DData<D, PM>& ctx, T& value);
 
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-    static constexpr Status serializeSimplyAssignable(const T& value, context::SData<S, PM>& ctx);
+    static CS_ALWAYS_INLINE constexpr Status serializeSimplyAssignable(const T& value, context::SData<S, PM>& ctx);
     template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    static constexpr Status deserializeSimplyAssignable(context::DData<D, PM>& ctx, T& value);
+    static CS_ALWAYS_INLINE constexpr Status deserializeSimplyAssignable(context::DData<D, PM>& ctx, T& value);
 
     template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
     static CS_ALWAYS_INLINE constexpr Status addPointerToMap(const T p, context::SData<S, PM>& ctx, bool& newPointer);
@@ -445,7 +445,7 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
 }
 
 template<typename T, ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status BodyProcessor::serializeSimplyAssignable(const T& value, context::SData<S, PM>&ctx)
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSimplyAssignable(const T& value, context::SData<S, PM>&ctx)
 {
     if constexpr (NotSimplyAssignable<T>)
         return Status::kErrorInvalidType;
@@ -478,7 +478,7 @@ constexpr Status BodyProcessor::serializeSimplyAssignable(const T& value, contex
 }
 
 template<typename T, IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status BodyProcessor::deserializeSimplyAssignable(context::DData<D, PM>& ctx, T& value)
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSimplyAssignable(context::DData<D, PM>& ctx, T& value)
 {
     if constexpr (NotSimplyAssignable<T>)
         return Status::kErrorInvalidType;

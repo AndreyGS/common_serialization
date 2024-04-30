@@ -47,7 +47,7 @@ public:
 
     GenericPointerKeeper() = default;
 
-    /// @brief Copy constructor
+    /// @brief Copy ctor
     /// @remark I'm not sure about necessity of this costructor,
     ///     even in future
     GenericPointerKeeper(const GenericPointerKeeper&) = delete;
@@ -89,9 +89,9 @@ public:
     ///     or array of objects using supplied arguments
     /// @tparam T Type of object(s) to create
     /// @tparam AllocatorHelper Type that implements AllocatorHelper interface
-    /// @tparam ...Args Parameters types that go to constructor of every element
+    /// @tparam ...Args Parameters types that go to ctor of every element
     /// @param n 
-    /// @param ...args Parameters that go to constructor of every element
+    /// @param ...args Parameters that go to ctor of every element
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     ///     or if object construction process return error.
     template<typename T, typename AllocatorHelper, typename... Args>

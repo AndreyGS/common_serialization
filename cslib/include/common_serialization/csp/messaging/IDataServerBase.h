@@ -48,8 +48,8 @@ public:
     [[nodiscard]] virtual interface_version_t getMinimumInterfaceVersion() = 0;
 
 protected:
-    constexpr IDataServerBase() { }
-    virtual ~IDataServerBase() { }
+    constexpr IDataServerBase() = default;
+    virtual ~IDataServerBase() = default;
 
 private:
     virtual Status handleDataConcrete(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput) = 0;

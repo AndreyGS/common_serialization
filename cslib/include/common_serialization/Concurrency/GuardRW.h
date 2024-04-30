@@ -34,7 +34,7 @@ template<ISharedMutex T>
 class RGuard
 {
 public:
-    /// @brief Init constructor
+    /// @brief Init ctor
     /// @param mutex Shared mutex
     explicit RGuard(T& mutex)
         : m_mutex(mutex)
@@ -62,7 +62,7 @@ template<IExclusiveMutex T>
 class WGuard
 {
 public:
-    /// @brief Init constructor
+    /// @brief Init ctor
     /// @param mutex Exclusive mutex
     explicit WGuard(T& mutex)
         : m_mutex(mutex)

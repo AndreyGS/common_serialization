@@ -63,11 +63,7 @@ struct Interface
         : id(id), version(version), mandatoryDataFlags(mandatoryDataFlags), forbiddenDataFlags(forbiddenDataFlags)
     { }
 
-    bool operator==(const Interface& rhs) const noexcept
-    {
-        return id == rhs.id && version == rhs.version
-            && mandatoryDataFlags == rhs.mandatoryDataFlags && forbiddenDataFlags == rhs.forbiddenDataFlags;
-    }
+    [[nodiscard]] constexpr auto operator<=>(const Interface&) const = default;
 };
 
 namespace traits
