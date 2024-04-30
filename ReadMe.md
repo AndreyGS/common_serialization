@@ -1,6 +1,6 @@
 # Common Serialization Library
 
-This project presenting serialization protocol wich is named **Common Serialization Protocol (CSP)**
+This project presenting serialization protocol which is named **Common Serialization Protocol (CSP)**
 and its implementation in C++.
 
 CSP provide fast serialization process, with low memory consumption.
@@ -14,8 +14,9 @@ The main parts of the protocol are already defined there, but some paragraphs no
 ### A few words about implementation.
 
 To achieve maximum speed most interfaces using CRTP pattern and other tools of templates 
-instead of polymorphic classes. The only part where polymorphism is used is CSP Messaging, 
-because in this case it does not have any significant impact on execution speed.
+instead of dynamic polymorphic classes. The only part where dynamic polymorphism is used is CSP Messaging, 
+because, first of all, it would be very inconvenient to deal with static polymorphism there,
+and, secondly, in case of CSP Messaging process it does not have any significant impact on execution speed.
 
 It was assumed that this library will be used in different environments including
 those where no C++ standard library is present, such as Windows or Linux kernels.
@@ -24,10 +25,10 @@ containers, synchronization primitives etc. to operate with.
 Currently only allocators, some containers and std meta functions equivalents are defined.
 It is so due to the fact that my interest is primarily focused on the implementation of CSP.
 When it would be finished (including documentation) and when I will add scripts to generate 
-some header files that I have to manually entering for now, I'll take care of remaining classes.
+some header files that I have to manually enter for now, I'll take care of remaining classes.
 
-At this time all main modules of CSP are ready. For most of its parts defined unit-tests
-(but there must be done more). And I polish individual components.
+At this time all main modules of CSP are ready. For most of its parts unit-tests are defined
+(but more must be done there). And I polish individual components.
 
 Under development.
 
