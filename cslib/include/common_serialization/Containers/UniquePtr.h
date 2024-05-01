@@ -57,6 +57,20 @@ public:
 
         m_p = rhs.m_p;
         rhs.m_p = nullptr;
+
+        return *this;
+    }
+
+    constexpr UniquePtr& operator=(T* p) noexcept
+    {
+        if (m_p == p)
+            return *this;
+
+        destroy();
+
+        m_p = p;
+
+        return *this;
     }
 
     constexpr ~UniquePtr() noexcept

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IDataClientSpeaker.h
+ * @file cslib/include/common_serialization/csp/messaging/IDataHandlerBase.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,28 +23,27 @@
 
 #pragma once
 
-#include "common_serialization/csp/service_structs/Interface.h"
 #include "common_serialization/Containers/Walker.h"
+#include "common_serialization/csp/processing/Status.h"
 
 namespace common_serialization::csp::messaging
 {
 
-class IDataClientSpeaker
+// Do not be confused by it naming
+// It is a server that process data messages of CSP
+
+/// @brief Base of common interface of CSP data servers
+/// @remark Do not be confused by it naming - it is a server 
+///     that process data messages of CSP - not database server 
+class IDataHandlerBase
 {
 public:
-    /// @brief Method for sending to and receiving from server binary data
-    /// @details This method must not make assumptions on what binary input and ouput data is.
-    ///     It must be implemented as transport function from client to server and vice versa.
-    ///     For example, it may be function that sends and receives data to and from socket.
-    /// @param binInput Data that is prepared by handleData method
-    /// @param binOutput Data that should be returned for processing by handleData method
-    /// @return Status of operation
-    virtual Status speak(BinVector& binInput, BinWalker& binOutput) = 0;
+    [[nodiscard]] virtual interface_version_t getMinimumInterfaceVersion() = 0;
 
-    virtual bool isValid() const noexcept
-    {
-        return true;
-    }
+    virtual Status handleDataCommon(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput) = 0;
+
+protected:
+    virtual ~IDataHandlerBase() = default;
 };
 
 } // namespace common_serialization::csp::messaging

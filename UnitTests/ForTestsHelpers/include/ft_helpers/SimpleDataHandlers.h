@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataServers.h
+ * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataHandlers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -61,12 +61,18 @@ cs::Status defaultHandle(const InputStruct& input, OutputStruct& output)
     return cs::Status::kNoError;
 }
 
-class FirstDataServer 
-    : cs::csp::messaging::IDataServer<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, true, false, 1>
-    , cs::csp::messaging::IDataServer<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>, false>
-    , cs::csp::messaging::IDataServer<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
+class FirstDataHandler 
+    : cs::csp::messaging::IDataHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, true, false, 1>
+    , cs::csp::messaging::IDataHandler<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>, false>
+    , cs::csp::messaging::IDataHandler<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
 {
 public:
+    FirstDataHandler(cs::csp::messaging::IDataHandlersRegistrar& registrar)
+        : cs::csp::messaging::IDataHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, true, false, 1>(registrar)
+        , cs::csp::messaging::IDataHandler<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>, false>(registrar)
+        , cs::csp::messaging::IDataHandler<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>(registrar)
+    { }
+
     cs::Status handleData(
           const interface_for_test::SimplyAssignableAlignedToOne<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
@@ -96,10 +102,14 @@ public:
     }
 };
 
-class SecondDataServer
-    : cs::csp::messaging::IDataServer<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
+class SecondDataHandler
+    : cs::csp::messaging::IDataHandler<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
 {
 public:
+    SecondDataHandler(cs::csp::messaging::IDataHandlersRegistrar& registrar)
+        : cs::csp::messaging::IDataHandler<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>, false, true>(registrar)
+    { }
+
     cs::Status handleData(const interface_for_test::SimplyAssignable<>& input
         , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
         , const cs::GenericPointerKeeper& clientId
@@ -110,10 +120,14 @@ public:
     }
 };
 
-class ThirdDataServer
-    : cs::csp::messaging::IDataServer<descendant_interface::DiamondDescendant<>, descendant_interface::SimpleStruct<>, false, true>
+class ThirdDataHandler
+    : cs::csp::messaging::IDataHandler<descendant_interface::DiamondDescendant<>, descendant_interface::SimpleStruct<>, false, true>
 {
 public:
+    ThirdDataHandler(cs::csp::messaging::IDataHandlersRegistrar& registrar)
+        : cs::csp::messaging::IDataHandler<descendant_interface::DiamondDescendant<>, descendant_interface::SimpleStruct<>, false, true>(registrar)
+    { }
+
     cs::Status handleData(
           const descendant_interface::DiamondDescendant<>& input
         , cs::Vector<cs::GenericPointerKeeper>* unmanagedPointers
@@ -124,10 +138,14 @@ public:
     }
 };
 
-class FourthDataServer
-    : cs::csp::messaging::IDataServer<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
+class FourthDataHandler
+    : cs::csp::messaging::IDataHandler<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>, false, true>
 {
 public:
+    FourthDataHandler(cs::csp::messaging::IDataHandlersRegistrar& registrar)
+        : cs::csp::messaging::IDataHandler<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>, false, true>(registrar)
+    { }
+
     cs::Status handleData(
           const another_yet_interface::SimpleStruct<>& input
         , cs::Vector<cs::GenericPointerKeeper>* unmanagedPointers

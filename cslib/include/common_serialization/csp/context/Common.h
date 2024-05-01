@@ -59,12 +59,6 @@ public:
             m_binaryData.reserve(256);
     }
 
-    Common(const Common&) = delete;
-    Common& operator=(const Common&) = delete;
-
-    Common(Common&&) = default;
-    Common& operator=(Common&&) = default;
-
     virtual ~Common() {}
 
     /// @brief Get reference to container that holds processed data in binary

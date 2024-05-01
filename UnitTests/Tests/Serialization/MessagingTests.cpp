@@ -45,11 +45,12 @@ const csp::service_structs::CspPartySettings<>& getServerSettings()
 
 TEST(MessagingTests, InitCommonServerT)
 {
-    csp::messaging::CommonServer commonServer(getServerSettings());
+    csp::messaging::Server commonServer;
+    commonServer.init<csp::messaging::GenericDataServersRegistrar>(getServerSettings());
     EXPECT_TRUE(commonServer.isValid());
-    EXPECT_EQ(commonServer.init({}), Status::kErrorInvalidArgument);
+    EXPECT_EQ(commonServer.init<csp::messaging::GenericDataServersRegistrar>({}), Status::kErrorInvalidArgument);
     EXPECT_FALSE(commonServer.isValid());
-    EXPECT_EQ(commonServer.init(getServerSettings()), Status::kNoError);
+    EXPECT_EQ(commonServer.init<csp::messaging::GenericDataServersRegistrar>(getServerSettings()), Status::kNoError);
     EXPECT_TRUE(commonServer.isValid());
 }
 
@@ -61,14 +62,14 @@ TEST(MessagingTests, InitDataClientT)
     serverSettings.mandatoryCommonFlags = csp::context::CommonFlags::kBigEndianFormat;
     serverSettings.forbiddenCommonFlags = csp::context::CommonFlags::kBitness32;
     serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
-    csp::messaging::CommonServer commonServer(serverSettings);
+    csp::messaging::Server commonServer;
+    commonServer.init<csp::messaging::GenericDataServersRegistrar>(serverSettings);
 
     interface_for_test::SimplyAssignableAlignedToOne<> dummyInput;
     interface_for_test::SimplyAssignableDescendant<> dummyOutput;
 
-    csp::messaging::DataClient dataClient(new SimpleSpeaker{ commonServer });
-
-    EXPECT_TRUE(dataClient.getDataClientSpeaker());
+    SimpleSpeaker simpleSpeaker{ commonServer };
+    csp::messaging::Client dataClient(simpleSpeaker);
 
     csp::service_structs::CspPartySettings<> clientSettings;
     clientSettings.protocolVersions.pushBack(1);
@@ -136,14 +137,7 @@ TEST(MessagingTests, InitDataClientT)
 
     // Test of init when data client speaker is not valid
     clientSettings.protocolVersions.insert(0, 0);
-    dynamic_cast<SimpleSpeaker*>(dataClient.getDataClientSpeaker().get())->setValidState(false);
-    EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNotInited);
-    EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
-
-    // Test of init when DataClient has no speaker
-    auto& speaker = dataClient.getDataClientSpeaker();
-    delete speaker.release();
+    dynamic_cast<SimpleSpeaker&>(dataClient.getClientSpeaker()).setValidState(false);
     EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNotInited);
     EXPECT_FALSE(dataClient.isValid());
     EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
@@ -151,10 +145,12 @@ TEST(MessagingTests, InitDataClientT)
 
 TEST(MessagingTests, DataMessageHandling)
 {
-    csp::messaging::CommonServer commonServer(getServerSettings());
-    FirstDataServer firstDataServer;
+    csp::messaging::Server commonServer;
+    commonServer.init<csp::messaging::GenericDataServersRegistrar>(getServerSettings());
+    FirstDataHandler firstDataHandler(*commonServer.getDataHandlersRegistrar());
 
-    csp::messaging::DataClient dataClient(new SimpleSpeaker{ commonServer });
+    SimpleSpeaker simpleSpeaker{ commonServer };
+    csp::messaging::Client dataClient(simpleSpeaker);
     csp::service_structs::CspPartySettings<> clientSettings;
     clientSettings.protocolVersions.pushBack(csp::traits::getLatestProtocolVersion());
     clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ interface_for_test::properties });

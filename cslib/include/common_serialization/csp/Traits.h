@@ -58,18 +58,13 @@ struct Interface
     context::DataFlags mandatoryDataFlags;
     context::DataFlags forbiddenDataFlags;
 
-    constexpr Interface() = default;
-    constexpr Interface(const Id& id, interface_version_t version, context::DataFlags mandatoryDataFlags, context::DataFlags forbiddenDataFlags) noexcept
-        : id(id), version(version), mandatoryDataFlags(mandatoryDataFlags), forbiddenDataFlags(forbiddenDataFlags)
-    { }
-
     [[nodiscard]] constexpr auto operator<=>(const Interface&) const = default;
 };
 
 namespace traits
 {
 
-constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined, context::DataFlags{}, context::DataFlags{} };
+constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined, {}, {} };
 
 [[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion() noexcept
 {

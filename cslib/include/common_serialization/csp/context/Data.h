@@ -199,7 +199,7 @@ public:
     /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
     explicit constexpr Data(
-          Common<Container>&& common
+          Common<Container>& common
         , DataFlags dataFlags = {}
         , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined

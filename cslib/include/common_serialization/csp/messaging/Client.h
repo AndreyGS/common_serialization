@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/DataClient.h
+ * @file cslib/include/common_serialization/csp/messaging/Client.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -25,7 +25,7 @@
 
 #include "common_serialization/csp/Concepts.h"
 #include "common_serialization/Containers/UniquePtr.h"
-#include "common_serialization/csp/messaging/IDataClientSpeaker.h"
+#include "common_serialization/csp/messaging/IClientSpeaker.h"
 #include "common_serialization/csp/processing/Contexts.h"
 #include "common_serialization/csp/processing/DataBodyProcessor.h"
 #include "common_serialization/csp/processing/Status.h"
@@ -35,20 +35,20 @@ namespace common_serialization::csp::messaging
 
 /// @brief Interface of client in CSP messaging model
 /// @details See documentation of CSP
-/// @note This class itself contains defined methods of handling
-///     data in CSP messaging model.
-class DataClient
+/// @note IClientSpeaker must be valid all the time when Client is used
+///     and behavior will be undefined otherwise
+class Client
 {
 public:
-    explicit DataClient(IDataClientSpeaker* pDataClientSpeaker);
-    DataClient(IDataClientSpeaker* pDataClientSpeaker, const service_structs::CspPartySettings<>& settings);
+    explicit Client(IClientSpeaker& clientSpeaker);
+    Client(IClientSpeaker& clientSpeaker, const service_structs::CspPartySettings<>& settings);
 
     Status init(const service_structs::CspPartySettings<>& settings) noexcept;
     Status init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept;
 
     bool isValid() const noexcept;
 
-    UniquePtr<IDataClientSpeaker>& getDataClientSpeaker() noexcept;
+    IClientSpeaker& getClientSpeaker() noexcept;
 
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
@@ -99,7 +99,7 @@ public:
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details Input data serialized according to arguments of function 
-    ///     and predefined settings of DataClient object instance.
+    ///     and predefined settings of Client object instance.
     ///     Then serialized data being sent to server(s) and received serialized response.
     ///     Response can be status of operation or expected output data.
     ///     - if response is a status that implying input message resend, but with adjusted
@@ -108,7 +108,7 @@ public:
     ///     - if response is an error status that can't be handled automatically or
     ///         successed status, this status is returned;
     ///     - if response is expected output data, then it's being deserialized according
-    ///         to arguments of function and predefined settings of DataClient object instance
+    ///         to arguments of function and predefined settings of Client object instance
     ///         and function will return status of operation.
     /// @tparam InputType Type that implements ISerializable interface
     /// @tparam OutputType Type that implements ISerializable interface
@@ -133,43 +133,45 @@ public:
     );
 
 private:
-    constexpr bool isValidInternal() const noexcept;
+    IClientSpeaker& m_clientSpeaker;
+    service_structs::CspPartySettings<> m_settings;
 
     // Distinct variable is for not having calculate valid condition every time
     bool m_isValid{ false };
-    UniquePtr<IDataClientSpeaker> m_dataClientSpeaker;
-    service_structs::CspPartySettings<> m_settings;
 };
 
-inline DataClient::DataClient(IDataClientSpeaker* pDataClientSpeaker)
-    : m_dataClientSpeaker(pDataClientSpeaker)
+inline Client::Client(IClientSpeaker& clientSpeaker)
+    : m_clientSpeaker(clientSpeaker)
 {
 }
 
-inline DataClient::DataClient(IDataClientSpeaker* pDataClientSpeaker, const service_structs::CspPartySettings<>& settings)
-    : m_dataClientSpeaker(pDataClientSpeaker)
+inline Client::Client(IClientSpeaker& clientSpeaker, const service_structs::CspPartySettings<>& settings)
+    : m_clientSpeaker(clientSpeaker)
 {
     init(settings);
 }
 
-inline Status DataClient::init(const service_structs::CspPartySettings<>& settings) noexcept
+inline Status Client::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
+    if (!settings.isValid())
+        return Status::kErrorInvalidArgument;
+
+    m_isValid = false;
+
     m_settings.clear();
 
-    CS_RUN(m_settings.init(settings))
+    CS_RUN(m_settings.init(settings));
 
-    m_isValid = isValidInternal();
+    m_isValid = m_clientSpeaker.isValid();
 
     return m_isValid ? Status::kNoError : Status::kErrorNotInited;
 }
 
-inline Status DataClient::init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept
+inline Status Client::init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept
 {
-    if (!m_dataClientSpeaker)
-        return Status::kErrorNotInited;
+    m_isValid = false;
 
     m_settings.clear();
-    m_isValid = false;
 
     Vector<protocol_version_t> serverCspVersions;
     CS_RUN(getServerProtocolVersions(serverCspVersions));
@@ -202,24 +204,24 @@ inline Status DataClient::init(const service_structs::CspPartySettings<>& client
     CS_RUN(getServerSettings(tempServerProtocolVersion, serverSettings));
     CS_RUN(m_settings.getCompatibleSettings(clientSettings, serverSettings));
 
-    m_isValid = true;
+    m_isValid = m_settings.isValid() && m_clientSpeaker.isValid();
 
-    return Status::kNoError;
+    return m_isValid ? Status::kNoError : Status::kErrorNotInited;
 }
 
-inline bool DataClient::isValid() const noexcept
+inline bool Client::isValid() const noexcept
 {
     return m_isValid;
 }
 
-inline UniquePtr<IDataClientSpeaker>& DataClient::getDataClientSpeaker() noexcept
+inline IClientSpeaker& Client::getClientSpeaker() noexcept
 {
-    return m_dataClientSpeaker;
+    return m_clientSpeaker;
 }
 
-inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept
+inline Status Client::getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept
 {
-    if (!m_dataClientSpeaker)
+    if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
 
     BinVector binInput;
@@ -227,7 +229,7 @@ inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& 
     CS_RUN(processing::serializeCommonContextNoChecks(ctxIn));
 
     BinWalker binOutput;
-    CS_RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+    CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
     context::Common<BinWalker> ctxOut(binOutput);
     CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
@@ -244,9 +246,9 @@ inline Status DataClient::getServerProtocolVersions(Vector<protocol_version_t>& 
     return processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, output);
 }
 
-inline Status DataClient::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
+inline Status Client::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
 {
-    if (!m_dataClientSpeaker)
+    if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
 
     BinVector binInput;
@@ -255,14 +257,14 @@ inline Status DataClient::getServerSettings(protocol_version_t serverCspVersion,
 
     BinWalker binOutput;
 
-    CS_RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+    CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
     return cspPartySettings.deserialize(binOutput);
 }
 
 template<typename InputType>
     requires IsISerializableBased<InputType>
-Status DataClient::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
+Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
 {
     if (!isValid())
         return Status::kErrorNotInited;
@@ -279,7 +281,7 @@ Status DataClient::getServerHandlerSettings(interface_version_t& minimumInterfac
     CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
 
     BinWalker binOutput;
-    CS_RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+    CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
     context::Common<BinWalker> ctxOut(binOutput);
 
@@ -295,12 +297,12 @@ Status DataClient::getServerHandlerSettings(interface_version_t& minimumInterfac
     return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 
-constexpr const service_structs::CspPartySettings<>& DataClient::getSettings() const noexcept
+constexpr const service_structs::CspPartySettings<>& Client::getSettings() const noexcept
 {
     return m_settings;
 }
 
-constexpr interface_version_t DataClient::getInterfaceVersion(const Id& id) const noexcept
+constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const noexcept
 {
     for (const auto& interface_ : m_settings.interfaces)
         if (id == interface_.id)
@@ -311,26 +313,26 @@ constexpr interface_version_t DataClient::getInterfaceVersion(const Id& id) cons
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-Status DataClient::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+Status Client::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
     return handleData(input, output, {}, {}, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-Status DataClient::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+Status Client::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
     return handleData(input, output, {}, additionalDataFlags, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
     requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-Status DataClient::handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
+Status Client::handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
     , context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
-    // We are additionally checking of m_dataClientSpeaker ptr state
-    // because DataClient interface allows us to manipulate with it directly
-    if (!isValid() || !m_dataClientSpeaker)
+    // We are additionally checking of m_clientSpeaker ptr state
+    // because Client interface allows us to manipulate with it directly
+    if (!isValid())
         return Status::kErrorNotInited;
 
     const Interface& interface_ = InputType::getInterface();
@@ -377,7 +379,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
 
     BinWalker binOutput;
 
-    CS_RUN(m_dataClientSpeaker->speak(binInput, binOutput));
+    CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
     ctxIn.clear();
 
@@ -393,7 +395,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         ctxIn.clear();
 
         Id outId;
-        context::DData<> ctxOutData(std::move(ctxOut));
+        context::DData<> ctxOutData(ctxOut);
 
         CS_RUN(processing::deserializeDataContext(ctxOutData, outId));
 
@@ -408,7 +410,7 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
         if (ctxOutData.checkRecursivePointers())
             ctxOutData.setPointersMap(&pointersMapOut);
 
-        // Here we no need to check minimum value of output version, because if we run DataClient::handleData
+        // Here we no need to check minimum value of output version, because if we run Client::handleData
         // we're already agreed with interface version that server have
         CS_RUN(processing::deserializeDataContextPostprocess<OutputType>(ctxOutData, outId, OutputType::getOriginPrivateVersion()));
 
@@ -423,11 +425,6 @@ Status DataClient::handleData(const InputType& input, OutputType& output, contex
     }
 
     return Status::kNoError;
-}
-
-constexpr bool DataClient::isValidInternal() const noexcept
-{
-    return static_cast<bool>(m_dataClientSpeaker) && m_dataClientSpeaker->isValid() && m_settings.isValid();
 }
 
 } // namespace common_serialization::csp::messaging
