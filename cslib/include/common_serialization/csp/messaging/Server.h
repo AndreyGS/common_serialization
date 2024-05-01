@@ -44,7 +44,6 @@ class Server
 public:
     Server() = default;
 
-    template<typename T>
     Server(const service_structs::CspPartySettings<>& settings, UniquePtr<IDataHandlersRegistrar>&& dataHandlersRegistrar) noexcept;
 
     template<typename T>
@@ -74,21 +73,14 @@ private:
     bool m_isInited{ false };
 };
 
-template<typename T>
 inline Server::Server(const service_structs::CspPartySettings<>& settings, UniquePtr<IDataHandlersRegistrar>&& dataHandlersRegistrar) noexcept
 {
     if (!settings.isValid() || !dataHandlersRegistrar)
-        return Status::kErrorNoMemory;
+        return;
 
     m_dataHandlersRegistrar = std::move(dataHandlersRegistrar);
 
-    m_settings.clear();
-
-    CS_RUN(m_settings.init(settings));
-
-    m_isInited = true;
-
-    return Status::kNoError;
+    m_isInited = statusSuccess(m_settings.init(settings));
 }
 
 template<typename T>
@@ -100,8 +92,6 @@ inline Status Server::init(const service_structs::CspPartySettings<>& settings) 
 
     if (!m_dataHandlersRegistrar)
         return Status::kErrorNoMemory;
-
-    m_settings.clear();
 
     if (!settings.isValid())
         return Status::kErrorInvalidArgument;
