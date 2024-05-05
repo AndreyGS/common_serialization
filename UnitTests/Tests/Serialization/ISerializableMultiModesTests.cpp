@@ -83,6 +83,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     EXPECT_EQ(bin.tell(), bin.size());
 
     cleanAfterStruct(input);
+    cleanAfterStruct(reference);
 }
 
 template<typename TS, typename TD>

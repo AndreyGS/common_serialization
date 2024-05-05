@@ -27,18 +27,15 @@ namespace
 using namespace common_serialization;
 using namespace ft_helpers;
 
-const csp::service_structs::CspPartySettings<>& getServerSettings()
+csp::service_structs::CspPartySettings<> getServerSettings()
 {
-    static csp::service_structs::CspPartySettings<> serverSettings;
+    csp::service_structs::CspPartySettings<> serverSettings;
 
-    if (serverSettings.protocolVersions.size() == 0)
-    {
-        serverSettings.protocolVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
+    serverSettings.protocolVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
 
-        serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ interface_for_test::properties });
-        serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ descendant_interface::properties });
-        serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
-    }
+    serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ interface_for_test::properties });
+    serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ descendant_interface::properties });
+    serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
 
     return serverSettings;
 }
@@ -46,7 +43,7 @@ const csp::service_structs::CspPartySettings<>& getServerSettings()
 TEST(MessagingTests, InitCommonServerT)
 {
     csp::messaging::Server commonServer;
-    commonServer.init<csp::messaging::GenericDataServersRegistrar>(getServerSettings());
+    EXPECT_EQ(commonServer.init<csp::messaging::GenericDataServersRegistrar>(getServerSettings()), Status::kNoError);
     EXPECT_TRUE(commonServer.isValid());
     EXPECT_EQ(commonServer.init<csp::messaging::GenericDataServersRegistrar>({}), Status::kErrorInvalidArgument);
     EXPECT_FALSE(commonServer.isValid());

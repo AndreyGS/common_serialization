@@ -42,6 +42,8 @@ void mainTest()
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
+
+    cleanAfterStruct(input);
 }
 
 TEST(ISerializableBasicModeTests, EmptyTypeT)
@@ -53,8 +55,6 @@ TEST(ISerializableBasicModeTests, EmptyTypeT)
     EmptyType output;
     EXPECT_EQ(output.deserialize(bin), Status::kNoError);
     EXPECT_EQ(bin.tell(), bin.size());
-
-    cleanAfterStruct(input);
 }
 
 TEST(ISerializableBasicModeTests, SimplyAssignableAlignedToOneT)

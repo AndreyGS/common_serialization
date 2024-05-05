@@ -64,34 +64,32 @@ TEST(UniquePtrTest, Constructors)
     UniquePtr<int> uptr1(makeUnique<int>(1));
     EXPECT_EQ(*uptr1.get(), 1);
 
-    UniquePtr<PodStruct> uptr2(new PodStructDesc{ 2 });
+    UniquePtr<CustomDeleterStruct> uptr2(new CustomDeleterStructDesc{ 2 });
     EXPECT_EQ(uptr2.get()->i, 2);
 
     CustomDeleter customDeleter;
 
-    UniquePtr<PodStruct, CustomDeleter> uptr3(new PodStructDesc{ 3 }, customDeleter);
+    UniquePtr<CustomDeleterStruct, CustomDeleter> uptr3(new CustomDeleterStructDesc{ 3 }, customDeleter);
     EXPECT_EQ(uptr3.get()->i, 3);
 
-    UniquePtr<PodStruct, CustomDeleter> uptr4(new PodStruct{ 4 }, CustomDeleter{});
+    UniquePtr<CustomDeleterStruct, CustomDeleter> uptr4(new CustomDeleterStruct{ 4 }, CustomDeleter{});
     EXPECT_EQ(uptr4.get()->i, 4);
 
     CustomDeleter2 customDeleter2;
 
-    UniquePtr<PodStruct, CustomDeleter> uptr5(new PodStructDesc{ 5 }, customDeleter2);
+    UniquePtr<CustomDeleterStruct, CustomDeleter> uptr5(new CustomDeleterStructDesc{ 5 }, customDeleter2);
     EXPECT_EQ(uptr5.get()->i, 5);
 
-    UniquePtr<PodStruct, CustomDeleter> uptr6(new PodStruct{ 6 }, CustomDeleter2{});
+    UniquePtr<CustomDeleterStruct, CustomDeleter> uptr6(new CustomDeleterStruct{ 6 }, CustomDeleter2{});
     EXPECT_EQ(uptr6.get()->i, 6);
 
-    UniquePtr<PodStruct> uptr7(makeUnique<PodStructDesc>(7));
+    UniquePtr<CustomDeleterStruct> uptr7(makeUnique<CustomDeleterStructDesc>(7));
     EXPECT_EQ(uptr7.get()->i, 7);
 
-    UniquePtr<PodStructDesc, CustomDeleter2> uptr8a(new PodStructDesc(8));
+    UniquePtr<CustomDeleterStructDesc, CustomDeleter2> uptr8a(new CustomDeleterStructDesc(8));
 
-    UniquePtr<PodStruct, CustomDeleter> uptr8(std::move(uptr8a));
+    UniquePtr<CustomDeleterStruct, CustomDeleter> uptr8(std::move(uptr8a));
     EXPECT_EQ(uptr8.get()->i, 8);
-
-    std::unique_ptr<PodStruct> xxx = std::make_unique<PodStructDesc>();
 }
 
 TEST(UniquePtrTest, AssignmentOperators)
@@ -206,13 +204,13 @@ TEST(UniquePtrTest, Swap)
 
 TEST(UniquePtrTest, VariousOperators)
 {
-    UniquePtr<PodStruct> uptr(makeUnique<PodStruct>(5));
+    UniquePtr<CustomDeleterStruct> uptr(makeUnique<CustomDeleterStruct>(5));
 
     EXPECT_EQ(uptr->i, 5);
     EXPECT_EQ((*uptr).i, 5);
     EXPECT_TRUE(static_cast<bool>(uptr));
 
-    uptr.release();
+    uptr.reset();
 
     EXPECT_FALSE(static_cast<bool>(uptr));
 }
@@ -372,7 +370,7 @@ TEST(UniquePtrArrTest, VariousOperators)
     EXPECT_EQ((*uptr).i, 5);
     EXPECT_TRUE(static_cast<bool>(uptr));
 
-    uptr.release();
+    uptr.reset();
 
     EXPECT_FALSE(static_cast<bool>(uptr));
 }

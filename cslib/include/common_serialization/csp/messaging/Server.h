@@ -182,8 +182,7 @@ CS_ALWAYS_INLINE Status Server::handleData(context::Common<BinWalker>& ctxCommon
     {
         status = pDataHandler->handleDataCommon(ctx, clientId, binOutput);
     }
-    // If we have more than one DataServer
-    else if (status == Status::kErrorMoreEntires)
+    else if (status == Status::kErrorMoreEntires) // if we have more than one DataHandler
     {
         Vector<IDataHandlerBase*, RawStrategicAllocatorHelper<IDataHandlerBase*>> dataHandlers;
         CS_RUN(m_dataHandlersRegistrar->findHandlers(id, dataHandlers));

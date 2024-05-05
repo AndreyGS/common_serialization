@@ -44,6 +44,8 @@ TEST(StdIncludedTests, MainT)
     EXPECT_EQ(output.deserialize(bin), Status::kNoError);
 
     EXPECT_EQ(input, output);
+
+    cleanAfterStruct(input);
 }
 
 } // namespace

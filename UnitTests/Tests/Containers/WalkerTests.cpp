@@ -35,10 +35,8 @@ T g_data_array[] = { "123", "456", "789" };
 template<typename T>
 auto getStringsFilledContainer()
 {
-    static Walker<T, DefaultAllocatorHelper<T>> walker;
-
-    if (walker.size() == 0)
-        walker.pushBackN(g_data_array<T>, 3);
+    Walker<T, DefaultAllocatorHelper<T>> walker;
+    walker.pushBackN(g_data_array<T>, 3);
 
     EXPECT_EQ(walker.capacity(), 6); // check that nothing is changed in allocation strategy
 
@@ -48,10 +46,8 @@ auto getStringsFilledContainer()
 template<>
 auto getStringsFilledContainer<PodStruct>()
 {
-    static Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> walker;
-
-    if (walker.size() == 0)
-        walker.pushBackN(g_data_array<PodStruct>, 3);
+    Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> walker;
+    walker.pushBackN(g_data_array<PodStruct>, 3);
 
     EXPECT_EQ(walker.capacity(), 6); // check that nothing is changed in allocation strategy
 

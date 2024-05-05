@@ -40,10 +40,8 @@ T g_data_array[] = { "123", "456", "789" };
 template<typename T>
 auto getStringsFilledContainer()
 {
-    static Vector<T, DefaultAllocatorHelper<T>> vec;
-    
-    if (vec.size() == 0)
-        vec.pushBackN(g_data_array<T>, 3);
+    Vector<T, DefaultAllocatorHelper<T>> vec;
+    vec.pushBackN(g_data_array<T>, 3);
 
     EXPECT_EQ(vec.capacity(), 6); // check that nothing is changed in allocation strategy
 
@@ -53,10 +51,8 @@ auto getStringsFilledContainer()
 template<>
 auto getStringsFilledContainer<PodStruct>()
 {
-    static Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> vec;
-
-    if (vec.size() == 0)
-        vec.pushBackN(g_data_array<PodStruct>, 3);
+    Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> vec;
+    vec.pushBackN(g_data_array<PodStruct>, 3);
 
     EXPECT_EQ(vec.capacity(), 6); // check that nothing is changed in allocation strategy
 

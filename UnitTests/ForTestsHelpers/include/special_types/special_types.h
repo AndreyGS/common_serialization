@@ -124,6 +124,39 @@ struct CustomArrDeleter2 : CustomArrDeleter
 {
 };
 
+struct CustomDeleterStruct
+{
+    std::string name;
+    int i{ 0 };
+
+    CustomDeleterStruct() = default;
+
+    explicit CustomDeleterStruct(int i) : i(i), name("CustomDeleterStruct") { }
+
+    [[nodiscard]] constexpr auto operator<=>(const CustomDeleterStruct&) const = default;
+
+    static void operator delete(CustomDeleterStruct* p, std::destroying_delete_t) noexcept;
+
+protected:
+    CustomDeleterStruct(int i, const std::string& name) : i(i), name(name) { }
+};
+
+struct CustomDeleterStructDesc : CustomDeleterStruct
+{
+    CustomDeleterStructDesc() = default;
+    explicit CustomDeleterStructDesc(int i) : CustomDeleterStruct(i, "CustomDeleterStructDesc") { }
+};
+
+inline void CustomDeleterStruct::operator delete(CustomDeleterStruct * p, std::destroying_delete_t) noexcept
+{
+    if (!p)
+        return;
+
+    if (p->name == "CustomDeleterStruct")
+        ::delete p;
+    else
+        ::delete reinterpret_cast<CustomDeleterStructDesc*>(p);
+}
 
 struct VirtDistructorOwner
 {
