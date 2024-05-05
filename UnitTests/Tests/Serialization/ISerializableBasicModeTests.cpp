@@ -92,4 +92,4 @@ TEST(ISerializableBasicModeTests, DiamondT)
     mainTest<Diamond<>>();
 }
 
-} // namespace anonymous
+} // namespace

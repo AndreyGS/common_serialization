@@ -34,72 +34,48 @@ using DefaultAllocatorHelper = cs::StrategicAllocatorHelper<T, cs::ConstructorNo
 class NoMoveConstructible
 {
 public:
-    char* p = nullptr;
-    size_t size = 0;
+    std::string m_str;
 
-    NoMoveConstructible() noexcept
-    {
-        p = new char[1];
-        *p = 0;
-    }
+    NoMoveConstructible() = default;
 
     NoMoveConstructible(const char* in_p)
     {
-        size = strlen(in_p);
-        p = new char[size + 1];
-        memcpy(p, in_p, size + 1);
+        m_str = in_p;
     }
 
-    NoMoveConstructible(const NoMoveConstructible& rhs)
-    {
-        p = new char[rhs.size + 1];
-        memcpy(p, rhs.p, rhs.size + 1);
-        size = rhs.size;
-    }
+    NoMoveConstructible(const NoMoveConstructible& rhs) = default;
+    NoMoveConstructible& operator=(const NoMoveConstructible& rhs) = default;
 
-    NoMoveConstructible& operator=(const NoMoveConstructible& rhs)
-    {
-        if (this != &rhs)
-        {
-            delete[] p;
+    ~NoMoveConstructible() = default;
 
-            p = new char[rhs.size + 1];
-            memcpy(p, rhs.p, rhs.size + 1);
-            size = rhs.size;
-        }
-        return *this;
-    }
-
-    ~NoMoveConstructible()
-    {
-        delete[] p;
-        p = nullptr;
-    }
-
-    bool operator==(const NoMoveConstructible& rhs) const noexcept
-    {
-        if (p && rhs.p)
-            return size == rhs.size && memcmp(p, rhs.p, size) == 0;
-        else
-            return false;
-    }
+    [[nodiscard]] constexpr auto operator<=>(const NoMoveConstructible&) const = default;
 };
 
 struct PodStruct
 {
-    int i = 0;
+    int i{ 0 };
 
-    PodStruct() noexcept { }
+    PodStruct() = default;
+
+    explicit PodStruct(int i) : i(i) { }
 
     PodStruct(const char* p) noexcept
     {
         i = *reinterpret_cast<const int*>(p);
     }
 
-    bool operator ==(const PodStruct& rhs) const noexcept
+    [[nodiscard]] constexpr auto operator<=>(const PodStruct&) const = default;
+
+    static void operator delete(PodStruct* p, std::destroying_delete_t)
     {
-        return i == rhs.i;
+
     }
+};
+
+struct PodStructDesc : PodStruct
+{
+    PodStructDesc() = default;
+    PodStructDesc(int i) : PodStruct(i) { }
 };
 
 class ErrorProne
@@ -122,35 +98,51 @@ inline uint32_t ErrorProne::counter = 0;
 inline uint32_t ErrorProne::errorOnCounter = 0;
 inline cs::Status ErrorProne::currentError = cs::Status::kNoError;
 
-#pragma pack(push, 1)
-
-struct SimplyAssignableAlignedToOneNotInterfaceType
+struct CustomDeleter
 {
-    char j;
-    int k;
-
-    using simply_assignable_aligned_to_one_tag = std::true_type;
+    template<typename T>
+    void operator()(T* p)
+    {
+        delete p;
+    }
 };
 
-#pragma pack(pop)
-
-struct SimplyAssignableNotInterfaceType
+struct CustomDeleter2 : CustomDeleter
 {
-    char j;
-    int k;
-
-    using simply_assignable_tag = std::true_type;
 };
 
-struct SimplyAssignableTypeWithoutTypeUsingNotInterfaceType
+struct CustomArrDeleter
 {
-    char j;
-    short k;
+    template<typename T>
+    void operator()(T* p)
+    {
+        delete[] p;
+    }
 };
 
-struct EmptyTypeWithoutTypeUsingNotInterfaceType
+struct CustomArrDeleter2 : CustomArrDeleter
 {
+};
 
+
+struct VirtDistructorOwner
+{
+    int i{ 0 };
+
+    VirtDistructorOwner() = default;
+
+    // it must not be explicit for tests reason
+    VirtDistructorOwner(int i) : i(i) {}
+
+    virtual ~VirtDistructorOwner() {}
+};
+
+struct VirtDistructorOwnerDesc : VirtDistructorOwner
+{
+    VirtDistructorOwnerDesc() = default;
+
+    // it must not be explicit for tests reason
+    VirtDistructorOwnerDesc(int i) : VirtDistructorOwner(i) {}
 };
 
 } // namespace special_types

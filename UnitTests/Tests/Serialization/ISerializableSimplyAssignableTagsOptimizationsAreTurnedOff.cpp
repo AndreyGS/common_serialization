@@ -88,4 +88,4 @@ TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, ContainSimplyAs
 }
 
 
-} // namespace anonymous
+} // namespace

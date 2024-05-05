@@ -47,7 +47,10 @@
 
 #else // !USER_MODE
 
-#include "common_serialization/std_equivalents/std_equivalents.h"
+#ifndef CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION      // if implementation wants to define own new shadowing functions
+                                                    // it should define CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION macro
+#include "common_serialization/std_equivalents.h"
+#endif // #ifndef CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION
 
 #ifdef LINUX_KERNEL
 
@@ -59,7 +62,10 @@
 
 #endif // LINUX_KERNEL || WINDOWS_KERNEL
 
-#include "common_serialization/std_equivalents/new.h"
+#ifndef CS_NO_STD_NEW_DELETE_REPLACEMENT            // if implementation wants to define own new shadowing functions
+                                                    // it should define CS_NO_STD_NEW_DELETE_REPLACEMENT macro
+#include "common_serialization/Allocators/NewDeleteReplacements.h"
+#endif // #ifndef CS_NO_STD_NEW_DELETE_REPLACEMENT
 
 #endif // USER_MODE
 

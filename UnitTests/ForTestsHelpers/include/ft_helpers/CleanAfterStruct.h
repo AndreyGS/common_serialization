@@ -33,6 +33,8 @@ void cleanAfterStruct(T& output)
 { }
 
 template<>
+void cleanAfterStruct(interface_for_test::SpecialProcessingType<>& output);
+template<>
 void cleanAfterStruct(interface_for_test::ManyPointersType<>& output);
 template<>
 void cleanAfterStruct(interface_for_test::SForAllModesTests_Version0<>& output);

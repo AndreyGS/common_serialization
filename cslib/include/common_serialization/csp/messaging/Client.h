@@ -234,7 +234,7 @@ inline Status Client::getServerProtocolVersions(Vector<protocol_version_t>& outp
     context::Common<BinWalker> ctxOut(binOutput);
     CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
 
-    if (ctxOut.getMessageType() != context::Message::kStatus)
+    if (ctxOut.getMessageType() != context::Message::Status)
         return Status::kErrorDataCorrupted;
 
     Status statusOut = Status::kNoError;
@@ -252,7 +252,7 @@ inline Status Client::getServerSettings(protocol_version_t serverCspVersion, ser
         return Status::kErrorNotInited;
 
     BinVector binInput;
-    context::Common<BinVector> ctxIn(binInput, serverCspVersion, context::Message::kGetSettings, {});
+    context::Common<BinVector> ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
     CS_RUN(processing::serializeCommonContext(ctxIn));
 
     BinWalker binOutput;
@@ -285,7 +285,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
 
     context::Common<BinWalker> ctxOut(binOutput);
 
-    if (ctxOut.getMessageType() != context::Message::kStatus)
+    if (ctxOut.getMessageType() != context::Message::Status)
         return Status::kErrorDataCorrupted;
 
     Status statusOut = Status::kNoError;
@@ -390,7 +390,7 @@ Status Client::handleData(const InputType& input, OutputType& output, context::C
     if (ctxIn.getCommonFlags() != ctxOut.getCommonFlags())
         return Status::kErrorDataCorrupted;
 
-    if (ctxOut.getMessageType() == context::Message::kData)
+    if (ctxOut.getMessageType() == context::Message::Data)
     {
         ctxIn.clear();
 
@@ -416,7 +416,7 @@ Status Client::handleData(const InputType& input, OutputType& output, context::C
 
         CS_RUN(processing::data::BodyProcessor::deserialize(ctxOutData, output));
     }
-    else if (ctxOut.getMessageType() == context::Message::kStatus)
+    else if (ctxOut.getMessageType() == context::Message::Status)
     {
         Status statusOut = Status::kNoError;
         CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));

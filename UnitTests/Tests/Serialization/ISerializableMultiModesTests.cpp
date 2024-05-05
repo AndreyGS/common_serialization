@@ -124,4 +124,4 @@ TEST(ISerializableMultiModesTests, AllFlags3to2)
     allFlags<DForAllModesTests<>, SForAllModesTests_Version2<>>(SForAllModesTests_Version2<>::getLatestInterfaceVersion());
 }
 
-} // namespace anonymous
+} // namespace

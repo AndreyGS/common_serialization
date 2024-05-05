@@ -175,7 +175,7 @@ public:
 
     [[nodiscard]] friend constexpr VectorIterator operator+(VectorIterator it, difference_type n) noexcept
     {
-        return it.m_p + n;
+        return VectorIterator(it.m_p + n);
     }
 };
 
@@ -720,7 +720,7 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
     }
 
     if (pDestEnd)
-        *pDestEnd = m_p + currentOffset;
+        *pDestEnd = iterator(m_p + currentOffset);
 
     return Status::kNoError;
 }
@@ -948,14 +948,19 @@ template<typename T, typename AllocatorHelper>
 {
     if (n > m_allocatedSize)
     {
-        T* newMp = strict ? m_allocatorHelper.allocateStrict(n) : m_allocatorHelper.allocate(n, &n);
-        if (newMp)
+        T* pNewMp = strict ? m_allocatorHelper.allocateStrict(n) : m_allocatorHelper.allocate(n, &n);
+        if (pNewMp)
         {
             m_allocatedSize = n;
 
-            CS_RUN(m_allocatorHelper.moveNoOverlap(newMp, m_p, m_dataSize));
+            if (Status status = m_allocatorHelper.moveNoOverlap(pNewMp, m_p, m_dataSize); !statusSuccess(status))
+            {
+                m_allocatorHelper.deallocate(pNewMp);
+                return status;
+            }
+
             m_allocatorHelper.destroyAndDeallocate(m_p, m_dataSize);
-            m_p = newMp;
+            m_p = pNewMp;
         }
         else
             return Status::kErrorNoMemory;

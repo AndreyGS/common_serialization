@@ -75,4 +75,4 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
     cleanAfterStruct(input);
 }
 
-} // namespace anonymous
+} // namespace

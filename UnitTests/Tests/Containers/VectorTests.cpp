@@ -398,12 +398,12 @@ TEST(VectorTest, PushBackNoMove)
     NoMoveConstructible str("123");
     EXPECT_EQ(vec.pushBack(str), Status::kNoError);
     EXPECT_EQ(vec[0], "123");
-    EXPECT_EQ(str.size, 3);
+    EXPECT_EQ(str.m_str.size(), 3);
 
     // test r-value
     EXPECT_EQ(vec.pushBack(std::move(str)), Status::kNoError);
     EXPECT_EQ(vec[1], "123");
-    EXPECT_EQ(str.p, nullptr);
+    EXPECT_EQ(str.m_str.size(), 3);
 }
 
 TEST(VectorTest, PushBackPod)
@@ -1023,37 +1023,37 @@ void FCopyN()
 {
     auto vec = getStringsFilledContainer<T>();
 
-    T* another_data_array = new T[3];
+    auto another_data_array = std::make_unique_for_overwrite<T[]>(3);
 
     T* p = nullptr;
-    EXPECT_EQ(vec.copyN(0, 3, another_data_array, &p), Status::kNoError);
-    EXPECT_EQ(p, another_data_array + 3);
+    EXPECT_EQ(vec.copyN(0, 3, another_data_array.get(), &p), Status::kNoError);
+    EXPECT_EQ(p, another_data_array.get() + 3);
 
     for (size_type i = 0; i < 3; ++i)
-        EXPECT_EQ(vec[i], another_data_array[i]);
+        EXPECT_EQ(vec[i], another_data_array.get()[i]);
 
-    EXPECT_EQ(vec.copyN(1, 3, another_data_array, &p), Status::kNoError);
-    EXPECT_EQ(p, another_data_array + 2);
-    EXPECT_EQ(vec[1], another_data_array[0]);
-    EXPECT_EQ(vec[2], another_data_array[1]);
+    EXPECT_EQ(vec.copyN(1, 3, another_data_array.get(), &p), Status::kNoError);
+    EXPECT_EQ(p, another_data_array.get() + 2);
+    EXPECT_EQ(vec[1], another_data_array.get()[0]);
+    EXPECT_EQ(vec[2], another_data_array.get()[1]);
 
     // try to not pass optional arg
     p = nullptr;
-    EXPECT_EQ(vec.copyN(0, 0, another_data_array), Status::kNoError);
+    EXPECT_EQ(vec.copyN(0, 0, another_data_array.get()), Status::kNoError);
 
     // copy more than vec has
     p = nullptr;
-    EXPECT_EQ(vec.copyN(0, 10, another_data_array, &p), Status::kNoError);
-    EXPECT_EQ(p, another_data_array + 3);
+    EXPECT_EQ(vec.copyN(0, 10, another_data_array.get(), &p), Status::kNoError);
+    EXPECT_EQ(p, another_data_array.get() + 3);
     for (size_type i = 0; i < 3; ++i)
-        EXPECT_EQ(vec[i], another_data_array[i]);
+        EXPECT_EQ(vec[i], another_data_array.get()[i]);
 
     // copy zero elements
     p = nullptr;
-    EXPECT_EQ(vec.copyN(1, 0, another_data_array, &p), Status::kNoError);
-    EXPECT_EQ(p, another_data_array);
+    EXPECT_EQ(vec.copyN(1, 0, another_data_array.get(), &p), Status::kNoError);
+    EXPECT_EQ(p, another_data_array.get());
     for (size_type i = 0; i < 3; ++i)
-        EXPECT_EQ(vec[i], another_data_array[i]);
+        EXPECT_EQ(vec[i], another_data_array.get()[i]);
 
     p = reinterpret_cast<T*>(1ll);
     EXPECT_EQ(vec.copyN(1, 0, nullptr, &p), Status::kNoError);
@@ -1061,20 +1061,20 @@ void FCopyN()
 
     // try to copy with wrong offset
     p = nullptr;
-    EXPECT_EQ(vec.copyN(3, 1, another_data_array, &p), Status::kErrorOverflow);
+    EXPECT_EQ(vec.copyN(3, 1, another_data_array.get(), &p), Status::kErrorOverflow);
     EXPECT_EQ(p, nullptr);
     for (size_type i = 0; i < 3; ++i)
-        EXPECT_EQ(vec[i], another_data_array[i]);
+        EXPECT_EQ(vec[i], another_data_array.get()[i]);
 
     // copy offset > size && n == 0
     p = nullptr;
-    EXPECT_EQ(vec.copyN(4, 0, another_data_array, &p), Status::kErrorOverflow);
+    EXPECT_EQ(vec.copyN(4, 0, another_data_array.get(), &p), Status::kErrorOverflow);
     EXPECT_EQ(p, nullptr);
 
     // copy offset == size && n == 0
     p = nullptr;
-    EXPECT_EQ(vec.copyN(3, 0, another_data_array, &p), Status::kNoError);
-    EXPECT_EQ(p, another_data_array);
+    EXPECT_EQ(vec.copyN(3, 0, another_data_array.get(), &p), Status::kNoError);
+    EXPECT_EQ(p, another_data_array.get());
 
     // try to copy with nullptr as destination
     p = nullptr;
@@ -1294,4 +1294,4 @@ TEST(VectorTest, GetAllocatorHelper)
     EXPECT_TRUE((std::is_lvalue_reference_v<decltype(allocator)>));
 }
 
-} // namespace anonymous
+} // namespace

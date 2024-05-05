@@ -106,4 +106,4 @@ TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SpecialTBasicT)
     cleanAfterStruct(input);
 }
 
-} // namespace anonymous
+} // namespace

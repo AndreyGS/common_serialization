@@ -77,7 +77,7 @@ constexpr Status deserializeCommonContext(context::Common<D>& ctx)
     if (minimumSupportedVersion > ctx.getProtocolVersion() || traits::getLatestProtocolVersion() < ctx.getProtocolVersion())
         return Status::kErrorNotSupportedProtocolVersion;
 
-    context::Message messageType = context::Message::kData;
+    context::Message messageType = context::Message::Data;
     CS_RUN(readPrimitive(commonContextSpecial, messageType));
 
     ctx.setMessageType(messageType);
@@ -104,7 +104,7 @@ constexpr Status deserializeCommonContextNoChecks(context::Common<D>& ctx)
     protocol_version_t minimumSupportedVersion = ctx.getProtocolVersion();
     ctx.setProtocolVersion(static_cast<protocol_version_t>(version));
 
-    context::Message messageType = context::Message::kData;
+    context::Message messageType = context::Message::Data;
     CS_RUN(readPrimitive(commonContextSpecial, messageType));
 
     ctx.setMessageType(messageType);

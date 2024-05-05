@@ -57,7 +57,7 @@ public:
     /// @return Status of operation
     Status handleMessage(BinWalker& binInput, const GenericPointerKeeper& clientId, BinVector& binOutput) const;
 
-    CS_ALWAYS_INLINE UniquePtr<IDataHandlersRegistrar>& getDataHandlersRegistrar() noexcept;
+    CS_ALWAYS_INLINE const UniquePtr<IDataHandlersRegistrar>& getDataHandlersRegistrar() const noexcept;
 
 private:
     CS_ALWAYS_INLINE Status handleGetSettings(protocol_version_t cspVersion, BinVector& binOutput) const noexcept;
@@ -88,7 +88,7 @@ inline Status Server::init(const service_structs::CspPartySettings<>& settings) 
 {
     m_isInited = false;
 
-    m_dataHandlersRegistrar = new (std::nothrow) T;
+    m_dataHandlersRegistrar = std::move(makeUniqueNoThrowForOverwrite<T>());
 
     if (!m_dataHandlersRegistrar)
         return Status::kErrorNoMemory;
@@ -128,10 +128,10 @@ inline Status Server::handleMessage(BinWalker& binInput, const GenericPointerKee
 
     Status status{ Status::kNoError };
 
-    if (ctx.getMessageType() == context::Message::kGetSettings)
+    if (ctx.getMessageType() == context::Message::GetSettings)
         status = handleGetSettings(ctx.getProtocolVersion(), binOutput);
 
-    else if (ctx.getMessageType() == context::Message::kData)
+    else if (ctx.getMessageType() == context::Message::Data)
     {
         status = processing::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_settings.forbiddenCommonFlags, m_settings.mandatoryCommonFlags);
         if (statusSuccess(status))
@@ -146,7 +146,7 @@ inline Status Server::handleMessage(BinWalker& binInput, const GenericPointerKee
     return status;
 }
 
-CS_ALWAYS_INLINE UniquePtr<IDataHandlersRegistrar>& Server::getDataHandlersRegistrar() noexcept
+CS_ALWAYS_INLINE const UniquePtr<IDataHandlersRegistrar>& Server::getDataHandlersRegistrar() const noexcept
 {
     return m_dataHandlersRegistrar;
 }

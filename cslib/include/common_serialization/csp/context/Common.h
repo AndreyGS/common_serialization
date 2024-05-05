@@ -45,7 +45,7 @@ public:
     /// @param protocolVersion Protocol version that would be used in process (can be changed later)
     /// @param messageType Type of message that should be processed (can be changed later)
     explicit constexpr Common(Container& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
-        , Message messageType = Message::kData, CommonFlags commonFlags = {}
+        , Message messageType = Message::Data, CommonFlags commonFlags = {}
     ) noexcept
         : m_binaryData(binaryData)
         , m_protocolVersion(protocolVersion)
@@ -139,7 +139,7 @@ public:
         if constexpr (IDeserializationCapableContainer<Container>)
             m_binaryData.seek(0);
         m_protocolVersion = traits::getLatestProtocolVersion();
-        m_messageType = Message::kData;
+        m_messageType = Message::Data;
         return *this;
     }
 
@@ -155,7 +155,7 @@ public:
 
 private:
     Container& m_binaryData;
-    Message m_messageType{ Message::kData };
+    Message m_messageType{ Message::Data };
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
     bool m_protocolVersionsNotMatch{ false };
     bool m_endiannessNotMatch{ false };

@@ -59,4 +59,4 @@ TEST(ISerializableAnotherBitness, SpecialTBasicT)
     cleanAfterStruct(input);
 }
 
-} // namespace anonymous
+} // namespace

@@ -1,5 +1,5 @@
 /**
- * @file StdIncludedTests.cpp
+ * @file cslib/include/common_serialization/Containers/DefaultDeleter.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,29 +21,43 @@
  *
  */
 
-// In most of this tests we are simulating difference in arithmetic sizes by using
-// distinct structs for serialization and deserialization
-// (to accomplish that we set their name hashes to the same value)
+#pragma once
 
-namespace
+namespace common_serialization
 {
 
-using namespace common_serialization;
-using namespace with_std_included_interface;
-using namespace ft_helpers;
-
-TEST(StdIncludedTests, MainT)
+template<typename T>
+struct DefaultDeleter
 {
-    OneBigType<> input;
-    fillingStruct(input);
+    constexpr DefaultDeleter() noexcept = default;
 
-    BinWalker bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
+    template<typename T2>
+        requires std::is_convertible_v<T2*, T*>
+    constexpr DefaultDeleter(const DefaultDeleter<T2>&) noexcept {}
 
-    OneBigType<> output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+    constexpr void operator()(T* p) const noexcept
+    {
+        static_assert(0 < sizeof(T), "Incomplete types are not allowed to be deleted");
+        delete p;
+    }
+};
 
-    EXPECT_EQ(input, output);
-}
+template<typename T>
+struct DefaultDeleter<T[]>
+{
+    constexpr DefaultDeleter() noexcept = default;
 
-} // namespace
+    template<typename T2>
+        requires std::is_convertible_v<T2*, T*>
+    constexpr DefaultDeleter(const DefaultDeleter<T2[]>&) noexcept {}
+
+    template<typename T2>
+        requires std::is_convertible_v<T2*, T*>
+    constexpr void operator()(T2* p) const noexcept
+    {
+        static_assert(0 < sizeof(T2), "Incomplete types are not allowed to be deleted");
+        delete[] p;
+    }
+};
+
+} // namespace common_serialization

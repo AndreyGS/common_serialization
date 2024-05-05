@@ -44,7 +44,7 @@ constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status stat
 template<ISerializationCapableContainer S>
 constexpr Status serializeStatusFullContext(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut)
 {
-    context::Common<S> ctx(output, protocolVersion, context::Message::kStatus, commonFlags);
+    context::Common<S> ctx(output, protocolVersion, context::Message::Status, commonFlags);
     CS_RUN(serializeStatusFullContext(ctx, statusOut));
 
     return Status::kNoError;
@@ -54,7 +54,7 @@ template<ISerializationCapableContainer S>
 constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, const Vector<protocol_version_t>& supportedProtocolVersions, context::CommonFlags commonFlags)
 {
     // For unsupported protocol version always using kProtocolVersionUndefined in response context
-    context::Common<S> ctx(output, traits::kProtocolVersionUndefined, context::Message::kStatus, commonFlags);
+    context::Common<S> ctx(output, traits::kProtocolVersionUndefined, context::Message::Status, commonFlags);
     CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedProtocolVersion, true));
 
     CS_RUN(writePrimitive(static_cast<protocol_version_t>(supportedProtocolVersions.size()), ctx));

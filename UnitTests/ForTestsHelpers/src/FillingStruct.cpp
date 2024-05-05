@@ -260,7 +260,7 @@ void fillingStruct(interface_for_test::SpecialProcessingType<>& output)
 
     output.m_c = -82;
     output.m_sh = 48893;
-    output.m_m = cs::csp::context::Message::kData;
+    output.m_m = cs::csp::context::Message::Data;
     output.m_tEnum = interface_for_test::SpecialProcessingType<>::TEnum::ValN2;
     output.m_ll = -83242399125;
     output.m_float = 0.326236329032f;
@@ -353,6 +353,7 @@ template<>
 void fillingStruct(interface_for_test::ManyPointersType<>& output)
 {
     Vector<int*, RawStrategicAllocatorHelper<int*>> vec;
+    // It must be raw pointer, which will be deleted on test cleanup
     int* pInt = new int[3] { 1, 2, 3};
     vec.pushBack(pInt);
     vec.pushBack(pInt + 1);

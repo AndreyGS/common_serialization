@@ -29,7 +29,7 @@ namespace common_serialization::csp::service_structs
 {
 
 /// @brief Special type - placeholder for Input-Output operations that have no need in ISerializable Output struct
-/// @remark Interfaces which are using that struct as an Output will always receive the Message::kStatus as result
+/// @remark Interfaces which are using that struct as an Output will always receive the Message::Status as result
 /// @tparam T Derived class
 template<typename T = Dummy>
 struct ISerializableDummy : public ISerializable<ISerializableDummy<Dummy>>

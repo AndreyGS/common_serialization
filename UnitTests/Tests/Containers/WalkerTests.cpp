@@ -406,14 +406,13 @@ TEST(WalkerTest, PushBackNoMove)
     EXPECT_EQ(walker.pushBack(str), Status::kNoError);
     EXPECT_EQ(walker[0], "123");
     EXPECT_EQ(walker.tell(), 0);
-    EXPECT_EQ(str.size, 3);
+    EXPECT_EQ(str.m_str.size(), 3);
 
     // test r-value
     EXPECT_EQ(walker.pushBack(std::move(str)), Status::kNoError);
     EXPECT_EQ(walker[1], "123");
     EXPECT_EQ(walker.tell(), 1);
-    EXPECT_EQ(str.size, 3);
-    EXPECT_EQ(str.p, nullptr);
+    EXPECT_EQ(str.m_str.size(), 3);
 }
 
 TEST(WalkerTest, PushBackPod)
@@ -1277,4 +1276,4 @@ TEST(WalkerTest, Seek)
     EXPECT_EQ(walker.tell(), 3);
 }
 
-} // namespace anonymous
+} // namespace

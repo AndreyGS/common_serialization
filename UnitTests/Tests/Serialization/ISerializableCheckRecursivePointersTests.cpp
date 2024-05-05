@@ -73,4 +73,4 @@ TEST(ISerializableCheckRecursivePointersTests, ManyPointersTypeT)
     mainTest<ManyPointersType<>>();
 }
 
-} // namespace anonymous
+} // namespace

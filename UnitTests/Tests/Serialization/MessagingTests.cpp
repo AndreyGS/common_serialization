@@ -191,4 +191,4 @@ TEST(MessagingTests, DataMessageHandling)
     EXPECT_EQ(output3.m_d, 0); // struct wasn't changed
 }
 
-} // namespace anonymous
+} // namespace

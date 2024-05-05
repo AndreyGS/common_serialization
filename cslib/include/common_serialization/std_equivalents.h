@@ -285,6 +285,29 @@ struct is_unbounded_array<T[]> : std::true_type {};
 template<typename T>
 inline constexpr bool is_unbounded_array_v = is_unbounded_array<T>::value;
 
+// std::remove_extent
+template <typename T>
+struct remove_extent
+{
+    using type = T;
+};
+
+template <typename T, size_t N>
+struct remove_extent<T[N]>
+{
+    using type = T;
+};
+
+template <typename T>
+struct remove_extent<T[]>
+{
+    using type = T;
+};
+
+// std::remove_extent_t
+template <typename T>
+using remove_extent_t = typename remove_extent<T>::type;
+
 // std::is_reference
 template<typename T>
 struct is_reference : std::false_type {};
@@ -489,5 +512,54 @@ enum class endian
     native = __BYTE_ORDER__
 #endif
 };
+
+// std::is_convertible
+template<typename From, typename To>
+struct is_convertible : bool_constant<__is_convertible_to(From, To)>
+{
+};
+
+// std::is_convertible_v
+template<typename From, typename To>
+inline constexpr bool is_convertible_v = __is_convertible_to(From, To);
+
+// std::is_empty
+template<typename T>
+struct is_empty : bool_constant<__is_empty(T)> {};
+
+// std::is_empty_v
+template<typename T>
+inline constexpr bool is_empty_v = __is_empty(T);
+
+// std::is_final
+template<typename T>
+struct is_final : bool_constant<__is_final(T)> {};
+
+// std::is_final_v
+template<typename T>
+inline constexpr bool is_final_v = __is_final(T);
+
+// std::has_virtual_destructor
+template<typename T>
+struct has_virtual_destructor : bool_constant<__has_virtual_destructor(T)>
+{
+};
+
+// std::has_virtual_destructor_v
+template<typename T>
+inline constexpr bool has_virtual_destructor_v = __has_virtual_destructor(T);
+
+// std::destroying_delete_t
+struct destroying_delete_t {};
+
+// std::is_constructible
+template<typename T, typename... Ts>
+struct is_constructible : bool_constant<__is_constructible(T, Ts...)> 
+{
+};
+
+// std::is_constructible_v
+template<typename T, typename... Ts>
+inline constexpr bool is_constructible_v = __is_constructible(T, Ts...);
 
 } // namespace std

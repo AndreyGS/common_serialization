@@ -26,6 +26,14 @@
 namespace ft_helpers
 {
 
+template<>
+void cleanAfterStruct(interface_for_test::SpecialProcessingType<>& output)
+{
+    delete output.m_pVec;
+    delete output.m_pInt;
+    delete* output.m_ppInt;
+    delete output.m_ppInt;
+}
 
 template<>
 void cleanAfterStruct(interface_for_test::ManyPointersType<>& output)

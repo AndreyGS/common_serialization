@@ -65,4 +65,4 @@ TEST(RawKeeperAllocatorTest, VectorWorkTest)
         EXPECT_EQ(vec[i], i);
 }
 
-} // namespace anonymous
+} // namespace

@@ -97,4 +97,4 @@ TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableDataSizeT)
     cleanAfterStruct(input);
 }
 
-} // namespace anonymous
+} // namespace

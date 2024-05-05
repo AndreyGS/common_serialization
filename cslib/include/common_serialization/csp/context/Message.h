@@ -37,7 +37,7 @@ enum class Message : uint16_t
     ///         struct
     ///         {
     ///             Status status;
-    ///         } privateHeader;
+    ///         } privateContext;
     ///
     ///         struct
     ///         {
@@ -68,11 +68,9 @@ enum class Message : uint16_t
     ///         uint32_t outMinimumSupportedInterfaceVersion;
     ///         uint32_t outMaximumSupportedInterfaceVersion;
     ///     }
-    kStatus = 0x0,
+    Status = 0x0,
                                             
-    /// @brief Default message type (standard processing)
-    /// @details Using in one way single struct serialization/deserialization,
-    ///     that is no return (response) message is expected
+    /// @brief Default message type
     /// 
     ///     Format of Private parts of message:
     ///
@@ -82,26 +80,26 @@ enum class Message : uint16_t
     ///             uuid inStructId;
     ///             DataFlags dataFlags;
     ///             uint32_t interfaceVersion;
-    ///         } privateHeader;
+    ///         } privateContext;
     ///         
     ///         struct
     ///         {
     ///             uint8_t serializedData[anysize];
     ///         } body; // varies by DataFlags that was set and struct that was serialized
     ///     }
-    kData = 0x1,                            
+    Data = 0x1,                            
 
-    /// @brief Request for settings that need for comunication from other side
-    ///     (other side is only server, for now)
+    /// @brief Request for settings that need for comunication. Sends from Client to Server
     /// @details
     ///     Format of Private parts of message:
     /// 
     ///     {
     ///     }
     /// 
-    ///     In response server will must send csp::service_structs::CspPartySettings
-    ///     struct with its mandatory settings
-    kGetSettings = 0x2
+    ///     In response server must send Data message without any DataFlags applied.
+    ///     This Data message shall contain csp::service_structs::CspPartySettings
+    ///     struct with servers mandatory settings
+    GetSettings = 0x2
 };
 
 } // namespace common_serialization::csp::context

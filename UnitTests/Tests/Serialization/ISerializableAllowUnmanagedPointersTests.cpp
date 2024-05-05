@@ -60,4 +60,4 @@ TEST(ISerializableAllowUnmanagedPointersTests, SpecialT)
     mainTest<SpecialProcessingType<>>();
 }
 
-} // namespace anonymous
+} // namespace

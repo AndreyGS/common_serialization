@@ -59,4 +59,4 @@ TEST(ISerializableAnotherEndianness, SpecialTBasicT)
     cleanAfterStruct(input);
 }
 
-} // namespace anonymous
+} // namespace

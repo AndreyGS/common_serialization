@@ -255,8 +255,7 @@ constexpr Status GenericAllocatorHelper<T, Allocator, MostDerivedClass>::moveNoO
             if (pDest < pDirtyMemoryFinish)
                 this->getAllocator().destroy(pDest);
 
-            CS_RUN(this->getAllocator().construct(pDest++, std::move(*pSrc)));
-            (pSrc++)->~T(); // as a precaution if T is not moveable
+            CS_RUN(this->getAllocator().construct(pDest++, std::move(*pSrc++)));
         }
     else
         memcpy(pDest, pSrc, n * sizeof(T));

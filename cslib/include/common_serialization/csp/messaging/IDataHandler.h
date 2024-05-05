@@ -122,7 +122,7 @@ Status IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInt
     {
         if (status == Status::kErrorNotSupportedInterfaceVersion)
         {
-            context::Common<BinVector> ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::kStatus, ctx.getCommonFlags());
+            context::Common<BinVector> ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::Status, ctx.getCommonFlags());
             CS_RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(getMinimumInterfaceVersion(), OutputType::getId(), ctxOut));
         }
         

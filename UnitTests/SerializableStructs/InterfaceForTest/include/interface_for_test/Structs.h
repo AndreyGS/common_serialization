@@ -297,7 +297,7 @@ public:
 
     char m_c{ 0 };
     unsigned short m_sh{ 0 };
-    cs::csp::context::Message m_m{ cs::csp::context::Message::kStatus };
+    cs::csp::context::Message m_m{ cs::csp::context::Message::Status };
     TEnum m_tEnum{ TEnum::Val0 };
     int64_t m_ll{ 0 };
     float m_float{ 0 };

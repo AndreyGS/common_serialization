@@ -52,4 +52,17 @@ concept IGenericPointersKeeperContainer
          } 
     && std::is_same_v<typename S::value_type, GenericPointerKeeper> && std::is_same_v<typename S::constructor_allocator, std::true_type>;
 
+template<typename T>
+concept HasDestroyingDeleteOp = requires (T t) { T::operator delete(&t, std::destroying_delete_t{}); };
+
+template<typename T1, typename D1, typename T2, typename D2>
+concept SmartPtrArrConvertible =std::is_convertible_v<T2*, T1*>
+                           // && (std::is_reference_v<D1> && std::is_same_v<D2, D1> || !std::is_reference_v<D1> && std::is_convertible_v<D2, D1>)
+                            && (std::is_same_v<T2, T1> || std::has_virtual_destructor_v<T1>);
+
+template<typename T1, typename D1, typename T2, typename D2>
+concept SmartPtrConvertible =   std::is_convertible_v<T2*, T1*>
+                            && (std::is_reference_v<D1> && std::is_same_v<D2, D1> || !std::is_reference_v<D1> && std::is_convertible_v<D2, D1>)
+                            && (std::is_same_v<T2, T1> || std::has_virtual_destructor_v<T1> || HasDestroyingDeleteOp<T1>);
+
 } // namespace common_serialization

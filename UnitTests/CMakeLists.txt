@@ -9,7 +9,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(containers_tests "Tests/Containers/VectorTests.cpp" "Tests/Containers/WalkerTests.cpp")
+add_executable(containers_tests "Tests/Containers/VectorTests.cpp" "Tests/Containers/WalkerTests.cpp" "Tests/Containers/UniquePtrTests.cpp")
 target_compile_definitions(containers_tests PRIVATE USER_MODE)
 target_link_libraries(containers_tests PRIVATE cslib ForTestsHelpers PRIVATE gtest_main)
 target_include_directories(containers_tests PRIVATE "${PROJECT_SOURCE_DIR}")
