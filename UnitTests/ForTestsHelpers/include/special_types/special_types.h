@@ -48,7 +48,7 @@ public:
 
     ~NoMoveConstructible() = default;
 
-    [[nodiscard]] constexpr auto operator<=>(const NoMoveConstructible&) const = default;
+    [[nodiscard]] auto operator<=>(const NoMoveConstructible&) const = default;
 };
 
 struct PodStruct
@@ -133,7 +133,7 @@ struct CustomDeleterStruct
 
     explicit CustomDeleterStruct(int i) : i(i), name("CustomDeleterStruct") { }
 
-    [[nodiscard]] constexpr auto operator<=>(const CustomDeleterStruct&) const = default;
+    [[nodiscard]] auto operator<=>(const CustomDeleterStruct&) const = default;
 
     static void operator delete(CustomDeleterStruct* p, std::destroying_delete_t) noexcept;
 

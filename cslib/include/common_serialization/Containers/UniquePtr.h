@@ -199,7 +199,7 @@ public:
     UniquePtr(const UniquePtr&) = delete;
     UniquePtr& operator=(const UniquePtr&) = delete;
 
-    template<typename T2, typename D2, typename D = DefaultDeleter<T>>
+    template<typename T2, typename D2>
         requires SmartPtrArrConvertible<T, D, T2, D2>
     constexpr UniquePtr(UniquePtr<T2[], D2>&& rhs) noexcept
         : m_pair(one_then_variadic_args_t{}, rhs.getDeleter(), rhs.release())

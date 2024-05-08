@@ -45,7 +45,12 @@ public:
 
     explicit constexpr ConstVectorIterator(pointer p) : m_p(p) { }
 
-    [[nodiscard]] constexpr auto operator<=>(const ConstVectorIterator&) const = default;
+    [[nodiscard]] constexpr bool operator==(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr bool operator!=(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr bool operator<(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr bool operator>=(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr bool operator>(const ConstVectorIterator& rhs) const noexcept;
+    [[nodiscard]] constexpr bool operator<=(const ConstVectorIterator& rhs) const noexcept;
     [[nodiscard]] constexpr const_reference operator*() const;
     [[nodiscard]] constexpr const_pointer operator->() const;
     [[nodiscard]] constexpr const_reference operator[](difference_type n) const;
@@ -69,6 +74,42 @@ public:
 protected:
     pointer m_p{ nullptr };
 };
+
+template<typename Vec>
+[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator==(const ConstVectorIterator& rhs) const noexcept
+{
+    return m_p == rhs.m_p;
+}
+
+template<typename Vec>
+[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator!=(const ConstVectorIterator& rhs) const noexcept
+{
+    return !operator==(rhs);
+}
+
+template<typename Vec>
+[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator<(const ConstVectorIterator& rhs) const noexcept
+{
+    return rhs.m_p > m_p;
+}
+
+template<typename Vec>
+[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator>=(const ConstVectorIterator& rhs) const noexcept
+{
+    return !operator<(rhs);
+}
+
+template<typename Vec>
+[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator>(const ConstVectorIterator& rhs) const noexcept
+{
+    return rhs.m_p < m_p;
+}
+
+template<typename Vec>
+[[nodiscard]] constexpr bool ConstVectorIterator<Vec>::operator<=(const ConstVectorIterator& rhs) const noexcept
+{
+    return !operator>(rhs);
+}
 
 template<typename Vec>
 [[nodiscard]] constexpr typename ConstVectorIterator<Vec>::const_reference ConstVectorIterator<Vec>::operator*() const
@@ -157,7 +198,6 @@ public:
 
     explicit constexpr VectorIterator(pointer p) : Base(p) { }
 
-    [[nodiscard]] constexpr auto operator<=>(const VectorIterator&) const = default;
     [[nodiscard]] constexpr reference operator*() const;
     [[nodiscard]] constexpr pointer operator->() const;
     [[nodiscard]] constexpr reference operator[](difference_type n) const;

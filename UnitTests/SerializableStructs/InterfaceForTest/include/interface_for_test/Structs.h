@@ -249,7 +249,12 @@ public:
     static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    [[nodiscard]] auto operator<=>(const Diamond&) const = default;
+    // There is a bug in gcc when operator<=> not work properly on "Diamond-based" classes
+    //[[nodiscard]] auto operator<=>(const Diamond&) const = default;
+    [[nodiscard]] bool operator==(const Diamond& rhs) const
+    {
+        return m_d0 == rhs.m_d0 && m_d1 == rhs.m_d1 && m_d2 == rhs.m_d2;
+    }
 
     friend cs::csp::processing::data::BodyProcessor;
 };
