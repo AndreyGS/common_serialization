@@ -25,16 +25,21 @@
 
 #include "common_serialization/csp/ISerializable.h"
 #include "common_serialization/Containers/Vector.h"
+#include "common_serialization/csp/messaging/IDataHandlerTraits.h"
 
 namespace common_serialization::csp::messaging
 {
 
+template<SdContainers T>
 class IDataHandlerBase;
 
 /// @brief Registrar of servers that can process InOutData CSP requests
+template<SdContainers _Sdcs = traits::DefaultSdContainers>
 class IDataHandlersRegistrar
 {
 public:
+    using Sdcs = _Sdcs;
+
     IDataHandlersRegistrar() = default;
 
     IDataHandlersRegistrar(const IDataHandlersRegistrar&) = delete;
@@ -50,19 +55,19 @@ public:
     /// @param multicast Is it acceptable to have more than one handler to handle this Input-struct
     /// @param pInstance Pointer on handler instance
     /// @return Status of operation
-    virtual Status addHandler(const Id& id, bool multicast, IDataHandlerBase* pInstance) = 0;
+    virtual Status addHandler(const Id& id, bool multicast, IDataHandlerBase<Sdcs>* pInstance) = 0;
 
     /// @brief Removes handler from handlers database
     /// @param id Input-struct id that handler was handling
     /// @param pInstance Handler instance that must be deleted
-    virtual void removeHandler(const Id& id, IDataHandlerBase* pInstance) noexcept = 0;
+    virtual void removeHandler(const Id& id, IDataHandlerBase<Sdcs>* pInstance) noexcept = 0;
 
     /// @brief Find all handlers that subscribed to handle Input-struct with given id
     /// @param id Input-struct id related to handlers
     /// @param handlers Container that would be filled with target handlers
     /// @return Status of operation.
     ///     If no handlers were found, Status::kErrorNoSuchHandler is returned.
-    virtual Status findHandlers(const Id& id, Vector<IDataHandlerBase*, RawStrategicAllocatorHelper<IDataHandlerBase*>>& handlers) const noexcept = 0;
+    virtual Status findHandlers(const Id& id, Vector<IDataHandlerBase<Sdcs>*, RawStrategicAllocatorHelper<IDataHandlerBase<Sdcs>*>>& handlers) const noexcept = 0;
 
     /// @brief Find single handler that is subsribed to handle Input-struct with given id
     /// @param id Input-struct id related to handler
@@ -70,7 +75,7 @@ public:
     /// @return Status of operation.
     ///     If no handler was found, Status::kErrorNoSuchHandler is returned.
     ///     If there is more than one handler that handle this id, Status::kErrorMoreEntires is returned.
-    virtual Status findHandler(const Id& id, IDataHandlerBase*& pHandler) const noexcept = 0;
+    virtual Status findHandler(const Id& id, IDataHandlerBase<Sdcs>*& pHandler) const noexcept = 0;
 };
 
 } // namespace common_serialization::csp::messaging

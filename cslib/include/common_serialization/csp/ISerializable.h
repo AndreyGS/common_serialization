@@ -71,34 +71,34 @@ public:
 
     /// @brief It is a shortcut method for serialize this struct.
     /// @remark Use it when no context::DataFlags is need.
-    /// @tparam S Container that implements ISerializationCapableContainer interface
+    /// @tparam Sbin Container that implements ISerializationBinContainer interface
     /// @param output Output container
     /// @return Status of operation
-    template<ISerializationCapableContainer S>
-    constexpr Status serialize(S& output) const noexcept;
+    template<ISerializationBinContainer Sbin>
+    constexpr Status serialize(Sbin& output) const noexcept;
     
     /// @brief It is a shortcut method for serialize this struct using custom context
-    /// @tparam S Container that implements ISerializationCapableContainer interface
+    /// @tparam Sbin Container that implements ISerializationBinContainer interface
     /// @tparam PM Container that implements ISerializationPointersMap interface
     /// @param ctx Context that will be using in serialization process
     /// @return Status of operation
-    template<ISerializationCapableContainer S, ISerializationPointersMap PM>
-    constexpr Status serialize(context::SData<S, PM>& ctx) const noexcept;
+    template<SContainers Scs>
+    constexpr Status serialize(context::Data<Scs>& ctx) const noexcept;
 
     /// @brief It is a shortcut method for deserialize in this struct from input binary data
-    /// @tparam D Container that implements IDeserializationCapableContainer interface
+    /// @tparam Dbin Container that implements IDeserializationBinContainer interface
     /// @param input Input container
     /// @return Status of operation
-    template<IDeserializationCapableContainer D>
-    constexpr Status deserialize(D& input);
+    template<IDeserializationBinContainer Dbin>
+    constexpr Status deserialize(Dbin& input);
 
     /// @brief It is a shortcut method for deserialize in this struct from input binary data using custom context
-    /// @tparam D Container that implements IDeserializationCapableContainer interface
+    /// @tparam Dbin Container that implements IDeserializationBinContainer interface
     /// @tparam PM Container that implements IDeserializationPointersMap interface
     /// @param ctx Context that will be using in deserialization process
     /// @return Status of operation
-    template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-    constexpr Status deserialize(context::DData<D, PM>& ctx);
+    template<DContainers Dcs>
+    constexpr Status deserialize(context::Data<Dcs>& ctx);
 
     /// @brief Get instance ID
     /// @return Instance ID
@@ -155,17 +155,17 @@ public:
 };
 
 template<typename T>
-template<ISerializationCapableContainer S>
-constexpr Status ISerializable<T>::serialize(S& output) const noexcept
+template<ISerializationBinContainer Sbin>
+constexpr Status ISerializable<T>::serialize(Sbin& output) const noexcept
 {
-    context::SData<S> ctx(output, context::CommonFlags{}, context::DataFlags{}, this->getLatestInterfaceVersion());
+    context::Data<traits::SContainersConcrete<Sbin, traits::DefaultSpmContainer>> ctx(output, {}, {}, this->getLatestInterfaceVersion());
 
     return serialize(ctx);
 }
 
 template<typename T>
-template<ISerializationCapableContainer S, ISerializationPointersMap PM>
-constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const noexcept
+template<SContainers Scs>
+constexpr Status ISerializable<T>::serialize(context::Data<Scs>& ctx) const noexcept
 {
     if (ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined)
         ctx.setInterfaceVersion(this->getLatestInterfaceVersion());
@@ -177,17 +177,17 @@ constexpr Status ISerializable<T>::serialize(context::SData<S, PM>& ctx) const n
 }
 
 template<typename T>
-template<IDeserializationCapableContainer D>
-constexpr Status ISerializable<T>::deserialize(D& input)
+template<IDeserializationBinContainer Dbin>
+constexpr Status ISerializable<T>::deserialize(Dbin& input)
 {
-    context::DData<D> ctx(input, context::CommonFlags{}, context::DataFlags{}, this->getOriginPrivateVersion());
+    context::Data<traits::DContainersConcrete<Dbin, traits::DefaultDpmContainer, traits::DefaultPcContainer>> ctx(input, {}, {}, this->getOriginPrivateVersion());
 
     return deserialize(ctx);
 }
 
 template<typename T>
-template<IDeserializationCapableContainer D, IDeserializationPointersMap PM>
-constexpr Status ISerializable<T>::deserialize(context::DData<D, PM>& ctx)
+template<DContainers Dcs>
+constexpr Status ISerializable<T>::deserialize(context::Data<Dcs>& ctx)
 {
     CS_RUN(processing::deserializeCommonContext(ctx));
 
@@ -278,7 +278,7 @@ template<typename T>
 template<typename T>
 consteval interface_version_t getLatestInterfaceVersion()
 {
-    if constexpr (IsISerializableBased<T>)
+    if constexpr (ISerializableBased<T>)
         return T::getLatestInterfaceVersion();
     else
         return 0;

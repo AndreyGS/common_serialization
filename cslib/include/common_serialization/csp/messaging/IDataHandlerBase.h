@@ -23,24 +23,30 @@
 
 #pragma once
 
-#include "common_serialization/Containers/Walker.h"
-#include "common_serialization/csp/processing/Status.h"
+#include "common_serialization/csp/messaging/IDataHandlerTraits.h"
 
 namespace common_serialization::csp::messaging
 {
 
-// Do not be confused by it naming
-// It is a server that process data messages of CSP
-
-/// @brief Base of common interface of CSP data servers
-/// @remark Do not be confused by it naming - it is a server 
-///     that process data messages of CSP - not database server 
+/// @brief Base of common interface of CSP data handlers
+template<SdContainers _Sdcs = traits::DefaultSdContainers>
 class IDataHandlerBase
 {
 public:
+    using Sdcs = _Sdcs;
+    using Sbin = typename Sdcs::Sbin;
+    using Dbin = typename Sdcs::Dbin;
+    using Spm = typename Sdcs::Spm;
+    using Dpm = typename Sdcs::Dpm;
+    using Gkc = typename Sdcs::Gkc;
+
+    using Scs = typename Sdcs::Scs;
+    using Dcs = typename Sdcs::Dcs;
+
+
     [[nodiscard]] virtual interface_version_t getMinimumInterfaceVersion() = 0;
 
-    virtual Status handleDataCommon(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput) = 0;
+    virtual Status handleDataCommon(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput) = 0;
 
 protected:
     virtual ~IDataHandlerBase() = default;

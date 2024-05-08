@@ -27,22 +27,22 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignableAlignedToOne& value);
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::SimplyAssignableAlignedToOne& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignable& value);
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::SimplyAssignable& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DynamicPolymorphic& value);
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::DynamicPolymorphic& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DiamondBase& value);
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::DiamondBase& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge1& value);
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::DiamondEdge1& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge2& value);
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::DiamondEdge2& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::TwoInts& value);
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::TwoInts& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial1& value);
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::RecursiveTestSpecial1& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial2& value);
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::RecursiveTestSpecial2& value);
 
 } // namespace common_serialization::csp::processing::data

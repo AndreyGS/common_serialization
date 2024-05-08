@@ -27,7 +27,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignableAlignedToOne& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignableAlignedToOne& value, context::SData& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
@@ -38,7 +38,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignableAl
 }
 
 template<>
-Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignable& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignable& value, context::SData& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
@@ -50,7 +50,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignable& 
 
 
 template<>
-Status BodyProcessor::serialize(const not_part_of_interfaces::DynamicPolymorphic& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::DynamicPolymorphic& value, context::SData& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
@@ -61,7 +61,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::DynamicPolymorphic
 }
 
 template<>
-Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondBase& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondBase& value, context::SData& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
@@ -71,7 +71,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondBase& value
 }
 
 template<>
-Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge1& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge1& value, context::SData& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
@@ -82,7 +82,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge1& valu
 }
 
 template<>
-Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge2& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge2& value, context::SData& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
@@ -93,7 +93,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge2& valu
 }
 
 template<>
-Status BodyProcessor::serialize(const not_part_of_interfaces::TwoInts& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::TwoInts& value, context::SData& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
@@ -104,7 +104,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::TwoInts& value, co
 }
 
 template<>
-Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpecial1& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpecial1& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -114,7 +114,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpeci
 }
 
 template<>
-Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpecial2& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpecial2& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 

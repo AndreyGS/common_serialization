@@ -28,7 +28,7 @@ namespace common_serialization::csp::processing::data
 
 
 template<>
-Status BodyProcessor::serialize(const descendant_interface::SimpleStruct<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const descendant_interface::SimpleStruct<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -39,7 +39,7 @@ Status BodyProcessor::serialize(const descendant_interface::SimpleStruct<>& valu
 }
 
 template<>
-Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 

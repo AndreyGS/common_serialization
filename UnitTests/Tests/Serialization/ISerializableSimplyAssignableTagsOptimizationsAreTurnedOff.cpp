@@ -35,7 +35,7 @@ void mainTest()
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector());
+    csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff));
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
@@ -82,7 +82,7 @@ TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, ContainSimplyAs
     EXPECT_EQ(input, output);
 
     bin.clear();
-    csp::context::SData<> ctxIn(bin.getVector());
+    csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff));
     EXPECT_EQ(input.serialize(ctxIn), Status::kErrorNotSupportedSerializationSettingsForStruct);
 }

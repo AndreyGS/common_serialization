@@ -34,11 +34,11 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector(), csp::context::CommonFlags{ helpers::isBigEndianPlatform() }, csp::context::DataFlags{}, false, 0);
+    csp::context::SData ctxIn(bin.getVector(), csp::context::CommonFlags{ helpers::isBigEndianPlatform() }, csp::context::DataFlags{}, false, 0);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    csp::context::DData<> ctxOut(bin);
+    csp::context::DData ctxOut(bin);
     SimplyAssignableAlignedToOne output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
@@ -54,11 +54,11 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector(), csp::context::CommonFlags{ helpers::isBigEndianPlatform() }, csp::context::DataFlags{}, false, 1);
+    csp::context::SData ctxIn(bin.getVector(), csp::context::CommonFlags{ helpers::isBigEndianPlatform() }, csp::context::DataFlags{}, false, 1);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    csp::context::DData<> ctxOut(bin);
+    csp::context::DData ctxOut(bin);
     SimplyAssignable output;
 
     // test minimum interface version that is higher than in serialized data

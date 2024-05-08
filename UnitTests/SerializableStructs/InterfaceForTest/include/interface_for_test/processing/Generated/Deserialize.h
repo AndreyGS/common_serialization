@@ -27,38 +27,38 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableAlignedToOne<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignable<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignable<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableDescendant<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::AlwaysSimplyAssignable<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableFixedSize<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::DynamicPolymorphic<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::DynamicPolymorphic<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Diamond<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Diamond<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SpecialProcessingType<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SpecialProcessingType<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableSimilarType1<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableSimilarType1<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableSimilarType2<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableSimilarType2<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimilarType1<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimilarType1<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimilarType2<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimilarType2<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::ManyPointersType<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ManyPointersType<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::DForAllModesTests<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::DForAllModesTests<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value);
 
 } // namespace common_serialization::csp::processing::data

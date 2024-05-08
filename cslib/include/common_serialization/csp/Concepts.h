@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "common_serialization/Containers/Concepts.h"
 #include "common_serialization/csp/context/DataFlags.h"
 
 namespace common_serialization::csp
@@ -30,43 +31,43 @@ namespace common_serialization::csp
 
 template<typename> class ISerializable;
 
-template<typename S>
-concept ISerializationCapableContainer
-    =  requires(S e)
+template<typename Sbin>
+concept ISerializationBinContainer
+    =  requires(Sbin e)
          {
-             typename S::value_type;
-             typename S::size_type;
+             typename Sbin::value_type;
+             typename Sbin::size_type;
 
              { e.clear() };
-             { e.data() } -> std::same_as<typename S::value_type*>;
-             { e.size() } -> std::same_as<typename S::size_type>;
-             { e.capacity() } -> std::same_as<typename S::size_type>;
+             { e.data() } -> std::same_as<typename Sbin::value_type*>;
+             { e.size() } -> std::same_as<typename Sbin::size_type>;
+             { e.capacity() } -> std::same_as<typename Sbin::size_type>;
 
              { e.reserve(1) } -> std::same_as<Status>;
-             { e.pushBackN(nullptr, static_cast<typename S::size_type>(0)) } -> std::same_as<Status>;
+             { e.pushBackN(nullptr, static_cast<typename Sbin::size_type>(0)) } -> std::same_as<Status>;
              { e.pushBackArithmeticValue(1ull) } -> std::same_as<Status>;
          } 
-    && std::is_same_v<typename S::value_type, uint8_t>;
+    && std::is_same_v<typename Sbin::value_type, uint8_t>;
 
-template<typename D>
-concept IDeserializationCapableContainer
-    =  requires(D e)
+template<typename Dbin>
+concept IDeserializationBinContainer
+    =  requires(Dbin e)
          {
-             typename D::value_type;
-             typename D::size_type;
+             typename Dbin::value_type;
+             typename Dbin::size_type;
 
              { e.clear() };
-             { e.data() } -> std::same_as<typename D::value_type*>;
-             { e.size() } -> std::same_as<typename D::size_type>;
+             { e.data() } -> std::same_as<typename Dbin::value_type*>;
+             { e.size() } -> std::same_as<typename Dbin::size_type>;
 
              // the next two functions are questionable so far
-             { e.tell() } -> std::same_as<typename D::size_type>;
+             { e.tell() } -> std::same_as<typename Dbin::size_type>;
              { e.seek(0) } -> std::same_as<Status>;
              
-             { e.read(nullptr, static_cast<typename D::size_type>(0)) } -> std::same_as<Status>;
+             { e.read(nullptr, static_cast<typename Dbin::size_type>(0)) } -> std::same_as<Status>;
              { e.readArithmeticValue(*(new unsigned)) } -> std::same_as<Status>;
          } 
-    && std::is_same_v<typename D::value_type, uint8_t>;
+    && std::is_same_v<typename Dbin::value_type, uint8_t>;
 
 template<typename PM>
 concept ISerializationPointersMap
@@ -98,6 +99,21 @@ concept IDeserializationPointersMap
 
 template<typename PM>
 concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;
+
+/// @brief Set of container types that can be used in serialization process
+template<typename T>
+concept SContainers = ISerializationBinContainer<typename T::Sbin> && ISerializationPointersMap<typename T::Spm>;
+
+/// @brief Set of container types that can be used in deserialization process
+template<typename T>
+concept DContainers = IDeserializationBinContainer<typename T::Dbin> && IDeserializationPointersMap<typename T::Dpm> && IGenericPointersKeeperContainer<typename T::Gkc>;
+
+/// @brief Set of container types that can be used in serialization and deserialization processes
+template<typename T>
+concept SdContainers = SContainers<T> && DContainers<T> && SContainers<typename T::Scs> && DContainers<typename T::Dcs>;
+
+template<typename T>
+concept AnySdContainers = SContainers<T> || DContainers<T>;
 
 // FixSizedArithmeticType is type that can't be changed in its size
 // So long double is also match this criteria, despite its size is different
@@ -148,10 +164,10 @@ concept EmptyType
     =  requires(T t) { typename normalize_t<T>::empty_type_tag; };
 
 template<typename T>
-concept IsISerializableBased = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;
+concept ISerializableBased = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;
 
 template<typename T>
-concept IsNotISerializableBased = !IsISerializableBased<T>;
+concept NotISerializableBased = !ISerializableBased<T>;
 
 template<typename T>
 concept StructHaveDataFlags = requires

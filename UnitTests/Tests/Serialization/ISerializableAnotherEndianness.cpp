@@ -39,13 +39,13 @@ TEST(ISerializableAnotherEndianness, SpecialTBasicT)
     fillingStruct(input);
 
     BinWalker bin;
-    csp::context::SData<> ctxIn(bin.getVector()
+    csp::context::SData ctxIn(bin.getVector()
         , csp::context::CommonFlags{ helpers::isLittleEndianPlatform() ? csp::context::CommonFlags::kBigEndianFormat : csp::context::CommonFlags::kNoFlagsMask }
         , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
 
-    csp::context::DData<> ctxOut(bin);
+    csp::context::DData ctxOut(bin);
 
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(&addedPointers);

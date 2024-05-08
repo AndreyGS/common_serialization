@@ -27,7 +27,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableAlignedToOne<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -38,7 +38,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Sim
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignable<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignable<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -63,7 +63,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Sim
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableDescendant<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -75,7 +75,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Sim
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::AlwaysSimplyAssignable<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -86,7 +86,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Alw
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableFixedSize<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -98,7 +98,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Sim
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::DynamicPolymorphic<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::DynamicPolymorphic<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -112,7 +112,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Dyn
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Diamond<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Diamond<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -123,7 +123,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Dia
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SpecialProcessingType<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SpecialProcessingType<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -147,7 +147,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Spe
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -158,7 +158,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Sim
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -169,7 +169,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Sim
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableSimilarType1<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableSimilarType1<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -180,7 +180,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Sim
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableSimilarType2<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableSimilarType2<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -191,21 +191,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Sim
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimilarType1<>& value)
-{
-    CSP_DESERIALIZE_COMMON(ctx, value);
-
-    CS_RUN(deserialize(ctx, value.m_j));
-    CS_RUN(deserialize(ctx, value.m_k));
-    CS_RUN(deserialize(ctx, value.m_arrL));
-    CS_RUN(deserialize(ctx, value.m_sasTs));
-    CS_RUN(deserialize(ctx, value.m_saaToSts));
-
-    return Status::kNoError;
-}
-
-template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimilarType2<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimilarType1<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -219,7 +205,21 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Sim
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::ManyPointersType<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimilarType2<>& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    CS_RUN(deserialize(ctx, value.m_j));
+    CS_RUN(deserialize(ctx, value.m_k));
+    CS_RUN(deserialize(ctx, value.m_arrL));
+    CS_RUN(deserialize(ctx, value.m_sasTs));
+    CS_RUN(deserialize(ctx, value.m_saaToSts));
+
+    return Status::kNoError;
+}
+
+template<>
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ManyPointersType<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -237,7 +237,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::Man
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::DForAllModesTests<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::DForAllModesTests<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -253,7 +253,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::DFo
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 

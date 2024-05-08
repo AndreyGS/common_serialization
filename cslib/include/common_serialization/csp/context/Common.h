@@ -32,19 +32,20 @@
 namespace common_serialization::csp::context
 {
 
-/// @brief This is holder of common parameters of serialization process context
-/// @tparam Container Container capable to serialization/deserialization
-template<typename Container>
-    requires   ISerializationCapableContainer<Container>
-            || IDeserializationCapableContainer<Container>
+/// @brief Common context of CSP Messages
+template<typename _Bin>
+    requires   ISerializationBinContainer<_Bin>
+            || IDeserializationBinContainer<_Bin>
 class Common
 {
 public:
+    using Bin = _Bin;
+
     /// @brief Constructor
     /// @param binaryData Container that hold or would hold binary data of processing
     /// @param protocolVersion Protocol version that would be used in process (can be changed later)
     /// @param messageType Type of message that should be processed (can be changed later)
-    explicit constexpr Common(Container& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
+    explicit constexpr Common(Bin& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
         , Message messageType = Message::Data, CommonFlags commonFlags = {}
     ) noexcept
         : m_binaryData(binaryData)
@@ -55,7 +56,7 @@ public:
         setCommonFlags(commonFlags);
         m_endiannessNotMatch = bigEndianFormat() != helpers::isBigEndianPlatform();
 
-        if constexpr (ISerializationCapableContainer<Container>)
+        if constexpr (ISerializationBinContainer<Bin>)
             m_binaryData.reserve(256);
     }
 
@@ -63,8 +64,8 @@ public:
 
     /// @brief Get reference to container that holds processed data in binary
     /// @return Container with binary data
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr Container& getBinaryData() noexcept { return m_binaryData; }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr const Container& getBinaryData() const noexcept { return m_binaryData; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr Bin& getBinaryData() noexcept { return m_binaryData; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr const Bin& getBinaryData() const noexcept { return m_binaryData; }
 
     /// @brief Get type of CSP message that holds by this context
     /// @return Type of CSP message
@@ -136,7 +137,7 @@ public:
     ///     rather environment tool option instead of struct/operation specific.
     virtual Common& resetToDefaultsExceptDataContents() noexcept
     {
-        if constexpr (IDeserializationCapableContainer<Container>)
+        if constexpr (IDeserializationBinContainer<Bin>)
             m_binaryData.seek(0);
         m_protocolVersion = traits::getLatestProtocolVersion();
         m_messageType = Message::Data;
@@ -154,7 +155,7 @@ public:
     }
 
 private:
-    Container& m_binaryData;
+    Bin& m_binaryData;
     Message m_messageType{ Message::Data };
     protocol_version_t m_protocolVersion{ traits::getLatestProtocolVersion() };
     bool m_protocolVersionsNotMatch{ false };

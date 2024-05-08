@@ -30,7 +30,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-constexpr Status BodyProcessor::serialize(const Id& value, context::SData<>& ctx)
+constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
 {
     CS_RUN(serialize(value.id, ctx));
 
@@ -38,7 +38,7 @@ constexpr Status BodyProcessor::serialize(const Id& value, context::SData<>& ctx
 }
 
 template<>
-constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData<>& ctx)
+constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData& ctx)
 {
     CS_RUN(serialize(static_cast<uint32_t>(value), ctx));
 
@@ -46,7 +46,7 @@ constexpr Status BodyProcessor::serialize(const context::DataFlags& value, conte
 }
 
 template<>
-constexpr Status BodyProcessor::serialize(const Interface& value, context::SData<>& ctx)
+constexpr Status BodyProcessor::serialize(const Interface& value, context::SData& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 

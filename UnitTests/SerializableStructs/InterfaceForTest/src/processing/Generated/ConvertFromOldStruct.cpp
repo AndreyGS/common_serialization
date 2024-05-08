@@ -27,7 +27,7 @@ namespace common_serialization::csp::processing::data::version_converters
 {
 
 template<>
-Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableAlignedToOne<>& value)
+Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableAlignedToOne<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::SimplyAssignableAlignedToOne<>::getLatestPrivateVersion() != targetVersion);
@@ -43,7 +43,7 @@ Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_fo
 }
 
 template<>
-Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignable<>& value)
+Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignable<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::SimplyAssignable<>::getLatestPrivateVersion() != targetVersion);
@@ -58,7 +58,7 @@ Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_fo
 }
 
 template<>
-Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value)
+Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::SimplyAssignableDescendant<>::getLatestPrivateVersion() != targetVersion);
@@ -73,7 +73,7 @@ Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_fo
 }
 
 template<>
-Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::AlwaysSimplyAssignable<>& value)
+Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::AlwaysSimplyAssignable<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::AlwaysSimplyAssignable<>::getLatestPrivateVersion() != targetVersion);
@@ -88,7 +88,7 @@ Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_fo
 }
 
 template<>
-Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableFixedSize<>& value)
+Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableFixedSize<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::SimplyAssignableFixedSize<>::getLatestPrivateVersion() != targetVersion);
@@ -103,7 +103,7 @@ Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_fo
 }
 
 template<>
-Status fromOldStruct(context::DData<>& ctx, uint32_t targetVersion, interface_for_test::DForAllModesTests<>& value)
+Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::DForAllModesTests<>& value)
 {
     // If value version is the same as targetVersion there is a programmatic error that we are here
     assert(interface_for_test::DForAllModesTests<>::getLatestPrivateVersion() != targetVersion);

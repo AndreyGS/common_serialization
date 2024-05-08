@@ -29,31 +29,29 @@
 namespace common_serialization::csp::messaging
 {
 
-/// @brief Interface of concrete CSP data servers
-/// @tparam InstanceType If instance type same as Dummy
-///     then current server using method functions for handling data
-///     and otherwise it must be derived class in CRTP pattern
-///     and server using data handling with static function
-/// @tparam InputType Type of data that receiving from client. Must implement ISerializable.
-/// @tparam OutputType Type of data by that will be sent to client as response. Must implement ISerializable.
-/// @tparam forTempUseHeap Flag indicating that big memory consumption operations
-///     will use heap allocation instead of stack
-/// @tparam multicast Flag indicating that this server can be not the only one
-///     that may process request expressed in InputType
-/// @tparam minimumInterfaceVersion Minimum interface version that this handler may process
-template<
-      typename InputType
-    , typename OutputType
-    , bool forTempUseHeap = true
-    , bool multicast = false
-    , interface_version_t minimumInterfaceVersion 
-        = InputType::getOriginPrivateVersion() < OutputType::getOriginPrivateVersion()
-        ? InputType::getOriginPrivateVersion() :  OutputType::getOriginPrivateVersion()
->
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-class IDataHandler : public IDataHandlerBase
+/// @brief Interface of concrete CSP Data handlers
+template<IDataHandlerTraits _T>
+class IDataHandler : public IDataHandlerBase<typename _T::Sdcs>
 {
 public:
+    using InputType = typename _T::InputType;
+    using OutputType = typename _T::OutputType;
+
+    static constexpr bool forTempUseHeap = _T::forTempUseHeap;
+    static constexpr bool forTempUseHeapExtended = _T::forTempUseHeapExtended;
+    static constexpr bool multicast = _T::multicast;
+    static constexpr interface_version_t minimumInterfaceVersion  = _T::minimumInterfaceVersion;
+    
+    using Sdcs = typename _T::Sdcs;
+    using Sbin = typename Sdcs::Sbin;
+    using Dbin = typename Sdcs::Dbin;
+    using Spm = typename Sdcs::Spm;
+    using Dpm = typename Sdcs::Dpm;
+    using Gkc = typename Sdcs::Gkc;
+
+    using Scs = typename Sdcs::Scs;
+    using Dcs = typename Sdcs::Dcs;
+
     /// @brief This method must be overriden in concrete class.
     /// @details It receives deserialized input data and returns output data
     /// @note If concrete handler should be static this method is not overriden,
@@ -68,12 +66,12 @@ public:
     /// @param output Data that should be returned to client
     /// @return Status of operation
     virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, const GenericPointerKeeper& clientId, OutputType& output) = 0;
-    virtual Status checkPoliciesCompliance(const InputType* input, const context::DData<>& ctx, const GenericPointerKeeper& clientId);
+    virtual Status checkPoliciesCompliance(const InputType* input, const context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId);
 
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion() override;
 
 protected:
-    IDataHandler(IDataHandlersRegistrar& serviceServer);
+    IDataHandler(IDataHandlersRegistrar<Sdcs>& serviceServer);
     IDataHandler(const IDataHandler&) = delete;
     IDataHandler(IDataHandler&&) = delete;
     IDataHandler& operator=(const IDataHandler&) = delete;
@@ -81,35 +79,30 @@ protected:
     ~IDataHandler();
 
 private:
-    Status handleDataCommon(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput) override;
+    Status handleDataCommon(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput) override;
 
-    CS_ALWAYS_INLINE Status handleDataOnStack(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput);
-    CS_ALWAYS_INLINE Status handleDataOnHeap(context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput);
+    CS_ALWAYS_INLINE Status handleDataOnStack(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput);
+    CS_ALWAYS_INLINE Status handleDataOnHeap(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput);
     // This is the common code between handleDataOnStack and handleDataOnHeap
-    CS_ALWAYS_INLINE Status handleDataMain(InputType& input, context::DData<>& ctx, const GenericPointerKeeper& clientId, OutputType& output, BinVector& binOutput);
+    CS_ALWAYS_INLINE Status handleDataMain(InputType& input, context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, OutputType& output, Sbin& binOutput);
 
-    IDataHandlersRegistrar& m_dataHandlersRegistrar;
+    IDataHandlersRegistrar<Sdcs>& m_dataHandlersRegistrar;
 };
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
-    requires IsISerializableBased<InputType>&& IsISerializableBased<OutputType>
-Status IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::checkPoliciesCompliance(
-    const InputType* input, const context::DData<>& ctx, const GenericPointerKeeper& clientId)
+template<IDataHandlerTraits _T>
+Status IDataHandler<_T>::checkPoliciesCompliance(const InputType* input, const context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId)
 {
     return Status::kNoError;
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-interface_version_t IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::getMinimumInterfaceVersion()
+template<IDataHandlerTraits _T>
+[[nodiscard]] interface_version_t IDataHandler<_T>::getMinimumInterfaceVersion()
 {
     return minimumInterfaceVersion;
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-Status IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::handleDataCommon(
-    context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput
+template<IDataHandlerTraits _T>
+Status IDataHandler<_T>::handleDataCommon(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput
 )
 {
     CS_RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
@@ -137,25 +130,21 @@ Status IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInt
         return handleDataOnStack(ctx, clientId, binOutput);
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::IDataHandler(IDataHandlersRegistrar& dataHandlersRegistrar)
+template<IDataHandlerTraits _T>
+IDataHandler<_T>::IDataHandler(IDataHandlersRegistrar<Sdcs>& dataHandlersRegistrar)
     : m_dataHandlersRegistrar(dataHandlersRegistrar)
 {
     m_dataHandlersRegistrar.addHandler(InputType::getId(), multicast, this);
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::~IDataHandler()
+template<IDataHandlerTraits _T>
+IDataHandler<_T>::~IDataHandler()
 {
     m_dataHandlersRegistrar.removeHandler(InputType::getId(), this);
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-CS_ALWAYS_INLINE Status IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::handleDataOnStack(
-    context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput
+template<IDataHandlerTraits _T>
+CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnStack(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput
 )
 {
     InputType input;
@@ -164,10 +153,8 @@ CS_ALWAYS_INLINE Status IDataHandler<InputType, OutputType, forTempUseHeap, mult
     return handleDataMain(input, ctx, clientId, output, binOutput);
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-CS_ALWAYS_INLINE Status IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::handleDataOnHeap(
-    context::DData<>& ctx, const GenericPointerKeeper& clientId, BinVector& binOutput
+template<IDataHandlerTraits _T>
+CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnHeap(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput
 )
 {
     GenericPointerKeeper input;
@@ -181,10 +168,8 @@ CS_ALWAYS_INLINE Status IDataHandler<InputType, OutputType, forTempUseHeap, mult
     return handleDataMain(*input.get<InputType>(), ctx, clientId, *output.get<OutputType>(), binOutput);
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap, bool multicast, interface_version_t minimumInterfaceVersion>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
-CS_ALWAYS_INLINE Status IDataHandler<InputType, OutputType, forTempUseHeap, multicast, minimumInterfaceVersion>::handleDataMain(
-    InputType& input, context::DData<>& ctxIn, const GenericPointerKeeper& clientId, OutputType& output, BinVector& binOutput
+template<IDataHandlerTraits _T>
+CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataMain(InputType& input, context::Data<Dcs>& ctxIn, const GenericPointerKeeper& clientId, OutputType& output, Sbin& binOutput
 )
 {
     CS_RUN(processing::data::BodyProcessor::deserialize(ctxIn, input));
@@ -193,11 +178,11 @@ CS_ALWAYS_INLINE Status IDataHandler<InputType, OutputType, forTempUseHeap, mult
 
     if constexpr (!std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
     {
-        std::unordered_map<const void*, uint64_t> pointersMapOut;
+        Spm pointersMapOut;
 
         binOutput.clear();
 
-        context::SData<> ctxOut(
+        context::Data<Scs> ctxOut(
             binOutput
             , ctxIn.getProtocolVersion()
             , ctxIn.getCommonFlags()

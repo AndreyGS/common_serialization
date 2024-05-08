@@ -63,7 +63,7 @@
 #define CSP_SERIALIZE_COMMON(value, ctx)                                                \
 {                                                                                       \
     if (                                                                                \
-           IsISerializableBased<decltype(value)>                                        \
+           ISerializableBased<decltype(value)>                                          \
         && ctx.isInterfaceVersionsNotMatch()                                            \
     )                                                                                   \
     {                                                                                   \
@@ -86,7 +86,7 @@
 #define CSP_DESERIALIZE_COMMON(ctx, value)                                              \
 {                                                                                       \
     if (                                                                                \
-           IsISerializableBased<decltype(value)>                                        \
+           ISerializableBased<decltype(value)>                                          \
         && ctx.isInterfaceVersionsNotMatch()                                            \
     )                                                                                   \
     {                                                                                   \

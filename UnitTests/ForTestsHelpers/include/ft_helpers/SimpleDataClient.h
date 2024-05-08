@@ -31,7 +31,7 @@ namespace cs = common_serialization;
 class SimpleSpeaker : public cs::csp::messaging::IClientSpeaker
 {
 public:
-    SimpleSpeaker(cs::csp::messaging::Server& server) : m_server(server) {}
+    SimpleSpeaker(cs::csp::messaging::Server<>& server) : m_server(server) {}
 
     void setValidState(bool isValid)
     {
@@ -58,7 +58,7 @@ private:
         return m_isValid;
     }
 
-    cs::csp::messaging::Server& m_server;
+    cs::csp::messaging::Server<>& m_server;
     bool m_isValid{ true };
 };
 

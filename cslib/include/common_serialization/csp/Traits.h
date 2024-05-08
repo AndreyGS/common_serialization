@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/csp/context/DataFlags.h"
+#include "common_serialization/csp/Concepts.h"
 
 namespace common_serialization::csp
 {
@@ -121,6 +121,98 @@ template<typename T>
     else
         return maxForeignVersion;
 }
+
+template<ISerializationBinContainer _Sbin, ISerializationPointersMap _Spm>
+struct SContainersConcrete
+{
+    using Sbin = _Sbin;
+    using Spm = _Spm;
+};
+
+using DefaultSContainer = BinVector;
+using DefaultSpmContainer = std::unordered_map<const void*, csp_size_t>;
+
+using DefaultSContainers = SContainersConcrete<DefaultSContainer, DefaultSpmContainer>;
+
+template<IDeserializationBinContainer _Dbin, IDeserializationPointersMap _Dpm, IGenericPointersKeeperContainer _Gkc>
+struct DContainersConcrete
+{
+    using Dbin = _Dbin;
+    using Dpm = _Dpm;
+    using Gkc = _Gkc;
+};
+
+using DefaultDContainer = BinWalker;
+using DefaultDpmContainer = std::unordered_map<csp_size_t, void*>;
+using DefaultPcContainer = Vector<GenericPointerKeeper>;
+
+using DefaultDContainers = DContainersConcrete<DefaultDContainer, DefaultDpmContainer, DefaultPcContainer>;
+
+template<
+      ISerializationBinContainer _Sbin
+    , ISerializationPointersMap _Spm
+    , IDeserializationBinContainer _Dbin
+    , IDeserializationPointersMap _Dpm
+    , IGenericPointersKeeperContainer _Gkc
+>
+struct SdContainersConcrete
+{
+    using Sbin = _Sbin;
+    using Spm = _Spm;
+    using Dbin = _Dbin;
+    using Dpm = _Dpm;
+    using Gkc = _Gkc;
+
+    using Scs = SContainersConcrete<Sbin, Spm>;
+    using Dcs = DContainersConcrete<Dbin, Dpm, Gkc>;
+};
+
+using DefaultSdContainers = SdContainersConcrete<DefaultSContainer, DefaultSpmContainer, DefaultDContainer, DefaultDpmContainer, DefaultPcContainer>;
+
+template<AnySdContainers _Asdcs, bool>
+struct _BinContainer
+{
+    using type = typename _Asdcs::Sbin;
+};
+
+template<AnySdContainers _Asdcs>
+struct _BinContainer<_Asdcs, false>
+{
+    using type = typename _Asdcs::Dbin;
+};
+
+template<AnySdContainers _Asdcs, bool B>
+using BinContainer = typename _BinContainer<_Asdcs, B>::type;
+
+template<AnySdContainers _Asdcs, bool>
+struct _PmContainer
+{
+    using type = typename _Asdcs::Spm;
+};
+
+template<AnySdContainers _Asdcs>
+struct _PmContainer<_Asdcs, false>
+{
+    using type = typename _Asdcs::Dpm;
+};
+
+template<AnySdContainers _Asdcs, bool B>
+using PmContainer = typename _PmContainer<_Asdcs, B>::type;
+
+template<AnySdContainers _Asdcs, bool>
+struct _PcContainer
+{
+    using type = Dummy;
+};
+
+template<AnySdContainers _Asdcs>
+struct _PcContainer<_Asdcs, false>
+{
+    using type = typename _Asdcs::Gkc;
+};
+
+template<AnySdContainers _Asdcs, bool B>
+using PcContainer = typename _PcContainer<_Asdcs, B>::type;
 
 } // namespace traits
 

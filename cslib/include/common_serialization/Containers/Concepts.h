@@ -32,32 +32,32 @@ class GenericPointerKeeper;
 
 /// @brief Interface of container that holds
 ///     GenericPointerKeeper objects
-template<typename S>
+template<typename Sbin>
 concept IGenericPointersKeeperContainer
-    =  requires(S e)
+    =  requires(Sbin e)
          {
-             typename S::value_type;
-             typename S::constructor_allocator;
+             typename Sbin::value_type;
+             typename Sbin::constructor_allocator;
 
              { e.clear() };
              { e.begin() };
              { e.end() };
              { e.erase(0, 1) };
-             { e.data() } -> std::same_as<typename S::value_type*>;
-             { e.size() } -> std::same_as<typename S::size_type>;
-             { e.capacity() } -> std::same_as<typename S::size_type>;
+             { e.data() } -> std::same_as<typename Sbin::value_type*>;
+             { e.size() } -> std::same_as<typename Sbin::size_type>;
+             { e.capacity() } -> std::same_as<typename Sbin::size_type>;
 
              { e.reserve(1) } -> std::same_as<Status>;
              { e.pushBack(*(new GenericPointerKeeper)) } -> std::same_as<Status>;
          } 
-    && std::is_same_v<typename S::value_type, GenericPointerKeeper> && std::is_same_v<typename S::constructor_allocator, std::true_type>;
+    && std::is_same_v<typename Sbin::value_type, GenericPointerKeeper> && std::is_same_v<typename Sbin::constructor_allocator, std::true_type>;
 
 template<typename T>
 concept HasDestroyingDeleteOp = requires (T t) { T::operator delete(&t, std::destroying_delete_t{}); };
 
 template<typename T1, typename D1, typename T2, typename D2>
 concept SmartPtrArrConvertible =std::is_convertible_v<T2*, T1*>
-                           // && (std::is_reference_v<D1> && std::is_same_v<D2, D1> || !std::is_reference_v<D1> && std::is_convertible_v<D2, D1>)
+                            && (std::is_reference_v<D1> && std::is_same_v<D2, D1> || !std::is_reference_v<D1> && std::is_convertible_v<D2, D1>)
                             && (std::is_same_v<T2, T1> || std::has_virtual_destructor_v<T1>);
 
 template<typename T1, typename D1, typename T2, typename D2>

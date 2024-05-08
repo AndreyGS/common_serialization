@@ -27,7 +27,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignableAlignedToOne& value)
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::SimplyAssignableAlignedToOne& value)
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
@@ -38,7 +38,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces:
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::SimplyAssignable& value)
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::SimplyAssignable& value)
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
@@ -49,7 +49,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces:
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DynamicPolymorphic& value)
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::DynamicPolymorphic& value)
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
@@ -60,7 +60,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces:
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DiamondBase& value)
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::DiamondBase& value)
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
@@ -70,7 +70,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces:
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge1& value)
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::DiamondEdge1& value)
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
@@ -81,7 +81,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces:
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::DiamondEdge2& value)
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::DiamondEdge2& value)
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
@@ -93,7 +93,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces:
 
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::TwoInts& value)
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::TwoInts& value)
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
@@ -104,7 +104,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces:
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial1& value)
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::RecursiveTestSpecial1& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -114,7 +114,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces:
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, not_part_of_interfaces::RecursiveTestSpecial2& value)
+Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::RecursiveTestSpecial2& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 

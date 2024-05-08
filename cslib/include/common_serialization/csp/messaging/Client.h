@@ -63,7 +63,7 @@ public:
     /// @param outputTypeId Handler output type
     /// @return Status of operation
     template<typename InputType>
-        requires IsISerializableBased<InputType>
+        requires ISerializableBased<InputType>
     Status getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
 
     constexpr const service_structs::CspPartySettings<>& getSettings() const noexcept;
@@ -80,7 +80,7 @@ public:
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
     template<typename InputType, typename OutputType, bool forTempUseHeap = true>
-        requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+        requires ISerializableBased<InputType> && ISerializableBased<OutputType>
     Status handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
@@ -94,7 +94,7 @@ public:
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
     template<typename InputType, typename OutputType, bool forTempUseHeap = true>
-        requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+        requires ISerializableBased<InputType> && ISerializableBased<OutputType>
     Status handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
@@ -123,7 +123,7 @@ public:
     /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
     template<typename InputType, typename OutputType, bool forTempUseHeap = true>
-        requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+        requires ISerializableBased<InputType> && ISerializableBased<OutputType>
     Status handleData(
           const InputType& input
         , OutputType& output
@@ -263,7 +263,7 @@ inline Status Client::getServerSettings(protocol_version_t serverCspVersion, ser
 }
 
 template<typename InputType>
-    requires IsISerializableBased<InputType>
+    requires ISerializableBased<InputType>
 Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
 {
     if (!isValid())
@@ -275,7 +275,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
         return Status::kErrorNotSupportedInterface;
 
     BinVector binInput;
-    context::SData<> ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
+    context::SData ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
 
     CS_RUN(processing::serializeCommonContext(ctxIn));
     CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
@@ -312,21 +312,21 @@ constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const no
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+    requires ISerializableBased<InputType> && ISerializableBased<OutputType>
 Status Client::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
     return handleData(input, output, {}, {}, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+    requires ISerializableBased<InputType> && ISerializableBased<OutputType>
 Status Client::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
     return handleData(input, output, {}, additionalDataFlags, pUnmanagedPointers);
 }
 
 template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires IsISerializableBased<InputType> && IsISerializableBased<OutputType>
+    requires ISerializableBased<InputType> && ISerializableBased<OutputType>
 Status Client::handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
     , context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
 {
@@ -353,7 +353,7 @@ Status Client::handleData(const InputType& input, OutputType& output, context::C
 
     BinVector binInput;
 
-    context::SData<> ctxIn(
+    context::SData ctxIn(
           binInput
         , m_settings.protocolVersions[0]
         , m_settings.mandatoryCommonFlags | additionalCommonFlags
@@ -395,7 +395,7 @@ Status Client::handleData(const InputType& input, OutputType& output, context::C
         ctxIn.clear();
 
         Id outId;
-        context::DData<> ctxOutData(ctxOut);
+        context::DData ctxOutData(ctxOut);
 
         CS_RUN(processing::deserializeDataContext(ctxOutData, outId));
 

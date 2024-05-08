@@ -27,38 +27,38 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignable<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignable<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableDescendant<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableDescendant<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::AlwaysSimplyAssignable<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::AlwaysSimplyAssignable<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableFixedSize<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableFixedSize<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::DynamicPolymorphic<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::DynamicPolymorphic<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::Diamond<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::Diamond<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SpecialProcessingType<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SpecialProcessingType<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimilarType1<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimilarType1<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimilarType2<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimilarType2<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimilarType1<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimilarType1<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimilarType2<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimilarType2<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::ManyPointersType<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::ManyPointersType<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::DForAllModesTests<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::DForAllModesTests<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value, context::SData& ctx);
 
 } // namespace common_serialization::csp::processing::data

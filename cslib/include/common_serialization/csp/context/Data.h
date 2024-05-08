@@ -30,13 +30,15 @@ namespace common_serialization::csp::context
 {
 
 /// @brief Auxillary class for holding pointers map to prevent infinite recursive pointers serialization
-/// @tparam PM Map that implements ISerializationPointersMap interface.
+/// @tparam _Spm Map that implements ISerializationPointersMap interface.
 ///     We cannot direct use more restricted concept here
 ///     because std::conditional_t evaluating all traits in instantiation of Data class template.
-template<IPointersMap PM>
+template<ISerializationPointersMap _Spm>
 class SerializeExtendedPointersProcessing
 {
 public:
+    using Spm = _Spm;
+
     /// @brief Default ctor
     SerializeExtendedPointersProcessing()
         : m_pPointersMap(nullptr)
@@ -44,20 +46,20 @@ public:
 
     /// @brief Ctor from IPointersMap
     /// @param pPointersMap Pointer to map that implements ISerializationPointersMap interface
-    explicit SerializeExtendedPointersProcessing(PM* pPointersMap)
+    explicit SerializeExtendedPointersProcessing(Spm* pPointersMap)
         : m_pPointersMap(pPointersMap)
     { }
 
     /// @brief Get pointer to holding pointers map
     /// @return Pointer to pointers map (could be nullptr)
-    [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
-    [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
+    [[nodiscard]] constexpr Spm* getPointersMap() noexcept { return m_pPointersMap; }
+    [[nodiscard]] constexpr const Spm* getPointersMap() const noexcept { return m_pPointersMap; }
 
     /// @brief Set map that holding pointers and their relative offsets in binary data.
     /// @note When we set map to SerializeExtendedPointersProcessing 
     ///     it will not owns this map and does not clears its contents on destruction.
     /// @param pPointersMap Pointer to pointers map (could be nullptr)
-    constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
+    constexpr void setPointersMap(Spm* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
 
     /// @brief Clears contents of pointers map
     void clear()
@@ -67,11 +69,11 @@ public:
     }
 
 private:
-    PM* m_pPointersMap{ nullptr };
+    Spm* m_pPointersMap{ nullptr };
 };
 
 /// @brief Auxillary class for holding pointers containers using in some deserialization scenarios
-/// @tparam PC Container that implements IGenericPointersKeeperContainer interface.
+/// @tparam _Gkc Container that implements IGenericPointersKeeperContainer interface.
 ///     Using for keeping additional free pointers that creates deserialization process.
 ///     When pointers are no longer needed it should be freed.
 /// @tparam PM Container that implements IGenericPointersKeeperContainer interface.
@@ -81,11 +83,19 @@ private:
 ///     (should be construction capable)
 /// @tparam AllocatorHelperStateless AllocatorHelper that would be used for free pointers allocation help
 ///     (should be construction capable)
-template<IGenericPointersKeeperContainer PC, IPointersMap PM
-    , template<typename> typename Allocator = ConstructorNoexceptAllocator, template<typename, typename, typename> typename AllocatorHelper = GenericAllocatorHelper>
+template<IGenericPointersKeeperContainer _Gkc, IDeserializationPointersMap _Dpm
+    , template<typename> typename _Allocator = ConstructorNoexceptAllocator, template<typename, typename, typename> typename _AllocatorHelper = GenericAllocatorHelper>
 class DeserializeExtendedPointersProcessing
 {
 public:
+    using Gkc = _Gkc;
+    using Dpm = _Dpm;
+
+    template<typename T>
+    using Allocator = _Allocator<T>;
+    template<typename T1, typename T2, typename T3>
+    using AllocatorHelper = _AllocatorHelper<T1, T2, T3>;
+
     /// @brief Default constuctor
     DeserializeExtendedPointersProcessing()
         : m_pAddedPointers(nullptr), m_pPointersMap(nullptr)
@@ -94,31 +104,31 @@ public:
     /// @brief Constructor
     /// @param pAddedPonters Pointer to additional free pointers container
     /// @param pPointersMap Pointer to map that implements IDeserializationPointersMap interface
-    DeserializeExtendedPointersProcessing(PC* pAddedPonters, PM* pPointersMap)
+    DeserializeExtendedPointersProcessing(Gkc* pAddedPonters, Dpm* pPointersMap)
         : m_pAddedPointers(pAddedPonters), m_pPointersMap(pPointersMap)
     { }
 
     /// @brief Get pointer to added free pointers container
     /// @return Pointer to added free pointers container
-    [[nodiscard]] constexpr PC* getAddedPointers() noexcept { return m_pAddedPointers; }
-    [[nodiscard]] constexpr const PC* getAddedPointers() const noexcept { return m_pAddedPointers; }
+    [[nodiscard]] constexpr Gkc* getAddedPointers() noexcept { return m_pAddedPointers; }
+    [[nodiscard]] constexpr const Gkc* getAddedPointers() const noexcept { return m_pAddedPointers; }
 
     /// @brief Set pointer to added pointers container
     /// @note When we set map to DeserializeExtendedPointersProcessing 
     ///     it will not owns this container and does not clears its contents on destruction.
     /// @param pAddedPointers Pointer to added free pointers container
-    constexpr void setAddedPointers(PC* pAddedPointers) noexcept { m_pAddedPointers = pAddedPointers; }
+    constexpr void setAddedPointers(Gkc* pAddedPointers) noexcept { m_pAddedPointers = pAddedPointers; }
 
     /// @brief Get pointer to holding pointers map
     /// @return Pointer to pointers map
-    [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
-    [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
+    [[nodiscard]] constexpr Dpm* getPointersMap() noexcept { return m_pPointersMap; }
+    [[nodiscard]] constexpr const Dpm* getPointersMap() const noexcept { return m_pPointersMap; }
 
     /// @brief Set map that holding pointers and their relative offsets in binary data.
     /// @note When we set map to DeserializeExtendedPointersProcessing 
     ///     it will not owns this map and does not clears its contents on destruction.
     /// @param pPointersMap Set pointer map to this
-    constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
+    constexpr void setPointersMap(Dpm* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
     
     /// @brief Allocates memory for type T and costructs default T-object,
     ///     and then places it to container of added free pointers.
@@ -152,42 +162,53 @@ public:
     }
 
 private:
-    PC* m_pAddedPointers{ nullptr };
-    PM* m_pPointersMap{ nullptr };
+    Gkc* m_pAddedPointers{ nullptr };
+    Dpm* m_pPointersMap{ nullptr };
 };
 
-/// @brief Holder of context in processing message of type Data
-/// @tparam Container Container capable to serialization/deserialization
-/// @tparam serialize Type of scenario (serialization|deserialization) for specialization
-/// @tparam PM Map that implements ISerializationPointersMap or IDeserializationPointersMap interface.
-///     (std::unordered_map shall be replaced by common_serialization::HashMap when it would be ready)
-/// @tparam PC Container that implements IGenericPointersKeeperContainer interface
-/// @tparam EPP SerializeExtendedPointersProcessing or DeserializeExtendedPointersProcessing (depends on serialize flag)
-template< 
-          typename Container
-        , bool serialize = true
-        , IPointersMap PM = std::conditional_t<serialize, std::unordered_map<const void*, csp_size_t>, std::unordered_map<csp_size_t, void*>>
-        , IGenericPointersKeeperContainer PC = Vector<GenericPointerKeeper>
-        , typename EPP = std::conditional_t<serialize, SerializeExtendedPointersProcessing<PM>, DeserializeExtendedPointersProcessing<PC, PM>>
->
-    requires   ISerializationCapableContainer<Container>
-            || IDeserializationCapableContainer<Container>
-class Data : public Common<Container>
+template<AnySdContainers _Asdcs, bool>
+struct _Epp
+{
+    using type = SerializeExtendedPointersProcessing<typename _Asdcs::Spm>;
+};
+
+template<AnySdContainers _Asdcs>
+struct _Epp<_Asdcs, false>
+{
+    using type = DeserializeExtendedPointersProcessing<typename _Asdcs::Gkc, typename _Asdcs::Dpm>;
+};
+
+template<AnySdContainers _Asdcs, bool B>
+using Epp = _Epp<_Asdcs, B>::type;
+
+/// @brief Full context of CSP Data Message
+/// @tparam _Containers Type that defines SContainers or DContainers
+/// @note Use SContainers set for serialization capable context
+///     and DContainers set for deserialization capable context
+template<AnySdContainers _Containers>
+class Data : public Common<traits::BinContainer<_Containers, SContainers<_Containers>>>
 {
 public:
+    using Containers = _Containers;
+
+    using Bin = traits::BinContainer<Containers, SContainers<Containers>>;
+    using PM = traits::PmContainer<Containers, SContainers<Containers>>;
+    using Gkc = traits::PcContainer<Containers, SContainers<Containers>>;
+    using EPP = Epp<Containers, SContainers<Containers>>;
+
     /// @brief Constructor
     /// @param binaryData Container that hold or would hold binary data from processing
     /// @param dataFlags Data flags that are using in processing
     /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
     explicit constexpr Data(
-          Container& binaryData
+          Bin& binaryData
         , CommonFlags commonFlags = {}
         , DataFlags dataFlags = {}
         , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Common<Container>(binaryData, traits::getLatestProtocolVersion(), Message::Data, commonFlags)
+        : Common<Bin>(binaryData, traits::getLatestProtocolVersion(), Message::Data, commonFlags)
         , m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { 
         setDataFlags(dataFlags);
@@ -199,12 +220,12 @@ public:
     /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
     explicit constexpr Data(
-          Common<Container>& common
+          Common<Bin>& common
         , DataFlags dataFlags = {}
         , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Common<Container>(std::move(common)), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
+        : Common<Bin>(std::move(common)), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { 
         setDataFlags(dataFlags);
     }
@@ -218,7 +239,7 @@ public:
     /// @param interfaceVersion Target interface version
     /// @param pointersMap Pointer to map that implements ISerializationPointersMap interface
     constexpr Data(
-          Container& binaryData
+          Bin& binaryData
         , protocol_version_t protocolVersion
         , CommonFlags commonFlags = {}
         , DataFlags dataFlags = {}
@@ -226,8 +247,8 @@ public:
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
         , PM* pPointersMap = nullptr
     ) noexcept
-        requires serialize
-            : Common<Container>(binaryData, protocolVersion, Message::Data, commonFlags)
+        requires SContainers<Containers>
+            : Common<Bin>(binaryData, protocolVersion, Message::Data, commonFlags)
             , m_epp(pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { 
        setDataFlags(dataFlags);
@@ -243,17 +264,17 @@ public:
     /// @param pAddedPointers Pointer to additional free pointers container
     /// @param pointersMap Pointer to map that implements ISerializationPointersMap interface
     constexpr Data(
-          Container& binaryData
+          Bin& binaryData
         , protocol_version_t protocolVersion
         , CommonFlags commonFlags = {}
         , DataFlags dataFlags = {}
         , bool auxUsingHeapAllocation = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
-        , PC* pAddedPointers = nullptr
+        , Gkc* pAddedPointers = nullptr
         , PM* pPointersMap = nullptr
     ) noexcept
-        requires (!serialize)
-            : Common<Container>(binaryData, protocolVersion, Message::Data, commonFlags)
+        requires (!SContainers<Containers>)
+            : Common<Bin>(binaryData, protocolVersion, Message::Data, commonFlags)
             , m_epp(pAddedPointers, pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
     { 
        setDataFlags(dataFlags);
@@ -326,15 +347,15 @@ public:
     /// @brief Get pointer to added free pointers container.
     /// @remark availible only on deserialization mode
     /// @return Pointer to added free pointers container
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr PC* getAddedPointers() noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
-    [[nodiscard]] CS_ALWAYS_INLINE const PC* getAddedPointers() const noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr Gkc* getAddedPointers() noexcept requires (!SContainers<Containers>) { return m_epp.getAddedPointers(); }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr const Gkc* getAddedPointers() const noexcept requires (!SContainers<Containers>) { return m_epp.getAddedPointers(); }
 
     /// @brief Set holding pointer to added pointers container
     /// @note When we set map to Data it will not owns it
     ///     and does not clears its contents on destruction.
     /// @remark availible only on deserialization mode
     /// @param pAddedPointers Pointer to added free pointers container
-    CS_ALWAYS_INLINE constexpr Data& setAddedPointers(PC* pAddedPointers) noexcept requires (!serialize) { m_epp.setAddedPointers(pAddedPointers); return *this; }
+    CS_ALWAYS_INLINE constexpr Data& setAddedPointers(Gkc* pAddedPointers) noexcept requires (!SContainers<Containers>) { m_epp.setAddedPointers(pAddedPointers); return *this; }
 
     /// @brief Allocates memory for type T and costructs default T-object,
     ///     and then places it to container of added free pointers.
@@ -342,14 +363,14 @@ public:
     /// @tparam T Type of object to allocate and construct
     /// @return Pointer of costructed object
     template<typename T>
-    [[nodiscard]] CS_ALWAYS_INLINE T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<T>(); }
+    [[nodiscard]] CS_ALWAYS_INLINE T* allocateAndDefaultConstruct() noexcept requires (!SContainers<Containers>) { return m_epp.template allocateAndDefaultConstruct<T>(); }
 
     /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
     /// @note Flag of using heap allocation also not resets to false,
     ///     because it's rather environment tool option instead of struct/operation specific.
     Data& resetToDefaultsExceptDataContents() noexcept override
     {
-        Common<Container>::resetToDefaultsExceptDataContents();
+        Common<Bin>::resetToDefaultsExceptDataContents();
         m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
@@ -362,7 +383,7 @@ public:
     ///     because it's rather environment tool option instead of struct/operation specific.
     Data& clear() noexcept override
     {
-        Common<Container>::clear();
+        Common<Bin>::clear();
         m_epp.clear();
         m_interfaceVersion = traits::kInterfaceVersionUndefined;
         m_interfaceVersionsNotMatch = false;
@@ -388,10 +409,7 @@ private:
     bool m_simplyAssignableTagsOptimizationsAreTurnedOff{ false };
 };
 
-template<ISerializationCapableContainer S = BinVector, ISerializationPointersMap PM = std::unordered_map<const void*, size_t>>
-using SData = Data<S, true, PM>;
-
-template<IDeserializationCapableContainer D = BinWalker, IDeserializationPointersMap PM = std::unordered_map<size_t, void*>>
-using DData = Data<D, false, PM>;
+using SData = Data<traits::DefaultSContainers>;
+using DData = Data<traits::DefaultDContainers>;
 
 } // namespace common_serialization::csp::context

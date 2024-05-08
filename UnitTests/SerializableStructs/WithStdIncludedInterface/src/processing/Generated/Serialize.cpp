@@ -27,7 +27,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::serialize(const with_std_included_interface::OneBigType<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const with_std_included_interface::OneBigType<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 

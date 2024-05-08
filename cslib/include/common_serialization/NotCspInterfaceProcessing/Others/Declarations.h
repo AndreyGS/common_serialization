@@ -30,16 +30,16 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-constexpr Status BodyProcessor::serialize(const Id& value, context::SData<>& ctx);
+constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx);
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, Id& value);
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value);
 template<>
-constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData<>& ctx);
+constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData& ctx);
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, context::DataFlags& value);
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, context::DataFlags& value);
 template<>
-constexpr Status BodyProcessor::serialize(const Interface& value, context::SData<>& ctx);
+constexpr Status BodyProcessor::serialize(const Interface& value, context::SData& ctx);
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData<>& ctx, Interface& value);
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, Interface& value);
 
 } // namespace common_serialization::csp::processing::data

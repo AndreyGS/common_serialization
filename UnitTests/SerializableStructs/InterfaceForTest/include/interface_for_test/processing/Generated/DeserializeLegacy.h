@@ -27,20 +27,20 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignable_Version0<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignable_Version0<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableDescendant_Version0<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableDescendant_Version0<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::AlwaysSimplyAssignable_Version0<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::AlwaysSimplyAssignable_Version0<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableFixedSize_Version1<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableFixedSize_Version1<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version0<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SForAllModesTests_Version0<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value);
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, interface_for_test::SForAllModesTests_Version2<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SForAllModesTests_Version2<>& value);
 
 } // namespace common_serialization::csp::processing::data

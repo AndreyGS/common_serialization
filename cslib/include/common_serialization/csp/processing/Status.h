@@ -28,8 +28,8 @@
 namespace common_serialization::csp::processing
 {
 
-template<ISerializationCapableContainer S>
-constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status statusOut, bool noChecks = false)
+template<ISerializationBinContainer Sbin>
+constexpr Status serializeStatusFullContext(context::Common<Sbin>& ctx, Status statusOut, bool noChecks = false)
 {
     if (!noChecks)
         CS_RUN(serializeCommonContext(ctx))
@@ -41,20 +41,20 @@ constexpr Status serializeStatusFullContext(context::Common<S>& ctx, Status stat
     return Status::kNoError;
 }
 
-template<ISerializationCapableContainer S>
-constexpr Status serializeStatusFullContext(S& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut)
+template<ISerializationBinContainer Sbin>
+constexpr Status serializeStatusFullContext(Sbin& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut)
 {
-    context::Common<S> ctx(output, protocolVersion, context::Message::Status, commonFlags);
+    context::Common<Sbin> ctx(output, protocolVersion, context::Message::Status, commonFlags);
     CS_RUN(serializeStatusFullContext(ctx, statusOut));
 
     return Status::kNoError;
 }
 
-template<ISerializationCapableContainer S>
-constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, const Vector<protocol_version_t>& supportedProtocolVersions, context::CommonFlags commonFlags)
+template<ISerializationBinContainer Sbin>
+constexpr Status serializeStatusErrorNotSupportedProtocolVersion(Sbin& output, const Vector<protocol_version_t>& supportedProtocolVersions, context::CommonFlags commonFlags)
 {
     // For unsupported protocol version always using kProtocolVersionUndefined in response context
-    context::Common<S> ctx(output, traits::kProtocolVersionUndefined, context::Message::Status, commonFlags);
+    context::Common<Sbin> ctx(output, traits::kProtocolVersionUndefined, context::Message::Status, commonFlags);
     CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedProtocolVersion, true));
 
     CS_RUN(writePrimitive(static_cast<protocol_version_t>(supportedProtocolVersions.size()), ctx));
@@ -63,8 +63,8 @@ constexpr Status serializeStatusErrorNotSupportedProtocolVersion(S& output, cons
     return Status::kNoError;
 }
 
-template<IDeserializationCapableContainer D>
-constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::Common<D>& ctx, Vector<protocol_version_t>& value)
+template<IDeserializationBinContainer Dbin>
+constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::Common<Dbin>& ctx, Vector<protocol_version_t>& value)
 {
     value.clear();
 
@@ -78,9 +78,9 @@ constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::
     return Status::kNoError;
 }
 
-template<ISerializationCapableContainer S>
+template<ISerializationBinContainer Sbin>
 constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
-      interface_version_t minimumInterfaceVersion, const Id& outputTypeId, context::Common<S>& ctx)
+      interface_version_t minimumInterfaceVersion, const Id& outputTypeId, context::Common<Sbin>& ctx)
 {
     CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInterfaceVersion));
 
@@ -90,9 +90,9 @@ constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(
     return Status::kNoError;
 }
 
-template<IDeserializationCapableContainer D>
+template<IDeserializationBinContainer Dbin>
 constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(
-      context::Common<D>& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId
+      context::Common<Dbin>& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId
 )
 {
     CS_RUN(readPrimitive(ctx, minimumInterfaceVersion));

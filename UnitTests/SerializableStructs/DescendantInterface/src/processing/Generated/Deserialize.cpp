@@ -27,7 +27,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, descendant_interface::SimpleStruct<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, descendant_interface::SimpleStruct<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -37,7 +37,7 @@ Status BodyProcessor::deserialize(context::DData<>& ctx, descendant_interface::S
 }
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, descendant_interface::DiamondDescendant<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, descendant_interface::DiamondDescendant<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 

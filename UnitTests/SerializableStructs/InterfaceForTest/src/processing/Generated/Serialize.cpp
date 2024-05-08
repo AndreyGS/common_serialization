@@ -27,7 +27,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -38,7 +38,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAligne
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignable<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignable<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -63,7 +63,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignable<>& va
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableDescendant<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableDescendant<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -75,7 +75,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableDescen
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::AlwaysSimplyAssignable<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::AlwaysSimplyAssignable<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -87,7 +87,7 @@ Status BodyProcessor::serialize(const interface_for_test::AlwaysSimplyAssignable
 
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableFixedSize<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableFixedSize<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -99,7 +99,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableFixedS
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::DynamicPolymorphic<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::DynamicPolymorphic<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -113,7 +113,7 @@ Status BodyProcessor::serialize(const interface_for_test::DynamicPolymorphic<>& 
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::Diamond<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::Diamond<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -124,7 +124,7 @@ Status BodyProcessor::serialize(const interface_for_test::Diamond<>& value, cont
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SpecialProcessingType<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SpecialProcessingType<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -148,7 +148,7 @@ Status BodyProcessor::serialize(const interface_for_test::SpecialProcessingType<
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -159,7 +159,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAligne
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -170,7 +170,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAligne
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimilarType1<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimilarType1<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -181,7 +181,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimila
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimilarType2<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimilarType2<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -192,21 +192,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimila
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimilarType1<>& value, context::SData<>& ctx)
-{
-    CSP_SERIALIZE_COMMON(value, ctx);
-
-    CS_RUN(serialize(value.m_j, ctx));
-    CS_RUN(serialize(value.m_k, ctx));
-    CS_RUN(serialize(value.m_arrL, ctx));
-    CS_RUN(serialize(value.m_sasTs, ctx));
-    CS_RUN(serialize(value.m_saaToSts, ctx));
-
-    return Status::kNoError;
-}
-
-template<>
-Status BodyProcessor::serialize(const interface_for_test::SimilarType2<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimilarType1<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -220,7 +206,21 @@ Status BodyProcessor::serialize(const interface_for_test::SimilarType2<>& value,
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::ManyPointersType<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::SimilarType2<>& value, context::SData& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
+
+    CS_RUN(serialize(value.m_j, ctx));
+    CS_RUN(serialize(value.m_k, ctx));
+    CS_RUN(serialize(value.m_arrL, ctx));
+    CS_RUN(serialize(value.m_sasTs, ctx));
+    CS_RUN(serialize(value.m_saaToSts, ctx));
+
+    return Status::kNoError;
+}
+
+template<>
+Status BodyProcessor::serialize(const interface_for_test::ManyPointersType<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -238,7 +238,7 @@ Status BodyProcessor::serialize(const interface_for_test::ManyPointersType<>& va
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::DForAllModesTests<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::DForAllModesTests<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -254,7 +254,7 @@ Status BodyProcessor::serialize(const interface_for_test::DForAllModesTests<>& v
 }
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value, context::SData<>& ctx)
+Status BodyProcessor::serialize(const interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 

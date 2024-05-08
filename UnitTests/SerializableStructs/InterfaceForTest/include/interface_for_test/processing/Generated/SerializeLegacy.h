@@ -27,20 +27,20 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne_Version0<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignable_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignable_Version0<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableDescendant_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableDescendant_Version0<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::AlwaysSimplyAssignable_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::AlwaysSimplyAssignable_Version0<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableFixedSize_Version1<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableFixedSize_Version1<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SForAllModesTests_Version0<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SForAllModesTests_Version0<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAlignedToOne_Version1<>& value, context::SData& ctx);
 template<>
-Status BodyProcessor::serialize(const interface_for_test::SForAllModesTests_Version2<>& value, context::SData<>& ctx);
+Status BodyProcessor::serialize(const interface_for_test::SForAllModesTests_Version2<>& value, context::SData& ctx);
 
 } // namespace common_serialization::csp::processing::data

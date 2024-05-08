@@ -27,7 +27,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status BodyProcessor::deserialize(context::DData<>& ctx, another_yet_interface::SimpleStruct<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, another_yet_interface::SimpleStruct<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
