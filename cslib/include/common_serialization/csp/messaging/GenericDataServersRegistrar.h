@@ -32,7 +32,7 @@ template<SdContainers T = traits::DefaultSdContainers>
 class GenericDataServersRegistrar : public IDataHandlersRegistrar<T>
 {
 public:
-    Status addHandler(const Id& id, bool multicast, IDataHandlerBase<T>* pInstance) override;
+    Status addHandler(const Id& id, bool kMulticast, IDataHandlerBase<T>* pInstance) override;
     void removeHandler(const Id& id, IDataHandlerBase<T>* pInstance) noexcept override;
     Status findHandlers(const Id& id, Vector<IDataHandlerBase<T>*, RawStrategicAllocatorHelper<IDataHandlerBase<T>*>>& servers) const noexcept override;
     Status findHandler(const Id& id, IDataHandlerBase<T>*& pServer) const noexcept override;
@@ -43,11 +43,11 @@ private:
 };
 
 template<SdContainers T>
-Status GenericDataServersRegistrar<T>::addHandler(const Id& id, bool multicast, IDataHandlerBase<T>* pInstance)
+Status GenericDataServersRegistrar<T>::addHandler(const Id& id, bool kMulticast, IDataHandlerBase<T>* pInstance)
 {
     WGuard guard(m_serverListMutex);
 
-    if (!multicast && m_serversList.contains(id))
+    if (!kMulticast && m_serversList.contains(id))
         assert(false);
 
     m_serversList.emplace(std::make_pair(id, pInstance));

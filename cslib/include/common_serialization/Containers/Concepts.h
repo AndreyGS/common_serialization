@@ -30,39 +30,55 @@ namespace common_serialization
 
 class GenericPointerKeeper;
 
+template<typename _Ic>
+concept IBasicContainer
+    =  requires(_Ic e)
+         {
+             typename _Ic::value_type;
+             typename _Ic::size_type;
+
+             { e.begin() };
+             { e.end() };
+
+             { e.clear() };
+             { e.size() } -> std::same_as<typename _Ic::size_type>;
+             
+             { e.pushBack(typename _Ic::value_type{}) } -> std::same_as<Status>;
+         } && std::is_constructible_v<_Ic, _Ic>;
+
 /// @brief Interface of container that holds
 ///     GenericPointerKeeper objects
-template<typename Sbin>
+template<typename _Gkc>
 concept IGenericPointersKeeperContainer
-    =  requires(Sbin e)
+    =  requires(_Gkc e)
          {
-             typename Sbin::value_type;
-             typename Sbin::constructor_allocator;
+             typename _Gkc::value_type;
+             typename _Gkc::constructor_allocator;
 
              { e.clear() };
              { e.begin() };
              { e.end() };
              { e.erase(0, 1) };
-             { e.data() } -> std::same_as<typename Sbin::value_type*>;
-             { e.size() } -> std::same_as<typename Sbin::size_type>;
-             { e.capacity() } -> std::same_as<typename Sbin::size_type>;
+             { e.data() } -> std::same_as<typename _Gkc::value_type*>;
+             { e.size() } -> std::same_as<typename _Gkc::size_type>;
+             { e.capacity() } -> std::same_as<typename _Gkc::size_type>;
 
              { e.reserve(1) } -> std::same_as<Status>;
              { e.pushBack(*(new GenericPointerKeeper)) } -> std::same_as<Status>;
          } 
-    && std::is_same_v<typename Sbin::value_type, GenericPointerKeeper> && std::is_same_v<typename Sbin::constructor_allocator, std::true_type>;
+    && std::is_same_v<typename _Gkc::value_type, GenericPointerKeeper> && std::is_same_v<typename _Gkc::constructor_allocator, std::true_type>;
 
-template<typename T>
-concept HasDestroyingDeleteOp = requires (T t) { T::operator delete(&t, std::destroying_delete_t{}); };
+template<typename _T>
+concept HasDestroyingDeleteOp = requires (_T t) { _T::operator delete(&t, std::destroying_delete_t{}); };
 
-template<typename T1, typename D1, typename T2, typename D2>
-concept SmartPtrArrConvertible =std::is_convertible_v<T2*, T1*>
-                            && (std::is_reference_v<D1> && std::is_same_v<D2, D1> || !std::is_reference_v<D1> && std::is_convertible_v<D2, D1>)
-                            && (std::is_same_v<T2, T1> || std::has_virtual_destructor_v<T1>);
+template<typename _T1, typename _D1, typename _T2, typename _D2>
+concept SmartPtrArrConvertible =std::is_convertible_v<_T2*, _T1*>
+                            && (std::is_reference_v<_D1> && std::is_same_v<_D2, _D1> || !std::is_reference_v<_D1> && std::is_convertible_v<_D2, _D1>)
+                            && (std::is_same_v<_T2, _T1> || std::has_virtual_destructor_v<_T1>);
 
-template<typename T1, typename D1, typename T2, typename D2>
-concept SmartPtrConvertible =   std::is_convertible_v<T2*, T1*>
-                            && (std::is_reference_v<D1> && std::is_same_v<D2, D1> || !std::is_reference_v<D1> && std::is_convertible_v<D2, D1>)
-                            && (std::is_same_v<T2, T1> || std::has_virtual_destructor_v<T1> || HasDestroyingDeleteOp<T1>);
+template<typename _T1, typename _D1, typename _T2, typename _D2>
+concept SmartPtrConvertible =   std::is_convertible_v<_T2*, _T1*>
+                            && (std::is_reference_v<_D1> && std::is_same_v<_D2, _D1> || !std::is_reference_v<_D1> && std::is_convertible_v<_D2, _D1>)
+                            && (std::is_same_v<_T2, _T1> || std::has_virtual_destructor_v<_T1> || HasDestroyingDeleteOp<_T1>);
 
 } // namespace common_serialization

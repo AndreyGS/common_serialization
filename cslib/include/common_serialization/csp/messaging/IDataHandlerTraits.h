@@ -34,10 +34,10 @@ template<typename _T>
 concept IDataHandlerTraits
     =  ISerializableBased<typename _T::InputType>
     && ISerializableBased<typename _T::OutputType>
-    && std::is_same_v<const bool, decltype(_T::forTempUseHeap)>
-    && std::is_same_v<const bool, decltype(_T::forTempUseHeapExt)>
-    && std::is_same_v<const bool, decltype(_T::multicast)>
-    && std::is_same_v<const interface_version_t, decltype(_T::minimumInterfaceVersion)>
+    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>
+    && std::is_same_v<const bool, decltype(_T::kForTempUseHeapExt)>
+    && std::is_same_v<const bool, decltype(_T::kMulticast)>
+    && std::is_same_v<const interface_version_t, decltype(_T::kMinimumInterfaceVersion)>
     && SdContainers<typename _T::Sdcs>;
 
 template<
@@ -55,10 +55,10 @@ struct IDataHandlerTraitsConcrete
     using OutputType = _OutputType;
     using Sdcs = _Sdcs;
 
-    static constexpr bool forTempUseHeap = _forTempUseHeap;
-    static constexpr bool forTempUseHeapExt = _forTempUseHeapExtended;
-    static constexpr bool multicast = _multicast;
-    static constexpr interface_version_t minimumInterfaceVersion = _minimumInterfaceVersion;
+    static constexpr bool kForTempUseHeap = _forTempUseHeap;
+    static constexpr bool kForTempUseHeapExt = _forTempUseHeapExtended;
+    static constexpr bool kMulticast = _multicast;
+    static constexpr interface_version_t kMinimumInterfaceVersion = _minimumInterfaceVersion;
 };
 
 template<ISerializableBased _InputType, ISerializableBased _OutputType>

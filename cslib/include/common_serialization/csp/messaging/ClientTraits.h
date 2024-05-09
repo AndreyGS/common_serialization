@@ -32,8 +32,8 @@ namespace common_serialization::csp::messaging
 /// @brief Properties of CSP Client
 template<typename _T>
 concept ClientTraits
-    =  std::is_same_v<const bool, decltype(_T::forTempUseHeap)>
-    && std::is_same_v<const bool, decltype(_T::forTempUseHeapExt)>
+    =  std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>
+    && std::is_same_v<const bool, decltype(_T::kForTempUseHeapExt)>
     && SdContainers<typename _T::Sdcs>;
 
 template<
@@ -45,8 +45,8 @@ struct ClientTraitsConcrete
 {
     using Sdcs = _Sdcs;
 
-    static constexpr bool forTempUseHeap = _forTempUseHeap;
-    static constexpr bool forTempUseHeapExt = _forTempUseHeapExtended;
+    static constexpr bool kForTempUseHeap = _forTempUseHeap;
+    static constexpr bool kForTempUseHeapExt = _forTempUseHeapExtended;
 };
 
 template<SdContainers _Sdcs = traits::DefaultSdContainers>

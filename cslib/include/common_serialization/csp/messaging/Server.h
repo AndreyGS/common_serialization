@@ -180,23 +180,23 @@ CS_ALWAYS_INLINE Status Server<_Sdcs>::handleGetSettings(protocol_version_t cspV
 template<SdContainers _Sdcs>
 CS_ALWAYS_INLINE Status Server<_Sdcs>::handleData(context::Common<Dbin>& ctxCommon, const GenericPointerKeeper& clientId, Sbin& binOutput) const
 {
-    context::DData ctx(ctxCommon);
+    context::Data<Dcs> ctx(ctxCommon);
     Id id;
 
     CS_RUN(processing::deserializeDataContext(ctx, id));
 
-    Vector<GenericPointerKeeper> addedPointers;
+    Gkc addedPointers;
     if (ctx.allowUnmanagedPointers())
         ctx.setAddedPointers(&addedPointers);
 
-    std::unordered_map<uint64_t, void*> pointersMap;
+    Dpm pointersMap;
     if (ctx.checkRecursivePointers())
         ctx.setPointersMap(&pointersMap);
 
     IDataHandlerBase<Sdcs>* pDataHandler{ nullptr };
-    Status status = Status::kNoError;
+    Status status = m_dataHandlersRegistrar->findHandler(id, pDataHandler);
 
-    if (Status status = m_dataHandlersRegistrar->findHandler(id, pDataHandler); statusSuccess(status))
+    if (statusSuccess(status))
     {
         status = pDataHandler->handleDataCommon(ctx, clientId, binOutput);
     }
@@ -207,7 +207,7 @@ CS_ALWAYS_INLINE Status Server<_Sdcs>::handleData(context::Common<Dbin>& ctxComm
 
         status = Status::kNoError;
 
-        typename BinWalker::size_type bodyPosition = ctx.getBinaryData().tell();
+        typename Dbin::size_type bodyPosition = ctx.getBinaryData().tell();
 
         for (auto pDataHandler : dataHandlers)
         {

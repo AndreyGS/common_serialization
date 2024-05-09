@@ -37,10 +37,10 @@ public:
     using InputType = typename _T::InputType;
     using OutputType = typename _T::OutputType;
 
-    static constexpr bool forTempUseHeap = _T::forTempUseHeap;
-    static constexpr bool forTempUseHeapExt = _T::forTempUseHeapExt;
-    static constexpr bool multicast = _T::multicast;
-    static constexpr interface_version_t minimumInterfaceVersion  = _T::minimumInterfaceVersion;
+    static constexpr bool kForTempUseHeap = _T::kForTempUseHeap;
+    static constexpr bool kForTempUseHeapExt = _T::kForTempUseHeapExt;
+    static constexpr bool kMulticast = _T::kMulticast;
+    static constexpr interface_version_t kMinimumInterfaceVersion  = _T::kMinimumInterfaceVersion;
     
     using Sdcs = typename _T::Sdcs;
     using Sbin = typename Sdcs::Sbin;
@@ -65,7 +65,7 @@ public:
     ///     that may help in processing decisions
     /// @param output Data that should be returned to client
     /// @return Status of operation
-    virtual Status handleData(const InputType& input, Vector<GenericPointerKeeper>* pUnmanagedPointers, const GenericPointerKeeper& clientId, OutputType& output) = 0;
+    virtual Status handleData(const InputType& input, Gkc* pUnmanagedPointers, const GenericPointerKeeper& clientId, OutputType& output) = 0;
     virtual Status checkPoliciesCompliance(const InputType* input, const context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId);
 
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion() override;
@@ -98,7 +98,7 @@ Status IDataHandler<_T>::checkPoliciesCompliance(const InputType* input, const c
 template<IDataHandlerTraits _T>
 [[nodiscard]] interface_version_t IDataHandler<_T>::getMinimumInterfaceVersion()
 {
-    return minimumInterfaceVersion;
+    return kMinimumInterfaceVersion;
 }
 
 template<IDataHandlerTraits _T>
@@ -115,16 +115,16 @@ Status IDataHandler<_T>::handleDataCommon(context::Data<Dcs>& ctx, const Generic
     {
         if (status == Status::kErrorNotSupportedInterfaceVersion)
         {
-            context::Common<BinVector> ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::Status, ctx.getCommonFlags());
+            context::Common ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::Status, ctx.getCommonFlags());
             CS_RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(getMinimumInterfaceVersion(), OutputType::getId(), ctxOut));
         }
         
         return status;
     }
 
-    ctx.setAuxUsingHeapAllocation(forTempUseHeap);
+    ctx.setAuxUsingHeapAllocation(kForTempUseHeap);
 
-    if constexpr (forTempUseHeap)
+    if constexpr (kForTempUseHeap)
         return handleDataOnHeap(ctx, clientId, binOutput);
     else
         return handleDataOnStack(ctx, clientId, binOutput);
@@ -134,7 +134,7 @@ template<IDataHandlerTraits _T>
 IDataHandler<_T>::IDataHandler(IDataHandlersRegistrar<Sdcs>& dataHandlersRegistrar)
     : m_dataHandlersRegistrar(dataHandlersRegistrar)
 {
-    m_dataHandlersRegistrar.addHandler(InputType::getId(), multicast, this);
+    m_dataHandlersRegistrar.addHandler(InputType::getId(), kMulticast, this);
 }
 
 template<IDataHandlerTraits _T>
@@ -187,7 +187,7 @@ CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataMain(InputType& input, conte
             , ctxIn.getProtocolVersion()
             , ctxIn.getCommonFlags()
             , ctxIn.getDataFlags()
-            , forTempUseHeap
+            , kForTempUseHeap
             , ctxIn.getInterfaceVersion()
             , nullptr);
 

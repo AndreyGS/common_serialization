@@ -54,8 +54,8 @@ public:
     using Scs = typename Sdcs::Scs;
     using Dcs = typename Sdcs::Dcs;
 
-    static constexpr bool forTempUseHeap = Ct::forTempUseHeap;
-    static constexpr bool forTempUseHeapExt = Ct::forTempUseHeapExt;
+    static constexpr bool kForTempUseHeap = Ct::kForTempUseHeap;
+    static constexpr bool kForTempUseHeapExt = Ct::kForTempUseHeapExt;
 
     explicit Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker);
     Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker, const service_structs::CspPartySettings<>& settings);
@@ -227,14 +227,14 @@ Status Client<_Ct>::getServerProtocolVersions(Vector<protocol_version_t>& output
     if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
 
-    BinVector binInput;
-    context::Common<BinVector> ctxIn(binInput, traits::kProtocolVersionUndefined);
+    Sbin binInput;
+    context::Common ctxIn(binInput, traits::kProtocolVersionUndefined);
     CS_RUN(processing::serializeCommonContextNoChecks(ctxIn));
 
-    BinWalker binOutput;
+    Dbin binOutput;
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
-    context::Common<BinWalker> ctxOut(binOutput);
+    context::Common ctxOut(binOutput);
     CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::Status)
@@ -255,11 +255,11 @@ Status Client<_Ct>::getServerSettings(protocol_version_t serverCspVersion, servi
     if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
 
-    BinVector binInput;
-    context::Common<BinVector> ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
+    Sbin binInput;
+    context::Common ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
     CS_RUN(processing::serializeCommonContext(ctxIn));
 
-    BinWalker binOutput;
+    Dbin binOutput;
 
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
@@ -278,16 +278,16 @@ Status Client<_Ct>::getServerHandlerSettings(interface_version_t& minimumInterfa
     if (getInterfaceVersion(interface_.id) == traits::kInterfaceVersionUndefined)
         return Status::kErrorNotSupportedInterface;
 
-    BinVector binInput;
-    context::SData ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
+    Sbin binInput;
+    context::Data<Scs> ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
 
     CS_RUN(processing::serializeCommonContext(ctxIn));
     CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
 
-    BinWalker binOutput;
+    Dbin binOutput;
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
-    context::Common<BinWalker> ctxOut(binOutput);
+    context::Common ctxOut(binOutput);
 
     if (ctxOut.getMessageType() != context::Message::Status)
         return Status::kErrorDataCorrupted;
@@ -357,18 +357,18 @@ Status Client<_Ct>::handleData(const InputType& input, OutputType& output, conte
     if (additionalDataFlags & interface_.forbiddenDataFlags)
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
-    BinVector binInput;
+    Sbin binInput;
 
-    context::SData ctxIn(
+    context::Data<Scs> ctxIn(
           binInput
         , m_settings.protocolVersions[0]
         , m_settings.mandatoryCommonFlags | additionalCommonFlags
         , InputType::getEffectiveMandatoryDataFlags() | additionalDataFlags
-        , forTempUseHeap
+        , kForTempUseHeap
         , interfaceVersionToUse
         , nullptr);
 
-    std::unordered_map<const void*, uint64_t> pointersMapIn;
+    Spm pointersMapIn;
     if (ctxIn.checkRecursivePointers())
         ctxIn.setPointersMap(&pointersMapIn);
 
@@ -383,13 +383,13 @@ Status Client<_Ct>::handleData(const InputType& input, OutputType& output, conte
 
     pointersMapIn.clear();
 
-    BinWalker binOutput;
+    Dbin binOutput;
 
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
     ctxIn.clear();
 
-    context::Common<BinWalker> ctxOut(binOutput);
+    context::Common ctxOut(binOutput);
 
     CS_RUN(processing::deserializeCommonContext(ctxOut));
 
@@ -401,7 +401,7 @@ Status Client<_Ct>::handleData(const InputType& input, OutputType& output, conte
         ctxIn.clear();
 
         Id outId;
-        context::DData ctxOutData(ctxOut);
+        context::Data<Dcs> ctxOutData(ctxOut);
 
         CS_RUN(processing::deserializeDataContext(ctxOutData, outId));
 
@@ -412,7 +412,7 @@ Status Client<_Ct>::handleData(const InputType& input, OutputType& output, conte
 
         ctxOutData.setAddedPointers(pUnmanagedPointers);
 
-        std::unordered_map<uint64_t, void*> pointersMapOut;
+        Dpm pointersMapOut;
         if (ctxOutData.checkRecursivePointers())
             ctxOutData.setPointersMap(&pointersMapOut);
 

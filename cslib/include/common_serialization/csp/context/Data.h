@@ -73,12 +73,6 @@ private:
 };
 
 /// @brief Auxillary class for holding pointers containers using in some deserialization scenarios
-/// @tparam _Gkc Container that implements IGenericPointersKeeperContainer interface.
-///     Using for keeping additional free pointers that creates deserialization process.
-///     When pointers are no longer needed it should be freed.
-/// @tparam PM Container that implements IGenericPointersKeeperContainer interface.
-///     Using for keeping additional free pointers that creates deserialization process.
-///     When pointers are no longer needed it should be freed.
 /// @tparam Allocator Stateless Allocator that would be used for free pointers allocation
 ///     (should be construction capable)
 /// @tparam AllocatorHelperStateless AllocatorHelper that would be used for free pointers allocation help
@@ -91,10 +85,10 @@ public:
     using Gkc = _Gkc;
     using Dpm = _Dpm;
 
-    template<typename T>
-    using Allocator = _Allocator<T>;
-    template<typename T1, typename T2, typename T3>
-    using AllocatorHelper = _AllocatorHelper<T1, T2, T3>;
+    template<typename _T>
+    using Allocator = _Allocator<_T>;
+    template<typename _T1, typename _T2, typename _T3>
+    using AllocatorHelper = _AllocatorHelper<_T1, _T2, _T3>;
 
     /// @brief Default constuctor
     DeserializeExtendedPointersProcessing()
