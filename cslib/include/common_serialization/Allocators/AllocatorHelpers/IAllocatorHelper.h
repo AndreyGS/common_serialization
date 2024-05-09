@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "common_serialization/Allocators/Concepts.h"
+
 namespace common_serialization
 {
 

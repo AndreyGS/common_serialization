@@ -23,8 +23,6 @@
 
 #pragma once
 
-using int_fast32_t = int;
-
 namespace std
 {
 

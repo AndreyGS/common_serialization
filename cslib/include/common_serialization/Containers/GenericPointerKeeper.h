@@ -94,23 +94,23 @@ public:
     /// @param ...args Parameters that go to ctor of every element
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     ///     or if object construction process return error.
-    template<typename T, typename AllocatorHelper, typename... Args>
-    T* allocateAndConstruct(size_t n, Args&&... args)
+    template<typename _T, typename _AllocatorHelper, typename... _Args>
+    _T* allocateAndConstruct(size_t n, _Args&&... args)
     {
         if (m_p)
             destroyAndDeallocate();
 
-        AllocatorHelper allocatorHelper{};
+        _AllocatorHelper allocatorHelper{};
 
         if (n > allocatorHelper.getAllocator().max_size())
             return nullptr;
 
-        T* p = allocatorHelper.allocateAndConstruct(n, nullptr, std::forward<Args>(args)...);
+        _T* p = allocatorHelper.allocateAndConstruct(n, nullptr, std::forward<_Args>(args)...);
         if (p)
         {
             m_p = p;
             m_size = n;
-            m_destroyAndDeallocate = reinterpret_cast<DestroyAndDeallocateFunc>(&destroyAndDeallocateHelper<T, AllocatorHelper>);
+            m_destroyAndDeallocate = reinterpret_cast<DestroyAndDeallocateFunc>(&destroyAndDeallocateHelper<_T, _AllocatorHelper>);
         }
 
         return p;
@@ -131,17 +131,17 @@ public:
     /// @brief Get stored pointer
     /// @tparam T Type on which pointer points
     /// @return Stored pointer
-    template<typename T>
-    constexpr T* get()
+    template<typename _T>
+    constexpr _T* get()
     {
-        return static_cast<T*>(m_p);
+        return static_cast<_T*>(m_p);
     }
 
 private:
-    template<typename T, typename AllocatorHelper>
-    static void destroyAndDeallocateHelper(T* p, size_t n)
+    template<typename _T, typename _AllocatorHelper>
+    static void destroyAndDeallocateHelper(_T* p, size_t n)
     {
-        AllocatorHelper().destroyAndDeallocate(p, n);
+        _AllocatorHelper().destroyAndDeallocate(p, n);
     }
 
     void* m_p{ nullptr };

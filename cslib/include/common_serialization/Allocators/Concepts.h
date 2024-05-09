@@ -30,23 +30,23 @@ namespace common_serialization
 /// @note common_serialization Allocators in many (or most) scenarios
 ///     should be used with conjuction of Allocator Helpers
 ///     as low-level tool
-template<typename T>
-concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_allocator> || std::is_same_v<std::false_type, typename T::constructor_allocator>) && requires(T a)
+template<typename _T>
+concept IAllocator = (std::is_same_v<std::true_type, typename _T::constructor_allocator> || std::is_same_v<std::false_type, typename _T::constructor_allocator>) && requires(_T a)
 {
-    typename T::value_type;
-    typename T::pointer;
-    typename T::size_type;
-    typename T::difference_type;
-    typename T::constructor_allocator;
-    T();
-    { a.allocate(0) } -> std::same_as<typename T::pointer>;
+    typename _T::value_type;
+    typename _T::pointer;
+    typename _T::size_type;
+    typename _T::difference_type;
+    typename _T::constructor_allocator;
+    _T();
+    { a.allocate(0) } -> std::same_as<typename _T::pointer>;
     { a.deallocate(nullptr) } -> std::same_as<void>;
     { a.deallocate(nullptr, 1) } -> std::same_as<void>;
 
     { a.construct(nullptr) } -> std::same_as<Status>;
     { a.destroy(nullptr) } -> std::same_as<void>;
 
-    { a.max_size() } -> std::same_as<typename T::size_type>;
+    { a.max_size() } -> std::same_as<typename _T::size_type>;
 };
 
 /// @brief Concept of Constructor Allocator
@@ -57,7 +57,7 @@ concept IAllocator = (std::is_same_v<std::true_type, typename T::constructor_all
 ///     on destroying objects. Allocator Helpers that are using Raw Allocators 
 ///     may use memcpy and memmove procedures in many scenarios instead 
 ///     of calling ctors and dtors.
-template<typename T>
-concept IConstructorAllocator = IAllocator<T> && std::is_same_v<std::true_type, typename T::constructor_allocator>;
+template<typename _T>
+concept IConstructorAllocator = IAllocator<_T> && std::is_same_v<std::true_type, typename _T::constructor_allocator>;
 
 } // namespace common_serialization

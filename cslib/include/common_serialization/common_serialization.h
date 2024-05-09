@@ -23,51 +23,26 @@
 
 #pragma once
 
-#ifdef USER_MODE // must be defined when c++ standard library is availible
+#if !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
 #include <string.h>
 #include <cstdint>
 #include <cstdlib>
 #include <cassert>
 #include <concepts>
 #include <type_traits>
-#include <limits>
 #include <bit>
 #include <shared_mutex>
-#include <unordered_map>    // temporary header, must be replaced by internal map implementation
-                            // to support environments without std libs, like OSes kernel modes
-#endif // USER_MODE
+#include <unordered_map> 
+#endif // !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
 
 #include "common_serialization/Status.h"
 #include "common_serialization/NotCspInterfaceProcessing/Templates/Declarations.h"
 
-#ifdef USER_MODE // must be defined when c++ standard library is availible
-
-#include "common_serialization/Allocators/PlatformDependent/UserModeMemoryManagement.h"
-#include "common_serialization/Concurrency/PlatformDependent/UserModeConcurency.h"
-
-#else // !USER_MODE
-
-#ifndef CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION      // if implementation wants to define own new shadowing functions
-                                                    // it should define CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION macro
+// if implementation wants to define own new shadowing functions
+// it should define CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION macro
+#if !defined CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
 #include "common_serialization/std_equivalents.h"
 #endif // #ifndef CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION
-
-#ifdef LINUX_KERNEL
-
-#include "common_serialization/Allocators/PlatformDependent/LinuxKernelMemoryManagement.h"
-
-#elif defined WINDOWS_KERNEL
-
-#include "common_serialization/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
-
-#endif // LINUX_KERNEL || WINDOWS_KERNEL
-
-#ifndef CS_NO_STD_NEW_DELETE_REPLACEMENT            // if implementation wants to define own new shadowing functions
-                                                    // it should define CS_NO_STD_NEW_DELETE_REPLACEMENT macro
-#include "common_serialization/Allocators/NewDeleteReplacements.h"
-#endif // #ifndef CS_NO_STD_NEW_DELETE_REPLACEMENT
-
-#endif // USER_MODE
 
 #include "common_serialization/Types.h"
 #include "common_serialization/Helpers.h"

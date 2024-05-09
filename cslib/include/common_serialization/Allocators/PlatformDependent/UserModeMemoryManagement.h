@@ -23,10 +23,7 @@
 
 #pragma once
 
-namespace common_serialization
-{
-
-namespace memory_management
+namespace common_serialization::memory_management
 {
 
 [[nodiscard]] inline void* raw_heap_allocate(size_t data_size_in_bytes) noexcept
@@ -39,6 +36,4 @@ inline void raw_heap_deallocate(void* p) noexcept
     std::free(p);
 }
 
-} // namespace memory_management
-
-} // namespace common_serialization
+} // namespace common_serialization::memory_management

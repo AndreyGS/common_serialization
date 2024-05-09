@@ -29,14 +29,14 @@ namespace common_serialization
 {
 
 /// @brief Simple RAII guard for shared mutex
-/// @tparam T Mutex which implement ISharedMutex interface
-template<ISharedMutex T>
+/// @tparam _T Mutex which implement ISharedMutex interface
+template<ISharedMutex _T>
 class RGuard
 {
 public:
     /// @brief Init ctor
     /// @param mutex Shared mutex
-    explicit RGuard(T& mutex)
+    explicit RGuard(_T& mutex)
         : m_mutex(mutex)
     {
         m_mutex.lock_shared();
@@ -53,18 +53,18 @@ public:
     }
 
 private:
-    T& m_mutex;
+    _T& m_mutex;
 };
 
 /// @brief Simple RAII guard for exclusive mutex
-/// @tparam T Mutex which implement IExclusiveMutex interface
-template<IExclusiveMutex T>
+/// @tparam _T Mutex which implement IExclusiveMutex interface
+template<IExclusiveMutex _T>
 class WGuard
 {
 public:
     /// @brief Init ctor
     /// @param mutex Exclusive mutex
-    explicit WGuard(T& mutex)
+    explicit WGuard(_T& mutex)
         : m_mutex(mutex)
     {
         m_mutex.lock();
@@ -81,7 +81,7 @@ public:
     }
 
 private:
-    T& m_mutex;
+    _T& m_mutex;
 };
 
 } // namespace common_serialization

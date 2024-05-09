@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Containers/DefaultDeleter.h
+ * @file cslib/include/common_serialization/Allocators/PlatformDependent/Common.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,41 +23,23 @@
 
 #pragma once
 
-namespace common_serialization
-{
+#if defined WINDOWS_KERNEL
 
-template<typename _T>
-struct DefaultDeleter
-{
-    constexpr DefaultDeleter() noexcept = default;
+#include "common_serialization/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
 
-    template<typename _T2>
-        requires std::is_convertible_v<_T2*, _T*>
-    constexpr DefaultDeleter(const DefaultDeleter<_T2>&) noexcept {}
+#elif defined LINUX_KERNEL
 
-    constexpr void operator()(_T* p) const noexcept
-    {
-        static_assert(0 < sizeof(_T), "Incomplete types are not allowed to be deleted");
-        delete p;
-    }
-};
+#include "common_serialization/Allocators/PlatformDependent/LinuxKernelMemoryManagement.h"
 
-template<typename _T>
-struct DefaultDeleter<_T[]>
-{
-    constexpr DefaultDeleter() noexcept = default;
+#else // USER_MODE
 
-    template<typename _T2>
-        requires std::is_convertible_v<_T2*, _T*>
-    constexpr DefaultDeleter(const DefaultDeleter<_T2[]>&) noexcept {}
+#include "common_serialization/Allocators/PlatformDependent/UserModeMemoryManagement.h"
 
-    template<typename _T2>
-        requires std::is_convertible_v<_T2*, _T*>
-    constexpr void operator()(_T2* p) const noexcept
-    {
-        static_assert(0 < sizeof(_T2), "Incomplete types are not allowed to be deleted");
-        delete[] p;
-    }
-};
+#endif // defined WINDOWS_KERNEL, defined LINUX_KERNEL
 
-} // namespace common_serialization
+
+#if !defined CS_NO_STD_NEW_DELETE_REPLACEMENT && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
+
+#include "common_serialization/Allocators/PlatformDependent/NewDeleteReplacements.h"
+
+#endif // defined WINDOWS_KERNEL || defined LINUX_KERNEL

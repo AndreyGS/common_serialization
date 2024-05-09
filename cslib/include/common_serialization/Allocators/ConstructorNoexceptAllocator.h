@@ -24,19 +24,20 @@
 #pragma once
 
 #include "common_serialization/Concepts.h"
+#include "common_serialization/Allocators/PlatformDependent/Common.h"
 
 namespace common_serialization
 {
 
 /// @brief Constructor Allocator that not throwing
 ///     (as long as constructed objects don't do it)
-/// @tparam T Type of objects that allocator would allocate and construct
-template<typename T>
+/// @tparam _T Type of objects that allocator would allocate and construct
+template<typename _T>
 class ConstructorNoexceptAllocator 
 {
 public:
-    using value_type = T;
-    using pointer = T*;
+    using value_type = _T;
+    using pointer = value_type*;
     using size_type = size_t;
     using difference_type = ptrdiff_t;
     using constructor_allocator = std::true_type;
@@ -54,102 +55,102 @@ public:
     /// @remark This overload only for compatibility
     constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator&) = default;
 
-    /// @brief Allocate storage with bytes_size = n*sizeof(T)
-    /// @param n Number of elements of type T that storage must be capable to hold
+    /// @brief Allocate storage with bytes_size = n*sizeof(value_type)
+    /// @param n Number of elements of type value_type that storage must be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    [[nodiscard]] constexpr T* allocate(size_type n) const noexcept;
+    [[nodiscard]] constexpr pointer allocate(size_type n) const noexcept;
 
     /// @brief Frees storage pointed by p
     /// @param p Pointer to memory that shall be freed
-    constexpr void deallocate(T* p) const noexcept;
+    constexpr void deallocate(pointer p) const noexcept;
 
     /// @brief Frees storage pointed by p
     /// @remark This overload only for compatibility
     /// @param p Pointer to memory that shall be freed
     /// @param n Size of storage (not used)
-    constexpr void deallocate(T* p, size_type n) const noexcept;
+    constexpr void deallocate(pointer p, size_type n) const noexcept;
 
     /// @brief Call ctor with args on memory pointed by p
-    /// @tparam ...Args Parameters types that go to ctor
+    /// @tparam ..._Args Parameters types that go to ctor
     /// @param p Pointer to memory where object shall be created
     /// @param ...args Parameters that go to ctor
     /// @return Status of operation
-    template<typename... Args>
-    constexpr Status construct(T* p, Args&&... args) const;
+    template<typename... _Args>
+    constexpr Status construct(pointer p, _Args&&... args) const;
 
     /// @brief Call default ctor on memory pointed by p
-    ///     and then call init() method of T if args pack not empty
-    /// @tparam ...Args Parameters types that go to init() method
+    ///     and then call init() method of value_type if args pack not empty
+    /// @tparam ..._Args Parameters types that go to init() method
     /// @param p Pointer to memory where object shall be created
     /// @param ...args Parameters that go to init() method
     /// @return Status of operation
-    template<typename... Args>
-    constexpr Status construct(T* p, Args&&... args) const
-        requires Initable<T>;
+    template<typename... _Args>
+    constexpr Status construct(pointer p, _Args&&... args) const
+        requires Initable<value_type>;
 
     /// @brief Call destructor on object pointed by p
     /// @param p Pointer to object that shall be destroyed
-    constexpr void destroy(T* p) const noexcept;
+    constexpr void destroy(pointer p) const noexcept;
 
-    /// @brief Get maximum number of objects of type T that allocator can allocate
+    /// @brief Get maximum number of objects of type value_type that allocator can allocate
     /// @return Maximum number of objects
     constexpr size_type max_size() const noexcept;
 
 private:
-    static constexpr size_type max_size_v = static_cast<size_type>(-1) / sizeof(T);
+    static constexpr size_type max_size_v = static_cast<size_type>(-1) / sizeof(_T);
 };
 
-template<typename T>
-[[nodiscard]] constexpr T* ConstructorNoexceptAllocator<T>::allocate(size_type n) const noexcept
+template<typename _T>
+[[nodiscard]] constexpr _T* ConstructorNoexceptAllocator<_T>::allocate(size_type n) const noexcept
 {
-    return static_cast<T*>(memory_management::raw_heap_allocate(n * sizeof(T)));
+    return static_cast<_T*>(memory_management::raw_heap_allocate(n * sizeof(_T)));
 }
 
-template<typename T>
-constexpr void ConstructorNoexceptAllocator<T>::deallocate(T* p) const noexcept
+template<typename _T>
+constexpr void ConstructorNoexceptAllocator<_T>::deallocate(pointer p) const noexcept
 {
     memory_management::raw_heap_deallocate(p);
 }
 
-template<typename T>
-constexpr void ConstructorNoexceptAllocator<T>::deallocate(T* p, size_type n) const noexcept
+template<typename _T>
+constexpr void ConstructorNoexceptAllocator<_T>::deallocate(pointer p, size_type n) const noexcept
 {
     deallocate(p);
 }
 
-template<typename T>
-template<typename... Args>
-constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const
+template<typename _T>
+template<typename... _Args>
+constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&... args) const
 {
     assert(p);
 
-    new ((void*)p) T(std::forward<Args>(args)...);
+    new ((void*)p) value_type(std::forward<_Args>(args)...);
     return Status::kNoError;
 }
 
-template<typename T>
-template<typename... Args>
-constexpr Status ConstructorNoexceptAllocator<T>::construct(T* p, Args&&... args) const
-    requires Initable<T>
+template<typename _T>
+template<typename... _Args>
+constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&... args) const
+    requires Initable<value_type>
 {
     assert(p);
 
-    new ((void*)p) T;
+    new ((void*)p) value_type;
 
-    if constexpr (sizeof...(Args))
-        return p->init(std::forward<Args>(args)...);
+    if constexpr (sizeof...(_Args))
+        return p->init(std::forward<_Args>(args)...);
     else
         return Status::kNoError;
 }
 
-template<typename T>
-constexpr void ConstructorNoexceptAllocator<T>::destroy(T* p) const noexcept
+template<typename _T>
+constexpr void ConstructorNoexceptAllocator<_T>::destroy(pointer p) const noexcept
 {
-    p->~T();
+    p->~value_type();
 }
 
-template<typename T>
-constexpr typename ConstructorNoexceptAllocator<T>::size_type ConstructorNoexceptAllocator<T>::max_size() const noexcept
+template<typename _T>
+constexpr typename ConstructorNoexceptAllocator<_T>::size_type ConstructorNoexceptAllocator<_T>::max_size() const noexcept
 {
     return max_size_v;
 }

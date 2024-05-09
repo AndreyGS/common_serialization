@@ -23,18 +23,20 @@
 
 #pragma once
 
+#include "common_serialization/Allocators/PlatformDependent/Common.h"
+
 namespace common_serialization
 {
 
 /// @brief Raw allocator that not throwing
-/// @tparam T Type of objects that allocator would allocate and construct
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
+/// @tparam _T Type of objects that allocator would allocate and construct
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
 class RawNoexceptAllocator
 {
 public:
-    using value_type = T;
-    using pointer = T*;
+    using value_type = _T;
+    using pointer = value_type*;
     using size_type = size_t;
     using difference_type = ptrdiff_t;
     using constructor_allocator = std::false_type;
@@ -52,20 +54,20 @@ public:
     /// @remark This overload only for compatibility
     constexpr RawNoexceptAllocator(const RawNoexceptAllocator&) = default;
 
-    /// @brief Allocate storage with bytes_size = n*sizeof(T)
-    /// @param n Number of elements of type T that storage must be capable to hold
+    /// @brief Allocate storage with bytes_size = n*sizeof(_T)
+    /// @param n Number of elements of type _T that storage must be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    [[nodiscard]] constexpr T* allocate(size_type n) const noexcept;
+    [[nodiscard]] constexpr pointer allocate(size_type n) const noexcept;
 
     /// @brief Frees storage pointed by p
     /// @param p Pointer to memory that shall be freed
-    constexpr void deallocate(T* p) const noexcept;
+    constexpr void deallocate(pointer p) const noexcept;
 
     /// @brief Frees storage pointed by p
     /// @remark This overload only for compatibility
     /// @param p Pointer to memory that shall be freed
     /// @param n Size of storage (not used)
-    constexpr void deallocate(T* p, size_type n) const noexcept;
+    constexpr void deallocate(pointer p, size_type n) const noexcept;
 
     /// @brief Call ctor with args on memory pointed by p
     /// @remark This method only for compatibility
@@ -73,14 +75,14 @@ public:
     /// @param p Pointer to memory where object shall be created
     /// @param ...args Parameters that go to ctor
     /// @return Status of operation
-    template<typename... Args>
-    constexpr Status construct(T* p, Args&&... args) const noexcept;
+    template<typename... _Args>
+    constexpr Status construct(pointer p, _Args&&... args) const noexcept;
 
     /// @brief Does nothing
     /// @param p This overload only for compatibility
-    constexpr void destroy(T* p) const noexcept;
+    constexpr void destroy(pointer p) const noexcept;
 
-    /// @brief Get maximum number of objects of type T that allocator can allocate
+    /// @brief Get maximum number of objects of type _T that allocator can allocate
     /// @return Maximum number of objects
     constexpr size_type max_size() const noexcept;
 
@@ -88,47 +90,47 @@ private:
     static constexpr size_type max_size_v = static_cast<size_type>(-1) / sizeof(value_type);
 };
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-[[nodiscard]] constexpr T* RawNoexceptAllocator<T>::allocate(size_type n) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+[[nodiscard]] constexpr _T* RawNoexceptAllocator<_T>::allocate(size_type n) const noexcept
 {
-    return reinterpret_cast<T*>(memory_management::raw_heap_allocate(n * sizeof(T)));
+    return reinterpret_cast<pointer>(memory_management::raw_heap_allocate(n * sizeof(value_type)));
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr void RawNoexceptAllocator<T>::deallocate(T* p) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr void RawNoexceptAllocator<_T>::deallocate(pointer p) const noexcept
 {
     memory_management::raw_heap_deallocate(p);
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr void RawNoexceptAllocator<T>::deallocate(T* p, size_type n) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr void RawNoexceptAllocator<_T>::deallocate(pointer p, size_type n) const noexcept
 {
     deallocate(p);
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-template<typename... Args>
-constexpr Status RawNoexceptAllocator<T>::construct(T* p, Args&&... args) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+template<typename... _Args>
+constexpr Status RawNoexceptAllocator<_T>::construct(pointer p, _Args&&... args) const noexcept
 {
     assert(p);
 
-    new ((void*)p) T(std::forward<Args>(args)...);
+    new ((void*)p) value_type(std::forward<_Args>(args)...);
     return Status::kNoError;
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr void RawNoexceptAllocator<T>::destroy(T* p) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr void RawNoexceptAllocator<_T>::destroy(pointer p) const noexcept
 {
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr typename RawNoexceptAllocator<T>::size_type RawNoexceptAllocator<T>::max_size() const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr typename RawNoexceptAllocator<_T>::size_type RawNoexceptAllocator<_T>::max_size() const noexcept
 {
     return max_size_v;
 }

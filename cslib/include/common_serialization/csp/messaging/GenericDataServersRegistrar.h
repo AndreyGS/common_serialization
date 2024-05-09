@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "common_serialization/Concurrency/PlatformDependent/Common.h"
 #include "common_serialization/csp/messaging/IDataHandlersRegistrar.h"
 
 namespace common_serialization::csp::messaging

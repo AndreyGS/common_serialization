@@ -23,20 +23,22 @@
 
 #pragma once
 
+#include "common_serialization/Allocators/PlatformDependent/Common.h"
+
 namespace common_serialization
 {
 
 /// @brief Stateful allocator that using user supplied storage
 /// @note This allocator is single threaded.
 ///     Any synchronization if need shall be used additionally.
-/// @tparam T Type of objects that allocator would allocate and construct
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
+/// @tparam _T Type of objects that allocator would allocate and construct
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
 class RawKeeperAllocator
 {
 public:
-    using value_type = T;
-    using pointer = T*;
+    using value_type = _T;
+    using pointer = value_type*;
     using size_type = size_t;
     using difference_type = ptrdiff_t;
     using constructor_allocator = std::false_type;
@@ -46,131 +48,131 @@ public:
 
     /// @brief Init ctor
     /// @param p Pointer on storage
-    /// @param memorySize Size of storage in T units
-    constexpr RawKeeperAllocator(T* p, size_type memorySize) noexcept;
+    /// @param memorySize Size of storage in _T units
+    constexpr RawKeeperAllocator(pointer p, size_type memorySize) noexcept;
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility and does nothing
     /// @tparam R Type of ojects that rhs allocator is allocate
     /// @param rhs Another RawKeeperAllocator object
-    template <class R>
-    constexpr RawKeeperAllocator(const RawKeeperAllocator<R>& rhs) noexcept { operator=(rhs); }
+    template <class _R>
+    constexpr RawKeeperAllocator(const RawKeeperAllocator<_R>& rhs) noexcept { operator=(rhs); }
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility and does nothing
     /// @param rhs Another RawKeeperAllocator object
-    constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { operator=<T>(rhs); }
+    constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { operator=<value_type>(rhs); }
 
     /// @brief Move ctor
     /// @tparam R Type of ojects that rhs allocator is allocate
     /// @param rhs Another RawKeeperAllocator object
-    template <class R>
-    constexpr RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept;
+    template <class _R>
+    constexpr RawKeeperAllocator(RawKeeperAllocator<_R>&& rhs) noexcept;
 
     /// @brief Move ctor
     /// @param rhs Another RawKeeperAllocator object
-    constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept { operator=<T>(std::move(rhs)); }
+    constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept { operator=<value_type>(std::move(rhs)); }
 
     /// @brief Copy assignment operator
     /// @remark Present only for compatibility and does not copying anything
     /// @tparam R Type of ojects that rhs allocator is allocate
-    template <class R>
-    constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<R>&) noexcept { return *this; }
+    template <class _R>
+    constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<_R>&) noexcept { return *this; }
 
     /// @brief Copy assignment operator
     /// @remark Present only for compatibility and does not copying anything
     /// @param rhs Another RawKeeperAllocator object
     /// @return *this
-    constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator& rhs) noexcept { return operator=<T>(rhs); }
+    constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator& rhs) noexcept { return operator=<value_type>(rhs); }
 
     /// @brief Move assignment operator
     /// @tparam R Type of ojects that rhs allocator is allocate
     /// @param rhs Another RawKeeperAllocator object
     /// @return *this
-    template <class R>
-    constexpr RawKeeperAllocator& operator=(RawKeeperAllocator<R>&& rhs) noexcept;
+    template <class _R>
+    constexpr RawKeeperAllocator& operator=(RawKeeperAllocator<_R>&& rhs) noexcept;
 
     /// @brief Move assignment operator
     /// @param rhs Another RawKeeperAllocator object
     /// @return *this
-    constexpr RawKeeperAllocator& operator=(RawKeeperAllocator&& rhs) noexcept { return operator=<T>(std::move(rhs)); }
+    constexpr RawKeeperAllocator& operator=(RawKeeperAllocator&& rhs) noexcept { return operator=<value_type>(std::move(rhs)); }
 
     /// @brief Init with storage
     /// @param p Pointer to storage
     /// @param memorySize Size of storage
-    constexpr void setStorage(T* p, size_type memorySize) noexcept;
+    constexpr void setStorage(pointer p, size_type memorySize) noexcept;
     
-    /// @brief Get pointer on storage if n*T <= sizeof(storage)
-    /// @param n Number of elements of type T that storage must be capable to hold
+    /// @brief Get pointer on storage if n*value_type <= sizeof(storage)
+    /// @param n Number of elements of type _T that storage must be capable to hold
     /// @return Pointer to storage, nullptr if current storage is not large enough
-    [[nodiscard]] constexpr T* allocate(size_type n) const noexcept;
+    [[nodiscard]] constexpr pointer allocate(size_type n) const noexcept;
 
     /// @brief Does nothing
     /// @remark Present only for compatibility
     /// @param p Pointer to storage
-    constexpr void deallocate(T* p) const noexcept;
+    constexpr void deallocate(pointer p) const noexcept;
 
     /// @brief Does nothing
     /// @remark Present only for compatibility
     /// @param p Pointer to storage
     /// @param n Number of elements
-    constexpr void deallocate(T* p, size_type n) const noexcept;
+    constexpr void deallocate(pointer p, size_type n) const noexcept;
 
     /// @brief Call ctor with args on memory pointed by p
     /// @note If p is out of storage memory range or if it does not
-    ///     aligned to sizeof(T) unit boundaries, returns error.
+    ///     aligned to sizeof(value_type) unit boundaries, returns error.
     /// @remark This method only for compatibility
-    /// @tparam ...Args Parameters types that go to ctor
+    /// @tparam ..._Args Parameters types that go to ctor
     /// @param p Pointer to memory where object shall be created
     /// @param ...args Parameters that go to ctor
     /// @return Status of operation
-    template<typename... Args>
-    constexpr Status construct(T* p, Args&&... args) const noexcept;
+    template<typename... _Args>
+    constexpr Status construct(pointer p, _Args&&... args) const noexcept;
 
     /// @brief Does nothing
     /// @param p This overload only for compatibility
-    constexpr void destroy(T* p) const noexcept;
+    constexpr void destroy(pointer p) const noexcept;
 
-    /// @brief Get size of storage in T units
-    /// @return Size of storage in T units
+    /// @brief Get size of storage in value_type units
+    /// @return Size of storage in value_type units
     constexpr size_type max_size() const noexcept;
 
 private:
-    T* m_p{ nullptr };
+    pointer m_p{ nullptr };
     size_type m_memorySize{ 0 };
 };
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr RawKeeperAllocator<T>::RawKeeperAllocator(T* p, size_type memorySize) noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr RawKeeperAllocator<_T>::RawKeeperAllocator(pointer p, size_type memorySize) noexcept
     : m_p(p), m_memorySize(memorySize)
 {
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
 template <class R>
-constexpr RawKeeperAllocator<T>::RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept
+constexpr RawKeeperAllocator<_T>::RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept
 {
     operator=(std::move(rhs));
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
 template <class R>
-constexpr RawKeeperAllocator<T>& RawKeeperAllocator<T>::operator=(RawKeeperAllocator<R>&& rhs) noexcept
+constexpr RawKeeperAllocator<_T>& RawKeeperAllocator<_T>::operator=(RawKeeperAllocator<R>&& rhs) noexcept
 {
     m_p = rhs.m_p;
     rhs.m_p = nullptr;
-    m_memorySize = rhs.m_memorySize *sizeof(R) / sizeof(T);
+    m_memorySize = rhs.m_memorySize *sizeof(R) / sizeof(_T);
     rhs.m_memorySize = 0;
 
     return *this;
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr void RawKeeperAllocator<T>::setStorage(T* p, size_type memorySize) noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr void RawKeeperAllocator<_T>::setStorage(pointer p, size_type memorySize) noexcept
 {
     if (p && !memorySize || !p && memorySize)
         return;
@@ -179,50 +181,50 @@ constexpr void RawKeeperAllocator<T>::setStorage(T* p, size_type memorySize) noe
     m_memorySize = memorySize;
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-[[nodiscard]] constexpr T* RawKeeperAllocator<T>::allocate(size_type n) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+[[nodiscard]] constexpr _T* RawKeeperAllocator<_T>::allocate(size_type n) const noexcept
 {
     return n <= m_memorySize ? m_p : nullptr;
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr void RawKeeperAllocator<T>::deallocate(T* p) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr void RawKeeperAllocator<_T>::deallocate(pointer p) const noexcept
 {
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr void RawKeeperAllocator<T>::deallocate(T* p, size_type n) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr void RawKeeperAllocator<_T>::deallocate(pointer p, size_type n) const noexcept
 {
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-template<typename... Args>
-constexpr Status RawKeeperAllocator<T>::construct(T* p, Args&&... args) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+template<typename... _Args>
+constexpr Status RawKeeperAllocator<_T>::construct(pointer p, _Args&&... args) const noexcept
 {
     if (   
            p < m_p 
         || p + 1 > m_p + m_memorySize
-        || (static_cast<uint8_t*>(static_cast<void*>(p)) - static_cast<uint8_t*>(static_cast<void*>(m_p))) % sizeof(T) != 0
+        || (static_cast<uint8_t*>(static_cast<void*>(p)) - static_cast<uint8_t*>(static_cast<void*>(m_p))) % sizeof(value_type) != 0
     )
         return Status::kErrorInvalidArgument;
 
-    new ((void*)p) T(std::forward<Args>(args)...);
+    new ((void*)p) value_type(std::forward<_Args>(args)...);
     return Status::kNoError;
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr void RawKeeperAllocator<T>::destroy(T* p) const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr void RawKeeperAllocator<_T>::destroy(pointer p) const noexcept
 {
 }
 
-template<typename T>
-    requires std::is_trivially_copyable_v<T>
-constexpr typename RawKeeperAllocator<T>::size_type RawKeeperAllocator<T>::max_size() const noexcept
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+constexpr typename RawKeeperAllocator<_T>::size_type RawKeeperAllocator<_T>::max_size() const noexcept
 {
     return m_memorySize;
 }

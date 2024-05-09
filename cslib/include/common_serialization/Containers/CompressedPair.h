@@ -36,64 +36,64 @@ struct one_then_variadic_args_t
     explicit one_then_variadic_args_t() = default;
 };
 
-template<typename T1, typename T2, bool = std::is_empty_v<T1> && !std::is_final_v<T2>>
-class CompressedPair final : private T1
+template<typename _T1, typename _T2, bool = std::is_empty_v<_T1> && !std::is_final_v<_T2>>
+class CompressedPair final : private _T1
 {
 public:
-    T2 value;
+    _T2 value;
 
-    using base = T1;
+    using base = _T1;
 
-    template<typename... T2Params>
-    constexpr explicit CompressedPair(zero_then_variadic_args_t, T2Params&&... t2params) noexcept
-        : T1(), value(std::forward<T2Params>(t2params)...)
+    template<typename... _T2Params>
+    constexpr explicit CompressedPair(zero_then_variadic_args_t, _T2Params&&... t2params) noexcept
+        : _T1(), value(std::forward<_T2Params>(t2params)...)
     {
     }
 
-    template<typename T1Param, typename... T2Params>
-    constexpr CompressedPair(one_then_variadic_args_t, T1Param&& t1param, T2Params&&... t2params) noexcept
-        : T1(std::forward<T1Param>(t1param)), value(std::forward<T2Params>(t2params)...)
+    template<typename _T1Param, typename... _T2Params>
+    constexpr CompressedPair(one_then_variadic_args_t, _T1Param&& t1param, _T2Params&&... t2params) noexcept
+        : _T1(std::forward<_T1Param>(t1param)), value(std::forward<_T2Params>(t2params)...)
     {
     }
 
-    constexpr T1& getFirst() noexcept
+    constexpr _T1& getFirst() noexcept
     {
         return *this;
     }
 
-    constexpr const T1& getFirst() const noexcept
+    constexpr const _T1& getFirst() const noexcept
     {
         return *this;
     }
 };
 
-template<typename T1, typename T2>
-class CompressedPair<T1, T2, false>
+template<typename _T1, typename _T2>
+class CompressedPair<_T1, _T2, false>
 {
 public:
-    T1 baseValue;
-    T2 value;
+    _T1 baseValue;
+    _T2 value;
 
-    using base = T1;
+    using base = _T1;
 
-    template<typename... T2Params>
-    constexpr explicit CompressedPair(zero_then_variadic_args_t, T2Params&&... t2params) noexcept
-        : baseValue(), value(std::forward<T2Params>(t2params)...)
+    template<typename... _T2Params>
+    constexpr explicit CompressedPair(zero_then_variadic_args_t, _T2Params&&... t2params) noexcept
+        : baseValue(), value(std::forward<_T2Params>(t2params)...)
     {
     }
 
-    template<typename T1Param, typename... T2Params>
-    constexpr CompressedPair(one_then_variadic_args_t, T1Param&& t1param, T2Params&&... t2params) noexcept
-        : baseValue(std::forward<T1Param>(t1param)), value(std::forward<T2Params>(t2params)...)
+    template<typename _T1Param, typename... _T2Params>
+    constexpr CompressedPair(one_then_variadic_args_t, _T1Param&& t1param, _T2Params&&... t2params) noexcept
+        : baseValue(std::forward<_T1Param>(t1param)), value(std::forward<_T2Params>(t2params)...)
     {
     }
 
-    constexpr T1& getFirst() noexcept
+    constexpr _T1& getFirst() noexcept
     {
         return baseValue;
     }
 
-    constexpr const T1& getFirst() const noexcept
+    constexpr const _T1& getFirst() const noexcept
     {
         return baseValue;
     }

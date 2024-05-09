@@ -25,6 +25,7 @@
 
 #include "common_serialization/Allocators/ConstructorNoexceptAllocator.h"
 #include "common_serialization/Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
+#include "common_serialization/Allocators/RawNoexceptAllocator.h"
 #include "common_serialization/Containers/IteratorTagsDeclarations.h"
 
 namespace common_serialization
