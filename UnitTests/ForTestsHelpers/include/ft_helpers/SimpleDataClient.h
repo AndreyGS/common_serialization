@@ -28,7 +28,7 @@ namespace ft_helpers
 
 namespace cs = common_serialization;
 
-class SimpleSpeaker : public cs::csp::messaging::IClientSpeaker
+class SimpleSpeaker : public cs::csp::messaging::IClientSpeaker<>
 {
 public:
     SimpleSpeaker(cs::csp::messaging::Server<>& server) : m_server(server) {}

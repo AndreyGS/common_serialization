@@ -38,7 +38,7 @@ public:
     using OutputType = typename _T::OutputType;
 
     static constexpr bool forTempUseHeap = _T::forTempUseHeap;
-    static constexpr bool forTempUseHeapExtended = _T::forTempUseHeapExtended;
+    static constexpr bool forTempUseHeapExt = _T::forTempUseHeapExt;
     static constexpr bool multicast = _T::multicast;
     static constexpr interface_version_t minimumInterfaceVersion  = _T::minimumInterfaceVersion;
     

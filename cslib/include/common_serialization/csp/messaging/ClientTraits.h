@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IClientSpeaker.h
+ * @file cslib/include/common_serialization/csp/messaging/ClientTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,33 +23,39 @@
 
 #pragma once
 
-#include "common_serialization/Containers/Walker.h"
-#include "common_serialization/csp/service_structs/Interface.h"
+#include "common_serialization/Containers/Concepts.h"
+#include "common_serialization/csp/Concepts.h"
 
 namespace common_serialization::csp::messaging
 {
 
-/// @brief Interface for CSP Client to speak with CSP Server
-template<ISerializationBinContainer _Sbin = BinVector, IDeserializationBinContainer _Dbin = BinWalker>
-class IClientSpeaker
+/// @brief Properties of CSP Client
+template<typename _T>
+concept ClientTraits
+    =  std::is_same_v<const bool, decltype(_T::forTempUseHeap)>
+    && std::is_same_v<const bool, decltype(_T::forTempUseHeapExt)>
+    && SdContainers<typename _T::Sdcs>;
+
+template<
+      bool _forTempUseHeap
+    , bool _forTempUseHeapExtended
+    , SdContainers _Sdcs
+>
+struct ClientTraitsConcrete
 {
-public:
-    using Sbin = _Sbin;
-    using Dbin = _Dbin;
+    using Sdcs = _Sdcs;
 
-    /// @brief Method for sending to and receiving from server binary data
-    /// @details This method must not make assumptions on what binary input and ouput data is.
-    ///     It must be implemented as transport function from client to server and vice versa.
-    ///     For example, it may be function that sends and receives data to and from socket.
-    /// @param binInput Data that is prepared by handleData method
-    /// @param binOutput Data that should be returned for processing by handleData method
-    /// @return Status of operation
-    virtual Status speak(Sbin& binInput, Dbin& binOutput) = 0;
-
-    virtual bool isValid() const noexcept
-    {
-        return true;
-    }
+    static constexpr bool forTempUseHeap = _forTempUseHeap;
+    static constexpr bool forTempUseHeapExt = _forTempUseHeapExtended;
 };
+
+template<SdContainers _Sdcs = traits::DefaultSdContainers>
+using ClientStackT = ClientTraitsConcrete<false, false, _Sdcs>;
+
+template<SdContainers _Sdcs = traits::DefaultSdContainers>
+using ClientHeapT = ClientTraitsConcrete<true, false, _Sdcs>;
+
+template<SdContainers _Sdcs = traits::DefaultSdContainers>
+using ClientHeapExtT = ClientTraitsConcrete<true, true, _Sdcs>;
 
 } // namespace common_serialization::csp::messaging

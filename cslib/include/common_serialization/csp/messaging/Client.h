@@ -25,6 +25,7 @@
 
 #include "common_serialization/csp/Concepts.h"
 #include "common_serialization/Containers/UniquePtr.h"
+#include "common_serialization/csp/messaging/ClientTraits.h"
 #include "common_serialization/csp/messaging/IClientSpeaker.h"
 #include "common_serialization/csp/processing/Contexts.h"
 #include "common_serialization/csp/processing/DataBodyProcessor.h"
@@ -33,22 +34,38 @@
 namespace common_serialization::csp::messaging
 {
 
-/// @brief Interface of client in CSP messaging model
+/// @brief Common CSP Client
 /// @details See documentation of CSP
 /// @note IClientSpeaker must be valid all the time when Client is used
-///     and behavior will be undefined otherwise
+///     and behavior will be undefined otherwise'
+template<ClientTraits _Ct = ClientHeapT<>>
 class Client
 {
 public:
-    explicit Client(IClientSpeaker& clientSpeaker);
-    Client(IClientSpeaker& clientSpeaker, const service_structs::CspPartySettings<>& settings);
+    using Ct = _Ct;
+    using Sdcs = typename _Ct::Sdcs;
+
+    using Sbin = typename Sdcs::Sbin;
+    using Dbin = typename Sdcs::Dbin;
+    using Spm = typename Sdcs::Spm;
+    using Dpm = typename Sdcs::Dpm;
+    using Gkc = typename Sdcs::Gkc;
+
+    using Scs = typename Sdcs::Scs;
+    using Dcs = typename Sdcs::Dcs;
+
+    static constexpr bool forTempUseHeap = Ct::forTempUseHeap;
+    static constexpr bool forTempUseHeapExt = Ct::forTempUseHeapExt;
+
+    explicit Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker);
+    Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker, const service_structs::CspPartySettings<>& settings);
 
     Status init(const service_structs::CspPartySettings<>& settings) noexcept;
     Status init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept;
 
     bool isValid() const noexcept;
 
-    IClientSpeaker& getClientSpeaker() noexcept;
+    IClientSpeaker<Sbin, Dbin>& getClientSpeaker() noexcept;
 
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
@@ -58,12 +75,10 @@ public:
     Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& serverSettings) const noexcept;
 
     /// @brief Get server handler minimum supported interface version and ID of its output type
-    /// @tparam InputType Handler input struct type
     /// @param minimumInterfaceVersion Minimum supported interface version
     /// @param outputTypeId Handler output type
     /// @return Status of operation
-    template<typename InputType>
-        requires ISerializableBased<InputType>
+    template<ISerializableBased InputType>
     Status getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
 
     constexpr const service_structs::CspPartySettings<>& getSettings() const noexcept;
@@ -72,30 +87,22 @@ public:
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details See another handleData() overloading
-    /// @tparam InputType Type that implements ISerializable interface
-    /// @tparam OutputType Type that implements ISerializable interface
-    /// @tparam forTempUseHeap Should heap be used in large memory consumption operations
     /// @param input Struct that must be sent to server
     /// @param output Struct that is returned from server 
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<typename InputType, typename OutputType, bool forTempUseHeap = true>
-        requires ISerializableBased<InputType> && ISerializableBased<OutputType>
-    Status handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr);
+    template<ISerializableBased InputType, ISerializableBased OutputType>
+    Status handleData(const InputType& input, OutputType& output, Gkc* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details See another handleData() overloading
-    /// @tparam InputType Type that implements ISerializable interface
-    /// @tparam OutputType Type that implements ISerializable interface
-    /// @tparam forTempUseHeap Should heap be used in large memory consumption operations
     /// @param input Struct that must be sent to server
     /// @param output Struct that is returned from server
     /// @param dataFlags Data flags that must be applied to current operation
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<typename InputType, typename OutputType, bool forTempUseHeap = true>
-        requires ISerializableBased<InputType> && ISerializableBased<OutputType>
-    Status handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr);
+    template<ISerializableBased InputType, ISerializableBased OutputType>
+    Status handleData(const InputType& input, OutputType& output, context::DataFlags dataFlags, Gkc* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details Input data serialized according to arguments of function 
@@ -110,11 +117,6 @@ public:
     ///     - if response is expected output data, then it's being deserialized according
     ///         to arguments of function and predefined settings of Client object instance
     ///         and function will return status of operation.
-    /// @tparam InputType Type that implements ISerializable interface
-    /// @tparam OutputType Type that implements ISerializable interface
-    /// @tparam forTempUseHeap Should heap be used in large memory consumption operations.
-    ///     Using stack can be dangerous if our environment have small stack (kernels)
-    ///     or for huge input or output structures, when versions convertations can be applied.
     /// @param input Struct that must be sent to server
     /// @param output Struct that is returned from server 
     ///     (use ISerializableDummy<> if no output data is expected)
@@ -122,36 +124,33 @@ public:
     /// @param additionalDataFlags Data flags that must be applied to current operation
     /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<typename InputType, typename OutputType, bool forTempUseHeap = true>
-        requires ISerializableBased<InputType> && ISerializableBased<OutputType>
-    Status handleData(
-          const InputType& input
-        , OutputType& output
-        , context::CommonFlags additionalCommonFlags
-        , context::DataFlags additionalDataFlags
-        , Vector<GenericPointerKeeper>* pUnmanagedPointers = nullptr
-    );
+    template<ISerializableBased InputType, ISerializableBased OutputType>
+    Status handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
+        , context::DataFlags additionalDataFlags, Gkc* pUnmanagedPointers = nullptr);
 
 private:
-    IClientSpeaker& m_clientSpeaker;
+    IClientSpeaker<Sbin, Dbin>& m_clientSpeaker;
     service_structs::CspPartySettings<> m_settings;
 
     // Distinct variable is for not having calculate valid condition every time
     bool m_isValid{ false };
 };
 
-inline Client::Client(IClientSpeaker& clientSpeaker)
+template<ClientTraits _Ct>
+Client<_Ct>::Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker)
     : m_clientSpeaker(clientSpeaker)
 {
 }
 
-inline Client::Client(IClientSpeaker& clientSpeaker, const service_structs::CspPartySettings<>& settings)
+template<ClientTraits _Ct>
+Client<_Ct>::Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker, const service_structs::CspPartySettings<>& settings)
     : m_clientSpeaker(clientSpeaker)
 {
     init(settings);
 }
 
-inline Status Client::init(const service_structs::CspPartySettings<>& settings) noexcept
+template<ClientTraits _Ct>
+Status Client<_Ct>::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
     if (!settings.isValid())
         return Status::kErrorInvalidArgument;
@@ -167,7 +166,8 @@ inline Status Client::init(const service_structs::CspPartySettings<>& settings) 
     return m_isValid ? Status::kNoError : Status::kErrorNotInited;
 }
 
-inline Status Client::init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept
+template<ClientTraits _Ct>
+Status Client<_Ct>::init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept
 {
     m_isValid = false;
 
@@ -209,17 +209,20 @@ inline Status Client::init(const service_structs::CspPartySettings<>& clientSett
     return m_isValid ? Status::kNoError : Status::kErrorNotInited;
 }
 
-inline bool Client::isValid() const noexcept
+template<ClientTraits _Ct>
+bool Client<_Ct>::isValid() const noexcept
 {
     return m_isValid;
 }
 
-inline IClientSpeaker& Client::getClientSpeaker() noexcept
+template<ClientTraits _Ct>
+IClientSpeaker<typename _Ct::Sdcs::Sbin, typename  _Ct::Sdcs::Dbin>& Client<_Ct>::getClientSpeaker() noexcept
 {
     return m_clientSpeaker;
 }
 
-inline Status Client::getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept
+template<ClientTraits _Ct>
+Status Client<_Ct>::getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept
 {
     if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
@@ -246,7 +249,8 @@ inline Status Client::getServerProtocolVersions(Vector<protocol_version_t>& outp
     return processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, output);
 }
 
-inline Status Client::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
+template<ClientTraits _Ct>
+Status Client<_Ct>::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
 {
     if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
@@ -262,9 +266,9 @@ inline Status Client::getServerSettings(protocol_version_t serverCspVersion, ser
     return cspPartySettings.deserialize(binOutput);
 }
 
-template<typename InputType>
-    requires ISerializableBased<InputType>
-Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
+template<ClientTraits _Ct>
+template<ISerializableBased InputType>
+Status Client<_Ct>::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
 {
     if (!isValid())
         return Status::kErrorNotInited;
@@ -297,12 +301,14 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 
-constexpr const service_structs::CspPartySettings<>& Client::getSettings() const noexcept
+template<ClientTraits _Ct>
+constexpr const service_structs::CspPartySettings<>& Client<_Ct>::getSettings() const noexcept
 {
     return m_settings;
 }
 
-constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const noexcept
+template<ClientTraits _Ct>
+constexpr interface_version_t Client<_Ct>::getInterfaceVersion(const Id& id) const noexcept
 {
     for (const auto& interface_ : m_settings.interfaces)
         if (id == interface_.id)
@@ -311,24 +317,24 @@ constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const no
     return traits::kInterfaceVersionUndefined;
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires ISerializableBased<InputType> && ISerializableBased<OutputType>
-Status Client::handleData(const InputType& input, OutputType& output, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+template<ClientTraits _Ct>
+template<ISerializableBased InputType, ISerializableBased OutputType>
+Status Client<_Ct>::handleData(const InputType& input, OutputType& output, Gkc* pUnmanagedPointers)
 {
     return handleData(input, output, {}, {}, pUnmanagedPointers);
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires ISerializableBased<InputType> && ISerializableBased<OutputType>
-Status Client::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+template<ClientTraits _Ct>
+template<ISerializableBased InputType, ISerializableBased OutputType>
+Status Client<_Ct>::handleData(const InputType& input, OutputType& output, context::DataFlags additionalDataFlags, Gkc* pUnmanagedPointers)
 {
     return handleData(input, output, {}, additionalDataFlags, pUnmanagedPointers);
 }
 
-template<typename InputType, typename OutputType, bool forTempUseHeap>
-    requires ISerializableBased<InputType> && ISerializableBased<OutputType>
-Status Client::handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
-    , context::DataFlags additionalDataFlags, Vector<GenericPointerKeeper>* pUnmanagedPointers)
+template<ClientTraits _Ct>
+template<ISerializableBased InputType, ISerializableBased OutputType>
+Status Client<_Ct>::handleData(const InputType& input, OutputType& output, context::CommonFlags additionalCommonFlags
+    , context::DataFlags additionalDataFlags, Gkc* pUnmanagedPointers)
 {
     // We are additionally checking of m_clientSpeaker ptr state
     // because Client interface allows us to manipulate with it directly

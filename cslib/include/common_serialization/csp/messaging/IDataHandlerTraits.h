@@ -32,10 +32,10 @@ namespace common_serialization::csp::messaging
 /// @brief Properties of IDataHandler
 template<typename _T>
 concept IDataHandlerTraits
-=      ISerializableBased<typename _T::InputType>
+    =  ISerializableBased<typename _T::InputType>
     && ISerializableBased<typename _T::OutputType>
     && std::is_same_v<const bool, decltype(_T::forTempUseHeap)>
-    && std::is_same_v<const bool, decltype(_T::forTempUseHeapExtended)>
+    && std::is_same_v<const bool, decltype(_T::forTempUseHeapExt)>
     && std::is_same_v<const bool, decltype(_T::multicast)>
     && std::is_same_v<const interface_version_t, decltype(_T::minimumInterfaceVersion)>
     && SdContainers<typename _T::Sdcs>;
@@ -49,14 +49,14 @@ template<
     , interface_version_t _minimumInterfaceVersion
     , SdContainers _Sdcs
 >
-struct DataHandlerTraits
+struct IDataHandlerTraitsConcrete
 {
     using InputType = _InputType;
     using OutputType = _OutputType;
     using Sdcs = _Sdcs;
 
     static constexpr bool forTempUseHeap = _forTempUseHeap;
-    static constexpr bool forTempUseHeapExtended = _forTempUseHeapExtended;
+    static constexpr bool forTempUseHeapExt = _forTempUseHeapExtended;
     static constexpr bool multicast = _multicast;
     static constexpr interface_version_t minimumInterfaceVersion = _minimumInterfaceVersion;
 };
@@ -76,7 +76,7 @@ template<
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
     , SdContainers _Sdcs = traits::DefaultSdContainers
 >
-using DhStackT = DataHandlerTraits<_InputType, _OutputType, false, false, false, _minimumInterfaceVersion, _Sdcs>;
+using DhStackT = IDataHandlerTraitsConcrete<_InputType, _OutputType, false, false, false, _minimumInterfaceVersion, _Sdcs>;
 
 template<
       ISerializableBased _InputType
@@ -84,7 +84,7 @@ template<
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
     , SdContainers _Sdcs = traits::DefaultSdContainers
 >
-using DhStackMultiT = DataHandlerTraits<_InputType, _OutputType, false, false, true, _minimumInterfaceVersion, _Sdcs>;
+using DhStackMultiT = IDataHandlerTraitsConcrete<_InputType, _OutputType, false, false, true, _minimumInterfaceVersion, _Sdcs>;
 
 template<
       ISerializableBased _InputType
@@ -92,7 +92,7 @@ template<
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
     , SdContainers _Sdcs = traits::DefaultSdContainers
 >
-using DhHeapT = DataHandlerTraits<_InputType, _OutputType, true, false, false, _minimumInterfaceVersion, _Sdcs>;
+using DhHeapT = IDataHandlerTraitsConcrete<_InputType, _OutputType, true, false, false, _minimumInterfaceVersion, _Sdcs>;
 
 template<
       ISerializableBased _InputType
@@ -100,7 +100,7 @@ template<
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
     , SdContainers _Sdcs = traits::DefaultSdContainers
 >
-using DhHeapMultiT = DataHandlerTraits<_InputType, _OutputType, true, false, true, _minimumInterfaceVersion, _Sdcs>;
+using DhHeapMultiT = IDataHandlerTraitsConcrete<_InputType, _OutputType, true, false, true, _minimumInterfaceVersion, _Sdcs>;
 
 template<
       ISerializableBased _InputType
@@ -108,7 +108,7 @@ template<
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
     , SdContainers _Sdcs = traits::DefaultSdContainers
 >
-using DhHeapExtT = DataHandlerTraits<_InputType, _OutputType, true, true, false, _minimumInterfaceVersion, _Sdcs>;
+using DhHeapExtT = IDataHandlerTraitsConcrete<_InputType, _OutputType, true, true, false, _minimumInterfaceVersion, _Sdcs>;
 
 template<
       ISerializableBased _InputType
@@ -116,6 +116,6 @@ template<
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
     , SdContainers _Sdcs = traits::DefaultSdContainers
 >
-using DhHeapExtMultiT = DataHandlerTraits<_InputType, _OutputType, true, true, true, _minimumInterfaceVersion, _Sdcs>;
+using DhHeapExtMultiT = IDataHandlerTraitsConcrete<_InputType, _OutputType, true, true, true, _minimumInterfaceVersion, _Sdcs>;
 
 } // namespace common_serialization::csp::messaging

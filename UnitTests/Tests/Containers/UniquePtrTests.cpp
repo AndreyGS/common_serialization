@@ -375,5 +375,4 @@ TEST(UniquePtrArrTest, VariousOperators)
     EXPECT_FALSE(static_cast<bool>(uptr));
 }
 
-
 } // namespace
