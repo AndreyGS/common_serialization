@@ -104,7 +104,7 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNoSupportedInterfaces);
     EXPECT_EQ(serverSettingsReturned, serverSettings);
     EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
+    EXPECT_EQ((dataClient.handleData<csp::messaging::ChHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::kErrorNotInited);
 
     // Not compatible common flags settings (between mandatory and forbidden flags)
     // First, reinit dataClient (to ensure that later it will be reset to not valid state)
@@ -117,7 +117,7 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNotCompatibleCommonFlagsSettings);
     EXPECT_EQ(serverSettingsReturned, serverSettings);
     EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
+    EXPECT_EQ((dataClient.handleData<csp::messaging::ChHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::kErrorNotInited);
 
     // Not supported protocol version
     // First, reinit dataClient (to ensure that later it will be reset to not valid state)
@@ -130,14 +130,14 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNotSupportedProtocolVersion);
     EXPECT_EQ(serverSettingsReturned.protocolVersions, serverSettings.protocolVersions);
     EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
+    EXPECT_EQ((dataClient.handleData<csp::messaging::ChHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::kErrorNotInited);
 
     // Test of init when data client speaker is not valid
     clientSettings.protocolVersions.insert(0, 0);
     dynamic_cast<SimpleSpeaker&>(dataClient.getClientSpeaker()).setValidState(false);
     EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::kErrorNotInited);
     EXPECT_FALSE(dataClient.isValid());
-    EXPECT_EQ(dataClient.handleData(dummyInput, dummyOutput), Status::kErrorNotInited);
+    EXPECT_EQ((dataClient.handleData<csp::messaging::ChHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::kErrorNotInited);
 }
 
 TEST(MessagingTests, DataMessageHandling)
@@ -158,7 +158,7 @@ TEST(MessagingTests, DataMessageHandling)
     fillingStruct(input);
     interface_for_test::SimplyAssignableDescendant<> output;
 
-    EXPECT_EQ(dataClient.handleData(input, output), Status::kNoError);
+    EXPECT_EQ((dataClient.handleData<csp::messaging::ChHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::kNoError);
 
     interface_for_test::SimplyAssignableDescendant<> outputReference;
     fillingStruct(outputReference);
@@ -173,7 +173,7 @@ TEST(MessagingTests, DataMessageHandling)
 
     interface_for_test::SimplyAssignableDescendant<> output2;
 
-    EXPECT_EQ(dataClient.handleData(input, output2), Status::kNoError);
+    EXPECT_EQ((dataClient.handleData<csp::messaging::ChHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output2)), Status::kNoError);
     EXPECT_EQ(output2, outputReference);
 
     // Struct handler not support interface version
@@ -184,7 +184,7 @@ TEST(MessagingTests, DataMessageHandling)
 
     interface_for_test::SimplyAssignableDescendant<> output3;
 
-    EXPECT_EQ(dataClient.handleData(input, output3), Status::kErrorNotSupportedInterfaceVersion);
+    EXPECT_EQ((dataClient.handleData<csp::messaging::ChHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output3)), Status::kErrorNotSupportedInterfaceVersion);
     EXPECT_EQ(output3.m_d, 0); // struct wasn't changed
 }
 

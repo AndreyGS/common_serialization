@@ -171,8 +171,6 @@ constexpr Status serializeDataContext(context::Data<Scs>& ctx)
 template<DContainers Dcs>
 constexpr Status deserializeDataContext(context::Data<Dcs>& ctx, Id& id)
 {
-    typename Dcs::Dbin& input = ctx.getBinaryData();
-
     CS_RUN(readRawData(ctx, 1, &id));
 
     interface_version_t inputInterfaceVersion = 0;
@@ -190,8 +188,6 @@ constexpr Status deserializeDataContext(context::Data<Dcs>& ctx, Id& id)
 template<typename T, SContainers Scs>
 constexpr Status serializeDataContextNoChecks(context::Data<Scs>& ctx)
 {
-    typename Scs::Sbin& output = ctx.getBinaryData();
-
     Id id = T::getId();
 
     CS_RUN(writeRawData(&id, 1, ctx));
@@ -206,24 +202,27 @@ constexpr Status serializeDataContextNoChecks(context::Data<Scs>& ctx)
     return Status::kNoError;
 }
 
-template<typename T, DContainers Dcs>
-constexpr Status deserializeDataContextPostprocess(context::Data<Dcs>& ctx, const Id& id, interface_version_t minimumSupportedInterfaceVersion) noexcept
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status deserializeDataContextPostprocessId(const Id& id) noexcept
 {
-    Id tUuid = T::getId();
-    if (tUuid != id)
-        return Status::kErrorMismatchOfStructId;
+    Id tUuid = _T::getId();
+    return tUuid == id ? Status::kNoError : Status::kErrorMismatchOfStructId;
+}
 
-    constexpr interface_version_t interfaceVersion = T::getInterface().version;
+template<typename _T, DContainers _Dcs>
+constexpr Status deserializeDataContextPostprocessRest(context::Data<_Dcs>& ctx, interface_version_t minimumSupportedInterfaceVersion) noexcept
+{
+    constexpr interface_version_t interfaceVersion = _T::getInterface().version;
 
     // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
     // however for some special subscribers of data struct you may override it by
     // value that is higher than minimum defined in interface version
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, interfaceVersion))
         return Status::kErrorNotSupportedInterfaceVersion;
-    else if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
+    else if (ctx.getInterfaceVersion() < _T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
-    CS_RUN(processing::testDataFlagsCompatibility<T>(ctx.getDataFlags()));
+    CS_RUN(processing::testDataFlagsCompatibility<_T>(ctx.getDataFlags()));
 
     if (ctx.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)
         return Status::kErrorInvalidArgument;

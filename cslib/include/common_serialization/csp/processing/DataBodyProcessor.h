@@ -57,7 +57,7 @@ public:
     /// @param ctx CSP Full Data Context
     /// @return Status of operation
     template<typename T, SContainers Scs>
-    static CS_ALWAYS_INLINE constexpr Status serializeToAnotherSize(size_t targetTypeSize, T value, context::Data<Scs>& ctx);
+    static CS_ALWAYS_INLINE constexpr Status serializeToAnotherSize(csp_size_t targetTypeSize, T value, context::Data<Scs>& ctx);
 
     template<typename T, DContainers Dcs>
     static constexpr Status deserialize(context::Data<Dcs>& ctx, csp_size_t n, T* p);
@@ -76,7 +76,7 @@ public:
     /// @param value Output value
     /// @return Status of operation
     template<typename T, DContainers Dcs>
-    static CS_ALWAYS_INLINE constexpr Status deserializeFromAnotherSize(size_t originalTypeSize, context::Data<Dcs>& ctx, T& value);
+    static CS_ALWAYS_INLINE constexpr Status deserializeFromAnotherSize(csp_size_t originalTypeSize, context::Data<Dcs>& ctx, T& value);
 
 protected:
     template<size_t targetTypeSize, typename T, SContainers Scs>
@@ -212,7 +212,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSizeT(T value, context
 }
 
 template<typename T, SContainers Scs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeToAnotherSize(size_t targetTypeSize, T value, context::Data<Scs>& ctx)
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeToAnotherSize(csp_size_t targetTypeSize, T value, context::Data<Scs>& ctx)
 {
     switch (targetTypeSize)
     {
@@ -392,7 +392,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSizeT(context::Data<
 }
 
 template<typename T, DContainers Dcs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeFromAnotherSize(size_t originalTypeSize, context::Data<Dcs>& ctx, T& value)
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeFromAnotherSize(csp_size_t originalTypeSize, context::Data<Dcs>& ctx, T& value)
 {
     switch (originalTypeSize)
     {

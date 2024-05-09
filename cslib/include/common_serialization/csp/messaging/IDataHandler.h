@@ -38,7 +38,6 @@ public:
     using OutputType = typename _T::OutputType;
 
     static constexpr bool kForTempUseHeap = _T::kForTempUseHeap;
-    static constexpr bool kForTempUseHeapExt = _T::kForTempUseHeapExt;
     static constexpr bool kMulticast = _T::kMulticast;
     static constexpr interface_version_t kMinimumInterfaceVersion  = _T::kMinimumInterfaceVersion;
     
@@ -111,7 +110,7 @@ Status IDataHandler<_T>::handleDataCommon(context::Data<Dcs>& ctx, const Generic
     // so here it is only placeholder
     Id id = InputType::getId();
 
-    if (Status status = processing::deserializeDataContextPostprocess<InputType>(ctx, id, getMinimumInterfaceVersion()); !statusSuccess(status))
+    if (Status status = processing::deserializeDataContextPostprocessRest<InputType>(ctx, getMinimumInterfaceVersion()); !statusSuccess(status))
     {
         if (status == Status::kErrorNotSupportedInterfaceVersion)
         {
@@ -122,7 +121,7 @@ Status IDataHandler<_T>::handleDataCommon(context::Data<Dcs>& ctx, const Generic
         return status;
     }
 
-    ctx.setAuxUsingHeapAllocation(kForTempUseHeap);
+    ctx.setHeapUseForTemp(kForTempUseHeap);
 
     if constexpr (kForTempUseHeap)
         return handleDataOnHeap(ctx, clientId, binOutput);

@@ -52,8 +52,6 @@ constexpr Status toOldStructIfNeed(const T& value, context::Data<Scs>& ctx)
     {
         uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
 
-        typename Scs::Sbin& output = ctx.getBinaryData();
-
         if (targetVersion == value.getLatestPrivateVersion())
             return Status::kNoError;
         // Normaly, next condition shall never succeed
@@ -71,8 +69,6 @@ constexpr Status fromOldStructIfNeed(context::Data<Dcs>& ctx, T& value)
         return Status::kErrorInvalidType;
     else
     {
-        typename Dcs::Dbin& input = ctx.getBinaryData();
-
         uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
 
         if (targetVersion == value.getLatestPrivateVersion())
@@ -128,7 +124,7 @@ public:
     template<ISerializableBased From, SContainers Scs>
     Status convert(const From& from, context::Data<Scs>& ctx)
     {
-        return ctx.isAuxUsingHeapAllocation() ? convertOnHeap(from, ctx) : convertOnStack(from, ctx);
+        return ctx.isHeapUsedForTemp() ? convertOnHeap(from, ctx) : convertOnStack(from, ctx);
     }
 
 protected:
@@ -222,7 +218,7 @@ public:
         if (base_class::privateVersion <= getTargetVersion())
             return base_class::convert(ctx, to);
         else
-            return ctx.isAuxUsingHeapAllocation() ? convertOnHeap(ctx, to) : convertOnStack(ctx, to);
+            return ctx.isHeapUsedForTemp() ? convertOnHeap(ctx, to) : convertOnStack(ctx, to);
     }
 
 protected:

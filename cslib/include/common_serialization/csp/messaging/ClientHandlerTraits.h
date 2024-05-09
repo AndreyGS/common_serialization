@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/ClientTraits.h
+ * @file cslib/include/common_serialization/csp/messaging/ClientHandlerTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -31,31 +31,28 @@ namespace common_serialization::csp::messaging
 
 /// @brief Properties of CSP Client
 template<typename _T>
-concept ClientTraits
-    =  std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>
-    && std::is_same_v<const bool, decltype(_T::kForTempUseHeapExt)>
-    && SdContainers<typename _T::Sdcs>;
+concept ClientHandlerTraits
+    =  ISerializableBased<typename _T::InputType>
+    && ISerializableBased<typename _T::OutputType>
+    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
 
 template<
-      bool _forTempUseHeap
-    , bool _forTempUseHeapExtended
-    , SdContainers _Sdcs
+      ISerializableBased _InputType
+    , ISerializableBased _OutputType
+    , bool _forTempUseHeap
 >
-struct ClientTraitsConcrete
+struct ClientHandlerTraitsConcrete
 {
-    using Sdcs = _Sdcs;
+    using InputType = _InputType;
+    using OutputType = _OutputType;
 
     static constexpr bool kForTempUseHeap = _forTempUseHeap;
-    static constexpr bool kForTempUseHeapExt = _forTempUseHeapExtended;
 };
 
-template<SdContainers _Sdcs = traits::DefaultSdContainers>
-using ClientStackT = ClientTraitsConcrete<false, false, _Sdcs>;
+template<ISerializableBased _InputType, ISerializableBased _OutputType>
+using ChStack = ClientHandlerTraitsConcrete<_InputType, _OutputType, false>;
 
-template<SdContainers _Sdcs = traits::DefaultSdContainers>
-using ClientHeapT = ClientTraitsConcrete<true, false, _Sdcs>;
-
-template<SdContainers _Sdcs = traits::DefaultSdContainers>
-using ClientHeapExtT = ClientTraitsConcrete<true, true, _Sdcs>;
+template<ISerializableBased _InputType, ISerializableBased _OutputType>
+using ChHeap = ClientHandlerTraitsConcrete<_InputType, _OutputType, true>;
 
 } // namespace common_serialization::csp::messaging

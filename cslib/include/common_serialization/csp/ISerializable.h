@@ -195,7 +195,8 @@ constexpr Status ISerializable<T>::deserialize(context::Data<Dcs>& ctx)
     uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? this->getOriginPrivateVersion() : ctx.getInterfaceVersion();
 
     CS_RUN(processing::deserializeDataContext(ctx, id));
-    CS_RUN(processing::deserializeDataContextPostprocess<T>(ctx, id, minimumInterfaceVersion));
+    CS_RUN(processing::deserializeDataContextPostprocessId<T>(id));
+    CS_RUN(processing::deserializeDataContextPostprocessRest<T>(ctx, minimumInterfaceVersion));
     
     return processing::data::BodyProcessor::deserialize(ctx, static_cast<T&>(*this));
 }

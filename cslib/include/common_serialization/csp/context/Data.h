@@ -193,17 +193,17 @@ public:
     /// @brief Constructor
     /// @param binaryData Container that hold or would hold binary data from processing
     /// @param dataFlags Data flags that are using in processing
-    /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
+    /// @param forTempUseHeap Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
     explicit constexpr Data(
           Bin& binaryData
         , CommonFlags commonFlags = {}
         , DataFlags dataFlags = {}
-        , bool auxUsingHeapAllocation = true
+        , bool forTempUseHeap = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
         : Common<Bin>(binaryData, traits::getLatestProtocolVersion(), Message::Data, commonFlags)
-        , m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
+        , m_interfaceVersion(interfaceVersion), m_forTempUseHeap(forTempUseHeap)
     { 
         setDataFlags(dataFlags);
     }
@@ -211,15 +211,15 @@ public:
     /// @brief Constructor
     /// @param common Reference on Common
     /// @param dataFlags Data flags that are using in processing
-    /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
+    /// @param forTempUseHeap Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
     explicit constexpr Data(
           Common<Bin>& common
         , DataFlags dataFlags = {}
-        , bool auxUsingHeapAllocation = true
+        , bool forTempUseHeap = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
     ) noexcept
-        : Common<Bin>(std::move(common)), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
+        : Common<Bin>(std::move(common)), m_interfaceVersion(interfaceVersion), m_forTempUseHeap(forTempUseHeap)
     { 
         setDataFlags(dataFlags);
     }
@@ -229,7 +229,7 @@ public:
     /// @param binaryData Container that hold or would hold binary data from processing
     /// @param protocolVersion Protocol version that would be used in process
     /// @param dataFlags Data flags that are using in processing
-    /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
+    /// @param forTempUseHeap Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
     /// @param pointersMap Pointer to map that implements ISerializationPointersMap interface
     constexpr Data(
@@ -237,13 +237,13 @@ public:
         , protocol_version_t protocolVersion
         , CommonFlags commonFlags = {}
         , DataFlags dataFlags = {}
-        , bool auxUsingHeapAllocation = true
+        , bool forTempUseHeap = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
         , PM* pPointersMap = nullptr
     ) noexcept
         requires SContainers<Containers>
             : Common<Bin>(binaryData, protocolVersion, Message::Data, commonFlags)
-            , m_epp(pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
+            , m_epp(pPointersMap), m_interfaceVersion(interfaceVersion), m_forTempUseHeap(forTempUseHeap)
     { 
        setDataFlags(dataFlags);
     }
@@ -253,7 +253,7 @@ public:
     /// @param binaryData Container that hold or would hold binary data from processing
     /// @param protocolVersion Protocol version that would be used in process
     /// @param dataFlags Data flags that are using in processing
-    /// @param auxUsingHeapAllocation Should allocation of temp data be used on heap instead of stack
+    /// @param forTempUseHeap Should allocation of temp data be used on heap instead of stack
     /// @param interfaceVersion Target interface version
     /// @param pAddedPointers Pointer to additional free pointers container
     /// @param pointersMap Pointer to map that implements ISerializationPointersMap interface
@@ -262,14 +262,14 @@ public:
         , protocol_version_t protocolVersion
         , CommonFlags commonFlags = {}
         , DataFlags dataFlags = {}
-        , bool auxUsingHeapAllocation = true
+        , bool forTempUseHeap = true
         , interface_version_t interfaceVersion = traits::kInterfaceVersionUndefined
         , Gkc* pAddedPointers = nullptr
         , PM* pPointersMap = nullptr
     ) noexcept
         requires (!SContainers<Containers>)
             : Common<Bin>(binaryData, protocolVersion, Message::Data, commonFlags)
-            , m_epp(pAddedPointers, pPointersMap), m_interfaceVersion(interfaceVersion), m_auxUsingHeapAllocation(auxUsingHeapAllocation)
+            , m_epp(pAddedPointers, pPointersMap), m_interfaceVersion(interfaceVersion), m_forTempUseHeap(forTempUseHeap)
     { 
        setDataFlags(dataFlags);
     }
@@ -321,11 +321,11 @@ public:
 
     /// @brief Test if allocation of temp data would be used on heap instead of stack
     /// @return Is allocation of temp data would be used on heap instead of stack
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isAuxUsingHeapAllocation() const noexcept { return m_auxUsingHeapAllocation; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isHeapUsedForTemp() const noexcept { return m_forTempUseHeap; }
     
     /// @brief Set that allocation of temp data should use heap or stack
-    /// @param auxUsingHeapAllocation Flag indicating type of temp allocation
-    CS_ALWAYS_INLINE constexpr Data& setAuxUsingHeapAllocation(bool auxUsingHeapAllocation) { m_auxUsingHeapAllocation = auxUsingHeapAllocation; return *this; }
+    /// @param forTempUseHeap Flag indicating type of temp allocation
+    CS_ALWAYS_INLINE constexpr Data& setHeapUseForTemp(bool forTempUseHeap) { m_forTempUseHeap = forTempUseHeap; return *this; }
 
     /// @brief Get pointer to holding pointers map
     /// @return Pointer to pointers map
@@ -390,7 +390,7 @@ private:
     interface_version_t m_interfaceVersion{ traits::kInterfaceVersionUndefined };
     DataFlags m_dataFlags;
     bool m_interfaceVersionsNotMatch{ false };
-    bool m_auxUsingHeapAllocation{ false };
+    bool m_forTempUseHeap{ false };
 
     // All next bool members are mirroring m_dataFlags value
     // they all are precalculated, when m_dataFlags is set up.
