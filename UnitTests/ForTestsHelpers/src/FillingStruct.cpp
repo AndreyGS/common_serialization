@@ -352,7 +352,7 @@ void fillingStruct(interface_for_test::SimilarType2<>& output)
 template<>
 void fillingStruct(interface_for_test::ManyPointersType<>& output)
 {
-    Vector<int*, RawStrategicAllocatorHelper<int*>> vec;
+    RawVectorT<int*> vec;
     // It must be raw pointer, which will be deleted on test cleanup
     int* pInt = new int[3] { 1, 2, 3};
     vec.pushBack(pInt);

@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAnotherBitness.cpp
+ * @file cslib/include/common_serialization/Containers/typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,41 +21,36 @@
  *
  */
 
-// In most of this tests we are simulating difference in arithmetic sizes by using
-// distinct structs for serialization and deserialization
-// (to accomplish that we set their name hashes to the same value)
+#pragma once
 
-namespace
+#include "common_serialization/Containers/Concepts.h"
+#include "common_serialization/Containers/GenericPointerKeeper.h"
+#include "common_serialization/Containers/UniquePtr.h"
+#include "common_serialization/Containers/Vector.h"
+#include "common_serialization/Containers/Walker.h"
+
+namespace common_serialization
 {
 
-using namespace common_serialization;
-using namespace interface_for_test;
-using namespace ft_helpers;
+using GenericPointerKeeperT = GenericPointerKeeper;
 
-TEST(ISerializableAnotherBitness, SpecialTBasicT)
-{
-    SpecialProcessingType input;
-    fillingStruct(input);
+template<typename _T, typename... _Ts>
+using UniquePtrT = UniquePtr<_T, _Ts...>;
 
-    BinWalkerT bin;
-    csp::context::SData ctxIn(bin.getVector()
-        , csp::context::CommonFlags{ helpers::isBitness64() ? csp::context::CommonFlags::kBitness32 : csp::context::CommonFlags::kNoFlagsMask }
-        , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });
+template<typename _T>
+using RawVectorT = Vector<_T, RStrategicAllocatorHelperT<_T>>;
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+using BinVectorT = RawVectorT<uint8_t>;
 
-    csp::context::DData ctxOut(bin);
+template<typename _T, typename... _Ts>
+using VectorT = Vector<_T, _Ts...>;
 
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(&addedPointers);
+template<typename _T>
+using RawWalkerT = Walker<_T, RStrategicAllocatorHelperT<_T>>;
 
-    SpecialProcessingType output;
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
+using BinWalkerT = RawWalkerT<uint8_t>;
 
-    EXPECT_EQ(input, output);
+template<typename _K, typename _V, typename... _Ts>
+using HashMapT = std::unordered_map<_K, _V, _Ts...>;
 
-    cleanAfterStruct(input);
-}
-
-} // namespace
+} // namespace common_serialization

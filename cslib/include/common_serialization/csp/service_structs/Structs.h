@@ -117,7 +117,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     static consteval const Interface& getInterface() noexcept { return properties; }
 
     /// @brief List of all supported CSP versions begining in decreasing order
-    Vector<protocol_version_t> protocolVersions;
+    RawVectorT<protocol_version_t> protocolVersions;
 
     /// @brief Mandatory Common Flags in interactions with party
     context::CommonFlags mandatoryCommonFlags{ helpers::isBigEndianPlatform() };
@@ -125,7 +125,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     context::CommonFlags forbiddenCommonFlags;
 
     /// @brief List of availible party interfaces and their settings
-    Vector<InterfaceVersion<>> interfaces;
+    RawVectorT<InterfaceVersion<>> interfaces;
 
     Status init(const CspPartySettings& rhs) noexcept
     {
@@ -158,10 +158,10 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     }
 
     Status init(
-          const Vector<protocol_version_t>& protocolVersions_
+          const RawVectorT<protocol_version_t>& protocolVersions_
         , context::CommonFlags mandatoryCommonFlags_
         , context::CommonFlags forbiddenCommonFlags_
-        , const Vector<InterfaceVersion<>>& interfaces_) noexcept
+        , const RawVectorT<InterfaceVersion<>>& interfaces_) noexcept
     {
         clear();
 

@@ -39,23 +39,12 @@ namespace common_serialization::csp::messaging
 ///     with any other function in parallel.
 ///     So, before using object you should successfully init it and 
 ///     only after this all it can be used safely in multithreaded environment.
-template<SdContainers _Sdcs = traits::DefaultSdContainers>
 class Server
 {
 public:
-    using Sdcs = _Sdcs;
-    using Sbin = typename Sdcs::Sbin;
-    using Dbin = typename Sdcs::Dbin;
-    using Spm = typename Sdcs::Spm;
-    using Dpm = typename Sdcs::Dpm;
-    using Gkc = typename Sdcs::Gkc;
-
-    using Scs = typename Sdcs::Scs;
-    using Dcs = typename Sdcs::Dcs;
-
     Server() = default;
 
-    Server(const service_structs::CspPartySettings<>& settings, UniquePtr<IDataHandlersRegistrar<Sdcs>>&& dataHandlersRegistrar) noexcept;
+    Server(const service_structs::CspPartySettings<>& settings, UniquePtrT<IDataHandlersRegistrar>&& dataHandlersRegistrar) noexcept;
 
     template<typename _T>
     Status init(const service_structs::CspPartySettings<>& settings) noexcept;
@@ -66,26 +55,25 @@ public:
     /// @param binInput Binary data received from client
     /// @param binOutput Binary data that should be send back to client
     /// @return Status of operation
-    Status handleMessage(Dbin& binInput, const GenericPointerKeeper& clientId, Sbin& binOutput) const;
+    Status handleMessage(BinWalkerT& binInput, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const;
 
-    CS_ALWAYS_INLINE const UniquePtr<IDataHandlersRegistrar<Sdcs>>& getDataHandlersRegistrar() const noexcept;
+    CS_ALWAYS_INLINE const UniquePtrT<IDataHandlersRegistrar>& getDataHandlersRegistrar() const noexcept;
 
 private:
-    CS_ALWAYS_INLINE Status handleGetSettings(protocol_version_t cspVersion, Sbin& binOutput) const noexcept;
+    CS_ALWAYS_INLINE Status handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept;
 
     /// @brief Common entry point on data messages handling
     /// @param ctxCommon Deserialized from input common context
     /// @param binOutput Binary data output
     /// @return Status of operation
-    CS_ALWAYS_INLINE Status handleData(context::Common<Dbin>& ctxCommon, const GenericPointerKeeper& clientId, Sbin& binOutput) const;
+    CS_ALWAYS_INLINE Status handleData(context::DCommon& ctxCommon, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const;
 
     service_structs::CspPartySettings<> m_settings;
-    UniquePtr<IDataHandlersRegistrar<Sdcs>> m_dataHandlersRegistrar;
+    UniquePtrT<IDataHandlersRegistrar> m_dataHandlersRegistrar;
     bool m_isInited{ false };
 };
 
-template<SdContainers _Sdcs>
-Server<_Sdcs>::Server(const service_structs::CspPartySettings<>& settings, UniquePtr<IDataHandlersRegistrar<Sdcs>>&& dataHandlersRegistrar) noexcept
+inline Server::Server(const service_structs::CspPartySettings<>& settings, UniquePtrT<IDataHandlersRegistrar>&& dataHandlersRegistrar) noexcept
 {
     if (!settings.isValid() || !dataHandlersRegistrar)
         return;
@@ -95,9 +83,8 @@ Server<_Sdcs>::Server(const service_structs::CspPartySettings<>& settings, Uniqu
     m_isInited = statusSuccess(m_settings.init(settings));
 }
 
-template<SdContainers _Sdcs>
 template<typename _T>
-Status Server<_Sdcs>::init(const service_structs::CspPartySettings<>& settings) noexcept
+inline Status Server::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
     m_isInited = false;
 
@@ -116,19 +103,17 @@ Status Server<_Sdcs>::init(const service_structs::CspPartySettings<>& settings) 
     return Status::kNoError;
 }
 
-template<SdContainers _Sdcs>
-CS_ALWAYS_INLINE constexpr bool Server<_Sdcs>::isValid() const noexcept
+CS_ALWAYS_INLINE constexpr bool Server::isValid() const noexcept
 {
     return m_isInited;
 }
 
-template<SdContainers _Sdcs>
-inline Status Server<_Sdcs>::handleMessage(Dbin& binInput, const GenericPointerKeeper& clientId, Sbin& binOutput) const
+inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const
 {
     if (!isValid())
         return Status::kErrorNotInited;
 
-    context::Common<Dbin> ctx(binInput, m_settings.protocolVersions[m_settings.protocolVersions.size() - 1]);
+    context::DCommon ctx(binInput, m_settings.protocolVersions[m_settings.protocolVersions.size() - 1]);
 
     if (Status status = processing::deserializeCommonContext(ctx); !statusSuccess(status))
     {
@@ -161,39 +146,35 @@ inline Status Server<_Sdcs>::handleMessage(Dbin& binInput, const GenericPointerK
     return status;
 }
 
-template<SdContainers _Sdcs>
-CS_ALWAYS_INLINE const UniquePtr<IDataHandlersRegistrar<_Sdcs>>& Server<_Sdcs>::getDataHandlersRegistrar() const noexcept
+CS_ALWAYS_INLINE const UniquePtr<IDataHandlersRegistrar>& Server::getDataHandlersRegistrar() const noexcept
 {
     return m_dataHandlersRegistrar;
 }
 
-template<SdContainers _Sdcs>
-CS_ALWAYS_INLINE Status Server<_Sdcs>::handleGetSettings(protocol_version_t cspVersion, Sbin& binOutput) const noexcept
+CS_ALWAYS_INLINE Status Server::handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept
 {
     binOutput.clear();
 
-    context::Data<Scs> ctxOut(binOutput, cspVersion, m_settings.mandatoryCommonFlags, {}, true, cspVersion);
+    context::SData ctxOut(binOutput, cspVersion, m_settings.mandatoryCommonFlags, {}, true, cspVersion);
 
     return m_settings.serialize(ctxOut);
 }
-
-template<SdContainers _Sdcs>
-CS_ALWAYS_INLINE Status Server<_Sdcs>::handleData(context::Common<Dbin>& ctxCommon, const GenericPointerKeeper& clientId, Sbin& binOutput) const
+CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const
 {
-    context::Data<Dcs> ctx(ctxCommon);
+    context::DData ctx(ctxCommon);
     Id id;
 
     CS_RUN(processing::deserializeDataContext(ctx, id));
 
-    Gkc addedPointers;
+    VectorT<GenericPointerKeeperT> addedPointers;
     if (ctx.allowUnmanagedPointers())
         ctx.setAddedPointers(&addedPointers);
 
-    Dpm pointersMap;
+    HashMapT<csp_size_t, void*> pointersMap;
     if (ctx.checkRecursivePointers())
         ctx.setPointersMap(&pointersMap);
 
-    IDataHandlerBase<Sdcs>* pDataHandler{ nullptr };
+    IDataHandlerBase* pDataHandler{ nullptr };
     Status status = m_dataHandlersRegistrar->findHandler(id, pDataHandler);
 
     if (statusSuccess(status))
@@ -202,12 +183,12 @@ CS_ALWAYS_INLINE Status Server<_Sdcs>::handleData(context::Common<Dbin>& ctxComm
     }
     else if (status == Status::kErrorMoreEntires) // if we have more than one DataHandler
     {
-        Vector<IDataHandlerBase<Sdcs>*, RawStrategicAllocatorHelper<IDataHandlerBase<Sdcs>*>> dataHandlers;
+        RawVectorT<IDataHandlerBase*> dataHandlers;
         CS_RUN(m_dataHandlersRegistrar->findHandlers(id, dataHandlers));
 
         status = Status::kNoError;
 
-        typename Dbin::size_type bodyPosition = ctx.getBinaryData().tell();
+        typename BinVectorT::size_type bodyPosition = ctx.getBinaryData().tell();
 
         for (auto pDataHandler : dataHandlers)
         {

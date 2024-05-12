@@ -1,5 +1,5 @@
 /**
- * @file StdIncludedTests.cpp
+ * @file cslib/include/common_serialization/Allocators/typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,31 +21,24 @@
  *
  */
 
-// In most of this tests we are simulating difference in arithmetic sizes by using
-// distinct structs for serialization and deserialization
-// (to accomplish that we set their name hashes to the same value)
+#pragma once
 
-namespace
+#include "common_serialization/Allocators/ConstructorNoexceptAllocator.h"
+#include "common_serialization/Allocators/RawKeeperAllocator.h"
+#include "common_serialization/Allocators/RawNoexceptAllocator.h"
+
+namespace common_serialization
 {
 
-using namespace common_serialization;
-using namespace with_std_included_interface;
-using namespace ft_helpers;
+template<typename _T>
+using ConstructorNoexceptAllocatorT = ConstructorNoexceptAllocator<_T>;
 
-TEST(StdIncludedTests, MainT)
-{
-    OneBigType<> input;
-    fillingStruct(input);
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+using RawKeeperAllocatorT = RawKeeperAllocator<_T>;
 
-    BinWalkerT bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
+template<typename _T>
+    requires std::is_trivially_copyable_v<_T>
+using RawNoexceptAllocatorT = RawNoexceptAllocator<_T>;
 
-    OneBigType<> output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-} // namespace
+} // namespace common_serialization

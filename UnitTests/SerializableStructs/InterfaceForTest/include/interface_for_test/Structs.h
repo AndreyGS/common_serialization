@@ -561,9 +561,9 @@ public:
             && m_nullptrInt == nullptr;
     }
 
-    cs::Vector<int*, cs::RawStrategicAllocatorHelper<int*>> m_vec;
-    cs::Vector<cs::Vector<int*, cs::RawStrategicAllocatorHelper<int*>>*, cs::RawStrategicAllocatorHelper<cs::Vector<int*, cs::RawStrategicAllocatorHelper<int*>>*>> m_vecRecursive;
-    cs::Vector<int*, cs::RawStrategicAllocatorHelper<int*>>* m_pVec;
+    cs::RawVectorT<int*> m_vec;
+    cs::RawVectorT<cs::RawVectorT<int*>*> m_vecRecursive;
+    cs::RawVectorT<int*>* m_pVec;
 
     not_part_of_interfaces::RecursiveTestSpecial1 m_rtSpec1;
     not_part_of_interfaces::RecursiveTestSpecial2 m_rtSpec2;

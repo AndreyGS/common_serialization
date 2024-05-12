@@ -129,7 +129,7 @@ struct SContainersConcrete
     using Spm = _Spm;
 };
 
-using DefaultSContainer = BinVector;
+using DefaultSContainer = BinVectorT;
 using DefaultSpmContainer = std::unordered_map<const void*, csp_size_t>;
 
 using DefaultSContainers = SContainersConcrete<DefaultSContainer, DefaultSpmContainer>;
@@ -142,7 +142,7 @@ struct DContainersConcrete
     using Gkc = _Gkc;
 };
 
-using DefaultDContainer = BinWalker;
+using DefaultDContainer = BinWalkerT;
 using DefaultDpmContainer = std::unordered_map<csp_size_t, void*>;
 using DefaultPcContainer = Vector<GenericPointerKeeper>;
 template<typename... _Ts>
@@ -176,35 +176,35 @@ struct SdContainersConcrete
 
 using DefaultSdContainers = SdContainersConcrete<DefaultSContainer, DefaultSpmContainer, DefaultDContainer, DefaultDpmContainer, DefaultPcContainer, DefaultBasicContainer>;
 
-template<AnySdContainers _Asdcs, bool>
+template<bool>
 struct _BinContainer
 {
-    using type = typename _Asdcs::Sbin;
+    using type = BinVectorT;
 };
 
-template<AnySdContainers _Asdcs>
-struct _BinContainer<_Asdcs, false>
+template<>
+struct _BinContainer<true>
 {
-    using type = typename _Asdcs::Dbin;
+    using type = BinWalkerT;
 };
 
-template<AnySdContainers _Asdcs, bool B>
-using BinContainer = typename _BinContainer<_Asdcs, B>::type;
+template<bool _serialize>
+using BinContainer = typename _BinContainer<_serialize>::type;
 
-template<AnySdContainers _Asdcs, bool>
+template<bool>
 struct _PmContainer
 {
-    using type = typename _Asdcs::Spm;
+    using type = HashMapT<const void*, csp_size_t>;
 };
 
-template<AnySdContainers _Asdcs>
-struct _PmContainer<_Asdcs, false>
+template<>
+struct _PmContainer<false>
 {
-    using type = typename _Asdcs::Dpm;
+    using type = HashMapT<csp_size_t, void*>;
 };
 
-template<AnySdContainers _Asdcs, bool B>
-using PmContainer = typename _PmContainer<_Asdcs, B>::type;
+template<bool _serialize>
+using PmContainer = typename _PmContainer<_serialize>::type;
 
 template<AnySdContainers _Asdcs, bool>
 struct _PcContainer

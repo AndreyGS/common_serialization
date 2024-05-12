@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/AllocatorHelpers/GenericAllocatorHelper.h
+ * @file cslib/include/common_serialization/AllocatorHelpers/GenericAllocatorHelper.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/Helpers.h"
-#include "common_serialization/Allocators/AllocatorHelpers/IAllocatorHelper.h"
+#include "common_serialization/AllocatorHelpers/IAllocatorHelper.h"
 
 namespace common_serialization
 {
@@ -300,25 +300,5 @@ constexpr typename GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::si
 {
     return this->getAllocator().max_size();
 }
-
-template<typename _T>
-    requires std::is_trivially_copyable_v<_T>
-class RawNoexceptAllocator;
-
-template<typename _T>
-using RawGenericAllocatorHelper = GenericAllocatorHelper<_T, RawNoexceptAllocator<_T>>;
-
-template<typename _T>
-    requires std::is_trivially_copyable_v<_T>
-class RawKeeperAllocator;
-
-template<typename _T>
-using RawKeeperGenericAllocatorHelper = GenericAllocatorHelper<_T, RawKeeperAllocator<_T>>;
-
-template<typename>
-class ConstructorNoexceptAllocator;
-
-template<typename _T>
-using ConstructorGenericAllocatorHelper = GenericAllocatorHelper<_T, ConstructorNoexceptAllocator<_T>>;
 
 } // namespace common_serialization

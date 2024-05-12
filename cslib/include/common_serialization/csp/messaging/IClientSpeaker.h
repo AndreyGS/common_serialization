@@ -30,7 +30,7 @@ namespace common_serialization::csp::messaging
 {
 
 /// @brief Interface for CSP Client to speak with CSP Server
-template<ISerializationBinContainer _Sbin = BinVector, IDeserializationBinContainer _Dbin = BinWalker>
+template<ISerializationBinContainer _Sbin = BinVectorT, IDeserializationBinContainer _Dbin = BinWalkerT>
 class IClientSpeaker
 {
 public:

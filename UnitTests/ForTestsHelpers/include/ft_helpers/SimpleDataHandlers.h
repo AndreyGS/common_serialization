@@ -67,7 +67,7 @@ class FirstDataHandler
     , cs::csp::messaging::IDataHandler<cs::csp::messaging::DhStackMultiT<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
-    FirstDataHandler(cs::csp::messaging::IDataHandlersRegistrar<>& registrar)
+    FirstDataHandler(cs::csp::messaging::IDataHandlersRegistrar& registrar)
         : cs::csp::messaging::IDataHandler<cs::csp::messaging::DhHeapT<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>(registrar)
         , cs::csp::messaging::IDataHandler<cs::csp::messaging::DhStackT<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(registrar)
         , cs::csp::messaging::IDataHandler<cs::csp::messaging::DhStackMultiT<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
@@ -106,7 +106,7 @@ class SecondDataHandler
     : cs::csp::messaging::IDataHandler<cs::csp::messaging::DhStackMultiT<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
-    SecondDataHandler(cs::csp::messaging::IDataHandlersRegistrar<>& registrar)
+    SecondDataHandler(cs::csp::messaging::IDataHandlersRegistrar& registrar)
         : cs::csp::messaging::IDataHandler<cs::csp::messaging::DhStackMultiT<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
     { }
 
@@ -124,7 +124,7 @@ class ThirdDataHandler
     : cs::csp::messaging::IDataHandler<cs::csp::messaging::DhStackMultiT<descendant_interface::DiamondDescendant<>, descendant_interface::SimpleStruct<>>>
 {
 public:
-    ThirdDataHandler(cs::csp::messaging::IDataHandlersRegistrar<>& registrar)
+    ThirdDataHandler(cs::csp::messaging::IDataHandlersRegistrar& registrar)
         : cs::csp::messaging::IDataHandler<cs::csp::messaging::DhStackMultiT<descendant_interface::DiamondDescendant<>, descendant_interface::SimpleStruct<>>>(registrar)
     { }
 
@@ -142,7 +142,7 @@ class FourthDataHandler
     : cs::csp::messaging::IDataHandler<cs::csp::messaging::DhStackMultiT<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
-    FourthDataHandler(cs::csp::messaging::IDataHandlersRegistrar<>& registrar)
+    FourthDataHandler(cs::csp::messaging::IDataHandlersRegistrar& registrar)
         : cs::csp::messaging::IDataHandler<cs::csp::messaging::DhStackMultiT<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
     { }
 

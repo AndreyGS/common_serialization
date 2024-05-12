@@ -26,25 +26,25 @@
 namespace common_serialization::csp::processing::data::version_converters
 {
 
-template<typename T, SContainers Scs>
-constexpr Status toOldStruct(const T& value, uint32_t targetVersion, context::Data<Scs>& ctx);
-template<typename T, DContainers Dcs>
-constexpr Status fromOldStruct(context::Data<Dcs>& ctx, uint32_t targetVersion, T& value);
+template<typename T>
+constexpr Status toOldStruct(const T& value, uint32_t targetVersion, context::SData& ctx);
+template<typename T>
+constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, T& value);
 
-template<typename T, SContainers Scs>
-constexpr Status toOldStruct(const T& value, uint32_t targetVersion, context::Data<Scs>& ctx)
+template<typename T>
+constexpr Status toOldStruct(const T& value, uint32_t targetVersion, context::SData& ctx)
 {
     return Status::kErrorNoSuchHandler;
 }
 
-template<typename T, DContainers Dcs>
-constexpr Status fromOldStruct(context::Data<Dcs>& ctx, uint32_t targetVersion, T& value)
+template<typename T>
+constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, T& value)
 {
     return Status::kErrorNoSuchHandler;
 }
 
-template<typename T, SContainers Scs>
-constexpr Status toOldStructIfNeed(const T& value, context::Data<Scs>& ctx)
+template<typename T>
+constexpr Status toOldStructIfNeed(const T& value, context::SData& ctx)
 {
     if constexpr (NotISerializableBased<T>)
         return Status::kErrorInvalidType;
@@ -62,8 +62,8 @@ constexpr Status toOldStructIfNeed(const T& value, context::Data<Scs>& ctx)
     }
 }
 
-template<typename T, DContainers Dcs>
-constexpr Status fromOldStructIfNeed(context::Data<Dcs>& ctx, T& value)
+template<typename T>
+constexpr Status fromOldStructIfNeed(context::DData& ctx, T& value)
 {
     if constexpr (NotISerializableBased<T>)
         return Status::kErrorInvalidType;
@@ -95,14 +95,14 @@ public:
     constexpr uint32_t getTargetVersion() const noexcept { return m_targetVersion; }
 
 protected:
-    template<typename From, SContainers Scs>
-    Status convertOnHeap(const From& from, context::Data<Scs>& ctx) noexcept
+    template<typename From>
+    Status convertOnHeap(const From& from, context::SData& ctx) noexcept
     {
         return Status::kErrorInternal;
     }
 
-    template<typename From, SContainers Scs>
-    Status convertOnStack(const From& from, context::Data<Scs>& ctx) noexcept
+    template<typename From>
+    Status convertOnStack(const From& from, context::SData& ctx) noexcept
     {
         return Status::kErrorInternal;
     }
@@ -121,8 +121,8 @@ public:
 
     constexpr uint32_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
-    template<ISerializableBased From, SContainers Scs>
-    Status convert(const From& from, context::Data<Scs>& ctx)
+    template<ISerializableBased From>
+    Status convert(const From& from, context::SData& ctx)
     {
         return ctx.isHeapUsedForTemp() ? convertOnHeap(from, ctx) : convertOnStack(from, ctx);
     }
@@ -130,8 +130,8 @@ public:
 protected:
     using base_class = ToVersion<NextTo...>;
 
-    template<ISerializableBased From, SContainers Scs>
-    Status convertOnHeap(const From& from, context::Data<Scs>& ctx)
+    template<ISerializableBased From>
+    Status convertOnHeap(const From& from, context::SData& ctx)
     {
         GenericPointerKeeper pointerKeeper;
         if (!pointerKeeper.allocateAndConstruct<To, GenericAllocatorHelper<To, ConstructorNoexceptAllocator<To>>>(1))
@@ -145,8 +145,8 @@ protected:
             return BodyProcessor::serialize(*pointerKeeper.get<To>(), ctx);
     }
 
-    template<ISerializableBased From, SContainers Scs>
-    Status convertOnStack(const From& from, context::Data<Scs>& ctx)
+    template<ISerializableBased From>
+    Status convertOnStack(const From& from, context::SData& ctx)
     {
         To to;
         CS_RUN(to.init(from));
@@ -171,8 +171,8 @@ public:
         : m_targetVersion(targetVersion)
     { }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convert(context::Data<Dcs>& ctx, To& to) noexcept
+    template<ISerializableBased To>
+    Status convert(context::DData& ctx, To& to) noexcept
     {
         return Status::kErrorInternal;
     }
@@ -184,14 +184,14 @@ protected:
 
     static constexpr interface_version_t privateVersion = traits::kInterfaceVersionUndefined;
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertToUpperVersionOnHeap(const from_type& from, context::Data<Dcs>& ctx, To& to) noexcept
+    template<ISerializableBased To>
+    Status convertToUpperVersionOnHeap(const from_type& from, context::DData& ctx, To& to) noexcept
     {
         return Status::kErrorInternal;
     }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertToUpperVersionOnStack(const from_type& from, context::Data<Dcs>& ctx, To& to) noexcept
+    template<ISerializableBased To>
+    Status convertToUpperVersionOnStack(const from_type& from, context::DData& ctx, To& to) noexcept
     {
         return Status::kErrorInternal;
     }
@@ -211,8 +211,8 @@ public:
 
     constexpr interface_version_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convert(context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased To>
+    Status convert(context::DData& ctx, To& to)
     {
         // Skip versions that are older than serialized one
         if (base_class::privateVersion <= getTargetVersion())
@@ -228,8 +228,8 @@ protected:
 
     static constexpr interface_version_t privateVersion = From::getLatestPrivateVersion();
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertOnHeap(context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased To>
+    Status convertOnHeap(context::DData& ctx, To& to)
     {
         GenericPointerKeeper pointerKeeper;
         if (!pointerKeeper.allocateAndConstruct<From, GenericAllocatorHelper<From, ConstructorNoexceptAllocator<From>>>(1))
@@ -240,8 +240,8 @@ protected:
         return convertToUpperVersionOnHeap(*pointerKeeper.get<From>(), ctx, to);
     }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertOnStack(context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased To>
+    Status convertOnStack(context::DData& ctx, To& to)
     {
         From from;
         CS_RUN(BodyProcessor::deserialize(ctx, from));
@@ -249,8 +249,8 @@ protected:
         return convertToUpperVersionOnStack(from, ctx, to);
     }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertToUpperVersionOnHeap(const From& from, context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased To>
+    Status convertToUpperVersionOnHeap(const From& from, context::DData& ctx, To& to)
     {
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)
         {
@@ -271,8 +271,8 @@ protected:
             return Status::kErrorNoSuchHandler;
     }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertToUpperVersionOnStack(const From& from, context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased To>
+    Status convertToUpperVersionOnStack(const From& from, context::DData& ctx, To& to)
     {
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)
         {

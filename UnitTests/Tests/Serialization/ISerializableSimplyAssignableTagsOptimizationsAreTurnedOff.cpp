@@ -34,7 +34,7 @@ void mainTest()
     T input;
     fillingStruct(input);
 
-    BinWalker bin;
+    BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff));
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
@@ -72,7 +72,7 @@ TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, ContainSimplyAs
     ContainSimplyAssignableWithoutSerializationFunctions<> input;
     fillingStruct(input);
 
-    BinWalker bin;
+    BinWalkerT bin;
     EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
 
     ContainSimplyAssignableWithoutSerializationFunctions<> output;

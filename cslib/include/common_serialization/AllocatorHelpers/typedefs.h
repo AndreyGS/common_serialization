@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAnotherBitness.cpp
+ * @file cslib/include/common_serialization/AllocatorHelpers/typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,41 +21,26 @@
  *
  */
 
-// In most of this tests we are simulating difference in arithmetic sizes by using
-// distinct structs for serialization and deserialization
-// (to accomplish that we set their name hashes to the same value)
+#pragma once
 
-namespace
+#include "common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h"
+
+namespace common_serialization
 {
 
-using namespace common_serialization;
-using namespace interface_for_test;
-using namespace ft_helpers;
+template<typename _T>
+using RGenericAllocatorHelperT = GenericAllocatorHelper<_T, RawNoexceptAllocatorT<_T>>;
 
-TEST(ISerializableAnotherBitness, SpecialTBasicT)
-{
-    SpecialProcessingType input;
-    fillingStruct(input);
+template<typename _T>
+using RkGenericAllocatorHelperT = GenericAllocatorHelper<_T, RawKeeperAllocatorT<_T>>;
 
-    BinWalkerT bin;
-    csp::context::SData ctxIn(bin.getVector()
-        , csp::context::CommonFlags{ helpers::isBitness64() ? csp::context::CommonFlags::kBitness32 : csp::context::CommonFlags::kNoFlagsMask }
-        , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });
+template<typename _T>
+using CGenericAllocatorHelperT = GenericAllocatorHelper<_T, ConstructorNoexceptAllocatorT<_T>>;
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+template<typename _T>
+using RStrategicAllocatorHelperT = StrategicAllocatorHelper<_T, RawNoexceptAllocatorT<_T>>;
 
-    csp::context::DData ctxOut(bin);
+template<typename _T>
+using CStrategicAllocatorHelperT = StrategicAllocatorHelper<_T, ConstructorNoexceptAllocatorT<_T>>;
 
-    Vector<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(&addedPointers);
-
-    SpecialProcessingType output;
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
-}
-
-} // namespace
+} // namespace common_serialization

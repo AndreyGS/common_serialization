@@ -33,19 +33,19 @@ namespace common_serialization::csp::context
 {
 
 /// @brief Common context of CSP Messages
-template<typename _Bin>
-    requires   ISerializationBinContainer<_Bin>
-            || IDeserializationBinContainer<_Bin>
+template<bool _serialize>
 class Common
 {
 public:
-    using Bin = _Bin;
+    static constexpr bool serialize = _serialize;
+
+    using Bin = std::conditional_t<serialize, BinVectorT, BinWalkerT>;
 
     /// @brief Constructor
     /// @param binaryData Container that hold or would hold binary data of processing
     /// @param protocolVersion Protocol version that would be used in process (can be changed later)
     /// @param messageType Type of message that should be processed (can be changed later)
-    explicit constexpr Common(Bin& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
+    explicit Common(Bin& binaryData, protocol_version_t protocolVersion = traits::getLatestProtocolVersion()
         , Message messageType = Message::Data, CommonFlags commonFlags = {}
     ) noexcept
         : m_binaryData(binaryData)
@@ -164,5 +164,8 @@ private:
     bool m_bigEndianFormat{ false };
     bool m_endiannessDifference{ false };
 };
+
+using SCommon = Common<true>;
+using DCommon = Common<false>;
 
 } // namespace common_serialization::csp::context

@@ -31,7 +31,7 @@ namespace common_serialization::csp::messaging
 
 /// @brief Interface of concrete CSP Data handlers
 template<IDataHandlerTraits _T>
-class IDataHandler : public IDataHandlerBase<typename _T::Sdcs>
+class IDataHandler : public IDataHandlerBase
 {
 public:
     using InputType = typename _T::InputType;
@@ -41,16 +41,6 @@ public:
     static constexpr bool kMulticast = _T::kMulticast;
     static constexpr interface_version_t kMinimumInterfaceVersion  = _T::kMinimumInterfaceVersion;
     
-    using Sdcs = typename _T::Sdcs;
-    using Sbin = typename Sdcs::Sbin;
-    using Dbin = typename Sdcs::Dbin;
-    using Spm = typename Sdcs::Spm;
-    using Dpm = typename Sdcs::Dpm;
-    using Gkc = typename Sdcs::Gkc;
-
-    using Scs = typename Sdcs::Scs;
-    using Dcs = typename Sdcs::Dcs;
-
     /// @brief This method must be overriden in concrete class.
     /// @details It receives deserialized input data and returns output data
     /// @note If concrete handler should be static this method is not overriden,
@@ -64,13 +54,13 @@ public:
     ///     that may help in processing decisions
     /// @param output Data that should be returned to client
     /// @return Status of operation
-    virtual Status handleData(const InputType& input, Gkc* pUnmanagedPointers, const GenericPointerKeeper& clientId, OutputType& output) = 0;
-    virtual Status checkPoliciesCompliance(const InputType* input, const context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId);
+    virtual Status handleData(const InputType& input, VectorT<GenericPointerKeeperT>* pUnmanagedPointers, const GenericPointerKeeperT& clientId, OutputType& output) = 0;
+    virtual Status checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId);
 
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion() override;
 
 protected:
-    IDataHandler(IDataHandlersRegistrar<Sdcs>& serviceServer);
+    IDataHandler(IDataHandlersRegistrar& serviceServer);
     IDataHandler(const IDataHandler&) = delete;
     IDataHandler(IDataHandler&&) = delete;
     IDataHandler& operator=(const IDataHandler&) = delete;
@@ -78,18 +68,18 @@ protected:
     ~IDataHandler();
 
 private:
-    Status handleDataCommon(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput) override;
+    Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) override;
 
-    CS_ALWAYS_INLINE Status handleDataOnStack(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput);
-    CS_ALWAYS_INLINE Status handleDataOnHeap(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput);
+    CS_ALWAYS_INLINE Status handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput);
+    CS_ALWAYS_INLINE Status handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput);
     // This is the common code between handleDataOnStack and handleDataOnHeap
-    CS_ALWAYS_INLINE Status handleDataMain(InputType& input, context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, OutputType& output, Sbin& binOutput);
+    CS_ALWAYS_INLINE Status handleDataMain(InputType& input, context::DData& ctx, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput);
 
-    IDataHandlersRegistrar<Sdcs>& m_dataHandlersRegistrar;
+    IDataHandlersRegistrar& m_dataHandlersRegistrar;
 };
 
 template<IDataHandlerTraits _T>
-Status IDataHandler<_T>::checkPoliciesCompliance(const InputType* input, const context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId)
+Status IDataHandler<_T>::checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId)
 {
     return Status::kNoError;
 }
@@ -101,7 +91,7 @@ template<IDataHandlerTraits _T>
 }
 
 template<IDataHandlerTraits _T>
-Status IDataHandler<_T>::handleDataCommon(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput
+Status IDataHandler<_T>::handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
 )
 {
     CS_RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
@@ -114,7 +104,7 @@ Status IDataHandler<_T>::handleDataCommon(context::Data<Dcs>& ctx, const Generic
     {
         if (status == Status::kErrorNotSupportedInterfaceVersion)
         {
-            context::Common ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::Status, ctx.getCommonFlags());
+            context::SCommon ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::Status, ctx.getCommonFlags());
             CS_RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(getMinimumInterfaceVersion(), OutputType::getId(), ctxOut));
         }
         
@@ -130,7 +120,7 @@ Status IDataHandler<_T>::handleDataCommon(context::Data<Dcs>& ctx, const Generic
 }
 
 template<IDataHandlerTraits _T>
-IDataHandler<_T>::IDataHandler(IDataHandlersRegistrar<Sdcs>& dataHandlersRegistrar)
+IDataHandler<_T>::IDataHandler(IDataHandlersRegistrar& dataHandlersRegistrar)
     : m_dataHandlersRegistrar(dataHandlersRegistrar)
 {
     m_dataHandlersRegistrar.addHandler(InputType::getId(), kMulticast, this);
@@ -143,7 +133,7 @@ IDataHandler<_T>::~IDataHandler()
 }
 
 template<IDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnStack(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput
+CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
 )
 {
     InputType input;
@@ -153,22 +143,27 @@ CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnStack(context::Data<Dcs>& 
 }
 
 template<IDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnHeap(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput
+CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
 )
 {
-    GenericPointerKeeper input;
-    if (!input.allocateAndConstruct<InputType, ConstructorGenericAllocatorHelper<InputType>>(1))
+    GenericPointerKeeperT input;
+    if (!input.allocateAndConstructOne<InputType>())
         return Status::kErrorNoMemory;
 
-    GenericPointerKeeper output;
-    if (!output.allocateAndConstruct<OutputType, ConstructorGenericAllocatorHelper<OutputType>>(1))
-        return Status::kErrorNoMemory;
+    if constexpr (std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
+        return handleDataMain(*input.get<InputType>(), ctx, clientId, service_structs::ISerializableDummy<>{}, binOutput);
+    else
+    {
+        GenericPointerKeeperT output;
+        if (!output.allocateAndConstructOne<OutputType>())
+            return Status::kErrorNoMemory;
 
-    return handleDataMain(*input.get<InputType>(), ctx, clientId, *output.get<OutputType>(), binOutput);
+        return handleDataMain(*input.get<InputType>(), ctx, clientId, *output.get<OutputType>(), binOutput);
+    }
 }
 
 template<IDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataMain(InputType& input, context::Data<Dcs>& ctxIn, const GenericPointerKeeper& clientId, OutputType& output, Sbin& binOutput
+CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataMain(InputType& input, context::DData& ctxIn, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput
 )
 {
     CS_RUN(processing::data::BodyProcessor::deserialize(ctxIn, input));
@@ -177,12 +172,12 @@ CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataMain(InputType& input, conte
 
     if constexpr (!std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
     {
-        Spm pointersMapOut;
+        HashMapT<const void*, csp_size_t> pointersMapOut;
 
         binOutput.clear();
 
-        context::Data<Scs> ctxOut(
-            binOutput
+        context::SData ctxOut(
+              binOutput
             , ctxIn.getProtocolVersion()
             , ctxIn.getCommonFlags()
             , ctxIn.getDataFlags()

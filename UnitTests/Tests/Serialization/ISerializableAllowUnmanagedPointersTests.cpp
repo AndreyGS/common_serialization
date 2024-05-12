@@ -35,7 +35,7 @@ void mainTest()
     T input;
     fillingStruct(input);
 
-    BinWalker bin;
+    BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAllowUnmanagedPointers));
 

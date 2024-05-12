@@ -69,7 +69,7 @@ public:
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
     /// @return Status of operation
-    Status getServerProtocolVersions(Bc<protocol_version_t>& output) const noexcept;
+    Status getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept;
 
     Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& serverSettings) const noexcept;
 
@@ -172,7 +172,7 @@ Status Client<_Sdcs>::init(const service_structs::CspPartySettings<>& clientSett
 
     m_settings.clear();
 
-    Vector<protocol_version_t> serverCspVersions;
+    RawVectorT<protocol_version_t> serverCspVersions;
     CS_RUN(getServerProtocolVersions(serverCspVersions));
 
     protocol_version_t tempServerProtocolVersion = traits::kProtocolVersionUndefined;
@@ -221,19 +221,19 @@ IClientSpeaker<typename _Sdcs::Sbin, typename  _Sdcs::Dbin>& Client<_Sdcs>::getC
 }
 
 template<SdContainers _Sdcs>
-Status Client<_Sdcs>::getServerProtocolVersions(Bc<protocol_version_t>& output) const noexcept
+Status Client<_Sdcs>::getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept
 {
     if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
 
     Sbin binInput;
-    context::Common ctxIn(binInput, traits::kProtocolVersionUndefined);
+    context::SCommon ctxIn(binInput, traits::kProtocolVersionUndefined);
     CS_RUN(processing::serializeCommonContextNoChecks(ctxIn));
 
     Dbin binOutput;
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
-    context::Common ctxOut(binOutput);
+    context::DCommon ctxOut(binOutput);
     CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::Status)
@@ -255,7 +255,7 @@ Status Client<_Sdcs>::getServerSettings(protocol_version_t serverCspVersion, ser
         return Status::kErrorNotInited;
 
     Sbin binInput;
-    context::Common ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
+    context::SCommon ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
     CS_RUN(processing::serializeCommonContext(ctxIn));
 
     Dbin binOutput;
@@ -278,7 +278,7 @@ Status Client<_Sdcs>::getServerHandlerSettings(interface_version_t& minimumInter
         return Status::kErrorNotSupportedInterface;
 
     Sbin binInput;
-    context::Data<Scs> ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
+    context::SData ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
 
     CS_RUN(processing::serializeCommonContext(ctxIn));
     CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
@@ -362,7 +362,7 @@ Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename
 
     Sbin binInput;
 
-    context::Data<Scs> ctxIn(
+    context::SData ctxIn(
           binInput
         , m_settings.protocolVersions[0]
         , m_settings.mandatoryCommonFlags | additionalCommonFlags
@@ -392,7 +392,7 @@ Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename
 
     ctxIn.clear();
 
-    context::Common ctxOut(binOutput);
+    context::DCommon ctxOut(binOutput);
 
     CS_RUN(processing::deserializeCommonContext(ctxOut));
 
@@ -404,7 +404,7 @@ Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename
         ctxIn.clear();
 
         Id outId;
-        context::Data<Dcs> ctxOutData(ctxOut);
+        context::DData ctxOutData(ctxOut);
 
         CS_RUN(processing::deserializeDataContext(ctxOutData, outId));
 
