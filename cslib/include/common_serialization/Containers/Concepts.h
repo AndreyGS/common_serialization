@@ -30,21 +30,21 @@ namespace common_serialization
 
 class GenericPointerKeeper;
 
-template<typename _Ic>
+template<template<typename...> typename _Bc>
 concept IBasicContainer
-    =  requires(_Ic e)
+    =  requires(_Bc<int> b)
          {
-             typename _Ic::value_type;
-             typename _Ic::size_type;
+             typename _Bc<int>::value_type;
+             typename _Bc<int>::size_type;
 
-             { e.begin() };
-             { e.end() };
+             { b.begin() };
+             { b.end() };
 
-             { e.clear() };
-             { e.size() } -> std::same_as<typename _Ic::size_type>;
+             { b.clear() };
+             { b.size() } -> std::same_as<typename _Bc<int>::size_type>;
              
-             { e.pushBack(typename _Ic::value_type{}) } -> std::same_as<Status>;
-         } && std::is_constructible_v<_Ic, _Ic>;
+             { b.pushBack(typename _Bc<int>::value_type{}) } -> std::same_as<Status>;
+         } && std::is_constructible_v<_Bc<int>, _Bc<int>>;
 
 /// @brief Interface of container that holds
 ///     GenericPointerKeeper objects

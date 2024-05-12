@@ -39,9 +39,7 @@ concept ISerializationBinContainer
              typename Sbin::size_type;
 
              { e.clear() };
-             { e.data() } -> std::same_as<typename Sbin::value_type*>;
              { e.size() } -> std::same_as<typename Sbin::size_type>;
-             { e.capacity() } -> std::same_as<typename Sbin::size_type>;
 
              { e.reserve(1) } -> std::same_as<Status>;
              { e.pushBackN(nullptr, static_cast<typename Sbin::size_type>(0)) } -> std::same_as<Status>;
@@ -57,10 +55,8 @@ concept IDeserializationBinContainer
              typename Dbin::size_type;
 
              { e.clear() };
-             { e.data() } -> std::same_as<typename Dbin::value_type*>;
              { e.size() } -> std::same_as<typename Dbin::size_type>;
 
-             // the next two functions are questionable so far
              { e.tell() } -> std::same_as<typename Dbin::size_type>;
              { e.seek(0) } -> std::same_as<Status>;
              
@@ -110,7 +106,7 @@ concept DContainers = IDeserializationBinContainer<typename T::Dbin> && IDeseria
 
 /// @brief Set of container types that can be used in serialization and deserialization processes
 template<typename T>
-concept SdContainers = SContainers<T> && DContainers<T> && SContainers<typename T::Scs> && DContainers<typename T::Dcs>;
+concept SdContainers = SContainers<T> && DContainers<T> && SContainers<typename T::Scs> && DContainers<typename T::Dcs> && IBasicContainer<typename T::template Bc>;
 
 template<typename T>
 concept AnySdContainers = SContainers<T> || DContainers<T>;

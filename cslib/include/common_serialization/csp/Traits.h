@@ -145,6 +145,8 @@ struct DContainersConcrete
 using DefaultDContainer = BinWalker;
 using DefaultDpmContainer = std::unordered_map<csp_size_t, void*>;
 using DefaultPcContainer = Vector<GenericPointerKeeper>;
+template<typename... _Ts>
+using DefaultBasicContainer = Vector<_Ts...>;
 
 using DefaultDContainers = DContainersConcrete<DefaultDContainer, DefaultDpmContainer, DefaultPcContainer>;
 
@@ -154,7 +156,9 @@ template<
     , IDeserializationBinContainer _Dbin
     , IDeserializationPointersMap _Dpm
     , IGenericPointersKeeperContainer _Gkc
+    , template<typename...> typename _Bc
 >
+    requires IBasicContainer<_Bc>
 struct SdContainersConcrete
 {
     using Sbin = _Sbin;
@@ -165,9 +169,12 @@ struct SdContainersConcrete
 
     using Scs = SContainersConcrete<Sbin, Spm>;
     using Dcs = DContainersConcrete<Dbin, Dpm, Gkc>;
+
+    template<typename... _Ts>
+    using Bc = _Bc<_Ts...>;
 };
 
-using DefaultSdContainers = SdContainersConcrete<DefaultSContainer, DefaultSpmContainer, DefaultDContainer, DefaultDpmContainer, DefaultPcContainer>;
+using DefaultSdContainers = SdContainersConcrete<DefaultSContainer, DefaultSpmContainer, DefaultDContainer, DefaultDpmContainer, DefaultPcContainer, DefaultBasicContainer>;
 
 template<AnySdContainers _Asdcs, bool>
 struct _BinContainer

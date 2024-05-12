@@ -52,6 +52,9 @@ public:
 
     using Scs = typename Sdcs::Scs;
     using Dcs = typename Sdcs::Dcs;
+    
+    template<typename... _Ts>
+    using Bc = typename Sdcs::template Bc<_Ts...>;
 
     explicit Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker);
     Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker, const service_structs::CspPartySettings<>& settings);
@@ -66,7 +69,7 @@ public:
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
     /// @return Status of operation
-    Status getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept;
+    Status getServerProtocolVersions(Bc<protocol_version_t>& output) const noexcept;
 
     Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& serverSettings) const noexcept;
 
@@ -218,7 +221,7 @@ IClientSpeaker<typename _Sdcs::Sbin, typename  _Sdcs::Dbin>& Client<_Sdcs>::getC
 }
 
 template<SdContainers _Sdcs>
-Status Client<_Sdcs>::getServerProtocolVersions(Vector<protocol_version_t>& output) const noexcept
+Status Client<_Sdcs>::getServerProtocolVersions(Bc<protocol_version_t>& output) const noexcept
 {
     if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
