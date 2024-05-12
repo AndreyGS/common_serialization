@@ -96,21 +96,6 @@ concept IDeserializationPointersMap
 template<typename PM>
 concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;
 
-/// @brief Set of container types that can be used in serialization process
-template<typename T>
-concept SContainers = ISerializationBinContainer<typename T::Sbin> && ISerializationPointersMap<typename T::Spm>;
-
-/// @brief Set of container types that can be used in deserialization process
-template<typename T>
-concept DContainers = IDeserializationBinContainer<typename T::Dbin> && IDeserializationPointersMap<typename T::Dpm> && IGenericPointersKeeperContainer<typename T::Gkc>;
-
-/// @brief Set of container types that can be used in serialization and deserialization processes
-template<typename T>
-concept SdContainers = SContainers<T> && DContainers<T> && SContainers<typename T::Scs> && DContainers<typename T::Dcs> && IBasicContainer<typename T::template Bc>;
-
-template<typename T>
-concept AnySdContainers = SContainers<T> || DContainers<T>;
-
 // FixSizedArithmeticType is type that can't be changed in its size
 // So long double is also match this criteria, despite its size is different
 // on one or another platforms. Because of this, care must be taken

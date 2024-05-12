@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IDataHandlerTraits.h
+ * @file cslib/include/common_serialization/csp/messaging/IServerDataHandlerTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,15 @@
 
 #pragma once
 
-#include "common_serialization/Containers/Concepts.h"
 #include "common_serialization/csp/Concepts.h"
+#include "common_serialization/csp/ISerializable.h"
 
 namespace common_serialization::csp::messaging
 {
 
-/// @brief Properties of IDataHandler
+/// @brief Properties of IServerDataHandler
 template<typename _T>
-concept IDataHandlerTraits
+concept IServerDataHandlerTraits
     =  ISerializableBased<typename _T::InputType>
     && ISerializableBased<typename _T::OutputType>
     && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>
@@ -45,7 +45,7 @@ template<
     , bool _multicast
     , interface_version_t _minimumInterfaceVersion
 >
-struct IDataHandlerTraitsConcrete
+struct IServerDataHandlerTraitsConcrete
 {
     using InputType = _InputType;
     using OutputType = _OutputType;
@@ -69,27 +69,27 @@ template<
     , ISerializableBased _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
-using DhStackT = IDataHandlerTraitsConcrete<_InputType, _OutputType, false, false, _minimumInterfaceVersion>;
+using DhStackT = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, false, false, _minimumInterfaceVersion>;
 
 template<
       ISerializableBased _InputType
     , ISerializableBased _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
-using DhStackMultiT = IDataHandlerTraitsConcrete<_InputType, _OutputType, false, true, _minimumInterfaceVersion>;
+using DhStackMultiT = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, false, true, _minimumInterfaceVersion>;
 
 template<
       ISerializableBased _InputType
     , ISerializableBased _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
-using DhHeapT = IDataHandlerTraitsConcrete<_InputType, _OutputType, true, false, _minimumInterfaceVersion>;
+using DhHeapT = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, true, false, _minimumInterfaceVersion>;
 
 template<
       ISerializableBased _InputType
     , ISerializableBased _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
-using DhHeapMultiT = IDataHandlerTraitsConcrete<_InputType, _OutputType, true, true, _minimumInterfaceVersion>;
+using DhHeapMultiT = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, true, true, _minimumInterfaceVersion>;
 
 } // namespace common_serialization::csp::messaging

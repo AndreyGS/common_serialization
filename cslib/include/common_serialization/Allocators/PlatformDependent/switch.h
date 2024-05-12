@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IClientSpeaker.h
+ * @file cslib/include/common_serialization/Allocators/PlatformDependent/switch.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,26 +23,23 @@
 
 #pragma once
 
-namespace common_serialization::csp::messaging
-{
+#if defined WINDOWS_KERNEL
 
-/// @brief Interface for CSP Client to speak with CSP Server
-class IClientSpeaker
-{
-public:
-    /// @brief Method for sending to and receiving from server binary data
-    /// @details This method must not make assumptions on what binary input and ouput data is.
-    ///     It must be implemented as transport function from client to server and vice versa.
-    ///     For example, it may be function that sends and receives data to and from socket.
-    /// @param binInput Data that is prepared by handleData method
-    /// @param binOutput Data that should be returned for processing by handleData method
-    /// @return Status of operation
-    virtual Status speak(BinVectorT& binInput, BinWalkerT& binOutput) = 0;
+#include "common_serialization/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
 
-    virtual bool isValid() const noexcept
-    {
-        return true;
-    }
-};
+#elif defined LINUX_KERNEL
 
-} // namespace common_serialization::csp::messaging
+#include "common_serialization/Allocators/PlatformDependent/LinuxKernelMemoryManagement.h"
+
+#else // USER_MODE
+
+#include "common_serialization/Allocators/PlatformDependent/UserModeMemoryManagement.h"
+
+#endif // defined WINDOWS_KERNEL, defined LINUX_KERNEL
+
+
+#if !defined CS_NO_STD_NEW_DELETE_REPLACEMENT && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
+
+#include "common_serialization/Allocators/PlatformDependent/NewDeleteReplacements.h"
+
+#endif // defined WINDOWS_KERNEL || defined LINUX_KERNEL

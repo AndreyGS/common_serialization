@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/PlatformDependent/Common.h
+ * @file cslib/include/common_serialization/Concurrency/main.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,23 +23,13 @@
 
 #pragma once
 
-#if defined WINDOWS_KERNEL
+#include "common_serialization/Concurrency/Concepts.h"
+#include "common_serialization/Concurrency/GuardRW.h"
+#include "common_serialization/Concurrency/PlatformDependent/switch.h"
 
-#include "common_serialization/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
+namespace common_serialization
+{
 
-#elif defined LINUX_KERNEL
+using SharedMutexT = SharedMutex;
 
-#include "common_serialization/Allocators/PlatformDependent/LinuxKernelMemoryManagement.h"
-
-#else // USER_MODE
-
-#include "common_serialization/Allocators/PlatformDependent/UserModeMemoryManagement.h"
-
-#endif // defined WINDOWS_KERNEL, defined LINUX_KERNEL
-
-
-#if !defined CS_NO_STD_NEW_DELETE_REPLACEMENT && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
-
-#include "common_serialization/Allocators/PlatformDependent/NewDeleteReplacements.h"
-
-#endif // defined WINDOWS_KERNEL || defined LINUX_KERNEL
+} // namespace common_serialization

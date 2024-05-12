@@ -23,11 +23,10 @@
 
 #pragma once
 
+#include "common_serialization/csp/Concepts.h"
 #include "common_serialization/csp/Traits.h"
 #include "common_serialization/csp/context/Message.h"
 #include "common_serialization/csp/context/CommonFlags.h"
-#include "common_serialization/csp/Concepts.h"
-#include "common_serialization/Containers/Concepts.h"
 
 namespace common_serialization::csp::context
 {
@@ -56,7 +55,7 @@ public:
         setCommonFlags(commonFlags);
         m_endiannessNotMatch = bigEndianFormat() != helpers::isBigEndianPlatform();
 
-        if constexpr (ISerializationBinContainer<Bin>)
+        if constexpr (serialize)
             m_binaryData.reserve(256);
     }
 

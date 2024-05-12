@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/Containers/GenericPointerKeeper.h"
-
 namespace common_serialization
 {
 
@@ -45,28 +43,6 @@ concept IBasicContainer
              
              { b.pushBack(typename _Bc<int>::value_type{}) } -> std::same_as<Status>;
          } && std::is_constructible_v<_Bc<int>, _Bc<int>>;
-
-/// @brief Interface of container that holds
-///     GenericPointerKeeper objects
-template<typename _Gkc>
-concept IGenericPointersKeeperContainer
-    =  requires(_Gkc e)
-         {
-             typename _Gkc::value_type;
-             typename _Gkc::constructor_allocator;
-
-             { e.clear() };
-             { e.begin() };
-             { e.end() };
-             { e.erase(0, 1) };
-             { e.data() } -> std::same_as<typename _Gkc::value_type*>;
-             { e.size() } -> std::same_as<typename _Gkc::size_type>;
-             { e.capacity() } -> std::same_as<typename _Gkc::size_type>;
-
-             { e.reserve(1) } -> std::same_as<Status>;
-             { e.pushBack(*(new GenericPointerKeeper)) } -> std::same_as<Status>;
-         } 
-    && std::is_same_v<typename _Gkc::value_type, GenericPointerKeeper> && std::is_same_v<typename _Gkc::constructor_allocator, std::true_type>;
 
 template<typename _T>
 concept HasDestroyingDeleteOp = requires (_T t) { _T::operator delete(&t, std::destroying_delete_t{}); };

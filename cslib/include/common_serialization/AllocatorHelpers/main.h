@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelpers/typedefs.h
+ * @file cslib/include/common_serialization/AllocatorHelpers/main.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "common_serialization/AllocatorHelpers/GenericAllocatorHelper.h"
+#include "common_serialization/AllocatorHelpers/IAllocatorHelper.h"
 #include "common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h"
 
 namespace common_serialization

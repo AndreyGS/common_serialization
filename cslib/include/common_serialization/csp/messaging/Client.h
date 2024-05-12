@@ -24,11 +24,12 @@
 #pragma once
 
 #include "common_serialization/csp/Concepts.h"
-#include "common_serialization/csp/messaging/ClientHandlerTraits.h"
+#include "common_serialization/csp/messaging/ClientDataHandlerTraits.h"
 #include "common_serialization/csp/messaging/IClientSpeaker.h"
 #include "common_serialization/csp/processing/Contexts.h"
 #include "common_serialization/csp/processing/DataBodyProcessor.h"
 #include "common_serialization/csp/processing/Status.h"
+#include "common_serialization/csp/service_structs/Interface.h"
 
 namespace common_serialization::csp::messaging
 {
@@ -74,7 +75,7 @@ public:
     /// @param output Struct that is returned from server 
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<ClientHandlerTraits _Cht>
+    template<ClientDataHandlerTraits _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
@@ -84,7 +85,7 @@ public:
     /// @param dataFlags Data flags that must be applied to current operation
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<ClientHandlerTraits _Cht>
+    template<ClientDataHandlerTraits _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags dataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
@@ -107,7 +108,7 @@ public:
     /// @param additionalDataFlags Data flags that must be applied to current operation
     /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<ClientHandlerTraits _Cht>
+    template<ClientDataHandlerTraits _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
         , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
@@ -289,20 +290,20 @@ constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const no
     return traits::kInterfaceVersionUndefined;
 }
 
-template<ClientHandlerTraits _Cht>
+template<ClientDataHandlerTraits _Cht>
 Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
     return handleData<_Cht>(input, output, {}, {}, pUnmanagedPointers);
 }
 
-template<ClientHandlerTraits _Cht>
+template<ClientDataHandlerTraits _Cht>
 Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags additionalDataFlags
     , VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
     return handleData<_Cht>(input, output, {}, additionalDataFlags, pUnmanagedPointers);
 }
 
-template<ClientHandlerTraits _Cht>
+template<ClientDataHandlerTraits _Cht>
 Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
     , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {

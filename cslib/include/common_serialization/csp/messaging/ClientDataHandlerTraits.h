@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Containers/typedefs.h
+ * @file cslib/include/common_serialization/csp/messaging/ClientDataHandlerTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,34 +23,35 @@
 
 #pragma once
 
-#include "common_serialization/Containers/Concepts.h"
-#include "common_serialization/Containers/GenericPointerKeeper.h"
-#include "common_serialization/Containers/UniquePtr.h"
-#include "common_serialization/Containers/Vector.h"
-#include "common_serialization/Containers/Walker.h"
+#include "common_serialization/csp/Concepts.h"
 
-namespace common_serialization
+namespace common_serialization::csp::messaging
 {
 
-using GenericPointerKeeperT = GenericPointerKeeper;
-
-template<typename _T, typename... _Ts>
-using UniquePtrT = UniquePtr<_T, _Ts...>;
-
+/// @brief Properties of CSP Client
 template<typename _T>
-using RawVectorT = Vector<_T, RStrategicAllocatorHelperT<_T>>;
+concept ClientDataHandlerTraits
+    =  ISerializableBased<typename _T::InputType>
+    && ISerializableBased<typename _T::OutputType>
+    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
 
-using BinVectorT = RawVectorT<uint8_t>;
+template<
+      ISerializableBased _InputType
+    , ISerializableBased _OutputType
+    , bool _forTempUseHeap
+>
+struct ClientDataHandlerTraitsConcrete
+{
+    using InputType = _InputType;
+    using OutputType = _OutputType;
 
-template<typename _T, typename... _Ts>
-using VectorT = Vector<_T, _Ts...>;
+    static constexpr bool kForTempUseHeap = _forTempUseHeap;
+};
 
-template<typename _T>
-using RawWalkerT = Walker<_T, RStrategicAllocatorHelperT<_T>>;
+template<ISerializableBased _InputType, ISerializableBased _OutputType>
+using ChStack = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
 
-using BinWalkerT = RawWalkerT<uint8_t>;
+template<ISerializableBased _InputType, ISerializableBased _OutputType>
+using ChHeap = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
 
-template<typename _K, typename _V, typename... _Ts>
-using HashMapT = std::unordered_map<_K, _V, _Ts...>;
-
-} // namespace common_serialization
+} // namespace common_serialization::csp::messaging

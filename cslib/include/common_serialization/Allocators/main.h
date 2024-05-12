@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/typedefs.h
+ * @file cslib/include/common_serialization/Allocators/main.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -26,6 +26,7 @@
 #include "common_serialization/Allocators/ConstructorNoexceptAllocator.h"
 #include "common_serialization/Allocators/RawKeeperAllocator.h"
 #include "common_serialization/Allocators/RawNoexceptAllocator.h"
+#include "common_serialization/Allocators/PlatformDependent/switch.h"
 
 namespace common_serialization
 {

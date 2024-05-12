@@ -23,17 +23,16 @@
 
 #pragma once
 
-#include "common_serialization/Containers/UniquePtr.h"
-#include "common_serialization/csp/context/Common.h"
-#include "common_serialization/csp/messaging/IDataHandlersRegistrar.h"
-#include "common_serialization/csp/messaging/IDataHandlerBase.h"
+#include "common_serialization/csp/context/Data.h"
+#include "common_serialization/csp/messaging/IServerDataHandlerRegistrar.h"
+#include "common_serialization/csp/messaging/IServerDataHandlerBase.h"
 #include "common_serialization/csp/service_structs/Interface.h"
 
 namespace common_serialization::csp::messaging
 {
 
 /// @brief Common CSP server for handling input/output
-/// @note Thread-safe as long as IDataHandlersRegistrar is thread-safe.
+/// @note Thread-safe as long as IServerDataHandlerRegistrar is thread-safe.
 ///     Also there is no memory barriers and because of this
 ///     there can be data race if init function will be invoked
 ///     with any other function in parallel.
@@ -44,7 +43,7 @@ class Server
 public:
     Server() = default;
 
-    Server(const service_structs::CspPartySettings<>& settings, UniquePtrT<IDataHandlersRegistrar>&& dataHandlersRegistrar) noexcept;
+    Server(const service_structs::CspPartySettings<>& settings, UniquePtrT<IServerDataHandlerRegistrar>&& dataHandlersRegistrar) noexcept;
 
     template<typename _T>
     Status init(const service_structs::CspPartySettings<>& settings) noexcept;
@@ -57,7 +56,7 @@ public:
     /// @return Status of operation
     Status handleMessage(BinWalkerT& binInput, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const;
 
-    CS_ALWAYS_INLINE const UniquePtrT<IDataHandlersRegistrar>& getDataHandlersRegistrar() const noexcept;
+    CS_ALWAYS_INLINE const UniquePtrT<IServerDataHandlerRegistrar>& getDataHandlersRegistrar() const noexcept;
 
 private:
     CS_ALWAYS_INLINE Status handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept;
@@ -69,11 +68,11 @@ private:
     CS_ALWAYS_INLINE Status handleData(context::DCommon& ctxCommon, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const;
 
     service_structs::CspPartySettings<> m_settings;
-    UniquePtrT<IDataHandlersRegistrar> m_dataHandlersRegistrar;
+    UniquePtrT<IServerDataHandlerRegistrar> m_dataHandlersRegistrar;
     bool m_isInited{ false };
 };
 
-inline Server::Server(const service_structs::CspPartySettings<>& settings, UniquePtrT<IDataHandlersRegistrar>&& dataHandlersRegistrar) noexcept
+inline Server::Server(const service_structs::CspPartySettings<>& settings, UniquePtrT<IServerDataHandlerRegistrar>&& dataHandlersRegistrar) noexcept
 {
     if (!settings.isValid() || !dataHandlersRegistrar)
         return;
@@ -146,7 +145,7 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
     return status;
 }
 
-CS_ALWAYS_INLINE const UniquePtr<IDataHandlersRegistrar>& Server::getDataHandlersRegistrar() const noexcept
+CS_ALWAYS_INLINE const UniquePtr<IServerDataHandlerRegistrar>& Server::getDataHandlersRegistrar() const noexcept
 {
     return m_dataHandlersRegistrar;
 }
@@ -174,7 +173,7 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
     if (ctx.checkRecursivePointers())
         ctx.setPointersMap(&pointersMap);
 
-    IDataHandlerBase* pDataHandler{ nullptr };
+    IServerDataHandlerBase* pDataHandler{ nullptr };
     Status status = m_dataHandlersRegistrar->findHandler(id, pDataHandler);
 
     if (statusSuccess(status))
@@ -183,7 +182,7 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
     }
     else if (status == Status::kErrorMoreEntires) // if we have more than one DataHandler
     {
-        RawVectorT<IDataHandlerBase*> dataHandlers;
+        RawVectorT<IServerDataHandlerBase*> dataHandlers;
         CS_RUN(m_dataHandlersRegistrar->findHandlers(id, dataHandlers));
 
         status = Status::kNoError;

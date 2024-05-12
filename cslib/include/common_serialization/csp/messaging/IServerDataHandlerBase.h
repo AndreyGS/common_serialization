@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IDataHandlerBase.h
+ * @file cslib/include/common_serialization/csp/messaging/IServerDataHandlerBase.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,13 +23,11 @@
 
 #pragma once
 
-#include "common_serialization/csp/messaging/IDataHandlerTraits.h"
-
 namespace common_serialization::csp::messaging
 {
 
 /// @brief Base of common interface of CSP data handlers
-class IDataHandlerBase
+class IServerDataHandlerBase
 {
 public:
     [[nodiscard]] virtual interface_version_t getMinimumInterfaceVersion() = 0;
@@ -37,7 +35,7 @@ public:
     virtual Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) = 0;
 
 protected:
-    virtual ~IDataHandlerBase() = default;
+    virtual ~IServerDataHandlerBase() = default;
 };
 
 } // namespace common_serialization::csp::messaging

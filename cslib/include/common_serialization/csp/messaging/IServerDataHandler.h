@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IDataHandler.h
+ * @file cslib/include/common_serialization/csp/messaging/IServerDataHandler.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,16 @@
 
 #pragma once
 
-#include "common_serialization/csp/messaging/IDataHandlerBase.h"
-#include "common_serialization/csp/messaging/IDataHandlersRegistrar.h"
+#include "common_serialization/csp/messaging/IServerDataHandlerBase.h"
+#include "common_serialization/csp/messaging/IServerDataHandlerRegistrar.h"
+#include "common_serialization/csp/messaging/IServerDataHandlerTraits.h"
 
 namespace common_serialization::csp::messaging
 {
 
 /// @brief Interface of concrete CSP Data handlers
-template<IDataHandlerTraits _T>
-class IDataHandler : public IDataHandlerBase
+template<IServerDataHandlerTraits _T>
+class IServerDataHandler : public IServerDataHandlerBase
 {
 public:
     using InputType = typename _T::InputType;
@@ -60,12 +61,12 @@ public:
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion() override;
 
 protected:
-    IDataHandler(IDataHandlersRegistrar& serviceServer);
-    IDataHandler(const IDataHandler&) = delete;
-    IDataHandler(IDataHandler&&) = delete;
-    IDataHandler& operator=(const IDataHandler&) = delete;
-    IDataHandler& operator=(IDataHandler&&) = delete;
-    ~IDataHandler();
+    IServerDataHandler(IServerDataHandlerRegistrar& serviceServer);
+    IServerDataHandler(const IServerDataHandler&) = delete;
+    IServerDataHandler(IServerDataHandler&&) = delete;
+    IServerDataHandler& operator=(const IServerDataHandler&) = delete;
+    IServerDataHandler& operator=(IServerDataHandler&&) = delete;
+    ~IServerDataHandler();
 
 private:
     Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) override;
@@ -75,23 +76,23 @@ private:
     // This is the common code between handleDataOnStack and handleDataOnHeap
     CS_ALWAYS_INLINE Status handleDataMain(InputType& input, context::DData& ctx, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput);
 
-    IDataHandlersRegistrar& m_dataHandlersRegistrar;
+    IServerDataHandlerRegistrar& m_dataHandlersRegistrar;
 };
 
-template<IDataHandlerTraits _T>
-Status IDataHandler<_T>::checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId)
+template<IServerDataHandlerTraits _T>
+Status IServerDataHandler<_T>::checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId)
 {
     return Status::kNoError;
 }
 
-template<IDataHandlerTraits _T>
-[[nodiscard]] interface_version_t IDataHandler<_T>::getMinimumInterfaceVersion()
+template<IServerDataHandlerTraits _T>
+[[nodiscard]] interface_version_t IServerDataHandler<_T>::getMinimumInterfaceVersion()
 {
     return kMinimumInterfaceVersion;
 }
 
-template<IDataHandlerTraits _T>
-Status IDataHandler<_T>::handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
+template<IServerDataHandlerTraits _T>
+Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
 )
 {
     CS_RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
@@ -119,21 +120,21 @@ Status IDataHandler<_T>::handleDataCommon(context::DData& ctx, const GenericPoin
         return handleDataOnStack(ctx, clientId, binOutput);
 }
 
-template<IDataHandlerTraits _T>
-IDataHandler<_T>::IDataHandler(IDataHandlersRegistrar& dataHandlersRegistrar)
+template<IServerDataHandlerTraits _T>
+IServerDataHandler<_T>::IServerDataHandler(IServerDataHandlerRegistrar& dataHandlersRegistrar)
     : m_dataHandlersRegistrar(dataHandlersRegistrar)
 {
     m_dataHandlersRegistrar.addHandler(InputType::getId(), kMulticast, this);
 }
 
-template<IDataHandlerTraits _T>
-IDataHandler<_T>::~IDataHandler()
+template<IServerDataHandlerTraits _T>
+IServerDataHandler<_T>::~IServerDataHandler()
 {
     m_dataHandlersRegistrar.removeHandler(InputType::getId(), this);
 }
 
-template<IDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
+template<IServerDataHandlerTraits _T>
+CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
 )
 {
     InputType input;
@@ -142,8 +143,8 @@ CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnStack(context::DData& ctx,
     return handleDataMain(input, ctx, clientId, output, binOutput);
 }
 
-template<IDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
+template<IServerDataHandlerTraits _T>
+CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
 )
 {
     GenericPointerKeeperT input;
@@ -162,8 +163,8 @@ CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataOnHeap(context::DData& ctx, 
     }
 }
 
-template<IDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IDataHandler<_T>::handleDataMain(InputType& input, context::DData& ctxIn, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput
+template<IServerDataHandlerTraits _T>
+CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataMain(InputType& input, context::DData& ctxIn, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput
 )
 {
     CS_RUN(processing::data::BodyProcessor::deserialize(ctxIn, input));
