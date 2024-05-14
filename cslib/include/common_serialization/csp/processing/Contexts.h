@@ -37,12 +37,11 @@ constexpr Status testCommonFlagsCompatibility(context::CommonFlags commonFlags
         : Status::kNoError;
 }
 
-template<ISerializationBinContainer Sbin>
-constexpr Status serializeCommonContextNoChecks(context::Common<Sbin>& ctx)
+inline Status serializeCommonContextNoChecks(context::SCommon& ctx)
 {
     // Common context must always be serialized by the same rules
     // no matter of CommonFlags impact - it must always be in little-endian format
-    context::Common<Sbin> commonContextSpecial(ctx.getBinaryData());
+    context::SCommon commonContextSpecial(ctx.getBinaryData());
     commonContextSpecial.setCommonFlags(context::CommonFlags::kNoFlagsMask);
 
     CS_RUN(writePrimitive(static_cast<uint16_t>(ctx.getProtocolVersion()), commonContextSpecial));
@@ -52,8 +51,7 @@ constexpr Status serializeCommonContextNoChecks(context::Common<Sbin>& ctx)
     return Status::kNoError;
 }
 
-template<ISerializationBinContainer Sbin>
-constexpr Status serializeCommonContext(context::Common<Sbin>& ctx)
+constexpr Status serializeCommonContext(context::SCommon& ctx)
 {
     if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
         return Status::kErrorNotSupportedProtocolVersion;
@@ -61,12 +59,11 @@ constexpr Status serializeCommonContext(context::Common<Sbin>& ctx)
     return serializeCommonContextNoChecks(ctx);
 }
 
-template<IDeserializationBinContainer Dbin>
-constexpr Status deserializeCommonContext(context::Common<Dbin>& ctx)
+inline Status deserializeCommonContext(context::DCommon& ctx)
 {
     // Common context must always be deserialized by the same rules
     // no matter of CommonFlags impact - it must always be in little-endian format
-    context::Common<Dbin> commonContextSpecial(ctx.getBinaryData());
+    context::DCommon commonContextSpecial(ctx.getBinaryData());
     commonContextSpecial.setCommonFlags(context::CommonFlags::kNoFlagsMask);
 
     uint16_t version = 0;
@@ -90,13 +87,11 @@ constexpr Status deserializeCommonContext(context::Common<Dbin>& ctx)
     return Status::kNoError;
 }
 
-
-template<IDeserializationBinContainer Dbin>
-constexpr Status deserializeCommonContextNoChecks(context::Common<Dbin>& ctx)
+inline Status deserializeCommonContextNoChecks(context::DCommon& ctx)
 {
     // Common context must always be deserialized by the same rules
     // no matter of CommonFlags impact - it must always be in little-endian format
-    context::Common<Dbin> commonContextSpecial(ctx.getBinaryData(), ctx.getProtocolVersion()
+    context::DCommon commonContextSpecial(ctx.getBinaryData(), ctx.getProtocolVersion()
         , ctx.getMessageType(), context::CommonFlags{ 0 });
 
     uint16_t version = 0;
@@ -133,8 +128,8 @@ constexpr Status testDataFlagsCompatibility(context::DataFlags dataFlags)
     }
 }
 
-template<typename T, SContainers Scs>
-constexpr Status serializeDataContext(context::Data<Scs>& ctx)
+template<typename T>
+constexpr Status serializeDataContext(context::SData& ctx)
 {
     Id id = T::getId();
 
@@ -168,8 +163,7 @@ constexpr Status serializeDataContext(context::Data<Scs>& ctx)
     return Status::kNoError;
 }
 
-template<DContainers Dcs>
-constexpr Status deserializeDataContext(context::Data<Dcs>& ctx, Id& id)
+constexpr Status deserializeDataContext(context::DData& ctx, Id& id)
 {
     CS_RUN(readRawData(ctx, 1, &id));
 
@@ -185,8 +179,8 @@ constexpr Status deserializeDataContext(context::Data<Dcs>& ctx, Id& id)
     return Status::kNoError;
 }
 
-template<typename T, SContainers Scs>
-constexpr Status serializeDataContextNoChecks(context::Data<Scs>& ctx)
+template<typename T>
+constexpr Status serializeDataContextNoChecks(context::SData& ctx)
 {
     Id id = T::getId();
 
@@ -209,8 +203,8 @@ CS_ALWAYS_INLINE constexpr Status deserializeDataContextPostprocessId(const Id& 
     return tUuid == id ? Status::kNoError : Status::kErrorMismatchOfStructId;
 }
 
-template<typename _T, DContainers _Dcs>
-constexpr Status deserializeDataContextPostprocessRest(context::Data<_Dcs>& ctx, interface_version_t minimumSupportedInterfaceVersion) noexcept
+template<typename _T>
+constexpr Status deserializeDataContextPostprocessRest(context::DData& ctx, interface_version_t minimumSupportedInterfaceVersion) noexcept
 {
     constexpr interface_version_t interfaceVersion = _T::getInterface().version;
 
@@ -238,16 +232,14 @@ constexpr Status deserializeDataContextPostprocessRest(context::Data<_Dcs>& ctx,
     return Status::kNoError;
 }
 
-template<ISerializationBinContainer Sbin>
-constexpr Status serializeStatusContext(context::Common<Sbin>& ctx, Status statusOut)
+constexpr Status serializeStatusContext(context::SCommon& ctx, Status statusOut)
 {
     CS_RUN(writePrimitive(statusOut, ctx));
 
     return Status::kNoError;
 }
 
-template<IDeserializationBinContainer Dbin>
-constexpr Status deserializeStatusContext(context::Common<Dbin>& ctx, Status& statusOut)
+constexpr Status deserializeStatusContext(context::DCommon& ctx, Status& statusOut)
 {
     CS_RUN(readPrimitive(ctx, statusOut));
 

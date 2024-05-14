@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataClient.h
+ * @file cslib/include/common_serialization/csp/messaging/ClientDataHandlerTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,44 +23,35 @@
 
 #pragma once
 
-namespace ft_helpers
+#include "common_serialization/csp/Concepts.h"
+
+namespace common_serialization::csp::messaging
 {
 
-namespace cs = common_serialization;
+/// @brief Properties of CSP Client
+template<typename _T>
+concept ClientDataHandlerTraits
+    =  ISerializableBased<typename _T::InputType>
+    && ISerializableBased<typename _T::OutputType>
+    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
 
-class SimpleSpeaker : public cs::csp::messaging::IClientSpeaker
+template<
+      ISerializableBased _InputType
+    , ISerializableBased _OutputType
+    , bool _forTempUseHeap
+>
+struct ClientDataHandlerTraitsConcrete
 {
-public:
-    SimpleSpeaker(cs::csp::messaging::Server& server) : m_server(server) {}
+    using InputType = _InputType;
+    using OutputType = _OutputType;
 
-    void setValidState(bool isValid)
-    {
-        m_isValid = isValid;
-    }
-
-private:
-    // This function must transfer data from client to server.
-    // Way by which it will be done is up to concrete client realization.
-    // Here we do not need to overcomplicate things and we simply calling csp::messaging::Server::handleMessage.
-    cs::Status speak(cs::BinVectorT& binInput, cs::BinWalkerT& binOutput) override
-    {
-        if (!isValid())
-            return cs::Status::kErrorNotInited;
-
-        cs::BinWalkerT input;
-        input.init(std::move(binInput));
-
-        return m_server.handleMessage(input, cs::GenericPointerKeeper{}, binOutput.getVector());
-    }
-
-    bool isValid() const noexcept override
-    {
-        return m_isValid;
-    }
-
-    cs::csp::messaging::Server& m_server;
-    bool m_isValid{ true };
+    static constexpr bool kForTempUseHeap = _forTempUseHeap;
 };
 
-} // namespace ft_helpers
+template<ISerializableBased _InputType, ISerializableBased _OutputType>
+using ChStack = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
 
+template<ISerializableBased _InputType, ISerializableBased _OutputType>
+using ChHeap = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
+
+} // namespace common_serialization::csp::messaging

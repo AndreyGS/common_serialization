@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/AllocatorHelpers/StrategicAllocatorHelper.h
+ * @file cslib/include/common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/Allocators/AllocatorHelpers/GenericAllocatorHelper.h"
+#include "common_serialization/AllocatorHelpers/GenericAllocatorHelper.h"
 
 namespace common_serialization
 {
@@ -115,8 +115,5 @@ template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
 
     return p;
 }
-
-template<typename _T>
-using RawStrategicAllocatorHelper = StrategicAllocatorHelper<_T, RawNoexceptAllocator<_T>>;
 
 } // namespace common_serialization

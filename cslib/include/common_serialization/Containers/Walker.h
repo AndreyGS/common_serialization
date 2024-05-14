@@ -407,9 +407,4 @@ void Walker<T, AllocatorHelper>::setValidOffset(size_type offset) noexcept
     m_offset = offset < size() ? offset : size();
 }
 
-template<typename T>
-using RawWalker = Walker<T, RawStrategicAllocatorHelper<T>>;
-
-using BinWalker = RawWalker<uint8_t>;
-
 } // namespace common_serialization

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IIDataServersKeeper.h
+ * @file cslib/include/common_serialization/csp/messaging/IServerDataHandlerRegistrar.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,51 +23,45 @@
 
 #pragma once
 
-#include "common_serialization/csp/ISerializable.h"
-#include "common_serialization/Containers/Vector.h"
-#include "common_serialization/csp/messaging/IDataHandlerTraits.h"
+#include "common_serialization/csp/messaging/IServerDataHandlerBase.h"
 
 namespace common_serialization::csp::messaging
 {
 
-template<SdContainers T>
-class IDataHandlerBase;
+class IServerDataHandlerBase;
 
 /// @brief Registrar of servers that can process InOutData CSP requests
-template<SdContainers _Sdcs = traits::DefaultSdContainers>
-class IDataHandlersRegistrar
+class IServerDataHandlerRegistrar
 {
 public:
-    using Sdcs = _Sdcs;
+    IServerDataHandlerRegistrar() = default;
 
-    IDataHandlersRegistrar() = default;
+    IServerDataHandlerRegistrar(const IServerDataHandlerRegistrar&) = delete;
+    IServerDataHandlerRegistrar& operator=(const IServerDataHandlerRegistrar&) = delete;
 
-    IDataHandlersRegistrar(const IDataHandlersRegistrar&) = delete;
-    IDataHandlersRegistrar& operator=(const IDataHandlersRegistrar&) = delete;
+    IServerDataHandlerRegistrar(IServerDataHandlerRegistrar&&) noexcept = default;
+    IServerDataHandlerRegistrar& operator=(IServerDataHandlerRegistrar&&) noexcept = default;
 
-    IDataHandlersRegistrar(IDataHandlersRegistrar&&) noexcept = default;
-    IDataHandlersRegistrar& operator=(IDataHandlersRegistrar&&) noexcept = default;
-
-    virtual ~IDataHandlersRegistrar() = default;
+    virtual ~IServerDataHandlerRegistrar() = default;
 
     /// @brief Adds handler to handlers database
     /// @param id Input-struct id that handler is belongs to
     /// @param multicast Is it acceptable to have more than one handler to handle this Input-struct
     /// @param pInstance Pointer on handler instance
     /// @return Status of operation
-    virtual Status addHandler(const Id& id, bool multicast, IDataHandlerBase<Sdcs>* pInstance) = 0;
+    virtual Status addHandler(const Id& id, bool multicast, IServerDataHandlerBase* pInstance) = 0;
 
     /// @brief Removes handler from handlers database
     /// @param id Input-struct id that handler was handling
     /// @param pInstance Handler instance that must be deleted
-    virtual void removeHandler(const Id& id, IDataHandlerBase<Sdcs>* pInstance) noexcept = 0;
+    virtual void removeHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept = 0;
 
     /// @brief Find all handlers that subscribed to handle Input-struct with given id
     /// @param id Input-struct id related to handlers
     /// @param handlers Container that would be filled with target handlers
     /// @return Status of operation.
     ///     If no handlers were found, Status::kErrorNoSuchHandler is returned.
-    virtual Status findHandlers(const Id& id, Vector<IDataHandlerBase<Sdcs>*, RawStrategicAllocatorHelper<IDataHandlerBase<Sdcs>*>>& handlers) const noexcept = 0;
+    virtual Status findHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handlers) const noexcept = 0;
 
     /// @brief Find single handler that is subsribed to handle Input-struct with given id
     /// @param id Input-struct id related to handler
@@ -75,7 +69,7 @@ public:
     /// @return Status of operation.
     ///     If no handler was found, Status::kErrorNoSuchHandler is returned.
     ///     If there is more than one handler that handle this id, Status::kErrorMoreEntires is returned.
-    virtual Status findHandler(const Id& id, IDataHandlerBase<Sdcs>*& pHandler) const noexcept = 0;
+    virtual Status findHandler(const Id& id, IServerDataHandlerBase*& pHandler) const noexcept = 0;
 };
 
 } // namespace common_serialization::csp::messaging

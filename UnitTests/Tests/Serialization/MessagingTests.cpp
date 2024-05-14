@@ -43,11 +43,11 @@ csp::service_structs::CspPartySettings<> getServerSettings()
 TEST(MessagingTests, InitCommonServerT)
 {
     csp::messaging::Server commonServer;
-    EXPECT_EQ(commonServer.init<csp::messaging::GenericDataServersRegistrar<>>(getServerSettings()), Status::kNoError);
+    EXPECT_EQ(commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(getServerSettings()), Status::kNoError);
     EXPECT_TRUE(commonServer.isValid());
-    EXPECT_EQ(commonServer.init<csp::messaging::GenericDataServersRegistrar<>>({}), Status::kErrorInvalidArgument);
+    EXPECT_EQ(commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>({}), Status::kErrorInvalidArgument);
     EXPECT_FALSE(commonServer.isValid());
-    EXPECT_EQ(commonServer.init<csp::messaging::GenericDataServersRegistrar<>>(getServerSettings()), Status::kNoError);
+    EXPECT_EQ(commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(getServerSettings()), Status::kNoError);
     EXPECT_TRUE(commonServer.isValid());
 }
 
@@ -60,7 +60,7 @@ TEST(MessagingTests, InitDataClientT)
     serverSettings.forbiddenCommonFlags = csp::context::CommonFlags::kBitness32;
     serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
     csp::messaging::Server commonServer;
-    commonServer.init<csp::messaging::GenericDataServersRegistrar<>>(serverSettings);
+    commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(serverSettings);
 
     interface_for_test::SimplyAssignableAlignedToOne<> dummyInput;
     interface_for_test::SimplyAssignableDescendant<> dummyOutput;
@@ -143,7 +143,7 @@ TEST(MessagingTests, InitDataClientT)
 TEST(MessagingTests, DataMessageHandling)
 {
     csp::messaging::Server commonServer;
-    commonServer.init<csp::messaging::GenericDataServersRegistrar<>>(getServerSettings());
+    commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(getServerSettings());
     FirstDataHandler firstDataHandler(*commonServer.getDataHandlersRegistrar());
 
     SimpleSpeaker simpleSpeaker{ commonServer };

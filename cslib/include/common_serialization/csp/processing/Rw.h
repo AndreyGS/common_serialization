@@ -29,8 +29,8 @@
 namespace common_serialization::csp::processing
 {
 
-template<typename T, ISerializationBinContainer Sbin>
-CS_ALWAYS_INLINE constexpr Status writePrimitive(const T& value, context::Common<Sbin>& ctx)
+template<typename T>
+CS_ALWAYS_INLINE constexpr Status writePrimitive(const T& value, context::SCommon& ctx)
 {
     if constexpr (IsEndiannessReversable<T>)
     {
@@ -48,18 +48,18 @@ CS_ALWAYS_INLINE constexpr Status writePrimitive(const T& value, context::Common
         return ctx.getBinaryData().pushBackArithmeticValue(value);
 }
 
-template<typename T, ISerializationBinContainer Sbin>
-CS_ALWAYS_INLINE constexpr Status writeRawData(const T* p, typename Sbin::size_type n, context::Common<Sbin>& ctx)
+template<typename T>
+CS_ALWAYS_INLINE constexpr Status writeRawData(const T* p, csp_size_t n, context::SCommon& ctx)
 {
     assert(p && n > 0 || n == 0);
-    const typename Sbin::size_type bytesSize = sizeof(T) * n;
+    const csp_size_t bytesSize = sizeof(T) * n;
     assert((n == bytesSize / sizeof(T)));
 
     return ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize);
 }
 
-template<typename T, IDeserializationBinContainer Dbin>
-CS_ALWAYS_INLINE constexpr Status readPrimitive(context::Common<Dbin>& ctx, T& value)
+template<typename T>
+CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, T& value)
 {
     if constexpr (IsEndiannessReversable<T>)
     {
@@ -79,13 +79,13 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::Common<Dbin>& ctx, T& v
         return ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value));
 }
 
-template<typename T, IDeserializationBinContainer Dbin>
-CS_ALWAYS_INLINE constexpr Status readRawData(context::Common<Dbin>& ctx, typename Dbin::size_type n, T* p)
+template<typename T>
+CS_ALWAYS_INLINE constexpr Status readRawData(context::DCommon& ctx, csp_size_t n, T* p)
 {
     assert(p && n > 0 || n == 0);
-    const typename Dbin::size_type bytesSize = sizeof(T) * n;
+    const csp_size_t bytesSize = sizeof(T) * n;
     assert((n == bytesSize / sizeof(T)));
-    typename Dbin::size_type readSize = 0;
+    csp_size_t readSize = 0;
 
     CS_RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
 

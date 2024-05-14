@@ -23,9 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/Allocators/ConstructorNoexceptAllocator.h"
-#include "common_serialization/Allocators/AllocatorHelpers/StrategicAllocatorHelper.h"
-#include "common_serialization/Allocators/RawNoexceptAllocator.h"
 #include "common_serialization/Containers/IteratorTagsDeclarations.h"
 
 namespace common_serialization
@@ -293,24 +290,24 @@ template<typename Vec>
 }
 
 /// @brief Container of elements stored contiguously
-/// @tparam T Type of elements
+/// @tparam _T Type of elements
 /// @tparam AllocatorHelper Allocator Helper using for storage management
 ///     and objects creation/deletion
-template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>>
+template<typename _T, typename AllocatorHelper = CStrategicAllocatorHelperT<_T>>
 class Vector
 {
 public:
-    static_assert(std::is_same_v<T, typename AllocatorHelper::value_type>, "Types T and AllocatorHelper::value_type are not the same");
+    static_assert(std::is_same_v<_T, typename AllocatorHelper::value_type>, "Types _T and AllocatorHelper::value_type are not the same");
 
-    using value_type = T;
+    using value_type = _T;
     using size_type = typename AllocatorHelper::size_type;
     using difference_type = typename AllocatorHelper::difference_type;
     using constructor_allocator = typename AllocatorHelper::constructor_allocator;
 
-    using pointer = T*;
-    using const_pointer = const T*;
-    using reference = T&;
-    using const_reference = const T&;
+    using pointer = _T*;
+    using const_pointer = const _T*;
+    using reference = _T&;
+    using const_reference = const _T&;
 
     using iterator = VectorIterator<Vector<value_type, AllocatorHelper>>;
     using const_iterator = ConstVectorIterator<Vector<value_type, AllocatorHelper>>;
@@ -340,10 +337,10 @@ public:
     /// @param n New size
     /// @return Status of operation
     constexpr Status setSize(size_type n) noexcept
-        requires std::is_trivially_copyable_v<T>;
+        requires std::is_trivially_copyable_v<_T>;
 
     /// @brief Preallocate at least that much memory that
-    ///     is enough to hold N elements of T
+    ///     is enough to hold N elements of _T
     /// @param n Number of elements that underlying storage
     ///     must be capable to hold
     /// @return Status of operation
@@ -352,18 +349,18 @@ public:
     /// @brief Append element to tail of the storage
     /// @param value Value that need to append
     /// @return Status of operation
-    constexpr Status pushBack(const T& value);
+    constexpr Status pushBack(const _T& value);
 
     /// @brief Append element to tail of the storage
     /// @param value Value that need to move to storage
     /// @return Status of operation
-    constexpr Status pushBack(T&& value);
+    constexpr Status pushBack(_T&& value);
 
     /// @brief Append N elements to tail of the storage
     /// @param p Pointer to array of elements
     /// @param n Number of elements that need to append
     /// @return Status of operation
-    constexpr Status pushBackN(const T* p, size_type n);
+    constexpr Status pushBackN(const _T* p, size_type n);
 
     /// @brief Append arithmetic or enum value to tail of container
     /// @remark Using for eliminating redundant overhead on raw arrays
@@ -372,7 +369,7 @@ public:
     /// @return Status of operation
     template<typename V>
     constexpr Status pushBackArithmeticValue(V value)
-        requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
+        requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
     /// @brief Replace N elements from offset
     /// @note Overwrites existing elements if offset < size.
@@ -384,7 +381,7 @@ public:
     /// @param offset Offset from which replace is started
     /// @param pNewOffset Offset + N if there is no error
     /// @return Status of operation
-    constexpr Status replace(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
+    constexpr Status replace(const _T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
 
     /// @brief Insert N elements from offset
     /// @note  
@@ -393,8 +390,8 @@ public:
     /// @param offset 
     /// @param pNewOffset 
     /// @return 
-    constexpr Status insert(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
-    constexpr Status insert(const T& value, size_type offset);
+    constexpr Status insert(const _T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
+    constexpr Status insert(const _T& value, size_type offset);
     template<typename ItSrc>
     constexpr Status insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd = nullptr);
 
@@ -403,17 +400,17 @@ public:
     constexpr Status erase(iterator destBegin, iterator destEnd);
 
     // copy from Vector to p (destination must be initialized (for non pod-types))
-    constexpr Status copyN(size_type offset, size_type n, T* p, T** ppNew = nullptr);
+    constexpr Status copyN(size_type offset, size_type n, _T* p, _T** ppNew = nullptr);
 
     // copy from Vector to destBegin... (destination must be initialized (for non pod-types))
     template<typename ItDest>
     constexpr Status copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd = nullptr);
 
-    [[nodiscard]] constexpr T* data() noexcept;
-    [[nodiscard]] constexpr const T* data() const noexcept;
+    [[nodiscard]] constexpr _T* data() noexcept;
+    [[nodiscard]] constexpr const _T* data() const noexcept;
 
-    [[nodiscard]] constexpr T& operator[](size_type offset);
-    [[nodiscard]] constexpr const T& operator[](size_type offset) const;
+    [[nodiscard]] constexpr _T& operator[](size_type offset);
+    [[nodiscard]] constexpr const _T& operator[](size_type offset) const;
 
     [[nodiscard]] constexpr size_type size() const noexcept;
     [[nodiscard]] constexpr size_type max_size() const noexcept;
@@ -423,7 +420,7 @@ public:
     constexpr void invalidate() noexcept;
 
     // you shall free memory returned by this method manually
-    [[nodiscard]] constexpr T* release() noexcept;
+    [[nodiscard]] constexpr _T* release() noexcept;
 
     [[nodiscard]] constexpr iterator begin() noexcept;
     [[nodiscard]] constexpr const_iterator begin() const noexcept;
@@ -436,14 +433,14 @@ public:
     [[nodiscard]] constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
 
     [[nodiscard]] constexpr bool operator==(const Vector& rhs) const
-        requires (IsNotPointer<T> || IsNotPointer<std::remove_pointer_t<T>>);
+        requires (IsNotPointer<_T> || IsNotPointer<std::remove_pointer_t<_T>>);
 
 private:
     [[nodiscard]] constexpr Status reserveInternal(size_type n, bool strict);
     [[nodiscard]] constexpr Status addSpaceIfNeed(size_type n);
     [[nodiscard]] constexpr bool isIteratorNotDereferenceable(iterator it) const noexcept;
 
-    T* m_p{ nullptr };
+    _T* m_p{ nullptr };
     size_type m_dataSize{ 0 };
     size_type m_allocatedSize{ 0 };
 
@@ -458,42 +455,42 @@ private:
     friend Status csp::processing::data::templates::deserialize(X& ctx, Vector<C, A>& value);
 };
 
-template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::Vector(const Vector& rhs)
+template<typename _T, typename AllocatorHelper>
+constexpr Vector<_T, AllocatorHelper>::Vector(const Vector& rhs)
 {
     init(rhs);
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::Vector(Vector&& rhs) noexcept
+template<typename _T, typename AllocatorHelper>
+constexpr Vector<_T, AllocatorHelper>::Vector(Vector&& rhs) noexcept
 {
     init(std::move(rhs));
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(const Vector& rhs)
+template<typename _T, typename AllocatorHelper>
+constexpr Vector<_T, AllocatorHelper>& Vector<_T, AllocatorHelper>::operator=(const Vector& rhs)
 {
     init(rhs);
 
     return *this;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>& Vector<T, AllocatorHelper>::operator=(Vector&& rhs) noexcept
+template<typename _T, typename AllocatorHelper>
+constexpr Vector<_T, AllocatorHelper>& Vector<_T, AllocatorHelper>::operator=(Vector&& rhs) noexcept
 {
     init(std::move(rhs));
 
     return *this;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Vector<T, AllocatorHelper>::~Vector() noexcept
+template<typename _T, typename AllocatorHelper>
+constexpr Vector<_T, AllocatorHelper>::~Vector() noexcept
 {
     invalidate();
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::init(const Vector& rhs)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::init(const Vector& rhs)
 {
     if (this != &rhs)
     {
@@ -520,8 +517,8 @@ constexpr Status Vector<T, AllocatorHelper>::init(const Vector& rhs)
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::init(Vector&& rhs) noexcept
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::init(Vector&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -537,23 +534,23 @@ constexpr Status Vector<T, AllocatorHelper>::init(Vector&& rhs) noexcept
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::setSize(size_type n) noexcept
-    requires std::is_trivially_copyable_v<T>
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::setSize(size_type n) noexcept
+    requires std::is_trivially_copyable_v<_T>
 {
     CS_RUN(reserveInternal(n, false));
     m_dataSize = n;
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::reserve(size_type n)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::reserve(size_type n)
 {
     return reserveInternal(n, true);
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::pushBack(const T& value)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::pushBack(const _T& value)
 {
     CS_RUN(addSpaceIfNeed(1));
 
@@ -563,8 +560,8 @@ constexpr Status Vector<T, AllocatorHelper>::pushBack(const T& value)
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::pushBack(T&& value)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::pushBack(_T&& value)
 {
     CS_RUN(addSpaceIfNeed(1));
 
@@ -574,8 +571,8 @@ constexpr Status Vector<T, AllocatorHelper>::pushBack(T&& value)
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::pushBackN(const _T* p, size_type n)
 {
     if (p == nullptr && n != 0)
         return Status::kErrorInvalidArgument;
@@ -588,10 +585,10 @@ constexpr Status Vector<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
+template<typename _T, typename AllocatorHelper>
 template<typename V>
-constexpr Status Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value)
-    requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
+constexpr Status Vector<_T, AllocatorHelper>::pushBackArithmeticValue(V value)
+    requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
 {
     Status status = Status::kNoError;
 
@@ -603,8 +600,8 @@ constexpr Status Vector<T, AllocatorHelper>::pushBackArithmeticValue(V value)
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::replace(const T* p, size_type n, size_type offset, size_type* pNewOffset)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::replace(const _T* p, size_type n, size_type offset, size_type* pNewOffset)
 {
     if (p == nullptr && n != 0)
         return Status::kErrorInvalidArgument;
@@ -649,8 +646,8 @@ constexpr Status Vector<T, AllocatorHelper>::replace(const T* p, size_type n, si
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::insert(const T* p, size_type n, size_type offset, size_type* pNewOffset)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::insert(const _T* p, size_type n, size_type offset, size_type* pNewOffset)
 {
     if (p == nullptr && n != 0)
         return Status::kErrorInvalidArgument;
@@ -702,20 +699,20 @@ constexpr Status Vector<T, AllocatorHelper>::insert(const T* p, size_type n, siz
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::insert(const T& value, size_type offset)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::insert(const _T& value, size_type offset)
 {
     return insert(&value, 1, offset);
 }
 
-template<typename T, typename AllocatorHelper>
+template<typename _T, typename AllocatorHelper>
 template<typename ItSrc>
-constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
+constexpr Status Vector<_T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
 {
     if (isIteratorNotDereferenceable(destBegin) && destBegin != end())
         return Status::kErrorOverflow;
 
-    Vector<T, AllocatorHelper> temp;
+    Vector<_T, AllocatorHelper> temp;
     size_type oldDataSize = m_dataSize;
     size_type currentOffset = destBegin.getPointer() - m_p;
 
@@ -727,7 +724,7 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
             if (m_dataSize > currentOffset)
             {
                 CS_RUN(temp.pushBack(std::move(*pCurrent)));
-                m_allocatorHelper.destroy(pCurrent); // if T is not moveable we should destroying its objects explicitly
+                m_allocatorHelper.destroy(pCurrent); // if _T is not moveable we should destroying its objects explicitly
                 ++currentOffset;
             }
             else
@@ -747,7 +744,7 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
                 for (size_type i = currentOffset; i < oldDataSize; ++i)
                 {
                     CS_RUN(temp.pushBack(std::move(*(m_p + i))));
-                    m_allocatorHelper.destroy(m_p + i); // if T is not moveable we should destroying its objects explicitly
+                    m_allocatorHelper.destroy(m_p + i); // if _T is not moveable we should destroying its objects explicitly
                 }
             else
                 CS_RUN(temp.pushBackN(m_p + currentOffset, oldDataSize - currentOffset));
@@ -766,14 +763,14 @@ constexpr Status Vector<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::erase(size_type offset)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::erase(size_type offset)
 {
     return erase(offset, 1);
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::erase(size_type offset, size_type n)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::erase(size_type offset, size_type n)
 {
     if (offset > m_dataSize || offset == m_dataSize && n != 0)
         return Status::kErrorOverflow;
@@ -789,15 +786,15 @@ constexpr Status Vector<T, AllocatorHelper>::erase(size_type offset, size_type n
     difference_type rightN = m_dataSize - rightNStart;
 
     CS_RUN(m_allocatorHelper.move(m_p + offset, m_p + rightNStart, rightN));
-    m_allocatorHelper.destroyN(m_p + rightNStart, rightN); // if T is not moveable we should destroying its objects explicitly
+    m_allocatorHelper.destroyN(m_p + rightNStart, rightN); // if _T is not moveable we should destroying its objects explicitly
 
     m_dataSize = offset + rightN;
 
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
 {
     if (destBegin > destEnd)
         return Status::kErrorOverflow;
@@ -817,15 +814,15 @@ constexpr Status Vector<T, AllocatorHelper>::erase(iterator destBegin, iterator 
     difference_type rightN = m_dataSize - n - leftN;
 
     CS_RUN(m_allocatorHelper.move(destBegin.getPointer(), destEnd.getPointer(), rightN));
-    m_allocatorHelper.destroyN(destEnd.getPointer(), rightN); // if T is not moveable we should destroying its objects explicitly
+    m_allocatorHelper.destroyN(destEnd.getPointer(), rightN); // if _T is not moveable we should destroying its objects explicitly
 
     m_dataSize = leftN + rightN;
 
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Vector<T, AllocatorHelper>::copyN(size_type offset, size_type n, T* p, T** ppNew)
+template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::copyN(size_type offset, size_type n, _T* p, _T** ppNew)
 {
     if (p == nullptr && n != 0)
         return Status::kErrorInvalidArgument;
@@ -843,9 +840,9 @@ constexpr Status Vector<T, AllocatorHelper>::copyN(size_type offset, size_type n
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
+template<typename _T, typename AllocatorHelper>
 template<typename ItDest>
-constexpr Status Vector<T, AllocatorHelper>::copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd)
+constexpr Status Vector<_T, AllocatorHelper>::copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd)
 {
     if (isIteratorNotDereferenceable(srcBegin))
         return Status::kErrorInvalidArgument;
@@ -868,57 +865,57 @@ constexpr Status Vector<T, AllocatorHelper>::copyN(iterator srcBegin, iterator s
     return Status::kNoError;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr T* Vector<T, AllocatorHelper>::data() noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr _T* Vector<_T, AllocatorHelper>::data() noexcept
 {
     return m_p;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const T* Vector<T, AllocatorHelper>::data() const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr const _T* Vector<_T, AllocatorHelper>::data() const noexcept
 {
     return m_p;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr T& Vector<T, AllocatorHelper>::operator[](size_type offset)
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr _T& Vector<_T, AllocatorHelper>::operator[](size_type offset)
 {
     return *(m_p + offset);
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const T& Vector<T, AllocatorHelper>::operator[](size_type offset) const
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr const _T& Vector<_T, AllocatorHelper>::operator[](size_type offset) const
 {
     return *(m_p + offset);
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::size() const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr typename Vector<_T, AllocatorHelper>::size_type Vector<_T, AllocatorHelper>::size() const noexcept
 {
     return m_dataSize;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::max_size() const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr typename Vector<_T, AllocatorHelper>::size_type Vector<_T, AllocatorHelper>::max_size() const noexcept
 {
     return m_allocatorHelper.max_size();
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Vector<T, AllocatorHelper>::size_type Vector<T, AllocatorHelper>::capacity() const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr typename Vector<_T, AllocatorHelper>::size_type Vector<_T, AllocatorHelper>::capacity() const noexcept
 {
     return m_allocatedSize;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr void Vector<T, AllocatorHelper>::clear() noexcept
+template<typename _T, typename AllocatorHelper>
+constexpr void Vector<_T, AllocatorHelper>::clear() noexcept
 {
     m_allocatorHelper.destroyN(m_p, m_dataSize);
     m_dataSize = 0;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr void Vector<T, AllocatorHelper>::invalidate() noexcept
+template<typename _T, typename AllocatorHelper>
+constexpr void Vector<_T, AllocatorHelper>::invalidate() noexcept
 {
     clear();
     m_allocatorHelper.deallocate(m_p);
@@ -926,70 +923,70 @@ constexpr void Vector<T, AllocatorHelper>::invalidate() noexcept
     m_allocatedSize = 0;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr T* Vector<T, AllocatorHelper>::release() noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr _T* Vector<_T, AllocatorHelper>::release() noexcept
 {
-    T* s = m_p;
+    _T* s = m_p;
     m_p = 0;
     m_dataSize = 0;
     m_allocatedSize = 0;
     return s;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::begin() noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr typename Vector<_T, AllocatorHelper>::iterator Vector<_T, AllocatorHelper>::begin() noexcept
 {
     return iterator(m_p);
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Vector<T, AllocatorHelper>::const_iterator Vector<T, AllocatorHelper>::begin() const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr typename Vector<_T, AllocatorHelper>::const_iterator Vector<_T, AllocatorHelper>::begin() const noexcept
 {
     return const_iterator(m_p);
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Vector<T, AllocatorHelper>::iterator Vector<T, AllocatorHelper>::end() noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr typename Vector<_T, AllocatorHelper>::iterator Vector<_T, AllocatorHelper>::end() noexcept
 {
     return iterator(m_p + m_dataSize);
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Vector<T, AllocatorHelper>::const_iterator Vector<T, AllocatorHelper>::end() const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr typename Vector<_T, AllocatorHelper>::const_iterator Vector<_T, AllocatorHelper>::end() const noexcept
 {
     return const_iterator(m_p + m_dataSize);
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Vector<T, AllocatorHelper>::const_iterator Vector<T, AllocatorHelper>::cbegin() const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr typename Vector<_T, AllocatorHelper>::const_iterator Vector<_T, AllocatorHelper>::cbegin() const noexcept
 {
     return const_iterator(m_p);
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Vector<T, AllocatorHelper>::const_iterator Vector<T, AllocatorHelper>::cend() const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr typename Vector<_T, AllocatorHelper>::const_iterator Vector<_T, AllocatorHelper>::cend() const noexcept
 {
     return const_iterator(m_p + m_dataSize);
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr AllocatorHelper& Vector<_T, AllocatorHelper>::getAllocatorHelper() noexcept
 {
     return m_allocatorHelper;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const AllocatorHelper& Vector<T, AllocatorHelper>::getAllocatorHelper() const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr const AllocatorHelper& Vector<_T, AllocatorHelper>::getAllocatorHelper() const noexcept
 {
     return m_allocatorHelper;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr Status Vector<T, AllocatorHelper>::reserveInternal(size_type n, bool strict)
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr Status Vector<_T, AllocatorHelper>::reserveInternal(size_type n, bool strict)
 {
     if (n > m_allocatedSize)
     {
-        T* pNewMp = strict ? m_allocatorHelper.allocateStrict(n) : m_allocatorHelper.allocate(n, &n);
+        _T* pNewMp = strict ? m_allocatorHelper.allocateStrict(n) : m_allocatorHelper.allocate(n, &n);
         if (pNewMp)
         {
             m_allocatedSize = n;
@@ -1011,8 +1008,8 @@ template<typename T, typename AllocatorHelper>
 }
 
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr Status Vector<T, AllocatorHelper>::addSpaceIfNeed(size_type n)
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr Status Vector<_T, AllocatorHelper>::addSpaceIfNeed(size_type n)
 {
     return m_dataSize + n >= m_dataSize
         ? m_dataSize + n > m_allocatedSize
@@ -1021,26 +1018,26 @@ template<typename T, typename AllocatorHelper>
         : Status::kErrorOverflow;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::isIteratorNotDereferenceable(iterator it) const noexcept
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr bool Vector<_T, AllocatorHelper>::isIteratorNotDereferenceable(iterator it) const noexcept
 {
     return &*it < m_p || &*it >= m_p + m_dataSize;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr bool Vector<T, AllocatorHelper>::operator==(const Vector& rhs) const
-    requires (IsNotPointer<T> || IsNotPointer<std::remove_pointer_t<T>>)
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr bool Vector<_T, AllocatorHelper>::operator==(const Vector& rhs) const
+    requires (IsNotPointer<_T> || IsNotPointer<std::remove_pointer_t<_T>>)
 {
     if (size() != rhs.size())
         return false;
 
     for (size_type i = 0; i < size(); ++i)
-        if constexpr (IsNotPointer<T>)
+        if constexpr (IsNotPointer<_T>)
         {
             if (m_p[i] != rhs.m_p[i])
                 return false;
         }
-        else // if constexpr (IsNotPointer<std::remove_pointer_t<T>>)
+        else // if constexpr (IsNotPointer<std::remove_pointer_t<_T>>)
         {
             if (m_p[i] == nullptr || rhs.m_p[i] == nullptr)
                 return m_p[i] == rhs.m_p[i];
@@ -1051,10 +1048,5 @@ template<typename T, typename AllocatorHelper>
 
     return true;
 }
-
-template<typename T>
-using RawVector = Vector<T, RawStrategicAllocatorHelper<T>>;
-
-using BinVector = RawVector<uint8_t>;
 
 } // namespace common_serialization

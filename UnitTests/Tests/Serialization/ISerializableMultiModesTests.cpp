@@ -28,7 +28,7 @@ using namespace common_serialization;
 using namespace interface_for_test;
 using namespace ft_helpers;
 
-using size_type = typename BinVector::size_type;
+using size_type = typename BinVectorT::size_type;
 
 template<typename TS, typename TD>
 void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
@@ -36,7 +36,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     TS input;
     fillingStruct(input);
 
-    BinWalker bin;
+    BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAllowUnmanagedPointers | csp::context::DataFlags::kCheckRecursivePointers));
     ctxIn.setInterfaceVersion(targetVersion);

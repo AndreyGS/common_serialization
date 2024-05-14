@@ -38,7 +38,7 @@ TEST(ISerializableAnotherEndianness, SpecialTBasicT)
     SpecialProcessingType input;
     fillingStruct(input);
 
-    BinWalker bin;
+    BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector()
         , csp::context::CommonFlags{ helpers::isLittleEndianPlatform() ? csp::context::CommonFlags::kBigEndianFormat : csp::context::CommonFlags::kNoFlagsMask }
         , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });

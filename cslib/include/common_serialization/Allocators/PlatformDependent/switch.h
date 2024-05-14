@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataClient.h
+ * @file cslib/include/common_serialization/Allocators/PlatformDependent/switch.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,44 +23,23 @@
 
 #pragma once
 
-namespace ft_helpers
-{
+#if defined WINDOWS_KERNEL
 
-namespace cs = common_serialization;
+#include "common_serialization/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h"
 
-class SimpleSpeaker : public cs::csp::messaging::IClientSpeaker
-{
-public:
-    SimpleSpeaker(cs::csp::messaging::Server& server) : m_server(server) {}
+#elif defined LINUX_KERNEL
 
-    void setValidState(bool isValid)
-    {
-        m_isValid = isValid;
-    }
+#include "common_serialization/Allocators/PlatformDependent/LinuxKernelMemoryManagement.h"
 
-private:
-    // This function must transfer data from client to server.
-    // Way by which it will be done is up to concrete client realization.
-    // Here we do not need to overcomplicate things and we simply calling csp::messaging::Server::handleMessage.
-    cs::Status speak(cs::BinVectorT& binInput, cs::BinWalkerT& binOutput) override
-    {
-        if (!isValid())
-            return cs::Status::kErrorNotInited;
+#else // USER_MODE
 
-        cs::BinWalkerT input;
-        input.init(std::move(binInput));
+#include "common_serialization/Allocators/PlatformDependent/UserModeMemoryManagement.h"
 
-        return m_server.handleMessage(input, cs::GenericPointerKeeper{}, binOutput.getVector());
-    }
+#endif // defined WINDOWS_KERNEL, defined LINUX_KERNEL
 
-    bool isValid() const noexcept override
-    {
-        return m_isValid;
-    }
 
-    cs::csp::messaging::Server& m_server;
-    bool m_isValid{ true };
-};
+#if !defined CS_NO_STD_NEW_DELETE_REPLACEMENT && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
 
-} // namespace ft_helpers
+#include "common_serialization/Allocators/PlatformDependent/NewDeleteReplacements.h"
 
+#endif // defined WINDOWS_KERNEL || defined LINUX_KERNEL

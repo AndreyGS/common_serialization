@@ -37,7 +37,7 @@ TEST(ISerializableAnotherBitness, SpecialTBasicT)
     SpecialProcessingType input;
     fillingStruct(input);
 
-    BinWalker bin;
+    BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector()
         , csp::context::CommonFlags{ helpers::isBitness64() ? csp::context::CommonFlags::kBitness32 : csp::context::CommonFlags::kNoFlagsMask }
         , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });

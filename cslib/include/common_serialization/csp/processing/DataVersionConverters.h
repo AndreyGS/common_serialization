@@ -26,31 +26,31 @@
 namespace common_serialization::csp::processing::data::version_converters
 {
 
-template<typename T, SContainers Scs>
-constexpr Status toOldStruct(const T& value, uint32_t targetVersion, context::Data<Scs>& ctx);
-template<typename T, DContainers Dcs>
-constexpr Status fromOldStruct(context::Data<Dcs>& ctx, uint32_t targetVersion, T& value);
+template<typename _T>
+constexpr Status toOldStruct(const _T& value, uint32_t targetVersion, context::SData& ctx);
+template<typename _T>
+constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, _T& value);
 
-template<typename T, SContainers Scs>
-constexpr Status toOldStruct(const T& value, uint32_t targetVersion, context::Data<Scs>& ctx)
+template<typename _T>
+constexpr Status toOldStruct(const _T& value, uint32_t targetVersion, context::SData& ctx)
 {
     return Status::kErrorNoSuchHandler;
 }
 
-template<typename T, DContainers Dcs>
-constexpr Status fromOldStruct(context::Data<Dcs>& ctx, uint32_t targetVersion, T& value)
+template<typename _T>
+constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, _T& value)
 {
     return Status::kErrorNoSuchHandler;
 }
 
-template<typename T, SContainers Scs>
-constexpr Status toOldStructIfNeed(const T& value, context::Data<Scs>& ctx)
+template<typename _T>
+constexpr Status toOldStructIfNeed(const _T& value, context::SData& ctx)
 {
-    if constexpr (NotISerializableBased<T>)
+    if constexpr (NotISerializableBased<_T>)
         return Status::kErrorInvalidType;
     else
     {
-        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
+        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<_T>(ctx.getInterfaceVersion());
 
         if (targetVersion == value.getLatestPrivateVersion())
             return Status::kNoError;
@@ -62,14 +62,14 @@ constexpr Status toOldStructIfNeed(const T& value, context::Data<Scs>& ctx)
     }
 }
 
-template<typename T, DContainers Dcs>
-constexpr Status fromOldStructIfNeed(context::Data<Dcs>& ctx, T& value)
+template<typename _T>
+constexpr Status fromOldStructIfNeed(context::DData& ctx, _T& value)
 {
-    if constexpr (NotISerializableBased<T>)
+    if constexpr (NotISerializableBased<_T>)
         return Status::kErrorInvalidType;
     else
     {
-        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<T>(ctx.getInterfaceVersion());
+        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<_T>(ctx.getInterfaceVersion());
 
         if (targetVersion == value.getLatestPrivateVersion())
             return Status::kNoError;
@@ -81,7 +81,7 @@ constexpr Status fromOldStructIfNeed(context::Data<Dcs>& ctx, T& value)
     }
 }
 
-template<typename... NextTo>
+template<typename... _NextTo>
 struct ToVersion;
 
 template<>
@@ -95,14 +95,14 @@ public:
     constexpr uint32_t getTargetVersion() const noexcept { return m_targetVersion; }
 
 protected:
-    template<typename From, SContainers Scs>
-    Status convertOnHeap(const From& from, context::Data<Scs>& ctx) noexcept
+    template<typename _From>
+    Status convertOnHeap(const _From& from, context::SData& ctx) noexcept
     {
         return Status::kErrorInternal;
     }
 
-    template<typename From, SContainers Scs>
-    Status convertOnStack(const From& from, context::Data<Scs>& ctx) noexcept
+    template<typename _From>
+    Status convertOnStack(const _From& from, context::SData& ctx) noexcept
     {
         return Status::kErrorInternal;
     }
@@ -111,44 +111,44 @@ private:
     interface_version_t m_targetVersion{ traits::kInterfaceVersionUndefined };
 };
 
-template<ISerializableBased To, typename... NextTo>
-class ToVersion<To, NextTo...> : public ToVersion<NextTo...>
+template<ISerializableBased _To, typename... _NextTo>
+class ToVersion<_To, _NextTo...> : public ToVersion<_NextTo...>
 {
 public:
     explicit ToVersion(interface_version_t targetVersion)
-        : ToVersion<NextTo...>(targetVersion)
+        : ToVersion<_NextTo...>(targetVersion)
     { }
 
     constexpr uint32_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
-    template<ISerializableBased From, SContainers Scs>
-    Status convert(const From& from, context::Data<Scs>& ctx)
+    template<ISerializableBased _From>
+    Status convert(const _From& from, context::SData& ctx)
     {
         return ctx.isHeapUsedForTemp() ? convertOnHeap(from, ctx) : convertOnStack(from, ctx);
     }
 
 protected:
-    using base_class = ToVersion<NextTo...>;
+    using base_class = ToVersion<_NextTo...>;
 
-    template<ISerializableBased From, SContainers Scs>
-    Status convertOnHeap(const From& from, context::Data<Scs>& ctx)
+    template<ISerializableBased _From>
+    Status convertOnHeap(const _From& from, context::SData& ctx)
     {
         GenericPointerKeeper pointerKeeper;
-        if (!pointerKeeper.allocateAndConstruct<To, GenericAllocatorHelper<To, ConstructorNoexceptAllocator<To>>>(1))
+        if (!pointerKeeper.allocateAndConstruct<_To, GenericAllocatorHelper<_To, ConstructorNoexceptAllocator<_To>>>(1))
             return Status::kErrorNoMemory;
 
-        CS_RUN(pointerKeeper.get<To>()->init(from));
+        CS_RUN(pointerKeeper.get<_To>()->init(from));
 
         if (privateVersion > getTargetVersion())
-            return base_class::convertOnHeap(*pointerKeeper.get<To>(), ctx);
+            return base_class::convertOnHeap(*pointerKeeper.get<_To>(), ctx);
         else
-            return BodyProcessor::serialize(*pointerKeeper.get<To>(), ctx);
+            return BodyProcessor::serialize(*pointerKeeper.get<_To>(), ctx);
     }
 
-    template<ISerializableBased From, SContainers Scs>
-    Status convertOnStack(const From& from, context::Data<Scs>& ctx)
+    template<ISerializableBased _From>
+    Status convertOnStack(const _From& from, context::SData& ctx)
     {
-        To to;
+        _To to;
         CS_RUN(to.init(from));
 
         if (privateVersion > getTargetVersion())
@@ -157,10 +157,10 @@ protected:
             return BodyProcessor::serialize(to, ctx);
     }
 
-    static constexpr interface_version_t privateVersion = To::getLatestPrivateVersion();
+    static constexpr interface_version_t privateVersion = _To::getLatestPrivateVersion();
 };
 
-template<typename... NextFrom>
+template<typename... _NextFrom>
 struct FromVersion;
 
 template<>
@@ -171,8 +171,8 @@ public:
         : m_targetVersion(targetVersion)
     { }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convert(context::Data<Dcs>& ctx, To& to) noexcept
+    template<ISerializableBased _To>
+    Status convert(context::DData& ctx, _To& to) noexcept
     {
         return Status::kErrorInternal;
     }
@@ -184,14 +184,14 @@ protected:
 
     static constexpr interface_version_t privateVersion = traits::kInterfaceVersionUndefined;
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertToUpperVersionOnHeap(const from_type& from, context::Data<Dcs>& ctx, To& to) noexcept
+    template<ISerializableBased _To>
+    Status convertToUpperVersionOnHeap(const from_type& from, context::DData& ctx, _To& to) noexcept
     {
         return Status::kErrorInternal;
     }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertToUpperVersionOnStack(const from_type& from, context::Data<Dcs>& ctx, To& to) noexcept
+    template<ISerializableBased _To>
+    Status convertToUpperVersionOnStack(const from_type& from, context::DData& ctx, _To& to) noexcept
     {
         return Status::kErrorInternal;
     }
@@ -201,18 +201,18 @@ private:
 };
 
 
-template<ISerializableBased From, typename... NextFrom>
-class FromVersion<From, NextFrom...> : public FromVersion<NextFrom...>
+template<ISerializableBased _From, typename... _NextFrom>
+class FromVersion<_From, _NextFrom...> : public FromVersion<_NextFrom...>
 {
 public:
     explicit FromVersion(interface_version_t targetVersion)
-        : FromVersion<NextFrom...>(targetVersion)
+        : FromVersion<_NextFrom...>(targetVersion)
     { }
 
     constexpr interface_version_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convert(context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased _To>
+    Status convert(context::DData& ctx, _To& to)
     {
         // Skip versions that are older than serialized one
         if (base_class::privateVersion <= getTargetVersion())
@@ -222,35 +222,35 @@ public:
     }
 
 protected:
-    using base_class = FromVersion<NextFrom...>;
-    using from_type = From;
+    using base_class = FromVersion<_NextFrom...>;
+    using from_type = _From;
     using base_from = typename base_class::from_type;
 
-    static constexpr interface_version_t privateVersion = From::getLatestPrivateVersion();
+    static constexpr interface_version_t privateVersion = _From::getLatestPrivateVersion();
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertOnHeap(context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased _To>
+    Status convertOnHeap(context::DData& ctx, _To& to)
     {
         GenericPointerKeeper pointerKeeper;
-        if (!pointerKeeper.allocateAndConstruct<From, GenericAllocatorHelper<From, ConstructorNoexceptAllocator<From>>>(1))
+        if (!pointerKeeper.allocateAndConstruct<_From, GenericAllocatorHelper<_From, ConstructorNoexceptAllocator<_From>>>(1))
             return Status::kErrorNoMemory;
 
-        CS_RUN(BodyProcessor::deserialize(ctx, *pointerKeeper.get<From>()));
+        CS_RUN(BodyProcessor::deserialize(ctx, *pointerKeeper.get<_From>()));
 
-        return convertToUpperVersionOnHeap(*pointerKeeper.get<From>(), ctx, to);
+        return convertToUpperVersionOnHeap(*pointerKeeper.get<_From>(), ctx, to);
     }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertOnStack(context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased _To>
+    Status convertOnStack(context::DData& ctx, _To& to)
     {
-        From from;
+        _From from;
         CS_RUN(BodyProcessor::deserialize(ctx, from));
 
         return convertToUpperVersionOnStack(from, ctx, to);
     }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertToUpperVersionOnHeap(const From& from, context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased _To>
+    Status convertToUpperVersionOnHeap(const _From& from, context::DData& ctx, _To& to)
     {
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)
         {
@@ -258,34 +258,34 @@ protected:
             if (!pointerKeeper.allocateAndConstruct<base_from, GenericAllocatorHelper<base_from, ConstructorNoexceptAllocator<base_from>>>(1))
                 return Status::kErrorNoMemory;
 
-            if constexpr (InitableBySpecialClass<To, base_from>)
+            if constexpr (InitableBySpecialClass<_To, base_from>)
                 CS_RUN(pointerKeeper.get<base_from>()->init(from))
             else
                 return Status::kErrorNoSuchHandler;
 
             return base_class::convertToUpperVersionOnHeap(*pointerKeeper.get<base_from>(), ctx, to);
         }
-        else if constexpr (InitableBySpecialClass<To, From>)
+        else if constexpr (InitableBySpecialClass<_To, _From>)
             return to.init(from);
         else
             return Status::kErrorNoSuchHandler;
     }
 
-    template<ISerializableBased To, DContainers Dcs>
-    Status convertToUpperVersionOnStack(const From& from, context::Data<Dcs>& ctx, To& to)
+    template<ISerializableBased _To>
+    Status convertToUpperVersionOnStack(const _From& from, context::DData& ctx, _To& to)
     {
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)
         {
             base_from bFrom;
 
-            if constexpr (InitableBySpecialClass<To, base_from>)
+            if constexpr (InitableBySpecialClass<_To, base_from>)
                 CS_RUN(bFrom.init(from))
             else
                 return Status::kErrorNoSuchHandler;
 
             return base_class::convertToUpperVersionOnStack(bFrom, ctx, to);
         }
-        else if constexpr (InitableBySpecialClass<To, From>)
+        else if constexpr (InitableBySpecialClass<_To, _From>)
             return to.init(from);
         else
             return Status::kErrorNoSuchHandler;

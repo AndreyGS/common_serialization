@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IDataHandlerBase.h
+ * @file cslib/include/common_serialization/AllocatorHelpers/main.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,33 +23,26 @@
 
 #pragma once
 
-#include "common_serialization/csp/messaging/IDataHandlerTraits.h"
+#include "common_serialization/AllocatorHelpers/GenericAllocatorHelper.h"
+#include "common_serialization/AllocatorHelpers/IAllocatorHelper.h"
+#include "common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h"
 
-namespace common_serialization::csp::messaging
+namespace common_serialization
 {
 
-/// @brief Base of common interface of CSP data handlers
-template<SdContainers _Sdcs = traits::DefaultSdContainers>
-class IDataHandlerBase
-{
-public:
-    using Sdcs = _Sdcs;
-    using Sbin = typename Sdcs::Sbin;
-    using Dbin = typename Sdcs::Dbin;
-    using Spm = typename Sdcs::Spm;
-    using Dpm = typename Sdcs::Dpm;
-    using Gkc = typename Sdcs::Gkc;
+template<typename _T>
+using RGenericAllocatorHelperT = GenericAllocatorHelper<_T, RawNoexceptAllocatorT<_T>>;
 
-    using Scs = typename Sdcs::Scs;
-    using Dcs = typename Sdcs::Dcs;
+template<typename _T>
+using RkGenericAllocatorHelperT = GenericAllocatorHelper<_T, RawKeeperAllocatorT<_T>>;
 
+template<typename _T>
+using CGenericAllocatorHelperT = GenericAllocatorHelper<_T, ConstructorNoexceptAllocatorT<_T>>;
 
-    [[nodiscard]] virtual interface_version_t getMinimumInterfaceVersion() = 0;
+template<typename _T>
+using RStrategicAllocatorHelperT = StrategicAllocatorHelper<_T, RawNoexceptAllocatorT<_T>>;
 
-    virtual Status handleDataCommon(context::Data<Dcs>& ctx, const GenericPointerKeeper& clientId, Sbin& binOutput) = 0;
+template<typename _T>
+using CStrategicAllocatorHelperT = StrategicAllocatorHelper<_T, ConstructorNoexceptAllocatorT<_T>>;
 
-protected:
-    virtual ~IDataHandlerBase() = default;
-};
-
-} // namespace common_serialization::csp::messaging
+} // namespace common_serialization

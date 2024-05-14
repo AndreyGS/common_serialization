@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/Allocators/PlatformDependent/Common.h"
+#include "common_serialization/Allocators/PlatformDependent/switch.h"
 
 namespace common_serialization
 {

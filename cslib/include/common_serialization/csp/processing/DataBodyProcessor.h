@@ -29,7 +29,7 @@
 namespace common_serialization::csp
 {
 
-template<typename T>
+template<typename _T>
 consteval interface_version_t getLatestInterfaceVersion();
 
 }
@@ -40,94 +40,94 @@ namespace common_serialization::csp::processing::data
 class BodyProcessor
 {
 public:
-    template<typename T, SContainers Scs>
-    static constexpr Status serialize(const T* p, csp_size_t n, context::Data<Scs>& ctx);
-    template<typename T, SContainers Scs, csp_size_t N>
-    static constexpr Status serialize(const T(&arr)[N], context::Data<Scs>& ctx);
-    template<typename T, SContainers Scs>
-    static constexpr Status serialize(const T& value, context::Data<Scs>& ctx);
+    template<typename _T>
+    static constexpr Status serialize(const _T* p, csp_size_t n, context::SData& ctx);
+    template<typename _T, csp_size_t _N>
+    static constexpr Status serialize(const _T(&arr)[_N], context::SData& ctx);
+    template<typename _T>
+    static constexpr Status serialize(const _T& value, context::SData& ctx);
 
-    template<typename T, SContainers Scs>
-    static CS_ALWAYS_INLINE constexpr Status serializeSizeT(T value, context::Data<Scs>& ctx);
+    template<typename _T>
+    static CS_ALWAYS_INLINE constexpr Status serializeSizeT(_T value, context::SData& ctx);
 
     /// @brief For now using for size_t serialization only
-    /// @tparam T size_t
+    /// @tparam _T size_t
     /// @param targetTypeSize Size of type to which will be serialized
     /// @param value size_t value
     /// @param ctx CSP Full Data Context
     /// @return Status of operation
-    template<typename T, SContainers Scs>
-    static CS_ALWAYS_INLINE constexpr Status serializeToAnotherSize(csp_size_t targetTypeSize, T value, context::Data<Scs>& ctx);
+    template<typename _T>
+    static CS_ALWAYS_INLINE constexpr Status serializeToAnotherSize(csp_size_t targetTypeSize, _T value, context::SData& ctx);
 
-    template<typename T, DContainers Dcs>
-    static constexpr Status deserialize(context::Data<Dcs>& ctx, csp_size_t n, T* p);
-    template<typename T, DContainers Dcs, csp_size_t N>
-    static constexpr Status deserialize(context::Data<Dcs>& ctx, T(&arr)[N]);
-    template<typename T, DContainers Dcs>
-    static constexpr Status deserialize(context::Data<Dcs>& ctx, T& value);
+    template<typename _T>
+    static constexpr Status deserialize(context::DData& ctx, csp_size_t n, _T* p);
+    template<typename _T, csp_size_t _N>
+    static constexpr Status deserialize(context::DData& ctx, _T(&arr)[_N]);
+    template<typename _T>
+    static constexpr Status deserialize(context::DData& ctx, _T& value);
 
-    template<typename T, DContainers Dcs>
-    static CS_ALWAYS_INLINE constexpr Status deserializeSizeT(context::Data<Dcs>& ctx, T& value);
+    template<typename _T>
+    static CS_ALWAYS_INLINE constexpr Status deserializeSizeT(context::DData& ctx, _T& value);
 
     /// @brief Using for sizeOfIntegersMayBeNotEqual mode and size_t deserialization
-    /// @tparam T Integral type or enum
+    /// @tparam _T Integral type or enum
     /// @param originalTypeSize Size of buffer that holds current value in serialized context
     /// @param ctx CSP Full Data Context
     /// @param value Output value
     /// @return Status of operation
-    template<typename T, DContainers Dcs>
-    static CS_ALWAYS_INLINE constexpr Status deserializeFromAnotherSize(csp_size_t originalTypeSize, context::Data<Dcs>& ctx, T& value);
+    template<typename _T>
+    static CS_ALWAYS_INLINE constexpr Status deserializeFromAnotherSize(csp_size_t originalTypeSize, context::DData& ctx, _T& value);
 
 protected:
-    template<size_t targetTypeSize, typename T, SContainers Scs>
-    static constexpr Status serializeToAnotherSizeInternal(T value, context::Data<Scs>& ctx);
-    template<size_t originalTypeSize,typename T, DContainers Dcs>
-    static constexpr Status deserializeFromAnotherSizeInternal(context::Data<Dcs>& ctx, T& value);
+    template<csp_size_t _targetTypeSize, typename _T>
+    static constexpr Status serializeToAnotherSizeInternal(_T value, context::SData& ctx);
+    template<csp_size_t _originalTypeSize, typename _T>
+    static constexpr Status deserializeFromAnotherSizeInternal(context::DData& ctx, _T& value);
 
-    template<typename T, SContainers Scs>
-    static CS_ALWAYS_INLINE constexpr Status serializeSimplyAssignable(const T& value, context::Data<Scs>& ctx);
-    template<typename T, DContainers Dcs>
-    static CS_ALWAYS_INLINE constexpr Status deserializeSimplyAssignable(context::Data<Dcs>& ctx, T& value);
+    template<typename _T>
+    static CS_ALWAYS_INLINE constexpr Status serializeSimplyAssignable(const _T& value, context::SData& ctx);
+    template<typename _T>
+    static CS_ALWAYS_INLINE constexpr Status deserializeSimplyAssignable(context::DData& ctx, _T& value);
 
-    template<typename T, SContainers Scs>
-    static CS_ALWAYS_INLINE constexpr Status addPointerToMap(const T p, context::Data<Scs>& ctx, bool& newPointer);
-    template<typename T, DContainers Dcs>
-    static CS_ALWAYS_INLINE constexpr Status getPointerFromMap(context::Data<Dcs>& ctx, T& p, bool& newPointer);
+    template<typename _T>
+    static CS_ALWAYS_INLINE constexpr Status addPointerToMap(const _T p, context::SData& ctx, bool& newPointer);
+    template<typename _T>
+    static CS_ALWAYS_INLINE constexpr Status getPointerFromMap(context::DData& ctx, _T& p, bool& newPointer);
 
 private:
     static constexpr size_t kMaxSizeOfIntegral = 8;   // maximum allowed size of integral type
 };
 
-template<typename T, SContainers Scs>
-constexpr Status BodyProcessor::serialize(const T* p, csp_size_t n, context::Data<Scs>& ctx)
+template<typename _T>
+constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SData& ctx)
 {
-    static_assert(!std::is_reference_v<T> || !std::is_member_pointer_v<T>
+    static_assert(!std::is_reference_v<_T> || !std::is_member_pointer_v<_T>
                     , "Pointers on references and member_pointers are not allowed");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
+    static_assert(!(std::is_function_v<_T> || std::is_member_function_pointer_v<_T>)
                     , "References and pointers on functions are not allowed to be serialized");
 
     assert(p && n > 0 || n == 0);
     assert(n <= SIZE_MAX);
 
-    if constexpr (EmptyType<T>)
+    if constexpr (EmptyType<_T>)
         return Status::kNoError;
 
     if (
-           (!ctx.endiannessDifference() || EndiannessTolerant<T>)
-        && (   std::is_arithmetic_v<T>
-            || std::is_enum_v<T>
+           (!ctx.endiannessDifference() || EndiannessTolerant<_T>)
+        && (   std::is_arithmetic_v<_T>
+            || std::is_enum_v<_T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-                && (!ISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
-                && (   AlwaysSimplyAssignable<T>
-                    || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
-                    || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-                    || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
+                && (!ISerializableBased<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
+                && (   AlwaysSimplyAssignable<_T>
+                    || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
+                    || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                    || SimplyAssignable<_T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
             )
     )
     {   
-        if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
+        if constexpr ((std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
-                CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(T)), ctx));
+                CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(_T)), ctx));
 
         return writeRawData(p, n, ctx);
     }
@@ -145,34 +145,34 @@ constexpr Status BodyProcessor::serialize(const T* p, csp_size_t n, context::Dat
     }
 }
 
-template<typename T, SContainers Scs, csp_size_t N>
-constexpr Status BodyProcessor::serialize(const T(&arr)[N], context::Data<Scs>& ctx)
+template<typename _T, csp_size_t _N>
+constexpr Status BodyProcessor::serialize(const _T(&arr)[_N], context::SData& ctx)
 {
-    static_assert(N == sizeof(T) * N / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array input of serialize");
+    static_assert(_N == sizeof(_T) * _N / sizeof(_T), "Oveflow occured in (sizeof(_T) * _N) in instantiation of array input of serialize");
 
-    return serialize(arr, N, ctx);
+    return serialize(arr, _N, ctx);
 }
 
-template<typename T, SContainers Scs>
-constexpr Status BodyProcessor::serialize(const T& value, context::Data<Scs>& ctx)
+template<typename _T>
+constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
 {
-    static_assert(!std::is_reference_v<T> || !std::is_member_pointer_v<T>
+    static_assert(!std::is_reference_v<_T> || !std::is_member_pointer_v<_T>
         , "References and member pointers not allowed");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
+    static_assert(!(std::is_function_v<_T> || std::is_member_function_pointer_v<_T>)
         , "References and pointers on functions are not allowed to be serialized");
 
-    if constexpr (EmptyType<T>)
+    if constexpr (EmptyType<_T>)
         return Status::kNoError;
 
-    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
+    if constexpr (std::is_arithmetic_v<_T> || std::is_enum_v<_T>)
     {
-        if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
+        if constexpr (!FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
-                CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(T)), ctx));
+                CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(_T)), ctx));
 
         return writePrimitive(value, ctx);
     }
-    else if constexpr (std::is_pointer_v<T>)
+    else if constexpr (std::is_pointer_v<_T>)
     {
         if (!ctx.allowUnmanagedPointers())
             return Status::kErrorNotSupportedSerializationSettingsForStruct;
@@ -198,21 +198,21 @@ constexpr Status BodyProcessor::serialize(const T& value, context::Data<Scs>& ct
 
         return serialize(*value, ctx);
     }
-    else if constexpr (AnySimplyAssignable<T>)
+    else if constexpr (AnySimplyAssignable<_T>)
         return serializeSimplyAssignable(value, ctx);
-    // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::serialize not found
-    else if constexpr (!EmptyType<T>)
+    // we must implicitly use condition !EmptyType<_T> otherwise we get an error which states that processing::serialize not found
+    else if constexpr (!EmptyType<_T>)
         return templates::serialize(value, ctx);
 }
 
-template<typename T, SContainers Scs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSizeT(T value, context::Data<Scs>& ctx)
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSizeT(_T value, context::SData& ctx)
 {
     return serializeToAnotherSize(!ctx.bitness32() ? 8 : 4, value, ctx);
 }
 
-template<typename T, SContainers Scs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeToAnotherSize(csp_size_t targetTypeSize, T value, context::Data<Scs>& ctx)
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeToAnotherSize(csp_size_t targetTypeSize, _T value, context::SData& ctx)
 {
     switch (targetTypeSize)
     {
@@ -226,63 +226,63 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeToAnotherSize(csp_size
     }
 }
 
-template<size_t targetTypeSize, typename T, SContainers Scs>
-constexpr Status BodyProcessor::serializeToAnotherSizeInternal(T value, context::Data<Scs>& ctx)
+template<size_t _targetTypeSize, typename _T>
+constexpr Status BodyProcessor::serializeToAnotherSizeInternal(_T value, context::SData& ctx)
 {
-    static_assert((std::is_integral_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
+    static_assert((std::is_integral_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>
         , "Current serialize function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
 
-    if constexpr (kMaxSizeOfIntegral < targetTypeSize)
+    if constexpr (kMaxSizeOfIntegral < _targetTypeSize)
         return Status::kErrorTypeSizeIsTooBig;
 
-    if constexpr (sizeof(T) == targetTypeSize)
+    if constexpr (sizeof(_T) == _targetTypeSize)
         return writePrimitive(value, ctx);
 
-    helpers::fixed_width_integer_t<targetTypeSize, IsSigned<T>> targetValue = 0;
+    helpers::fixed_width_integer_t<_targetTypeSize, IsSigned<_T>> targetValue = 0;
 
-    if constexpr (sizeof(T) < targetTypeSize)
+    if constexpr (sizeof(_T) < _targetTypeSize)
         helpers::castToBiggerType(value, targetValue);
     else
-        CS_RUN(helpers::castToSmallerType<targetTypeSize>(value, targetValue));
+        CS_RUN(helpers::castToSmallerType<_targetTypeSize>(value, targetValue));
 
     return writePrimitive(targetValue, ctx);
 }
 
 // common function for pointers of known size
-template<typename T, DContainers Dcs>
-constexpr Status BodyProcessor::deserialize(context::Data<Dcs>& ctx, csp_size_t n, T* p)
+template<typename _T>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _T* p)
 {
-    static_assert(!std::is_reference_v<T> || !std::is_member_pointer_v<T>
+    static_assert(!std::is_reference_v<_T> || !std::is_member_pointer_v<_T>
         , "Pointers on references and member_pointers are not allowed");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
+    static_assert(!(std::is_function_v<_T> || std::is_member_function_pointer_v<_T>)
         , "References and pointers on functions are not allowed to be serialized");
 
     assert(p && n > 0 || n == 0);
 
-    if constexpr (EmptyType<T>)
+    if constexpr (EmptyType<_T>)
         return Status::kNoError;
 
     if (
-           (!ctx.endiannessDifference() || EndiannessTolerant<T>)
-        && (   std::is_arithmetic_v<T>
-            || std::is_enum_v<T>
+           (!ctx.endiannessDifference() || EndiannessTolerant<_T>)
+        && (   std::is_arithmetic_v<_T>
+            || std::is_enum_v<_T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-                && (!ISerializableBased<T> || getLatestInterfaceVersion<T>() <= ctx.getInterfaceVersion())
-                && (   AlwaysSimplyAssignable<T>
-                    || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
-                    || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-                    || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
+                && (!ISerializableBased<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
+                && (   AlwaysSimplyAssignable<_T>
+                    || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
+                    || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                    || SimplyAssignable<_T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual())
             )
     )
     {
-        // In fact ctx.sizeOfIntegersMayBeNotEqual() can be true only if (std::is_arithmetic_v<T> || std::is_enum_v<T>) is true,
+        // In fact ctx.sizeOfIntegersMayBeNotEqual() can be true only if (std::is_arithmetic_v<_T> || std::is_enum_v<_T>) is true,
         // but if we do not wrap this in constexpr statement, all SimplyAssignable types would be forced to have deserialize functions
-        if constexpr ((std::is_arithmetic_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
+        if constexpr ((std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
                 CS_RUN(readPrimitive(ctx, originalTypeSize));
-                if (originalTypeSize != sizeof(T))
+                if (originalTypeSize != sizeof(_T))
                 {
                     for (csp_size_t i = 0; i < n; ++i)
                         CS_RUN(deserializeFromAnotherSize(originalTypeSize, ctx, p[i]));
@@ -299,10 +299,10 @@ constexpr Status BodyProcessor::deserialize(context::Data<Dcs>& ctx, csp_size_t 
     {
         for (size_t i = 0; i < n; ++i)
         {
-            T* pItem = new (&p[i]) T;
+            _T* pItem = new (&p[i]) _T;
 
             if (ctx.checkRecursivePointers())
-                (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<T*>>(pItem);
+                (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<_T*>>(pItem);
 
             CS_RUN(deserialize(ctx, *pItem));
         }
@@ -312,29 +312,29 @@ constexpr Status BodyProcessor::deserialize(context::Data<Dcs>& ctx, csp_size_t 
 }
 
 // common function for arrays
-template<typename T, DContainers Dcs, csp_size_t N>
-constexpr Status BodyProcessor::deserialize(context::Data<Dcs>& ctx, T(&arr)[N])
+template<typename _T, csp_size_t _N>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T(&arr)[_N])
 {
-    static_assert(N == sizeof(T) * N / sizeof(T), "Oveflow occured in (sizeof(T) * N) in instantiation of array input of serialize");
+    static_assert(_N == sizeof(_T) * _N / sizeof(_T), "Oveflow occured in (sizeof(_T) * _N) in instantiation of array input of serialize");
 
-    return deserialize(ctx, N, arr);
+    return deserialize(ctx, _N, arr);
 }
 
 // common function for scalar and simple assignable types
-template<typename T, DContainers Dcs>
-constexpr Status BodyProcessor::deserialize(context::Data<Dcs>& ctx, T& value)
+template<typename _T>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
 {
-    static_assert(!std::is_reference_v<T> || !std::is_member_pointer_v<T>
+    static_assert(!std::is_reference_v<_T> || !std::is_member_pointer_v<_T>
         , "References and member pointers not allowed");
-    static_assert(!(std::is_function_v<T> || std::is_member_function_pointer_v<T>)
+    static_assert(!(std::is_function_v<_T> || std::is_member_function_pointer_v<_T>)
         , "References and pointers on functions are not allowed to be serialized");
 
-    if constexpr (EmptyType<T>)
+    if constexpr (EmptyType<_T>)
         return Status::kNoError;
 
-    if constexpr (std::is_arithmetic_v<T> || std::is_enum_v<T>)
+    if constexpr (std::is_arithmetic_v<_T> || std::is_enum_v<_T>)
     {
-        if constexpr (!FixSizedArithmeticType<T> && !FixSizedEnumType<T>)
+        if constexpr (!FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
@@ -344,7 +344,7 @@ constexpr Status BodyProcessor::deserialize(context::Data<Dcs>& ctx, T& value)
 
         return readPrimitive(ctx, value);
     }
-    else if constexpr (std::is_pointer_v<T>)
+    else if constexpr (std::is_pointer_v<_T>)
     {
         if (!ctx.allowUnmanagedPointers())
             return Status::kErrorNotSupportedSerializationSettingsForStruct;
@@ -368,31 +368,31 @@ constexpr Status BodyProcessor::deserialize(context::Data<Dcs>& ctx, T& value)
             }
         }
 
-        value = ctx.template allocateAndDefaultConstruct<std::remove_const_t<std::remove_pointer_t<T>>>();
+        value = ctx.template allocateAndDefaultConstruct<std::remove_const_t<std::remove_pointer_t<_T>>>();
         if (!value)
             return Status::kErrorNoMemory;
 
         if (ctx.checkRecursivePointers())
-            (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<T>*>(&value);
+            (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<_T>*>(&value);
 
         return deserialize(ctx, *value);
     }
     // this will work for types that are not ISerializable
-    else if constexpr (AnySimplyAssignable<T>)
+    else if constexpr (AnySimplyAssignable<_T>)
         return deserializeSimplyAssignable(ctx, value);
-    // we must implicitly use condition !EmptyType<T> otherwise we get an error which states that processing::deserialize not found
-    else if constexpr (!EmptyType<T>)
+    // we must implicitly use condition !EmptyType<_T> otherwise we get an error which states that processing::deserialize not found
+    else if constexpr (!EmptyType<_T>)
         return templates::deserialize(ctx, value);
 }
 
-template<typename T, DContainers Dcs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSizeT(context::Data<Dcs>& ctx, T& value)
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSizeT(context::DData& ctx, _T& value)
 {
     return deserializeFromAnotherSize(!ctx.bitness32() ? 8 : 4, ctx, value);
 }
 
-template<typename T, DContainers Dcs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeFromAnotherSize(csp_size_t originalTypeSize, context::Data<Dcs>& ctx, T& value)
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeFromAnotherSize(csp_size_t originalTypeSize, context::DData& ctx, _T& value)
 {
     switch (originalTypeSize)
     {
@@ -406,21 +406,21 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeFromAnotherSize(csp_
     }
 }
 
-template<size_t originalTypeSize, typename T, DContainers Dcs>
-constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::Data<Dcs>& ctx, T& value)
+template<size_t _originalTypeSize, typename _T>
+constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DData& ctx, _T& value)
 {
-    static_assert((std::is_integral_v<T> || std::is_enum_v<T>) && !FixSizedArithmeticType<T> && !FixSizedEnumType<T>
+    static_assert((std::is_integral_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>
         , "Current deserialize function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
 
-    if constexpr (kMaxSizeOfIntegral < originalTypeSize)
+    if constexpr (kMaxSizeOfIntegral < _originalTypeSize)
         return Status::kErrorTypeSizeIsTooBig;
 
-    if constexpr (sizeof(T) == originalTypeSize)
+    if constexpr (sizeof(_T) == _originalTypeSize)
         return readPrimitive(ctx, value);
 
     Status status = Status::kNoError;
 
-    helpers::fixed_width_integer_t<originalTypeSize, IsSigned<T>> originalValue = 0;
+    helpers::fixed_width_integer_t<_originalTypeSize, IsSigned<_T>> originalValue = 0;
     status = readPrimitive(ctx, originalValue);
 
     if (!statusSuccess(status))
@@ -430,36 +430,36 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::Data
         return status;
     }
 
-    using sameSizedInteger = helpers::fixed_width_integer_t<sizeof(T), IsSigned<T>>;
+    using sameSizedInteger = helpers::fixed_width_integer_t<sizeof(_T), IsSigned<_T>>;
 
-    if constexpr (sizeof(T) < originalTypeSize)
-        CS_RUN(helpers::castToSmallerType<sizeof(T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value)))))
+    if constexpr (sizeof(_T) < _originalTypeSize)
+        CS_RUN(helpers::castToSmallerType<sizeof(_T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value)))))
     else
-        helpers::castToBiggerType<sizeof(T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<T>&>(value))));
+        helpers::castToBiggerType<sizeof(_T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value))));
 
     return Status::kNoError;
 }
 
-template<typename T, SContainers Scs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSimplyAssignable(const T& value, context::Data<Scs>&ctx)
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSimplyAssignable(const _T& value, context::SData&ctx)
 {
-    if constexpr (NotSimplyAssignable<T>)
+    if constexpr (NotSimplyAssignable<_T>)
         return Status::kErrorInvalidType;
     else
     {
-        if constexpr (ISerializableBased<T>)
-            if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
+        if constexpr (ISerializableBased<_T>)
+            if (_T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
                 return Status::kNoError;
 
-        if constexpr (!EndiannessTolerant<T>)
+        if constexpr (!EndiannessTolerant<_T>)
             if (ctx.endiannessDifference())
                 return Status::kNoError;
 
         if (   !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-            && (   AlwaysSimplyAssignable<T>
-                || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
-                || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-                || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
+            && (   AlwaysSimplyAssignable<_T>
+                || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
+                || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                || SimplyAssignable<_T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
                )
         )
         {
@@ -473,26 +473,26 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSimplyAssignable(const
     }
 }
 
-template<typename T, DContainers Dcs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSimplyAssignable(context::Data<Dcs>& ctx, T& value)
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSimplyAssignable(context::DData& ctx, _T& value)
 {
-    if constexpr (NotSimplyAssignable<T>)
+    if constexpr (NotSimplyAssignable<_T>)
         return Status::kErrorInvalidType;
     else
     {
-        if constexpr (ISerializableBased<T>)
-            if (T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
+        if constexpr (ISerializableBased<_T>)
+            if (_T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
                 return Status::kNoError;
 
-        if constexpr (!EndiannessTolerant<T>)
+        if constexpr (!EndiannessTolerant<_T>)
             if (ctx.endiannessDifference())
                 return Status::kNoError;
 
         if (   !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-            && (   AlwaysSimplyAssignable<T>
-                || SimplyAssignableFixedSize<T> && !ctx.alignmentMayBeNotEqual()
-                || SimplyAssignableAlignedToOne<T> && !ctx.sizeOfIntegersMayBeNotEqual()
-                || SimplyAssignable<T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
+            && (   AlwaysSimplyAssignable<_T>
+                || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
+                || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()
+                || SimplyAssignable<_T> && !ctx.alignmentMayBeNotEqual() && !ctx.sizeOfIntegersMayBeNotEqual()
                )
         )
         {
@@ -506,8 +506,8 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSimplyAssignable(con
     }
 }
 
-template<typename T, SContainers Scs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const T p, context::Data<Scs>& ctx, bool& newPointer)
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const _T p, context::SData& ctx, bool& newPointer)
 {
     if (!p)
     {
@@ -516,7 +516,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const T p, cont
     }
     else
     {
-        typename Scs::Spm& pointersMap = *ctx.getPointersMap();
+        auto& pointersMap = *ctx.getPointersMap();
 
         if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
@@ -533,8 +533,8 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const T p, cont
     }
 }
 
-template<typename T, DContainers Dcs>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::getPointerFromMap(context::Data<Dcs>& ctx, T& p, bool& newPointer)
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status BodyProcessor::getPointerFromMap(context::DData& ctx, _T& p, bool& newPointer)
 {
     csp_size_t offset = 0;
 
@@ -549,13 +549,13 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::getPointerFromMap(context::Data
         newPointer = true;
     else
     {
-        typename Dcs::Dpm& pointersMap = *ctx.getPointersMap();
+        auto& pointersMap = *ctx.getPointersMap();
 
         newPointer = false;
         if (offset >= ctx.getBinaryData().tell())
             return Status::kErrorInternal;
 
-        p = reinterpret_cast<T>(pointersMap[offset]);
+        p = reinterpret_cast<_T>(pointersMap[offset]);
     }
 
     return Status::kNoError;

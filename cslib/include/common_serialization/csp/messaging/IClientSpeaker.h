@@ -23,20 +23,13 @@
 
 #pragma once
 
-#include "common_serialization/Containers/Walker.h"
-#include "common_serialization/csp/service_structs/Interface.h"
-
 namespace common_serialization::csp::messaging
 {
 
 /// @brief Interface for CSP Client to speak with CSP Server
-template<ISerializationBinContainer _Sbin = BinVector, IDeserializationBinContainer _Dbin = BinWalker>
 class IClientSpeaker
 {
 public:
-    using Sbin = _Sbin;
-    using Dbin = _Dbin;
-
     /// @brief Method for sending to and receiving from server binary data
     /// @details This method must not make assumptions on what binary input and ouput data is.
     ///     It must be implemented as transport function from client to server and vice versa.
@@ -44,7 +37,7 @@ public:
     /// @param binInput Data that is prepared by handleData method
     /// @param binOutput Data that should be returned for processing by handleData method
     /// @return Status of operation
-    virtual Status speak(Sbin& binInput, Dbin& binOutput) = 0;
+    virtual Status speak(BinVectorT& binInput, BinWalkerT& binOutput) = 0;
 
     virtual bool isValid() const noexcept
     {

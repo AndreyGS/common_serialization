@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/GenericDataServersRegistrar.h
+ * @file cslib/include/common_serialization/csp/messaging/GenericServerDataHandlerRegistrar.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,28 +23,25 @@
 
 #pragma once
 
-#include "common_serialization/Concurrency/PlatformDependent/Common.h"
-#include "common_serialization/csp/messaging/IDataHandlersRegistrar.h"
+#include "common_serialization/csp/messaging/IServerDataHandlerRegistrar.h"
 
 namespace common_serialization::csp::messaging
 {
 
-template<SdContainers T = traits::DefaultSdContainers>
-class GenericDataServersRegistrar : public IDataHandlersRegistrar<T>
+class GenericServerDataHandlerRegistrar : public IServerDataHandlerRegistrar
 {
 public:
-    Status addHandler(const Id& id, bool kMulticast, IDataHandlerBase<T>* pInstance) override;
-    void removeHandler(const Id& id, IDataHandlerBase<T>* pInstance) noexcept override;
-    Status findHandlers(const Id& id, Vector<IDataHandlerBase<T>*, RawStrategicAllocatorHelper<IDataHandlerBase<T>*>>& servers) const noexcept override;
-    Status findHandler(const Id& id, IDataHandlerBase<T>*& pServer) const noexcept override;
+    Status addHandler(const Id& id, bool kMulticast, IServerDataHandlerBase* pInstance) override;
+    void removeHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept override;
+    Status findHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& servers) const noexcept override;
+    Status findHandler(const Id& id, IServerDataHandlerBase*& pServer) const noexcept override;
 
 private:
-    std::unordered_multimap<Id, IDataHandlerBase<T>*> m_serversList;
+    HashMapT<Id, IServerDataHandlerBase*> m_serversList;
     mutable SharedMutex m_serverListMutex;
 };
 
-template<SdContainers T>
-Status GenericDataServersRegistrar<T>::addHandler(const Id& id, bool kMulticast, IDataHandlerBase<T>* pInstance)
+inline Status GenericServerDataHandlerRegistrar::addHandler(const Id& id, bool kMulticast, IServerDataHandlerBase* pInstance)
 {
     WGuard guard(m_serverListMutex);
 
@@ -56,21 +53,22 @@ Status GenericDataServersRegistrar<T>::addHandler(const Id& id, bool kMulticast,
     return Status::kNoError;
 }
 
-template<SdContainers T>
-void GenericDataServersRegistrar<T>::removeHandler(const Id& id, IDataHandlerBase<T>* pInstance) noexcept
+inline void GenericServerDataHandlerRegistrar::removeHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept
 {
     WGuard guard(m_serverListMutex);
 
     auto range = m_serversList.equal_range(id);
     while (range.first != range.second)
         if (range.first->second == pInstance)
-            range.first = m_serversList.erase(range.first);
+        {
+            m_serversList.erase(range.first);
+            return;
+        }
         else
             ++range.first;
 }
 
-template<SdContainers T>
-Status GenericDataServersRegistrar<T>::findHandlers(const Id& id, Vector<IDataHandlerBase<T>*, RawStrategicAllocatorHelper<IDataHandlerBase<T>*>>& servers) const noexcept
+inline Status GenericServerDataHandlerRegistrar::findHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& servers) const noexcept
 {
     servers.clear();
 
@@ -86,8 +84,7 @@ Status GenericDataServersRegistrar<T>::findHandlers(const Id& id, Vector<IDataHa
     return servers.size() ? Status::kNoError : Status::kErrorNoSuchHandler;
 }
 
-template<SdContainers T>
-Status GenericDataServersRegistrar<T>::findHandler(const Id& id, IDataHandlerBase<T>*& pServer) const noexcept
+inline Status GenericServerDataHandlerRegistrar::findHandler(const Id& id, IServerDataHandlerBase*& pServer) const noexcept
 {
     RGuard guard(m_serverListMutex);
 

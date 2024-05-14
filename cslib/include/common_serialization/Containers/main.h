@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/ClientHandlerTraits.h
+ * @file cslib/include/common_serialization/Containers/main.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,36 +23,37 @@
 
 #pragma once
 
+#include "common_serialization/Containers/CompressedPair.h"
 #include "common_serialization/Containers/Concepts.h"
-#include "common_serialization/csp/Concepts.h"
+#include "common_serialization/Containers/DefaultDeleter.h"
+#include "common_serialization/Containers/GenericPointerKeeper.h"
+#include "common_serialization/Containers/IteratorTagsDeclarations.h"
+#include "common_serialization/Containers/UniquePtr.h"
+#include "common_serialization/Containers/Vector.h"
+#include "common_serialization/Containers/Walker.h"
 
-namespace common_serialization::csp::messaging
+namespace common_serialization
 {
 
-/// @brief Properties of CSP Client
+using GenericPointerKeeperT = GenericPointerKeeper;
+
+template<typename _T, typename... _Ts>
+using UniquePtrT = UniquePtr<_T, _Ts...>;
+
 template<typename _T>
-concept ClientHandlerTraits
-    =  ISerializableBased<typename _T::InputType>
-    && ISerializableBased<typename _T::OutputType>
-    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
+using RawVectorT = Vector<_T, RStrategicAllocatorHelperT<_T>>;
 
-template<
-      ISerializableBased _InputType
-    , ISerializableBased _OutputType
-    , bool _forTempUseHeap
->
-struct ClientHandlerTraitsConcrete
-{
-    using InputType = _InputType;
-    using OutputType = _OutputType;
+using BinVectorT = RawVectorT<uint8_t>;
 
-    static constexpr bool kForTempUseHeap = _forTempUseHeap;
-};
+template<typename _T, typename... _Ts>
+using VectorT = Vector<_T, _Ts...>;
 
-template<ISerializableBased _InputType, ISerializableBased _OutputType>
-using ChStack = ClientHandlerTraitsConcrete<_InputType, _OutputType, false>;
+template<typename _T>
+using RawWalkerT = Walker<_T, RStrategicAllocatorHelperT<_T>>;
 
-template<ISerializableBased _InputType, ISerializableBased _OutputType>
-using ChHeap = ClientHandlerTraitsConcrete<_InputType, _OutputType, true>;
+using BinWalkerT = RawWalkerT<uint8_t>;
 
-} // namespace common_serialization::csp::messaging
+template<typename _K, typename _V, typename... _Ts>
+using HashMapT = std::unordered_map<_K, _V, _Ts...>;
+
+} // namespace common_serialization

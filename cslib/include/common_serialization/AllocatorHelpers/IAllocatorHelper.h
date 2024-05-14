@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/AllocatorHelpers/IAllocatorHelper.h
+ * @file cslib/include/common_serialization/AllocatorHelpers/IAllocatorHelper.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

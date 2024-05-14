@@ -35,7 +35,7 @@ namespace common_serialization
 ///     of pointer which currently hold GenericPointerKeeper instance
 ///     if you whish to get it from here. But most important, that
 ///     this container implements RAII and properly destroys every
-///     object that it holds wherever it is needed.
+///     object that it holds wherever it's needed.
 /// @remark Current interface of GenericPointerKeeper is pretty short
 ///     and meets only those needs that were required when working on CSP.
 ///     In future it should be extended.
@@ -114,6 +114,12 @@ public:
         }
 
         return p;
+    }
+
+    template<typename _T, typename... _Args>
+    _T* allocateAndConstructOne(_Args&&... args)
+    {
+        return allocateAndConstruct<_T, CGenericAllocatorHelperT<_T>, _Args...>(1, std::forward<_Args>(args)...);
     }
 
     /// @brief Destroys holding objects 

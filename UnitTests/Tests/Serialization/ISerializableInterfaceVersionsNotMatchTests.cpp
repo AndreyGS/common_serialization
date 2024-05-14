@@ -33,7 +33,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
     SimplyAssignableAlignedToOne input;
     fillingStruct(input);
 
-    BinWalker bin;
+    BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector(), csp::context::CommonFlags{ helpers::isBigEndianPlatform() }, csp::context::DataFlags{}, false, 0);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
@@ -53,7 +53,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
     SimplyAssignable input;
     fillingStruct(input);
 
-    BinWalker bin;
+    BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector(), csp::context::CommonFlags{ helpers::isBigEndianPlatform() }, csp::context::DataFlags{}, false, 1);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);

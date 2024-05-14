@@ -24,12 +24,12 @@
 #pragma once
 
 #include "common_serialization/csp/Concepts.h"
-#include "common_serialization/Containers/UniquePtr.h"
-#include "common_serialization/csp/messaging/ClientHandlerTraits.h"
+#include "common_serialization/csp/messaging/ClientDataHandlerTraits.h"
 #include "common_serialization/csp/messaging/IClientSpeaker.h"
 #include "common_serialization/csp/processing/Contexts.h"
 #include "common_serialization/csp/processing/DataBodyProcessor.h"
 #include "common_serialization/csp/processing/Status.h"
+#include "common_serialization/csp/service_structs/Interface.h"
 
 namespace common_serialization::csp::messaging
 {
@@ -38,38 +38,23 @@ namespace common_serialization::csp::messaging
 /// @details See documentation of CSP
 /// @note IClientSpeaker must be valid all the time when Client is used
 ///     and behavior will be undefined otherwise'
-template<SdContainers _Sdcs = traits::DefaultSdContainers>
 class Client
 {
 public:
-    using Sdcs = _Sdcs;
-
-    using Sbin = typename Sdcs::Sbin;
-    using Dbin = typename Sdcs::Dbin;
-    using Spm = typename Sdcs::Spm;
-    using Dpm = typename Sdcs::Dpm;
-    using Gkc = typename Sdcs::Gkc;
-
-    using Scs = typename Sdcs::Scs;
-    using Dcs = typename Sdcs::Dcs;
-    
-    template<typename... _Ts>
-    using Bc = typename Sdcs::template Bc<_Ts...>;
-
-    explicit Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker);
-    Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker, const service_structs::CspPartySettings<>& settings);
+    explicit Client(IClientSpeaker& clientSpeaker);
+    Client(IClientSpeaker& clientSpeaker, const service_structs::CspPartySettings<>& settings);
 
     Status init(const service_structs::CspPartySettings<>& settings) noexcept;
     Status init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept;
 
     bool isValid() const noexcept;
 
-    IClientSpeaker<Sbin, Dbin>& getClientSpeaker() noexcept;
+    IClientSpeaker& getClientSpeaker() noexcept;
 
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
     /// @return Status of operation
-    Status getServerProtocolVersions(Bc<protocol_version_t>& output) const noexcept;
+    Status getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept;
 
     Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& serverSettings) const noexcept;
 
@@ -90,8 +75,8 @@ public:
     /// @param output Struct that is returned from server 
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<ClientHandlerTraits _Cht>
-    Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, Gkc* pUnmanagedPointers = nullptr);
+    template<ClientDataHandlerTraits _Cht>
+    Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details See another handleData() overloading
@@ -100,8 +85,8 @@ public:
     /// @param dataFlags Data flags that must be applied to current operation
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<ClientHandlerTraits _Cht>
-    Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags dataFlags, Gkc* pUnmanagedPointers = nullptr);
+    template<ClientDataHandlerTraits _Cht>
+    Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags dataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details Input data serialized according to arguments of function 
@@ -123,33 +108,30 @@ public:
     /// @param additionalDataFlags Data flags that must be applied to current operation
     /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<ClientHandlerTraits _Cht>
+    template<ClientDataHandlerTraits _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
-        , context::DataFlags additionalDataFlags, Gkc* pUnmanagedPointers = nullptr);
+        , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
 private:
-    IClientSpeaker<Sbin, Dbin>& m_clientSpeaker;
+    IClientSpeaker& m_clientSpeaker;
     service_structs::CspPartySettings<> m_settings;
 
     // Distinct variable is for not having calculate valid condition every time
     bool m_isValid{ false };
 };
 
-template<SdContainers _Sdcs>
-Client<_Sdcs>::Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker)
+inline Client::Client(IClientSpeaker& clientSpeaker)
     : m_clientSpeaker(clientSpeaker)
 {
 }
 
-template<SdContainers _Sdcs>
-Client<_Sdcs>::Client(IClientSpeaker<Sbin, Dbin>& clientSpeaker, const service_structs::CspPartySettings<>& settings)
+inline Client::Client(IClientSpeaker& clientSpeaker, const service_structs::CspPartySettings<>& settings)
     : m_clientSpeaker(clientSpeaker)
 {
     init(settings);
 }
 
-template<SdContainers _Sdcs>
-Status Client<_Sdcs>::init(const service_structs::CspPartySettings<>& settings) noexcept
+inline Status Client::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
     if (!settings.isValid())
         return Status::kErrorInvalidArgument;
@@ -165,14 +147,13 @@ Status Client<_Sdcs>::init(const service_structs::CspPartySettings<>& settings) 
     return m_isValid ? Status::kNoError : Status::kErrorNotInited;
 }
 
-template<SdContainers _Sdcs>
-Status Client<_Sdcs>::init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept
+inline Status Client::init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept
 {
     m_isValid = false;
 
     m_settings.clear();
 
-    Vector<protocol_version_t> serverCspVersions;
+    RawVectorT<protocol_version_t> serverCspVersions;
     CS_RUN(getServerProtocolVersions(serverCspVersions));
 
     protocol_version_t tempServerProtocolVersion = traits::kProtocolVersionUndefined;
@@ -208,32 +189,29 @@ Status Client<_Sdcs>::init(const service_structs::CspPartySettings<>& clientSett
     return m_isValid ? Status::kNoError : Status::kErrorNotInited;
 }
 
-template<SdContainers _Sdcs>
-bool Client<_Sdcs>::isValid() const noexcept
+CS_ALWAYS_INLINE bool Client::isValid() const noexcept
 {
     return m_isValid;
 }
 
-template<SdContainers _Sdcs>
-IClientSpeaker<typename _Sdcs::Sbin, typename  _Sdcs::Dbin>& Client<_Sdcs>::getClientSpeaker() noexcept
+CS_ALWAYS_INLINE IClientSpeaker& Client::getClientSpeaker() noexcept
 {
     return m_clientSpeaker;
 }
 
-template<SdContainers _Sdcs>
-Status Client<_Sdcs>::getServerProtocolVersions(Bc<protocol_version_t>& output) const noexcept
+inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept
 {
     if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
 
-    Sbin binInput;
-    context::Common ctxIn(binInput, traits::kProtocolVersionUndefined);
+    BinVectorT binInput;
+    context::SCommon ctxIn(binInput, traits::kProtocolVersionUndefined);
     CS_RUN(processing::serializeCommonContextNoChecks(ctxIn));
 
-    Dbin binOutput;
+    BinWalkerT binOutput;
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
-    context::Common ctxOut(binOutput);
+    context::DCommon ctxOut(binOutput);
     CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::Status)
@@ -248,26 +226,24 @@ Status Client<_Sdcs>::getServerProtocolVersions(Bc<protocol_version_t>& output) 
     return processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, output);
 }
 
-template<SdContainers _Sdcs>
-Status Client<_Sdcs>::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
+inline Status Client::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
 {
     if (!m_clientSpeaker.isValid())
         return Status::kErrorNotInited;
 
-    Sbin binInput;
-    context::Common ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
+    BinVectorT binInput;
+    context::SCommon ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
     CS_RUN(processing::serializeCommonContext(ctxIn));
 
-    Dbin binOutput;
+    BinWalkerT binOutput;
 
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
     return cspPartySettings.deserialize(binOutput);
 }
 
-template<SdContainers _Sdcs>
 template<ISerializableBased InputType>
-Status Client<_Sdcs>::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
+Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
 {
     if (!isValid())
         return Status::kErrorNotInited;
@@ -277,16 +253,16 @@ Status Client<_Sdcs>::getServerHandlerSettings(interface_version_t& minimumInter
     if (getInterfaceVersion(interface_.id) == traits::kInterfaceVersionUndefined)
         return Status::kErrorNotSupportedInterface;
 
-    Sbin binInput;
-    context::Data<Scs> ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
+    BinVectorT binInput;
+    context::SData ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
 
     CS_RUN(processing::serializeCommonContext(ctxIn));
     CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
 
-    Dbin binOutput;
+    BinWalkerT binOutput;
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
-    context::Common ctxOut(binOutput);
+    context::DCommon ctxOut(binOutput);
 
     if (ctxOut.getMessageType() != context::Message::Status)
         return Status::kErrorDataCorrupted;
@@ -300,14 +276,12 @@ Status Client<_Sdcs>::getServerHandlerSettings(interface_version_t& minimumInter
     return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 
-template<SdContainers _Sdcs>
-constexpr const service_structs::CspPartySettings<>& Client<_Sdcs>::getSettings() const noexcept
+constexpr const service_structs::CspPartySettings<>& Client::getSettings() const noexcept
 {
     return m_settings;
 }
 
-template<SdContainers _Sdcs>
-constexpr interface_version_t Client<_Sdcs>::getInterfaceVersion(const Id& id) const noexcept
+constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const noexcept
 {
     for (const auto& interface_ : m_settings.interfaces)
         if (id == interface_.id)
@@ -316,24 +290,22 @@ constexpr interface_version_t Client<_Sdcs>::getInterfaceVersion(const Id& id) c
     return traits::kInterfaceVersionUndefined;
 }
 
-template<SdContainers _Sdcs>
-template<ClientHandlerTraits _Cht>
-Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, Gkc* pUnmanagedPointers)
+template<ClientDataHandlerTraits _Cht>
+Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
     return handleData<_Cht>(input, output, {}, {}, pUnmanagedPointers);
 }
 
-template<SdContainers _Sdcs>
-template<ClientHandlerTraits _Cht>
-Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags additionalDataFlags, Gkc* pUnmanagedPointers)
+template<ClientDataHandlerTraits _Cht>
+Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags additionalDataFlags
+    , VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
     return handleData<_Cht>(input, output, {}, additionalDataFlags, pUnmanagedPointers);
 }
 
-template<SdContainers _Sdcs>
-template<ClientHandlerTraits _Cht>
-Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
-    , context::DataFlags additionalDataFlags, Gkc* pUnmanagedPointers)
+template<ClientDataHandlerTraits _Cht>
+Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
+    , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
     using InputType = typename _Cht::InputType;
     using OutputType = typename _Cht::OutputType;
@@ -360,9 +332,9 @@ Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename
     if (additionalDataFlags & interface_.forbiddenDataFlags)
         return Status::kErrorNotCompatibleDataFlagsSettings;
 
-    Sbin binInput;
+    BinVectorT binInput;
 
-    context::Data<Scs> ctxIn(
+    context::SData ctxIn(
           binInput
         , m_settings.protocolVersions[0]
         , m_settings.mandatoryCommonFlags | additionalCommonFlags
@@ -371,7 +343,7 @@ Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename
         , interfaceVersionToUse
         , nullptr);
 
-    Spm pointersMapIn;
+    HashMapT<const void*, csp_size_t> pointersMapIn;
     if (ctxIn.checkRecursivePointers())
         ctxIn.setPointersMap(&pointersMapIn);
 
@@ -386,13 +358,13 @@ Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename
 
     pointersMapIn.clear();
 
-    Dbin binOutput;
+    BinWalkerT binOutput;
 
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
     ctxIn.clear();
 
-    context::Common ctxOut(binOutput);
+    context::DCommon ctxOut(binOutput);
 
     CS_RUN(processing::deserializeCommonContext(ctxOut));
 
@@ -404,7 +376,7 @@ Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename
         ctxIn.clear();
 
         Id outId;
-        context::Data<Dcs> ctxOutData(ctxOut);
+        context::DData ctxOutData(ctxOut);
 
         CS_RUN(processing::deserializeDataContext(ctxOutData, outId));
 
@@ -415,7 +387,7 @@ Status Client<_Sdcs>::handleData(const typename _Cht::InputType& input, typename
 
         ctxOutData.setAddedPointers(pUnmanagedPointers);
 
-        Dpm pointersMapOut;
+        HashMapT<csp_size_t, void*> pointersMapOut;
         if (ctxOutData.checkRecursivePointers())
             ctxOutData.setPointersMap(&pointersMapOut);
 

@@ -28,7 +28,7 @@ using namespace common_serialization;
 using namespace interface_for_test;
 using namespace ft_helpers;
 
-using size_type = typename BinVector::size_type;
+using size_type = typename BinVectorT::size_type;
 
 template<typename T>
 void mainTest()
@@ -36,7 +36,7 @@ void mainTest()
     T input;
     fillingStruct(input);
 
-    BinWalker bin;
+    BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kCheckRecursivePointers | csp::context::DataFlags::kAllowUnmanagedPointers));
     std::unordered_map<const void*, size_t> sMap;
