@@ -60,7 +60,10 @@ inline void GenericServerDataHandlerRegistrar::removeHandler(const Id& id, IServ
     auto range = m_serversList.equal_range(id);
     while (range.first != range.second)
         if (range.first->second == pInstance)
-            range.first = m_serversList.erase(range.first);
+        {
+            m_serversList.erase(range.first);
+            return;
+        }
         else
             ++range.first;
 }

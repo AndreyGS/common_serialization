@@ -62,15 +62,15 @@ cs::Status defaultHandle(const InputStruct& input, OutputStruct& output)
 }
 
 class FirstDataHandler 
-    : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhHeapT<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>
-    , cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackT<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>
-    , cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackMultiT<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>
+    : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>
+    , cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStack<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>
+    , cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
     FirstDataHandler(cs::csp::messaging::IServerDataHandlerRegistrar& registrar)
-        : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhHeapT<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>(registrar)
-        , cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackT<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(registrar)
-        , cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackMultiT<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
+        : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>(registrar)
+        , cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStack<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(registrar)
+        , cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
     { }
 
     cs::Status handleData(
@@ -103,11 +103,11 @@ public:
 };
 
 class SecondDataHandler
-    : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackMultiT<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>
+    : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
     SecondDataHandler(cs::csp::messaging::IServerDataHandlerRegistrar& registrar)
-        : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackMultiT<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
+        : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
     { }
 
     cs::Status handleData(const interface_for_test::SimplyAssignable<>& input
@@ -121,29 +121,29 @@ public:
 };
 
 class ThirdDataHandler
-    : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackMultiT<descendant_interface::DiamondDescendant<>, descendant_interface::SimpleStruct<>>>
+    : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStackMulti<descendant_interface::DiamondDescendant<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
     ThirdDataHandler(cs::csp::messaging::IServerDataHandlerRegistrar& registrar)
-        : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackMultiT<descendant_interface::DiamondDescendant<>, descendant_interface::SimpleStruct<>>>(registrar)
+        : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStackMulti<descendant_interface::DiamondDescendant<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
     { }
 
     cs::Status handleData(
           const descendant_interface::DiamondDescendant<>& input
         , cs::Vector<cs::GenericPointerKeeper>* unmanagedPointers
         , const cs::GenericPointerKeeper& clientId
-        , descendant_interface::SimpleStruct<>& output) override
+        , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
         return defaultHandle(input, output);
     }
 };
 
 class FourthDataHandler
-    : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackMultiT<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>>>
+    : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStackMulti<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
     FourthDataHandler(cs::csp::messaging::IServerDataHandlerRegistrar& registrar)
-        : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::DhStackMultiT<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
+        : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStackMulti<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>>>(registrar)
     { }
 
     cs::Status handleData(
