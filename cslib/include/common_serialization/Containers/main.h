@@ -59,4 +59,7 @@ using HashMapT = std::unordered_map<_K, _V, _Ts...>;
 template<typename _K, typename _V, typename... _Ts>
 using HashMultiMapT = std::unordered_multimap<_K, _V, _Ts...>;
 
+template<typename _T, typename... Ts>
+using ListT = std::list<_T, Ts...>;
+
 } // namespace common_serialization

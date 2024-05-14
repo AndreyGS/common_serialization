@@ -174,24 +174,26 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
         ctx.setPointersMap(&pointersMap);
 
     IServerDataHandlerBase* pDataHandler{ nullptr };
-    Status status = m_dataHandlersRegistrar->findHandler(id, pDataHandler);
+    Status status = m_dataHandlersRegistrar->aquireHandler(id, pDataHandler);
 
     if (statusSuccess(status))
     {
         status = pDataHandler->handleDataCommon(ctx, clientId, binOutput);
+        m_dataHandlersRegistrar->releaseHandler(id, pDataHandler);
     }
     else if (status == Status::kErrorMoreEntires) // if we have more than one DataHandler
     {
         RawVectorT<IServerDataHandlerBase*> dataHandlers;
-        CS_RUN(m_dataHandlersRegistrar->findHandlers(id, dataHandlers));
+        CS_RUN(m_dataHandlersRegistrar->aquireHandlers(id, dataHandlers));
 
         status = Status::kNoError;
 
         typename BinVectorT::size_type bodyPosition = ctx.getBinaryData().tell();
 
-        for (auto pDataHandler : dataHandlers)
+        for (auto pDataHandlerM : dataHandlers)
         {
-            SET_NEW_ERROR(pDataHandler->handleDataCommon(ctx, clientId, binOutput));
+            SET_NEW_ERROR(pDataHandlerM->handleDataCommon(ctx, clientId, binOutput));
+            m_dataHandlersRegistrar->releaseHandler(id, pDataHandlerM);
             ctx.getBinaryData().seek(bodyPosition);
         }
     }

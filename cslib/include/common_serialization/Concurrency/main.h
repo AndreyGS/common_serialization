@@ -31,5 +31,8 @@ namespace common_serialization
 {
 
 using SharedMutexT = SharedMutex;
+using BinarySemaphoreT = BinarySemaphore;
+using AtomicUint32T = AtomicUint32;
+using AtomicBoolT = AtomicBool;
 
 } // namespace common_serialization

@@ -14,7 +14,7 @@
 14. Add unit-tests for mutexes.
 15. Add unit-tests for Walker init by Vector functions.
 16. Add unit-tests on Walker::setSize.
-17. Add Vector and Walker emplace() methods.
+17. Add Walker emplace() methods.
 18. Add crc32 of serialization flag to CSP. (?)
 19. Add empty() method to Vector and Walker.
 20. Add unit-tests on AllocatorHelpers, especially for constructN and allocateAndConstruct.
@@ -34,3 +34,6 @@
 34. Add reallocate method to IAllocator.
 35. Add more tests on UniquePtr.
 36. Add tests on makeUniquexxx functions.
+37. Add Vector emplace and emplaceFront methods.
+38. Add stress unit-tests for adding and deleting IServerDataHandlerBases instances to GenericServerDataHandlerRegistrar.
+

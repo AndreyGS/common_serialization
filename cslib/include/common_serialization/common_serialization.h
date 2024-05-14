@@ -33,6 +33,7 @@
 #include <bit>
 #include <shared_mutex>
 #include <unordered_map> 
+#include <semaphore>
 #endif // !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
 
 #include "common_serialization/Status.h"

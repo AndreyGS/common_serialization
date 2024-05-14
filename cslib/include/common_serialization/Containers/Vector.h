@@ -371,6 +371,9 @@ public:
     constexpr Status pushBackArithmeticValue(V value)
         requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
+    template<typename... Ts>
+    constexpr Status emplaceBack(Ts&&... ts);
+
     /// @brief Replace N elements from offset
     /// @note Overwrites existing elements if offset < size.
     ///     If offset + N > size, size of container will be increased.
@@ -397,6 +400,7 @@ public:
 
     constexpr Status erase(size_type offset);
     constexpr Status erase(size_type offset, size_type n);
+    constexpr Status erase(iterator pos);
     constexpr Status erase(iterator destBegin, iterator destEnd);
 
     // copy from Vector to p (destination must be initialized (for non pod-types))
@@ -411,6 +415,12 @@ public:
 
     [[nodiscard]] constexpr _T& operator[](size_type offset);
     [[nodiscard]] constexpr const _T& operator[](size_type offset) const;
+    
+    [[nodiscard]] constexpr _T& back();
+    [[nodiscard]] constexpr const _T& back() const;
+
+    [[nodiscard]] constexpr _T& front();
+    [[nodiscard]] constexpr const _T& front() const;
 
     [[nodiscard]] constexpr size_type size() const noexcept;
     [[nodiscard]] constexpr size_type max_size() const noexcept;
@@ -553,7 +563,6 @@ template<typename _T, typename AllocatorHelper>
 constexpr Status Vector<_T, AllocatorHelper>::pushBack(const _T& value)
 {
     CS_RUN(addSpaceIfNeed(1));
-
     CS_RUN(m_allocatorHelper.construct(m_p + m_dataSize, value));
     ++m_dataSize;
 
@@ -564,7 +573,6 @@ template<typename _T, typename AllocatorHelper>
 constexpr Status Vector<_T, AllocatorHelper>::pushBack(_T&& value)
 {
     CS_RUN(addSpaceIfNeed(1));
-
     CS_RUN(m_allocatorHelper.moveNoOverlap(m_p + m_dataSize, &value, 1));
     ++m_dataSize;
 
@@ -596,6 +604,19 @@ constexpr Status Vector<_T, AllocatorHelper>::pushBackArithmeticValue(V value)
 
     *static_cast<V*>(static_cast<void*>(m_p + m_dataSize)) = value;
     m_dataSize += sizeof(V);
+
+    return Status::kNoError;
+}
+
+template<typename _T, typename AllocatorHelper>
+template<typename... Ts>
+constexpr Status Vector<_T, AllocatorHelper>::emplaceBack(Ts&&... ts)
+{
+    Status status = Status::kNoError;
+
+    CS_RUN(addSpaceIfNeed(1));
+    CS_RUN(m_allocatorHelper.construct(m_p + m_dataSize, std::forward<Ts>(ts)...));
+    ++m_dataSize;
 
     return Status::kNoError;
 }
@@ -794,6 +815,12 @@ constexpr Status Vector<_T, AllocatorHelper>::erase(size_type offset, size_type 
 }
 
 template<typename _T, typename AllocatorHelper>
+constexpr Status Vector<_T, AllocatorHelper>::erase(iterator pos)
+{
+    return erase(pos, pos + 1);
+}
+
+template<typename _T, typename AllocatorHelper>
 constexpr Status Vector<_T, AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
 {
     if (destBegin > destEnd)
@@ -887,6 +914,30 @@ template<typename _T, typename AllocatorHelper>
 [[nodiscard]] constexpr const _T& Vector<_T, AllocatorHelper>::operator[](size_type offset) const
 {
     return *(m_p + offset);
+}
+
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr _T& Vector<_T, AllocatorHelper>::back()
+{
+    return *(m_p + size() - 1);
+}
+
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr const _T& Vector<_T, AllocatorHelper>::back() const
+{
+    return *(m_p + size() - 1);
+}
+
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr _T& Vector<_T, AllocatorHelper>::front()
+{
+    return *m_p;
+}
+
+template<typename _T, typename AllocatorHelper>
+[[nodiscard]] constexpr const _T& Vector<_T, AllocatorHelper>::front() const
+{
+    return *m_p;
 }
 
 template<typename _T, typename AllocatorHelper>

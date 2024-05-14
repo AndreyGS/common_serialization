@@ -28,60 +28,67 @@
 namespace common_serialization
 {
 
-/// @brief Simple RAII guard for shared mutex
+/// @brief Simple RAII guard for shared or unique mutex
 /// @tparam _T Mutex which implement ISharedMutex interface
-template<ISharedMutex _T>
-class RGuard
+template<typename _T, bool exclusive = true>
+class Guard
 {
 public:
     /// @brief Init ctor
-    /// @param mutex Shared mutex
-    explicit RGuard(_T& mutex)
-        : m_mutex(mutex)
+    /// @param mutex Mutex
+    /// @param deferred Should be locked later
+    explicit Guard(_T& mutex, bool deferred = false)
+        : m_mutex(mutex), locked(false)
     {
-        m_mutex.lock_shared();
+        if (!deferred)
+            lock();
     }
 
-    RGuard(const RGuard&) = delete;
-    RGuard(RGuard&&) = delete;
-    RGuard& operator=(const RGuard&) = delete;
-    RGuard& operator=(RGuard&&) = delete;
+    Guard(const Guard&) = delete;
+    Guard(Guard&&) = delete;
+    Guard& operator=(const Guard&) = delete;
+    Guard& operator=(Guard&&) = delete;
 
-    ~RGuard()
+    void lock()
     {
-        m_mutex.unlock_shared();
+        if (locked)
+            return;
+
+        if constexpr (exclusive)
+            m_mutex.lock();
+        else
+            m_mutex.lock_shared();
+
+        locked = true;
+    }
+
+    void unlock()
+    {
+        if (!locked)
+            return;
+
+        if constexpr (exclusive)
+            m_mutex.unlock();
+        else
+            m_mutex.unlock_shared();
+
+        locked = false;
+    }
+
+    ~Guard()
+    {
+        unlock();
     }
 
 private:
     _T& m_mutex;
+    bool locked{ false };
 };
 
-/// @brief Simple RAII guard for exclusive mutex
-/// @tparam _T Mutex which implement IExclusiveMutex interface
-template<IExclusiveMutex _T>
-class WGuard
-{
-public:
-    /// @brief Init ctor
-    /// @param mutex Exclusive mutex
-    explicit WGuard(_T& mutex)
-        : m_mutex(mutex)
-    {
-        m_mutex.lock();
-    }
+template<typename _T>
+using RGuard = Guard<_T, false>;
 
-    WGuard(const WGuard&) = delete;
-    WGuard(WGuard&&) = delete;
-    WGuard& operator=(const WGuard&) = delete;
-    WGuard& operator=(WGuard&&) = delete;
-
-    ~WGuard()
-    {
-        m_mutex.unlock();
-    }
-
-private:
-    _T& m_mutex;
-};
+template<typename _T>
+using WGuard = Guard<_T, true>;
 
 } // namespace common_serialization

@@ -307,7 +307,7 @@ template<typename _T, typename... _Ts>
     requires (!std::is_array_v<_T>)
 [[nodiscard]] constexpr UniquePtr<_T> makeUnique(_Ts&&... ts)
 {
-    return UniquePtr<_T>(new _T{ std::forward<_Ts...>(ts)... });
+    return UniquePtr<_T>(new _T{ std::forward<_Ts>(ts)... });
 }
 
 template<typename _T, typename... _Ts>
@@ -315,14 +315,14 @@ template<typename _T, typename... _Ts>
 [[nodiscard]] constexpr UniquePtr<_T> makeUnique(size_t size, _Ts&&... ts)
 {
     using Type = std::remove_extent_t<_T>;
-    return UniquePtr<_T>(new Type[size]{ std::forward<_Ts...>(ts)... });
+    return UniquePtr<_T>(new Type[size]{ std::forward<_Ts>(ts)... });
 }
 
 template<typename _T, typename... _Ts>
     requires (!std::is_array_v<_T>)
 [[nodiscard]] constexpr UniquePtr<_T> makeUniqueNoThrow(_Ts&&... ts)
 {
-    return UniquePtr<_T>(new (std::nothrow) _T{ std::forward<_Ts...>(ts)... });
+    return UniquePtr<_T>(new (std::nothrow) _T{ std::forward<_Ts>(ts)... });
 }
 
 template<typename _T, typename... _Ts>
@@ -330,7 +330,7 @@ template<typename _T, typename... _Ts>
 [[nodiscard]] constexpr UniquePtr<_T> makeUniqueNoThrow(size_t size, _Ts&&... ts)
 {
     using Type = std::remove_extent_t<_T>;
-    return UniquePtr<_T>(new (std::nothrow) Type[size]{ std::forward<_Ts...>(ts)... });
+    return UniquePtr<_T>(new (std::nothrow) Type[size]{ std::forward<_Ts>(ts)... });
 }
 
 template<typename _T>

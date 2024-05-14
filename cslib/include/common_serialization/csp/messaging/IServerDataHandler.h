@@ -124,13 +124,13 @@ template<IServerDataHandlerTraits _T>
 IServerDataHandler<_T>::IServerDataHandler(IServerDataHandlerRegistrar& dataHandlersRegistrar)
     : m_dataHandlersRegistrar(dataHandlersRegistrar)
 {
-    m_dataHandlersRegistrar.addHandler(InputType::getId(), kMulticast, this);
+    m_dataHandlersRegistrar.registerHandler(InputType::getId(), kMulticast, this);
 }
 
 template<IServerDataHandlerTraits _T>
 IServerDataHandler<_T>::~IServerDataHandler()
 {
-    m_dataHandlersRegistrar.removeHandler(InputType::getId(), this);
+    m_dataHandlersRegistrar.unregisterHandler(InputType::getId(), this);
 }
 
 template<IServerDataHandlerTraits _T>

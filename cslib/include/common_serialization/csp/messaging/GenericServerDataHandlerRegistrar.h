@@ -31,75 +31,202 @@ namespace common_serialization::csp::messaging
 class GenericServerDataHandlerRegistrar : public IServerDataHandlerRegistrar
 {
 public:
-    Status addHandler(const Id& id, bool kMulticast, IServerDataHandlerBase* pInstance) override;
-    void removeHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept override;
-    Status findHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& servers) const noexcept override;
-    Status findHandler(const Id& id, IServerDataHandlerBase*& pServer) const noexcept override;
+    Status registerHandler(const Id& id, bool kMulticast, IServerDataHandlerBase* pInstance) override;
+    void unregisterHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept override;
+    Status aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& instances) noexcept override;
+    Status aquireHandler(const Id& id, IServerDataHandlerBase*& pInstance) noexcept override;
+    void releaseHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept override;
 
 private:
-    HashMultiMapT<Id, IServerDataHandlerBase*> m_serversList;
+    struct SdhHandle
+    {
+        explicit SdhHandle(IServerDataHandlerBase* pInstance)
+            : pInstance(pInstance)
+        { }
+
+        SdhHandle(SdhHandle&& rhs) noexcept
+            : pInstance(rhs.pInstance), inUseCounter(rhs.inUseCounter.load(std::memory_order_relaxed)), notAvailable(rhs.notAvailable)
+        { }
+
+        IServerDataHandlerBase* pInstance{ nullptr };
+        AtomicUint32T inUseCounter{ 0 };
+        bool notAvailable{ false };
+    };
+
+    struct ToUnregisterCountdown
+    {
+        ToUnregisterCountdown(IServerDataHandlerBase* pInstance, uint32_t totalInUseCounter)
+            : sem(0), pInstance(pInstance), totalInUseCounter(totalInUseCounter)
+        { }
+
+        mutable BinarySemaphoreT sem{ 0 };
+        IServerDataHandlerBase* pInstance{ nullptr };
+        AtomicUint32T totalInUseCounter{ 0 };
+    };
+
+    void unregisterInstanceUnsafe(IServerDataHandlerBase* pInstance) noexcept;
+
+    HashMultiMapT<Id, SdhHandle> m_serverList;
+    ListT<ToUnregisterCountdown> m_unregisterCountdownList;
     mutable SharedMutex m_serverListMutex;
 };
 
-inline Status GenericServerDataHandlerRegistrar::addHandler(const Id& id, bool kMulticast, IServerDataHandlerBase* pInstance)
+inline Status GenericServerDataHandlerRegistrar::registerHandler(const Id& id, bool kMulticast, IServerDataHandlerBase* pInstance)
 {
     WGuard guard(m_serverListMutex);
 
-    if (!kMulticast && m_serversList.contains(id))
+    if (!kMulticast && m_serverList.contains(id))
         assert(false);
 
-    m_serversList.emplace(std::make_pair(id, pInstance));
+    m_serverList.emplace(std::make_pair(id, SdhHandle{ pInstance }));
 
     return Status::kNoError;
 }
 
-inline void GenericServerDataHandlerRegistrar::removeHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept
+inline void GenericServerDataHandlerRegistrar::unregisterHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept
 {
+    {
+        bool notRemovedYet{ false };
+        RGuard guard(m_serverListMutex);
+        auto range = m_serverList.equal_range(id);
+        while (range.first != range.second)
+            if (range.first->second.pInstance == pInstance)
+            {
+                notRemovedYet = true;
+                break;
+            }
+            else
+                ++range.first;
+
+        if (!notRemovedYet)
+            return;
+    }
+
     WGuard guard(m_serverListMutex);
 
-    auto range = m_serversList.equal_range(id);
-    while (range.first != range.second)
-        if (range.first->second == pInstance)
+    uint32_t totalInUseCounter = 0;
+
+    for (auto& pair : m_serverList)
+        if (pair.second.pInstance == pInstance)
         {
-            m_serversList.erase(range.first);
-            return;
+            pair.second.notAvailable = true;
+            totalInUseCounter += pair.second.inUseCounter.load(std::memory_order_relaxed);
         }
-        else
-            ++range.first;
+    
+    if (totalInUseCounter)
+    {
+        m_unregisterCountdownList.emplace_front(pInstance, totalInUseCounter);
+        auto it = m_unregisterCountdownList.begin();
+        guard.unlock();
+        it->sem.acquire();
+        guard.lock();
+        m_unregisterCountdownList.erase(it);
+    }
+    else
+        unregisterInstanceUnsafe(pInstance);
 }
 
-inline Status GenericServerDataHandlerRegistrar::findHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& servers) const noexcept
+inline Status GenericServerDataHandlerRegistrar::aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& instances) noexcept
 {
-    servers.clear();
+    Status status{ Status::kNoError };
+    bool wasNotAvailable{ false };
+
+    instances.clear();
 
     RGuard guard(m_serverListMutex);
 
-    auto range = m_serversList.equal_range(id);
+    auto range = m_serverList.equal_range(id);
+    auto rangeFirstCopy = range.first;
+
     while (range.first != range.second)
     {
-        CS_RUN(servers.pushBack(range.first->second));
+        if (range.first->second.notAvailable)
+        {
+            wasNotAvailable = true;
+            continue;
+        }
+
+        status = instances.pushBack(range.first->second.pInstance);
+        if (!statusSuccess(status))
+        {
+            while (rangeFirstCopy != range.first)
+                --rangeFirstCopy->second.inUseCounter;
+
+            return status;
+        }
+
+        ++range.first->second.inUseCounter;
         ++range.first;
     }
 
-    return servers.size() ? Status::kNoError : Status::kErrorNoSuchHandler;
+    return instances.size() ? Status::kNoError : wasNotAvailable ? Status::kErrorNotAvailible : Status::kErrorNoSuchHandler;
 }
 
-inline Status GenericServerDataHandlerRegistrar::findHandler(const Id& id, IServerDataHandlerBase*& pServer) const noexcept
+inline Status GenericServerDataHandlerRegistrar::aquireHandler(const Id& id, IServerDataHandlerBase*& pInstance) noexcept
 {
     RGuard guard(m_serverListMutex);
 
-    auto range = m_serversList.equal_range(id);
+    auto range = m_serverList.equal_range(id);
+
+    if (range.first == range.second)
+        return Status::kErrorNoSuchHandler;
+
+    auto firstIt = range.first++;
+
     if (range.first != range.second)
-    {
-        pServer = range.first->second;
+        return Status::kErrorMoreEntires;
 
-        if (++range.first != range.second)
-            return Status::kErrorMoreEntires;
+    if (firstIt->second.notAvailable)
+        return Status::kErrorNotAvailible;
+
+    pInstance = firstIt->second.pInstance;
+    ++firstIt->second.inUseCounter;
+
+    return Status::kNoError;
+}
+
+inline void GenericServerDataHandlerRegistrar::releaseHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept
+{
+    RGuard guard(m_serverListMutex);
+
+    auto range = m_serverList.equal_range(id);
+
+    if (range.first == range.second)
+        return;
+
+    while (range.first != range.second)
+        if (range.first->second.pInstance == pInstance)
+        {
+            --range.first->second.inUseCounter;
+            break;
+        }
         else
-            return Status::kNoError;
-    }
+            ++range.first;
 
-    return Status::kErrorNoSuchHandler;
+    if (range.first->second.notAvailable)
+        for (auto it = m_unregisterCountdownList.begin(), itEnd = m_unregisterCountdownList.end(); it != itEnd; ++it)
+            if (it->pInstance == pInstance)
+            {
+                --it->totalInUseCounter;
+                if (!it->totalInUseCounter)
+                {
+                    guard.unlock();
+                    WGuard wguard(m_serverListMutex);
+                    unregisterInstanceUnsafe(pInstance);
+                    it->sem.release();
+                }
+
+                break;
+            }
+}
+
+inline void GenericServerDataHandlerRegistrar::unregisterInstanceUnsafe(IServerDataHandlerBase* pInstance) noexcept
+{
+    for (auto it = m_serverList.begin(), itEnd = m_serverList.end(); it != itEnd;)
+        if (it->second.pInstance == pInstance)
+            it = m_serverList.erase(it);
+        else
+            ++it;
 }
 
 } // namespace common_serialization::csp::messaging
