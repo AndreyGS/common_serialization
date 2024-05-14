@@ -173,7 +173,7 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataMain(InputType& input,
 
     if constexpr (!std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
     {
-        HashMapT<const void*, csp_size_t> pointersMapOut;
+        context::SPointersMap pointersMapOut;
 
         binOutput.clear();
 

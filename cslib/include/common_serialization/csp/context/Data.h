@@ -29,11 +29,14 @@
 namespace common_serialization::csp::context
 {
 
+using SPointersMap = HashMapT<const void*, csp_size_t>;
+using DPointersMap = HashMapT<csp_size_t, void*>;
+
 template<bool serialize>
 class ExtendedPointersProcessing
 {
 public:
-    using PM = HashMapT<const void*, csp_size_t>;
+    using PM = SPointersMap;
 
     /// @brief Default ctor
     ExtendedPointersProcessing() = default;
@@ -75,7 +78,7 @@ template<>
 class ExtendedPointersProcessing<false>
 {
 public:
-    using PM = HashMapT<csp_size_t, void*>;
+    using PM = DPointersMap;
 
     /// @brief Default ctor
     ExtendedPointersProcessing() = default;
@@ -153,7 +156,7 @@ public:
     static constexpr bool serialize = _serialize;
 
     using Bin = std::conditional_t<serialize, BinVectorT, BinWalkerT>;
-    using PM = std::conditional_t<serialize, HashMapT<const void*, csp_size_t>, HashMapT<csp_size_t, void*>>;
+    using PM = std::conditional_t<serialize, SPointersMap, DPointersMap>;
 
     /// @brief Constructor
     /// @param binaryData Container that hold or would hold binary data from processing

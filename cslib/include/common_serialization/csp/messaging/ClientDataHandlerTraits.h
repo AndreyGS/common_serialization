@@ -49,9 +49,9 @@ struct ClientDataHandlerTraitsConcrete
 };
 
 template<ISerializableBased _InputType, ISerializableBased _OutputType>
-using ChStack = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
+using CdhStack = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
 
 template<ISerializableBased _InputType, ISerializableBased _OutputType>
-using ChHeap = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
+using CdhHeap = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
 
 } // namespace common_serialization::csp::messaging

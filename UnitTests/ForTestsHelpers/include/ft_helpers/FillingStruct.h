@@ -29,4 +29,83 @@ namespace ft_helpers
 template<typename T>
 void fillingStruct(T& output);
 
+using namespace common_serialization;
+
+template<>
+void fillingStruct(not_part_of_interfaces::SimplyAssignableAlignedToOne& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableAlignedToOne_Version0<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableAlignedToOne<>& output);
+template<>
+void fillingStruct(not_part_of_interfaces::SimplyAssignable& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignable_Version0<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignable<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableDescendant_Version0<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableDescendant<>& output);
+template<>
+void fillingStruct(interface_for_test::AlwaysSimplyAssignable_Version0<>& output);
+template<>
+void fillingStruct(interface_for_test::AlwaysSimplyAssignable<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableFixedSize_Version1<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableFixedSize<>& output);
+template<>
+void fillingStruct(not_part_of_interfaces::DynamicPolymorphic& output);
+template<>
+void fillingStruct(interface_for_test::DynamicPolymorphic<>& output);
+template<>
+void fillingStruct(not_part_of_interfaces::DiamondBase& output);
+template<>
+void fillingStruct(not_part_of_interfaces::DiamondEdge1& output);
+template<>
+void fillingStruct(not_part_of_interfaces::DiamondEdge2& output);
+template<>
+void fillingStruct(interface_for_test::Diamond<>& output);
+template<>
+void fillingStruct(interface_for_test::SpecialProcessingType<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableAlignedToOneSimilarType1<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableAlignedToOneSimilarType2<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableSimilarType1<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableSimilarType2<>& output);
+template<>
+void fillingStruct(interface_for_test::SimilarType1<>& output);
+template<>
+void fillingStruct(interface_for_test::SimilarType2<>& output);
+template<>
+void fillingStruct(interface_for_test::ManyPointersType<>& output);
+template<>
+void fillingStruct(interface_for_test::SForAllModesTests_Version0<>& output);
+template<>
+void fillingStruct(interface_for_test::SForAllModesTests_Version2<>& output);
+template<>
+void fillingStruct(interface_for_test::DForAllModesTests<>& output);
+template<>
+void fillingStruct(descendant_interface::SimpleStruct<>& output);
+template<>
+void fillingStruct(descendant_interface::DiamondDescendant<>& output);
+template<>
+void fillingStruct(another_yet_interface::SimpleStruct<>& output);
+template<>
+void fillingStruct(interface_for_test::SimplyAssignableWithoutSerializationFunctions<>& output);
+template<>
+void fillingStruct(not_part_of_interfaces::SimplyAssignableWithoutSerializationFunctions& output);
+template<>
+void fillingStruct(interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& output);
+template<>
+void fillingStruct(std::string& output);
+template<>
+void fillingStruct(std::wstring& output);
+template<>
+void fillingStruct(with_std_included_interface::OneBigType<>& output);
+
 } // namespace ft_helpers

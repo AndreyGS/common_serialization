@@ -61,6 +61,20 @@ cs::Status defaultHandle(const InputStruct& input, OutputStruct& output)
     return cs::Status::kNoError;
 }
 
+template<typename InputStruct>
+cs::Status multiHandle(const InputStruct& input)
+{
+    InputStruct test;
+    fillingStruct(test);
+
+    if (input != test)
+        return cs::Status::kErrorInternal;
+
+    ++numberOfMultiEntrances;
+
+    return cs::Status::kNoError;
+}
+
 class FirstDataHandler 
     : cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>
     , cs::csp::messaging::IServerDataHandler<cs::csp::messaging::SdhStack<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>
@@ -97,8 +111,8 @@ public:
         , const cs::GenericPointerKeeper& clientId
         , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
-        ++numberOfMultiEntrances;
-        return cs::Status::kNoError;
+        
+        return multiHandle(input);
     }
 };
 
@@ -115,8 +129,7 @@ public:
         , const cs::GenericPointerKeeper& clientId
         , cs::csp::service_structs::ISerializableDummy<>& output) override
     {
-        ++numberOfMultiEntrances;
-        return cs::Status::kNoError;
+        return multiHandle(input);
     }
 };
 

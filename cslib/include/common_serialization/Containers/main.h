@@ -56,4 +56,7 @@ using BinWalkerT = RawWalkerT<uint8_t>;
 template<typename _K, typename _V, typename... _Ts>
 using HashMapT = std::unordered_map<_K, _V, _Ts...>;
 
+template<typename _K, typename _V, typename... _Ts>
+using HashMultiMapT = std::unordered_multimap<_K, _V, _Ts...>;
+
 } // namespace common_serialization

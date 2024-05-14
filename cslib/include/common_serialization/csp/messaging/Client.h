@@ -343,7 +343,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         , interfaceVersionToUse
         , nullptr);
 
-    HashMapT<const void*, csp_size_t> pointersMapIn;
+    context::SPointersMap pointersMapIn;
     if (ctxIn.checkRecursivePointers())
         ctxIn.setPointersMap(&pointersMapIn);
 
@@ -387,7 +387,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
         ctxOutData.setAddedPointers(pUnmanagedPointers);
 
-        HashMapT<csp_size_t, void*> pointersMapOut;
+        context::DPointersMap pointersMapOut;
         if (ctxOutData.checkRecursivePointers())
             ctxOutData.setPointersMap(&pointersMapOut);
 

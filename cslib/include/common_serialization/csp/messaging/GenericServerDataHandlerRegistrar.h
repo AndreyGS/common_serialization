@@ -37,7 +37,7 @@ public:
     Status findHandler(const Id& id, IServerDataHandlerBase*& pServer) const noexcept override;
 
 private:
-    HashMapT<Id, IServerDataHandlerBase*> m_serversList;
+    HashMultiMapT<Id, IServerDataHandlerBase*> m_serversList;
     mutable SharedMutex m_serverListMutex;
 };
 

@@ -169,7 +169,7 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
     if (ctx.allowUnmanagedPointers())
         ctx.setAddedPointers(&addedPointers);
 
-    HashMapT<csp_size_t, void*> pointersMap;
+    context::DPointersMap pointersMap;
     if (ctx.checkRecursivePointers())
         ctx.setPointersMap(&pointersMap);
 
