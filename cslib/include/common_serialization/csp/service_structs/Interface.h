@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/service_structs/Interface.h
+ * @file cslib/include/common_serialization/csp/service_structs/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -40,6 +40,8 @@ constexpr cs::csp::Interface properties(
 
 } // namespace common_serialization::csp::service_structs
 
+#include "common_serialization/csp/mandatory_structs/processing/Deserialize.h"
+#include "common_serialization/csp/mandatory_structs/processing/Serialize.h"
 #include "common_serialization/csp/service_structs/Structs.h"
 #include "common_serialization/csp/service_structs/processing/Deserialize.h"
 #include "common_serialization/csp/service_structs/processing/Serialize.h"

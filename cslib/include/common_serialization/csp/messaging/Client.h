@@ -28,6 +28,7 @@
 #include "common_serialization/csp/messaging/IClientSpeaker.h"
 #include "common_serialization/csp/processing/Contexts.h"
 #include "common_serialization/csp/processing/DataBodyProcessor.h"
+#include "common_serialization/csp/processing/DataVersionConverters.h"
 #include "common_serialization/csp/processing/Status.h"
 #include "common_serialization/csp/service_structs/Interface.h"
 
