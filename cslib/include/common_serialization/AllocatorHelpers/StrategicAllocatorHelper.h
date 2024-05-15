@@ -44,7 +44,7 @@ template<typename _T, IAllocator _Allocator, typename _MostDerivedClass = Dummy>
 class StrategicAllocatorHelper : public GenericAllocatorHelper<_T, _Allocator, GetCrtpMainType<StrategicAllocatorHelper<_T, _Allocator>, _MostDerivedClass>>
 {
 public:
-    using value_type = typename _T;
+    using value_type = _T;
     using allocator_type = _Allocator;
     using constructor_allocator = typename allocator_type::constructor_allocator;
 

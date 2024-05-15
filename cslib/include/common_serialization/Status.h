@@ -29,7 +29,7 @@
 #if defined(_MSC_VER) && !defined(__clang__)
 #define CS_ALWAYS_INLINE __forceinline
 #else
-#define CS_ALWAYS_INLINE __attribute__((always_inline))
+#define CS_ALWAYS_INLINE __attribute__((always_inline)) inline
 #endif // #if defined(_MSC_VER) && !defined(__clang__)
 
 // header for fixed size integers for non-std environments is not ready yet

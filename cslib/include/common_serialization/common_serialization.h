@@ -34,6 +34,8 @@
 #include <shared_mutex>
 #include <unordered_map> 
 #include <semaphore>
+#include <atomic>
+#include <list>
 #endif // !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
 
 #include "common_serialization/Status.h"
