@@ -150,12 +150,12 @@ inline Status GenericServerDataHandlerRegistrar::aquireHandlers(const Id& id, Ra
         if (!statusSuccess(status))
         {
             while (rangeFirstCopy != range.first)
-                --rangeFirstCopy->second.inUseCounter;
+                rangeFirstCopy->second.inUseCounter.fetch_sub(1, std::memory_order_relaxed);;
 
             return status;
         }
 
-        ++range.first->second.inUseCounter;
+        range.first->second.inUseCounter.fetch_add(1, std::memory_order_relaxed);
         ++range.first;
     }
 
@@ -180,7 +180,7 @@ inline Status GenericServerDataHandlerRegistrar::aquireHandler(const Id& id, ISe
         return Status::kErrorNotAvailible;
 
     pInstance = firstIt->second.pInstance;
-    ++firstIt->second.inUseCounter;
+    firstIt->second.inUseCounter.fetch_add(1, std::memory_order_relaxed);;
 
     return Status::kNoError;
 }
@@ -197,7 +197,7 @@ inline void GenericServerDataHandlerRegistrar::releaseHandler(const Id& id, ISer
     while (range.first != range.second)
         if (range.first->second.pInstance == pInstance)
         {
-            --range.first->second.inUseCounter;
+            range.first->second.inUseCounter.fetch_sub(1, std::memory_order_relaxed);
             break;
         }
         else
@@ -207,8 +207,7 @@ inline void GenericServerDataHandlerRegistrar::releaseHandler(const Id& id, ISer
         for (auto it = m_unregisterCountdownList.begin(), itEnd = m_unregisterCountdownList.end(); it != itEnd; ++it)
             if (it->pInstance == pInstance)
             {
-                --it->totalInUseCounter;
-                if (!it->totalInUseCounter)
+                if (it->totalInUseCounter.fetch_sub(1, std::memory_order_acq_rel) == 1)
                 {
                     guard.unlock();
                     WGuard wguard(m_serverListMutex);
