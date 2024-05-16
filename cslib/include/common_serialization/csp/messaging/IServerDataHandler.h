@@ -58,7 +58,7 @@ public:
     virtual Status handleData(const InputType& input, VectorT<GenericPointerKeeperT>* pUnmanagedPointers, const GenericPointerKeeperT& clientId, OutputType& output) = 0;
     virtual Status checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId);
 
-    [[nodiscard]] interface_version_t getMinimumInterfaceVersion() override;
+    [[nodiscard]] interface_version_t getMinimumInterfaceVersion();
 
 protected:
     IServerDataHandler(IServerDataHandlerRegistrar& serviceServer);

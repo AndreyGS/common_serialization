@@ -30,8 +30,6 @@ namespace common_serialization::csp::messaging
 class IServerDataHandlerBase
 {
 public:
-    [[nodiscard]] virtual interface_version_t getMinimumInterfaceVersion() = 0;
-
     virtual Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) = 0;
 
 protected:

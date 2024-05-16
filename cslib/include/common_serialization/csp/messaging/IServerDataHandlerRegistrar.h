@@ -56,14 +56,14 @@ public:
     /// @param pInstance Handler instance that must be deleted
     virtual void unregisterHandler(const Id& id, IServerDataHandlerBase* pInstance) noexcept = 0;
 
-    /// @brief Find all handlers that subscribed to handle Input-struct with given id
+    /// @brief Aquire all handlers that subscribed to handle Input-struct with given id
     /// @param id Input-struct id related to handlers
     /// @param handlers Container that would be filled with target handlers
     /// @return Status of operation.
     ///     If no handlers were found, Status::kErrorNoSuchHandler is returned.
     virtual Status aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& instances) noexcept = 0;
 
-    /// @brief Find single handler that is subsribed to handle Input-struct with given id
+    /// @brief Aquire single handler that is subsribed to handle Input-struct with given id
     /// @param id Input-struct id related to handler
     /// @param pHandler Pointer on target handler
     /// @return Status of operation.
