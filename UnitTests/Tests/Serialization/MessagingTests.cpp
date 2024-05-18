@@ -21,6 +21,8 @@
  *
  */
 
+#include <thread>
+
 namespace
 {
 
@@ -144,7 +146,8 @@ TEST(MessagingTests, DataMessageHandling)
 {
     csp::messaging::Server commonServer;
     commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(getServerSettings());
-    FirstDataHandler firstDataHandler(*commonServer.getDataHandlersRegistrar());
+    FirstDataHandler* pFirstDataHandler = new FirstDataHandler;
+    pFirstDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
 
     SimpleSpeaker simpleSpeaker{ commonServer };
     csp::messaging::Client dataClient(simpleSpeaker);
@@ -166,7 +169,8 @@ TEST(MessagingTests, DataMessageHandling)
     EXPECT_EQ(output, outputReference);
 
     // Multicast test
-    SecondDataHandler secondDataHandler(*commonServer.getDataHandlersRegistrar());
+    SecondDataHandler* pSecondDataHandler = new SecondDataHandler;
+    pSecondDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
     interface_for_test::SimplyAssignable<> input2;
     fillingStruct(input2);
 
@@ -175,6 +179,60 @@ TEST(MessagingTests, DataMessageHandling)
     ft_helpers::numberOfMultiEntrances = 0;
     EXPECT_EQ((dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, csp::service_structs::ISerializableDummy<>>>(input2, outputDummy)), Status::kNoError);
     EXPECT_EQ(ft_helpers::numberOfMultiEntrances, 2);
+    
+    std::thread test1([&]
+        {
+            interface_for_test::Diamond<> d;
+            interface_for_test::DynamicPolymorphic<> d2;
+
+
+            for (size_t i = 0; i < 10000; ++i)
+            {
+                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, csp::service_structs::ISerializableDummy<>>>(input2, outputDummy);
+                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
+                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
+            }
+        });
+
+    std::thread test2([&]
+        {
+            interface_for_test::Diamond<> d;
+            interface_for_test::DynamicPolymorphic<> d2;
+
+
+            for (size_t i = 0; i < 10000; ++i)
+            {
+                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, csp::service_structs::ISerializableDummy<>>>(input2, outputDummy);
+                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
+                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
+            }
+        });
+        
+    std::thread test3([&]
+        {
+            for (size_t i = 0; i < 100; ++i)
+            {
+                pFirstDataHandler->unregisterHandlers(*commonServer.getDataHandlersRegistrar());
+                delete pFirstDataHandler;
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                pFirstDataHandler = new FirstDataHandler;
+                pFirstDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
+                pFirstDataHandler->unregisterHandlers(*commonServer.getDataHandlersRegistrar());
+                pFirstDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
+
+                pSecondDataHandler->unregisterHandlers(*commonServer.getDataHandlersRegistrar());
+                delete pSecondDataHandler;
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                pSecondDataHandler = new SecondDataHandler;
+                pSecondDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
+                pSecondDataHandler->unregisterHandlers(*commonServer.getDataHandlersRegistrar());
+                pSecondDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
+            }
+        });
+
+    test1.join();
+    test2.join();
+    test3.join();
 
     // Legacy interface versions
     clientSettings.interfaces[0].version = 1;

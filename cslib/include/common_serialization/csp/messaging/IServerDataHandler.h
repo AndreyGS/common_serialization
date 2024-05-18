@@ -58,15 +58,16 @@ public:
     virtual Status handleData(const InputType& input, VectorT<GenericPointerKeeperT>* pUnmanagedPointers, const GenericPointerKeeperT& clientId, OutputType& output) = 0;
     virtual Status checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId);
 
+    CS_ALWAYS_INLINE Status registerHandler(IServerDataHandlerRegistrar& serviceServer, void* pServiceInstance);
+    CS_ALWAYS_INLINE void unregisterHandler(IServerDataHandlerRegistrar& serviceServer);
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion();
 
 protected:
-    IServerDataHandler(IServerDataHandlerRegistrar& serviceServer);
+    IServerDataHandler() = default;
     IServerDataHandler(const IServerDataHandler&) = delete;
     IServerDataHandler(IServerDataHandler&&) = delete;
     IServerDataHandler& operator=(const IServerDataHandler&) = delete;
     IServerDataHandler& operator=(IServerDataHandler&&) = delete;
-    ~IServerDataHandler();
 
 private:
     Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) override;
@@ -75,8 +76,6 @@ private:
     CS_ALWAYS_INLINE Status handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput);
     // This is the common code between handleDataOnStack and handleDataOnHeap
     CS_ALWAYS_INLINE Status handleDataMain(InputType& input, context::DData& ctx, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput);
-
-    IServerDataHandlerRegistrar& m_dataHandlersRegistrar;
 };
 
 template<IServerDataHandlerTraits _T>
@@ -86,14 +85,28 @@ Status IServerDataHandler<_T>::checkPoliciesCompliance(const InputType* input, c
 }
 
 template<IServerDataHandlerTraits _T>
+CS_ALWAYS_INLINE Status IServerDataHandler<_T>::registerHandler(IServerDataHandlerRegistrar& serviceServer, void* pServiceInstance)
+{
+    if (!pServiceInstance)
+        return Status::kErrorInvalidArgument;
+
+    return serviceServer.registerHandler(InputType::getId(), kMulticast, pServiceInstance, this);
+}
+
+template<IServerDataHandlerTraits _T>
+CS_ALWAYS_INLINE void IServerDataHandler<_T>::unregisterHandler(IServerDataHandlerRegistrar& serviceServer)
+{
+    serviceServer.unregisterHandler(InputType::getId(), this);
+}
+
+template<IServerDataHandlerTraits _T>
 [[nodiscard]] interface_version_t IServerDataHandler<_T>::getMinimumInterfaceVersion()
 {
     return kMinimumInterfaceVersion;
 }
 
 template<IServerDataHandlerTraits _T>
-Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
-)
+Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
 {
     CS_RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
 
@@ -121,21 +134,7 @@ Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const Gener
 }
 
 template<IServerDataHandlerTraits _T>
-IServerDataHandler<_T>::IServerDataHandler(IServerDataHandlerRegistrar& dataHandlersRegistrar)
-    : m_dataHandlersRegistrar(dataHandlersRegistrar)
-{
-    m_dataHandlersRegistrar.registerHandler(InputType::getId(), kMulticast, this);
-}
-
-template<IServerDataHandlerTraits _T>
-IServerDataHandler<_T>::~IServerDataHandler()
-{
-    m_dataHandlersRegistrar.unregisterHandler(InputType::getId(), this);
-}
-
-template<IServerDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
-)
+CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
 {
     InputType input;
     OutputType output;
@@ -144,8 +143,7 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnStack(context::DData
 }
 
 template<IServerDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput
-)
+CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
 {
     GenericPointerKeeperT input;
     if (!input.allocateAndConstructOne<InputType>())
@@ -164,8 +162,7 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData&
 }
 
 template<IServerDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataMain(InputType& input, context::DData& ctxIn, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput
-)
+CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataMain(InputType& input, context::DData& ctxIn, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput)
 {
     CS_RUN(processing::data::BodyProcessor::deserialize(ctxIn, input));
     

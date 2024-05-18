@@ -92,7 +92,8 @@ enum class Status : int32_t
     kErrorNotSupportedInterface                     =      -20,
     kErrorTypeSizeIsTooBig                          =      -21,
     kErrorValueOverflow                             =      -22,
-    kErrorNotAvailible                              =      -23
+    kErrorNotAvailible                              =      -23,
+    kErrorAlreadyInited                             =      -24
 };
 
 [[nodiscard]] CS_ALWAYS_INLINE constexpr bool statusSuccess(Status status)

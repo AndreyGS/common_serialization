@@ -38,7 +38,7 @@ public:
     /// @param mutex Mutex
     /// @param deferred Should be locked later
     explicit Guard(_T& mutex, bool deferred = false)
-        : m_mutex(mutex), locked(false)
+        : m_mutex(mutex), m_locked(false)
     {
         if (!deferred)
             lock();
@@ -51,7 +51,7 @@ public:
 
     void lock()
     {
-        if (locked)
+        if (m_locked)
             return;
 
         if constexpr (exclusive)
@@ -59,12 +59,12 @@ public:
         else
             m_mutex.lock_shared();
 
-        locked = true;
+        m_locked = true;
     }
 
     void unlock()
     {
-        if (!locked)
+        if (!m_locked)
             return;
 
         if constexpr (exclusive)
@@ -72,7 +72,7 @@ public:
         else
             m_mutex.unlock_shared();
 
-        locked = false;
+        m_locked = false;
     }
 
     ~Guard()
@@ -82,7 +82,7 @@ public:
 
 private:
     _T& m_mutex;
-    bool locked{ false };
+    bool m_locked{ false };
 };
 
 template<typename _T>

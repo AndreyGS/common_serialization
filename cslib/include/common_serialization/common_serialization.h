@@ -36,6 +36,7 @@
 #include <semaphore>
 #include <atomic>
 #include <list>
+#include <iostream>
 #endif // !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
 
 #include "common_serialization/Status.h"
