@@ -34,12 +34,8 @@ namespace common_serialization::csp::messaging
 {
 
 /// @brief Common CSP server for handling input/output
+/// @details See documentation of CSP
 /// @note Thread-safe as long as IServerDataHandlerRegistrar is thread-safe.
-///     Also there is no memory barriers and because of this
-///     there can be data race if init function will be invoked
-///     with any other function in parallel.
-///     So, before using object you should successfully init it and 
-///     only after this all it can be used safely in multithreaded environment.
 class Server
 {
 public:
@@ -47,6 +43,11 @@ public:
 
     Server(const service_structs::CspPartySettings<>& settings, UniquePtrT<IServerDataHandlerRegistrar>&& dataHandlersRegistrar) noexcept;
 
+    /// @brief Init server by settings and custom registrar type
+    /// @tparam _T Registrar type (must implement IServerDataHandlerRegistrar)
+    /// @param settings Server settings (must be valid)
+    /// @return Status of operation
+    /// @note Can be inited one time. After this if object becomes valid no changes are allowed.
     template<typename _T>
     Status init(const service_structs::CspPartySettings<>& settings) noexcept;
 
@@ -87,9 +88,10 @@ inline Server::Server(const service_structs::CspPartySettings<>& settings, Uniqu
 template<typename _T>
 inline Status Server::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
-    m_isInited = false;
+    if (isValid())
+        return Status::kErrorAlreadyInited;
 
-    m_dataHandlersRegistrar = std::move(makeUniqueNoThrowForOverwrite<_T>());
+    m_dataHandlersRegistrar = makeUniqueNoThrowForOverwrite<_T>();
 
     if (!m_dataHandlersRegistrar)
         return Status::kErrorNoMemory;

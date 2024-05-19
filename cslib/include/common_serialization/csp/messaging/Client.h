@@ -38,7 +38,8 @@ namespace common_serialization::csp::messaging
 /// @brief Common CSP Client
 /// @details See documentation of CSP
 /// @note IClientSpeaker must be valid all the time when Client is used
-///     and behavior will be undefined otherwise'
+///     and behavior will be undefined otherwise.
+///     Thread-safe as long as IClientSpeaker is thread-safe.
 class Client
 {
 public:
@@ -114,10 +115,8 @@ public:
         , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
 private:
-    IClientSpeaker& m_clientSpeaker;
     service_structs::CspPartySettings<> m_settings;
-
-    // Distinct variable is for not having calculate valid condition every time
+    IClientSpeaker& m_clientSpeaker;
     bool m_isValid{ false };
 };
 
@@ -134,10 +133,11 @@ inline Client::Client(IClientSpeaker& clientSpeaker, const service_structs::CspP
 
 inline Status Client::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
+    if (isValid())
+        return Status::kErrorAlreadyInited;
+
     if (!settings.isValid())
         return Status::kErrorInvalidArgument;
-
-    m_isValid = false;
 
     m_settings.clear();
 
@@ -150,7 +150,8 @@ inline Status Client::init(const service_structs::CspPartySettings<>& settings) 
 
 inline Status Client::init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept
 {
-    m_isValid = false;
+    if (isValid())
+        return Status::kErrorAlreadyInited;
 
     m_settings.clear();
 
@@ -312,8 +313,6 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     using OutputType = typename _Cht::OutputType;
     constexpr bool kForTempUseHeap = _Cht::kForTempUseHeap;
 
-    // We are additionally checking of m_clientSpeaker ptr state
-    // because Client interface allows us to manipulate with it directly
     if (!isValid())
         return Status::kErrorNotInited;
 
