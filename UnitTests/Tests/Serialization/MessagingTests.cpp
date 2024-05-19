@@ -146,8 +146,8 @@ TEST(MessagingTests, DataMessageHandling)
 {
     csp::messaging::Server commonServer;
     commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(getServerSettings());
-    FirstDataHandler* pFirstDataHandler = new FirstDataHandler;
-    pFirstDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
+    FirstCspService* pFirstCspService = new FirstCspService;
+    pFirstCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
 
     SimpleSpeaker simpleSpeaker{ commonServer };
     csp::messaging::Client dataClient(simpleSpeaker);
@@ -169,8 +169,8 @@ TEST(MessagingTests, DataMessageHandling)
     EXPECT_EQ(output, outputReference);
 
     // Multicast test
-    SecondDataHandler* pSecondDataHandler = new SecondDataHandler;
-    pSecondDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
+    SecondCspService* pSecondCspService = new SecondCspService;
+    pSecondCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
     interface_for_test::SimplyAssignable<> input2;
     fillingStruct(input2);
 
@@ -212,21 +212,25 @@ TEST(MessagingTests, DataMessageHandling)
         {
             for (size_t i = 0; i < 100; ++i)
             {
-                pFirstDataHandler->unregisterHandlers(*commonServer.getDataHandlersRegistrar());
-                delete pFirstDataHandler;
+                pFirstCspService->unregisterService(*commonServer.getDataHandlersRegistrar());
+                delete pFirstCspService;
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                pFirstDataHandler = new FirstDataHandler;
-                pFirstDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
-                pFirstDataHandler->unregisterHandlers(*commonServer.getDataHandlersRegistrar());
-                pFirstDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
+                pFirstCspService = new FirstCspService;
+                pFirstCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
+                pFirstCspService->unregisterSimplyAssignableAlignedToOne(*commonServer.getDataHandlersRegistrar());
+                pFirstCspService->unregisterSimplyAssignableAlignedToOne(*commonServer.getDataHandlersRegistrar());
+                pFirstCspService->unregisterDiamond(*commonServer.getDataHandlersRegistrar());
+                pFirstCspService->unregisterSimplyAssignable(*commonServer.getDataHandlersRegistrar());
+                pFirstCspService->unregisterService(*commonServer.getDataHandlersRegistrar());
+                pFirstCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
 
-                pSecondDataHandler->unregisterHandlers(*commonServer.getDataHandlersRegistrar());
-                delete pSecondDataHandler;
+                pSecondCspService->unregisterService(*commonServer.getDataHandlersRegistrar());
+                delete pSecondCspService;
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                pSecondDataHandler = new SecondDataHandler;
-                pSecondDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
-                pSecondDataHandler->unregisterHandlers(*commonServer.getDataHandlersRegistrar());
-                pSecondDataHandler->registerHandlers(*commonServer.getDataHandlersRegistrar());
+                pSecondCspService = new SecondCspService;
+                pSecondCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
+                pSecondCspService->unregisterService(*commonServer.getDataHandlersRegistrar());
+                pSecondCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
             }
         });
 

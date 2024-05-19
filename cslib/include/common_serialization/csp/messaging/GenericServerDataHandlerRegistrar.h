@@ -31,110 +31,131 @@ namespace common_serialization::csp::messaging
 class GenericServerDataHandlerRegistrar : public IServerDataHandlerRegistrar
 {
 public:
-    Status registerHandler(const Id& id, bool kMulticast, void* pServiceInstance, IServerDataHandlerBase* pHandler) override;
-    void unregisterHandler(const Id& id, IServerDataHandlerBase* pHandler) noexcept override;
+    Status registerHandler(const Id& id, bool kMulticast, Service* pService, IServerDataHandlerBase& handler) override;
+    void unregisterHandler(const Id& id, IServerDataHandlerBase& handler) noexcept override;
+    void unregisterService(Service* pService) noexcept override;
     Status aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handlers) noexcept override;
     Status aquireHandler(const Id& id, IServerDataHandlerBase*& pHandler) noexcept override;
-    void releaseHandler(const Id& id, IServerDataHandlerBase* pHandler) noexcept override;
+    void releaseHandler(IServerDataHandlerBase* pHandler) noexcept override;
 
 private:
     struct SdhHandle : public IServerDataHandlerBase
     {
-        SdhHandle(void* pServiceInstance, IServerDataHandlerBase* pHandler)
-            : pServiceInstance(pServiceInstance), pHandler(pHandler)
+        SdhHandle(Service* pService, IServerDataHandlerBase& handler)
+            : pService(pService), handler(handler)
         { }
 
         SdhHandle(SdhHandle&& rhs) noexcept
-            : pServiceInstance(rhs.pServiceInstance), pHandler(rhs.pHandler)
+            : pService(rhs.pService), handler(rhs.handler)
             , inUseCounter(rhs.inUseCounter.load(std::memory_order_relaxed)), notAvailable(rhs.notAvailable)
         { }
 
         Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) override
         {
-            return pHandler->handleDataCommon(ctx, clientId, binOutput);
+            return handler.handleDataCommon(ctx, clientId, binOutput);
         }
 
-        void* pServiceInstance{ nullptr };
-        IServerDataHandlerBase* pHandler{ nullptr };
+        Service* const pService;
+        IServerDataHandlerBase& handler;
         AtomicUint32T inUseCounter{ 0 };
         bool notAvailable{ false };
     };
 
-    struct ToUnregisterCountdown
+    struct ToUnregisterHandlerCountdown
     {
-        ToUnregisterCountdown(void* pServiceInstance, uint32_t totalInUseCounter)
-            : sem(0), pServiceInstance(pServiceInstance), totalInUseCounter(totalInUseCounter)
+        ToUnregisterHandlerCountdown(typename HashMultiMapT<Id, SdhHandle>::iterator it)
+            : sem(0), it(it)
+        { }
+       
+        mutable BinarySemaphoreT sem{ 0 };
+        typename HashMultiMapT<Id, SdhHandle>::iterator it;
+    };
+
+    struct ToUnregisterServiceCountdown
+    {
+        ToUnregisterServiceCountdown(Service* pService, uint32_t inUseCounter)
+            : sem(0), pService(pService), inUseCounter(inUseCounter)
         { }
 
         mutable BinarySemaphoreT sem{ 0 };
-        void* pServiceInstance{ nullptr };
-        AtomicUint32T totalInUseCounter{ 0 };
+        Service* const pService;
+        AtomicUint32T inUseCounter{ 0 };
     };
 
-    void unregisterInstanceUnsafe(void* pServiceInstance) noexcept;
+    void unregisterServiceUnsafe(Service* pService) noexcept;
 
     HashMultiMapT<Id, SdhHandle> m_handlerMap;
-    HashMultiMapT<Id, SdhHandle> m_tempHandlerMap;
-    ListT<ToUnregisterCountdown> m_unregisterCountdownList;
+    ListT<ToUnregisterServiceCountdown> m_unregisterServiceCountdownList;
+    ListT<ToUnregisterHandlerCountdown> m_unregisterHandlerCountdownList;
     mutable SharedMutex m_handlerMapMutex;
 };
 
-inline Status GenericServerDataHandlerRegistrar::registerHandler(const Id& id, bool kMulticast, void* pServiceInstance, IServerDataHandlerBase* pHandler)
+inline Status GenericServerDataHandlerRegistrar::registerHandler(const Id& id, bool kMulticast, Service* pService, IServerDataHandlerBase& handler)
 {
     WGuard guard(m_handlerMapMutex);
 
     if (!kMulticast && m_handlerMap.contains(id))
+    {
         assert(false);
+        return Status::kErrorInvalidArgument;
+    }
 
-    m_handlerMap.emplace(std::make_pair(id, SdhHandle{ pServiceInstance, pHandler }));
+    m_handlerMap.emplace(std::make_pair(id, SdhHandle{ pService, handler }));
 
     return Status::kNoError;
 }
 
-inline void GenericServerDataHandlerRegistrar::unregisterHandler(const Id& id, IServerDataHandlerBase* pHandler) noexcept
+inline void GenericServerDataHandlerRegistrar::unregisterHandler(const Id& id, IServerDataHandlerBase& handler) noexcept
 {
-    void* pServiceInstance{ nullptr };
-
-    {
-        bool notRemovedYet{ false };
-        RGuard guard(m_handlerMapMutex);
-        auto range = m_handlerMap.equal_range(id);
-        while (range.first != range.second)
-            if (range.first->second.pHandler == pHandler)
+    WGuard guard(m_handlerMapMutex);
+    
+    auto range = m_handlerMap.equal_range(id);
+    while (range.first != range.second)
+        if (&range.first->second.handler == &handler)
+        {
+            if (range.first->second.inUseCounter)
             {
-                notRemovedYet = true;
-                pServiceInstance = range.first->second.pServiceInstance;
-                break;
+                range.first->second.notAvailable = true;
+                m_unregisterHandlerCountdownList.emplace_front(range.first);
+                auto it = m_unregisterHandlerCountdownList.begin();
+                guard.unlock();
+                it->sem.acquire();
+                guard.lock();
+                m_unregisterHandlerCountdownList.erase(it);
             }
             else
-                ++range.first;
+                m_handlerMap.erase(range.first);
 
-        if (!notRemovedYet)
-            return;
-    }
+            break;
+        }
+        else
+            ++range.first;
+}
 
+inline void GenericServerDataHandlerRegistrar::unregisterService(Service* pService) noexcept
+{
     WGuard guard(m_handlerMapMutex);
 
     uint32_t totalInUseCounter = 0;
 
     for (auto& pair : m_handlerMap)
-        if (pair.second.pServiceInstance == pServiceInstance)
+        if (pair.second.pService == pService)
         {
             pair.second.notAvailable = true;
             totalInUseCounter += pair.second.inUseCounter.load(std::memory_order_relaxed);
         }
-    
+
     if (totalInUseCounter)
     {
-        m_unregisterCountdownList.emplace_front(pServiceInstance, totalInUseCounter);
-        auto it = m_unregisterCountdownList.begin();
+        m_unregisterServiceCountdownList.emplace_front(pService, totalInUseCounter);
+        auto it = m_unregisterServiceCountdownList.begin();
         guard.unlock();
         it->sem.acquire();
         guard.lock();
-        m_unregisterCountdownList.erase(it);
+        m_unregisterServiceCountdownList.erase(it);
     }
     else
-        unregisterInstanceUnsafe(pServiceInstance);
+        unregisterServiceUnsafe(pService);
 }
 
 inline Status GenericServerDataHandlerRegistrar::aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handles) noexcept
@@ -154,8 +175,7 @@ inline Status GenericServerDataHandlerRegistrar::aquireHandlers(const Id& id, Ra
             continue;
         }
 
-        //status = handles.pushBack(&range.first->second);
-        status = handles.pushBack(range.first->second.pHandler);
+        status = handles.pushBack(&range.first->second);
         if (!statusSuccess(status))
         {
             for (auto& handle : handles)
@@ -189,60 +209,60 @@ inline Status GenericServerDataHandlerRegistrar::aquireHandler(const Id& id, ISe
     if (firstIt->second.notAvailable)
         return Status::kErrorNotAvailible;
 
-   // pHandle = &firstIt->second;
-    //reinterpret_cast<SdhHandle*>(pHandle)->inUseCounter.fetch_add(1, std::memory_order_relaxed);
-    pHandle = firstIt->second.pHandler;
-    firstIt->second.inUseCounter.fetch_add(1, std::memory_order_relaxed);
+    pHandle = &firstIt->second;
+    reinterpret_cast<SdhHandle*>(pHandle)->inUseCounter.fetch_add(1, std::memory_order_relaxed);
 
     return Status::kNoError;
 }
 
-inline void GenericServerDataHandlerRegistrar::releaseHandler(const Id& id, IServerDataHandlerBase* pHandle) noexcept
+inline void GenericServerDataHandlerRegistrar::releaseHandler(IServerDataHandlerBase* pHandle) noexcept
 {
+    assert(pHandle);
+
     RGuard guard(m_handlerMapMutex);
 
-    //SdhHandle& handle = *reinterpret_cast<SdhHandle*>(pHandle);
+    SdhHandle& handle = *reinterpret_cast<SdhHandle*>(pHandle);
+    uint32_t prevUseCount = handle.inUseCounter.fetch_sub(1, std::memory_order_relaxed);
 
-    //handle.inUseCounter.fetch_sub(1, std::memory_order_relaxed);
-
-    auto range = m_handlerMap.equal_range(id);
-
-    while (range.first != range.second)
-        if (range.first->second.pHandler == pHandle)
-        {
-            range.first->second.inUseCounter.fetch_sub(1, std::memory_order_relaxed);
-            break;
-        }
-        else
-            ++range.first;
-
-
-
-    //if (handle.notAvailable)
-    if (range.first->second.notAvailable)
+    if (handle.notAvailable)
     {
-        void* pServiceInstance{ range.first->second.pServiceInstance };
-        for (auto& unregisterCountdown : m_unregisterCountdownList)
-            if (unregisterCountdown.pServiceInstance == pServiceInstance)
+        bool found{ false };
+
+        Service* pService{ handle.pService };
+        for (auto& unregisterServiceCountdown : m_unregisterServiceCountdownList)
+            if (unregisterServiceCountdown.pService == pService)
             {
-                if (unregisterCountdown.totalInUseCounter.fetch_sub(1, std::memory_order_acq_rel) == 1)
+                if (unregisterServiceCountdown.inUseCounter.fetch_sub(1, std::memory_order_acq_rel) == 1)
                 {
                     guard.unlock();
                     WGuard wguard(m_handlerMapMutex);
-                    unregisterInstanceUnsafe(pServiceInstance);
+                    unregisterServiceUnsafe(pService);
                     wguard.unlock();
-                    unregisterCountdown.sem.release();
+                    unregisterServiceCountdown.sem.release();
                 }
 
+                found = true;
                 break;
             }
+
+        if (!found && prevUseCount == 1)
+            for (auto& unregisterHandlerCountdown : m_unregisterHandlerCountdownList)
+                if (&unregisterHandlerCountdown.it->second.handler == &handle.handler)
+                {
+                    guard.unlock();
+                    WGuard wguard(m_handlerMapMutex);
+                    m_handlerMap.erase(unregisterHandlerCountdown.it);
+                    wguard.unlock();
+                    unregisterHandlerCountdown.sem.release();
+                    break;
+                }
     }
 }
 
-inline void GenericServerDataHandlerRegistrar::unregisterInstanceUnsafe(void* pServiceInstance) noexcept
+inline void GenericServerDataHandlerRegistrar::unregisterServiceUnsafe(Service* pService) noexcept
 {
     for (auto it = m_handlerMap.begin(), itEnd = m_handlerMap.end(); it != itEnd;)
-        if (it->second.pServiceInstance == pServiceInstance)
+        if (it->second.pService == pService)
             it = m_handlerMap.erase(it);
         else
             ++it;

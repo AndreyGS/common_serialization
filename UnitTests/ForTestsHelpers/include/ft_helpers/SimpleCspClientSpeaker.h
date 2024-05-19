@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataClient.h
+ * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleCspClientSpeaker.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataHandlers.h
+ * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleDataServices.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -80,13 +80,13 @@ using IServerDataHandler = cs::csp::messaging::IServerDataHandler<_T>;
 
 namespace csm = cs::csp::messaging;
 
-class FirstDataHandler 
+class FirstCspService
     : IServerDataHandler<csm::SdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>
     , IServerDataHandler<csm::SdhStack<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>
     , IServerDataHandler<csm::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
-    FirstDataHandler() = default;
+    FirstCspService() = default;
     
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
@@ -97,13 +97,24 @@ public:
         return Status::kNoError;
     }
 
-    Status unregisterHandlers(csm::IServerDataHandlerRegistrar& registrar)
+    void unregisterService(csm::IServerDataHandlerRegistrar& registrar)
+    {
+        registrar.unregisterService(this);
+    }
+
+    void unregisterSimplyAssignableAlignedToOne(csm::IServerDataHandlerRegistrar& registrar)
     {
         IServerDataHandler<csm::SdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>::unregisterHandler(registrar);
-        IServerDataHandler<csm::SdhStack<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>::unregisterHandler(registrar);
-        IServerDataHandler<csm::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>::unregisterHandler(registrar);
+    }
 
-        return Status::kNoError;
+    void unregisterDiamond(csm::IServerDataHandlerRegistrar& registrar)
+    {
+        IServerDataHandler<csm::SdhStack<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>::unregisterHandler(registrar);
+    }
+
+    void unregisterSimplyAssignable(csm::IServerDataHandlerRegistrar& registrar)
+    {
+        IServerDataHandler<csm::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>::unregisterHandler(registrar);
     }
 
     cs::Status handleData(
@@ -135,11 +146,11 @@ public:
     }
 };
 
-class SecondDataHandler
+class SecondCspService
     : IServerDataHandler<csm::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
-    SecondDataHandler() = default;
+    SecondCspService() = default;
 
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
@@ -147,10 +158,9 @@ public:
         return Status::kNoError;
     }
 
-    Status unregisterHandlers(csm::IServerDataHandlerRegistrar& registrar)
+    void unregisterService(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>::unregisterHandler(registrar);
-        return Status::kNoError;
+        registrar.unregisterService(this);
     }
 
     cs::Status handleData(const interface_for_test::SimplyAssignable<>& input
@@ -162,11 +172,11 @@ public:
     }
 };
 
-class ThirdDataHandler
+class ThirdCspService
     : IServerDataHandler<csm::SdhStackMulti<descendant_interface::DiamondDescendant<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
-    ThirdDataHandler() = default;
+    ThirdCspService() = default;
 
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
@@ -174,10 +184,9 @@ public:
         return Status::kNoError;
     }
 
-    Status unregisterHandlers(csm::IServerDataHandlerRegistrar& registrar)
+    void unregisterService(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::SdhStackMulti<descendant_interface::DiamondDescendant<>, cs::csp::service_structs::ISerializableDummy<>>>::unregisterHandler(registrar);
-        return Status::kNoError;
+        registrar.unregisterService(this);
     }
 
     cs::Status handleData(
@@ -190,11 +199,11 @@ public:
     }
 };
 
-class FourthDataHandler
+class FourthCspService
     : IServerDataHandler<csm::SdhStackMulti<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>>>
 {
 public:
-    FourthDataHandler() = default;
+    FourthCspService() = default;
 
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
@@ -202,10 +211,9 @@ public:
         return Status::kNoError;
     }
 
-    Status unregisterHandlers(csm::IServerDataHandlerRegistrar& registrar)
+    void unregisterService(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::SdhStackMulti<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>>>::unregisterHandler(registrar);
-        return Status::kNoError;
+        registrar.unregisterService(this);
     }
 
     cs::Status handleData(

@@ -160,6 +160,7 @@ CS_ALWAYS_INLINE Status Server::handleGetSettings(protocol_version_t cspVersion,
 
     return m_settings.serialize(ctxOut);
 }
+
 CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const
 {
     context::DData ctx(ctxCommon);
@@ -175,27 +176,27 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
     if (ctx.checkRecursivePointers())
         ctx.setPointersMap(&pointersMap);
 
-    IServerDataHandlerBase* pDataHandler{ nullptr };
-    Status status = m_dataHandlersRegistrar->aquireHandler(id, pDataHandler);
+    IServerDataHandlerBase* pHandler{ nullptr };
+    Status status = m_dataHandlersRegistrar->aquireHandler(id, pHandler);
 
     if (statusSuccess(status))
     {
-        status = pDataHandler->handleDataCommon(ctx, clientId, binOutput);
-        m_dataHandlersRegistrar->releaseHandler(id, pDataHandler);
+        status = pHandler->handleDataCommon(ctx, clientId, binOutput);
+        m_dataHandlersRegistrar->releaseHandler(pHandler);
     }
     else if (status == Status::kErrorMoreEntires) // if we have more than one DataHandler
     {
-        RawVectorT<IServerDataHandlerBase*> dataHandlers;
-        CS_RUN(m_dataHandlersRegistrar->aquireHandlers(id, dataHandlers));
+        RawVectorT<IServerDataHandlerBase*> handlers;
+        CS_RUN(m_dataHandlersRegistrar->aquireHandlers(id, handlers));
 
         status = Status::kNoError;
 
         typename BinVectorT::size_type bodyPosition = ctx.getBinaryData().tell();
 
-        for (auto pDataHandlerM : dataHandlers)
+        for (auto pHandlerM : handlers)
         {
-            SET_NEW_ERROR(pDataHandlerM->handleDataCommon(ctx, clientId, binOutput));
-            m_dataHandlersRegistrar->releaseHandler(id, pDataHandlerM);
+            SET_NEW_ERROR(pHandlerM->handleDataCommon(ctx, clientId, binOutput));
+            m_dataHandlersRegistrar->releaseHandler(pHandlerM);
             ctx.getBinaryData().seek(bodyPosition);
         }
     }

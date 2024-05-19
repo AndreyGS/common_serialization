@@ -30,6 +30,8 @@ namespace common_serialization::csp::messaging
 
 class IServerDataHandlerBase;
 
+using Service = void;
+
 /// @brief Registrar of servers that can process InOutData CSP requests
 class IServerDataHandlerRegistrar
 {
@@ -47,15 +49,20 @@ public:
     /// @brief Adds handler to handlers database
     /// @param id Input-struct id that handler is belongs to
     /// @param multicast Is it acceptable to have more than one handler to handle this Input-struct
-    /// @param pServiceInstance Pointer on service instance (service is aggregation of handlers)
-    /// @param pHandler Pointer on handler instance
+    /// @param pService Pointer to service instance (service is aggregation object of handlers).
+    ///     Note that nullptr is allowed.
+    /// @param handler Handler instance
     /// @return Status of operation
-    virtual Status registerHandler(const Id& id, bool multicast, void* pServiceInstance, IServerDataHandlerBase* pHandler) = 0;
+    virtual Status registerHandler(const Id& id, bool multicast, Service* pService, IServerDataHandlerBase& handler) = 0;
 
     /// @brief Removes handler from handlers database
     /// @param id Input-struct id that handler was handling
-    /// @param pInstance Handler instance that must be deleted
-    virtual void unregisterHandler(const Id& id, IServerDataHandlerBase* pHandler) noexcept = 0;
+    /// @param handler Handler instance
+    virtual void unregisterHandler(const Id& id, IServerDataHandlerBase& handler) noexcept = 0;
+
+    /// @brief Removes all handlers of particular service from handlers database
+    /// @param pService Pointer to service instance that holds handlers that should be removed
+    virtual void unregisterService(Service* pService) noexcept = 0;
 
     /// @brief Aquire all handlers that subscribed to handle Input-struct with given id
     /// @param id Input-struct id related to handlers
@@ -66,7 +73,7 @@ public:
 
     /// @brief Aquire single handler that is subsribed to handle Input-struct with given id
     /// @param id Input-struct id related to handler
-    /// @param pHandler Pointer on target handler
+    /// @param pHandler Pointer to target handler
     /// @return Status of operation.
     ///     If no handler was found, Status::kErrorNoSuchHandler is returned.
     ///     If there is more than one handler that handle this id, Status::kErrorMoreEntires is returned.
@@ -74,10 +81,10 @@ public:
 
     /// @brief Release of ISereverDataHandler use
     /// @param id Input-struct id related to handler
-    /// @param pHandler Pointer on target handler
+    /// @param pHandler Pointer to target handler
     /// @return Status of operation
     /// @note Called by Server after handleData processing
-    virtual void releaseHandler(const Id& id, IServerDataHandlerBase* pHandler) noexcept = 0;
+    virtual void releaseHandler(IServerDataHandlerBase* pHandler) noexcept = 0;
 };
 
 } // namespace common_serialization::csp::messaging

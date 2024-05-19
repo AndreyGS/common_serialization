@@ -58,8 +58,8 @@ public:
     virtual Status handleData(const InputType& input, VectorT<GenericPointerKeeperT>* pUnmanagedPointers, const GenericPointerKeeperT& clientId, OutputType& output) = 0;
     virtual Status checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId);
 
-    CS_ALWAYS_INLINE Status registerHandler(IServerDataHandlerRegistrar& serviceServer, void* pServiceInstance);
-    CS_ALWAYS_INLINE void unregisterHandler(IServerDataHandlerRegistrar& serviceServer);
+    CS_ALWAYS_INLINE Status registerHandler(IServerDataHandlerRegistrar& handlerRegistrar, void* pService);
+    CS_ALWAYS_INLINE void unregisterHandler(IServerDataHandlerRegistrar& handlerRegistrar);
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion();
 
 protected:
@@ -85,18 +85,15 @@ Status IServerDataHandler<_T>::checkPoliciesCompliance(const InputType* input, c
 }
 
 template<IServerDataHandlerTraits _T>
-CS_ALWAYS_INLINE Status IServerDataHandler<_T>::registerHandler(IServerDataHandlerRegistrar& serviceServer, void* pServiceInstance)
+CS_ALWAYS_INLINE Status IServerDataHandler<_T>::registerHandler(IServerDataHandlerRegistrar& handlerRegistrar, void* pService)
 {
-    if (!pServiceInstance)
-        return Status::kErrorInvalidArgument;
-
-    return serviceServer.registerHandler(InputType::getId(), kMulticast, pServiceInstance, this);
+    return handlerRegistrar.registerHandler(InputType::getId(), kMulticast, pService, *this);
 }
 
 template<IServerDataHandlerTraits _T>
-CS_ALWAYS_INLINE void IServerDataHandler<_T>::unregisterHandler(IServerDataHandlerRegistrar& serviceServer)
+CS_ALWAYS_INLINE void IServerDataHandler<_T>::unregisterHandler(IServerDataHandlerRegistrar& handlerRegistrar)
 {
-    serviceServer.unregisterHandler(InputType::getId(), this);
+    handlerRegistrar.unregisterHandler(InputType::getId(), *this);
 }
 
 template<IServerDataHandlerTraits _T>
