@@ -144,7 +144,7 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
         status = Status::kErrorDataCorrupted;
 
     if (binOutput.size() == 0)
-        status = processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), m_settings.mandatoryCommonFlags, status);
+        status = processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), status);
 
     return status;
 }

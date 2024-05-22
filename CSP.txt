@@ -1,4 +1,5 @@
 Common Serialization Protocol (CSP)
+==================================
 
   CSP is the protocol of serialization that provide fast serialization
   process, with low memory consumption.  It supports versioning of
@@ -33,14 +34,15 @@ Common Serialization Protocol (CSP)
   
   Some examples will include C notation.
 
-Message Format
+Message format
+==============
 
   Message has three main parts: Common Context, Private Context and
   Private Body.  Private parts are usually named by Message Type.
   So instead of saying Private Context or Private Body of Data Message
   we are saying Data Context or Data Body.
   
-  CSP Message Format
+  CSP Message format
        
             |  64 bits long |Variable length|Variable length|
             +---------------+---------------+---------------+
@@ -54,13 +56,14 @@ Message Format
   formats, depends on Message Type.
 
 
-Common Context Format
+Common Context format
+=====================
 
   Start of any Message include Common Context part.  It has fixed length
   of 64 bits. Fields included here affect on all Private Parts of the
   Message.
   
-  CSP Common Context Format
+  CSP Common Context format
 
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -113,17 +116,19 @@ Common Context Format
     Bits 3-31: unused (reserved, must be zero).
 
 Private parts
+==============
 
   Private parts structure depends on Message Type.
 
 Status Message
+==============
 
   Status Messages are sends in Messaging process, in several cases.
   That will be discused in Messaging section.
   
   Status Context
 
-  CSP Status Context Format
+  CSP Status Context format
 
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -294,11 +299,12 @@ Status Message
     Does not have Status Body part.
 
 Data Message
+============
 
   Data Messages are the central part of CSP protocol.  This messages
   include endpoint data that should be serialized and vice versa.
   
-  Data Context Format
+  Data Context format
 
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -387,6 +393,7 @@ Data Message
     discussed in the same name section.
     
 GetSettings Message
+===================
 
   GetSettings Message is sends by client in Messaging process when he
   want to know capabilities and restrictions of server including
@@ -399,6 +406,7 @@ GetSettings Message
   Structs Interface section.
 
 Data that can be serialized by CSP
+==================================
 
   Primitives
     
@@ -435,6 +443,7 @@ Data that can be serialized by CSP
     This Top-struct is must to belong to one of CSP Interfaces.
    
 Structures tags
+===============
 
   Empty type tag
   
@@ -497,6 +506,7 @@ Structures tags
   status must be returned.
     
 Structures in the CSP view
+==========================
 
   Imagine next structs scheme:
   
@@ -551,6 +561,7 @@ Structures in the CSP view
   Serialize it field-by-field.
   
 How data is serialized
+======================
 
   CSP has quite a lot of flexibility in this question.  It depends on
   structures tags, Common and Data flags.  Next sections will go into
@@ -559,6 +570,7 @@ How data is serialized
   sections.
   
 Serialization of Primitives
+===========================
 
   No flags are set
   
@@ -628,6 +640,7 @@ Serialization of Primitives
     octet that holds this type size in octets.
     
 Serialization of Pointers
+=========================
 
   Data Flag Allow unmanaged pointers
   
@@ -973,6 +986,7 @@ Serialization of Pointers
         55-59: m.pl[1].pi[1]
     
 Serialization of Arrays
+=======================
 
   Any flags settings
   
@@ -1058,6 +1072,7 @@ Serialization of Arrays
       but it haven'tm for the sake of current example).
       
 Serialization of Structures
+===========================
 
   For common rules go to "Structures in the CSP view" section.
   
@@ -1148,12 +1163,14 @@ Serialization of Structures
       45-48 octets: value of d.j
       
 CSP Interfaces
+==============
 
   By CSP Interface we mean the set of structures where every one have
   several mandatory interface properties and several mandatory
   individual properties.  
   
 Interface properties
+====================
   
   Interface ID
   
@@ -1179,7 +1196,8 @@ Interface properties
     structs.  Cannot be changed.
   
 Structures individual properties
-(applied to those that are part of any CSP Interface)
+(applied to those that are part of CSP Interface)
+=================================================
 
   Struct ID
   
@@ -1225,6 +1243,7 @@ Structures individual properties
     flags and additional forbidden data flags.
   
 Types that are in use in CSP Interfaces
+=======================================
 
   It is important to say that structs in concrete interface are allowed
   to be made of types that are not part of this interface.  And there is
@@ -1240,6 +1259,7 @@ Types that are in use in CSP Interfaces
   Dependent Interfaces section.
   
 Dependent Interfaces
+====================
 
   CSP allows to inherit interfaces.  But descendant interfaces are have
   one and only one parent.  It must have the same versioning order as
@@ -1259,6 +1279,7 @@ Dependent Interfaces
   parent one, than need to wait before parent interface will be updated.
       
 CSP Interfaces Versioning
+=========================
 
   When struct that is part of current CSP Interface is changed or new
   struct is added, we mean that CSP Interface is changed and this change
@@ -1539,6 +1560,7 @@ CSP Interfaces Versioning
   Second, it's just not very pretty (in my opinion).
   
 Processing of CSP Interface structs conversions
+===============================================
 
   The only reason for keeping legacy versions of structs in interface
   is to have ability to deal with them when version of interface is not
@@ -1675,16 +1697,17 @@ Processing of CSP Interface structs conversions
       framing struct.
       
 CSP Messaging
+=============
 
   There are two participants in Messaging process: Client and Server.
   
   Client
   
-    Sends requests to Server and receives answers from it.
+    Sends requests to Server and receives responses from it.
   
   Server
   
-    Receives requests from Client and answers them.
+    Receives requests from Client and responses them.
     
     The main requests is Data Messages.  According to Top-struct in Data
     Message server choose handler(s) to process it.
@@ -1694,10 +1717,10 @@ CSP Messaging
     
     Handler types:
     
-      unicast: server can have only one routine where concrete
+      unicast: Server can have only one routine where concrete
         Top-struct is input struct;
         
-      multicast: server may have any count of routines where concrete
+      multicast: Server may have any count of routines where concrete
         Top-struct is input struct, but every such routine must have
         no output struct.
     
@@ -1731,9 +1754,96 @@ CSP Messaging
     
       - Client sends pseudo-message with only Common Context included,
         and with Protocol Version Undefined in CSP Version field;
-
-    
         
+      - Server answers with Status Message 
+        ErrorNotSupportedProtocolVersion;
+        
+      - Client choose prefered version from received from Server;
+      
+      - Client sends GetSettings Message using protocol version
+        choosed on previous step;
+      
+      - Server answers with Data Message where Top-struct is
+        CspPartySettings struct (see CSP Service Structs interface
+        section);
+        
+      - Client choose compatible settings according to received one to
+        talk with Server.
+        
+CSP Service Structs Interface
+=============================
+
+  It is the mandatory interface that must be implemented by every CSP
+  instance.  Because of this fact there is no need to send its
+  parameters in response of supported interfaces.
+  
+  This interface using in Messaging process.
+  
+  Properties:
+  
+    Interface ID: 47be322-232e-4d66-9175-06eed2110b4b
+    Version: corespond to CSP protocol version
+    Mandatory data flags: empty
+    Forbidden data flags: SizeOfIntegersMayBeNotEqual,
+      AllowUnmanagedPointers, CheckRecursivePointers
+  
+  Structs included in Version 1:
+  
+    Dummy
+    
+      Interface ID: 60b0dd3e-7d2e-42d9-b00d-90f7ecd19d25
+      Fields: empty
+      Description: placeholder for absent struct.  Primarily using as
+        Output struct type when in response need Status of operation.
+        
+    GetInterface
+        
+      Interface ID: 08c68657-4fa7-4419-8c13-66aec2b06cb0
+      Fields:
+        Id: GUIDv4 of CSP Interface
+      Description: sends for request of Interface propreties
+      
+    OutGetInterface
+    
+      Interface ID: 22bd67db-65a0-42f4-b28b-63c6181aebe1
+      Fields:
+        Id: GUIDv4 of CSP Interface
+        Interface version: Version of interface
+        Mandatory Data flags: Mandatory data flags of interface
+        Forbidden Data flags: Forbidden data flags of interface
+        
+        Note: these 4 fields may also be named as Interface Properties
+        struct
+      Description: sends in response of GetInterface.
+      
+    InterfaceVersion
+    
+      Interface ID: df1cb40c-9a72-426b-a801-b0993fe76a46
+      Fields:
+        Id: GUIDv4 of CSP Interface
+        Interface version: Version of interface
+    
+    CspPartySettings
+    
+      Interface ID: bf8c27e8-fe6a-4492-91cb-e4cf411e1236
+      Fields:
+        Count of CSP versions: count of versions in the next field, as
+          size_t
+        CSP versions: array of versions of CSP protocol in decreasing
+          order
+        Mandatory Common flags: Mandatory common flags
+        Forbidden Common flags: Forbidden common flags
+        Count of CSP Interfaces: count of versions in the next field, as
+          size_t
+        CSP Interfaces: array of InterfaceVersion structs
+
+      Description: contain supported settings of CSP party (Client or
+        Server).  Sends in response of GetSettings Message.        
+        
+========================================================================
+========================================================================
+========================================================================
+     
 Copyright (c) 2023-2024 Andrey Grabov-Smetankin <ukbpyh@gmail.com>
 
 Permission is hereby granted, free of charge, to any person

@@ -35,5 +35,3 @@
 35. Add more tests on UniquePtr.
 36. Add tests on makeUniquexxx functions.
 37. Add Vector emplace and emplaceFront methods.
-38. Add stress unit-tests for adding and deleting IServerDataHandlerBases instances to GenericServerDataHandlerRegistrar.
-

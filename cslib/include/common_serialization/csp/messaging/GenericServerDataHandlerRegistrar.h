@@ -39,7 +39,7 @@ public:
     void releaseHandler(IServerDataHandlerBase* pHandler) noexcept override;
 
 private:
-    struct SdhHandle : public IServerDataHandlerBase
+    struct SdhHandle : IServerDataHandlerBase
     {
         SdhHandle(Service* pService, IServerDataHandlerBase& handler)
             : pService(pService), handler(handler)
@@ -63,12 +63,13 @@ private:
 
     struct ToUnregisterHandlerCountdown
     {
-        ToUnregisterHandlerCountdown(typename HashMultiMapT<Id, SdhHandle>::iterator it)
-            : sem(0), it(it)
+        ToUnregisterHandlerCountdown(const Id& id, SdhHandle& handle)
+            : sem(0), id(id), handle(handle)
         { }
        
         mutable BinarySemaphoreT sem{ 0 };
-        typename HashMultiMapT<Id, SdhHandle>::iterator it;
+        const Id& id;
+        SdhHandle& handle;
     };
 
     struct ToUnregisterServiceCountdown
@@ -87,7 +88,7 @@ private:
     HashMultiMapT<Id, SdhHandle> m_handlerMap;
     ListT<ToUnregisterServiceCountdown> m_unregisterServiceCountdownList;
     ListT<ToUnregisterHandlerCountdown> m_unregisterHandlerCountdownList;
-    mutable SharedMutex m_handlerMapMutex;
+    mutable SharedMutexT m_handlerMapMutex;
 };
 
 inline Status GenericServerDataHandlerRegistrar::registerHandler(const Id& id, bool kMulticast, Service* pService, IServerDataHandlerBase& handler)
@@ -116,7 +117,7 @@ inline void GenericServerDataHandlerRegistrar::unregisterHandler(const Id& id, I
             if (range.first->second.inUseCounter)
             {
                 range.first->second.notAvailable = true;
-                m_unregisterHandlerCountdownList.emplace_front(range.first);
+                m_unregisterHandlerCountdownList.emplace_front(range.first->first, range.first->second);
                 auto it = m_unregisterHandlerCountdownList.begin();
                 guard.unlock();
                 it->sem.acquire();
@@ -247,11 +248,21 @@ inline void GenericServerDataHandlerRegistrar::releaseHandler(IServerDataHandler
 
         if (!found && prevUseCount == 1)
             for (auto& unregisterHandlerCountdown : m_unregisterHandlerCountdownList)
-                if (&unregisterHandlerCountdown.it->second.handler == &handle.handler)
+                if (&unregisterHandlerCountdown.handle.handler == &handle.handler)
                 {
                     guard.unlock();
                     WGuard wguard(m_handlerMapMutex);
-                    m_handlerMap.erase(unregisterHandlerCountdown.it);
+                    auto range = m_handlerMap.equal_range(unregisterHandlerCountdown.id);
+                    while (range.first != range.second)
+                    {
+                        if (&range.first->second.handler == &handle.handler)
+                        {
+                            m_handlerMap.erase(range.first);
+                            break;
+                        }
+                        else
+                            ++range.first;
+                    }
                     wguard.unlock();
                     unregisterHandlerCountdown.sem.release();
                     break;

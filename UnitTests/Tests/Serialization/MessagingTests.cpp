@@ -221,7 +221,7 @@ TEST(MessagingTests, DataMessageHandling)
         
     std::thread test3([&]
         {
-            for (size_t i = 0; i < 100; ++i)
+            for (size_t i = 0; i < 200; ++i)
             {
                 pFirstCspService->unregisterService(*commonServer.getDataHandlersRegistrar());
                 delete pFirstCspService;
@@ -234,7 +234,13 @@ TEST(MessagingTests, DataMessageHandling)
                 pFirstCspService->unregisterSimplyAssignable(*commonServer.getDataHandlersRegistrar());
                 pFirstCspService->unregisterService(*commonServer.getDataHandlersRegistrar());
                 pFirstCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
+            }
+        });
 
+    std::thread test4([&]
+        {
+            for (size_t i = 0; i < 200; ++i)
+            {
                 pSecondCspService->unregisterService(*commonServer.getDataHandlersRegistrar());
                 delete pSecondCspService;
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -248,6 +254,7 @@ TEST(MessagingTests, DataMessageHandling)
     test1.join();
     test2.join();
     test3.join();
+    test4.join();
 
     // Legacy interface versions
     clientSettings.interfaces[0].version = 1;
