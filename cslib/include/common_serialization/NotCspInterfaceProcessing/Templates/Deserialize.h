@@ -39,7 +39,7 @@ Status deserialize(X& ctx, Vector<T, A>& value)
     CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
     value.m_dataSize = size;
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data::templates

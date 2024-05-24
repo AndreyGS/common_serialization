@@ -42,7 +42,7 @@ TEST(ISerializableAnotherBitness, SpecialTBasicT)
         , csp::context::CommonFlags{ helpers::isBitness64() ? csp::context::CommonFlags::kBitness32 : csp::context::CommonFlags::kNoFlagsMask }
         , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     csp::context::DData ctxOut(bin);
 
@@ -50,7 +50,7 @@ TEST(ISerializableAnotherBitness, SpecialTBasicT)
     ctxOut.setAddedPointers(&addedPointers);
 
     SpecialProcessingType output;
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);

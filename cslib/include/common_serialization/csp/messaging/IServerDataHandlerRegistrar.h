@@ -68,15 +68,15 @@ public:
     /// @param id Input-struct id related to handlers
     /// @param handlers Container that would be filled with target handlers
     /// @return Status of operation.
-    ///     If no handlers were found, Status::kErrorNoSuchHandler is returned.
+    ///     If no handlers were found, Status::ErrorNoSuchHandler is returned.
     virtual Status aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handlers) noexcept = 0;
 
     /// @brief Aquire single handler that is subsribed to handle Input-struct with given id
     /// @param id Input-struct id related to handler
     /// @param pHandler Pointer to target handler
     /// @return Status of operation.
-    ///     If no handler was found, Status::kErrorNoSuchHandler is returned.
-    ///     If there is more than one handler that handle this id, Status::kErrorMoreEntires is returned.
+    ///     If no handler was found, Status::ErrorNoSuchHandler is returned.
+    ///     If there is more than one handler that handle this id, Status::ErrorMoreEntires is returned.
     virtual Status aquireHandler(const Id& id, IServerDataHandlerBase*& pHandler) noexcept = 0;
 
     /// @brief Release of ISereverDataHandler use

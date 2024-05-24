@@ -39,7 +39,7 @@ void mainTest()
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAllowUnmanagedPointers));
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     T output;
 
@@ -47,7 +47,7 @@ void mainTest()
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(&addedPointers);
 
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);

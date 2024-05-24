@@ -34,7 +34,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
     CS_RUN(deserialize(ctx, value.m_x));
     CS_RUN(deserialize(ctx, value.m_y));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -59,7 +59,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
 
     CS_RUN(deserialize(ctx, value.m_vx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -71,7 +71,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
 
     CS_RUN(deserialize(ctx, value.m_d));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -82,7 +82,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Alway
     CS_RUN(deserialize(ctx, value.m_x));
     CS_RUN(deserialize(ctx, value.m_y));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -94,7 +94,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
     CS_RUN(deserialize(ctx, value.m_asa));
     CS_RUN(deserialize(ctx, value.m_arrAsa));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -108,7 +108,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Dynam
     CS_RUN(deserialize(ctx, value.m_arrO));
     CS_RUN(deserialize(ctx, value.m_arrDpNS));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -119,7 +119,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Diamo
     CS_RUN(deserialize(ctx, static_cast<not_part_of_interfaces::DiamondEdge1&>(value)));
     CS_RUN(deserialize(ctx, static_cast<not_part_of_interfaces::DiamondEdge2&>(value)));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -143,7 +143,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Speci
     CS_RUN(deserialize(ctx, value.m_float));
     CS_RUN(deserialize(ctx, value.m_double));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -154,7 +154,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
     CS_RUN(deserialize(ctx, value.m_j));
     CS_RUN(deserialize(ctx, value.m_k));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -165,7 +165,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
     CS_RUN(deserialize(ctx, value.m_j));
     CS_RUN(deserialize(ctx, value.m_k));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -176,7 +176,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
     CS_RUN(deserialize(ctx, value.m_j));
     CS_RUN(deserialize(ctx, value.m_k));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -187,7 +187,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
     CS_RUN(deserialize(ctx, value.m_j));
     CS_RUN(deserialize(ctx, value.m_k));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -201,7 +201,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simil
     CS_RUN(deserialize(ctx, value.m_sasTs));
     CS_RUN(deserialize(ctx, value.m_saaToSts));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -215,7 +215,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simil
     CS_RUN(deserialize(ctx, value.m_sasTs));
     CS_RUN(deserialize(ctx, value.m_saaToSts));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -233,7 +233,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ManyP
     CS_RUN(deserialize(ctx, value.m_ppInt));
     CS_RUN(deserialize(ctx, value.m_nullptrInt));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -249,7 +249,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::DForA
     CS_RUN(deserialize(ctx, value.m_stS));
     CS_RUN(deserialize(ctx, value.m_mpt));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -260,7 +260,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Conta
     CS_RUN(deserialize(ctx, value.m_sawsf));
     CS_RUN(deserialize(ctx, value.m_npfSawsf));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

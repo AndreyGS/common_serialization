@@ -37,7 +37,7 @@ CS_ALWAYS_INLINE constexpr Status writePrimitive(const T& value, context::SCommo
         if (ctx.isEndiannessNotMatch())
         {
             if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
-                return Status::kErrorNotSupportedSerializationSettingsForStruct;
+                return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
             return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
         }
@@ -66,11 +66,11 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, T& value)
         if (ctx.isEndiannessNotMatch())
         {
             if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
-                return Status::kErrorNotSupportedSerializationSettingsForStruct;
+                return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
             CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
             (const_cast<std::remove_const_t<T>&>(value)) = helpers::reverseEndianess(value);
-            return Status::kNoError;
+            return Status::NoError;
         }
         else
             return ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value));
@@ -89,7 +89,7 @@ CS_ALWAYS_INLINE constexpr Status readRawData(context::DCommon& ctx, csp_size_t 
 
     CS_RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
 
-    return readSize == bytesSize ? Status::kNoError : Status::kErrorOverflow;
+    return readSize == bytesSize ? Status::NoError : Status::ErrorOverflow;
 }
 
 } // namespace common_serialization::csp::processing

@@ -43,7 +43,7 @@ TEST(ISerializableAnotherEndianness, SpecialTBasicT)
         , csp::context::CommonFlags{ helpers::isLittleEndianPlatform() ? csp::context::CommonFlags::kBigEndianFormat : csp::context::CommonFlags::kNoFlagsMask }
         , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     csp::context::DData ctxOut(bin);
 
@@ -51,7 +51,7 @@ TEST(ISerializableAnotherEndianness, SpecialTBasicT)
     ctxOut.setAddedPointers(&addedPointers);
 
     SpecialProcessingType output;
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);

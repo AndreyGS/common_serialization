@@ -64,36 +64,36 @@ namespace common_serialization
 enum class Status : int32_t
 {
     // No error
-    kNoError                                        =        0,
-
-    // Info messages
-    kNoFurtherProcessingRequired                    =        1,
-
-    // Errors
-    kErrorNoMemory                                  =       -1,
-    kErrorOverflow                                  =       -2,
-    kErrorInvalidArgument                           =       -3,
-    kErrorNotSupportedProtocolVersion               =       -4,
-    kErrorNotSupportedInterfaceVersion              =       -5,
-    kErrorInvalidHash                               =       -6,
-    kErrorMismatchOfProtocolVersions                =       -7,
-    kErrorMismatchOfInterfaceVersions               =       -8,
-    kErrorMismatchOfStructId                        =       -9,
-    kErrorNoSuchHandler                             =      -10,
-    kErrorInternal                                  =      -11,
-    kErrorNotSupportedSerializationSettingsForStruct=      -12,
-    kErrorInvalidType                               =      -13,
-    kErrorDataCorrupted                             =      -14,
-    kErrorNotCompatibleCommonFlagsSettings          =      -15,
-    kErrorNotCompatibleDataFlagsSettings            =      -16,
-    kErrorMoreEntires                               =      -17,
-    kErrorNotInited                                 =      -18,
-    kErrorNoSupportedInterfaces                     =      -19,
-    kErrorNotSupportedInterface                     =      -20,
-    kErrorTypeSizeIsTooBig                          =      -21,
-    kErrorValueOverflow                             =      -22,
-    kErrorNotAvailible                              =      -23,
-    kErrorAlreadyInited                             =      -24
+    NoError                                         =        0,
+                                                    
+    // Info messages                                
+    NoFurtherProcessingRequired                     =        1,
+                                                    
+    // Errors                                       
+    ErrorNoMemory                                   =       -1,
+    ErrorOverflow                                   =       -2,
+    ErrorInvalidArgument                            =       -3,
+    ErrorNotSupportedProtocolVersion                =       -4,
+    ErrorNotSupportedInterfaceVersion               =       -5,
+    ErrorInvalidHash                                =       -6,
+    ErrorMismatchOfProtocolVersions                 =       -7,
+    ErrorMismatchOfInterfaceVersions                =       -8,
+    ErrorMismatchOfStructId                         =       -9,
+    ErrorNoSuchHandler                              =      -10,
+    ErrorInternal                                   =      -11,
+    ErrorNotSupportedSerializationSettingsForStruct =      -12,
+    ErrorInvalidType                                =      -13,
+    ErrorDataCorrupted                              =      -14,
+    ErrorNotCompatibleCommonFlagsSettings           =      -15,
+    ErrorNotCompatibleDataFlagsSettings             =      -16,
+    ErrorMoreEntires                                =      -17,
+    ErrorNotInited                                  =      -18,
+    ErrorNoSupportedInterfaces                      =      -19,
+    ErrorNotSupportedInterface                      =      -20,
+    ErrorTypeSizeIsTooBig                           =      -21,
+    ErrorValueOverflow                              =      -22,
+    ErrorNotAvailible                               =      -23,
+    ErrorAlreadyInited                              =      -24
 };
 
 [[nodiscard]] CS_ALWAYS_INLINE constexpr bool statusSuccess(Status status)

@@ -34,7 +34,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignableAl
     CS_RUN(serialize(value.a, ctx));
     CS_RUN(serialize(value.s, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -45,7 +45,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::SimplyAssignable& 
     CS_RUN(serialize(value.q, ctx));
     CS_RUN(serialize(value.w, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 
@@ -57,7 +57,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::DynamicPolymorphic
     CS_RUN(serialize(value.m_r, ctx));
     CS_RUN(serialize(value.m_arrR, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -67,7 +67,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondBase& value
 
     CS_RUN(serialize(value.m_d0, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -78,7 +78,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge1& valu
     CS_RUN(serialize(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
     CS_RUN(serialize(value.m_d1, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -89,7 +89,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::DiamondEdge2& valu
     CS_RUN(serialize(static_cast<const not_part_of_interfaces::DiamondBase&>(value), ctx));
     CS_RUN(serialize(value.m_d2, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -100,7 +100,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::TwoInts& value, co
     CS_RUN(serialize(value.x, ctx));
     CS_RUN(serialize(value.y, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -110,7 +110,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpeci
 
     CS_RUN(serialize(value.pAny, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -122,7 +122,7 @@ Status BodyProcessor::serialize(const not_part_of_interfaces::RecursiveTestSpeci
     CS_RUN(serialize(value.pNext, ctx));
     CS_RUN(serialize(value.pAny, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

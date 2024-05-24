@@ -37,10 +37,10 @@ void mainTest()
     BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff));
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     T output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(output.deserialize(bin), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
@@ -73,10 +73,10 @@ TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, ContainSimplyAs
     fillingStruct(input);
 
     BinWalkerT bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
 
     ContainSimplyAssignableWithoutSerializationFunctions<> output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(output.deserialize(bin), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
@@ -84,7 +84,7 @@ TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, ContainSimplyAs
     bin.clear();
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff));
-    EXPECT_EQ(input.serialize(ctxIn), Status::kErrorNotSupportedSerializationSettingsForStruct);
+    EXPECT_EQ(input.serialize(ctxIn), Status::ErrorNotSupportedSerializationSettingsForStruct);
 }
 
 

@@ -42,7 +42,7 @@ void mainTest()
     std::unordered_map<const void*, size_t> sMap;
     ctxIn.setPointersMap(&sMap);
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     EXPECT_TRUE(ctxIn.getPointersMap()->size() > 0);
 
@@ -54,7 +54,7 @@ void mainTest()
 
     T output;
 
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_TRUE(ctxOut.getPointersMap()->size() > 0);
 
     EXPECT_EQ(bin.tell(), bin.size());

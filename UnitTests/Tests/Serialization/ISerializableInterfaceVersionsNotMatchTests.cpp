@@ -36,12 +36,12 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
     BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector(), csp::context::CommonFlags{ helpers::isBigEndianPlatform() }, csp::context::DataFlags{}, false, 0);
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     csp::context::DData ctxOut(bin);
     SimplyAssignableAlignedToOne output;
 
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
 
     EXPECT_EQ(input, output);
 
@@ -56,19 +56,19 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
     BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector(), csp::context::CommonFlags{ helpers::isBigEndianPlatform() }, csp::context::DataFlags{}, false, 1);
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     csp::context::DData ctxOut(bin);
     SimplyAssignable output;
 
     // test minimum interface version that is higher than in serialized data
     ctxOut.setInterfaceVersion(2);
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kErrorNotSupportedInterfaceVersion);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::ErrorNotSupportedInterfaceVersion);
 
     ctxOut.resetToDefaultsExceptDataContents();
 
     // normal deserialization
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
 
     EXPECT_EQ(input, output);
 

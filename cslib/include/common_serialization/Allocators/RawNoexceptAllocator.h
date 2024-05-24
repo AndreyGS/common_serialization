@@ -119,7 +119,7 @@ constexpr Status RawNoexceptAllocator<_T>::construct(pointer p, _Args&&... args)
     assert(p);
 
     new ((void*)p) value_type(std::forward<_Args>(args)...);
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T>

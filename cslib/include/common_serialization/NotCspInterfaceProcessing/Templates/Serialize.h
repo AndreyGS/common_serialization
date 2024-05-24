@@ -34,7 +34,7 @@ Status serialize(const Vector<T, A>& value, X& ctx)
     CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
     CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
     
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data::templates

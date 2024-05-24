@@ -47,7 +47,7 @@ private:
 
         SdhHandle(SdhHandle&& rhs) noexcept
             : pService(rhs.pService), handler(rhs.handler)
-            , inUseCounter(rhs.inUseCounter.load(std::memory_order_relaxed)), notAvailable(rhs.notAvailable)
+            , inUseCounter(rhs.inUseCounter.load(std::memory_order_relaxed)), state(rhs.state)
         { }
 
         Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) override
@@ -55,39 +55,44 @@ private:
             return handler.handleDataCommon(ctx, clientId, binOutput);
         }
 
-        Service* const pService;
+        enum class State
+        {
+            Active,
+            HandlerRemove,
+            ServiceRemove
+        };
+
+        Service* const pService{ nullptr };
         IServerDataHandlerBase& handler;
         AtomicUint32T inUseCounter{ 0 };
-        bool notAvailable{ false };
+        State state{ State::Active };
     };
 
-    struct ToUnregisterHandlerCountdown
+    struct ToUnregisterHandler
     {
-        ToUnregisterHandlerCountdown(const Id& id, SdhHandle& handle)
-            : sem(0), id(id), handle(handle)
+        ToUnregisterHandler(const Id& id, SdhHandle& handle)
+            : done(1), id(id), handle(handle)
         { }
        
-        mutable BinarySemaphoreT sem{ 0 };
+        mutable LatchT done{ 1 };
         const Id& id;
         SdhHandle& handle;
     };
 
-    struct ToUnregisterServiceCountdown
+    struct ToUnregisterService
     {
-        ToUnregisterServiceCountdown(Service* pService, uint32_t inUseCounter)
-            : sem(0), pService(pService), inUseCounter(inUseCounter)
+        ToUnregisterService(Service* pService, uint32_t inUseCounter)
+            : done(1), pService(pService), inUseCounter(inUseCounter)
         { }
 
-        mutable BinarySemaphoreT sem{ 0 };
-        Service* const pService;
+        mutable LatchT done{ 1 };
+        Service* const pService{ nullptr };
         AtomicUint32T inUseCounter{ 0 };
     };
 
-    void unregisterServiceUnsafe(Service* pService) noexcept;
-
     HashMultiMapT<Id, SdhHandle> m_handlerMap;
-    ListT<ToUnregisterServiceCountdown> m_unregisterServiceCountdownList;
-    ListT<ToUnregisterHandlerCountdown> m_unregisterHandlerCountdownList;
+    ListT<ToUnregisterService> m_unregisterServiceList;
+    ListT<ToUnregisterHandler> m_unregisterHandlerList;
     mutable SharedMutexT m_handlerMapMutex;
 };
 
@@ -98,12 +103,12 @@ inline Status GenericServerDataHandlerRegistrar::registerHandler(const Id& id, b
     if (!kMulticast && m_handlerMap.contains(id))
     {
         assert(false);
-        return Status::kErrorInvalidArgument;
+        return Status::ErrorInvalidArgument;
     }
 
     m_handlerMap.emplace(std::make_pair(id, SdhHandle{ pService, handler }));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 inline void GenericServerDataHandlerRegistrar::unregisterHandler(const Id& id, IServerDataHandlerBase& handler) noexcept
@@ -114,15 +119,36 @@ inline void GenericServerDataHandlerRegistrar::unregisterHandler(const Id& id, I
     while (range.first != range.second)
         if (&range.first->second.handler == &handler)
         {
+            bool deferred = false;
+
             if (range.first->second.inUseCounter)
             {
-                range.first->second.notAvailable = true;
-                m_unregisterHandlerCountdownList.emplace_front(range.first->first, range.first->second);
-                auto it = m_unregisterHandlerCountdownList.begin();
+                deferred = true;
+                range.first->second.state = SdhHandle::State::HandlerRemove;
+                m_unregisterHandlerList.emplace_front(range.first->first, range.first->second);
+                auto it = m_unregisterHandlerList.begin();
                 guard.unlock();
-                it->sem.acquire();
+                it->done.wait();
                 guard.lock();
-                m_unregisterHandlerCountdownList.erase(it);
+                m_unregisterHandlerList.erase(it);
+            }
+            
+            // If we've been waiting of releasing handler there can be possibility of map rehashing.
+            // If it is true, C++ standard say that all unordered_map iterators will be invalidated.
+            // So we can't just pass to erase function previously found iterator.
+            if (deferred)
+            {
+                auto newRange = m_handlerMap.equal_range(id);
+                while (newRange.first != newRange.second)
+                {
+                    if (&newRange.first->second.handler == &handler)
+                    {
+                        m_handlerMap.erase(newRange.first);
+                        break;
+                    }
+                    else
+                        ++newRange.first;
+                }
             }
             else
                 m_handlerMap.erase(range.first);
@@ -142,26 +168,30 @@ inline void GenericServerDataHandlerRegistrar::unregisterService(Service* pServi
     for (auto& pair : m_handlerMap)
         if (pair.second.pService == pService)
         {
-            pair.second.notAvailable = true;
+            pair.second.state = SdhHandle::State::ServiceRemove;
             totalInUseCounter += pair.second.inUseCounter.load(std::memory_order_relaxed);
         }
 
     if (totalInUseCounter)
     {
-        m_unregisterServiceCountdownList.emplace_front(pService, totalInUseCounter);
-        auto it = m_unregisterServiceCountdownList.begin();
+        m_unregisterServiceList.emplace_front(pService, totalInUseCounter);
+        auto it = m_unregisterServiceList.begin();
         guard.unlock();
-        it->sem.acquire();
+        it->done.wait();
         guard.lock();
-        m_unregisterServiceCountdownList.erase(it);
+        m_unregisterServiceList.erase(it);
     }
-    else
-        unregisterServiceUnsafe(pService);
+
+    for (auto it = m_handlerMap.begin(), itEnd = m_handlerMap.end(); it != itEnd;)
+        if (it->second.pService == pService)
+            it = m_handlerMap.erase(it);
+        else
+            ++it;
 }
 
 inline Status GenericServerDataHandlerRegistrar::aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handles) noexcept
 {
-    Status status{ Status::kNoError };
+    Status status{ Status::NoError };
     bool wasNotAvailable{ false };
 
     handles.clear();
@@ -170,7 +200,7 @@ inline Status GenericServerDataHandlerRegistrar::aquireHandlers(const Id& id, Ra
 
     for (auto range = m_handlerMap.equal_range(id); range.first != range.second; ++range.first)
     {
-        if (range.first->second.notAvailable)
+        if (range.first->second.state != SdhHandle::State::Active)
         {
             wasNotAvailable = true;
             continue;
@@ -190,7 +220,7 @@ inline Status GenericServerDataHandlerRegistrar::aquireHandlers(const Id& id, Ra
         range.first->second.inUseCounter.fetch_add(1, std::memory_order_relaxed);
     }
 
-    return handles.size() ? Status::kNoError : wasNotAvailable ? Status::kErrorNotAvailible : Status::kErrorNoSuchHandler;
+    return handles.size() ? Status::NoError : wasNotAvailable ? Status::ErrorNotAvailible : Status::ErrorNoSuchHandler;
 }
 
 inline Status GenericServerDataHandlerRegistrar::aquireHandler(const Id& id, IServerDataHandlerBase*& pHandle) noexcept
@@ -200,20 +230,20 @@ inline Status GenericServerDataHandlerRegistrar::aquireHandler(const Id& id, ISe
     auto range = m_handlerMap.equal_range(id);
 
     if (range.first == range.second)
-        return Status::kErrorNoSuchHandler;
+        return Status::ErrorNoSuchHandler;
 
     auto firstIt = range.first++;
 
     if (range.first != range.second)
-        return Status::kErrorMoreEntires;
+        return Status::ErrorMoreEntires;
 
-    if (firstIt->second.notAvailable)
-        return Status::kErrorNotAvailible;
+    if (firstIt->second.state != SdhHandle::State::Active)
+        return Status::ErrorNotAvailible;
 
     pHandle = &firstIt->second;
     reinterpret_cast<SdhHandle*>(pHandle)->inUseCounter.fetch_add(1, std::memory_order_relaxed);
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 inline void GenericServerDataHandlerRegistrar::releaseHandler(IServerDataHandlerBase* pHandle) noexcept
@@ -225,58 +255,29 @@ inline void GenericServerDataHandlerRegistrar::releaseHandler(IServerDataHandler
     SdhHandle& handle = *reinterpret_cast<SdhHandle*>(pHandle);
     uint32_t prevUseCount = handle.inUseCounter.fetch_sub(1, std::memory_order_relaxed);
 
-    if (handle.notAvailable)
+    if (handle.state == SdhHandle::State::ServiceRemove)
     {
-        bool found{ false };
-
-        Service* pService{ handle.pService };
-        for (auto& unregisterServiceCountdown : m_unregisterServiceCountdownList)
-            if (unregisterServiceCountdown.pService == pService)
+        for (auto& unregisterService : m_unregisterServiceList)
+            if (unregisterService.pService == handle.pService)
             {
-                if (unregisterServiceCountdown.inUseCounter.fetch_sub(1, std::memory_order_acq_rel) == 1)
+                if (unregisterService.inUseCounter.fetch_sub(1, std::memory_order_acq_rel) == 1)
                 {
                     guard.unlock();
-                    WGuard wguard(m_handlerMapMutex);
-                    unregisterServiceUnsafe(pService);
-                    wguard.unlock();
-                    unregisterServiceCountdown.sem.release();
+                    unregisterService.done.count_down();
                 }
-
-                found = true;
                 break;
             }
-
-        if (!found && prevUseCount == 1)
-            for (auto& unregisterHandlerCountdown : m_unregisterHandlerCountdownList)
-                if (&unregisterHandlerCountdown.handle.handler == &handle.handler)
-                {
-                    guard.unlock();
-                    WGuard wguard(m_handlerMapMutex);
-                    auto range = m_handlerMap.equal_range(unregisterHandlerCountdown.id);
-                    while (range.first != range.second)
-                    {
-                        if (&range.first->second.handler == &handle.handler)
-                        {
-                            m_handlerMap.erase(range.first);
-                            break;
-                        }
-                        else
-                            ++range.first;
-                    }
-                    wguard.unlock();
-                    unregisterHandlerCountdown.sem.release();
-                    break;
-                }
     }
-}
-
-inline void GenericServerDataHandlerRegistrar::unregisterServiceUnsafe(Service* pService) noexcept
-{
-    for (auto it = m_handlerMap.begin(), itEnd = m_handlerMap.end(); it != itEnd;)
-        if (it->second.pService == pService)
-            it = m_handlerMap.erase(it);
-        else
-            ++it;
+    else if (handle.state == SdhHandle::State::HandlerRemove && prevUseCount == 1)
+    {
+        for (auto& unregisterHandler : m_unregisterHandlerList)
+            if (&unregisterHandler.handle.handler == &handle.handler)
+            {
+                guard.unlock();
+                unregisterHandler.done.count_down();
+                break;
+            }
+    }
 }
 
 } // namespace common_serialization::csp::messaging

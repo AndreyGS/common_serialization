@@ -33,7 +33,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, service_structs
 
     CS_RUN(deserialize(ctx, value.properties));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -43,7 +43,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, service_structs
 
     CS_RUN(deserialize(ctx, value.id));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 
@@ -70,7 +70,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, service_structs
     value.interfaces.setSize(interfacesSize);
     CS_RUN(deserialize(ctx, interfacesSize, value.interfaces.data()));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

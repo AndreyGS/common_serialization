@@ -81,7 +81,7 @@ private:
 template<IServerDataHandlerTraits _T>
 Status IServerDataHandler<_T>::checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId)
 {
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<IServerDataHandlerTraits _T>
@@ -113,7 +113,7 @@ Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const Gener
 
     if (Status status = processing::deserializeDataContextPostprocessRest<InputType>(ctx, getMinimumInterfaceVersion()); !statusSuccess(status))
     {
-        if (status == Status::kErrorNotSupportedInterfaceVersion)
+        if (status == Status::ErrorNotSupportedInterfaceVersion)
         {
             context::SCommon ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::Status, ctx.getCommonFlags());
             CS_RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(getMinimumInterfaceVersion(), OutputType::getId(), ctxOut));
@@ -144,7 +144,7 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData&
 {
     GenericPointerKeeperT input;
     if (!input.allocateAndConstructOne<InputType>())
-        return Status::kErrorNoMemory;
+        return Status::ErrorNoMemory;
 
     if constexpr (std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
         return handleDataMain(*input.get<InputType>(), ctx, clientId, service_structs::ISerializableDummy<>{}, binOutput);
@@ -152,7 +152,7 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData&
     {
         GenericPointerKeeperT output;
         if (!output.allocateAndConstructOne<OutputType>())
-            return Status::kErrorNoMemory;
+            return Status::ErrorNoMemory;
 
         return handleDataMain(*input.get<InputType>(), ctx, clientId, *output.get<OutputType>(), binOutput);
     }
@@ -186,7 +186,7 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataMain(InputType& input,
         return output.serialize(ctxOut);
     }
     else
-        return Status::kNoError;
+        return Status::NoError;
 }
 
 } // namespace common_serialization::csp::messaging

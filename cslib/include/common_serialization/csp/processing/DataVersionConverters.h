@@ -36,29 +36,29 @@ constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, _T& 
 template<typename _T>
 constexpr Status toOldStruct(const _T& value, uint32_t targetVersion, context::SData& ctx)
 {
-    return Status::kErrorNoSuchHandler;
+    return Status::ErrorNoSuchHandler;
 }
 
 template<typename _T>
 constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, _T& value)
 {
-    return Status::kErrorNoSuchHandler;
+    return Status::ErrorNoSuchHandler;
 }
 
 template<typename _T>
 constexpr Status toOldStructIfNeed(const _T& value, context::SData& ctx)
 {
     if constexpr (NotISerializableBased<_T>)
-        return Status::kErrorInvalidType;
+        return Status::ErrorInvalidType;
     else
     {
         uint32_t targetVersion = traits::getBestCompatInterfaceVersion<_T>(ctx.getInterfaceVersion());
 
         if (targetVersion == value.getLatestPrivateVersion())
-            return Status::kNoError;
+            return Status::NoError;
         // Normaly, next condition shall never succeed
         else if (targetVersion == traits::kInterfaceVersionUndefined)
-            return Status::kErrorInternal;
+            return Status::ErrorInternal;
         else
             return toOldStruct(value, targetVersion, ctx);
     }
@@ -68,16 +68,16 @@ template<typename _T>
 constexpr Status fromOldStructIfNeed(context::DData& ctx, _T& value)
 {
     if constexpr (NotISerializableBased<_T>)
-        return Status::kErrorInvalidType;
+        return Status::ErrorInvalidType;
     else
     {
         uint32_t targetVersion = traits::getBestCompatInterfaceVersion<_T>(ctx.getInterfaceVersion());
 
         if (targetVersion == value.getLatestPrivateVersion())
-            return Status::kNoError;
+            return Status::NoError;
         // Normaly, next condition shall never succeed
         else if (targetVersion == traits::kInterfaceVersionUndefined)
-            return Status::kErrorInternal;
+            return Status::ErrorInternal;
         else
             return fromOldStruct(ctx, targetVersion, value);
     }
@@ -100,13 +100,13 @@ protected:
     template<typename _From>
     Status convertOnHeap(const _From& from, context::SData& ctx) noexcept
     {
-        return Status::kErrorInternal;
+        return Status::ErrorInternal;
     }
 
     template<typename _From>
     Status convertOnStack(const _From& from, context::SData& ctx) noexcept
     {
-        return Status::kErrorInternal;
+        return Status::ErrorInternal;
     }
 
 private:
@@ -137,7 +137,7 @@ protected:
     {
         GenericPointerKeeper pointerKeeper;
         if (!pointerKeeper.allocateAndConstruct<_To, GenericAllocatorHelper<_To, ConstructorNoexceptAllocator<_To>>>(1))
-            return Status::kErrorNoMemory;
+            return Status::ErrorNoMemory;
 
         CS_RUN(pointerKeeper.get<_To>()->init(from));
 
@@ -176,7 +176,7 @@ public:
     template<ISerializableBased _To>
     Status convert(context::DData& ctx, _To& to) noexcept
     {
-        return Status::kErrorInternal;
+        return Status::ErrorInternal;
     }
 
     constexpr interface_version_t getTargetVersion() const noexcept { return m_targetVersion; }
@@ -189,13 +189,13 @@ protected:
     template<ISerializableBased _To>
     Status convertToUpperVersionOnHeap(const from_type& from, context::DData& ctx, _To& to) noexcept
     {
-        return Status::kErrorInternal;
+        return Status::ErrorInternal;
     }
 
     template<ISerializableBased _To>
     Status convertToUpperVersionOnStack(const from_type& from, context::DData& ctx, _To& to) noexcept
     {
-        return Status::kErrorInternal;
+        return Status::ErrorInternal;
     }
 
 private:
@@ -235,7 +235,7 @@ protected:
     {
         GenericPointerKeeper pointerKeeper;
         if (!pointerKeeper.allocateAndConstruct<_From, GenericAllocatorHelper<_From, ConstructorNoexceptAllocator<_From>>>(1))
-            return Status::kErrorNoMemory;
+            return Status::ErrorNoMemory;
 
         CS_RUN(BodyProcessor::deserialize(ctx, *pointerKeeper.get<_From>()));
 
@@ -258,19 +258,19 @@ protected:
         {
             GenericPointerKeeper pointerKeeper;
             if (!pointerKeeper.allocateAndConstruct<base_from, GenericAllocatorHelper<base_from, ConstructorNoexceptAllocator<base_from>>>(1))
-                return Status::kErrorNoMemory;
+                return Status::ErrorNoMemory;
 
             if constexpr (InitableBySpecialClass<_To, base_from>)
                 CS_RUN(pointerKeeper.get<base_from>()->init(from))
             else
-                return Status::kErrorNoSuchHandler;
+                return Status::ErrorNoSuchHandler;
 
             return base_class::convertToUpperVersionOnHeap(*pointerKeeper.get<base_from>(), ctx, to);
         }
         else if constexpr (InitableBySpecialClass<_To, _From>)
             return to.init(from);
         else
-            return Status::kErrorNoSuchHandler;
+            return Status::ErrorNoSuchHandler;
     }
 
     template<ISerializableBased _To>
@@ -283,14 +283,14 @@ protected:
             if constexpr (InitableBySpecialClass<_To, base_from>)
                 CS_RUN(bFrom.init(from))
             else
-                return Status::kErrorNoSuchHandler;
+                return Status::ErrorNoSuchHandler;
 
             return base_class::convertToUpperVersionOnStack(bFrom, ctx, to);
         }
         else if constexpr (InitableBySpecialClass<_To, _From>)
             return to.init(from);
         else
-            return Status::kErrorNoSuchHandler;
+            return Status::ErrorNoSuchHandler;
     }
 };
 

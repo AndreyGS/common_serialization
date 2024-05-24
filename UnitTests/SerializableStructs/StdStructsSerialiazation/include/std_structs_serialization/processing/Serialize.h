@@ -32,7 +32,7 @@ Status serialize(const std::basic_string<T, Traits, Allocator>& value, X& ctx)
     CS_RUN(BodyProcessor::serializeSizeT(value.length(), ctx));
     CS_RUN(BodyProcessor::serialize(value.c_str(), value.length() + 1, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename T, typename Allocator, typename X>
@@ -41,7 +41,7 @@ Status serialize(const std::vector<T, Allocator>& value, X& ctx)
     CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
     CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename T1, typename T2, typename X>
@@ -50,7 +50,7 @@ Status serialize(const std::pair<T1, T2>& value, X& ctx)
     CS_RUN(BodyProcessor::serialize(value.first, ctx));
     CS_RUN(BodyProcessor::serialize(value.second, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename K, typename V, class Compare, class Allocator, typename X>
@@ -61,13 +61,13 @@ Status serialize(const std::map<K, V, Compare, Allocator>& value, X& ctx)
     for (auto& pair : value)
         CS_RUN(serialize(pair, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename Tuple, typename X, size_t... Is>
 Status serializeTuple(const Tuple& value, std::index_sequence<Is...>, X& ctx)
 {
-    Status status = Status::kNoError;
+    Status status = Status::NoError;
 
     // There is a warning that statusSuccess return value is discarded,
     // but this is not the case. I can transform this expression

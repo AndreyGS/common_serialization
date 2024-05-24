@@ -39,7 +39,7 @@ Status toOldStruct(const interface_for_test::SimplyAssignableAlignedToOne<>& val
 
     CS_RUN(convertTo.convert(value, ctx));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -54,7 +54,7 @@ Status toOldStruct(const interface_for_test::SimplyAssignable<>& value, uint32_t
 
     CS_RUN(convertTo.convert(value, ctx));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -69,7 +69,7 @@ Status toOldStruct(const interface_for_test::SimplyAssignableDescendant<>& value
 
     CS_RUN(convertTo.convert(value, ctx));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -84,7 +84,7 @@ Status toOldStruct(const interface_for_test::AlwaysSimplyAssignable<>& value, ui
 
     CS_RUN(convertTo.convert(value, ctx));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -99,7 +99,7 @@ Status toOldStruct(const interface_for_test::SimplyAssignableFixedSize<>& value,
 
     CS_RUN(convertTo.convert(value, ctx));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -115,7 +115,7 @@ Status toOldStruct(const interface_for_test::DForAllModesTests<>& value, uint32_
 
     CS_RUN(convertTo.convert(value, ctx));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 } // namespace common_serialization::csp::processing::data::version_converters

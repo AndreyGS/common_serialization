@@ -33,7 +33,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, descendant_interface::Sim
 
     CS_RUN(deserialize(ctx, value.m_i));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -46,7 +46,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, descendant_interface::Dia
     CS_RUN(deserialize(ctx, value.m_sSt));
     CS_RUN(deserialize(ctx, value.m_ldouble));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

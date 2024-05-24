@@ -47,7 +47,7 @@ enum class Message : uint16_t
     /// 
     ///     Format of message body depends on status code
     ///     
-    ///     Status == kErrorNotSupportedProtocolVersion
+    ///     Status == ErrorNotSupportedProtocolVersion
     ///     
     ///     sends when serialization protocol is not supported
     ///     

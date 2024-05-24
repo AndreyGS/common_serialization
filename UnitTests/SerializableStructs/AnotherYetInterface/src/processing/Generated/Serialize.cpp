@@ -35,7 +35,7 @@ Status BodyProcessor::serialize(const another_yet_interface::SimpleStruct<>& val
     CS_RUN(serialize(value.m_i, ctx));
 
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

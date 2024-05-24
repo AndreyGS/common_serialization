@@ -48,13 +48,13 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     // Otherwise serialization and deserialization of old interface can use newer structs inside main struct.
     // Currently this issue applies only in serialization to and from interface Version2.
     // And for bypassing this we manualy set interfaceVersionsNotMatch flag in respective contexts.
-    EXPECT_EQ(csp::processing::serializeCommonContext(ctxIn), Status::kNoError);
-    EXPECT_EQ(csp::processing::serializeDataContext<TS>(ctxIn), Status::kNoError);
+    EXPECT_EQ(csp::processing::serializeCommonContext(ctxIn), Status::NoError);
+    EXPECT_EQ(csp::processing::serializeDataContext<TS>(ctxIn), Status::NoError);
 
     if (TS::getLatestInterfaceVersion() == 2)
         ctxIn.setInterfaceVersionsNotMatch(true);
 
-    EXPECT_EQ(csp::processing::data::BodyProcessor::serialize(input, ctxIn), Status::kNoError);
+    EXPECT_EQ(csp::processing::data::BodyProcessor::serialize(input, ctxIn), Status::NoError);
     
     TD output;
     csp::context::DData ctxOut(bin);
@@ -63,19 +63,19 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(&addedPointers);
 
-    EXPECT_EQ(csp::processing::deserializeCommonContext(ctxOut), Status::kNoError);
+    EXPECT_EQ(csp::processing::deserializeCommonContext(ctxOut), Status::NoError);
 
     csp::Id id;
     uint32_t minimumInterfaceVersion = 0;
 
-    EXPECT_EQ(csp::processing::deserializeDataContext(ctxOut, id), Status::kNoError);
-    EXPECT_EQ(csp::processing::deserializeDataContextPostprocessId<TD>(id), Status::kNoError);
-    EXPECT_EQ(csp::processing::deserializeDataContextPostprocessRest<TD>(ctxOut, minimumInterfaceVersion), Status::kNoError);
+    EXPECT_EQ(csp::processing::deserializeDataContext(ctxOut, id), Status::NoError);
+    EXPECT_EQ(csp::processing::deserializeDataContextPostprocessId<TD>(id), Status::NoError);
+    EXPECT_EQ(csp::processing::deserializeDataContextPostprocessRest<TD>(ctxOut, minimumInterfaceVersion), Status::NoError);
 
     if (TD::getLatestInterfaceVersion() == 2)
         ctxOut.setInterfaceVersionsNotMatch(true);
 
-    EXPECT_EQ(csp::processing::data::BodyProcessor::deserialize(ctxOut, output), Status::kNoError);
+    EXPECT_EQ(csp::processing::data::BodyProcessor::deserialize(ctxOut, output), Status::NoError);
 
     TD reference;
     fillingStruct(reference);

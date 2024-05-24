@@ -40,12 +40,12 @@ void mainTest()
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual));
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     csp::context::DData ctxOut(bin);
     T output;
 
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
@@ -82,13 +82,13 @@ TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableDataSizeT)
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual));
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     size_type sizeWithFlag = ctxIn.getBinaryData().size();
 
     ctxIn.clear();
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     size_type sizeWithoutFlag = ctxIn.getBinaryData().size();
 

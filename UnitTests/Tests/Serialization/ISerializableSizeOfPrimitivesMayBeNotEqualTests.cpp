@@ -42,12 +42,12 @@ void mainTest()
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual));
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     csp::context::DData ctxOut(bin);
     TD output;
 
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
 
     TD reference;
     fillingStruct(reference);
@@ -59,7 +59,7 @@ void mainTest()
     fillingStruct(input2);
 
     BinWalkerT bin2;
-    EXPECT_EQ(input2.serialize(bin2.getVector()), Status::kNoError);
+    EXPECT_EQ(input2.serialize(bin2.getVector()), Status::NoError);
 
     EXPECT_NE(bin2.size(), ctxIn.getBinaryData().size());
 
@@ -90,7 +90,7 @@ TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SpecialTBasicT)
     csp::context::SData ctxIn(bin.getVector());
     ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers));
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::kNoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     csp::context::DData ctxOut(bin);
 
@@ -98,7 +98,7 @@ TEST(ISerializableSizeOfPrimitivesMayBeNotEqualTests, SpecialTBasicT)
     ctxOut.setAddedPointers(&addedPointers);
 
     SpecialProcessingType output;
-    EXPECT_EQ(output.deserialize(ctxOut), Status::kNoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);

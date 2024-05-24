@@ -34,7 +34,7 @@ constexpr Status BodyProcessor::serialize(const service_structs::OutGetInterface
 
     CS_RUN(serialize(value.properties, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -44,7 +44,7 @@ constexpr Status BodyProcessor::serialize(const service_structs::GetInterface<>&
 
     CS_RUN(serialize(value.id, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -61,7 +61,7 @@ constexpr Status BodyProcessor::serialize(const service_structs::CspPartySetting
     CS_RUN(serialize(value.interfaces.size(), ctx));
     CS_RUN(serialize(value.interfaces.data(), value.interfaces.size(), ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

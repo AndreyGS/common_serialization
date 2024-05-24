@@ -40,7 +40,7 @@ Status BodyProcessor::serialize(const with_std_included_interface::OneBigType<>&
     CS_RUN(serialize(value.m_tuple1, ctx));
     CS_RUN(serialize(value.m_tuple2, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

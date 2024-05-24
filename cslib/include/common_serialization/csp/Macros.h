@@ -29,15 +29,15 @@
     if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
     {                                                                                   \
         Status status = serializeSimplyAssignable(value, ctx);                          \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
+        if (status == Status::NoFurtherProcessingRequired)                              \
+            return Status::NoError;                                                     \
         else if (                                                                       \
                     !statusSuccess(status)                                              \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
+                && status != Status::ErrorNotSupportedSerializationSettingsForStruct   \
         )                                                                               \
             return status;                                                              \
                                                                                         \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* if we get Status::ErrorNotSupportedSerializationSettingsForStruct, */       \
         /* than we should serialize it field-by-field */                                \
     }                                                                                   \
 }
@@ -47,15 +47,15 @@
     if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
     {                                                                                   \
         Status status = deserializeSimplyAssignable(ctx, value);                        \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
+        if (status == Status::NoFurtherProcessingRequired)                              \
+            return Status::NoError;                                                     \
         else if (                                                                       \
                     !statusSuccess(status)                                              \
-                && status != Status::kErrorNotSupportedSerializationSettingsForStruct   \
+                && status != Status::ErrorNotSupportedSerializationSettingsForStruct   \
         )                                                                               \
             return status;                                                              \
                                                                                         \
-        /* if we get Status::kErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* if we get Status::ErrorNotSupportedSerializationSettingsForStruct, */       \
         /* than we should deserialize it field-by-field */                              \
    }                                                                                    \
 }
@@ -68,8 +68,8 @@
     )                                                                                   \
     {                                                                                   \
         Status status = version_converters::toOldStructIfNeed(value, ctx);              \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
+        if (status == Status::NoFurtherProcessingRequired)                              \
+            return Status::NoError;                                                     \
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
         else                                                                            \
@@ -92,8 +92,8 @@
     {                                                                                   \
         Status status = version_converters::fromOldStructIfNeed(ctx, value);            \
                                                                                         \
-        if (status == Status::kNoFurtherProcessingRequired)                             \
-            return Status::kNoError;                                                    \
+        if (status == Status::NoFurtherProcessingRequired)                              \
+            return Status::NoError;                                                     \
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
         else                                                                            \

@@ -40,7 +40,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, with_std_included_interfa
     CS_RUN(deserialize(ctx, value.m_tuple1));
     CS_RUN(deserialize(ctx, value.m_tuple2));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

@@ -33,8 +33,8 @@ constexpr Status testCommonFlagsCompatibility(context::CommonFlags commonFlags
     , context::CommonFlags forbiddenCommonFlags, context::CommonFlags mandatoryCommonFlags)
 {
     return commonFlags & (forbiddenCommonFlags | context::CommonFlags::kForbiddenFlagsMask) || (commonFlags & mandatoryCommonFlags) != mandatoryCommonFlags
-        ? Status::kErrorNotCompatibleCommonFlagsSettings
-        : Status::kNoError;
+        ? Status::ErrorNotCompatibleCommonFlagsSettings
+        : Status::NoError;
 }
 
 inline Status serializeCommonContextNoChecks(context::SCommon& ctx)
@@ -48,13 +48,13 @@ inline Status serializeCommonContextNoChecks(context::SCommon& ctx)
     CS_RUN(writePrimitive(ctx.getMessageType(), commonContextSpecial));
     CS_RUN(writePrimitive(static_cast<uint32_t>(ctx.getCommonFlags()), commonContextSpecial));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 constexpr Status serializeCommonContext(context::SCommon& ctx)
 {
     if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
-        return Status::kErrorNotSupportedProtocolVersion;
+        return Status::ErrorNotSupportedProtocolVersion;
 
     return serializeCommonContextNoChecks(ctx);
 }
@@ -72,7 +72,7 @@ inline Status deserializeCommonContext(context::DCommon& ctx)
     ctx.setProtocolVersion(static_cast<protocol_version_t>(version));
 
     if (minimumSupportedVersion > ctx.getProtocolVersion() || traits::getLatestProtocolVersion() < ctx.getProtocolVersion())
-        return Status::kErrorNotSupportedProtocolVersion;
+        return Status::ErrorNotSupportedProtocolVersion;
 
     context::Message messageType = context::Message::Data;
     CS_RUN(readPrimitive(commonContextSpecial, messageType));
@@ -84,7 +84,7 @@ inline Status deserializeCommonContext(context::DCommon& ctx)
     context::CommonFlags commonFlags(intFlags);
     ctx.setCommonFlags(commonFlags);
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 inline Status deserializeCommonContextNoChecks(context::DCommon& ctx)
@@ -109,22 +109,22 @@ inline Status deserializeCommonContextNoChecks(context::DCommon& ctx)
     context::CommonFlags commonFlags(intFlags);
     ctx.setCommonFlags(commonFlags);
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename T>
 constexpr Status testDataFlagsCompatibility(context::DataFlags dataFlags)
 {
     if constexpr (!StructHaveDataFlags<T>)
-        return Status::kNoError;
+        return Status::NoError;
     else
     {
         constexpr context::DataFlags effectiveMandatoryDataFlags = T::getEffectiveMandatoryDataFlags();
         constexpr context::DataFlags effectiveForbiddenDataFlags = T::getEffectiveForbiddenDataFlags();
 
         return dataFlags & (effectiveForbiddenDataFlags | context::DataFlags::kForbiddenFlagsMask) || (dataFlags & effectiveMandatoryDataFlags) != effectiveMandatoryDataFlags
-            ? Status::kErrorNotCompatibleDataFlagsSettings
-            : Status::kNoError;
+            ? Status::ErrorNotCompatibleDataFlagsSettings
+            : Status::NoError;
     }
 }
 
@@ -138,7 +138,7 @@ constexpr Status serializeDataContext(context::SData& ctx)
     constexpr interface_version_t interfaceVersion = T::getInterface().version;
 
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), interfaceVersion))
-        return Status::kErrorNotSupportedInterfaceVersion;
+        return Status::ErrorNotSupportedInterfaceVersion;
 
     CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx));
 
@@ -149,9 +149,9 @@ constexpr Status serializeDataContext(context::SData& ctx)
     if (ctx.checkRecursivePointers())
     {
         if (ctx.getPointersMap() == nullptr)
-            return Status::kErrorInvalidArgument;
+            return Status::ErrorInvalidArgument;
         else if (!ctx.allowUnmanagedPointers())
-            return Status::kErrorNotCompatibleDataFlagsSettings;
+            return Status::ErrorNotCompatibleDataFlagsSettings;
     }
 
     context::DataFlags dataFlags = ctx.getDataFlags();
@@ -160,7 +160,7 @@ constexpr Status serializeDataContext(context::SData& ctx)
 
     CS_RUN(writePrimitive(static_cast<uint32_t>(dataFlags), ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 constexpr Status deserializeDataContext(context::DData& ctx, Id& id)
@@ -176,7 +176,7 @@ constexpr Status deserializeDataContext(context::DData& ctx, Id& id)
     context::DataFlags dataFlags(intFlags);
     ctx.setDataFlags(dataFlags);
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename T>
@@ -193,14 +193,14 @@ constexpr Status serializeDataContextNoChecks(context::SData& ctx)
 
     CS_RUN(writePrimitive(static_cast<uint32_t>(ctx.getDataFlags()), ctx));
     
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T>
 CS_ALWAYS_INLINE constexpr Status deserializeDataContextPostprocessId(const Id& id) noexcept
 {
     Id tUuid = _T::getId();
-    return tUuid == id ? Status::kNoError : Status::kErrorMismatchOfStructId;
+    return tUuid == id ? Status::NoError : Status::ErrorMismatchOfStructId;
 }
 
 template<typename _T>
@@ -212,38 +212,38 @@ constexpr Status deserializeDataContextPostprocessRest(context::DData& ctx, inte
     // however for some special subscribers of data struct you may override it by
     // value that is higher than minimum defined in interface version
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, interfaceVersion))
-        return Status::kErrorNotSupportedInterfaceVersion;
+        return Status::ErrorNotSupportedInterfaceVersion;
     else if (ctx.getInterfaceVersion() < _T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
     CS_RUN(processing::testDataFlagsCompatibility<_T>(ctx.getDataFlags()));
 
     if (ctx.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)
-        return Status::kErrorInvalidArgument;
+        return Status::ErrorInvalidArgument;
     
     if (ctx.checkRecursivePointers())
     {
         if (ctx.getPointersMap() == nullptr)
-            return Status::kErrorInvalidArgument;
+            return Status::ErrorInvalidArgument;
         else if (!ctx.allowUnmanagedPointers())
-            return Status::kErrorNotCompatibleDataFlagsSettings;
+            return Status::ErrorNotCompatibleDataFlagsSettings;
     }
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 constexpr Status serializeStatusContext(context::SCommon& ctx, Status statusOut)
 {
     CS_RUN(writePrimitive(statusOut, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 constexpr Status deserializeStatusContext(context::DCommon& ctx, Status& statusOut)
 {
     CS_RUN(readPrimitive(ctx, statusOut));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing

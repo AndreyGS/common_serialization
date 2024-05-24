@@ -134,10 +134,10 @@ inline Client::Client(IClientSpeaker& clientSpeaker, const service_structs::CspP
 inline Status Client::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
     if (isValid())
-        return Status::kErrorAlreadyInited;
+        return Status::ErrorAlreadyInited;
 
     if (!settings.isValid())
-        return Status::kErrorInvalidArgument;
+        return Status::ErrorInvalidArgument;
 
     m_settings.clear();
 
@@ -145,13 +145,13 @@ inline Status Client::init(const service_structs::CspPartySettings<>& settings) 
 
     m_isValid = m_clientSpeaker.isValid();
 
-    return m_isValid ? Status::kNoError : Status::kErrorNotInited;
+    return m_isValid ? Status::NoError : Status::ErrorNotInited;
 }
 
 inline Status Client::init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept
 {
     if (isValid())
-        return Status::kErrorAlreadyInited;
+        return Status::ErrorAlreadyInited;
 
     m_settings.clear();
 
@@ -180,7 +180,7 @@ inline Status Client::init(const service_structs::CspPartySettings<>& clientSett
     if (tempServerProtocolVersion == traits::kProtocolVersionUndefined)
     {
         CS_RUN(serverSettings.protocolVersions.init(std::move(serverCspVersions)));
-        return Status::kErrorNotSupportedProtocolVersion;
+        return Status::ErrorNotSupportedProtocolVersion;
     }
 
     CS_RUN(getServerSettings(tempServerProtocolVersion, serverSettings));
@@ -188,7 +188,7 @@ inline Status Client::init(const service_structs::CspPartySettings<>& clientSett
 
     m_isValid = m_settings.isValid() && m_clientSpeaker.isValid();
 
-    return m_isValid ? Status::kNoError : Status::kErrorNotInited;
+    return m_isValid ? Status::NoError : Status::ErrorNotInited;
 }
 
 CS_ALWAYS_INLINE bool Client::isValid() const noexcept
@@ -204,7 +204,7 @@ CS_ALWAYS_INLINE IClientSpeaker& Client::getClientSpeaker() noexcept
 inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept
 {
     if (!m_clientSpeaker.isValid())
-        return Status::kErrorNotInited;
+        return Status::ErrorNotInited;
 
     BinVectorT binInput;
     context::SCommon ctxIn(binInput, traits::kProtocolVersionUndefined);
@@ -217,13 +217,13 @@ inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& 
     CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::Status)
-        return Status::kErrorDataCorrupted;
+        return Status::ErrorDataCorrupted;
 
-    Status statusOut = Status::kNoError;
+    Status statusOut = Status::NoError;
     CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
-    if (statusOut != Status::kErrorNotSupportedProtocolVersion)
-        return Status::kErrorDataCorrupted;
+    if (statusOut != Status::ErrorNotSupportedProtocolVersion)
+        return Status::ErrorDataCorrupted;
 
     return processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, output);
 }
@@ -231,7 +231,7 @@ inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& 
 inline Status Client::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
 {
     if (!m_clientSpeaker.isValid())
-        return Status::kErrorNotInited;
+        return Status::ErrorNotInited;
 
     BinVectorT binInput;
     context::SCommon ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
@@ -248,12 +248,12 @@ template<ISerializableBased InputType>
 Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
 {
     if (!isValid())
-        return Status::kErrorNotInited;
+        return Status::ErrorNotInited;
 
     const Interface& interface_ = InputType::getInterface();
 
     if (getInterfaceVersion(interface_.id) == traits::kInterfaceVersionUndefined)
-        return Status::kErrorNotSupportedInterface;
+        return Status::ErrorNotSupportedInterface;
 
     BinVectorT binInput;
     context::SData ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
@@ -267,13 +267,13 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     context::DCommon ctxOut(binOutput);
 
     if (ctxOut.getMessageType() != context::Message::Status)
-        return Status::kErrorDataCorrupted;
+        return Status::ErrorDataCorrupted;
 
-    Status statusOut = Status::kNoError;
+    Status statusOut = Status::NoError;
     CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
-    if (statusOut != Status::kErrorNotSupportedInterfaceVersion)
-        return Status::kErrorDataCorrupted;
+    if (statusOut != Status::ErrorNotSupportedInterfaceVersion)
+        return Status::ErrorDataCorrupted;
 
     return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
@@ -314,23 +314,23 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     constexpr bool kForTempUseHeap = _Cht::kForTempUseHeap;
 
     if (!isValid())
-        return Status::kErrorNotInited;
+        return Status::ErrorNotInited;
 
     const Interface& interface_ = InputType::getInterface();
 
     interface_version_t interfaceVersionToUse = getInterfaceVersion(interface_.id);
 
     if (interfaceVersionToUse == traits::kInterfaceVersionUndefined)
-        return Status::kErrorNotSupportedInterface;
+        return Status::ErrorNotSupportedInterface;
 
     if (InputType::getOriginPrivateVersion() > interfaceVersionToUse || OutputType::getOriginPrivateVersion() > interfaceVersionToUse)
-        return Status::kErrorNotSupportedInterfaceVersion;
+        return Status::ErrorNotSupportedInterfaceVersion;
 
     if (additionalCommonFlags & m_settings.forbiddenCommonFlags)
-        return Status::kErrorNotCompatibleCommonFlagsSettings;
+        return Status::ErrorNotCompatibleCommonFlagsSettings;
 
     if (additionalDataFlags & interface_.forbiddenDataFlags)
-        return Status::kErrorNotCompatibleDataFlagsSettings;
+        return Status::ErrorNotCompatibleDataFlagsSettings;
 
     BinVectorT binInput;
 
@@ -352,7 +352,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
     // Flags may be changed after processing::serializeInOutDataContext
     if (ctxIn.allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
-        return Status::kErrorInvalidArgument;
+        return Status::ErrorInvalidArgument;
 
     CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn));
 
@@ -369,7 +369,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     CS_RUN(processing::deserializeCommonContext(ctxOut));
 
     if (ctxIn.getCommonFlags() != ctxOut.getCommonFlags())
-        return Status::kErrorDataCorrupted;
+        return Status::ErrorDataCorrupted;
 
     if (ctxOut.getMessageType() == context::Message::Data)
     {
@@ -383,7 +383,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         context::DataFlags outDataFlags = ctxOutData.getDataFlags();
 
         if (Status status = processing::testDataFlagsCompatibility<OutputType>(outDataFlags); !statusSuccess(status))
-            return status == Status::kErrorNotCompatibleDataFlagsSettings ? Status::kErrorDataCorrupted : status;
+            return status == Status::ErrorNotCompatibleDataFlagsSettings ? Status::ErrorDataCorrupted : status;
 
         ctxOutData.setAddedPointers(pUnmanagedPointers);
 
@@ -402,13 +402,13 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     }
     else if (ctxOut.getMessageType() == context::Message::Status)
     {
-        Status statusOut = Status::kNoError;
+        Status statusOut = Status::NoError;
         CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
         return statusOut;
     }
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::messaging

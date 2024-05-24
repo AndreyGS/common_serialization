@@ -28,6 +28,7 @@ namespace common_serialization
 
 using SharedMutex = std::shared_mutex;
 using BinarySemaphore = std::binary_semaphore;
+using Latch = std::latch;
 using AtomicUint32 = std::atomic_uint32_t;
 using AtomicBool = std::atomic_bool;
 

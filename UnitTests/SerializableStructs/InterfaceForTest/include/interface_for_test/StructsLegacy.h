@@ -110,7 +110,7 @@ cs::Status SimplyAssignable_Version0<T1>::init(const SimplyAssignable<T2>& rhs)
     
     m_vt = rhs.m_vx/2;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T1>
@@ -135,7 +135,7 @@ cs::Status SimplyAssignable<T1>::init(const SimplyAssignable_Version0<T2>& rhs)
 
     m_vx = rhs.m_vt * 2;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T = cs::Dummy>
@@ -182,7 +182,7 @@ cs::Status SimplyAssignableDescendant_Version0<T1>::init(const SimplyAssignableD
     static_cast<SimplyAssignable_Version0<T1>&>(*this).init(rhs);
     m_d = rhs.m_d;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T1>
@@ -192,7 +192,7 @@ cs::Status SimplyAssignableDescendant<T1>::init(const SimplyAssignableDescendant
     static_cast<SimplyAssignable<T2>&>(*this).init(rhs);
     m_d = rhs.m_d;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 #pragma pack(push, 1)
@@ -230,7 +230,7 @@ cs::Status AlwaysSimplyAssignable_Version0<T1>::init(const AlwaysSimplyAssignabl
     m_xx = rhs.m_x + 1;
     m_yy = rhs.m_y + 2;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T1>
@@ -240,7 +240,7 @@ cs::Status AlwaysSimplyAssignable<T1>::init(const AlwaysSimplyAssignable_Version
     m_x = rhs.m_xx - 1;
     m_y = rhs.m_yy - 2;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename>
@@ -293,7 +293,7 @@ public:
         m_x = rhs.m_ti.x;
         m_y = rhs.m_ti.y;
 
-        return cs::Status::kNoError;
+        return cs::Status::NoError;
     }
 
     template<typename T2>
@@ -302,7 +302,7 @@ public:
         m_x = rhs.m_x;
         m_y = rhs.m_y;
 
-        return cs::Status::kNoError;
+        return cs::Status::NoError;
     }
 
     [[nodiscard]] auto operator<=>(const SimplyAssignableAlignedToOne_Version1&) const = default;
@@ -322,7 +322,7 @@ cs::Status SimplyAssignableAlignedToOne_Version0<T1>::init(const SimplyAssignabl
     m_ti.x = rhs.m_x;
     m_ti.y = rhs.m_y;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T1>
@@ -332,7 +332,7 @@ cs::Status SimplyAssignableAlignedToOne<T1>::init(const SimplyAssignableAlignedT
     m_x = rhs.m_x;
     m_y = rhs.m_y;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T = cs::Dummy>
@@ -370,7 +370,7 @@ cs::Status SimplyAssignableFixedSize_Version1<T1>::init(const SimplyAssignableFi
     for (size_t i = 0; i < 3; ++i)
         m_arrAsa[i].init(rhs.m_arrAsa[i]);
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T1>
@@ -383,7 +383,7 @@ cs::Status SimplyAssignableFixedSize<T1>::init(const SimplyAssignableFixedSize_V
     for (size_t i = 0; i < 3; ++i)
         m_arrAsa[i].init(rhs.m_arrAsa[i]);
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T = cs::Dummy>
@@ -434,7 +434,7 @@ cs::Status SForAllModesTests_Version0<T1>::init(const SForAllModesTests_Version2
     m_saDs.m_d = rhs.m_i;
     m_saDs.m_i += 1; // additional conversion
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T1>
@@ -452,7 +452,7 @@ cs::Status SForAllModesTests_Version2<T1>::init(const SForAllModesTests_Version0
     m_i = rhs.m_saDs.m_d;
     m_saS.m_i -= 1; // additional conversion
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T1>
@@ -470,7 +470,7 @@ cs::Status SForAllModesTests_Version2<T1>::init(const DForAllModesTests<T2>& rhs
     m_saS.m_i += 1; // additional conversion
     m_i = rhs.m_saDs.m_d;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename T1>
@@ -488,7 +488,7 @@ cs::Status DForAllModesTests<T1>::init(const SForAllModesTests_Version2<T2>& rhs
     m_saDs.m_i -= 1; // additional conversion
     m_saDs.m_d = rhs.m_i;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 } // namespace interface_for_test

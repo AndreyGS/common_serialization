@@ -54,11 +54,11 @@ cs::Status defaultHandle(const InputStruct& input, OutputStruct& output)
     fillingStruct(test);
 
     if (input != test)
-        return cs::Status::kErrorInternal;
+        return cs::Status::ErrorInternal;
 
     fillingStruct(output);
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename InputStruct>
@@ -68,11 +68,11 @@ cs::Status multiHandle(const InputStruct& input)
     fillingStruct(test);
 
     if (input != test)
-        return cs::Status::kErrorInternal;
+        return cs::Status::ErrorInternal;
 
     ++numberOfMultiEntrances;
 
-    return cs::Status::kNoError;
+    return cs::Status::NoError;
 }
 
 template<typename _T>
@@ -94,7 +94,7 @@ public:
         IServerDataHandler<csm::SdhStack<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>::registerHandler(registrar, this);
         IServerDataHandler<csm::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>::registerHandler(registrar, this);
 
-        return Status::kNoError;
+        return Status::NoError;
     }
 
     void unregisterService(csm::IServerDataHandlerRegistrar& registrar)
@@ -155,7 +155,7 @@ public:
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
         IServerDataHandler<csm::SdhStackMulti<interface_for_test::SimplyAssignable<>, cs::csp::service_structs::ISerializableDummy<>>>::registerHandler(registrar, this);
-        return Status::kNoError;
+        return Status::NoError;
     }
 
     void unregisterService(csm::IServerDataHandlerRegistrar& registrar)
@@ -181,7 +181,7 @@ public:
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
         IServerDataHandler<csm::SdhStackMulti<descendant_interface::DiamondDescendant<>, cs::csp::service_structs::ISerializableDummy<>>>::registerHandler(registrar, this);
-        return Status::kNoError;
+        return Status::NoError;
     }
 
     void unregisterService(csm::IServerDataHandlerRegistrar& registrar)
@@ -208,7 +208,7 @@ public:
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
         IServerDataHandler<csm::SdhStackMulti<another_yet_interface::SimpleStruct<>, cs::csp::service_structs::ISerializableDummy<>>>::registerHandler(registrar, this);
-        return Status::kNoError;
+        return Status::NoError;
     }
 
     void unregisterService(csm::IServerDataHandlerRegistrar& registrar)
@@ -226,9 +226,9 @@ public:
         fillingStruct(test);
 
         if (input != test)
-            return cs::Status::kErrorInternal;
+            return cs::Status::ErrorInternal;
 
-        return cs::Status::kNoError;
+        return cs::Status::NoError;
     }
 };
 

@@ -34,6 +34,7 @@
 #include <shared_mutex>
 #include <unordered_map> 
 #include <semaphore>
+#include <latch>
 #include <atomic>
 #include <list>
 #include <iostream>

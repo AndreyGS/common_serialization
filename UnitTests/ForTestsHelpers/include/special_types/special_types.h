@@ -90,13 +90,13 @@ public:
         if (errorOnCounter == counter++)
             return currentError;
         else
-            return cs::Status::kNoError;
+            return cs::Status::NoError;
     }
 };
 
 inline uint32_t ErrorProne::counter = 0;
 inline uint32_t ErrorProne::errorOnCounter = 0;
-inline cs::Status ErrorProne::currentError = cs::Status::kNoError;
+inline cs::Status ErrorProne::currentError = cs::Status::NoError;
 
 struct CustomDeleter
 {

@@ -38,10 +38,10 @@ TEST(StdIncludedTests, MainT)
     fillingStruct(input);
 
     BinWalkerT bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
 
     OneBigType<> output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(output.deserialize(bin), Status::NoError);
 
     EXPECT_EQ(input, output);
 

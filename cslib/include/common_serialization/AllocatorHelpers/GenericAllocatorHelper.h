@@ -134,7 +134,7 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::cons
     if (p)
         for (size_type i = 0, lastElement = n - 1; i < n; ++i)
         {
-            Status status = Status::kNoError;
+            Status status = Status::NoError;
 
             if (i == lastElement)
                 status = this->getAllocator().construct(p++, std::forward<Args>(args)...);
@@ -148,9 +148,9 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::cons
             }
         }
     else
-        return Status::kErrorInvalidArgument;
+        return Status::ErrorInvalidArgument;
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
@@ -159,7 +159,7 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::copy
     assert(!n || pDest && pSrc);
 
     if (pDest == pSrc)
-        return Status::kNoError;
+        return Status::NoError;
 
     if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
     {
@@ -183,7 +183,7 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::copy
     else
         return copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
@@ -192,7 +192,7 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::copy
     assert(!n || pDest && pSrc);
 
     if (pDest == pSrc)
-        return Status::kNoError;
+        return Status::NoError;
 
     if constexpr (constructor_allocator::value)
         for (size_type i = 0; i < n; ++i)
@@ -205,7 +205,7 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::copy
     else
         memcpy(pDest, pSrc, n * sizeof(_T));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
@@ -214,7 +214,7 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::move
     assert(!n || pDest && pSrc);
 
     if (pDest == pSrc)
-        return Status::kNoError;
+        return Status::NoError;
 
     if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
     {
@@ -239,7 +239,7 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::move
     else
         return moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
@@ -248,7 +248,7 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::move
     assert(!n || pDest && pSrc);
 
     if (pDest == pSrc)
-        return Status::kNoError;
+        return Status::NoError;
 
     if constexpr (constructor_allocator::value)
         for (size_type i = 0; i < n; ++i)
@@ -261,7 +261,7 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::move
     else
         memcpy(pDest, pSrc, n * sizeof(value_type));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>

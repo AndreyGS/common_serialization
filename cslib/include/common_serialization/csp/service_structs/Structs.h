@@ -130,7 +130,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     Status init(const CspPartySettings& rhs) noexcept
     {
         if (this == &rhs)
-            return Status::kNoError;
+            return Status::NoError;
 
         clear();
 
@@ -139,13 +139,13 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
         forbiddenCommonFlags = rhs.forbiddenCommonFlags;
         CS_RUN(interfaces.init(rhs.interfaces));
 
-        return Status::kNoError;
+        return Status::NoError;
     }
 
     Status init(CspPartySettings&& rhs) noexcept
     {
         if (this == &rhs)
-            return Status::kNoError;
+            return Status::NoError;
 
         clear();
 
@@ -154,7 +154,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
         forbiddenCommonFlags = rhs.forbiddenCommonFlags;
         CS_RUN(interfaces.init(std::move(rhs.interfaces)));
 
-        return Status::kNoError;
+        return Status::NoError;
     }
 
     Status init(
@@ -170,7 +170,7 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
         forbiddenCommonFlags = forbiddenCommonFlags_;
         CS_RUN(interfaces.init(interfaces_));
 
-        return Status::kNoError;
+        return Status::NoError;
     }
 
     [[nodiscard]] constexpr auto operator<=>(const CspPartySettings&) const = default;
@@ -194,13 +194,13 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
                 }
 
         if (protocolVersions.size() == 0)
-            return Status::kErrorNotSupportedProtocolVersion;
+            return Status::ErrorNotSupportedProtocolVersion;
 
         mandatoryCommonFlags = lhs.mandatoryCommonFlags | rhs.mandatoryCommonFlags;
         forbiddenCommonFlags = lhs.forbiddenCommonFlags | rhs.forbiddenCommonFlags;
 
         if (mandatoryCommonFlags & forbiddenCommonFlags)
-            return Status::kErrorNotCompatibleCommonFlagsSettings;
+            return Status::ErrorNotCompatibleCommonFlagsSettings;
 
         for (const auto& lhsInterface : lhs.interfaces)
             for (const auto& rhsInterface : rhs.interfaces)
@@ -211,9 +211,9 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
                 }
 
         if (interfaces.size() == 0)
-            return Status::kErrorNoSupportedInterfaces;
+            return Status::ErrorNoSupportedInterfaces;
 
-        return Status::kNoError;
+        return Status::NoError;
     }
 
     void clear() noexcept

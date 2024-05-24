@@ -33,7 +33,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, another_yet_interface::Si
 
     CS_RUN(deserialize(ctx, value.m_i));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

@@ -42,6 +42,12 @@ public:
     Server() = default;
 
     Server(const service_structs::CspPartySettings<>& settings, UniquePtrT<IServerDataHandlerRegistrar>&& dataHandlersRegistrar) noexcept;
+    Server(const Server&) = delete;
+    Server& operator=(const Server&) = delete;
+
+    Server(Server&&) = default;
+    Server& operator=(Server&&) = default;
+
 
     /// @brief Init server by settings and custom registrar type
     /// @tparam _T Registrar type (must implement IServerDataHandlerRegistrar)
@@ -89,21 +95,21 @@ template<typename _T>
 inline Status Server::init(const service_structs::CspPartySettings<>& settings) noexcept
 {
     if (isValid())
-        return Status::kErrorAlreadyInited;
+        return Status::ErrorAlreadyInited;
 
     m_dataHandlersRegistrar = makeUniqueNoThrowForOverwrite<_T>();
 
     if (!m_dataHandlersRegistrar)
-        return Status::kErrorNoMemory;
+        return Status::ErrorNoMemory;
 
     if (!settings.isValid())
-        return Status::kErrorInvalidArgument;
+        return Status::ErrorInvalidArgument;
 
     CS_RUN(m_settings.init(settings));
 
     m_isInited = true;
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 CS_ALWAYS_INLINE constexpr bool Server::isValid() const noexcept
@@ -114,13 +120,13 @@ CS_ALWAYS_INLINE constexpr bool Server::isValid() const noexcept
 inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const
 {
     if (!isValid())
-        return Status::kErrorNotInited;
+        return Status::ErrorNotInited;
 
     context::DCommon ctx(binInput, m_settings.protocolVersions[m_settings.protocolVersions.size() - 1]);
 
     if (Status status = processing::deserializeCommonContext(ctx); !statusSuccess(status))
     {
-        if (status == Status::kErrorNotSupportedProtocolVersion)
+        if (status == Status::ErrorNotSupportedProtocolVersion)
         {
             binOutput.clear();
             return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_settings.protocolVersions, m_settings.mandatoryCommonFlags);
@@ -129,7 +135,7 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
             return status;
     }
 
-    Status status{ Status::kNoError };
+    Status status{ Status::NoError };
 
     if (ctx.getMessageType() == context::Message::GetSettings)
         status = handleGetSettings(ctx.getProtocolVersion(), binOutput);
@@ -141,7 +147,7 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
             status = handleData(ctx, clientId, binOutput);
     }
     else
-        status = Status::kErrorDataCorrupted;
+        status = Status::ErrorDataCorrupted;
 
     if (binOutput.size() == 0)
         status = processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), status);
@@ -186,12 +192,12 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
         status = pHandler->handleDataCommon(ctx, clientId, binOutput);
         m_dataHandlersRegistrar->releaseHandler(pHandler);
     }
-    else if (status == Status::kErrorMoreEntires) // if we have more than one DataHandler
+    else if (status == Status::ErrorMoreEntires) // if we have more than one DataHandler
     {
         RawVectorT<IServerDataHandlerBase*> handlers;
         CS_RUN(m_dataHandlersRegistrar->aquireHandlers(id, handlers));
 
-        status = Status::kNoError;
+        status = Status::NoError;
 
         typename BinVectorT::size_type bodyPosition = ctx.getBinaryData().tell();
 

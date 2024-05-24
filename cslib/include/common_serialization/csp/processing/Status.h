@@ -37,7 +37,7 @@ constexpr Status serializeStatusFullContext(context::SCommon& ctx, Status status
         
     CS_RUN(serializeStatusContext(ctx, statusOut));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 CS_ALWAYS_INLINE Status serializeStatusFullContext(BinVectorT& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut)
@@ -50,12 +50,12 @@ inline Status serializeStatusErrorNotSupportedProtocolVersion(BinVectorT& output
 {
     // For unsupported protocol version always using kProtocolVersionUndefined in response context
     context::SCommon ctx{ output, traits::kProtocolVersionUndefined, context::Message::Status, commonFlags };
-    CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedProtocolVersion, true));
+    CS_RUN(serializeStatusFullContext(ctx, Status::ErrorNotSupportedProtocolVersion, true));
 
     CS_RUN(writePrimitive(static_cast<protocol_version_t>(supportedProtocolVersions.size()), ctx));
     CS_RUN(writeRawData(supportedProtocolVersions.data(), supportedProtocolVersions.size(), ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::DCommon& ctx, RawVectorT<protocol_version_t>& value)
@@ -69,17 +69,17 @@ constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::
     CS_RUN(readRawData(ctx, protocolVersionsSize, value.data()));
     value.setSize(protocolVersionsSize);
     
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(interface_version_t minimumInterfaceVersion, const Id& outputTypeId, context::SCommon& ctx)
 {
-    CS_RUN(serializeStatusFullContext(ctx, Status::kErrorNotSupportedInterfaceVersion));
+    CS_RUN(serializeStatusFullContext(ctx, Status::ErrorNotSupportedInterfaceVersion));
 
     CS_RUN(writePrimitive(minimumInterfaceVersion, ctx));
     CS_RUN(writeRawData(&outputTypeId, 1, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(context::DCommon& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId
@@ -88,7 +88,7 @@ constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(context:
     CS_RUN(readPrimitive(ctx, minimumInterfaceVersion));
     CS_RUN(readRawData(ctx, 1, &outputTypeId));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing

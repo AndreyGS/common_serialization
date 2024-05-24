@@ -35,7 +35,7 @@ Status BodyProcessor::serialize(const descendant_interface::SimpleStruct<>& valu
     CS_RUN(serialize(value.m_i, ctx));
 
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -48,7 +48,7 @@ Status BodyProcessor::serialize(const descendant_interface::DiamondDescendant<>&
     CS_RUN(serialize(value.m_sSt, ctx));
     CS_RUN(serialize(value.m_ldouble, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

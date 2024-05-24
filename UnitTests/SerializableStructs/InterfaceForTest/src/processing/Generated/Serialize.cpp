@@ -34,7 +34,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAligne
     CS_RUN(serialize(value.m_x, ctx));
     CS_RUN(serialize(value.m_y, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -59,7 +59,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignable<>& va
 
     CS_RUN(serialize(value.m_vx, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -71,7 +71,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableDescen
 
     CS_RUN(serialize(value.m_d, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -82,7 +82,7 @@ Status BodyProcessor::serialize(const interface_for_test::AlwaysSimplyAssignable
     CS_RUN(serialize(value.m_x, ctx));
     CS_RUN(serialize(value.m_y, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 
@@ -95,7 +95,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableFixedS
     CS_RUN(serialize(value.m_asa, ctx));
     CS_RUN(serialize(value.m_arrAsa, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -109,7 +109,7 @@ Status BodyProcessor::serialize(const interface_for_test::DynamicPolymorphic<>& 
     CS_RUN(serialize(value.m_arrO, ctx));
     CS_RUN(serialize(value.m_arrDpNS, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -120,7 +120,7 @@ Status BodyProcessor::serialize(const interface_for_test::Diamond<>& value, cont
     CS_RUN(serialize(static_cast<const not_part_of_interfaces::DiamondEdge1&>(value), ctx));
     CS_RUN(serialize(static_cast<const not_part_of_interfaces::DiamondEdge2&>(value), ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -144,7 +144,7 @@ Status BodyProcessor::serialize(const interface_for_test::SpecialProcessingType<
     CS_RUN(serialize(value.m_float, ctx));
     CS_RUN(serialize(value.m_double, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -155,7 +155,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAligne
     CS_RUN(serialize(value.m_j, ctx));
     CS_RUN(serialize(value.m_k, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -166,7 +166,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableAligne
     CS_RUN(serialize(value.m_j, ctx));
     CS_RUN(serialize(value.m_k, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -177,7 +177,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimila
     CS_RUN(serialize(value.m_j, ctx));
     CS_RUN(serialize(value.m_k, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -188,7 +188,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimplyAssignableSimila
     CS_RUN(serialize(value.m_j, ctx));
     CS_RUN(serialize(value.m_k, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -202,7 +202,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimilarType1<>& value,
     CS_RUN(serialize(value.m_sasTs, ctx));
     CS_RUN(serialize(value.m_saaToSts, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -216,7 +216,7 @@ Status BodyProcessor::serialize(const interface_for_test::SimilarType2<>& value,
     CS_RUN(serialize(value.m_sasTs, ctx));
     CS_RUN(serialize(value.m_saaToSts, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -234,7 +234,7 @@ Status BodyProcessor::serialize(const interface_for_test::ManyPointersType<>& va
     CS_RUN(serialize(value.m_ppInt, ctx));
     CS_RUN(serialize(value.m_nullptrInt, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -250,7 +250,7 @@ Status BodyProcessor::serialize(const interface_for_test::DForAllModesTests<>& v
     CS_RUN(serialize(value.m_stS, ctx));
     CS_RUN(serialize(value.m_mpt, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -261,7 +261,7 @@ Status BodyProcessor::serialize(const interface_for_test::ContainSimplyAssignabl
     CS_RUN(serialize(value.m_sawsf, ctx));
     CS_RUN(serialize(value.m_npfSawsf, ctx));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

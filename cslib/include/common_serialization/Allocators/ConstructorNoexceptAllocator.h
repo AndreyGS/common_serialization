@@ -124,7 +124,7 @@ constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&.
     assert(p);
 
     new ((void*)p) value_type(std::forward<_Args>(args)...);
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T>
@@ -139,7 +139,7 @@ constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&.
     if constexpr (sizeof...(_Args))
         return p->init(std::forward<_Args>(args)...);
     else
-        return Status::kNoError;
+        return Status::NoError;
 }
 
 template<typename _T>

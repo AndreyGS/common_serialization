@@ -210,10 +210,10 @@ constexpr Status RawKeeperAllocator<_T>::construct(pointer p, _Args&&... args) c
         || p + 1 > m_p + m_memorySize
         || (static_cast<uint8_t*>(static_cast<void*>(p)) - static_cast<uint8_t*>(static_cast<void*>(m_p))) % sizeof(value_type) != 0
     )
-        return Status::kErrorInvalidArgument;
+        return Status::ErrorInvalidArgument;
 
     new ((void*)p) value_type(std::forward<_Args>(args)...);
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T>

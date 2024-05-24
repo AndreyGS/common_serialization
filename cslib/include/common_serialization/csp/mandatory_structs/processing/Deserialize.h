@@ -34,7 +34,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
 {
     CS_RUN(deserialize(ctx, value.id));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -44,7 +44,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, context::DataFl
     CS_RUN(deserialize(ctx, dataFlags));
     value = dataFlags;
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -57,7 +57,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, Interface& valu
     CS_RUN(deserialize(ctx, value.mandatoryDataFlags));
     CS_RUN(deserialize(ctx, value.forbiddenDataFlags));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

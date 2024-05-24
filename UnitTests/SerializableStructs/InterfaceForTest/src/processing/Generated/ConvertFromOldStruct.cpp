@@ -39,7 +39,7 @@ Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_
 
     CS_RUN(convertFrom.convert(ctx, value));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -54,7 +54,7 @@ Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_
 
     CS_RUN(convertFrom.convert(ctx, value));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -69,7 +69,7 @@ Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_
 
     CS_RUN(convertFrom.convert(ctx, value));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -84,7 +84,7 @@ Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_
 
     CS_RUN(convertFrom.convert(ctx, value));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -99,7 +99,7 @@ Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_
 
     CS_RUN(convertFrom.convert(ctx, value));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 template<>
@@ -115,7 +115,7 @@ Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_
 
     CS_RUN(convertFrom.convert(ctx, value));
 
-    return Status::kNoFurtherProcessingRequired;
+    return Status::NoFurtherProcessingRequired;
 }
 
 } // namespace common_serialization::csp::processing::data::version_converters

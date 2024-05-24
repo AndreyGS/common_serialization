@@ -39,7 +39,7 @@ Status deserialize(X& ctx, std::basic_string<T, Traits, Allocator>& value)
     value.resize(size);
     CS_RUN(BodyProcessor::deserialize(ctx, size + 1, value.data()));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename T, typename Allocator, typename X>
@@ -55,7 +55,7 @@ Status deserialize(X& ctx, std::vector<T, Allocator>& value)
     value.resize(size);
     CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename T1, typename T2, typename X>
@@ -64,7 +64,7 @@ Status deserialize(X& ctx, std::pair<T1, T2>& value)
     CS_RUN(BodyProcessor::deserialize(ctx, value.first));
     CS_RUN(BodyProcessor::deserialize(ctx, value.second));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename K, typename V, class Compare, class Allocator, typename X>
@@ -85,13 +85,13 @@ Status deserialize(X& ctx, std::map<K, V, Compare, Allocator>& value)
         value.insert(std::move(element));
     }
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename Tuple, typename X, size_t... Is>
 Status deserializeTuple(X& ctx, std::index_sequence<Is...>, Tuple& value)
 {
-    Status status = Status::kNoError;
+    Status status = Status::NoError;
 
     // There is a warning that statusSuccess return value is discarded,
     // but this is not the case. I can transform this expression

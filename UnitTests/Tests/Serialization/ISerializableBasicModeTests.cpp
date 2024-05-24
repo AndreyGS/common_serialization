@@ -35,10 +35,10 @@ void mainTest()
     fillingStruct(input);
 
     BinWalkerT bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
 
     T output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(output.deserialize(bin), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
@@ -50,10 +50,10 @@ TEST(ISerializableBasicModeTests, EmptyTypeT)
 {
     EmptyType input;
     BinWalkerT bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::kNoError);
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
 
     EmptyType output;
-    EXPECT_EQ(output.deserialize(bin), Status::kNoError);
+    EXPECT_EQ(output.deserialize(bin), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 }
 

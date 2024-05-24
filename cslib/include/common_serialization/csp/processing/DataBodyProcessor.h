@@ -110,7 +110,7 @@ constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SD
     assert(n <= SIZE_MAX);
 
     if constexpr (EmptyType<_T>)
-        return Status::kNoError;
+        return Status::NoError;
 
     if (
            (!ctx.endiannessDifference() || EndiannessTolerant<_T>)
@@ -141,7 +141,7 @@ constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SD
             CS_RUN(serialize(p[i], ctx));
         }
 
-        return Status::kNoError;
+        return Status::NoError;
     }
 }
 
@@ -162,7 +162,7 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
         , "References and pointers on functions are not allowed to be serialized");
 
     if constexpr (EmptyType<_T>)
-        return Status::kNoError;
+        return Status::NoError;
 
     if constexpr (std::is_arithmetic_v<_T> || std::is_enum_v<_T>)
     {
@@ -175,7 +175,7 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
     else if constexpr (std::is_pointer_v<_T>)
     {
         if (!ctx.allowUnmanagedPointers())
-            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+            return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
         if (ctx.checkRecursivePointers())
         {
@@ -183,14 +183,14 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
             CS_RUN(addPointerToMap(value, ctx, newPointer));
 
             if (!newPointer)
-                return Status::kNoError;
+                return Status::NoError;
         }
         else
         {
             if (value == nullptr)
             {
                 CS_RUN(writePrimitive(uint8_t(0), ctx));
-                return Status::kNoError;
+                return Status::NoError;
             }
             else
                 CS_RUN(writePrimitive(uint8_t(1), ctx));
@@ -222,7 +222,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeToAnotherSize(csp_size
     case 1: return serializeToAnotherSizeInternal<1>(value, ctx);
     default:
         assert(false);
-        return Status::kErrorInternal;
+        return Status::ErrorInternal;
     }
 }
 
@@ -233,7 +233,7 @@ constexpr Status BodyProcessor::serializeToAnotherSizeInternal(_T value, context
         , "Current serialize function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
 
     if constexpr (kMaxSizeOfIntegral < _targetTypeSize)
-        return Status::kErrorTypeSizeIsTooBig;
+        return Status::ErrorTypeSizeIsTooBig;
 
     if constexpr (sizeof(_T) == _targetTypeSize)
         return writePrimitive(value, ctx);
@@ -260,7 +260,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _
     assert(p && n > 0 || n == 0);
 
     if constexpr (EmptyType<_T>)
-        return Status::kNoError;
+        return Status::NoError;
 
     if (
            (!ctx.endiannessDifference() || EndiannessTolerant<_T>)
@@ -287,7 +287,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _
                     for (csp_size_t i = 0; i < n; ++i)
                         CS_RUN(deserializeFromAnotherSize(originalTypeSize, ctx, p[i]));
 
-                    return Status::kNoError;
+                    return Status::NoError;
                 }
             }
 
@@ -307,7 +307,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _
             CS_RUN(deserialize(ctx, *pItem));
         }
 
-        return Status::kNoError;
+        return Status::NoError;
     }
 }
 
@@ -330,7 +330,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
         , "References and pointers on functions are not allowed to be serialized");
 
     if constexpr (EmptyType<_T>)
-        return Status::kNoError;
+        return Status::NoError;
 
     if constexpr (std::is_arithmetic_v<_T> || std::is_enum_v<_T>)
     {
@@ -347,7 +347,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
     else if constexpr (std::is_pointer_v<_T>)
     {
         if (!ctx.allowUnmanagedPointers())
-            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+            return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
         if (ctx.checkRecursivePointers())
         {
@@ -355,7 +355,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
             CS_RUN(getPointerFromMap(ctx, value, newPointer));
 
             if (!newPointer)
-                return Status::kNoError;
+                return Status::NoError;
         }
         else
         {
@@ -364,13 +364,13 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
             if (!isValidPtr)
             {
                 value = nullptr;
-                return Status::kNoError;
+                return Status::NoError;
             }
         }
 
         value = ctx.template allocateAndDefaultConstruct<std::remove_const_t<std::remove_pointer_t<_T>>>();
         if (!value)
-            return Status::kErrorNoMemory;
+            return Status::ErrorNoMemory;
 
         if (ctx.checkRecursivePointers())
             (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = *const_cast<from_ptr_to_const_to_ptr_t<_T>*>(&value);
@@ -402,7 +402,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeFromAnotherSize(csp_
     case 1: return deserializeFromAnotherSizeInternal<1>(ctx, value);
     default:
         assert(false);
-        return Status::kErrorInternal;
+        return Status::ErrorInternal;
     }
 }
 
@@ -413,20 +413,20 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
         , "Current deserialize function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
 
     if constexpr (kMaxSizeOfIntegral < _originalTypeSize)
-        return Status::kErrorTypeSizeIsTooBig;
+        return Status::ErrorTypeSizeIsTooBig;
 
     if constexpr (sizeof(_T) == _originalTypeSize)
         return readPrimitive(ctx, value);
 
-    Status status = Status::kNoError;
+    Status status = Status::NoError;
 
     helpers::fixed_width_integer_t<_originalTypeSize, IsSigned<_T>> originalValue = 0;
     status = readPrimitive(ctx, originalValue);
 
     if (!statusSuccess(status))
     {
-        if (status == Status::kErrorOverflow)
-            return Status::kErrorDataCorrupted;
+        if (status == Status::ErrorOverflow)
+            return Status::ErrorDataCorrupted;
         return status;
     }
 
@@ -437,23 +437,23 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
     else
         helpers::castToBiggerType<sizeof(_T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value))));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<typename _T>
 CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSimplyAssignable(const _T& value, context::SData&ctx)
 {
     if constexpr (NotSimplyAssignable<_T>)
-        return Status::kErrorInvalidType;
+        return Status::ErrorInvalidType;
     else
     {
         if constexpr (ISerializableBased<_T>)
             if (_T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
-                return Status::kNoError;
+                return Status::NoError;
 
         if constexpr (!EndiannessTolerant<_T>)
             if (ctx.endiannessDifference())
-                return Status::kNoError;
+                return Status::NoError;
 
         if (   !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
             && (   AlwaysSimplyAssignable<_T>
@@ -466,10 +466,10 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSimplyAssignable(const
             // for simple assignable types it is preferable to get a whole struct at a time
             CS_RUN(writeRawData(&value, 1, ctx));
 
-            return Status::kNoFurtherProcessingRequired;
+            return Status::NoFurtherProcessingRequired;
         }
         else
-            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+            return Status::ErrorNotSupportedSerializationSettingsForStruct;
     }
 }
 
@@ -477,16 +477,16 @@ template<typename _T>
 CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSimplyAssignable(context::DData& ctx, _T& value)
 {
     if constexpr (NotSimplyAssignable<_T>)
-        return Status::kErrorInvalidType;
+        return Status::ErrorInvalidType;
     else
     {
         if constexpr (ISerializableBased<_T>)
             if (_T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
-                return Status::kNoError;
+                return Status::NoError;
 
         if constexpr (!EndiannessTolerant<_T>)
             if (ctx.endiannessDifference())
-                return Status::kNoError;
+                return Status::NoError;
 
         if (   !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
             && (   AlwaysSimplyAssignable<_T>
@@ -499,10 +499,10 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSimplyAssignable(con
             // for simple assignable types it is preferable to get a whole struct at a time
             CS_RUN(readRawData(ctx, 1, &value));
 
-            return Status::kNoFurtherProcessingRequired;
+            return Status::NoFurtherProcessingRequired;
         }
         else
-            return Status::kErrorNotSupportedSerializationSettingsForStruct;
+            return Status::ErrorNotSupportedSerializationSettingsForStruct;
     }
 }
 
@@ -523,7 +523,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const _T p, con
             newPointer = true;
             CS_RUN(serializeSizeT(static_cast<csp_size_t>(1), ctx));
             pointersMap[p] = ctx.getBinaryData().size();
-            return Status::kNoError;
+            return Status::NoError;
         }
         else
         {
@@ -553,12 +553,12 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::getPointerFromMap(context::DDat
 
         newPointer = false;
         if (offset >= ctx.getBinaryData().tell())
-            return Status::kErrorInternal;
+            return Status::ErrorInternal;
 
         p = reinterpret_cast<_T>(pointersMap[offset]);
     }
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

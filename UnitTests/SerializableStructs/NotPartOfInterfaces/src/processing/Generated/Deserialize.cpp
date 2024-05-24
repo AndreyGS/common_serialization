@@ -34,7 +34,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::S
     CS_RUN(deserialize(ctx, value.a));
     CS_RUN(deserialize(ctx, value.s));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -45,7 +45,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::S
     CS_RUN(deserialize(ctx, value.q));
     CS_RUN(deserialize(ctx, value.w));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -56,7 +56,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::D
     CS_RUN(deserialize(ctx, value.m_r));
     CS_RUN(deserialize(ctx, value.m_arrR));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -66,7 +66,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::D
 
     CS_RUN(deserialize(ctx, value.m_d0));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -77,7 +77,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::D
     CS_RUN(deserialize(ctx, static_cast<not_part_of_interfaces::DiamondBase&>(value)));
     CS_RUN(deserialize(ctx, value.m_d1));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -88,7 +88,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::D
     CS_RUN(deserialize(ctx, static_cast<not_part_of_interfaces::DiamondBase&>(value)));
     CS_RUN(deserialize(ctx, value.m_d2));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 
@@ -100,7 +100,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::T
     CS_RUN(deserialize(ctx, value.x));
     CS_RUN(deserialize(ctx, value.y));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -110,7 +110,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::R
 
     CS_RUN(deserialize(ctx, value.pAny));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -122,7 +122,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, not_part_of_interfaces::R
     CS_RUN(deserialize(ctx, value.pNext));
     CS_RUN(deserialize(ctx, value.pAny));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

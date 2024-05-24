@@ -305,11 +305,11 @@ constexpr Status castToSmallerType(T input, fixed_width_integer_t<targetSize, Is
     using output_type = fixed_width_integer<targetSize, IsSigned<T>>;
 
     if (input > output_type::max || input < output_type::min)
-        return Status::kErrorValueOverflow;
+        return Status::ErrorValueOverflow;
 
     output = static_cast<typename output_type::type>(input);
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<size_t targetSize, typename T>

@@ -45,7 +45,7 @@ private:
     cs::Status speak(cs::BinVectorT& binInput, cs::BinWalkerT& binOutput) override
     {
         if (!isValid())
-            return cs::Status::kErrorNotInited;
+            return cs::Status::ErrorNotInited;
 
         cs::BinWalkerT input;
         input.init(std::move(binInput));

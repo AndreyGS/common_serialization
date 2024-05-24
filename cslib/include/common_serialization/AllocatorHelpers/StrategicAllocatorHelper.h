@@ -30,8 +30,8 @@ namespace common_serialization
 
 enum class AllocationStrategy
 {
-    strictByDataSize,
-    doubleOfDataSize
+    StrictByDataSize,
+    DoubleOfDataSize
 };
 
 /// @brief Stateful allocator helper which allocates storage
@@ -56,7 +56,7 @@ public:
     using size_type = typename interface_type::size_type;
     using difference_type = typename interface_type::difference_type;
 
-    explicit constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::doubleOfDataSize) noexcept;
+    explicit constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::DoubleOfDataSize) noexcept;
 
     /// @brief Get current allocation strategy
     /// @return Current allocation strategy
@@ -72,7 +72,7 @@ protected:
     [[nodiscard]] constexpr value_type* allocateImpl(size_type n, size_type* pAllocatedN) const;
 
 private:
-    AllocationStrategy m_allocation_strategy{ AllocationStrategy::doubleOfDataSize };
+    AllocationStrategy m_allocation_strategy{ AllocationStrategy::DoubleOfDataSize };
 };
 
 template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
@@ -98,7 +98,7 @@ template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
 {
     value_type* p = nullptr;
 
-    if (m_allocation_strategy == AllocationStrategy::doubleOfDataSize)
+    if (m_allocation_strategy == AllocationStrategy::DoubleOfDataSize)
     {
         *pAllocatedN = requestedN << 1;
         p = this->allocateStrict(*pAllocatedN);

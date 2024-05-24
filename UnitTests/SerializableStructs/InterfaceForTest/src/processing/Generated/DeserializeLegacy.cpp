@@ -33,7 +33,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
 
     CS_RUN(deserialize(ctx, value.m_ti));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -58,7 +58,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
 
     CS_RUN(deserialize(ctx, value.m_vt));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -70,7 +70,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
 
     CS_RUN(deserialize(ctx, value.m_d));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -81,7 +81,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Alway
     CS_RUN(deserialize(ctx, value.m_xx));
     CS_RUN(deserialize(ctx, value.m_yy));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -93,7 +93,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
     CS_RUN(deserialize(ctx, value.m_asa));
     CS_RUN(deserialize(ctx, value.m_arrAsa));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -109,7 +109,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SForA
     CS_RUN(deserialize(ctx, value.m_stS));
     CS_RUN(deserialize(ctx, value.m_mpt));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -120,7 +120,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Simpl
     CS_RUN(deserialize(ctx, value.m_x));
     CS_RUN(deserialize(ctx, value.m_y));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 template<>
@@ -138,7 +138,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::SForA
 
     CS_RUN(deserialize(ctx, value.m_i));
 
-    return Status::kNoError;
+    return Status::NoError;
 }
 
 } // namespace common_serialization::csp::processing::data

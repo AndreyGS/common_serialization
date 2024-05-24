@@ -209,7 +209,7 @@ void FInit()
     auto walker1 = getStringsFilledContainer<T>();
     decltype(walker1) walker2;
 
-    EXPECT_EQ(walker2.init(walker1), Status::kNoError);
+    EXPECT_EQ(walker2.init(walker1), Status::NoError);
 
     EXPECT_EQ(walker1.size(), walker2.size());
     EXPECT_EQ(walker1.tell(), walker2.tell());
@@ -220,7 +220,7 @@ void FInit()
     walker1.invalidate();
 
     // init by empty Vector
-    EXPECT_EQ(walker2.init(walker1), Status::kNoError);
+    EXPECT_EQ(walker2.init(walker1), Status::NoError);
     EXPECT_EQ(walker2.size(), 0);
     EXPECT_EQ(walker2.tell(), 0);
 }
@@ -245,7 +245,7 @@ TEST(WalkerTest, InitPod)
     walker1.pushBack("123");
 
     Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker2;
-    EXPECT_EQ(walker2.init(walker1), Status::kErrorNoMemory);
+    EXPECT_EQ(walker2.init(walker1), Status::ErrorNoMemory);
 }
 
 TEST(WalkerTest, InitErrorPropagation)
@@ -257,9 +257,9 @@ TEST(WalkerTest, InitErrorPropagation)
     Walker<ErrorProne, DefaultAllocatorHelper<ErrorProne>> walker2;
     ErrorProne::counter = 0;
     ErrorProne::errorOnCounter = 0;
-    ErrorProne::currentError = Status::kErrorOverflow;
+    ErrorProne::currentError = Status::ErrorOverflow;
 
-    EXPECT_EQ(walker2.init(walker1), Status::kErrorOverflow);
+    EXPECT_EQ(walker2.init(walker1), Status::ErrorOverflow);
 }
 
 template<typename T>
@@ -268,7 +268,7 @@ void FInitMove()
     auto walker1 = getStringsFilledContainer<T>();
     decltype(walker1) walker2;
 
-    EXPECT_EQ(walker2.init(std::move(walker1)), Status::kNoError);
+    EXPECT_EQ(walker2.init(std::move(walker1)), Status::NoError);
 
     EXPECT_EQ(walker1.size(), 0);
     EXPECT_EQ(walker1.capacity(), 0);
@@ -281,7 +281,7 @@ void FInitMove()
         EXPECT_EQ(walker2[i], g_data_array<T>[i]);
 
     // init by empty Vector
-    EXPECT_EQ(walker2.init(std::move(walker1)), Status::kNoError);
+    EXPECT_EQ(walker2.init(std::move(walker1)), Status::NoError);
     EXPECT_EQ(walker2.size(), 0);
     EXPECT_EQ(walker2.tell(), 0);
 }
@@ -306,7 +306,7 @@ TEST(WalkerTest, InitMovePod)
     walker1.pushBack("123");
 
     Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker2;
-    EXPECT_EQ(walker2.init(std::move(walker1)), Status::kNoError);
+    EXPECT_EQ(walker2.init(std::move(walker1)), Status::NoError);
 }
 
 TEST(WalkerTest, SetSize)
@@ -316,10 +316,10 @@ TEST(WalkerTest, SetSize)
     walker.getAllocatorHelper().getAllocator().setStorage(buffer, 32);
     EXPECT_EQ(walker.tell(), 0);
 
-    EXPECT_EQ(walker.setSize(32), Status::kNoError);
+    EXPECT_EQ(walker.setSize(32), Status::NoError);
     EXPECT_EQ(walker.size(), 32);
     EXPECT_EQ(walker.tell(), 32);
-    EXPECT_EQ(walker.setSize(33), Status::kErrorNoMemory);
+    EXPECT_EQ(walker.setSize(33), Status::ErrorNoMemory);
     EXPECT_EQ(walker.size(), 32);
     EXPECT_EQ(walker.tell(), 32);
 }
@@ -327,13 +327,13 @@ TEST(WalkerTest, SetSize)
 TEST(WalkerTest, Reserve)
 {
     Walker<int, DefaultAllocatorHelper<int>> walker;
-    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
+    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::StrictByDataSize);
 
     int i = 1;
     walker.pushBack(i);
     EXPECT_EQ(walker.capacity(), 1);
 
-    EXPECT_EQ(walker.reserve(100), Status::kNoError);
+    EXPECT_EQ(walker.reserve(100), Status::NoError);
     EXPECT_EQ(walker.capacity(), 100);
 
     // Check that previously added element in not gone after reallocating
@@ -341,7 +341,7 @@ TEST(WalkerTest, Reserve)
     EXPECT_EQ(walker[0], i);
 
     // test when memory couldn't be allocated
-    EXPECT_EQ(walker.reserve(static_cast<size_type>(-1)), Status::kErrorNoMemory);
+    EXPECT_EQ(walker.reserve(static_cast<size_type>(-1)), Status::ErrorNoMemory);
 
     // Check that after false memory allocation container not lost its contents
     EXPECT_EQ(walker.capacity(), 100);
@@ -352,13 +352,13 @@ TEST(WalkerTest, Reserve)
 TEST(WalkerTest, ReserveFromCurrentOffset)
 {
     Walker<int, DefaultAllocatorHelper<int>> walker;
-    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
+    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::StrictByDataSize);
 
     int i = 1;
     walker.pushBack(i);
     EXPECT_EQ(walker.capacity(), 1);
 
-    EXPECT_EQ(walker.reserve_from_current_offset(100), Status::kNoError);
+    EXPECT_EQ(walker.reserve_from_current_offset(100), Status::NoError);
     EXPECT_EQ(walker.capacity(), 101);
 
     // Check that previously added element in not gone after reallocating
@@ -367,7 +367,7 @@ TEST(WalkerTest, ReserveFromCurrentOffset)
 
     // test when memory couldn't be allocated
     walker.seek(1);
-    EXPECT_EQ(walker.reserve_from_current_offset(static_cast<size_type>(-1)), Status::kErrorOverflow);
+    EXPECT_EQ(walker.reserve_from_current_offset(static_cast<size_type>(-1)), Status::ErrorOverflow);
 
     // Check that after false memory allocation container not lost its contents
     EXPECT_EQ(walker.capacity(), 101);
@@ -381,13 +381,13 @@ TEST(WalkerTest, PushBack)
     std::string str("123");
 
     // test l-value
-    EXPECT_EQ(walker.pushBack(str), Status::kNoError);
+    EXPECT_EQ(walker.pushBack(str), Status::NoError);
     EXPECT_EQ(walker[0], "123");
     EXPECT_EQ(walker.tell(), 0);
     EXPECT_EQ(str.size(), 3);
 
     // test r-value
-    EXPECT_EQ(walker.pushBack(std::move(str)), Status::kNoError);
+    EXPECT_EQ(walker.pushBack(std::move(str)), Status::NoError);
     EXPECT_EQ(walker[1], "123");
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(str.size(), 0);
@@ -399,13 +399,13 @@ TEST(WalkerTest, PushBackNoMove)
 
     // test l-value
     NoMoveConstructible str("123");
-    EXPECT_EQ(walker.pushBack(str), Status::kNoError);
+    EXPECT_EQ(walker.pushBack(str), Status::NoError);
     EXPECT_EQ(walker[0], "123");
     EXPECT_EQ(walker.tell(), 0);
     EXPECT_EQ(str.m_str.size(), 3);
 
     // test r-value
-    EXPECT_EQ(walker.pushBack(std::move(str)), Status::kNoError);
+    EXPECT_EQ(walker.pushBack(std::move(str)), Status::NoError);
     EXPECT_EQ(walker[1], "123");
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(str.m_str.size(), 3);
@@ -416,13 +416,13 @@ TEST(WalkerTest, PushBackPod)
     Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> walker_pod;
 
     // test l-value
-    EXPECT_EQ(walker_pod.pushBack("123"), Status::kNoError);
+    EXPECT_EQ(walker_pod.pushBack("123"), Status::NoError);
     EXPECT_EQ(memcmp(walker_pod.data(), "123", sizeof(PodStruct)), 0);
     EXPECT_EQ(walker_pod.tell(), 1);
 
     // test r-value
     PodStruct ps("456");
-    EXPECT_EQ(walker_pod.pushBack(std::move(ps)), Status::kNoError);
+    EXPECT_EQ(walker_pod.pushBack(std::move(ps)), Status::NoError);
     EXPECT_EQ(memcmp(walker_pod.data() + 1, "456", sizeof(PodStruct)), 0);
     EXPECT_EQ(walker_pod.tell(), 2);
 
@@ -432,12 +432,12 @@ TEST(WalkerTest, PushBackPod)
     walker_pod2.seek(0);
 
     // test l-value
-    EXPECT_EQ(walker_pod2.pushBack(ps), Status::kErrorNoMemory);
+    EXPECT_EQ(walker_pod2.pushBack(ps), Status::ErrorNoMemory);
     EXPECT_EQ(walker_pod2.size(), 1);
     EXPECT_EQ(walker_pod2.tell(), 1);
 
     // test r-value
-    EXPECT_EQ(walker_pod2.pushBack(std::move(ps)), Status::kErrorNoMemory);
+    EXPECT_EQ(walker_pod2.pushBack(std::move(ps)), Status::ErrorNoMemory);
     EXPECT_EQ(walker_pod2.size(), 1);
     EXPECT_EQ(walker_pod2.tell(), 1);
 }
@@ -452,7 +452,7 @@ void FPushBackN()
     for (size_type i = 0; i < walker.size(); ++i)
         EXPECT_EQ(walker[i], g_data_array<T>[i]);
 
-    EXPECT_EQ(walker.pushBackN(g_data_array<T>, 3), Status::kNoError);
+    EXPECT_EQ(walker.pushBackN(g_data_array<T>, 3), Status::NoError);
     EXPECT_EQ(walker.tell(), 6);
     EXPECT_EQ(walker.size(), 6);
 
@@ -461,7 +461,7 @@ void FPushBackN()
 
     // test with additional memory allocation
     T another_data_array[] = { "abc", "def", "ghi" };
-    EXPECT_EQ(walker.pushBackN(another_data_array, 3), Status::kNoError);
+    EXPECT_EQ(walker.pushBackN(another_data_array, 3), Status::NoError);
     EXPECT_EQ(walker.size(), 9);
 
     for (size_type i = 0; i < 6; ++i)
@@ -471,10 +471,10 @@ void FPushBackN()
         EXPECT_EQ(walker[i], another_data_array[i - 6]);
 
     // not valid data or data size tests
-    EXPECT_EQ(walker.pushBackN(nullptr, 3), Status::kErrorInvalidArgument);
+    EXPECT_EQ(walker.pushBackN(nullptr, 3), Status::ErrorInvalidArgument);
     EXPECT_EQ(walker.size(), 9);
 
-    EXPECT_EQ(walker.pushBackN(g_data_array<T>, static_cast<size_type>(-1)), Status::kErrorOverflow);
+    EXPECT_EQ(walker.pushBackN(g_data_array<T>, static_cast<size_type>(-1)), Status::ErrorOverflow);
     EXPECT_EQ(walker.size(), 9);
 }
 
@@ -498,7 +498,7 @@ TEST(WalkerTest, PushBackNPod)
     walker_pod.pushBack(ps);
     walker_pod.seek(0);
 
-    EXPECT_EQ(walker_pod.pushBackN(&ps, 1), Status::kErrorNoMemory);
+    EXPECT_EQ(walker_pod.pushBackN(&ps, 1), Status::ErrorNoMemory);
     EXPECT_EQ(walker_pod.size(), 1);
     EXPECT_EQ(walker_pod.tell(), 1);
 }
@@ -506,7 +506,7 @@ TEST(WalkerTest, PushBackNPod)
 TEST(WalkerTest, PushBackArithmeticValue)
 {
     Walker<uint8_t, DefaultAllocatorHelper<uint8_t>> walker;
-    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::doubleOfDataSize); // as a precaution
+    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::DoubleOfDataSize); // as a precaution
 
     double value = 5.;
 
@@ -523,7 +523,7 @@ TEST(WalkerTest, PushBackArithmeticValue)
     walker2.pushBack(value);
     walker2.seek(0);
 
-    EXPECT_EQ(walker2.pushBackArithmeticValue(value), Status::kErrorNoMemory);
+    EXPECT_EQ(walker2.pushBackArithmeticValue(value), Status::ErrorNoMemory);
     EXPECT_EQ(walker2.size(), 1);
     EXPECT_EQ(walker2.tell(), 1);
 }
@@ -534,34 +534,34 @@ void FReplace()
     auto walker = getStringsFilledContainer<T>();
 
     // check that sparse construction is not allowed
-    EXPECT_EQ(walker.replace(g_data_array<T>, 3, 4), Status::kErrorOverflow);
+    EXPECT_EQ(walker.replace(g_data_array<T>, 3, 4), Status::ErrorOverflow);
     EXPECT_EQ(walker.tell(), 3);
     EXPECT_EQ(walker.size(), 3);
 
     // check for invalid arguments
-    EXPECT_EQ(walker.replace(nullptr, 3, 4), Status::kErrorInvalidArgument);
+    EXPECT_EQ(walker.replace(nullptr, 3, 4), Status::ErrorInvalidArgument);
     EXPECT_EQ(walker.tell(), 3);
     EXPECT_EQ(walker.size(), 3);
 
     // check for valid nullptr
-    EXPECT_EQ(walker.replace(nullptr, 0, 3), Status::kNoError);
+    EXPECT_EQ(walker.replace(nullptr, 0, 3), Status::NoError);
     EXPECT_EQ(walker.tell(), 3);
     EXPECT_EQ(walker.size(), 3);
 
     // check for invalid arguments
-    EXPECT_EQ(walker.replace(nullptr, 3, 4), Status::kErrorInvalidArgument);
+    EXPECT_EQ(walker.replace(nullptr, 3, 4), Status::ErrorInvalidArgument);
     EXPECT_EQ(walker.size(), 3);
 
     T another_data_array[] = { "abc", "def", "ghi" };
 
-    EXPECT_EQ(walker.replace(another_data_array, 1, 1), Status::kNoError);
+    EXPECT_EQ(walker.replace(another_data_array, 1, 1), Status::NoError);
     EXPECT_EQ(walker.tell(), 2);
     EXPECT_EQ(walker.size(), 3);
 
-    EXPECT_EQ(walker.pushBackN(another_data_array, 3), Status::kNoError);
+    EXPECT_EQ(walker.pushBackN(another_data_array, 3), Status::NoError);
 
     // test with additional memory allocation
-    EXPECT_EQ(walker.replace(&another_data_array[1], 2, 5), Status::kNoError);
+    EXPECT_EQ(walker.replace(&another_data_array[1], 2, 5), Status::NoError);
     EXPECT_EQ(walker.tell(), 7);
     EXPECT_EQ(walker.size(), 7);
 
@@ -569,7 +569,7 @@ void FReplace()
         EXPECT_EQ(walker[i], another_data_array[i - 4]);
 
     // test on offest == size
-    EXPECT_EQ(walker.replace(&another_data_array[1], 2, 7), Status::kNoError);
+    EXPECT_EQ(walker.replace(&another_data_array[1], 2, 7), Status::NoError);
     EXPECT_EQ(walker.size(), 9);
     EXPECT_EQ(walker.tell(), 9);
 }
@@ -594,7 +594,7 @@ TEST(WalkerTest, ReplacePod)
     walker.getAllocatorHelper().getAllocator().setStorage(psArr, sizeof(psArr) / sizeof(PodStruct));
     walker.pushBack(psArr[0]);
 
-    EXPECT_EQ(walker.replace(psArr, 2, 0), Status::kErrorNoMemory);
+    EXPECT_EQ(walker.replace(psArr, 2, 0), Status::ErrorNoMemory);
     EXPECT_EQ(walker.tell(), 0);
 }
 
@@ -604,14 +604,14 @@ void FInsert()
     auto walker = getStringsFilledContainer<T>();
 
     // check that sparse construction is not allowed
-    EXPECT_EQ(walker.insert(g_data_array<T>, 3, 5), Status::kErrorOverflow);
+    EXPECT_EQ(walker.insert(g_data_array<T>, 3, 5), Status::ErrorOverflow);
     EXPECT_EQ(walker.tell(), 3);
     EXPECT_EQ(walker.size(), 3);
 
     T another_data_array[] = { "abc", "def", "ghi" };
 
     size_type newOffset = 0;
-    EXPECT_EQ(walker.insert(another_data_array, 3, 0), Status::kNoError);
+    EXPECT_EQ(walker.insert(another_data_array, 3, 0), Status::NoError);
     EXPECT_EQ(walker.tell(), 3);
     EXPECT_EQ(walker.size(), 6);
     for (size_type i = 0; i < 3; ++i)
@@ -623,7 +623,7 @@ void FInsert()
     // test with additional memory allocation
     T another_data_array2[] = { "###", "$$$", "%%%" };
 
-    EXPECT_EQ(walker.insert(another_data_array2, 3, 2), Status::kNoError);
+    EXPECT_EQ(walker.insert(another_data_array2, 3, 2), Status::NoError);
     EXPECT_EQ(walker.tell(), 5);
     EXPECT_EQ(walker.size(), 9);
 
@@ -640,7 +640,7 @@ void FInsert()
 
     T another_data_array3[] = { "+++", "---", "***" };
 
-    EXPECT_EQ(walker.insert(another_data_array3, 3, 8), Status::kNoError);
+    EXPECT_EQ(walker.insert(another_data_array3, 3, 8), Status::NoError);
     EXPECT_EQ(walker.tell(), 11);
     EXPECT_EQ(walker.size(), 12);
 
@@ -661,20 +661,20 @@ void FInsert()
     EXPECT_EQ(walker[11], g_data_array<T>[2]);
 
     // test zero items
-    EXPECT_EQ(walker.insert(another_data_array3, 0, 10), Status::kNoError);
+    EXPECT_EQ(walker.insert(another_data_array3, 0, 10), Status::NoError);
     EXPECT_EQ(walker.tell(), 10);
     EXPECT_EQ(walker.size(), 12);
 
-    EXPECT_EQ(walker.insert(nullptr, 0, 10), Status::kNoError);
+    EXPECT_EQ(walker.insert(nullptr, 0, 10), Status::NoError);
     EXPECT_EQ(walker.tell(), 10);
     EXPECT_EQ(walker.size(), 12);
 
     // test not valid values
-    EXPECT_EQ(walker.insert(another_data_array3, 3, 13), Status::kErrorOverflow);
+    EXPECT_EQ(walker.insert(another_data_array3, 3, 13), Status::ErrorOverflow);
     EXPECT_EQ(walker.tell(), 12);
     EXPECT_EQ(walker.size(), 12);
 
-    EXPECT_EQ(walker.insert(nullptr, 3, 10), Status::kErrorInvalidArgument);
+    EXPECT_EQ(walker.insert(nullptr, 3, 10), Status::ErrorInvalidArgument);
     EXPECT_EQ(walker.tell(), 10);
     EXPECT_EQ(walker.size(), 12);
 }
@@ -696,7 +696,7 @@ TEST(WalkerTest, InsertPod)
     Walker<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> walker;
     uint8_t i = 1;
 
-    EXPECT_EQ(walker.insert(&i, 1, 0), Status::kErrorNoMemory);
+    EXPECT_EQ(walker.insert(&i, 1, 0), Status::ErrorNoMemory);
     EXPECT_EQ(walker.size(), 0);
     EXPECT_EQ(walker.tell(), 0);
 }
@@ -707,7 +707,7 @@ void FInsertIt()
     auto walker = getStringsFilledContainer<T>();
 
     // check that sparse construction is not allowed
-    EXPECT_EQ(walker.insert(g_data_array<T>, g_data_array<T> +3, walker.getVector().begin() + 5), Status::kErrorOverflow);
+    EXPECT_EQ(walker.insert(g_data_array<T>, g_data_array<T> +3, walker.getVector().begin() + 5), Status::ErrorOverflow);
     EXPECT_EQ(walker.tell(), 3);
     EXPECT_EQ(walker.size(), 3);
 
@@ -717,7 +717,7 @@ void FInsertIt()
     l1.insert(l1.begin(), another_data_array, another_data_array + 3);
 
     auto it = walker.getVector().end();
-    EXPECT_EQ(walker.insert(l1.begin(), l1.end(), walker.getVector().begin(), &it), Status::kNoError);
+    EXPECT_EQ(walker.insert(l1.begin(), l1.end(), walker.getVector().begin(), &it), Status::NoError);
     EXPECT_EQ(*it, *(walker.getVector().begin() + 3));
     EXPECT_EQ(walker.tell(), 3);
     EXPECT_EQ(walker.size(), 6);
@@ -732,7 +732,7 @@ void FInsertIt()
     std::list<T> l2;
     l2.insert(l2.begin(), another_data_array2, another_data_array2 + 3);
 
-    EXPECT_EQ(walker.insert(l2.begin(), l2.end(), walker.getVector().begin() + 2, &it), Status::kNoError);
+    EXPECT_EQ(walker.insert(l2.begin(), l2.end(), walker.getVector().begin() + 2, &it), Status::NoError);
     EXPECT_EQ(*it, *(walker.getVector().begin() + 5));
     EXPECT_EQ(walker.tell(), 5);
     EXPECT_EQ(walker.size(), 9);
@@ -752,7 +752,7 @@ void FInsertIt()
     std::list<T> l3;
     l3.insert(l3.begin(), another_data_array3, another_data_array3 + 3);
 
-    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().begin() + 8, &it), Status::kNoError);
+    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().begin() + 8, &it), Status::NoError);
     EXPECT_EQ(*it, *(walker.getVector().begin() + 11));
     EXPECT_EQ(walker.tell(), 11);
     EXPECT_EQ(walker.size(), 12);
@@ -774,7 +774,7 @@ void FInsertIt()
     EXPECT_EQ(walker[11], g_data_array<T>[2]);
 
     // try to insert to the end
-    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().end(), &it), Status::kNoError);
+    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().end(), &it), Status::NoError);
     EXPECT_EQ(it, walker.getVector().begin() + 15);
     EXPECT_EQ(walker.size(), 15);
 
@@ -782,17 +782,17 @@ void FInsertIt()
         EXPECT_EQ(walker[i], another_data_array3[i - 12]);
 
     // try to not pass optional arg
-    EXPECT_EQ(walker.insert(l3.begin(), l3.begin(), walker.getVector().begin()), Status::kNoError);
+    EXPECT_EQ(walker.insert(l3.begin(), l3.begin(), walker.getVector().begin()), Status::NoError);
 
     it = walker.getVector().begin() + 14;
 
     // try to insert by not valid iterator
-    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().begin() - 1, &it), Status::kErrorOverflow);
+    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().begin() - 1, &it), Status::ErrorOverflow);
     EXPECT_EQ(it, walker.getVector().begin() + 14);
     EXPECT_EQ(walker.size(), 15);
     EXPECT_EQ(walker.tell(), 15);
 
-    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().end() + 1, &it), Status::kErrorOverflow);
+    EXPECT_EQ(walker.insert(l3.begin(), l3.end(), walker.getVector().end() + 1, &it), Status::ErrorOverflow);
     EXPECT_EQ(it, walker.getVector().begin() + 14);
     EXPECT_EQ(walker.size(), 15);
     EXPECT_EQ(walker.tell(), 15);
@@ -819,7 +819,7 @@ TEST(WalkerTest, InsertItPod)
 
     std::list<uint8_t> l1;
     l1.push_back(i);
-    EXPECT_EQ(walker.insert(l1.begin(), l1.end(), walker.getVector().begin()), Status::kErrorNoMemory);
+    EXPECT_EQ(walker.insert(l1.begin(), l1.end(), walker.getVector().begin()), Status::ErrorNoMemory);
     EXPECT_EQ(walker.size(), 1);
     EXPECT_EQ(walker.tell(), 0);
 }
@@ -835,21 +835,21 @@ void FErase()
     EXPECT_EQ(walker.size(), 6);
 
     // try to erase by not valid offset
-    EXPECT_EQ(walker.erase(walker.size(), 1), Status::kErrorOverflow);
+    EXPECT_EQ(walker.erase(walker.size(), 1), Status::ErrorOverflow);
     EXPECT_EQ(walker.tell(), 6);
     EXPECT_EQ(walker.size(), 6);
 
     // try to erase 0 elements
-    EXPECT_EQ(walker.erase(1, 0), Status::kNoError);
+    EXPECT_EQ(walker.erase(1, 0), Status::NoError);
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(walker.size(), 6);
 
-    EXPECT_EQ(walker.erase(1, 0), Status::kNoError);
+    EXPECT_EQ(walker.erase(1, 0), Status::NoError);
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(walker.size(), 6);
 
     // main usage
-    EXPECT_EQ(walker.erase(4, 1), Status::kNoError);
+    EXPECT_EQ(walker.erase(4, 1), Status::NoError);
     EXPECT_EQ(walker.tell(), 4);
     EXPECT_EQ(walker.size(), 5);
 
@@ -859,7 +859,7 @@ void FErase()
     EXPECT_EQ(walker[3], another_data_array[0]);
     EXPECT_EQ(walker[4], another_data_array[2]);
 
-    EXPECT_EQ(walker.erase(1, 2), Status::kNoError);
+    EXPECT_EQ(walker.erase(1, 2), Status::NoError);
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(walker.size(), 3);
 
@@ -867,7 +867,7 @@ void FErase()
     EXPECT_EQ(walker[1], another_data_array[0]);
     EXPECT_EQ(walker[2], another_data_array[2]);
 
-    EXPECT_EQ(walker.erase(2, walker.size()), Status::kNoError);
+    EXPECT_EQ(walker.erase(2, walker.size()), Status::NoError);
     EXPECT_EQ(walker.tell(), 2);
     EXPECT_EQ(walker.size(), 2);
 
@@ -875,14 +875,14 @@ void FErase()
     EXPECT_EQ(walker[1], another_data_array[0]);
 
     // test that only right range is cut after last element
-    EXPECT_EQ(walker.erase(1, 10), Status::kNoError);
+    EXPECT_EQ(walker.erase(1, 10), Status::NoError);
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(walker.size(), 1);
 
     EXPECT_EQ(walker[0], g_data_array<T>[0]);
 
     // test extra big n
-    EXPECT_EQ(walker.erase(0, static_cast<size_type>(-1)), Status::kNoError);
+    EXPECT_EQ(walker.erase(0, static_cast<size_type>(-1)), Status::NoError);
     EXPECT_EQ(walker.tell(), 0);
     EXPECT_EQ(walker.size(), 0);
 }
@@ -913,29 +913,29 @@ void FEraseIt()
     EXPECT_EQ(walker.size(), 6);
 
     // try to erase by not valid iterator
-    EXPECT_EQ(walker.erase(walker.getVector().begin() - 1, walker.getVector().begin() + 1), Status::kErrorInvalidArgument);
+    EXPECT_EQ(walker.erase(walker.getVector().begin() - 1, walker.getVector().begin() + 1), Status::ErrorInvalidArgument);
     EXPECT_EQ(walker.tell(), 6);
     EXPECT_EQ(walker.size(), 6);
 
-    EXPECT_EQ(walker.erase(walker.getVector().begin(), walker.getVector().begin() - 1), Status::kErrorOverflow);
+    EXPECT_EQ(walker.erase(walker.getVector().begin(), walker.getVector().begin() - 1), Status::ErrorOverflow);
     EXPECT_EQ(walker.tell(), 0);
     EXPECT_EQ(walker.size(), 6);
 
-    EXPECT_EQ(walker.erase(walker.getVector().begin() + 1, walker.getVector().begin()), Status::kErrorOverflow);
+    EXPECT_EQ(walker.erase(walker.getVector().begin() + 1, walker.getVector().begin()), Status::ErrorOverflow);
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(walker.size(), 6);
 
     // try to erase 0 elements
-    EXPECT_EQ(walker.erase(walker.getVector().end(), walker.getVector().end()), Status::kErrorInvalidArgument);
+    EXPECT_EQ(walker.erase(walker.getVector().end(), walker.getVector().end()), Status::ErrorInvalidArgument);
     EXPECT_EQ(walker.tell(), 6);
     EXPECT_EQ(walker.size(), 6);
 
-    EXPECT_EQ(walker.erase(walker.getVector().begin() + 1, walker.getVector().begin() + 1), Status::kNoError);
+    EXPECT_EQ(walker.erase(walker.getVector().begin() + 1, walker.getVector().begin() + 1), Status::NoError);
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(walker.size(), 6);
 
     // main usage
-    EXPECT_EQ(walker.erase(walker.getVector().begin() + 4, walker.getVector().begin() + 5), Status::kNoError);
+    EXPECT_EQ(walker.erase(walker.getVector().begin() + 4, walker.getVector().begin() + 5), Status::NoError);
     EXPECT_EQ(walker.tell(), 4);
     EXPECT_EQ(walker.size(), 5);
 
@@ -945,7 +945,7 @@ void FEraseIt()
     EXPECT_EQ(walker[3], another_data_array[0]);
     EXPECT_EQ(walker[4], another_data_array[2]);
 
-    EXPECT_EQ(walker.erase(walker.getVector().begin() + 1, walker.getVector().begin() + 3), Status::kNoError);
+    EXPECT_EQ(walker.erase(walker.getVector().begin() + 1, walker.getVector().begin() + 3), Status::NoError);
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(walker.size(), 3);
 
@@ -953,7 +953,7 @@ void FEraseIt()
     EXPECT_EQ(walker[1], another_data_array[0]);
     EXPECT_EQ(walker[2], another_data_array[2]);
 
-    EXPECT_EQ(walker.erase(walker.getVector().begin() + 2, walker.getVector().end()), Status::kNoError);
+    EXPECT_EQ(walker.erase(walker.getVector().begin() + 2, walker.getVector().end()), Status::NoError);
     EXPECT_EQ(walker.tell(), 2);
     EXPECT_EQ(walker.size(), 2);
 
@@ -961,7 +961,7 @@ void FEraseIt()
     EXPECT_EQ(walker[1], another_data_array[0]);
 
     // test that only right range is cut after end()
-    EXPECT_EQ(walker.erase(walker.getVector().begin() + 1, walker.getVector().end() + 10), Status::kNoError);
+    EXPECT_EQ(walker.erase(walker.getVector().begin() + 1, walker.getVector().end() + 10), Status::NoError);
     EXPECT_EQ(walker.tell(), 1);
     EXPECT_EQ(walker.size(), 1);
 
@@ -989,17 +989,17 @@ void FWrite()
     auto walker = getStringsFilledContainer<T>();
 
     // check for invalid arguments
-    EXPECT_EQ(walker.write(nullptr, 3), Status::kErrorInvalidArgument);
+    EXPECT_EQ(walker.write(nullptr, 3), Status::ErrorInvalidArgument);
     EXPECT_EQ(walker.size(), 3);
 
     T another_data_array[] = { "abc", "def", "ghi" };
 
-    EXPECT_EQ(walker.write(another_data_array, 1), Status::kNoError);
+    EXPECT_EQ(walker.write(another_data_array, 1), Status::NoError);
     EXPECT_EQ(walker.tell(), 4);
     EXPECT_EQ(walker.size(), 4);
 
     // test with additional memory allocation
-    EXPECT_EQ(walker.write(another_data_array, 3), Status::kNoError);
+    EXPECT_EQ(walker.write(another_data_array, 3), Status::NoError);
     EXPECT_EQ(walker.tell(), 7);
     EXPECT_EQ(walker.size(), 7);
 
@@ -1025,7 +1025,7 @@ TEST(WalkerTest, WritePod)
 
     PodStruct psArr{ "456" };
 
-    EXPECT_EQ(walker.write(&psArr, 2), Status::kErrorNoMemory);
+    EXPECT_EQ(walker.write(&psArr, 2), Status::ErrorNoMemory);
     EXPECT_EQ(walker.tell(), 0);
 }
 
@@ -1038,7 +1038,7 @@ void FRead()
     
     size_type nRead = 0;
     walker.seek(0);
-    EXPECT_EQ(walker.read(another_data_array, 3, &nRead), Status::kNoError);
+    EXPECT_EQ(walker.read(another_data_array, 3, &nRead), Status::NoError);
     EXPECT_EQ(nRead, 3);
     EXPECT_EQ(walker.tell(), 3);
 
@@ -1047,7 +1047,7 @@ void FRead()
 
     nRead = 10;
     walker.seek(1);
-    EXPECT_EQ(walker.read(another_data_array, 3, &nRead), Status::kNoError);
+    EXPECT_EQ(walker.read(another_data_array, 3, &nRead), Status::NoError);
     EXPECT_EQ(nRead, 2);
     EXPECT_EQ(walker.tell(), 3);
 
@@ -1058,7 +1058,7 @@ void FRead()
     // copy more than walker has
     nRead = 10;
     walker.seek(0);
-    EXPECT_EQ(walker.read(another_data_array, 10, &nRead), Status::kNoError);
+    EXPECT_EQ(walker.read(another_data_array, 10, &nRead), Status::NoError);
     EXPECT_EQ(nRead, 3);
     EXPECT_EQ(walker.tell(), 3);
 
@@ -1068,7 +1068,7 @@ void FRead()
     // copy zero elements
     nRead = 10;
     walker.seek(1);
-    EXPECT_EQ(walker.read(another_data_array, 0, &nRead), Status::kNoError);
+    EXPECT_EQ(walker.read(another_data_array, 0, &nRead), Status::NoError);
     EXPECT_EQ(nRead, 0);
     EXPECT_EQ(walker.tell(), 1);
 
@@ -1076,14 +1076,14 @@ void FRead()
         EXPECT_EQ(walker[i], another_data_array[i]);
 
     nRead = 10;
-    EXPECT_EQ(walker.read(nullptr, 0, &nRead), Status::kNoError);
+    EXPECT_EQ(walker.read(nullptr, 0, &nRead), Status::NoError);
     EXPECT_EQ(nRead, 0);
     EXPECT_EQ(walker.tell(), 2);
 
     // try to copy with wrong offset
     nRead = 10;
     walker.seek(3);
-    EXPECT_EQ(walker.read(another_data_array, 1, &nRead), Status::kErrorOverflow);
+    EXPECT_EQ(walker.read(another_data_array, 1, &nRead), Status::ErrorOverflow);
     EXPECT_EQ(nRead, 10);
     EXPECT_EQ(walker.tell(), 3);
 
@@ -1093,14 +1093,14 @@ void FRead()
     // try to copy with nullptr as destination
     nRead = 10;
     walker.seek(1);
-    EXPECT_EQ(walker.read(nullptr, 3, &nRead), Status::kErrorInvalidArgument);
+    EXPECT_EQ(walker.read(nullptr, 3, &nRead), Status::ErrorInvalidArgument);
     EXPECT_EQ(nRead, 10);
     EXPECT_EQ(walker.tell(), 1);
 
     // try to not pass optional arg
     nRead = 10;
     walker.seek(0);
-    EXPECT_EQ(walker.read(another_data_array, 3), Status::kNoError);
+    EXPECT_EQ(walker.read(another_data_array, 3), Status::NoError);
 }
 
 TEST(WalkerTest, Read)
@@ -1128,13 +1128,13 @@ TEST(WalkerTest, ReadArithmeticValue)
     constexpr short test = 1 | (2 << 8);
     short value = 0;
 
-    EXPECT_EQ(walker.readArithmeticValue(value), Status::kNoError);
+    EXPECT_EQ(walker.readArithmeticValue(value), Status::NoError);
     EXPECT_EQ(walker.tell(), 2);
     EXPECT_EQ(value, test);
 
     value = 0;
 
-    EXPECT_EQ(walker.readArithmeticValue(value), Status::kErrorOverflow);
+    EXPECT_EQ(walker.readArithmeticValue(value), Status::ErrorOverflow);
     EXPECT_EQ(walker.tell(), 2);
     EXPECT_EQ(value, 0);
 }
@@ -1183,7 +1183,7 @@ TEST(WalkerTest, Capacity)
 
     EXPECT_EQ(walker.capacity(), 0);
 
-    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::strictByDataSize);
+    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::StrictByDataSize);
 
     walker.pushBackN(g_data_array<std::string>, 3);
 
