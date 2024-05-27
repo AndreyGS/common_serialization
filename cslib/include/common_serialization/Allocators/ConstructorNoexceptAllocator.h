@@ -42,32 +42,32 @@ public:
     using constructor_allocator = std::true_type;
 
     /// @brief Default ctor
-    constexpr ConstructorNoexceptAllocator() = default;
+    CS_ALWAYS_INLINE constexpr ConstructorNoexceptAllocator() = default;
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility
     /// @tparam R Type of ojects that rhs allocator would allocate
     template <class R>
-    explicit constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator<R>&) noexcept {}
+    explicit CS_ALWAYS_INLINE constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator<R>&) noexcept {}
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility
-    constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator&) = default;
+    CS_ALWAYS_INLINE constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator&) = default;
 
     /// @brief Allocate storage with bytes_size = n*sizeof(value_type)
     /// @param n Number of elements of type value_type that storage must be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    [[nodiscard]] constexpr pointer allocate(size_type n) const noexcept;
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocate(size_type n) const noexcept;
 
     /// @brief Frees storage pointed by p
     /// @param p Pointer to memory that shall be freed
-    constexpr void deallocate(pointer p) const noexcept;
+    CS_ALWAYS_INLINE constexpr void deallocate(pointer p) const noexcept;
 
     /// @brief Frees storage pointed by p
     /// @remark This overload only for compatibility
     /// @param p Pointer to memory that shall be freed
     /// @param n Size of storage (not used)
-    constexpr void deallocate(pointer p, size_type n) const noexcept;
+    CS_ALWAYS_INLINE constexpr void deallocate(pointer p, size_type n) const noexcept;
 
     /// @brief Call ctor with args on memory pointed by p
     /// @tparam ..._Args Parameters types that go to ctor
@@ -75,7 +75,7 @@ public:
     /// @param ...args Parameters that go to ctor
     /// @return Status of operation
     template<typename... _Args>
-    constexpr Status construct(pointer p, _Args&&... args) const;
+    CS_ALWAYS_INLINE constexpr Status construct(pointer p, _Args&&... args) const;
 
     /// @brief Call default ctor on memory pointed by p
     ///     and then call init() method of value_type if args pack not empty
@@ -84,42 +84,42 @@ public:
     /// @param ...args Parameters that go to init() method
     /// @return Status of operation
     template<typename... _Args>
-    constexpr Status construct(pointer p, _Args&&... args) const
+    CS_ALWAYS_INLINE constexpr Status construct(pointer p, _Args&&... args) const
         requires Initable<value_type>;
 
     /// @brief Call destructor on object pointed by p
     /// @param p Pointer to object that shall be destroyed
-    constexpr void destroy(pointer p) const noexcept;
+    CS_ALWAYS_INLINE constexpr void destroy(pointer p) const noexcept;
 
     /// @brief Get maximum number of objects of type value_type that allocator can allocate
     /// @return Maximum number of objects
-    constexpr size_type max_size() const noexcept;
+    CS_ALWAYS_INLINE constexpr size_type max_size() const noexcept;
 
 private:
     static constexpr size_type max_size_v = static_cast<size_type>(-1) / sizeof(_T);
 };
 
 template<typename _T>
-[[nodiscard]] constexpr _T* ConstructorNoexceptAllocator<_T>::allocate(size_type n) const noexcept
+[[nodiscard]] CS_ALWAYS_INLINE constexpr _T* ConstructorNoexceptAllocator<_T>::allocate(size_type n) const noexcept
 {
     return static_cast<_T*>(memory_management::raw_heap_allocate(n * sizeof(_T)));
 }
 
 template<typename _T>
-constexpr void ConstructorNoexceptAllocator<_T>::deallocate(pointer p) const noexcept
+CS_ALWAYS_INLINE constexpr void ConstructorNoexceptAllocator<_T>::deallocate(pointer p) const noexcept
 {
     memory_management::raw_heap_deallocate(p);
 }
 
 template<typename _T>
-constexpr void ConstructorNoexceptAllocator<_T>::deallocate(pointer p, size_type n) const noexcept
+CS_ALWAYS_INLINE constexpr void ConstructorNoexceptAllocator<_T>::deallocate(pointer p, size_type n) const noexcept
 {
     deallocate(p);
 }
 
 template<typename _T>
 template<typename... _Args>
-constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&... args) const
+CS_ALWAYS_INLINE constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&... args) const
 {
     assert(p);
 
@@ -129,7 +129,7 @@ constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&.
 
 template<typename _T>
 template<typename... _Args>
-constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&... args) const
+CS_ALWAYS_INLINE constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&... args) const
     requires Initable<value_type>
 {
     assert(p);
@@ -143,13 +143,13 @@ constexpr Status ConstructorNoexceptAllocator<_T>::construct(pointer p, _Args&&.
 }
 
 template<typename _T>
-constexpr void ConstructorNoexceptAllocator<_T>::destroy(pointer p) const noexcept
+CS_ALWAYS_INLINE constexpr void ConstructorNoexceptAllocator<_T>::destroy(pointer p) const noexcept
 {
     p->~value_type();
 }
 
 template<typename _T>
-constexpr typename ConstructorNoexceptAllocator<_T>::size_type ConstructorNoexceptAllocator<_T>::max_size() const noexcept
+CS_ALWAYS_INLINE constexpr typename ConstructorNoexceptAllocator<_T>::size_type ConstructorNoexceptAllocator<_T>::max_size() const noexcept
 {
     return max_size_v;
 }

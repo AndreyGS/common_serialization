@@ -44,46 +44,46 @@ public:
     using constructor_allocator = std::false_type;
 
     /// @brief Default ctor
-    constexpr RawKeeperAllocator() = default;
+    CS_ALWAYS_INLINE constexpr RawKeeperAllocator() = default;
 
     /// @brief Init ctor
     /// @param p Pointer on storage
     /// @param memorySize Size of storage in _T units
-    constexpr RawKeeperAllocator(pointer p, size_type memorySize) noexcept;
+    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(pointer p, size_type memorySize) noexcept;
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility and does nothing
     /// @tparam R Type of ojects that rhs allocator is allocate
     /// @param rhs Another RawKeeperAllocator object
     template <class _R>
-    constexpr RawKeeperAllocator(const RawKeeperAllocator<_R>& rhs) noexcept { operator=(rhs); }
+    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(const RawKeeperAllocator<_R>& rhs) noexcept { operator=(rhs); }
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility and does nothing
     /// @param rhs Another RawKeeperAllocator object
-    constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { operator=<value_type>(rhs); }
+    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs) { operator=<value_type>(rhs); }
 
     /// @brief Move ctor
     /// @tparam R Type of ojects that rhs allocator is allocate
     /// @param rhs Another RawKeeperAllocator object
     template <class _R>
-    constexpr RawKeeperAllocator(RawKeeperAllocator<_R>&& rhs) noexcept;
+    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(RawKeeperAllocator<_R>&& rhs) noexcept;
 
     /// @brief Move ctor
     /// @param rhs Another RawKeeperAllocator object
-    constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept { operator=<value_type>(std::move(rhs)); }
+    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept { operator=<value_type>(std::move(rhs)); }
 
     /// @brief Copy assignment operator
     /// @remark Present only for compatibility and does not copying anything
     /// @tparam R Type of ojects that rhs allocator is allocate
     template <class _R>
-    constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<_R>&) noexcept { return *this; }
+    CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<_R>&) noexcept { return *this; }
 
     /// @brief Copy assignment operator
     /// @remark Present only for compatibility and does not copying anything
     /// @param rhs Another RawKeeperAllocator object
     /// @return *this
-    constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator& rhs) noexcept { return operator=<value_type>(rhs); }
+    CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator& rhs) noexcept { return operator=<value_type>(rhs); }
 
     /// @brief Move assignment operator
     /// @tparam R Type of ojects that rhs allocator is allocate
@@ -95,7 +95,7 @@ public:
     /// @brief Move assignment operator
     /// @param rhs Another RawKeeperAllocator object
     /// @return *this
-    constexpr RawKeeperAllocator& operator=(RawKeeperAllocator&& rhs) noexcept { return operator=<value_type>(std::move(rhs)); }
+    CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(RawKeeperAllocator&& rhs) noexcept { return operator=<value_type>(std::move(rhs)); }
 
     /// @brief Init with storage
     /// @param p Pointer to storage
@@ -105,18 +105,18 @@ public:
     /// @brief Get pointer on storage if n*value_type <= sizeof(storage)
     /// @param n Number of elements of type _T that storage must be capable to hold
     /// @return Pointer to storage, nullptr if current storage is not large enough
-    [[nodiscard]] constexpr pointer allocate(size_type n) const noexcept;
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocate(size_type n) const noexcept;
 
     /// @brief Does nothing
     /// @remark Present only for compatibility
     /// @param p Pointer to storage
-    constexpr void deallocate(pointer p) const noexcept;
+    CS_ALWAYS_INLINE constexpr void deallocate(pointer p) const noexcept;
 
     /// @brief Does nothing
     /// @remark Present only for compatibility
     /// @param p Pointer to storage
     /// @param n Number of elements
-    constexpr void deallocate(pointer p, size_type n) const noexcept;
+    CS_ALWAYS_INLINE constexpr void deallocate(pointer p, size_type n) const noexcept;
 
     /// @brief Call ctor with args on memory pointed by p
     /// @note If p is out of storage memory range or if it does not
@@ -131,11 +131,11 @@ public:
 
     /// @brief Does nothing
     /// @param p This overload only for compatibility
-    constexpr void destroy(pointer p) const noexcept;
+    CS_ALWAYS_INLINE constexpr void destroy(pointer p) const noexcept;
 
     /// @brief Get size of storage in value_type units
     /// @return Size of storage in value_type units
-    constexpr size_type max_size() const noexcept;
+    CS_ALWAYS_INLINE constexpr size_type max_size() const noexcept;
 
 private:
     pointer m_p{ nullptr };
@@ -144,7 +144,7 @@ private:
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-constexpr RawKeeperAllocator<_T>::RawKeeperAllocator(pointer p, size_type memorySize) noexcept
+CS_ALWAYS_INLINE constexpr RawKeeperAllocator<_T>::RawKeeperAllocator(pointer p, size_type memorySize) noexcept
     : m_p(p), m_memorySize(memorySize)
 {
 }
@@ -152,7 +152,7 @@ constexpr RawKeeperAllocator<_T>::RawKeeperAllocator(pointer p, size_type memory
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
 template <class R>
-constexpr RawKeeperAllocator<_T>::RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept
+CS_ALWAYS_INLINE constexpr RawKeeperAllocator<_T>::RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept
 {
     operator=(std::move(rhs));
 }
@@ -183,20 +183,20 @@ constexpr void RawKeeperAllocator<_T>::setStorage(pointer p, size_type memorySiz
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-[[nodiscard]] constexpr _T* RawKeeperAllocator<_T>::allocate(size_type n) const noexcept
+[[nodiscard]] CS_ALWAYS_INLINE constexpr _T* RawKeeperAllocator<_T>::allocate(size_type n) const noexcept
 {
     return n <= m_memorySize ? m_p : nullptr;
 }
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-constexpr void RawKeeperAllocator<_T>::deallocate(pointer p) const noexcept
+CS_ALWAYS_INLINE constexpr void RawKeeperAllocator<_T>::deallocate(pointer p) const noexcept
 {
 }
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-constexpr void RawKeeperAllocator<_T>::deallocate(pointer p, size_type n) const noexcept
+CS_ALWAYS_INLINE constexpr void RawKeeperAllocator<_T>::deallocate(pointer p, size_type n) const noexcept
 {
 }
 
@@ -218,13 +218,13 @@ constexpr Status RawKeeperAllocator<_T>::construct(pointer p, _Args&&... args) c
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-constexpr void RawKeeperAllocator<_T>::destroy(pointer p) const noexcept
+CS_ALWAYS_INLINE constexpr void RawKeeperAllocator<_T>::destroy(pointer p) const noexcept
 {
 }
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-constexpr typename RawKeeperAllocator<_T>::size_type RawKeeperAllocator<_T>::max_size() const noexcept
+CS_ALWAYS_INLINE constexpr typename RawKeeperAllocator<_T>::size_type RawKeeperAllocator<_T>::max_size() const noexcept
 {
     return m_memorySize;
 }

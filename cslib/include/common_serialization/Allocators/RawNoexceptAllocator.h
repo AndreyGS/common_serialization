@@ -42,32 +42,32 @@ public:
     using constructor_allocator = std::false_type;
 
     /// @brief Default ctor
-    constexpr RawNoexceptAllocator() = default;
+    CS_ALWAYS_INLINE constexpr RawNoexceptAllocator() = default;
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility
     /// @tparam R Type of ojects that rhs allocator would allocate
     template <class R>
-    explicit constexpr RawNoexceptAllocator(const RawNoexceptAllocator<R>&) noexcept {}
+    explicit CS_ALWAYS_INLINE constexpr RawNoexceptAllocator(const RawNoexceptAllocator<R>&) noexcept {}
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility
-    constexpr RawNoexceptAllocator(const RawNoexceptAllocator&) = default;
+    CS_ALWAYS_INLINE constexpr RawNoexceptAllocator(const RawNoexceptAllocator&) = default;
 
     /// @brief Allocate storage with bytes_size = n*sizeof(_T)
     /// @param n Number of elements of type _T that storage must be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    [[nodiscard]] constexpr pointer allocate(size_type n) const noexcept;
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocate(size_type n) const noexcept;
 
     /// @brief Frees storage pointed by p
     /// @param p Pointer to memory that shall be freed
-    constexpr void deallocate(pointer p) const noexcept;
+    CS_ALWAYS_INLINE constexpr void deallocate(pointer p) const noexcept;
 
     /// @brief Frees storage pointed by p
     /// @remark This overload only for compatibility
     /// @param p Pointer to memory that shall be freed
     /// @param n Size of storage (not used)
-    constexpr void deallocate(pointer p, size_type n) const noexcept;
+    CS_ALWAYS_INLINE constexpr void deallocate(pointer p, size_type n) const noexcept;
 
     /// @brief Call ctor with args on memory pointed by p
     /// @remark This method only for compatibility
@@ -76,15 +76,15 @@ public:
     /// @param ...args Parameters that go to ctor
     /// @return Status of operation
     template<typename... _Args>
-    constexpr Status construct(pointer p, _Args&&... args) const noexcept;
+    CS_ALWAYS_INLINE constexpr Status construct(pointer p, _Args&&... args) const noexcept;
 
     /// @brief Does nothing
     /// @param p This overload only for compatibility
-    constexpr void destroy(pointer p) const noexcept;
+    CS_ALWAYS_INLINE constexpr void destroy(pointer p) const noexcept;
 
     /// @brief Get maximum number of objects of type _T that allocator can allocate
     /// @return Maximum number of objects
-    constexpr size_type max_size() const noexcept;
+    CS_ALWAYS_INLINE constexpr size_type max_size() const noexcept;
 
 private:
     static constexpr size_type max_size_v = static_cast<size_type>(-1) / sizeof(value_type);
@@ -92,21 +92,21 @@ private:
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-[[nodiscard]] constexpr _T* RawNoexceptAllocator<_T>::allocate(size_type n) const noexcept
+[[nodiscard]] CS_ALWAYS_INLINE constexpr _T* RawNoexceptAllocator<_T>::allocate(size_type n) const noexcept
 {
     return reinterpret_cast<pointer>(memory_management::raw_heap_allocate(n * sizeof(value_type)));
 }
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-constexpr void RawNoexceptAllocator<_T>::deallocate(pointer p) const noexcept
+CS_ALWAYS_INLINE constexpr void RawNoexceptAllocator<_T>::deallocate(pointer p) const noexcept
 {
     memory_management::raw_heap_deallocate(p);
 }
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-constexpr void RawNoexceptAllocator<_T>::deallocate(pointer p, size_type n) const noexcept
+CS_ALWAYS_INLINE constexpr void RawNoexceptAllocator<_T>::deallocate(pointer p, size_type n) const noexcept
 {
     deallocate(p);
 }
@@ -114,7 +114,7 @@ constexpr void RawNoexceptAllocator<_T>::deallocate(pointer p, size_type n) cons
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
 template<typename... _Args>
-constexpr Status RawNoexceptAllocator<_T>::construct(pointer p, _Args&&... args) const noexcept
+CS_ALWAYS_INLINE constexpr Status RawNoexceptAllocator<_T>::construct(pointer p, _Args&&... args) const noexcept
 {
     assert(p);
 
@@ -124,13 +124,13 @@ constexpr Status RawNoexceptAllocator<_T>::construct(pointer p, _Args&&... args)
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-constexpr void RawNoexceptAllocator<_T>::destroy(pointer p) const noexcept
+CS_ALWAYS_INLINE constexpr void RawNoexceptAllocator<_T>::destroy(pointer p) const noexcept
 {
 }
 
 template<typename _T>
     requires std::is_trivially_copyable_v<_T>
-constexpr typename RawNoexceptAllocator<_T>::size_type RawNoexceptAllocator<_T>::max_size() const noexcept
+CS_ALWAYS_INLINE constexpr typename RawNoexceptAllocator<_T>::size_type RawNoexceptAllocator<_T>::max_size() const noexcept
 {
     return max_size_v;
 }

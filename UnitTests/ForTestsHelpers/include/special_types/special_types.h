@@ -84,6 +84,7 @@ public:
     static uint32_t counter;
     static uint32_t errorOnCounter;
     static cs::Status currentError;
+    static uint32_t destructorCalledCounter;
 
     cs::Status init(const ErrorProne&)
     {
@@ -92,11 +93,17 @@ public:
         else
             return cs::Status::NoError;
     }
+
+    ~ErrorProne()
+    {
+        ++destructorCalledCounter;
+    }
 };
 
 inline uint32_t ErrorProne::counter = 0;
 inline uint32_t ErrorProne::errorOnCounter = 0;
 inline cs::Status ErrorProne::currentError = cs::Status::NoError;
+inline uint32_t ErrorProne::destructorCalledCounter = 0;
 
 struct CustomDeleter
 {

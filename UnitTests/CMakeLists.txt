@@ -15,7 +15,7 @@ target_link_libraries(containers_tests PRIVATE cslib ForTestsHelpers PRIVATE gte
 target_include_directories(containers_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_precompile_headers(containers_tests PRIVATE "Tests/Containers/pch.h")
 
-add_executable(allocators_tests "Tests/Allocators/RawKeeperAllocatorTests.cpp")
+add_executable(allocators_tests "Tests/Allocators/RawKeeperAllocatorTests.cpp" "Tests/Allocators/RawNoexceptAllocatorTests.cpp" "Tests/Allocators/ConstructorNoexceptAllocatorTests.cpp")
 target_compile_definitions(allocators_tests PRIVATE USER_MODE)
 target_link_libraries(allocators_tests PRIVATE cslib ForTestsHelpers PRIVATE gtest_main)
 target_include_directories(allocators_tests PRIVATE "${PROJECT_SOURCE_DIR}")
