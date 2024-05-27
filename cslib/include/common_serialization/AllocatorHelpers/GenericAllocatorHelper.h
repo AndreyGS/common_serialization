@@ -228,9 +228,13 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::move
             {
                 if (pDest < pDirtyMemoryFinish)
                     this->getAllocator().destroy(pDest);
-
-                CS_RUN(this->getAllocator().construct(pDest++, std::move(*pSrc)));
-                (pSrc++)->~_T(); // as a precaution if _T is not moveable
+                /*
+                if (Status status = this->getAllocator().construct(pDest--, std::move(*pSrc--)); !statusSuccess(status))
+                {
+                    ++pDest;
+                    for (value_type* pDestDone = pDest - i; pDestDone != pDest;)
+                        this->getAllocator().destroy(pDestDone++);
+                }*/
             }
         }
         else
@@ -256,7 +260,22 @@ constexpr Status GenericAllocatorHelper<_T, _Allocator, _MostDerivedClass>::move
             if (pDest < pDirtyMemoryFinish)
                 this->getAllocator().destroy(pDest);
 
-            CS_RUN(this->getAllocator().construct(pDest++, std::move(*pSrc++)));
+            if (Status status = this->getAllocator().construct(pDest++, std::move(*pSrc++)); !statusSuccess(status))
+            {
+                // need to apply logic for overlapping case!
+                --pDest;
+                for (value_type* pDestDone = pDest - i; pDestDone != pDest;)
+                    this->getAllocator().destroy(pDestDone++);
+                
+                while (++pDest < pDirtyMemoryFinish)
+                    this->getAllocator().destroy(pDest);
+
+                for (value_type* pSrcBegin = pSrc - i - 1, *pSrcEnd = pSrc - i + n; pSrcBegin != pSrcEnd;)
+                    this->getAllocator().destroy(pSrcBegin++);
+
+                return status;
+            }
+
         }
     else
         memcpy(pDest, pSrc, n * sizeof(value_type));

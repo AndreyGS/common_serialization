@@ -140,7 +140,6 @@ inline void GenericServerDataHandlerRegistrar::unregisterHandler(const Id& id, I
             {
                 auto newRange = m_handlerMap.equal_range(id);
                 while (newRange.first != newRange.second)
-                {
                     if (&newRange.first->second.handler == &handler)
                     {
                         m_handlerMap.erase(newRange.first);
@@ -148,7 +147,6 @@ inline void GenericServerDataHandlerRegistrar::unregisterHandler(const Id& id, I
                     }
                     else
                         ++newRange.first;
-                }
             }
             else
                 m_handlerMap.erase(range.first);

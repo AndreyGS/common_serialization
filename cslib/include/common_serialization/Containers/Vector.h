@@ -1044,6 +1044,7 @@ template<typename _T, typename AllocatorHelper>
 
             if (Status status = m_allocatorHelper.moveNoOverlap(pNewMp, m_p, m_dataSize); !statusSuccess(status))
             {
+                m_dataSize = 0;
                 m_allocatorHelper.deallocate(pNewMp);
                 return status;
             }
