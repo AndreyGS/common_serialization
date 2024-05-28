@@ -29,58 +29,58 @@ namespace
 
 TEST(ConstructorNoexceptAllocatorTests, MaxSizeT)
 {
-    ConstructorNoexceptAllocator<int> rna;
-    EXPECT_EQ(rna.max_size(), static_cast<size_t>(-1) / sizeof(int));
-    ConstructorNoexceptAllocator<std::string> rna2;
-    EXPECT_EQ(rna2.max_size(), static_cast<size_t>(-1) / sizeof(std::string));
+    ConstructorNoexceptAllocator<int> cna;
+    EXPECT_EQ(cna.max_size(), static_cast<size_t>(-1) / sizeof(int));
+    ConstructorNoexceptAllocator<std::string> cna2;
+    EXPECT_EQ(cna2.max_size(), static_cast<size_t>(-1) / sizeof(std::string));
 }
 
 TEST(ConstructorNoexceptAllocatorTests, AllocateT)
 {
-    ConstructorNoexceptAllocator<std::string> rna;
-    std::string* p = rna.allocate(5);
+    ConstructorNoexceptAllocator<std::string> cna;
+    std::string* p = cna.allocate(5);
     EXPECT_TRUE(p != nullptr);
-    rna.deallocate(p);
+    cna.deallocate(p);
 
-    std::string* pFail = rna.allocate(0xffffffffffffffff);
-    EXPECT_TRUE(pFail == nullptr);
+    p = cna.allocate(0xffffffffffffffff);
+    EXPECT_TRUE(p == nullptr);
 }
 
 TEST(ConstructorNoexceptAllocatorTests, ConstructT)
 {
-    ConstructorNoexceptAllocator<std::string> rna;
-    std::string* p = rna.allocate(1);
-    EXPECT_EQ(rna.construct(p, "123"), Status::NoError);
+    ConstructorNoexceptAllocator<std::string> cna;
+    std::string* p = cna.allocate(1);
+    EXPECT_EQ(cna.construct(p, "123"), Status::NoError);
     EXPECT_EQ(*p, "123");
-    rna.destroy(p);
-    rna.deallocate(p);
+    cna.destroy(p);
+    cna.deallocate(p);
 
     // Test constructor for initable
-    ConstructorNoexceptAllocator<ErrorProne> rna2;
-    ErrorProne* p2 = rna2.allocate(2);
+    ConstructorNoexceptAllocator<ErrorProne> cna2;
+    ErrorProne* p2 = cna2.allocate(2);
     ErrorProne ref;
     ErrorProne::counter = 0;
     ErrorProne::errorOnCounter = 1;
     ErrorProne::currentError = Status::ErrorInternal;
-    EXPECT_EQ(rna2.construct(p2, ref), Status::NoError);
-    EXPECT_EQ(rna2.construct(p2 + 1, ref), Status::ErrorInternal);
-    rna2.destroy(p2);
-    rna2.destroy(p2 + 1);
-    rna2.deallocate(p2);
+    EXPECT_EQ(cna2.construct(p2, ref), Status::NoError);
+    EXPECT_EQ(cna2.construct(p2 + 1, ref), Status::ErrorInternal);
+    cna2.destroy(p2);
+    cna2.destroy(p2 + 1);
+    cna2.deallocate(p2);
 }
 
 TEST(ConstructorNoexceptAllocatorTests, DestroyT)
 {
-    ConstructorNoexceptAllocator<ErrorProne> rna;
-    ErrorProne* p = rna.allocate(1);
+    ConstructorNoexceptAllocator<ErrorProne> cna;
+    ErrorProne* p = cna.allocate(1);
     ErrorProne::destructorCalledCounter = 0;
     ErrorProne::counter = 0;
     ErrorProne::errorOnCounter = 1;
     ErrorProne ref;
-    EXPECT_EQ(rna.construct(p, ref), Status::NoError);
-    rna.destroy(p);
+    EXPECT_EQ(cna.construct(p, ref), Status::NoError);
+    cna.destroy(p);
     EXPECT_EQ(ErrorProne::destructorCalledCounter, 1);
-    rna.deallocate(p);
+    cna.deallocate(p);
 }
 
 } // namespace

@@ -21,24 +21,24 @@ target_link_libraries(allocators_tests PRIVATE cslib ForTestsHelpers PRIVATE gte
 target_include_directories(allocators_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_precompile_headers(allocators_tests PRIVATE "Tests/Allocators/pch.h")
 
-add_executable(serialization_tests
-    "Tests/Serialization/ISerializableAlignmentMayBeNotEqualTests.cpp"
-    "Tests/Serialization/ISerializableAllowUnmanagedPointersTests.cpp"
-    "Tests/Serialization/ISerializableBasicModeTests.cpp"
-    "Tests/Serialization/ISerializableCheckRecursivePointersTests.cpp"
-    "Tests/Serialization/ISerializableInterfaceVersionsNotMatchTests.cpp"
-    "Tests/Serialization/ISerializableMultiModesTests.cpp"
-    "Tests/Serialization/ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
-    "Tests/Serialization/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
-    "Tests/Serialization/MessagingTests.cpp"
-    "Tests/Serialization/StdIncludedTests.cpp"
-    "Tests/Serialization/ISerializableAnotherEndianness.cpp" 
-    "Tests/Serialization/ISerializableAnotherBitness.cpp"
+add_executable(csp_tests
+    "Tests/csp/ISerializableAlignmentMayBeNotEqualTests.cpp"
+    "Tests/csp/ISerializableAllowUnmanagedPointersTests.cpp"
+    "Tests/csp/ISerializableBasicModeTests.cpp"
+    "Tests/csp/ISerializableCheckRecursivePointersTests.cpp"
+    "Tests/csp/ISerializableInterfaceVersionsNotMatchTests.cpp"
+    "Tests/csp/ISerializableMultiModesTests.cpp"
+    "Tests/csp/ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
+    "Tests/csp/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
+    "Tests/csp/MessagingTests.cpp"
+    "Tests/csp/StdIncludedTests.cpp"
+    "Tests/csp/ISerializableAnotherEndianness.cpp" 
+    "Tests/csp/ISerializableAnotherBitness.cpp"
 )
 
-target_compile_definitions(serialization_tests PRIVATE USER_MODE)
+target_compile_definitions(csp_tests PRIVATE USER_MODE)
 add_subdirectory(ForTestsHelpers)
 add_subdirectory(SerializableStructs)
-target_link_libraries(serialization_tests PRIVATE cslib ForTestsHelpers SerializableStructs gtest_main)
-target_include_directories(serialization_tests PRIVATE "${PROJECT_SOURCE_DIR}")
-target_precompile_headers(serialization_tests PRIVATE "Tests/Serialization/pch.h")
+target_link_libraries(csp_tests PRIVATE cslib ForTestsHelpers SerializableStructs gtest_main)
+target_include_directories(csp_tests PRIVATE "${PROJECT_SOURCE_DIR}")
+target_precompile_headers(csp_tests PRIVATE "Tests/csp/pch.h")

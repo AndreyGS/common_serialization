@@ -44,8 +44,8 @@ TEST(RawNoexceptAllocatorTests, AllocateT)
         p[i] = i;
     rna.deallocate(p);
 
-    int* pFail = rna.allocate(0xffffffffffffffff);
-    EXPECT_TRUE(pFail == nullptr);
+    p = rna.allocate(0xffffffffffffffff);
+    EXPECT_TRUE(p == nullptr);
 }
 
 TEST(RawNoexceptAllocatorTests, ConstructT)
