@@ -26,7 +26,7 @@
 // Service structs is a mandatory part of CSP.
 // Set of structs is completely depend on protocol version. 
 
-namespace common_serialization::csp::service_structs
+namespace common_serialization::csp::messaging::service_structs
 {
 
 namespace cs = common_serialization;
@@ -38,10 +38,11 @@ constexpr cs::csp::Interface properties(
     , context::DataFlags{ context::DataFlags::kSizeOfIntegersMayBeNotEqual | context::DataFlags::kAllowUnmanagedPointers | context::DataFlags::kCheckRecursivePointers }
 );
 
-} // namespace common_serialization::csp::service_structs
+} // namespace common_serialization::csp::messaging::service_structs
 
+#include "common_serialization/csp/processing/DataVersionConverters.h"
 #include "common_serialization/csp/mandatory_structs/processing/Deserialize.h"
 #include "common_serialization/csp/mandatory_structs/processing/Serialize.h"
-#include "common_serialization/csp/service_structs/Structs.h"
-#include "common_serialization/csp/service_structs/processing/Deserialize.h"
-#include "common_serialization/csp/service_structs/processing/Serialize.h"
+#include "common_serialization/csp/messaging/service_structs/Structs.h"
+#include "common_serialization/csp/messaging/service_structs/processing/Deserialize.h"
+#include "common_serialization/csp/messaging/service_structs/processing/Serialize.h"

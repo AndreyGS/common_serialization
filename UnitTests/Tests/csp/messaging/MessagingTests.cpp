@@ -46,15 +46,19 @@ protected:
     std::unique_ptr<ClientSpeakerMock> m_clientSpeaker;
 };
 
-csp::service_structs::CspPartySettings<> getServerSettings()
+using CspPartySettings = csp::messaging::service_structs::CspPartySettings<>;
+using InterfaceVersion = csp::messaging::service_structs::InterfaceVersion<>;
+using ISerializableDummy = csp::messaging::service_structs::ISerializableDummy<>;
+
+CspPartySettings getServerSettings()
 {
-    csp::service_structs::CspPartySettings<> serverSettings;
+    CspPartySettings serverSettings;
 
     serverSettings.protocolVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
 
-    serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ interface_for_test::properties });
-    serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ descendant_interface::properties });
-    serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
+    serverSettings.interfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
+    serverSettings.interfaces.pushBack(InterfaceVersion{ descendant_interface::properties });
+    serverSettings.interfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
 
     return serverSettings;
 }
@@ -78,12 +82,12 @@ TEST(MessagingTests, InitCommonServerT)
 
 TEST(MessagingTests, InitDataClientT)
 {
-    csp::service_structs::CspPartySettings<> serverSettings;
+    CspPartySettings serverSettings;
     serverSettings.protocolVersions.pushBack(2);
     serverSettings.protocolVersions.pushBack(1);
     serverSettings.mandatoryCommonFlags = csp::context::CommonFlags::kBigEndianFormat;
     serverSettings.forbiddenCommonFlags = csp::context::CommonFlags::kBitness32;
-    serverSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
+    serverSettings.interfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
     csp::messaging::Server commonServer;
     commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(serverSettings);
 
@@ -93,14 +97,14 @@ TEST(MessagingTests, InitDataClientT)
     SimpleSpeaker simpleSpeaker{ commonServer };
     csp::messaging::Client dataClient(simpleSpeaker);
 
-    csp::service_structs::CspPartySettings<> clientSettings;
+    CspPartySettings clientSettings;
     clientSettings.protocolVersions.pushBack(1);
     clientSettings.protocolVersions.pushBack(0); // 0 is not a valid CSP version and we add it here only for logic test
     clientSettings.mandatoryCommonFlags = csp::context::CommonFlags::kEndiannessDifference;
-    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ interface_for_test::properties });
-    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ descendant_interface::properties });
-    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
-    csp::service_structs::CspPartySettings<> serverSettingsReturned;
+    clientSettings.interfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
+    clientSettings.interfaces.pushBack(InterfaceVersion{ descendant_interface::properties });
+    clientSettings.interfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
+    CspPartySettings serverSettingsReturned;
 
     // Valid test 1
     EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::NoError);
@@ -136,7 +140,7 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ((dataClient3.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::ErrorNotInited);
 
     // Not compatible common flags settings (between mandatory and forbidden flags)
-    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ another_yet_interface::properties });
+    clientSettings.interfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
     clientSettings.mandatoryCommonFlags = serverSettings.forbiddenCommonFlags;
     serverSettingsReturned.clear();
     csp::messaging::Client dataClient4(simpleSpeaker);
@@ -154,14 +158,6 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ(serverSettingsReturned.protocolVersions, serverSettings.protocolVersions);
     EXPECT_FALSE(dataClient5.isValid());
     EXPECT_EQ((dataClient5.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::ErrorNotInited);
-
-    // Test of init when data client speaker is not valid
-    clientSettings.protocolVersions.insert(1, 0);
-    simpleSpeaker.setValidState(false);
-    csp::messaging::Client dataClient6(simpleSpeaker);
-    EXPECT_EQ(dataClient6.init(clientSettings, serverSettingsReturned), Status::ErrorNotInited);
-    EXPECT_FALSE(dataClient6.isValid());
-    EXPECT_EQ((dataClient6.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::ErrorNotInited);
 }
 
 TEST(MessagingTests, DataMessageHandling)
@@ -173,9 +169,9 @@ TEST(MessagingTests, DataMessageHandling)
 
     SimpleSpeaker simpleSpeaker{ commonServer };
     csp::messaging::Client dataClient(simpleSpeaker);
-    csp::service_structs::CspPartySettings<> clientSettings;
+    CspPartySettings clientSettings;
     clientSettings.protocolVersions.pushBack(csp::traits::getLatestProtocolVersion());
-    clientSettings.interfaces.pushBack(csp::service_structs::InterfaceVersion{ interface_for_test::properties });
+    clientSettings.interfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
 
     dataClient.init(clientSettings);
 
@@ -197,10 +193,10 @@ TEST(MessagingTests, DataMessageHandling)
     interface_for_test::SimplyAssignable<> input2;
     fillingStruct(input2);
 
-    csp::service_structs::ISerializableDummy<> outputDummy;
+    ISerializableDummy outputDummy;
 
     ft_helpers::numberOfMultiEntrances = 0;
-    EXPECT_EQ((dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, csp::service_structs::ISerializableDummy<>>>(input2, outputDummy)), Status::NoError);
+    EXPECT_EQ((dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy)), Status::NoError);
     EXPECT_EQ(ft_helpers::numberOfMultiEntrances, 2);
     
     /// Stress test
@@ -212,7 +208,7 @@ TEST(MessagingTests, DataMessageHandling)
 
             for (size_t i = 0; i < 10000; ++i)
             {
-                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, csp::service_structs::ISerializableDummy<>>>(input2, outputDummy);
+                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
                 dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
                 dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
             }
@@ -226,7 +222,7 @@ TEST(MessagingTests, DataMessageHandling)
 
             for (size_t i = 0; i < 10000; ++i)
             {
-                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, csp::service_structs::ISerializableDummy<>>>(input2, outputDummy);
+                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
                 dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
                 dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
             }

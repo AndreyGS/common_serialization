@@ -44,18 +44,10 @@ private:
     // Here we do not need to overcomplicate things and we simply calling csp::messaging::Server::handleMessage.
     cs::Status speak(cs::BinVectorT& binInput, cs::BinWalkerT& binOutput) override
     {
-        if (!isValid())
-            return cs::Status::ErrorNotInited;
-
         cs::BinWalkerT input;
         input.init(std::move(binInput));
 
         return m_server.handleMessage(input, cs::GenericPointerKeeper{}, binOutput.getVector());
-    }
-
-    bool isValid() const noexcept override
-    {
-        return m_isValid;
     }
 
     cs::csp::messaging::Server& m_server;

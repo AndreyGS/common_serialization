@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/ClientDataHandlerTraits.h
+ * @file cslib/include/common_serialization/csp/messaging/IClientDataHandlerTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -30,7 +30,7 @@ namespace common_serialization::csp::messaging
 
 /// @brief Properties of CSP Client
 template<typename _T>
-concept ClientDataHandlerTraits
+concept IClientDataHandlerTraits
     =  ISerializableBased<typename _T::InputType>
     && ISerializableBased<typename _T::OutputType>
     && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
@@ -40,7 +40,7 @@ template<
     , ISerializableBased _OutputType
     , bool _forTempUseHeap
 >
-struct ClientDataHandlerTraitsConcrete
+struct IClientDataHandlerTraitsConcrete
 {
     using InputType = _InputType;
     using OutputType = _OutputType;
@@ -49,9 +49,9 @@ struct ClientDataHandlerTraitsConcrete
 };
 
 template<ISerializableBased _InputType, ISerializableBased _OutputType>
-using CdhStack = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
+using CdhStack = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
 
 template<ISerializableBased _InputType, ISerializableBased _OutputType>
-using CdhHeap = ClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
+using CdhHeap = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
 
 } // namespace common_serialization::csp::messaging

@@ -25,7 +25,7 @@
 
 #include "common_serialization/csp/ISerializable.h"
 
-namespace common_serialization::csp::service_structs
+namespace common_serialization::csp::messaging::service_structs
 {
 
 /// @brief Special type - placeholder for Input-Output operations that have no need in ISerializable Output struct
@@ -79,7 +79,7 @@ public:
 
 #pragma pack(push, 1)
 
-/// @brief Struct contain list of all supported interfaces
+/// @brief Interface Id and Version holder
 /// @tparam T Derived class
 template<typename T = Dummy>
 struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVersion<T>, T>>
@@ -225,4 +225,4 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     }
 };
 
-} // namespace common_serialization::csp::service_structs
+} // namespace common_serialization::csp::messaging::service_structs

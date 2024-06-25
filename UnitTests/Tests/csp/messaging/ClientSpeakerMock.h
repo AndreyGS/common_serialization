@@ -32,7 +32,6 @@ class ClientSpeakerMock : public csp::messaging::IClientSpeaker
 {
 private:
     MOCK_METHOD(Status, speak, (BinVectorT& binInput, BinWalkerT& binOutput), (override));
-    MOCK_METHOD(bool, isValid, (), (const, noexcept, override));
 };
 
 } // namespace

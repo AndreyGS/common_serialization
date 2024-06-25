@@ -27,7 +27,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, service_structs::OutGetInterface<>& value)
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::OutGetInterface<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -37,7 +37,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, service_structs
 }
 
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, service_structs::GetInterface<>& value)
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::GetInterface<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -48,7 +48,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, service_structs
 
 
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, service_structs::CspPartySettings<>& value)
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::CspPartySettings<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 

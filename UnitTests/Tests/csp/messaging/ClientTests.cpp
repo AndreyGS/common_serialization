@@ -41,14 +41,14 @@ class ClientTests : public ::testing::Test
 public:
     ClientTests() : m_speaker(), m_client(m_speaker) {}
 
-
+    void init() {}
 
 protected:
     ClientSpeakerMock m_speaker;
     csp::messaging::Client m_client;
 };
 
-TEST_F(ClientTests, Constructor)
+TEST_F(ClientTests, Init1)
 {
 
 }

@@ -24,13 +24,13 @@
 #pragma once
 
 #include "common_serialization/csp/Concepts.h"
-#include "common_serialization/csp/messaging/ClientDataHandlerTraits.h"
+#include "common_serialization/csp/messaging/IClientDataHandlerTraits.h"
 #include "common_serialization/csp/messaging/IClientSpeaker.h"
+#include "common_serialization/csp/messaging/service_structs/Interface.h"
 #include "common_serialization/csp/processing/Contexts.h"
 #include "common_serialization/csp/processing/DataBodyProcessor.h"
 #include "common_serialization/csp/processing/DataVersionConverters.h"
 #include "common_serialization/csp/processing/Status.h"
-#include "common_serialization/csp/service_structs/Interface.h"
 
 namespace common_serialization::csp::messaging
 {
@@ -77,7 +77,7 @@ public:
     /// @param output Struct that is returned from server 
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<ClientDataHandlerTraits _Cht>
+    template<IClientDataHandlerTraits _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
@@ -87,7 +87,7 @@ public:
     /// @param dataFlags Data flags that must be applied to current operation
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<ClientDataHandlerTraits _Cht>
+    template<IClientDataHandlerTraits _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags dataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
@@ -110,7 +110,7 @@ public:
     /// @param additionalDataFlags Data flags that must be applied to current operation
     /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<ClientDataHandlerTraits _Cht>
+    template<IClientDataHandlerTraits _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
         , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
@@ -143,7 +143,7 @@ inline Status Client::init(const service_structs::CspPartySettings<>& settings) 
 
     CS_RUN(m_settings.init(settings));
 
-    m_isValid = m_clientSpeaker.isValid();
+    m_isValid = m_settings.isValid();
 
     return m_isValid ? Status::NoError : Status::ErrorNotInited;
 }
@@ -186,7 +186,7 @@ inline Status Client::init(const service_structs::CspPartySettings<>& clientSett
     CS_RUN(getServerSettings(tempServerProtocolVersion, serverSettings));
     CS_RUN(m_settings.getCompatibleSettings(clientSettings, serverSettings));
 
-    m_isValid = m_settings.isValid() && m_clientSpeaker.isValid();
+    m_isValid = m_settings.isValid();
 
     return m_isValid ? Status::NoError : Status::ErrorNotInited;
 }
@@ -203,9 +203,6 @@ CS_ALWAYS_INLINE IClientSpeaker& Client::getClientSpeaker() noexcept
 
 inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept
 {
-    if (!m_clientSpeaker.isValid())
-        return Status::ErrorNotInited;
-
     BinVectorT binInput;
     context::SCommon ctxIn(binInput, traits::kProtocolVersionUndefined);
     CS_RUN(processing::serializeCommonContextNoChecks(ctxIn));
@@ -230,9 +227,6 @@ inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& 
 
 inline Status Client::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
 {
-    if (!m_clientSpeaker.isValid())
-        return Status::ErrorNotInited;
-
     BinVectorT binInput;
     context::SCommon ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
     CS_RUN(processing::serializeCommonContext(ctxIn));
@@ -292,20 +286,20 @@ constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const no
     return traits::kInterfaceVersionUndefined;
 }
 
-template<ClientDataHandlerTraits _Cht>
+template<IClientDataHandlerTraits _Cht>
 Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
     return handleData<_Cht>(input, output, {}, {}, pUnmanagedPointers);
 }
 
-template<ClientDataHandlerTraits _Cht>
+template<IClientDataHandlerTraits _Cht>
 Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags additionalDataFlags
     , VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
     return handleData<_Cht>(input, output, {}, additionalDataFlags, pUnmanagedPointers);
 }
 
-template<ClientDataHandlerTraits _Cht>
+template<IClientDataHandlerTraits _Cht>
 Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
     , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
