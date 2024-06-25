@@ -153,9 +153,7 @@ template<typename _T>
     requires std::is_trivially_copyable_v<_T>
 template <class _R>
 CS_ALWAYS_INLINE constexpr RawKeeperAllocator<_T>& RawKeeperAllocator<_T>::operator=(const RawKeeperAllocator<_R>& rhs) noexcept
-{ 
-    m_p = static_cast<_T*>(static_cast<void*>(rhs.allocate(rhs.max_size())));
-    m_memorySize = rhs.max_size() * sizeof(_R) / sizeof(_T);
+{
     return *this;
 }
 

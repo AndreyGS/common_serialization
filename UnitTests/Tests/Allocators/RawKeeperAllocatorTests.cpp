@@ -43,17 +43,8 @@ TEST(RawKeeperAllocatorTest, CopyConstuctorT)
     int* p = rka.allocate(1);
     RawKeeperAllocator<int> rka2(rka);
     int* p2 = rka2.allocate(1);
-    EXPECT_EQ(p2, p);
-    EXPECT_EQ(rka2.construct(p, 5), Status::NoError);
-    EXPECT_EQ(i, 5);
-    EXPECT_EQ(rka2.construct(p + 1, 5), Status::ErrorInvalidArgument);
-
-    RawKeeperAllocator<char> rka3(rka);
-    char* p3 = rka3.allocate(4);
-    for (char i = 0; i < 4; ++i)
-        p3[i] = i;
-    EXPECT_EQ(rka3.construct(p3, 5), Status::NoError);
-    EXPECT_EQ(*p3, 5);
+    EXPECT_EQ(p2, nullptr);
+    EXPECT_EQ(rka2.max_size(), 0);
 }
 
 TEST(RawKeeperAllocatorTest, MoveConstructorT)
@@ -65,6 +56,7 @@ TEST(RawKeeperAllocatorTest, MoveConstructorT)
     RawKeeperAllocator<int> rka2(std::move(rka));
     int* p2 = rka2.allocate(1);
     EXPECT_EQ(p2, p);
+    EXPECT_EQ(rka2.max_size(), 1);
     EXPECT_EQ(rka2.construct(p, 5), Status::NoError);
     EXPECT_EQ(i, 5);
     EXPECT_EQ(rka2.construct(p + 1, 5), Status::ErrorInvalidArgument);
@@ -89,17 +81,8 @@ TEST(RawKeeperAllocatorTest, OperatorAssignT)
     int* p = rka.allocate(1);
     RawKeeperAllocator<int> rka2 = rka;
     int* p2 = rka2.allocate(1);
-    EXPECT_EQ(p2, p);
-    EXPECT_EQ(rka2.construct(p, 5), Status::NoError);
-    EXPECT_EQ(i, 5);
-    EXPECT_EQ(rka2.construct(p + 1, 5), Status::ErrorInvalidArgument);
-
-    RawKeeperAllocator<char> rka3 = rka;
-    char* p3 = rka3.allocate(4);
-    for (char i = 0; i < 4; ++i)
-        p3[i] = i;
-    EXPECT_EQ(rka3.construct(p3, 5), Status::NoError);
-    EXPECT_EQ(*p3, 5);
+    EXPECT_EQ(p2, nullptr);
+    EXPECT_EQ(rka2.max_size(), 0);
 }
 
 TEST(RawKeeperAllocatorTest, OperatorMoveT)
@@ -111,6 +94,7 @@ TEST(RawKeeperAllocatorTest, OperatorMoveT)
     RawKeeperAllocator<int> rka2 = std::move(rka);
     int* p2 = rka2.allocate(1);
     EXPECT_EQ(p2, p);
+    EXPECT_EQ(rka2.max_size(), 1);
     EXPECT_EQ(rka2.construct(p, 5), Status::NoError);
     EXPECT_EQ(i, 5);
     EXPECT_EQ(rka2.construct(p + 1, 5), Status::ErrorInvalidArgument);

@@ -39,13 +39,15 @@ CS_ALWAYS_INLINE constexpr Status writePrimitive(const T& value, context::SCommo
             if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
                 return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
-            return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
+            const auto reversedValue = helpers::reverseEndianess(value);
+
+            return ctx.getBinaryData().pushBackN(reinterpret_cast<const uint8_t*>(&reversedValue), sizeof(T));
         }
         else
-            return ctx.getBinaryData().pushBackArithmeticValue(value);
+            return ctx.getBinaryData().pushBackN(reinterpret_cast<const uint8_t*>(&value), sizeof(T));
     }
     else
-        return ctx.getBinaryData().pushBackArithmeticValue(value);
+        return ctx.getBinaryData().pushBackN(reinterpret_cast<const uint8_t*>(&value), sizeof(T));
 }
 
 template<typename T>
@@ -61,22 +63,22 @@ CS_ALWAYS_INLINE constexpr Status writeRawData(const T* p, csp_size_t n, context
 template<typename T>
 CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, T& value)
 {
-    if constexpr (IsEndiannessReversable<T>)
-    {
-        if (ctx.isEndiannessNotMatch())
-        {
-            if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
-                return Status::ErrorNotSupportedSerializationSettingsForStruct;
+    csp_size_t sizeRead{ 0 };
+    Status status = Status::NoError;
 
-            CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
+    if constexpr (IsEndiannessReversable<T> && std::is_same_v<std::remove_cv_t<T>, long double>)
+        if (ctx.isEndiannessNotMatch())
+            return Status::ErrorNotSupportedSerializationSettingsForStruct;
+
+    CS_RUN(ctx.getBinaryData().read(reinterpret_cast<uint8_t*>(&const_cast<std::remove_const_t<T>&>(value)), sizeof(T), &sizeRead));
+    if (sizeRead != sizeof(T))
+        return Status::ErrorOverflow;
+
+    if constexpr (IsEndiannessReversable<T>)
+        if (ctx.isEndiannessNotMatch())
             (const_cast<std::remove_const_t<T>&>(value)) = helpers::reverseEndianess(value);
-            return Status::NoError;
-        }
-        else
-            return ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value));
-    }
-    else
-        return ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value));
+    
+    return Status::NoError;
 }
 
 template<typename T>

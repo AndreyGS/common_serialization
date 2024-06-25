@@ -498,24 +498,6 @@ TEST(VectorTest, PushBackNErrorPropagation)
     EXPECT_EQ(vec.pushBackN(ep, 2), Status::ErrorInvalidArgument);
 }
 
-TEST(VectorTest, PushBackArithmeticValue)
-{
-    Vector<uint8_t, DefaultAllocatorHelper<uint8_t>> vec;
-    vec.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::DoubleOfDataSize); // as a precaution
-
-    constexpr double value = 5.;
-
-    EXPECT_EQ(vec.pushBackArithmeticValue(value), Status::NoError);
-    EXPECT_EQ(*reinterpret_cast<decltype(value)*>(vec.data()), value);
-    EXPECT_EQ(vec.size(), sizeof(value));
-    EXPECT_EQ(vec.capacity(), 2 * sizeof(value));
-
-    Vector<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> vec2;
-
-    EXPECT_EQ(vec2.pushBackArithmeticValue(value), Status::ErrorNoMemory);
-    EXPECT_EQ(vec2.size(), 0);
-}
-
 template<typename T>
 void FReplace()
 {

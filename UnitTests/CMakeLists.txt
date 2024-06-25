@@ -22,23 +22,23 @@ target_include_directories(allocators_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_precompile_headers(allocators_tests PRIVATE "Tests/Allocators/pch.h")
 
 add_executable(csp_tests
-    "Tests/csp/ISerializableAlignmentMayBeNotEqualTests.cpp"
-    "Tests/csp/ISerializableAllowUnmanagedPointersTests.cpp"
-    "Tests/csp/ISerializableBasicModeTests.cpp"
-    "Tests/csp/ISerializableCheckRecursivePointersTests.cpp"
-    "Tests/csp/ISerializableInterfaceVersionsNotMatchTests.cpp"
-    "Tests/csp/ISerializableMultiModesTests.cpp"
-    "Tests/csp/ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
-    "Tests/csp/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
-    "Tests/csp/MessagingTests.cpp"
-    "Tests/csp/StdIncludedTests.cpp"
-    "Tests/csp/ISerializableAnotherEndianness.cpp" 
-    "Tests/csp/ISerializableAnotherBitness.cpp"
-)
+    "Tests/csp/processing/ISerializableAlignmentMayBeNotEqualTests.cpp"
+    "Tests/csp/processing/ISerializableAllowUnmanagedPointersTests.cpp"
+    "Tests/csp/processing/ISerializableBasicModeTests.cpp"
+    "Tests/csp/processing/ISerializableCheckRecursivePointersTests.cpp"
+    "Tests/csp/processing/ISerializableInterfaceVersionsNotMatchTests.cpp"
+    "Tests/csp/processing/ISerializableMultiModesTests.cpp"
+    "Tests/csp/processing/ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
+    "Tests/csp/processing/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
+    "Tests/csp/processing/StdIncludedTests.cpp"
+    "Tests/csp/processing/ISerializableAnotherEndianness.cpp" 
+    "Tests/csp/processing/ISerializableAnotherBitness.cpp"
+    "Tests/csp/messaging/MessagingTests.cpp"
+ "Tests/csp/messaging/ClientTests.cpp")
 
 target_compile_definitions(csp_tests PRIVATE USER_MODE)
 add_subdirectory(ForTestsHelpers)
 add_subdirectory(SerializableStructs)
-target_link_libraries(csp_tests PRIVATE cslib ForTestsHelpers SerializableStructs gtest_main)
+target_link_libraries(csp_tests PRIVATE cslib ForTestsHelpers SerializableStructs gtest_main gmock_main)
 target_include_directories(csp_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_precompile_headers(csp_tests PRIVATE "Tests/csp/pch.h")

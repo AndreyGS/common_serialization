@@ -362,15 +362,6 @@ public:
     /// @return Status of operation
     constexpr Status pushBackN(const _T* p, size_type n);
 
-    /// @brief Append arithmetic or enum value to tail of container
-    /// @remark Using for eliminating redundant overhead on raw arrays
-    /// @tparam V Type of value that
-    /// @param value Value that need to append
-    /// @return Status of operation
-    template<typename V>
-    constexpr Status pushBackArithmeticValue(V value)
-        requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
-
     template<typename... Ts>
     constexpr Status emplaceBack(Ts&&... ts);
 
@@ -589,21 +580,6 @@ constexpr Status Vector<_T, AllocatorHelper>::pushBackN(const _T* p, size_type n
 
     CS_RUN(m_allocatorHelper.copyNoOverlap(m_p + m_dataSize, p, n));
     m_dataSize += n;
-
-    return Status::NoError;
-}
-
-template<typename _T, typename AllocatorHelper>
-template<typename V>
-constexpr Status Vector<_T, AllocatorHelper>::pushBackArithmeticValue(V value)
-    requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
-{
-    Status status = Status::NoError;
-
-    CS_RUN(addSpaceIfNeed(sizeof(V)));
-
-    *static_cast<V*>(static_cast<void*>(m_p + m_dataSize)) = value;
-    m_dataSize += sizeof(V);
 
     return Status::NoError;
 }

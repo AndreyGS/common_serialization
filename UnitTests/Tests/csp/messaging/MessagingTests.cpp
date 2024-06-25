@@ -22,12 +22,29 @@
  */
 
 #include <thread>
+#include "ClientSpeakerMock.h"
+
+using ::testing::_;
+using ::testing::SetArgReferee;
+using ::testing::DoDefault;
+using ::testing::DoAll;
+using ::testing::Invoke;
+using ::testing::Return;
 
 namespace
 {
 
 using namespace common_serialization;
 using namespace ft_helpers;
+
+
+class MessagingTests : public ::testing::Test
+{
+protected:
+    csp::messaging::Server m_server;
+    csp::messaging::Client m_client;
+    std::unique_ptr<ClientSpeakerMock> m_clientSpeaker;
+};
 
 csp::service_structs::CspPartySettings<> getServerSettings()
 {

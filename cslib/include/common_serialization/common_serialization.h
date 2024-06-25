@@ -52,11 +52,11 @@
 #include "common_serialization/Types.h"
 #include "common_serialization/Helpers.h"
 
-#include "common_serialization/Allocators/main.h"
-#include "common_serialization/AllocatorHelpers/main.h"
-#include "common_serialization/Concurrency/main.h"
-#include "common_serialization/Containers/main.h"
-#include "common_serialization/csp/main.h"
+#include "common_serialization/Allocators/allocators.h"
+#include "common_serialization/AllocatorHelpers/allocatorHelpers.h"
+#include "common_serialization/Concurrency/concurrency.h"
+#include "common_serialization/Containers/containers.h"
+#include "common_serialization/csp/csp.h"
 
 #include "common_serialization/NotCspInterfaceProcessing/Templates/Serialize.h"
 #include "common_serialization/NotCspInterfaceProcessing/Templates/Deserialize.h"

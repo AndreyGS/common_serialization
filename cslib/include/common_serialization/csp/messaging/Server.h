@@ -51,11 +51,13 @@ public:
 
     /// @brief Init server by settings and custom registrar type
     /// @tparam _T Registrar type (must implement IServerDataHandlerRegistrar)
+    /// @tparam _Ts Registrar constructor params types
     /// @param settings Server settings (must be valid)
+    /// @param ts Registrar constructor params
     /// @return Status of operation
     /// @note Can be inited one time. After this if object becomes valid no changes are allowed.
-    template<typename _T>
-    Status init(const service_structs::CspPartySettings<>& settings) noexcept;
+    template<typename _T, typename... _Ts>
+    Status init(const service_structs::CspPartySettings<>& settings, _Ts&&... ts) noexcept;
 
     CS_ALWAYS_INLINE constexpr bool isValid() const noexcept;
 
@@ -91,13 +93,13 @@ inline Server::Server(const service_structs::CspPartySettings<>& settings, Uniqu
     m_isInited = statusSuccess(m_settings.init(settings));
 }
 
-template<typename _T>
-inline Status Server::init(const service_structs::CspPartySettings<>& settings) noexcept
+template<typename _T, typename... _Ts>
+inline Status Server::init(const service_structs::CspPartySettings<>& settings, _Ts&&... ts) noexcept
 {
     if (isValid())
         return Status::ErrorAlreadyInited;
 
-    m_dataHandlersRegistrar = makeUniqueNoThrowForOverwrite<_T>();
+    m_dataHandlersRegistrar = makeUniqueNoThrowForOverwrite<_T>(ts...);
 
     if (!m_dataHandlersRegistrar)
         return Status::ErrorNoMemory;

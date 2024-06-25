@@ -1,5 +1,5 @@
 /**
- * @file pch.h
+ * @file UnitTests/Tests/csp/messaging/ClientSpeakerMock.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,21 +23,16 @@
 
 #pragma once
 
-#include <string>
-#include <list>
+namespace
+{
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+using namespace common_serialization;
 
-#include "common_serialization/Status.h"
-#include "std_structs_serialization/processing/Declarations.h"
+class ClientSpeakerMock : public csp::messaging::IClientSpeaker
+{
+private:
+    MOCK_METHOD(Status, speak, (BinVectorT& binInput, BinWalkerT& binOutput), (override));
+    MOCK_METHOD(bool, isValid, (), (const, noexcept, override));
+};
 
-#include "common_serialization/common_serialization.h"
-
-#include "std_structs_serialization/processing/Serialize.h"
-#include "std_structs_serialization/processing/Deserialize.h"
-
-#include "interface_for_test/Interface.h"
-#include "with_std_included_interface/Interface.h"
-#include "ft_helpers/ft_helpers.h"
-
+} // namespace

@@ -1,5 +1,5 @@
 /**
- * @file pch.h
+ * @file UnitTests/Tests/csp/messaging/ClientTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,23 +21,36 @@
  *
  */
 
-#pragma once
+#include "ClientSpeakerMock.h"
 
-#include <string>
-#include <list>
+using ::testing::_;
+using ::testing::SetArgReferee;
+using ::testing::DoDefault;
+using ::testing::DoAll;
+using ::testing::Invoke;
+using ::testing::Return;
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+namespace
+{
 
-#include "common_serialization/Status.h"
-#include "std_structs_serialization/processing/Declarations.h"
+using namespace common_serialization;
+using namespace ft_helpers;
 
-#include "common_serialization/common_serialization.h"
+class ClientTests : public ::testing::Test
+{
+public:
+    ClientTests() : m_speaker(), m_client(m_speaker) {}
 
-#include "std_structs_serialization/processing/Serialize.h"
-#include "std_structs_serialization/processing/Deserialize.h"
 
-#include "interface_for_test/Interface.h"
-#include "with_std_included_interface/Interface.h"
-#include "ft_helpers/ft_helpers.h"
 
+protected:
+    ClientSpeakerMock m_speaker;
+    csp::messaging::Client m_client;
+};
+
+TEST_F(ClientTests, Constructor)
+{
+
+}
+
+} // namespace
