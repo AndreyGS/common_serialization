@@ -38,6 +38,11 @@ public:
     using iterator = VectorIterator<Vector<T, AllocatorHelper>>;
     using const_iterator = ConstVectorIterator<Vector<T, AllocatorHelper>>;
 
+    Walker() = default;
+
+    explicit constexpr Walker(const Vector<T, AllocatorHelper>& rhs);
+    explicit constexpr Walker(Vector<T, AllocatorHelper>&& rhs) noexcept;
+
     constexpr Status init(const Walker& rhs);
     constexpr Status init(Walker&& rhs) noexcept;
     constexpr Status init(const Vector<T, AllocatorHelper>& rhs);
@@ -98,6 +103,18 @@ private:
     Vector<T, AllocatorHelper> m_vector;
     size_type m_offset{ 0 };
 };
+
+template<typename T, typename AllocatorHelper>
+constexpr Walker<T, AllocatorHelper>::Walker(const Vector<T, AllocatorHelper>& rhs)
+{
+    init(rhs);
+}
+
+template<typename T, typename AllocatorHelper>
+constexpr Walker<T, AllocatorHelper>::Walker(Vector<T, AllocatorHelper>&& rhs) noexcept
+{
+    init(std::move(rhs));
+}
 
 template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::init(const Walker& rhs)

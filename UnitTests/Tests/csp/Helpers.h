@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleCspClientSpeaker.h
+ * @file UnitTests/Tests/csp/Helpers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,38 +21,12 @@
  *
  */
 
-#pragma once
-
-namespace ft_helpers
+namespace
 {
 
-namespace cs = common_serialization;
+using namespace common_serialization::csp;
 
-class SimpleSpeaker : public cs::csp::messaging::IClientSpeaker
-{
-public:
-    SimpleSpeaker(cs::csp::messaging::Server& server) : m_server(server) {}
+// This is protocol version which is no one instance in tests is supported
+inline constexpr protocol_version_t kNotSupportedCspVersion = 254;
 
-    void setValidState(bool isValid)
-    {
-        m_isValid = isValid;
-    }
-
-private:
-    // This function must transfer data from client to server.
-    // Way by which it will be done is up to concrete client realization.
-    // Here we do not need to overcomplicate things and we simply calling csp::messaging::Server::handleMessage.
-    cs::Status speak(const cs::BinVectorT& binInput, cs::BinWalkerT& binOutput) override
-    {
-        cs::BinWalkerT input;
-        input.init(binInput);
-
-        return m_server.handleMessage(input, cs::GenericPointerKeeper{}, binOutput.getVector());
-    }
-
-    cs::csp::messaging::Server& m_server;
-    bool m_isValid{ true };
-};
-
-} // namespace ft_helpers
-
+}  // namespace

@@ -30,8 +30,8 @@ using namespace common_serialization;
 
 class ClientSpeakerMock : public csp::messaging::IClientSpeaker
 {
-private:
-    MOCK_METHOD(Status, speak, (BinVectorT& binInput, BinWalkerT& binOutput), (override));
+public:
+    MOCK_METHOD(Status, speak, (const BinVectorT& binInput, BinWalkerT& binOutput), (override));
 };
 
 } // namespace

@@ -238,7 +238,10 @@ TEST(WalkerTest, InitNoMove)
 TEST(WalkerTest, InitPod)
 {
     FInit<PodStruct>();
+}
 
+TEST(WalkerTest, InitNoMemory)
+{
     Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker1;
     PodStruct ps[1] = { { } };
     walker1.getAllocatorHelper().getAllocator().setStorage(ps, 1);

@@ -153,6 +153,9 @@ inline Status Client::init(const service_structs::CspPartySettings<>& clientSett
     if (isValid())
         return Status::ErrorAlreadyInited;
 
+    if (!clientSettings.isValid())
+        return Status::ErrorInvalidArgument;
+
     m_settings.clear();
 
     RawVectorT<protocol_version_t> serverCspVersions;

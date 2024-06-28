@@ -37,7 +37,7 @@ public:
     /// @param binInput Data that is prepared by handleData method
     /// @param binOutput Data that should be returned for processing by handleData method
     /// @return Status of operation
-    virtual Status speak(BinVectorT& binInput, BinWalkerT& binOutput) = 0;
+    virtual Status speak(const BinVectorT& binInput, BinWalkerT& binOutput) = 0;
 };
 
 } // namespace common_serialization::csp::messaging
