@@ -169,7 +169,6 @@ TEST(ProfillingTests, ContainBigStructs2T)
     std::unordered_map<const void*, size_t> sMap;
     ctxIn.setPointersMap(&sMap);
 
-
     const auto serStart = std::chrono::steady_clock::now();
     input.serialize(ctxIn);
     const auto serEnd = std::chrono::steady_clock::now();

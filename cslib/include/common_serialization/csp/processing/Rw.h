@@ -33,19 +33,15 @@ template<typename T>
 CS_ALWAYS_INLINE constexpr Status writePrimitive(T value, context::SCommon& ctx)
 {
     if constexpr (IsEndiannessReversable<T>)
-    {
         if (ctx.isEndiannessNotMatch())
         {
             if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
                 return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
-            return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
+            value = helpers::reverseEndianess(value);
         }
-        else
-            return ctx.getBinaryData().pushBackArithmeticValue(value);
-    }
-    else
-        return ctx.getBinaryData().pushBackArithmeticValue(value);
+    
+    return ctx.getBinaryData().pushBackArithmeticValue(value);
 }
 
 template<typename T>
@@ -53,7 +49,7 @@ CS_ALWAYS_INLINE constexpr Status writeRawData(const T* p, csp_size_t n, context
 {
     assert(p && n > 0 || n == 0);
     const csp_size_t bytesSize = sizeof(T) * n;
-    assert((n == bytesSize / sizeof(T)));
+    assert(n == bytesSize / sizeof(T));
 
     return ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize);
 }
@@ -64,7 +60,7 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, T& value)
     csp_size_t sizeRead{ 0 };
     Status status = Status::NoError;
 
-    if constexpr (IsEndiannessReversable<T> && std::is_same_v<std::remove_cv_t<T>, long double>)
+    if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
         if (ctx.isEndiannessNotMatch())
             return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
@@ -82,7 +78,7 @@ CS_ALWAYS_INLINE constexpr Status readRawData(context::DCommon& ctx, csp_size_t 
 {
     assert(p && n > 0 || n == 0);
     const csp_size_t bytesSize = sizeof(T) * n;
-    assert((n == bytesSize / sizeof(T)));
+    assert(n == bytesSize / sizeof(T));
     csp_size_t readSize = 0;
 
     CS_RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
