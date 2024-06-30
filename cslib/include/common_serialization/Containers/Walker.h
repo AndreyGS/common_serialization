@@ -59,6 +59,10 @@ public:
     constexpr Status pushBack(T&& value);
     constexpr Status pushBackN(const T* p, size_type n);
 
+    template<typename V>
+    constexpr Status pushBackArithmeticValue(V value)
+        requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
+
     constexpr Status replace(const T* p, size_type n, size_type offset);
 
     constexpr Status insert(const T* p, size_type n, size_type offset);
@@ -72,6 +76,10 @@ public:
     
     // destination (p) must be initialized (for non pod-types)
     constexpr Status read(T* p, size_type n, size_type* pNRead = nullptr);
+
+    template<typename V>
+    constexpr Status readArithmeticValue(V& value) noexcept
+        requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
     [[nodiscard]] constexpr T* data() noexcept;
     [[nodiscard]] constexpr const T* data() const noexcept;
@@ -214,6 +222,16 @@ constexpr Status Walker<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
 }
 
 template<typename T, typename AllocatorHelper>
+template<typename V>
+constexpr Status Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value)
+    requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
+{
+    Status status = m_vector.pushBackArithmeticValue(value);
+    m_offset = size();
+    return status;
+}
+
+template<typename T, typename AllocatorHelper>
 constexpr Status Walker<T, AllocatorHelper>::replace(const T* p, size_type n, size_type offset)
 {
     setValidOffset(offset);
@@ -221,6 +239,21 @@ constexpr Status Walker<T, AllocatorHelper>::replace(const T* p, size_type n, si
     m_offset += n;
 
     return Status::NoError;
+}
+
+template<typename T, typename AllocatorHelper>
+template<typename V>
+constexpr Status Walker<T, AllocatorHelper>::readArithmeticValue(V& value) noexcept
+    requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
+{
+    if (sizeof(V) + m_offset <= size())
+    {
+        value = *static_cast<const V*>(static_cast<const void*>(data() + m_offset));
+        m_offset += sizeof(V);
+        return Status::NoError;
+    }
+    else
+        return Status::ErrorOverflow;
 }
 
 template<typename T, typename AllocatorHelper>

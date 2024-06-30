@@ -30,7 +30,7 @@ namespace common_serialization::csp::processing
 {
 
 template<typename T>
-CS_ALWAYS_INLINE constexpr Status writePrimitive(const T& value, context::SCommon& ctx)
+CS_ALWAYS_INLINE constexpr Status writePrimitive(T value, context::SCommon& ctx)
 {
     if constexpr (IsEndiannessReversable<T>)
     {
@@ -39,15 +39,13 @@ CS_ALWAYS_INLINE constexpr Status writePrimitive(const T& value, context::SCommo
             if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
                 return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
-            const auto reversedValue = helpers::reverseEndianess(value);
-
-            return ctx.getBinaryData().pushBackN(reinterpret_cast<const uint8_t*>(&reversedValue), sizeof(T));
+            return ctx.getBinaryData().pushBackArithmeticValue(helpers::reverseEndianess(value));
         }
         else
-            return ctx.getBinaryData().pushBackN(reinterpret_cast<const uint8_t*>(&value), sizeof(T));
+            return ctx.getBinaryData().pushBackArithmeticValue(value);
     }
     else
-        return ctx.getBinaryData().pushBackN(reinterpret_cast<const uint8_t*>(&value), sizeof(T));
+        return ctx.getBinaryData().pushBackArithmeticValue(value);
 }
 
 template<typename T>
@@ -70,9 +68,7 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, T& value)
         if (ctx.isEndiannessNotMatch())
             return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
-    CS_RUN(ctx.getBinaryData().read(reinterpret_cast<uint8_t*>(&const_cast<std::remove_const_t<T>&>(value)), sizeof(T), &sizeRead));
-    if (sizeRead != sizeof(T))
-        return Status::ErrorOverflow;
+    CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
 
     if constexpr (IsEndiannessReversable<T>)
         if (ctx.isEndiannessNotMatch())

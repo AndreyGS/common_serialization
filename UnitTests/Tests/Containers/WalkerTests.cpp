@@ -506,6 +506,31 @@ TEST(WalkerTest, PushBackNPod)
     EXPECT_EQ(walker_pod.tell(), 1);
 }
 
+TEST(WalkerTest, PushBackArithmeticValue)
+{
+    Walker<uint8_t, DefaultAllocatorHelper<uint8_t>> walker;
+    walker.getAllocatorHelper().setAllocationStrategy(AllocationStrategy::DoubleOfDataSize); // as a precaution
+
+    double value = 5.;
+
+    walker.pushBackArithmeticValue(value);
+
+    EXPECT_EQ(*reinterpret_cast<decltype(value)*>(walker.data()), value);
+    EXPECT_EQ(walker.size(), sizeof(value));
+    EXPECT_EQ(walker.capacity(), 2 * sizeof(value));
+    EXPECT_EQ(walker.tell(), sizeof(value));
+
+    Walker<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> walker2;
+    uint8_t storage[sizeof(double)]{ 0 };
+    walker2.getAllocatorHelper().getAllocator().setStorage(storage, 1);
+    walker2.pushBack(value);
+    walker2.seek(0);
+
+    EXPECT_EQ(walker2.pushBackArithmeticValue(value), Status::ErrorNoMemory);
+    EXPECT_EQ(walker2.size(), 1);
+    EXPECT_EQ(walker2.tell(), 1);
+}
+
 template<typename T>
 void FReplace()
 {
@@ -1094,6 +1119,27 @@ TEST(WalkerTest, ReadNoMove)
 TEST(WalkerTest, ReadPod)
 {
     FRead<PodStruct>();
+}
+
+TEST(WalkerTest, ReadArithmeticValue)
+{
+    Walker<std::uint8_t, DefaultAllocatorHelper<std::uint8_t>> walker;
+    walker.pushBack(1);
+    walker.pushBack(2);
+    walker.seek(0);
+
+    constexpr short test = 1 | (2 << 8);
+    short value = 0;
+
+    EXPECT_EQ(walker.readArithmeticValue(value), Status::NoError);
+    EXPECT_EQ(walker.tell(), 2);
+    EXPECT_EQ(value, test);
+
+    value = 0;
+
+    EXPECT_EQ(walker.readArithmeticValue(value), Status::ErrorOverflow);
+    EXPECT_EQ(walker.tell(), 2);
+    EXPECT_EQ(value, 0);
 }
 
 TEST(WalkerTest, Data)

@@ -44,6 +44,7 @@ concept ISerializationBinContainer
              { e.reserve(1) } -> std::same_as<Status>;
 
              { e.pushBackN(nullptr, static_cast<typename Sbin::size_type>(0)) } -> std::same_as<Status>;
+             { e.pushBackArithmeticValue(1ull) } -> std::same_as<Status>;
          } 
     && std::is_same_v<typename Sbin::value_type, uint8_t>;
 
@@ -61,6 +62,7 @@ concept IDeserializationBinContainer
              { e.seek(0) } -> std::same_as<Status>;
              
              { e.read(nullptr, static_cast<typename Dbin::size_type>(0)) } -> std::same_as<Status>;
+             { e.readArithmeticValue(*(new unsigned)) } -> std::same_as<Status>;
          } 
     && std::is_same_v<typename Dbin::value_type, uint8_t>;
 
