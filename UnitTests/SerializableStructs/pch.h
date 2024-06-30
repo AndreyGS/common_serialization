@@ -27,6 +27,7 @@
 // it contains declarations of serialization functions that are not
 // parsed properly later if BodyProcessor class is declared before them
 #include "common_serialization/Status.h"
+#include "interface_for_test/processing/Declarations.h"
 #include "std_structs_serialization/processing/Declarations.h"
 
 #include "common_serialization/common_serialization.h"

@@ -9,6 +9,9 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+add_subdirectory(ForTestsHelpers)
+add_subdirectory(SerializableStructs)
+
 add_executable(containers_tests "Tests/Containers/VectorTests.cpp" "Tests/Containers/WalkerTests.cpp" "Tests/Containers/UniquePtrTests.cpp")
 target_compile_definitions(containers_tests PRIVATE USER_MODE)
 target_link_libraries(containers_tests PRIVATE cslib ForTestsHelpers PRIVATE gtest_main)
@@ -34,11 +37,10 @@ add_executable(csp_tests
     "Tests/csp/processing/ISerializableAnotherEndianness.cpp" 
     "Tests/csp/processing/ISerializableAnotherBitness.cpp"
     "Tests/csp/messaging/MessagingTests.cpp"
- "Tests/csp/messaging/ClientTests.cpp")
+    "Tests/csp/messaging/ClientTests.cpp"
+    "Tests/csp/processing/ProfillingTests.cpp")
 
 target_compile_definitions(csp_tests PRIVATE USER_MODE)
-add_subdirectory(ForTestsHelpers)
-add_subdirectory(SerializableStructs)
 target_link_libraries(csp_tests PRIVATE cslib ForTestsHelpers SerializableStructs gtest_main gmock_main)
 target_include_directories(csp_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_precompile_headers(csp_tests PRIVATE "Tests/csp/pch.h")

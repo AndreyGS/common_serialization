@@ -60,5 +60,9 @@ template<>
 Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::DForAllModesTests<>& value);
 template<>
 Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ContainSimplyAssignableWithoutSerializationFunctions<>& value);
+template<>
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ContainBigStructs1<>& value);
+template<>
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ContainBigStructs2ForAllModes<>& value);
 
 } // namespace common_serialization::csp::processing::data

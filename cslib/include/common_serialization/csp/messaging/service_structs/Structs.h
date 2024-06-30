@@ -30,11 +30,10 @@ namespace common_serialization::csp::messaging::service_structs
 
 /// @brief Special type - placeholder for Input-Output operations that have no need in ISerializable Output struct
 /// @remark Interfaces which are using that struct as an Output will always receive the Message::Status as result
-/// @tparam T Derived class
-template<typename T = Dummy>
-struct ISerializableDummy : public ISerializable<ISerializableDummy<Dummy>>
+struct ISerializableDummy final : public ISerializable<ISerializableDummy>
 {
 public:
+    using instance_type = ISerializableDummy;
     using empty_type_tag = std::true_type;
 
     static constexpr Id kId{ 0x60b0dd3e, 0x7d2e, 0x42d9, 0xb00d, 0x90f7ecd19d25 };

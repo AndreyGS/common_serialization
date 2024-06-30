@@ -274,7 +274,6 @@ public:
     friend SForAllModesTests_Version2<T>;
 };
 
-
 template<typename T = cs::Dummy>
 class SimplyAssignableAlignedToOne_Version1 : public cs::csp::ISerializable<cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version1<>, T>>
 {

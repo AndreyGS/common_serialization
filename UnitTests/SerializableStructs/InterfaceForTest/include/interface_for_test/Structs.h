@@ -646,4 +646,55 @@ public:
     friend cs::csp::processing::data::BodyProcessor;
 };
 
+template<typename _T>
+struct BigStructs
+{
+    [[nodiscard]] auto operator<=>(const BigStructs&) const = default;
+
+    cs::VectorT<_T> m_vector;
+};
+
+template<typename T = cs::Dummy>
+class ContainBigStructs1 : public cs::csp::ISerializable<cs::GetCrtpMainType<ContainBigStructs1<>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<ContainBigStructs1<>, T>;
+
+    static constexpr cs::csp::Id kId{ 0xfa3404da, 0x0af9, 0x4632, 0xb3b5, 0x02d82446ef24 };
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
+
+    [[nodiscard]] auto operator<=>(const ContainBigStructs1&) const = default;
+
+    BigStructs<SimplyAssignableAlignedToOne<>> m_big1;
+    BigStructs<SimplyAssignable<>> m_big2;
+    BigStructs<SimplyAssignableDescendant<>> m_big3;
+    BigStructs<AlwaysSimplyAssignable<>> m_big4;
+    BigStructs<SimplyAssignableFixedSize<>> m_big5;
+    BigStructs<DynamicPolymorphic<>> m_big6;
+    BigStructs<Diamond<>> m_big7;
+
+    friend cs::csp::processing::data::BodyProcessor;
+};
+
+template<typename T = cs::Dummy>
+class ContainBigStructs2ForAllModes : public cs::csp::ISerializable<cs::GetCrtpMainType<ContainBigStructs2ForAllModes<>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<ContainBigStructs2ForAllModes<>, T>;
+
+    static constexpr cs::csp::Id kId{ 0xb62add3d, 0x3695, 0x4432, 0xa8b4, 0x5a799f4a7796 };
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 3;
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
+
+    [[nodiscard]] auto operator<=>(const ContainBigStructs2ForAllModes&) const = default;
+
+    BigStructs<DForAllModesTests<>> m_big;
+
+    friend cs::csp::processing::data::BodyProcessor;
+};
+
+
 } // namespace interface_for_test

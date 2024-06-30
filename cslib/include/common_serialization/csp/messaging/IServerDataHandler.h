@@ -146,8 +146,8 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData&
     if (!input.allocateAndConstructOne<InputType>())
         return Status::ErrorNoMemory;
 
-    if constexpr (std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
-        return handleDataMain(*input.get<InputType>(), ctx, clientId, service_structs::ISerializableDummy<>{}, binOutput);
+    if constexpr (std::is_same_v<OutputType, service_structs::ISerializableDummy>)
+        return handleDataMain(*input.get<InputType>(), ctx, clientId, service_structs::ISerializableDummy{}, binOutput);
     else
     {
         GenericPointerKeeperT output;
@@ -165,7 +165,7 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataMain(InputType& input,
     
     CS_RUN(this->handleData(input, ctxIn.getAddedPointers(), clientId, output))
 
-    if constexpr (!std::is_same_v<OutputType, service_structs::ISerializableDummy<>>)
+    if constexpr (!std::is_same_v<OutputType, service_structs::ISerializableDummy>)
     {
         context::SPointersMap pointersMapOut;
 

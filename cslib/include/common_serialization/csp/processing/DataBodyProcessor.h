@@ -202,7 +202,7 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
         return serializeSimplyAssignable(value, ctx);
     // we must implicitly use condition !EmptyType<_T> otherwise we get an error which states that processing::serialize not found
     else if constexpr (!EmptyType<_T>)
-        return templates::serialize(value, ctx);
+        return templates::template serialize(value, ctx);
 }
 
 template<typename _T>
@@ -382,7 +382,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
         return deserializeSimplyAssignable(ctx, value);
     // we must implicitly use condition !EmptyType<_T> otherwise we get an error which states that processing::deserialize not found
     else if constexpr (!EmptyType<_T>)
-        return templates::deserialize(ctx, value);
+        return templates::template deserialize(ctx, value);
 }
 
 template<typename _T>

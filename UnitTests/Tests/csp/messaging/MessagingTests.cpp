@@ -48,7 +48,7 @@ protected:
 
 using CspPartySettings = csp::messaging::service_structs::CspPartySettings<>;
 using InterfaceVersion = csp::messaging::service_structs::InterfaceVersion<>;
-using ISerializableDummy = csp::messaging::service_structs::ISerializableDummy<>;
+using ISerializableDummy = csp::messaging::service_structs::ISerializableDummy;
 
 CspPartySettings getServerSettings()
 {

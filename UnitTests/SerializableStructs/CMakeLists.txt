@@ -17,7 +17,7 @@ add_library(SerializableStructs STATIC
     
     "WithStdIncludedInterface/src/processing/Generated/Deserialize.cpp"
     "WithStdIncludedInterface/src/processing/Generated/Serialize.cpp"
- )
+)
 
 target_compile_definitions(SerializableStructs PRIVATE USER_MODE)
 target_link_libraries(SerializableStructs PRIVATE cslib)

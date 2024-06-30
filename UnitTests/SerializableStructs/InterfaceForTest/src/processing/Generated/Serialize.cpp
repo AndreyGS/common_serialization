@@ -264,4 +264,30 @@ Status BodyProcessor::serialize(const interface_for_test::ContainSimplyAssignabl
     return Status::NoError;
 }
 
+template<>
+Status BodyProcessor::serialize(const interface_for_test::ContainBigStructs1<>& value, context::SData& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
+
+    CS_RUN(serialize(value.m_big1, ctx));
+    CS_RUN(serialize(value.m_big2, ctx));
+    CS_RUN(serialize(value.m_big3, ctx));
+    CS_RUN(serialize(value.m_big4, ctx));
+    CS_RUN(serialize(value.m_big5, ctx));
+    CS_RUN(serialize(value.m_big6, ctx));
+    CS_RUN(serialize(value.m_big7, ctx));
+
+    return Status::NoError;
+}
+
+template<>
+Status BodyProcessor::serialize(const interface_for_test::ContainBigStructs2ForAllModes<>& value, context::SData& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
+
+    CS_RUN(serialize(value.m_big, ctx));
+
+    return Status::NoError;
+}
+
 } // namespace common_serialization::csp::processing::data

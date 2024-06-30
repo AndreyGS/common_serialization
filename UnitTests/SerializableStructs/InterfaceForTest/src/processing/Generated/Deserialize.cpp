@@ -263,4 +263,30 @@ Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::Conta
     return Status::NoError;
 }
 
+template<>
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ContainBigStructs1<>& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    CS_RUN(deserialize(ctx, value.m_big1));
+    CS_RUN(deserialize(ctx, value.m_big2));
+    CS_RUN(deserialize(ctx, value.m_big3));
+    CS_RUN(deserialize(ctx, value.m_big4));
+    CS_RUN(deserialize(ctx, value.m_big5));
+    CS_RUN(deserialize(ctx, value.m_big6));
+    CS_RUN(deserialize(ctx, value.m_big7));
+
+    return Status::NoError;
+}
+
+template<>
+Status BodyProcessor::deserialize(context::DData& ctx, interface_for_test::ContainBigStructs2ForAllModes<>& value)
+{
+    CSP_DESERIALIZE_COMMON(ctx, value);
+
+    CS_RUN(deserialize(ctx, value.m_big));
+
+    return Status::NoError;
+}
+
 } // namespace common_serialization::csp::processing::data

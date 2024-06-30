@@ -53,7 +53,7 @@ public:
 protected:
     ClientSpeakerMock m_speaker;
     Client m_client;
-    ISerializableDummy<> m_dummy;
+    ISerializableDummy m_dummy;
 };
 
 TEST_F(ClientTests, Init1)
