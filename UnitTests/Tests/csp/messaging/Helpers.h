@@ -28,7 +28,9 @@ namespace
 
 using namespace common_serialization;
 using namespace common_serialization::csp;
+using namespace common_serialization::csp::context;
 using namespace common_serialization::csp::messaging::service_structs;
+using namespace common_serialization::csp::traits;
 
 CspPartySettings<> getValidCspPartySettings()
 {
@@ -46,16 +48,25 @@ CspPartySettings<> getInvalidCspPartySettings()
 {
     CspPartySettings settings = getValidCspPartySettings();
 
-    settings.mandatoryCommonFlags.addFlags(context::CommonFlags::kBigEndianFormat);
-    settings.forbiddenCommonFlags.addFlags(context::CommonFlags::kBigEndianFormat);
+    settings.mandatoryCommonFlags.addFlags(CommonFlags::kBigEndianFormat);
+    settings.forbiddenCommonFlags.addFlags(CommonFlags::kBigEndianFormat);
 
     return settings;
+}
+
+RawVectorT<protocol_version_t> getExtendedProtocolVersionsList()
+{
+    RawVectorT<protocol_version_t> protocolVersions;
+    protocolVersions.pushBackN(kProtocolVersions, getProtocolVersionsCount());
+    protocolVersions.pushBack(static_cast<protocol_version_t>(kProtocolVersions[getProtocolVersionsCount() - 1] + 1));
+
+    return protocolVersions;
 }
 
 BinVectorT getNotSupportedProtocolVersionsWithInvalidOutput()
 {
     BinVectorT binOutput;
-    BinVectorT protocolVersions;
+    RawVectorT<protocol_version_t> protocolVersions;
     protocolVersions.pushBack(kNotSupportedCspVersion);
     processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, protocolVersions, {});
 
@@ -65,8 +76,17 @@ BinVectorT getNotSupportedProtocolVersionsWithInvalidOutput()
 BinVectorT getNotSupportedProtocolVersionsWithValidOutput()
 {
     BinVectorT binOutput;
-    BinVectorT protocolVersions;
-    protocolVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
+    RawVectorT<protocol_version_t> protocolVersions;
+    protocolVersions.pushBackN(kProtocolVersions, getProtocolVersionsCount());
+    processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, protocolVersions, {});
+
+    return binOutput;
+}
+
+BinVectorT getNotSupportedProtocolVersionsWithExtraOutput()
+{
+    BinVectorT binOutput;
+    RawVectorT<protocol_version_t> protocolVersions = getExtendedProtocolVersionsList();
     processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, protocolVersions, {});
 
     return binOutput;
@@ -75,12 +95,21 @@ BinVectorT getNotSupportedProtocolVersionsWithValidOutput()
 BinVectorT getSettingsWithBigEndian()
 {
     BinVectorT binOutput;
-    context::SData ctxOut(binOutput, 1, context::CommonFlags{ context::CommonFlags::kBigEndianFormat }, {}, false, 1);
+    SData ctxOut(binOutput, 1, CommonFlags{ CommonFlags::kBigEndianFormat }, {}, false, 1);
 
     CspPartySettings<> settings = getValidCspPartySettings();
-    settings.mandatoryCommonFlags.addFlags(context::CommonFlags::kBigEndianFormat);
+    settings.mandatoryCommonFlags.addFlags(CommonFlags::kBigEndianFormat);
 
     settings.serialize(ctxOut);
+    return binOutput;
+}
+
+BinVectorT getNotSupportedInterfaceVersionValid(const Id& id, interface_version_t minimumInterfaceVersion)
+{
+    BinVectorT binOutput;
+    SCommon ctxOut(binOutput);
+    processing::serializeStatusErrorNotSupportedInterfaceVersion(minimumInterfaceVersion, id, ctxOut);
+
     return binOutput;
 }
 

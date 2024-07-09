@@ -115,11 +115,60 @@ TEST_F(ClientTests, Init2)
     EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::ErrorNotCompatibleCommonFlagsSettings);
     EXPECT_EQ(m_client.isValid(), false);
 
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            binOutput.init(getNotSupportedProtocolVersionsWithValidOutput());
+            return Status::NoError;
+        }
+                                )).WillOnce(Invoke(
+        [&clientSettings](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            clientSettings.serialize(binOutput.getVector());
+            return Status::NoError;
+        }
+    ));
 
-    BinVectorT vector;
-    vector.size();
+    EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::NoError);
+    EXPECT_EQ(m_client.isValid(), true);
+
     // Try to pass valid settings to inited Client
-   // EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::ErrorAlreadyInited);
+    EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::ErrorAlreadyInited);
+}
+
+TEST_F(ClientTests, GetClientSpeaker)
+{
+    EXPECT_EQ(&m_speaker, &m_client.getClientSpeaker());
+}
+
+TEST_F(ClientTests, GetServerProtocolVersions)
+{
+    RawVectorT<protocol_version_t> protocolList;
+
+    // Test valid output from Server
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            binOutput.init(getNotSupportedProtocolVersionsWithExtraOutput());
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerProtocolVersions(protocolList), Status::NoError);
+    EXPECT_EQ(protocolList, getExtendedProtocolVersionsList());
+
+    // Test invalid output from Server
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            binOutput.init(getNotSupportedInterfaceVersionValid(ISerializableDummy::getId(), 1));
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerProtocolVersions(protocolList), Status::ErrorDataCorrupted);
+
+
 }
 
 } // namespace

@@ -152,7 +152,7 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
         status = Status::ErrorDataCorrupted;
 
     if (binOutput.size() == 0)
-        status = processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), status);
+        CS_SET_NEW_ERROR(processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), status));
 
     return status;
 }
@@ -205,7 +205,7 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
 
         for (auto pHandlerM : handlers)
         {
-            SET_NEW_ERROR(pHandlerM->handleDataCommon(ctx, clientId, binOutput));
+            CS_SET_NEW_ERROR(pHandlerM->handleDataCommon(ctx, clientId, binOutput));
             m_dataHandlersRegistrar->releaseHandler(pHandlerM);
             ctx.getBinaryData().seek(bodyPosition);
         }

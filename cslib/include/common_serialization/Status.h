@@ -46,10 +46,10 @@
         return status;                                                              \
 }
 
-#ifdef SET_NEW_ERROR
-#undef SET_NEW_ERROR
-#endif // SET_NEW_ERROR
-#define SET_NEW_ERROR(x)                                                            \
+#ifdef CS_SET_NEW_ERROR
+#undef CS_SET_NEW_ERROR
+#endif // CS_SET_NEW_ERROR
+#define CS_SET_NEW_ERROR(x)                                                         \
 {                                                                                   \
     if (Status newStatus = (x); !statusSuccess(newStatus) && statusSuccess(status)) \
         status = newStatus;                                                         \

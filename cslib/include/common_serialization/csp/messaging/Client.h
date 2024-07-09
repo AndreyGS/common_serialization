@@ -39,7 +39,7 @@ namespace common_serialization::csp::messaging
 /// @details See documentation of CSP
 /// @note IClientSpeaker must be valid all the time when Client is used
 ///     and behavior will be undefined otherwise.
-///     Thread-safe as long as IClientSpeaker is thread-safe.
+///     Thread-safe after initialization as long as IClientSpeaker is thread-safe.
 class Client
 {
 public:
