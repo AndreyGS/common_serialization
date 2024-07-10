@@ -22,7 +22,8 @@
  */
 
 #include <thread>
-#include "ClientSpeakerMock.h"
+#include "Tests/csp/messaging/ClientSpeakerMock.h"
+#include "Tests/csp/messaging/Helpers.h"
 
 using ::testing::_;
 using ::testing::SetArgReferee;
@@ -36,7 +37,10 @@ namespace
 
 using namespace common_serialization;
 using namespace ft_helpers;
-
+using namespace csp::context;
+using namespace csp::messaging;
+using namespace csp::messaging::service_structs;
+using namespace csp::traits;
 
 class MessagingTests : public ::testing::Test
 {
@@ -46,92 +50,81 @@ protected:
     std::unique_ptr<ClientSpeakerMock> m_clientSpeaker;
 };
 
-using CspPartySettings = csp::messaging::service_structs::CspPartySettings<>;
-using InterfaceVersion = csp::messaging::service_structs::InterfaceVersion<>;
-using ISerializableDummy = csp::messaging::service_structs::ISerializableDummy;
-
-CspPartySettings getServerSettings()
-{
-    CspPartySettings serverSettings;
-
-    serverSettings.protocolVersions.pushBackN(csp::traits::kProtocolVersions, csp::traits::getProtocolVersionsCount());
-
-    serverSettings.interfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
-    serverSettings.interfaces.pushBack(InterfaceVersion{ descendant_interface::properties });
-    serverSettings.interfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
-
-    return serverSettings;
-}
 
 TEST(MessagingTests, InitCommonServerT)
 {
     // Standard initialization
-    csp::messaging::Server commonServer;
-    EXPECT_EQ(commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(getServerSettings()), Status::NoError);
+    Server commonServer;
+    EXPECT_EQ(commonServer.init<GenericServerDataHandlerRegistrar>(getValidCspPartySettings()), Status::NoError);
     EXPECT_TRUE(commonServer.isValid());
 
     // Repeated initialization attempt
-    EXPECT_EQ(commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(getServerSettings()), Status::ErrorAlreadyInited);
+    EXPECT_EQ(commonServer.init<GenericServerDataHandlerRegistrar>(getValidCspPartySettings()), Status::ErrorAlreadyInited);
     EXPECT_TRUE(commonServer.isValid());
 
     // Init with invalid settings
-    csp::messaging::Server commonServer2;
-    EXPECT_EQ(commonServer2.init<csp::messaging::GenericServerDataHandlerRegistrar>({}), Status::ErrorInvalidArgument);
+    Server commonServer2;
+    EXPECT_EQ(commonServer2.init<GenericServerDataHandlerRegistrar>({}), Status::ErrorInvalidArgument);
     EXPECT_FALSE(commonServer2.isValid());
 }
 
 TEST(MessagingTests, InitDataClientT)
 {
-    CspPartySettings serverSettings;
-    serverSettings.protocolVersions.pushBack(2);
-    serverSettings.protocolVersions.pushBack(1);
-    serverSettings.mandatoryCommonFlags = csp::context::CommonFlags::kBigEndianFormat;
-    serverSettings.forbiddenCommonFlags = csp::context::CommonFlags::kBitness32;
-    serverSettings.interfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
-    csp::messaging::Server commonServer;
-    commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(serverSettings);
+    RawVectorT<protocol_version_t> serverProtocolVersions;
+    serverProtocolVersions.pushBack(2);
+    serverProtocolVersions.pushBack(1);
+    RawVectorT<InterfaceVersion<>> serverInterfaces;
+    serverInterfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
+
+    CspPartySettings serverSettings(serverProtocolVersions, CommonFlags(CommonFlags::kBigEndianFormat), CommonFlags(CommonFlags::kBitness32), serverInterfaces);
+
+    Server commonServer;
+    commonServer.init<GenericServerDataHandlerRegistrar>(serverSettings);
 
     interface_for_test::SimplyAssignableAlignedToOne<> dummyInput;
     interface_for_test::SimplyAssignableDescendant<> dummyOutput;
 
     SimpleSpeaker simpleSpeaker{ commonServer };
-    csp::messaging::Client dataClient(simpleSpeaker);
+    Client dataClient(simpleSpeaker);
 
-    CspPartySettings clientSettings;
-    clientSettings.protocolVersions.pushBack(1);
-    clientSettings.protocolVersions.pushBack(0); // 0 is not a valid CSP version and we add it here only for logic test
-    clientSettings.mandatoryCommonFlags = csp::context::CommonFlags::kEndiannessDifference;
-    clientSettings.interfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
-    clientSettings.interfaces.pushBack(InterfaceVersion{ descendant_interface::properties });
-    clientSettings.interfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
+    RawVectorT<protocol_version_t> clientProtocolVersions;
+    clientProtocolVersions.pushBack(1);
+    clientProtocolVersions.pushBack(0); // 0 is not a valid CSP version and we add it here only for logic test
+    RawVectorT<InterfaceVersion<>> clientInterfaces;
+    clientInterfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
+    clientInterfaces.pushBack(InterfaceVersion{ descendant_interface::properties });
+    clientInterfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
+
+    CspPartySettings clientSettings(clientProtocolVersions, CommonFlags(CommonFlags::kEndiannessDifference), {}, clientInterfaces);
+
     CspPartySettings serverSettingsReturned;
 
     // Valid test 1
     EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::NoError);
     EXPECT_EQ(serverSettingsReturned, serverSettings);
     EXPECT_TRUE(dataClient.isValid());
-    EXPECT_EQ(dataClient.getSettings().protocolVersions[0], clientSettings.protocolVersions[0]);
-    EXPECT_EQ(dataClient.getSettings().mandatoryCommonFlags, serverSettings.mandatoryCommonFlags | clientSettings.mandatoryCommonFlags);
-    EXPECT_EQ(dataClient.getSettings().forbiddenCommonFlags, serverSettings.forbiddenCommonFlags | clientSettings.forbiddenCommonFlags);
-    EXPECT_EQ(dataClient.getSettings().interfaces.size(), 1);
-    EXPECT_EQ(dataClient.getSettings().interfaces[0], clientSettings.interfaces[2]);
-    EXPECT_EQ(dataClient.getInterfaceVersion(clientSettings.interfaces[2].id), 0);
-    EXPECT_EQ(dataClient.getInterfaceVersion(clientSettings.interfaces[1].id), csp::traits::kInterfaceVersionUndefined);
+    EXPECT_EQ(dataClient.getSettings().getProtocolVersions()[0], clientSettings.getProtocolVersions()[0]);
+    EXPECT_EQ(dataClient.getSettings().getMandatoryCommonFlags(), serverSettings.getMandatoryCommonFlags() | clientSettings.getMandatoryCommonFlags());
+    EXPECT_EQ(dataClient.getSettings().getForbiddenCommonFlags(), serverSettings.getForbiddenCommonFlags() | clientSettings.getForbiddenCommonFlags());
+    EXPECT_EQ(dataClient.getSettings().getInterfaces().size(), 1);
+    EXPECT_EQ(dataClient.getSettings().getInterfaces()[0], clientSettings.getInterfaces()[2]);
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientSettings.getInterfaces()[2].id), 0);
+    EXPECT_EQ(dataClient.getInterfaceVersion(clientSettings.getInterfaces()[1].id), kInterfaceVersionUndefined);
     EXPECT_EQ(dataClient.init(clientSettings, serverSettingsReturned), Status::ErrorAlreadyInited);
     EXPECT_EQ(dataClient.init(clientSettings), Status::ErrorAlreadyInited);
 
     // Valid test 2
-    clientSettings.mandatoryCommonFlags = csp::context::CommonFlags{};
-    clientSettings.forbiddenCommonFlags = csp::context::CommonFlags::kEndiannessDifference;
+    clientSettings.init(clientProtocolVersions, {}, CommonFlags(CommonFlags::kEndiannessDifference), clientInterfaces);
     serverSettingsReturned.clear();
     csp::messaging::Client dataClient2(simpleSpeaker);
     EXPECT_EQ(dataClient2.init(clientSettings, serverSettingsReturned), Status::NoError);
     EXPECT_EQ(serverSettingsReturned, serverSettings);
     EXPECT_TRUE(dataClient2.isValid());
-    EXPECT_EQ(dataClient2.getSettings().forbiddenCommonFlags, serverSettings.forbiddenCommonFlags | clientSettings.forbiddenCommonFlags);
+    EXPECT_EQ(dataClient2.getSettings().getForbiddenCommonFlags(), serverSettings.getForbiddenCommonFlags() | clientSettings.getForbiddenCommonFlags());
 
     // No supported interfaces
-    clientSettings.interfaces.erase(2);
+    clientInterfaces.erase(2);
+    clientSettings.init(clientProtocolVersions, {}, CommonFlags(CommonFlags::kEndiannessDifference), clientInterfaces);
     serverSettingsReturned.clear();
     csp::messaging::Client dataClient3(simpleSpeaker);
     EXPECT_EQ(dataClient3.init(clientSettings, serverSettingsReturned), Status::ErrorNoSupportedInterfaces);
@@ -140,8 +133,8 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ((dataClient3.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::ErrorNotInited);
 
     // Not compatible common flags settings (between mandatory and forbidden flags)
-    clientSettings.interfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
-    clientSettings.mandatoryCommonFlags = serverSettings.forbiddenCommonFlags;
+    clientInterfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
+    clientSettings.init(clientProtocolVersions, serverSettings.getForbiddenCommonFlags(), clientSettings.getForbiddenCommonFlags(), clientInterfaces);
     serverSettingsReturned.clear();
     csp::messaging::Client dataClient4(simpleSpeaker);
     EXPECT_EQ(dataClient4.init(clientSettings, serverSettingsReturned), Status::ErrorNotCompatibleCommonFlagsSettings);
@@ -150,28 +143,31 @@ TEST(MessagingTests, InitDataClientT)
     EXPECT_EQ((dataClient4.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::ErrorNotInited);
 
     // Not supported protocol version
-    clientSettings.mandatoryCommonFlags = csp::context::CommonFlags{};
-    clientSettings.protocolVersions.erase(0);
+    clientProtocolVersions.erase(0);
+    clientSettings.init(clientProtocolVersions, {}, clientSettings.getForbiddenCommonFlags(), clientInterfaces);
     serverSettingsReturned.clear();
     csp::messaging::Client dataClient5(simpleSpeaker);
     EXPECT_EQ(dataClient5.init(clientSettings, serverSettingsReturned), Status::ErrorNotSupportedProtocolVersion);
-    EXPECT_EQ(serverSettingsReturned.protocolVersions, serverSettings.protocolVersions);
+    EXPECT_EQ(serverSettingsReturned.getProtocolVersions(), serverSettings.getProtocolVersions());
     EXPECT_FALSE(dataClient5.isValid());
     EXPECT_EQ((dataClient5.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(dummyInput, dummyOutput)), Status::ErrorNotInited);
 }
 
 TEST(MessagingTests, DataMessageHandling)
 {
-    csp::messaging::Server commonServer;
-    commonServer.init<csp::messaging::GenericServerDataHandlerRegistrar>(getServerSettings());
+    Server commonServer;
+    commonServer.init<GenericServerDataHandlerRegistrar>(getValidCspPartySettings());
     FirstCspService* pFirstCspService = new FirstCspService;
     pFirstCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
 
     SimpleSpeaker simpleSpeaker{ commonServer };
-    csp::messaging::Client dataClient(simpleSpeaker);
-    CspPartySettings clientSettings;
-    clientSettings.protocolVersions.pushBack(csp::traits::getLatestProtocolVersion());
-    clientSettings.interfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
+    Client dataClient(simpleSpeaker);
+
+    RawVectorT<protocol_version_t> clientProtocolVersions;
+    clientProtocolVersions.pushBack(getLatestProtocolVersion());
+    RawVectorT<InterfaceVersion<>> clientInterfaces;
+    clientInterfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
+    CspPartySettings clientSettings(clientProtocolVersions, {}, {}, clientInterfaces);
 
     dataClient.init(clientSettings);
 
@@ -180,7 +176,7 @@ TEST(MessagingTests, DataMessageHandling)
     interface_for_test::SimplyAssignableDescendant<> output;
 
     // Unicast test
-    EXPECT_EQ((dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::NoError);
+    EXPECT_EQ((dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::NoError);
 
     interface_for_test::SimplyAssignableDescendant<> outputReference;
     fillingStruct(outputReference);
@@ -196,7 +192,7 @@ TEST(MessagingTests, DataMessageHandling)
     ISerializableDummy outputDummy;
 
     ft_helpers::numberOfMultiEntrances = 0;
-    EXPECT_EQ((dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy)), Status::NoError);
+    EXPECT_EQ((dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy)), Status::NoError);
     EXPECT_EQ(ft_helpers::numberOfMultiEntrances, 2);
     
     /// Stress test
@@ -208,9 +204,9 @@ TEST(MessagingTests, DataMessageHandling)
 
             for (size_t i = 0; i < 10000; ++i)
             {
-                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
-                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
-                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
+                dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
+                dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
+                dataClient.handleData<CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
             }
         });
 
@@ -222,9 +218,9 @@ TEST(MessagingTests, DataMessageHandling)
 
             for (size_t i = 0; i < 10000; ++i)
             {
-                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
-                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
-                dataClient.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
+                dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
+                dataClient.handleData<CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
+                dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
             }
         });
         
@@ -266,27 +262,31 @@ TEST(MessagingTests, DataMessageHandling)
     test4.join();
 
     // Legacy interface versions
-    clientSettings.interfaces[0].version = 1;
-    csp::messaging::Client dataClient2(simpleSpeaker);
+    clientInterfaces[0].version = 1;
+    clientSettings.init(clientProtocolVersions, {}, {}, clientInterfaces);
+
+    Client dataClient2(simpleSpeaker);
     dataClient2.init(clientSettings);
 
-    EXPECT_EQ(dataClient2.getInterfaceVersion(clientSettings.interfaces[0].id), 1);
+    EXPECT_EQ(dataClient2.getInterfaceVersion(clientSettings.getInterfaces()[0].id), 1);
 
     interface_for_test::SimplyAssignableDescendant<> output2;
 
-    EXPECT_EQ((dataClient2.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output2)), Status::NoError);
+    EXPECT_EQ((dataClient2.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output2)), Status::NoError);
     EXPECT_EQ(output2, outputReference);
 
     // Struct handler not support interface version
-    clientSettings.interfaces[0].version = 0;
+    clientInterfaces[0].version = 0;
+    clientSettings.init(clientProtocolVersions, {}, {}, clientInterfaces);
+
     csp::messaging::Client dataClient3(simpleSpeaker);
     dataClient3.init(clientSettings);
 
-    EXPECT_EQ(dataClient3.getInterfaceVersion(clientSettings.interfaces[0].id), 0);
+    EXPECT_EQ(dataClient3.getInterfaceVersion(clientSettings.getInterfaces()[0].id), 0);
 
     interface_for_test::SimplyAssignableDescendant<> output3;
 
-    EXPECT_EQ((dataClient3.handleData<csp::messaging::CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output3)), Status::ErrorNotSupportedInterfaceVersion);
+    EXPECT_EQ((dataClient3.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output3)), Status::ErrorNotSupportedInterfaceVersion);
     EXPECT_EQ(output3.m_d, 0); // struct wasn't changed
 }
 

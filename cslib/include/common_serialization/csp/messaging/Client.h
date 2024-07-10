@@ -165,7 +165,7 @@ inline Status Client::init(const service_structs::CspPartySettings<>& clientSett
 
     for (auto serverProtocolVersion : serverCspVersions)
     {
-        for (auto clientProtocolVersion : clientSettings.protocolVersions)
+        for (auto clientProtocolVersion : clientSettings.getProtocolVersions())
         {
             if (clientProtocolVersion < serverProtocolVersion)
                 break;
@@ -182,7 +182,7 @@ inline Status Client::init(const service_structs::CspPartySettings<>& clientSett
 
     if (tempServerProtocolVersion == traits::kProtocolVersionUndefined)
     {
-        CS_RUN(serverSettings.protocolVersions.init(std::move(serverCspVersions)));
+        CS_RUN(serverSettings.init(std::move(serverCspVersions), {}, {}, {}));
         return Status::ErrorNotSupportedProtocolVersion;
     }
 
@@ -253,7 +253,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
         return Status::ErrorNotSupportedInterface;
 
     BinVectorT binInput;
-    context::SData ctxIn(binInput, m_settings.protocolVersions[0], m_settings.mandatoryCommonFlags);
+    context::SData ctxIn(binInput, m_settings.getLatestProtocolVersion(), m_settings.getMandatoryCommonFlags());
 
     CS_RUN(processing::serializeCommonContext(ctxIn));
     CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
@@ -282,7 +282,7 @@ constexpr const service_structs::CspPartySettings<>& Client::getSettings() const
 
 constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const noexcept
 {
-    for (const auto& interface_ : m_settings.interfaces)
+    for (const auto& interface_ : m_settings.getInterfaces())
         if (id == interface_.id)
             return interface_.version;
 
@@ -323,7 +323,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     if (InputType::getOriginPrivateVersion() > interfaceVersionToUse || OutputType::getOriginPrivateVersion() > interfaceVersionToUse)
         return Status::ErrorNotSupportedInterfaceVersion;
 
-    if (additionalCommonFlags & m_settings.forbiddenCommonFlags)
+    if (additionalCommonFlags & m_settings.getForbiddenCommonFlags())
         return Status::ErrorNotCompatibleCommonFlagsSettings;
 
     if (additionalDataFlags & interface_.forbiddenDataFlags)
@@ -333,8 +333,8 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
     context::SData ctxIn(
           binInput
-        , m_settings.protocolVersions[0]
-        , m_settings.mandatoryCommonFlags | additionalCommonFlags
+        , m_settings.getLatestProtocolVersion()
+        , m_settings.getMandatoryCommonFlags() | additionalCommonFlags
         , InputType::getEffectiveMandatoryDataFlags() | additionalDataFlags
         , kForTempUseHeap
         , interfaceVersionToUse

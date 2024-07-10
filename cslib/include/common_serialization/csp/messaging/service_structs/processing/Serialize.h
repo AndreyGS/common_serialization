@@ -52,14 +52,16 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::CspP
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
-    CS_RUN(serialize(value.protocolVersions.data(), static_cast<protocol_version_t>(value.protocolVersions.size()), ctx));
+    // Here needs special handling to be compliant with CSP
 
-    CS_RUN(serialize(static_cast<uint32_t>(value.mandatoryCommonFlags), ctx));
-    CS_RUN(serialize(static_cast<uint32_t>(value.forbiddenCommonFlags), ctx));
+    CS_RUN(serialize(static_cast<protocol_version_t>(value.m_protocolVersions.size()), ctx));
+    CS_RUN(serialize(value.m_protocolVersions.data(), static_cast<protocol_version_t>(value.m_protocolVersions.size()), ctx));
 
-    CS_RUN(serialize(value.interfaces.size(), ctx));
-    CS_RUN(serialize(value.interfaces.data(), value.interfaces.size(), ctx));
+    CS_RUN(serialize(static_cast<uint32_t>(value.m_mandatoryCommonFlags), ctx));
+    CS_RUN(serialize(static_cast<uint32_t>(value.m_forbiddenCommonFlags), ctx));
+
+    CS_RUN(serialize(value.m_interfaces.size(), ctx));
+    CS_RUN(serialize(value.m_interfaces.data(), value.m_interfaces.size(), ctx));
 
     return Status::NoError;
 }

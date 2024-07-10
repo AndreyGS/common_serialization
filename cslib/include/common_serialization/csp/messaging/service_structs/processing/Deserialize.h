@@ -46,29 +46,30 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::serv
     return Status::NoError;
 }
 
-
 template<>
 constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::CspPartySettings<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
+    // Here needs special handling to be compliant with CSP
+
     protocol_version_t cspVersionsSize{ 0 };
     CS_RUN(deserialize(ctx, cspVersionsSize));
-    value.protocolVersions.setSize(cspVersionsSize);
-    CS_RUN(deserialize(ctx, cspVersionsSize, value.protocolVersions.data()));
+    value.m_protocolVersions.setSize(cspVersionsSize);
+    CS_RUN(deserialize(ctx, cspVersionsSize, value.m_protocolVersions.data()));
 
-    uint32_t mandatoryCommonFlags;
+    uint32_t mandatoryCommonFlags{ 0 };
     CS_RUN(deserialize(ctx, mandatoryCommonFlags));
-    value.mandatoryCommonFlags = mandatoryCommonFlags;
+    value.m_mandatoryCommonFlags = mandatoryCommonFlags;
 
-    uint32_t forbiddenCommonFlags;
+    uint32_t forbiddenCommonFlags{ 0 };;
     CS_RUN(deserialize(ctx, forbiddenCommonFlags));
-    value.forbiddenCommonFlags = forbiddenCommonFlags;
+    value.m_forbiddenCommonFlags = forbiddenCommonFlags;
 
     size_t interfacesSize{ 0 };
     CS_RUN(deserialize(ctx, interfacesSize));
-    value.interfaces.setSize(interfacesSize);
-    CS_RUN(deserialize(ctx, interfacesSize, value.interfaces.data()));
+    value.m_interfaces.setSize(interfacesSize);
+    CS_RUN(deserialize(ctx, interfacesSize, value.m_interfaces.data()));
 
     return Status::NoError;
 }

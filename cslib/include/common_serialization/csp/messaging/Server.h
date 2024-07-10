@@ -124,14 +124,14 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
     if (!isValid())
         return Status::ErrorNotInited;
 
-    context::DCommon ctx(binInput, m_settings.protocolVersions[m_settings.protocolVersions.size() - 1]);
+    context::DCommon ctx(binInput, m_settings.getOldestProtocolVersion());
 
     if (Status status = processing::deserializeCommonContext(ctx); !statusSuccess(status))
     {
         if (status == Status::ErrorNotSupportedProtocolVersion)
         {
             binOutput.clear();
-            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_settings.protocolVersions, m_settings.mandatoryCommonFlags);
+            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_settings.getProtocolVersions(), m_settings.getMandatoryCommonFlags());
         }
         else
             return status;
@@ -144,7 +144,7 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
 
     else if (ctx.getMessageType() == context::Message::Data)
     {
-        status = processing::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_settings.forbiddenCommonFlags, m_settings.mandatoryCommonFlags);
+        status = processing::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_settings.getForbiddenCommonFlags(), m_settings.getMandatoryCommonFlags());
         if (statusSuccess(status))
             status = handleData(ctx, clientId, binOutput);
     }
@@ -166,7 +166,7 @@ CS_ALWAYS_INLINE Status Server::handleGetSettings(protocol_version_t cspVersion,
 {
     binOutput.clear();
 
-    context::SData ctxOut(binOutput, cspVersion, m_settings.mandatoryCommonFlags, {}, true, cspVersion);
+    context::SData ctxOut(binOutput, cspVersion, m_settings.getMandatoryCommonFlags(), {}, true, cspVersion);
 
     return m_settings.serialize(ctxOut);
 }

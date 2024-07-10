@@ -21,7 +21,6 @@
  *
  */
 
-#include "Tests/csp/Helpers.h"
 #include "Tests/csp/messaging/Helpers.h"
 #include "Tests/csp/messaging/ClientSpeakerMock.h"
 
@@ -81,14 +80,13 @@ TEST_F(ClientTests, Init2)
     EXPECT_EQ(m_client.isValid(), false);
 
     // Try to pass valid settings to Client
-    clientSettings = getValidCspPartySettings();
-    clientSettings.forbiddenCommonFlags.addFlags(context::CommonFlags::kBigEndianFormat);
+    clientSettings = getForbiddenBigEndianCspPartySettings();
     
         // Test 1: Server is not supported CSP version used by Client
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
-            binOutput.init(getNotSupportedProtocolVersionsWithInvalidOutput());
+            binOutput.init(getBinNotSupportedProtocolVersionsWithInvalidOutput());
             return Status::NoError;
         }
     ));
@@ -101,13 +99,13 @@ TEST_F(ClientTests, Init2)
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
-            binOutput.init(getNotSupportedProtocolVersionsWithValidOutput());
+            binOutput.init(getBinNotSupportedProtocolVersionsWithValidOutput());
             return Status::NoError;
         }
                                 )).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
-            binOutput.init(getSettingsWithBigEndian());
+            binOutput.init(getBinSettingsWithMandatoryBigEndian());
             return Status::NoError;
         }
     ));
@@ -118,7 +116,7 @@ TEST_F(ClientTests, Init2)
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
-            binOutput.init(getNotSupportedProtocolVersionsWithValidOutput());
+            binOutput.init(getBinNotSupportedProtocolVersionsWithValidOutput());
             return Status::NoError;
         }
                                 )).WillOnce(Invoke(
@@ -149,7 +147,7 @@ TEST_F(ClientTests, GetServerProtocolVersions)
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
-            binOutput.init(getNotSupportedProtocolVersionsWithExtraOutput());
+            binOutput.init(getBinNotSupportedProtocolVersionsWithExtraOutput());
             return Status::NoError;
         }
     ));
@@ -161,13 +159,56 @@ TEST_F(ClientTests, GetServerProtocolVersions)
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
-            binOutput.init(getNotSupportedInterfaceVersionValid(ISerializableDummy::getId(), 1));
+            binOutput.init(getBinNotSupportedInterfaceVersionValid(ISerializableDummy::getId(), 1));
             return Status::NoError;
         }
     ));
 
     EXPECT_EQ(m_client.getServerProtocolVersions(protocolList), Status::ErrorDataCorrupted);
+}
 
+TEST_F(ClientTests, GetServerSettings)
+{
+    CspPartySettings outputSettings;
+    CspPartySettings serverSettings = getValidCspPartySettings();
+
+    // Test valid output from Server
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [&serverSettings](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            serverSettings.serialize(binOutput.getVector());
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerSettings(kValidProtocolVersion, outputSettings), Status::NoError);
+    EXPECT_EQ(outputSettings, serverSettings);
+
+    // Test error from speaker
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+
+            return Status::ErrorDataCorrupted;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerSettings(kValidProtocolVersion, outputSettings), Status::ErrorDataCorrupted);
+
+    // Test bad data from Server
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            binOutput.init(getBinNotSupportedInterfaceVersionValid(ISerializableDummy::getId(), 1));
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerSettings(kValidProtocolVersion, outputSettings), Status::ErrorMismatchOfStructId);
+}
+
+TEST_F(ClientTests, GetServerHandlerSettings)
+{
 
 }
 

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/csp/ISerializable.h"
+#include "common_serialization/csp/processing/DataBodyProcessor.h"
 
 namespace common_serialization::csp::messaging::service_structs
 {
@@ -106,8 +106,9 @@ public:
 
 /// @brief Settings of a CSP party
 template<typename T = Dummy>
-struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySettings<T>, T>>
+class CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySettings<T>, T>>
 {
+public:
     using instance_type = GetCrtpMainType<CspPartySettings<T>, T>;
 
     static constexpr Id kId{ 0xbf8c27e8, 0xfe6a, 0x4492, 0x91cb, 0xe4cf411e1236 };
@@ -115,28 +116,48 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
     static consteval const Interface& getInterface() noexcept { return properties; }
 
-    /// @brief List of all supported CSP versions begining in decreasing order
-    RawVectorT<protocol_version_t> protocolVersions;
+    CspPartySettings() = default;
 
-    /// @brief Mandatory Common Flags in interactions with party
-    context::CommonFlags mandatoryCommonFlags{ helpers::isBigEndianPlatform() };
-    /// @brief Forbidden Common Flags on party
-    context::CommonFlags forbiddenCommonFlags;
+    CspPartySettings(const CspPartySettings& rhs)
+    {
+        init(rhs);
+    }
 
-    /// @brief List of availible party interfaces and their settings
-    RawVectorT<InterfaceVersion<>> interfaces;
+    CspPartySettings& operator=(const CspPartySettings& rhs)
+    {
+        init(rhs);
+        return *this;
+    }
+
+    CspPartySettings(CspPartySettings&& rhs) noexcept
+    {
+        init(std::move(rhs));
+    }
+
+    CspPartySettings& operator=(CspPartySettings&& rhs) noexcept
+    {
+        init(std::move(rhs));
+        return *this;
+    }
+
+    CspPartySettings(
+          const RawVectorT<protocol_version_t>& protocolVersions
+        , context::CommonFlags mandatoryCommonFlags
+        , context::CommonFlags forbiddenCommonFlags
+        , const RawVectorT<InterfaceVersion<>>& interfaces)
+    {
+        init(protocolVersions, mandatoryCommonFlags, forbiddenCommonFlags, interfaces);
+    }
 
     Status init(const CspPartySettings& rhs) noexcept
     {
         if (this == &rhs)
             return Status::NoError;
 
-        clear();
-
-        CS_RUN(protocolVersions.init(rhs.protocolVersions));
-        mandatoryCommonFlags = rhs.mandatoryCommonFlags;
-        forbiddenCommonFlags = rhs.forbiddenCommonFlags;
-        CS_RUN(interfaces.init(rhs.interfaces));
+        CS_RUN(m_protocolVersions.init(rhs.m_protocolVersions));
+        m_mandatoryCommonFlags = rhs.m_mandatoryCommonFlags;
+        m_forbiddenCommonFlags = rhs.m_forbiddenCommonFlags;
+        CS_RUN(m_interfaces.init(rhs.m_interfaces));
 
         return Status::NoError;
     }
@@ -146,28 +167,24 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
         if (this == &rhs)
             return Status::NoError;
 
-        clear();
-
-        CS_RUN(protocolVersions.init(std::move(rhs.protocolVersions)));
-        mandatoryCommonFlags = rhs.mandatoryCommonFlags;
-        forbiddenCommonFlags = rhs.forbiddenCommonFlags;
-        CS_RUN(interfaces.init(std::move(rhs.interfaces)));
+        CS_RUN(m_protocolVersions.init(std::move(rhs.m_protocolVersions)));
+        m_mandatoryCommonFlags = rhs.m_mandatoryCommonFlags;
+        m_forbiddenCommonFlags = rhs.m_forbiddenCommonFlags;
+        CS_RUN(m_interfaces.init(std::move(rhs.m_interfaces)));
 
         return Status::NoError;
     }
 
     Status init(
-          const RawVectorT<protocol_version_t>& protocolVersions_
-        , context::CommonFlags mandatoryCommonFlags_
-        , context::CommonFlags forbiddenCommonFlags_
-        , const RawVectorT<InterfaceVersion<>>& interfaces_) noexcept
+          const RawVectorT<protocol_version_t>& protocolVersions
+        , context::CommonFlags mandatoryCommonFlags
+        , context::CommonFlags forbiddenCommonFlags
+        , const RawVectorT<InterfaceVersion<>>& interfaces)
     {
-        clear();
-
-        CS_RUN(protocolVersions.init(protocolVersions_));
-        mandatoryCommonFlags = mandatoryCommonFlags_;
-        forbiddenCommonFlags = forbiddenCommonFlags_;
-        CS_RUN(interfaces.init(interfaces_));
+        CS_RUN(m_protocolVersions.init(protocolVersions));
+        m_mandatoryCommonFlags = mandatoryCommonFlags;
+        m_forbiddenCommonFlags = forbiddenCommonFlags;
+        CS_RUN(m_interfaces.init(interfaces));
 
         return Status::NoError;
     }
@@ -177,39 +194,39 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
     constexpr bool isValid() const noexcept
     {
         return
-               protocolVersions.size() > 0
-            && !static_cast<bool>(mandatoryCommonFlags & forbiddenCommonFlags)
-            && interfaces.size() > 0;
+               m_protocolVersions.size() > 0
+            && !static_cast<bool>(m_mandatoryCommonFlags & m_forbiddenCommonFlags)
+            && m_interfaces.size() > 0;
     }
 
     Status getCompatibleSettings(const CspPartySettings<>& lhs, const CspPartySettings<>& rhs) noexcept
     {
-        for (auto lhsVersion : lhs.protocolVersions)
-            for (auto rhsVersion : rhs.protocolVersions)
+        for (auto lhsVersion : lhs.m_protocolVersions)
+            for (auto rhsVersion : rhs.m_protocolVersions)
                 if (lhsVersion == rhsVersion)
                 {
-                    CS_RUN(protocolVersions.pushBack(lhsVersion));
+                    CS_RUN(m_protocolVersions.pushBack(lhsVersion));
                     break;
                 }
 
-        if (protocolVersions.size() == 0)
+        if (m_protocolVersions.size() == 0)
             return Status::ErrorNotSupportedProtocolVersion;
 
-        mandatoryCommonFlags = lhs.mandatoryCommonFlags | rhs.mandatoryCommonFlags;
-        forbiddenCommonFlags = lhs.forbiddenCommonFlags | rhs.forbiddenCommonFlags;
+        m_mandatoryCommonFlags = lhs.m_mandatoryCommonFlags | rhs.m_mandatoryCommonFlags;
+        m_forbiddenCommonFlags = lhs.m_forbiddenCommonFlags | rhs.m_forbiddenCommonFlags;
 
-        if (mandatoryCommonFlags & forbiddenCommonFlags)
+        if (m_mandatoryCommonFlags & m_forbiddenCommonFlags)
             return Status::ErrorNotCompatibleCommonFlagsSettings;
 
-        for (const auto& lhsInterface : lhs.interfaces)
-            for (const auto& rhsInterface : rhs.interfaces)
+        for (const auto& lhsInterface : lhs.m_interfaces)
+            for (const auto& rhsInterface : rhs.m_interfaces)
                 if (lhsInterface.id == rhsInterface.id)
                 {
-                    CS_RUN(interfaces.pushBack({ lhsInterface.id, lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version }));
+                    CS_RUN(m_interfaces.pushBack({ lhsInterface.id, lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version }));
                     break;
                 }
 
-        if (interfaces.size() == 0)
+        if (m_interfaces.size() == 0)
             return Status::ErrorNoSupportedInterfaces;
 
         return Status::NoError;
@@ -217,11 +234,55 @@ struct CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySett
 
     void clear() noexcept
     {
-        protocolVersions.clear();
-        mandatoryCommonFlags = context::CommonFlags{};
-        forbiddenCommonFlags = context::CommonFlags{};
-        interfaces.clear();
+        m_protocolVersions.clear();
+        m_mandatoryCommonFlags = context::CommonFlags{};
+        m_forbiddenCommonFlags = context::CommonFlags{};
+        m_interfaces.clear();
     }
+
+    constexpr const RawVectorT<protocol_version_t>& getProtocolVersions() const
+    {
+        return m_protocolVersions;
+    }
+
+    constexpr protocol_version_t getLatestProtocolVersion() const
+    {
+        return m_protocolVersions.size() ? m_protocolVersions[0] : traits::kProtocolVersionUndefined;
+    }
+
+    constexpr protocol_version_t getOldestProtocolVersion() const
+    {
+        return m_protocolVersions.size() ? m_protocolVersions[m_protocolVersions.size() - 1] : traits::kProtocolVersionUndefined;
+    }
+
+    constexpr context::CommonFlags getMandatoryCommonFlags() const
+    {
+        return m_mandatoryCommonFlags;
+    }
+
+    constexpr context::CommonFlags getForbiddenCommonFlags() const
+    {
+        return m_forbiddenCommonFlags;
+    }
+
+    constexpr const RawVectorT<InterfaceVersion<>>& getInterfaces() const
+    {
+        return m_interfaces;
+    }
+
+private:
+    /// @brief List of all supported CSP versions in decreasing order
+    RawVectorT<protocol_version_t> m_protocolVersions;
+
+    /// @brief Mandatory Common Flags in interactions with party
+    context::CommonFlags m_mandatoryCommonFlags;
+    /// @brief Forbidden Common Flags on party
+    context::CommonFlags m_forbiddenCommonFlags;
+
+    /// @brief List of availible party interfaces and their settings
+    RawVectorT<InterfaceVersion<>> m_interfaces;
+
+    friend processing::data::BodyProcessor;
 };
 
 } // namespace common_serialization::csp::messaging::service_structs
