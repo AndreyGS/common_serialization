@@ -72,8 +72,11 @@ constexpr Status deserializeStatusErrorNotSupportedProtocolVersionBody(context::
     return Status::NoError;
 }
 
-constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(interface_version_t minimumInterfaceVersion, const Id& outputTypeId, context::SCommon& ctx)
+constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(protocol_version_t protocolVersion, context::CommonFlags commonFlags
+    , interface_version_t minimumInterfaceVersion, const Id& outputTypeId, BinVectorT& output)
 {
+    context::SCommon ctx(output, protocolVersion, context::Message::Status, commonFlags);
+
     CS_RUN(serializeStatusFullContext(ctx, Status::ErrorNotSupportedInterfaceVersion));
 
     CS_RUN(writePrimitive(minimumInterfaceVersion, ctx));

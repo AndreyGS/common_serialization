@@ -29,6 +29,7 @@ namespace
 using namespace common_serialization;
 using namespace common_serialization::csp;
 using namespace common_serialization::csp::context;
+using namespace common_serialization::csp::messaging;
 using namespace common_serialization::csp::messaging::service_structs;
 using namespace common_serialization::csp::traits;
 
@@ -146,8 +147,7 @@ BinVectorT getBinSettingsWithForbiddenBigEndian()
 BinVectorT getBinNotSupportedInterfaceVersionValid(const Id& id, interface_version_t minimumInterfaceVersion)
 {
     BinVectorT binOutput;
-    SCommon ctxOut(binOutput);
-    processing::serializeStatusErrorNotSupportedInterfaceVersion(minimumInterfaceVersion, id, ctxOut);
+    processing::serializeStatusErrorNotSupportedInterfaceVersion(getLatestProtocolVersion(), {}, minimumInterfaceVersion, id, binOutput);
 
     return binOutput;
 }

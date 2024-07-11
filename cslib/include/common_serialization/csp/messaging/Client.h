@@ -43,21 +43,50 @@ namespace common_serialization::csp::messaging
 class Client
 {
 public:
+    /// @brief Constructor 
+    /// @param clientSpeaker An instance of IClientSpeaker configured to interact with a specific CSP server
+    /// @note Initialization with valid settings is required after
     explicit Client(IClientSpeaker& clientSpeaker);
+
+    /// @brief Constructor with initialization
+    /// @param clientSpeaker An instance of IClientSpeaker configured to interact with a specific CSP server
+    /// @param settings Settings for future communication. Settings must be valid or initialization will fail.
+    /// @note Once valid settings are installed Client can't be reinited anymore
     Client(IClientSpeaker& clientSpeaker, const service_structs::CspPartySettings<>& settings);
 
+    /// @brief Init by settings supplied as argument
+    /// @param settings Settings for future communication. Settings must be valid or initialization will fail.
+    /// @return Status of operation
+    /// @note Once valid settings are installed Client can't be reinited anymore
     Status init(const service_structs::CspPartySettings<>& settings) noexcept;
+
+    /// @brief Init by clientSettings crossed with serverSettings received from CSP Server.
+    /// @param clientSettings Client settings.
+    /// @param serverSettings Received Server settings. Note that if Server CSP versions are not supported by Client it will only contains Servers CSP versions.
+    /// @return Status of operation
+    /// @note Once valid settings are installed Client can't be reinited anymore
     Status init(const service_structs::CspPartySettings<>& clientSettings, service_structs::CspPartySettings<>& serverSettings) noexcept;
 
+    /// @brief Is Client valid for operations with Server
+    /// @return True if valid, false otherwise
+    /// @note Client is valid as long as installed settings are valid.
+    ///     Once it becomes valid, settings cannot be changed and valid status too.
     bool isValid() const noexcept;
 
+    /// @brief Get IClientSpeaker reference associated with current instance
+    /// @return IClientSpeaker reference
     IClientSpeaker& getClientSpeaker() noexcept;
+    const IClientSpeaker& getClientSpeaker() const noexcept;
 
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
     /// @return Status of operation
     Status getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept;
 
+    /// @brief Get settings from CSP Server
+    /// @param serverCspVersion Version of CSP that will be used to interact with Server
+    /// @param serverSettings Received Server settings
+    /// @return Status of operation
     Status getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& serverSettings) const noexcept;
 
     /// @brief Get server handler minimum supported interface version and ID of its output type
@@ -67,6 +96,8 @@ public:
     template<ISerializableBased InputType>
     Status getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
 
+    /// @brief Get settings installed in current Client instance
+    /// @return Client settings
     constexpr const service_structs::CspPartySettings<>& getSettings() const noexcept;
 
     constexpr interface_version_t getInterfaceVersion(const Id& id) const noexcept;
@@ -204,6 +235,11 @@ CS_ALWAYS_INLINE IClientSpeaker& Client::getClientSpeaker() noexcept
     return m_clientSpeaker;
 }
 
+CS_ALWAYS_INLINE const IClientSpeaker& Client::getClientSpeaker() const noexcept
+{
+    return m_clientSpeaker;
+}
+
 inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept
 {
     BinVectorT binInput;
@@ -262,6 +298,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
 
     context::DCommon ctxOut(binOutput);
+    CS_RUN(processing::deserializeCommonContext(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::Status)
         return Status::ErrorDataCorrupted;
@@ -269,9 +306,11 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     Status statusOut = Status::NoError;
     CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
 
-    if (statusOut != Status::ErrorNotSupportedInterfaceVersion)
+    if (statusSuccess(statusOut))
         return Status::ErrorDataCorrupted;
-
+    else if (statusOut != Status::ErrorNotSupportedInterfaceVersion)
+        return statusOut;
+    
     return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 

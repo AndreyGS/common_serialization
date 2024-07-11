@@ -114,10 +114,8 @@ Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const Gener
     if (Status status = processing::deserializeDataContextPostprocessRest<InputType>(ctx, getMinimumInterfaceVersion()); !statusSuccess(status))
     {
         if (status == Status::ErrorNotSupportedInterfaceVersion)
-        {
-            context::SCommon ctxOut(binOutput, ctx.getProtocolVersion(), context::Message::Status, ctx.getCommonFlags());
-            CS_RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(getMinimumInterfaceVersion(), OutputType::getId(), ctxOut));
-        }
+            CS_RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(ctx.getProtocolVersion(), ctx.getCommonFlags()
+                , getMinimumInterfaceVersion(), OutputType::getId(), binOutput));
         
         return status;
     }

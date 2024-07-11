@@ -36,12 +36,6 @@ namespace
 
 using namespace ft_helpers;
 
-using namespace common_serialization;
-using namespace common_serialization::csp;
-using namespace common_serialization::csp::messaging;
-using namespace common_serialization::csp::messaging::service_structs;
-
-
 class ClientTests : public ::testing::Test
 {
 public:
@@ -94,7 +88,7 @@ TEST_F(ClientTests, Init2)
     EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::ErrorNotSupportedProtocolVersion);
     EXPECT_EQ(m_client.isValid(), false);
 
-        // Test 2: Server settings are not compatible with used by Client
+        // Test 2: Server settings are not compatible with Client one
 
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
@@ -209,6 +203,95 @@ TEST_F(ClientTests, GetServerSettings)
 
 TEST_F(ClientTests, GetServerHandlerSettings)
 {
+    interface_version_t minimumInterfaceVersion{ 0 };
+    Id outputTypeId;
+
+    // Client not inited yet test
+    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotInited);
+
+    m_client.init(getValidCspPartySettings());
+
+    // Try to get info about struct that is part of interface that isn't present in Client settings
+    EXPECT_EQ(m_client.getServerHandlerSettings<with_std_included_interface::OneBigType<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotSupportedInterface);
+
+    // Server return wrong message
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            getValidCspPartySettings().serialize(binOutput.getVector());
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorDataCorrupted);
+
+    // Server haven't handler for this struct (or return any other error except ErrorNotSupportedInterfaceVersion)
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            processing::serializeStatusFullContext(binOutput.getVector(), getLatestProtocolVersion(), {}, Status::ErrorNoSuchHandler);
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNoSuchHandler);
+    
+    // Server have handler and returns its attributes
+    constexpr interface_version_t expectedMinimumVersion{ 5 };
+    constexpr Id expectedOutputTypeId = interface_for_test::SpecialProcessingType<>::getId();
+
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [expectedMinimumVersion, &expectedOutputTypeId](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            processing::serializeStatusErrorNotSupportedInterfaceVersion(
+                  getLatestProtocolVersion()
+                , {}
+                , expectedMinimumVersion
+                , expectedOutputTypeId
+                , binOutput.getVector());
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::NoError);
+    EXPECT_EQ(minimumInterfaceVersion, expectedMinimumVersion);
+    EXPECT_EQ(outputTypeId, expectedOutputTypeId);
+}
+
+TEST_F(ClientTests, GetSettings)
+{
+    // Try with not initialized Client
+    EXPECT_EQ(m_client.getSettings(), CspPartySettings<>());
+
+    CspPartySettings settings = getValidCspPartySettings();
+
+    m_client.init(settings);
+
+    // After initialize
+    EXPECT_EQ(m_client.getSettings(), settings);
+}
+
+TEST_F(ClientTests, GetInterfaceVersion)
+{
+    // Try with not initialized Client
+    EXPECT_EQ(m_client.getInterfaceVersion(interface_for_test::properties.id), kInterfaceVersionUndefined);
+
+    CspPartySettings settings = getValidCspPartySettings();
+
+    m_client.init(settings);
+
+    // After initialize
+    EXPECT_EQ(m_client.getInterfaceVersion(interface_for_test::properties.id), interface_for_test::properties.version);
+}
+
+TEST_F(ClientTests, HandleData)
+{
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    fillingStruct(input);
+    interface_for_test::SimplyAssignableDescendant<> output;
+
+    // Try with not initialized Client
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::ErrorNotInited);
 
 }
 
