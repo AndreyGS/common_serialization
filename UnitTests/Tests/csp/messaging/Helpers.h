@@ -55,8 +55,8 @@ CspPartySettings<> getInvalidCspPartySettings()
     CspPartySettings settings = getValidCspPartySettings();
     settings.init(
           settings.getProtocolVersions()
-        , CommonFlags(CommonFlags::kBigEndianFormat)
-        , CommonFlags(CommonFlags::kBigEndianFormat)
+        , CommonFlags{ CommonFlags::kBigEndianFormat }
+        , CommonFlags{ CommonFlags::kBigEndianFormat }
         , settings.getInterfaces());
 
     return settings;
@@ -67,7 +67,7 @@ CspPartySettings<> getMandatoryBigEndianCspPartySettings()
     CspPartySettings settings = getValidCspPartySettings();
     settings.init(
           settings.getProtocolVersions()
-        , CommonFlags(CommonFlags::kBigEndianFormat)
+        , CommonFlags{ CommonFlags::kBigEndianFormat }
         , {}
         , settings.getInterfaces());
 
@@ -80,8 +80,19 @@ CspPartySettings<> getForbiddenBigEndianCspPartySettings()
     settings.init(
           settings.getProtocolVersions()
         , {}
-        , CommonFlags(CommonFlags::kBigEndianFormat)
+        , CommonFlags{ CommonFlags::kBigEndianFormat }
         , settings.getInterfaces());
+
+    return settings;
+}
+
+CspPartySettings<> getInterfaceVersionZeroCspPartySettings()
+{
+    RawVectorT<protocol_version_t> protocolVersions;
+    protocolVersions.pushBackN(traits::kProtocolVersions, traits::getProtocolVersionsCount());
+    RawVectorT<InterfaceVersion<>> interfaces;
+    interfaces.pushBack(InterfaceVersion{ interface_for_test::properties.id, 0 } );
+    CspPartySettings settings(protocolVersions, {}, {}, interfaces);
 
     return settings;
 }

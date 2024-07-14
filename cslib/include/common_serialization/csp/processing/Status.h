@@ -85,8 +85,7 @@ constexpr Status serializeStatusErrorNotSupportedInterfaceVersion(protocol_versi
     return Status::NoError;
 }
 
-constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(context::DCommon& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId
-)
+constexpr Status deserializeStatusErrorNotSupportedInterfaceVersionBody(context::DCommon& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId)
 {
     CS_RUN(readPrimitive(ctx, minimumInterfaceVersion));
     CS_RUN(readRawData(ctx, 1, &outputTypeId));

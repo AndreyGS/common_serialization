@@ -1713,7 +1713,10 @@ CSP Messaging
     Message server choose handler(s) to process it.
     
     Handler is the routine that receives struct that part of Interface
-    as input and returns another one as output to Client if need.
+    as input and returns another one as output to Client if need.  Both
+    structs must be from one CSP interface.  The only exception from
+    this rule is when output struct is instance of Dummy from CSP
+    Service structs interface.
     
     Handler types:
     
@@ -1745,9 +1748,9 @@ CSP Messaging
   
     There are two options:
     
-      1. Client applying some settings predefined settings (properties).
+      1. Client applies some predefined settings (properties).
         
-      2. Client requests settings from particular Server and applying
+      2. Client requests settings from particular Server and applies
         them with respect to settings appropriate for itself.
         
     Standard order of operations of second option:
@@ -1770,12 +1773,15 @@ CSP Messaging
       - Client choose compatible settings according to received one to
         talk with Server.
         
+  Initializing of Server instance
+  
+    Server applies some predefined settings.
+        
 CSP Service Structs Interface
 =============================
 
   It is the mandatory interface that must be implemented by every CSP
-  instance.  Because of this fact there is no need to send its
-  parameters in response of supported interfaces.
+  instance.  Its version is equal to protocol version.
   
   This interface using in Messaging process.
   

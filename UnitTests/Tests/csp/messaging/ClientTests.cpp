@@ -41,42 +41,38 @@ class ClientTests : public ::testing::Test
 public:
     ClientTests() : m_speaker(), m_client(m_speaker) {}
 
-    void init() {}
-
 protected:
     ClientSpeakerMock m_speaker;
     Client m_client;
     ISerializableDummy m_dummy;
 };
 
-TEST_F(ClientTests, Init1)
+TEST_F(ClientTests, Init1InvalidSettings)
 {
-    
-    // Try to pass invalid settings to Client
-    CspPartySettings settings = getInvalidCspPartySettings();
-    EXPECT_EQ(m_client.init(settings), Status::ErrorInvalidArgument);
+    EXPECT_EQ(m_client.init(getInvalidCspPartySettings()), Status::ErrorInvalidArgument);
     EXPECT_EQ(m_client.isValid(), false);
+}
 
-    // Try to pass valid settings to Client
-    settings = getValidCspPartySettings();
+TEST_F(ClientTests, Init1ValidSettings)
+{
+    CspPartySettings settings = getValidCspPartySettings();
     EXPECT_EQ(m_client.init(settings), Status::NoError);
+    EXPECT_EQ(m_client.isValid(), true);
 
     // Try to pass valid settings to inited Client
     EXPECT_EQ(m_client.init(settings), Status::ErrorAlreadyInited);
+    EXPECT_EQ(m_client.isValid(), true);
 }
 
-TEST_F(ClientTests, Init2)
+TEST_F(ClientTests, Init2InvalidSettings)
 {
-    // Try to pass invalid settings to Client
-    CspPartySettings clientSettings = getInvalidCspPartySettings();
     CspPartySettings serverSettings;
-    EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::ErrorInvalidArgument);
+    EXPECT_EQ(m_client.init(getInvalidCspPartySettings(), serverSettings), Status::ErrorInvalidArgument);
     EXPECT_EQ(m_client.isValid(), false);
+}
 
-    // Try to pass valid settings to Client
-    clientSettings = getForbiddenBigEndianCspPartySettings();
-    
-        // Test 1: Server is not supported CSP version used by Client
+TEST_F(ClientTests, Init2ServerNotSupportClientCspVersion)
+{
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
@@ -85,18 +81,20 @@ TEST_F(ClientTests, Init2)
         }
     ));
 
-    EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::ErrorNotSupportedProtocolVersion);
+    CspPartySettings serverSettings;
+    EXPECT_EQ(m_client.init(getValidCspPartySettings(), serverSettings), Status::ErrorNotSupportedProtocolVersion);
     EXPECT_EQ(m_client.isValid(), false);
+}
 
-        // Test 2: Server settings are not compatible with Client one
-
+TEST_F(ClientTests, Init2ServerCspSettingsAreNotCompatibleWithClientOne)
+{
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
             binOutput.init(getBinNotSupportedProtocolVersionsWithValidOutput());
             return Status::NoError;
         }
-                                )).WillOnce(Invoke(
+    )).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
             binOutput.init(getBinSettingsWithMandatoryBigEndian());
@@ -104,8 +102,14 @@ TEST_F(ClientTests, Init2)
         }
     ));
 
-    EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::ErrorNotCompatibleCommonFlagsSettings);
+    CspPartySettings serverSettings;
+    EXPECT_EQ(m_client.init(getForbiddenBigEndianCspPartySettings(), serverSettings), Status::ErrorNotCompatibleCommonFlagsSettings);
     EXPECT_EQ(m_client.isValid(), false);
+}
+
+TEST_F(ClientTests, Init2ServerCspSettingsAreCompatibleWithClientOne)
+{
+    CspPartySettings clientSettings = getValidCspPartySettings();
 
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
@@ -113,7 +117,7 @@ TEST_F(ClientTests, Init2)
             binOutput.init(getBinNotSupportedProtocolVersionsWithValidOutput());
             return Status::NoError;
         }
-                                )).WillOnce(Invoke(
+    )).WillOnce(Invoke(
         [&clientSettings](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
             clientSettings.serialize(binOutput.getVector());
@@ -121,6 +125,7 @@ TEST_F(ClientTests, Init2)
         }
     ));
 
+    CspPartySettings serverSettings;
     EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::NoError);
     EXPECT_EQ(m_client.isValid(), true);
 
@@ -133,23 +138,10 @@ TEST_F(ClientTests, GetClientSpeaker)
     EXPECT_EQ(&m_speaker, &m_client.getClientSpeaker());
 }
 
-TEST_F(ClientTests, GetServerProtocolVersions)
+TEST_F(ClientTests, GetServerProtocolVersionsInvalidServerOutput)
 {
     RawVectorT<protocol_version_t> protocolList;
 
-    // Test valid output from Server
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
-        {
-            binOutput.init(getBinNotSupportedProtocolVersionsWithExtraOutput());
-            return Status::NoError;
-        }
-    ));
-
-    EXPECT_EQ(m_client.getServerProtocolVersions(protocolList), Status::NoError);
-    EXPECT_EQ(protocolList, getExtendedProtocolVersionsList());
-
-    // Test invalid output from Server
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
@@ -161,24 +153,26 @@ TEST_F(ClientTests, GetServerProtocolVersions)
     EXPECT_EQ(m_client.getServerProtocolVersions(protocolList), Status::ErrorDataCorrupted);
 }
 
-TEST_F(ClientTests, GetServerSettings)
+TEST_F(ClientTests, GetServerProtocolVersionsValidServerOutput)
 {
-    CspPartySettings outputSettings;
-    CspPartySettings serverSettings = getValidCspPartySettings();
+    RawVectorT<protocol_version_t> protocolList;
 
-    // Test valid output from Server
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [&serverSettings](const BinVectorT& binInput, BinWalkerT& binOutput)
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
-            serverSettings.serialize(binOutput.getVector());
+            binOutput.init(getBinNotSupportedProtocolVersionsWithExtraOutput());
             return Status::NoError;
         }
     ));
 
-    EXPECT_EQ(m_client.getServerSettings(kValidProtocolVersion, outputSettings), Status::NoError);
-    EXPECT_EQ(outputSettings, serverSettings);
+    EXPECT_EQ(m_client.getServerProtocolVersions(protocolList), Status::NoError);
+    EXPECT_EQ(protocolList, getExtendedProtocolVersionsList());
+}
 
-    // Test error from speaker
+TEST_F(ClientTests, GetServerSettingsErrorFromSpeaker)
+{
+    CspPartySettings outputSettings;
+
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
@@ -188,8 +182,12 @@ TEST_F(ClientTests, GetServerSettings)
     ));
 
     EXPECT_EQ(m_client.getServerSettings(kValidProtocolVersion, outputSettings), Status::ErrorDataCorrupted);
+}
 
-    // Test bad data from Server
+TEST_F(ClientTests, GetServerSettingsBadDataFromServer)
+{
+    CspPartySettings outputSettings;
+
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
@@ -201,20 +199,67 @@ TEST_F(ClientTests, GetServerSettings)
     EXPECT_EQ(m_client.getServerSettings(kValidProtocolVersion, outputSettings), Status::ErrorMismatchOfStructId);
 }
 
-TEST_F(ClientTests, GetServerHandlerSettings)
+TEST_F(ClientTests, GetServerSettingsValidServerOutput)
+{
+    CspPartySettings outputSettings;
+    CspPartySettings serverSettings = getValidCspPartySettings();
+
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [&serverSettings](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+            serverSettings.serialize(binOutput.getVector());
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerSettings(kValidProtocolVersion, outputSettings), Status::NoError);
+    EXPECT_EQ(outputSettings, serverSettings);
+}
+
+TEST_F(ClientTests, GetServerHandlerSettingsClientNotInited)
 {
     interface_version_t minimumInterfaceVersion{ 0 };
     Id outputTypeId;
 
-    // Client not inited yet test
     EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotInited);
+}
 
+// Try to get info about struct that is part of interface that isn't present in Client settings
+TEST_F(ClientTests, GetServerHandlerSettingsInterfaceNotSupported)
+{
     m_client.init(getValidCspPartySettings());
 
-    // Try to get info about struct that is part of interface that isn't present in Client settings
-    EXPECT_EQ(m_client.getServerHandlerSettings<with_std_included_interface::OneBigType<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotSupportedInterface);
+    interface_version_t minimumInterfaceVersion{ 0 };
+    Id outputTypeId;
 
-    // Server return wrong message
+    EXPECT_EQ(m_client.getServerHandlerSettings<with_std_included_interface::OneBigType<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotSupportedInterface);
+}
+
+TEST_F(ClientTests, GetServerHandlerSettingsErrorFromSpeaker)
+{
+    m_client.init(getValidCspPartySettings());
+
+    interface_version_t minimumInterfaceVersion{ 0 };
+    Id outputTypeId;
+
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+
+            return Status::ErrorDataCorrupted;
+        }
+    ));
+
+    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorDataCorrupted);
+}
+
+TEST_F(ClientTests, GetServerHandlerSettingsWrongMessageTypeFromServer)
+{
+    m_client.init(getValidCspPartySettings());
+
+    interface_version_t minimumInterfaceVersion{ 0 };
+    Id outputTypeId;
+
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
@@ -223,9 +268,17 @@ TEST_F(ClientTests, GetServerHandlerSettings)
         }
     ));
 
-    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorDataCorrupted);
+    EXPECT_EQ((m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId)), Status::ErrorDataCorrupted);
+}
 
-    // Server haven't handler for this struct (or return any other error except ErrorNotSupportedInterfaceVersion)
+// Server haven't handler for this struct (or return any other error except ErrorNotSupportedInterfaceVersion)
+TEST_F(ClientTests, GetServerHandlerSettingsServerDoesNotHaveHandlerForThisStruct)
+{
+    m_client.init(getValidCspPartySettings());
+
+    interface_version_t minimumInterfaceVersion{ 0 };
+    Id outputTypeId;
+
     EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
         [](const BinVectorT& binInput, BinWalkerT& binOutput)
         {
@@ -235,8 +288,15 @@ TEST_F(ClientTests, GetServerHandlerSettings)
     ));
 
     EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNoSuchHandler);
+}
+
+TEST_F(ClientTests, GetServerHandlerSettingsValidReturnFromServer)
+{
+    m_client.init(getValidCspPartySettings());
     
-    // Server have handler and returns its attributes
+    interface_version_t minimumInterfaceVersion{ 0 };
+    Id outputTypeId;
+
     constexpr interface_version_t expectedMinimumVersion{ 5 };
     constexpr Id expectedOutputTypeId = interface_for_test::SpecialProcessingType<>::getId();
 
@@ -258,41 +318,98 @@ TEST_F(ClientTests, GetServerHandlerSettings)
     EXPECT_EQ(outputTypeId, expectedOutputTypeId);
 }
 
-TEST_F(ClientTests, GetSettings)
+TEST_F(ClientTests, GetSettingsClientNotInited)
 {
-    // Try with not initialized Client
     EXPECT_EQ(m_client.getSettings(), CspPartySettings<>());
+}
 
+TEST_F(ClientTests, GetSettingsClientInited)
+{
     CspPartySettings settings = getValidCspPartySettings();
-
     m_client.init(settings);
-
-    // After initialize
     EXPECT_EQ(m_client.getSettings(), settings);
 }
 
-TEST_F(ClientTests, GetInterfaceVersion)
+TEST_F(ClientTests, GetInterfaceClientNotInited)
 {
-    // Try with not initialized Client
     EXPECT_EQ(m_client.getInterfaceVersion(interface_for_test::properties.id), kInterfaceVersionUndefined);
+}
 
-    CspPartySettings settings = getValidCspPartySettings();
-
-    m_client.init(settings);
-
-    // After initialize
+TEST_F(ClientTests, GetInterfaceClientInited)
+{
+    m_client.init(getValidCspPartySettings());
     EXPECT_EQ(m_client.getInterfaceVersion(interface_for_test::properties.id), interface_for_test::properties.version);
 }
 
-TEST_F(ClientTests, HandleData)
+TEST_F(ClientTests, HandleDataClientNotInited)
 {
     interface_for_test::SimplyAssignableAlignedToOne<> input;
-    fillingStruct(input);
     interface_for_test::SimplyAssignableDescendant<> output;
 
-    // Try with not initialized Client
     EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::ErrorNotInited);
+}
 
+TEST_F(ClientTests, HandleDataClientNotSupportInterfaceVersionStruct)
+{
+    m_client.init(getValidCspPartySettings());
+
+    with_std_included_interface::OneBigType<> input;
+    service_structs::ISerializableDummy output;
+
+    EXPECT_EQ((m_client.handleData<CdhHeap<with_std_included_interface::OneBigType<>, service_structs::ISerializableDummy>>(input, output)), Status::ErrorNotSupportedInterface);
+}
+
+// Try with not supported interface version (too small for Input or Output type - smaller than its origin version)
+TEST_F(ClientTests, HandleDataAnyStructHasInterfaceVersionHigherThanSettedUpForClient)
+{
+    m_client.init(getInterfaceVersionZeroCspPartySettings());
+
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    interface_for_test::SimplyAssignableDescendant<> output;
+    interface_for_test::SimplyAssignableFixedSize<> unsupportedVersionStruct;
+
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableFixedSize<>, interface_for_test::SimplyAssignableDescendant<>>>(unsupportedVersionStruct, output)), Status::ErrorNotSupportedInterfaceVersion);
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableFixedSize<>>>(input, unsupportedVersionStruct)), Status::ErrorNotSupportedInterfaceVersion);
+}
+
+TEST_F(ClientTests, HandleDataNotCompatibleAdditionalCommonFlags)
+{
+    m_client.init(getForbiddenBigEndianCspPartySettings());
+
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    interface_for_test::SimplyAssignableDescendant<> output;
+
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+        input, output, CommonFlags{ CommonFlags::kBigEndianFormat }, {}, nullptr)), Status::ErrorNotCompatibleCommonFlagsSettings);
+}
+
+TEST_F(ClientTests, HandleDataUnmanagedPointersContainerNotSuppliedWhenNeed)
+{
+    m_client.init(getValidCspPartySettings());
+
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    interface_for_test::SimplyAssignableDescendant<> output;
+
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+        input, output, DataFlags{ DataFlags::kAllowUnmanagedPointers })), Status::ErrorInvalidArgument);
+}
+
+TEST_F(ClientTests, HandleDataErrorFromSpeaker)
+{
+    m_client.init(getValidCspPartySettings());
+
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    interface_for_test::SimplyAssignableDescendant<> output;
+
+    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
+        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        {
+
+            return Status::ErrorDataCorrupted;
+        }
+    ));
+
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::ErrorDataCorrupted);
 }
 
 } // namespace

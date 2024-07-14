@@ -349,24 +349,22 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     using OutputType = typename _Cht::OutputType;
     constexpr bool kForTempUseHeap = _Cht::kForTempUseHeap;
 
+    static_assert(std::is_same_v<OutputType, service_structs::ISerializableDummy> || InputType::getInterface() == OutputType::getInterface(),
+        "Input type and output type must have the same interface!");
+
     if (!isValid())
         return Status::ErrorNotInited;
 
     const Interface& interface_ = InputType::getInterface();
+    interface_version_t targetInterfaceVersion = getInterfaceVersion(interface_.id);
 
-    interface_version_t interfaceVersionToUse = getInterfaceVersion(interface_.id);
-
-    if (interfaceVersionToUse == traits::kInterfaceVersionUndefined)
+    if (targetInterfaceVersion == traits::kInterfaceVersionUndefined)
         return Status::ErrorNotSupportedInterface;
-
-    if (InputType::getOriginPrivateVersion() > interfaceVersionToUse || OutputType::getOriginPrivateVersion() > interfaceVersionToUse)
+    else if (InputType::getOriginPrivateVersion() > targetInterfaceVersion || OutputType::getOriginPrivateVersion() > targetInterfaceVersion)
         return Status::ErrorNotSupportedInterfaceVersion;
 
     if (additionalCommonFlags & m_settings.getForbiddenCommonFlags())
         return Status::ErrorNotCompatibleCommonFlagsSettings;
-
-    if (additionalDataFlags & interface_.forbiddenDataFlags)
-        return Status::ErrorNotCompatibleDataFlagsSettings;
 
     BinVectorT binInput;
 
@@ -376,7 +374,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         , m_settings.getMandatoryCommonFlags() | additionalCommonFlags
         , InputType::getEffectiveMandatoryDataFlags() | additionalDataFlags
         , kForTempUseHeap
-        , interfaceVersionToUse
+        , targetInterfaceVersion
         , nullptr);
 
     context::SPointersMap pointersMapIn;
@@ -386,7 +384,6 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     CS_RUN(processing::serializeCommonContext(ctxIn));
     CS_RUN(processing::serializeDataContext<InputType>(ctxIn));
 
-    // Flags may be changed after processing::serializeInOutDataContext
     if (ctxIn.allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
         return Status::ErrorInvalidArgument;
 
