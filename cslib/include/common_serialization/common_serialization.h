@@ -56,6 +56,7 @@
 #include "common_serialization/AllocatorHelpers/allocatorHelpers.h"
 #include "common_serialization/Concurrency/concurrency.h"
 #include "common_serialization/Containers/containers.h"
+#include "common_serialization/Interfaces/interfaces.h"
 #include "common_serialization/csp/csp.h"
 
 #include "common_serialization/NotCspInterfaceProcessing/Templates/Serialize.h"

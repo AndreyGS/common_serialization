@@ -29,11 +29,11 @@ namespace common_serialization::csp::messaging
 /// @brief Base of common interface of CSP data handlers
 class IServerDataHandlerBase
 {
-public:
-    virtual Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) = 0;
-
 protected:
     virtual ~IServerDataHandlerBase() = default;
+
+public:
+    virtual Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) = 0;
 };
 
 } // namespace common_serialization::csp::messaging

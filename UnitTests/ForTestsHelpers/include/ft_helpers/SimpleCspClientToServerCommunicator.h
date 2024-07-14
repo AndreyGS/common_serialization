@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/Tests/csp/messaging/ClientSpeakerMock.h
+ * @file UnitTests/ForTestsHelpers/include/ft_helpers/SimpleCspClientToServerCommunicator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,36 @@
 
 #pragma once
 
-namespace
+namespace ft_helpers
 {
 
-using namespace common_serialization;
+namespace cs = common_serialization;
 
-class ClientSpeakerMock : public csp::messaging::IClientSpeaker
+class SimpleCspClientToServerCommunicator : public cs::csp::messaging::IClientToServerCommunicator
 {
 public:
-    MOCK_METHOD(Status, speak, (const BinVectorT& binInput, BinWalkerT& binOutput), (override));
+    SimpleCspClientToServerCommunicator(cs::csp::messaging::Server& server) : m_server(server) {}
+
+    void setValidState(bool isValid)
+    {
+        m_isValid = isValid;
+    }
+
+private:
+    // This function must transfer data from client to server.
+    // Way by which it will be done is up to concrete client realization.
+    // Here we do not need to overcomplicate things and we simply calling csp::messaging::Server::handleMessage.
+    cs::Status process(const cs::BinVectorT& input, cs::BinVectorT& output) override
+    {
+        cs::BinWalkerT inputW;
+        inputW.init(input);
+
+        return m_server.handleMessage(inputW, cs::GenericPointerKeeper{}, output);
+    }
+
+    cs::csp::messaging::Server& m_server;
+    bool m_isValid{ true };
 };
 
-} // namespace
+} // namespace ft_helpers
+

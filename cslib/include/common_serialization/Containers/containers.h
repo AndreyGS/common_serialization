@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Containers/main.h
+ * @file cslib/include/common_serialization/Containers/containers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

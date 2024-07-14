@@ -65,9 +65,7 @@ public:
 protected:
     IServerDataHandler() = default;
     IServerDataHandler(const IServerDataHandler&) = delete;
-    IServerDataHandler(IServerDataHandler&&) = delete;
     IServerDataHandler& operator=(const IServerDataHandler&) = delete;
-    IServerDataHandler& operator=(IServerDataHandler&&) = delete;
 
 private:
     Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) override;

@@ -22,7 +22,7 @@
  */
 
 #include <thread>
-#include "Tests/csp/messaging/ClientSpeakerMock.h"
+#include "Tests/csp/messaging/ClientToServerCommunicatorMock.h"
 #include "Tests/csp/messaging/Helpers.h"
 
 using ::testing::_;
@@ -47,7 +47,7 @@ class MessagingTests : public ::testing::Test
 protected:
     csp::messaging::Server m_server;
     csp::messaging::Client m_client;
-    std::unique_ptr<ClientSpeakerMock> m_clientSpeaker;
+    std::unique_ptr<ClientToServerCommunicatorMock> m_communicator;
 };
 
 
@@ -75,7 +75,7 @@ TEST(MessagingTests, DataMessageHandling)
     FirstCspService* pFirstCspService = new FirstCspService;
     pFirstCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
 
-    SimpleSpeaker simpleSpeaker{ commonServer };
+    SimpleCspClientToServerCommunicator simpleSpeaker{ commonServer };
     Client dataClient(simpleSpeaker);
 
     RawVectorT<protocol_version_t> clientProtocolVersions;

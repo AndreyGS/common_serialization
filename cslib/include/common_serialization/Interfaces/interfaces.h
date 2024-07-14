@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IClientSpeaker.h
+ * @file cslib/include/common_serialization/Interfaces/interfaces.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,21 +23,4 @@
 
 #pragma once
 
-namespace common_serialization::csp::messaging
-{
-
-/// @brief Interface for CSP Client to speak with CSP Server
-class IClientSpeaker
-{
-public:
-    /// @brief Method for sending to and receiving from server binary data
-    /// @details This method must not make assumptions on what binary input and ouput data is.
-    ///     It must be implemented as transport function from client to server and vice versa.
-    ///     For example, it may be function that sends and receives data to and from socket.
-    /// @param binInput Data that is prepared by handleData method
-    /// @param binOutput Data that should be returned for processing by handleData method
-    /// @return Status of operation
-    virtual Status speak(const BinVectorT& binInput, BinWalkerT& binOutput) = 0;
-};
-
-} // namespace common_serialization::csp::messaging
+#include "common_serialization/Interfaces/IIoProcessor.h"

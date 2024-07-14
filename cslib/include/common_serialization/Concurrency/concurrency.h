@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Concurrency/main.h
+ * @file cslib/include/common_serialization/Concurrency/concurrency.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

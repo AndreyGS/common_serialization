@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/main.h
+ * @file cslib/include/common_serialization/csp/csp.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -35,7 +35,6 @@
 #include "common_serialization/csp/messaging/Client.h"
 #include "common_serialization/csp/messaging/IClientDataHandlerTraits.h"
 #include "common_serialization/csp/messaging/GenericServerDataHandlerRegistrar.h"
-#include "common_serialization/csp/messaging/IClientSpeaker.h"
 #include "common_serialization/csp/messaging/IServerDataHandler.h"
 #include "common_serialization/csp/messaging/IServerDataHandlerBase.h"
 #include "common_serialization/csp/messaging/IServerDataHandlerRegistrar.h"

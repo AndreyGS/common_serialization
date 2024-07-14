@@ -33,5 +33,5 @@
 
 #include "ft_helpers/FillingStruct.h"
 #include "ft_helpers/CleanAfterStruct.h"
-#include "ft_helpers/SimpleCspClientSpeaker.h"
+#include "ft_helpers/SimpleCspClientToServerCommunicator.h"
 #include "ft_helpers/SimpleCspServices.h"

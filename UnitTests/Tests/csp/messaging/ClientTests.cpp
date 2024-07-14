@@ -22,7 +22,7 @@
  */
 
 #include "Tests/csp/messaging/Helpers.h"
-#include "Tests/csp/messaging/ClientSpeakerMock.h"
+#include "Tests/csp/messaging/ClientToServerCommunicatorMock.h"
 
 using ::testing::_;
 using ::testing::SetArgReferee;
@@ -39,10 +39,10 @@ using namespace ft_helpers;
 class ClientTests : public ::testing::Test
 {
 public:
-    ClientTests() : m_speaker(), m_client(m_speaker) {}
+    ClientTests() : m_communicator(), m_client(m_communicator) {}
 
 protected:
-    ClientSpeakerMock m_speaker;
+    ClientToServerCommunicatorMock m_communicator;
     Client m_client;
     ISerializableDummy m_dummy;
 };
@@ -73,10 +73,10 @@ TEST_F(ClientTests, Init2InvalidSettings)
 
 TEST_F(ClientTests, Init2ServerNotSupportClientCspVersion)
 {
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
-            binOutput.init(getBinNotSupportedProtocolVersionsWithInvalidOutput());
+            output.init(getBinNotSupportedProtocolVersionsWithInvalidOutput());
             return Status::NoError;
         }
     ));
@@ -88,16 +88,16 @@ TEST_F(ClientTests, Init2ServerNotSupportClientCspVersion)
 
 TEST_F(ClientTests, Init2ServerCspSettingsAreNotCompatibleWithClientOne)
 {
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
-            binOutput.init(getBinNotSupportedProtocolVersionsWithValidOutput());
+            output.init(getBinNotSupportedProtocolVersionsWithValidOutput());
             return Status::NoError;
         }
     )).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+        [](const BinVectorT& input, BinVectorT& output)
         {
-            binOutput.init(getBinSettingsWithMandatoryBigEndian());
+            output.init(getBinSettingsWithMandatoryBigEndian());
             return Status::NoError;
         }
     ));
@@ -111,16 +111,16 @@ TEST_F(ClientTests, Init2ServerCspSettingsAreCompatibleWithClientOne)
 {
     CspPartySettings clientSettings = getValidCspPartySettings();
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
-            binOutput.init(getBinNotSupportedProtocolVersionsWithValidOutput());
+            output.init(getBinNotSupportedProtocolVersionsWithValidOutput());
             return Status::NoError;
         }
     )).WillOnce(Invoke(
-        [&clientSettings](const BinVectorT& binInput, BinWalkerT& binOutput)
+        [&clientSettings](const BinVectorT& input, BinVectorT& output)
         {
-            clientSettings.serialize(binOutput.getVector());
+            clientSettings.serialize(output);
             return Status::NoError;
         }
     ));
@@ -133,19 +133,19 @@ TEST_F(ClientTests, Init2ServerCspSettingsAreCompatibleWithClientOne)
     EXPECT_EQ(m_client.init(clientSettings, serverSettings), Status::ErrorAlreadyInited);
 }
 
-TEST_F(ClientTests, GetClientSpeaker)
+TEST_F(ClientTests, GetCommunicator)
 {
-    EXPECT_EQ(&m_speaker, &m_client.getClientSpeaker());
+    EXPECT_EQ(&m_communicator, &m_client.getCommunicator());
 }
 
 TEST_F(ClientTests, GetServerProtocolVersionsInvalidServerOutput)
 {
     RawVectorT<protocol_version_t> protocolList;
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
-            binOutput.init(getBinNotSupportedInterfaceVersionValid(ISerializableDummy::getId(), 1));
+            output.init(getBinNotSupportedInterfaceVersionValid(ISerializableDummy::getId(), 1));
             return Status::NoError;
         }
     ));
@@ -157,10 +157,10 @@ TEST_F(ClientTests, GetServerProtocolVersionsValidServerOutput)
 {
     RawVectorT<protocol_version_t> protocolList;
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
-            binOutput.init(getBinNotSupportedProtocolVersionsWithExtraOutput());
+            output.init(getBinNotSupportedProtocolVersionsWithExtraOutput());
             return Status::NoError;
         }
     ));
@@ -173,8 +173,8 @@ TEST_F(ClientTests, GetServerSettingsErrorFromSpeaker)
 {
     CspPartySettings outputSettings;
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
 
             return Status::ErrorDataCorrupted;
@@ -188,10 +188,10 @@ TEST_F(ClientTests, GetServerSettingsBadDataFromServer)
 {
     CspPartySettings outputSettings;
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
-            binOutput.init(getBinNotSupportedInterfaceVersionValid(ISerializableDummy::getId(), 1));
+            output.init(getBinNotSupportedInterfaceVersionValid(ISerializableDummy::getId(), 1));
             return Status::NoError;
         }
     ));
@@ -204,10 +204,10 @@ TEST_F(ClientTests, GetServerSettingsValidServerOutput)
     CspPartySettings outputSettings;
     CspPartySettings serverSettings = getValidCspPartySettings();
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [&serverSettings](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [&serverSettings](const BinVectorT& input, BinVectorT& output)
         {
-            serverSettings.serialize(binOutput.getVector());
+            serverSettings.serialize(output);
             return Status::NoError;
         }
     ));
@@ -242,8 +242,8 @@ TEST_F(ClientTests, GetServerHandlerSettingsErrorFromSpeaker)
     interface_version_t minimumInterfaceVersion{ 0 };
     Id outputTypeId;
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
 
             return Status::ErrorDataCorrupted;
@@ -260,10 +260,10 @@ TEST_F(ClientTests, GetServerHandlerSettingsWrongMessageTypeFromServer)
     interface_version_t minimumInterfaceVersion{ 0 };
     Id outputTypeId;
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
-            getValidCspPartySettings().serialize(binOutput.getVector());
+            getValidCspPartySettings().serialize(output);
             return Status::NoError;
         }
     ));
@@ -279,10 +279,10 @@ TEST_F(ClientTests, GetServerHandlerSettingsServerDoesNotHaveHandlerForThisStruc
     interface_version_t minimumInterfaceVersion{ 0 };
     Id outputTypeId;
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
-            processing::serializeStatusFullContext(binOutput.getVector(), getLatestProtocolVersion(), {}, Status::ErrorNoSuchHandler);
+            processing::serializeStatusFullContext(output, getLatestProtocolVersion(), {}, Status::ErrorNoSuchHandler);
             return Status::NoError;
         }
     ));
@@ -300,15 +300,15 @@ TEST_F(ClientTests, GetServerHandlerSettingsValidReturnFromServer)
     constexpr interface_version_t expectedMinimumVersion{ 5 };
     constexpr Id expectedOutputTypeId = interface_for_test::SpecialProcessingType<>::getId();
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [expectedMinimumVersion, &expectedOutputTypeId](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [expectedMinimumVersion, &expectedOutputTypeId](const BinVectorT& input, BinVectorT& output)
         {
             processing::serializeStatusErrorNotSupportedInterfaceVersion(
                   getLatestProtocolVersion()
                 , {}
                 , expectedMinimumVersion
                 , expectedOutputTypeId
-                , binOutput.getVector());
+                , output);
             return Status::NoError;
         }
     ));
@@ -401,8 +401,8 @@ TEST_F(ClientTests, HandleDataErrorFromSpeaker)
     interface_for_test::SimplyAssignableAlignedToOne<> input;
     interface_for_test::SimplyAssignableDescendant<> output;
 
-    EXPECT_CALL(m_speaker, speak).WillOnce(Invoke(
-        [](const BinVectorT& binInput, BinWalkerT& binOutput)
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
         {
 
             return Status::ErrorDataCorrupted;

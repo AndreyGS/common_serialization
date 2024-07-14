@@ -25,7 +25,6 @@
 
 #include "common_serialization/csp/Concepts.h"
 #include "common_serialization/csp/messaging/IClientDataHandlerTraits.h"
-#include "common_serialization/csp/messaging/IClientSpeaker.h"
 #include "common_serialization/csp/messaging/service_structs/Interface.h"
 #include "common_serialization/csp/processing/Contexts.h"
 #include "common_serialization/csp/processing/DataBodyProcessor.h"
@@ -35,24 +34,26 @@
 namespace common_serialization::csp::messaging
 {
 
+using IClientToServerCommunicator = IIoProcessor<BinVectorT, BinVectorT>;
+
 /// @brief Common CSP Client
 /// @details See documentation of CSP
-/// @note IClientSpeaker must be valid all the time when Client is used
+/// @note IClientToServerCommunicator must be valid all the time when Client is used
 ///     and behavior will be undefined otherwise.
-///     Thread-safe after initialization as long as IClientSpeaker is thread-safe.
+///     Thread-safe after initialization as long as IClientToServerCommunicator is thread-safe.
 class Client
 {
 public:
     /// @brief Constructor 
-    /// @param clientSpeaker An instance of IClientSpeaker configured to interact with a specific CSP server
+    /// @param communicator An instance of IClientToServerCommunicator configured to interact with a specific CSP server
     /// @note Initialization with valid settings is required after
-    explicit Client(IClientSpeaker& clientSpeaker);
+    explicit Client(IClientToServerCommunicator& communicator);
 
     /// @brief Constructor with initialization
-    /// @param clientSpeaker An instance of IClientSpeaker configured to interact with a specific CSP server
+    /// @param communicator An instance of IClientToServerCommunicator configured to interact with a specific CSP server
     /// @param settings Settings for future communication. Settings must be valid or initialization will fail.
     /// @note Once valid settings are installed Client can't be reinited anymore
-    Client(IClientSpeaker& clientSpeaker, const service_structs::CspPartySettings<>& settings);
+    Client(IClientToServerCommunicator& communicator, const service_structs::CspPartySettings<>& settings);
 
     /// @brief Init by settings supplied as argument
     /// @param settings Settings for future communication. Settings must be valid or initialization will fail.
@@ -73,10 +74,10 @@ public:
     ///     Once it becomes valid, settings cannot be changed and valid status too.
     bool isValid() const noexcept;
 
-    /// @brief Get IClientSpeaker reference associated with current instance
-    /// @return IClientSpeaker reference
-    IClientSpeaker& getClientSpeaker() noexcept;
-    const IClientSpeaker& getClientSpeaker() const noexcept;
+    /// @brief Get IClientToServerCommunicator reference associated with current instance
+    /// @return IClientToServerCommunicator reference
+    IClientToServerCommunicator& getCommunicator() noexcept;
+    const IClientToServerCommunicator& getCommunicator() const noexcept;
 
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
@@ -147,17 +148,17 @@ public:
 
 private:
     service_structs::CspPartySettings<> m_settings;
-    IClientSpeaker& m_clientSpeaker;
+    IClientToServerCommunicator& m_communicator;
     bool m_isValid{ false };
 };
 
-inline Client::Client(IClientSpeaker& clientSpeaker)
-    : m_clientSpeaker(clientSpeaker)
+inline Client::Client(IClientToServerCommunicator& communicator)
+    : m_communicator(communicator)
 {
 }
 
-inline Client::Client(IClientSpeaker& clientSpeaker, const service_structs::CspPartySettings<>& settings)
-    : m_clientSpeaker(clientSpeaker)
+inline Client::Client(IClientToServerCommunicator& communicator, const service_structs::CspPartySettings<>& settings)
+    : m_communicator(communicator)
 {
     init(settings);
 }
@@ -230,14 +231,14 @@ CS_ALWAYS_INLINE bool Client::isValid() const noexcept
     return m_isValid;
 }
 
-CS_ALWAYS_INLINE IClientSpeaker& Client::getClientSpeaker() noexcept
+CS_ALWAYS_INLINE IClientToServerCommunicator& Client::getCommunicator() noexcept
 {
-    return m_clientSpeaker;
+    return m_communicator;
 }
 
-CS_ALWAYS_INLINE const IClientSpeaker& Client::getClientSpeaker() const noexcept
+CS_ALWAYS_INLINE const IClientToServerCommunicator& Client::getCommunicator() const noexcept
 {
-    return m_clientSpeaker;
+    return m_communicator;
 }
 
 inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept
@@ -247,7 +248,7 @@ inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& 
     CS_RUN(processing::serializeCommonContextNoChecks(ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
+    CS_RUN(m_communicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOut(binOutput);
     CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
@@ -271,8 +272,7 @@ inline Status Client::getServerSettings(protocol_version_t serverCspVersion, ser
     CS_RUN(processing::serializeCommonContext(ctxIn));
 
     BinWalkerT binOutput;
-
-    CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
+    CS_RUN(m_communicator.process(binInput, binOutput.getVector()));
 
     return cspPartySettings.deserialize(binOutput);
 }
@@ -295,7 +295,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
+    CS_RUN(m_communicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOut(binOutput);
     CS_RUN(processing::deserializeCommonContext(ctxOut));
@@ -392,8 +392,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     pointersMapIn.clear();
 
     BinWalkerT binOutput;
-
-    CS_RUN(m_clientSpeaker.speak(binInput, binOutput));
+    CS_RUN(m_communicator.process(binInput, binOutput.getVector()));
 
     ctxIn.clear();
 

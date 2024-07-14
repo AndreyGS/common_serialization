@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/allocators.h
+ * @file cslib/include/common_serialization/Interfaces/IIoProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,23 +23,21 @@
 
 #pragma once
 
-#include "common_serialization/Allocators/ConstructorNoexceptAllocator.h"
-#include "common_serialization/Allocators/RawKeeperAllocator.h"
-#include "common_serialization/Allocators/RawNoexceptAllocator.h"
-#include "common_serialization/Allocators/PlatformDependent/switch.h"
-
 namespace common_serialization
 {
 
-template<typename _T>
-using ConstructorNoexceptAllocatorT = ConstructorNoexceptAllocator<_T>;
+/// @brief Generic interface fot input-output operations
+template<typename InputType, typename OutputType>
+class IIoProcessor
+{
+public:
+    virtual ~IIoProcessor() {}
 
-template<typename _T>
-    requires std::is_trivially_copyable_v<_T>
-using RawKeeperAllocatorT = RawKeeperAllocator<_T>;
-
-template<typename _T>
-    requires std::is_trivially_copyable_v<_T>
-using RawNoexceptAllocatorT = RawNoexceptAllocator<_T>;
+    /// @brief Method for processing input data and receiving output data
+    /// @param input Input data
+    /// @param output Output data
+    /// @return Status of operation
+    virtual Status process(const InputType& input, OutputType& output) = 0;
+};
 
 } // namespace common_serialization
