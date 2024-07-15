@@ -430,7 +430,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
         ctxOutData.setHeapUseForTemp(kForTempUseHeap);
 
-        CS_RUN(processing::data::BodyProcessor::deserialize(ctxOutData, output));
+        return processing::data::BodyProcessor::deserialize(ctxOutData, output);
     }
     else if (ctxOut.getMessageType() == context::Message::Status)
     {
@@ -439,8 +439,8 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
         return statusOut;
     }
-
-    return Status::NoError;
+    else
+        return Status::ErrorDataCorrupted;
 }
 
 } // namespace common_serialization::csp::messaging

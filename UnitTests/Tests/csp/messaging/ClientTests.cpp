@@ -394,6 +394,37 @@ TEST_F(ClientTests, HandleDataUnmanagedPointersContainerNotSuppliedWhenNeed)
         input, output, DataFlags{ DataFlags::kAllowUnmanagedPointers })), Status::ErrorInvalidArgument);
 }
 
+TEST_F(ClientTests, HandleDataContextFillingCheck)
+{
+    CspPartySettings settings = getMandatoryBigEndianCspPartySettings();
+    m_client.init(getMandatoryBigEndianCspPartySettings());
+
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    interface_for_test::SimplyAssignableDescendant<> output;
+
+    constexpr CommonFlags additionalCommonFlags{ CommonFlags::kBitness32 };
+    constexpr DataFlags additionalDataFlags{ DataFlags::kAlignmentMayBeNotEqual };
+
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [&settings, additionalCommonFlags, effectiveDataFlags = input.getEffectiveMandatoryDataFlags(), additionalDataFlags](const BinVectorT& input, BinVectorT& output)
+        {
+            BinWalkerT dInput(input);
+            DData ctx(dInput);
+            interface_for_test::SimplyAssignableAlignedToOne<> data;
+            EXPECT_EQ(data.deserialize(ctx), Status::NoError);
+
+            EXPECT_EQ(ctx.getProtocolVersion(), settings.getLatestProtocolVersion());
+            EXPECT_EQ(ctx.getCommonFlags(), settings.getMandatoryCommonFlags() | additionalCommonFlags);
+            EXPECT_EQ(ctx.isHeapUsedForTemp(), true);
+            EXPECT_EQ(ctx.getDataFlags(), effectiveDataFlags | additionalDataFlags);
+
+            return Status::ErrorInternal;
+        }
+    ));
+
+    m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output, additionalCommonFlags, additionalDataFlags);
+}
+
 TEST_F(ClientTests, HandleDataErrorFromSpeaker)
 {
     m_client.init(getValidCspPartySettings());
@@ -405,7 +436,45 @@ TEST_F(ClientTests, HandleDataErrorFromSpeaker)
         [](const BinVectorT& input, BinVectorT& output)
         {
 
-            return Status::ErrorDataCorrupted;
+            return Status::ErrorOverflow;
+        }
+    ));
+
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::ErrorOverflow);
+}
+
+TEST_F(ClientTests, HandleDataWrongMessageTypeFromServer)
+{
+    m_client.init(getValidCspPartySettings());
+
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    interface_for_test::SimplyAssignableDescendant<> output;
+
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
+        {
+            SCommon ctx(output, getLatestProtocolVersion(), Message::GetSettings, {});
+            processing::serializeCommonContext(ctx);
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::ErrorDataCorrupted);
+}
+
+TEST_F(ClientTests, HandleDataOutputCommonFlagsMismatchedWithInputOnes)
+{
+    m_client.init(getValidCspPartySettings());
+
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    interface_for_test::SimplyAssignableDescendant<> output;
+
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
+        {
+            SCommon ctx(output, getLatestProtocolVersion(), Message::Status, CommonFlags{ CommonFlags::kBigEndianFormat });
+            processing::serializeCommonContext(ctx);
+            return Status::NoError;
         }
     ));
 
