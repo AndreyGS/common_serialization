@@ -73,12 +73,12 @@ public:
     /// @remark Use it when no context::DataFlags is need.
     /// @param output Output container
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status serialize(BinVectorT& output) const noexcept;
+    CS_ALWAYS_INLINE constexpr Status serialize(BinVectorT& output) const;
     
     /// @brief It is a shortcut method for serialize this struct using custom context
     /// @param ctx Context that will be using in serialization process
     /// @return Status of operation
-    constexpr Status serialize(context::SData& ctx) const noexcept;
+    constexpr Status serialize(context::SData& ctx) const;
 
     /// @brief It is a shortcut method for deserialize in this struct from input binary data
     /// @param input Input container
@@ -145,7 +145,7 @@ public:
 };
 
 template<typename T>
-CS_ALWAYS_INLINE constexpr Status ISerializable<T>::serialize(BinVectorT& output) const noexcept
+CS_ALWAYS_INLINE constexpr Status ISerializable<T>::serialize(BinVectorT& output) const
 {
     context::SData ctx{ output, {}, {}, true, this->getLatestInterfaceVersion() };
 
@@ -153,13 +153,21 @@ CS_ALWAYS_INLINE constexpr Status ISerializable<T>::serialize(BinVectorT& output
 }
 
 template<typename T>
-constexpr Status ISerializable<T>::serialize(context::SData& ctx) const noexcept
+constexpr Status ISerializable<T>::serialize(context::SData& ctx) const
 {
     if (ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined)
         ctx.setInterfaceVersion(this->getLatestInterfaceVersion());
 
     CS_RUN(processing::serializeCommonContext(ctx));
     CS_RUN(processing::serializeDataContext<T>(ctx));
+
+    // If user is not supplied pointers map we need to create temporary one
+    if (ctx.checkRecursivePointers() && !ctx.getPointersMap())
+    {
+        context::SPointersMap pointersMap;
+        ctx.setPointersMap(&pointersMap);
+        return processing::data::BodyProcessor::serialize(static_cast<const T&>(*this), ctx);
+    }
 
     return processing::data::BodyProcessor::serialize(static_cast<const T&>(*this), ctx);
 }
@@ -183,6 +191,14 @@ constexpr Status ISerializable<T>::deserialize(context::DData& ctx)
     CS_RUN(processing::deserializeDataContextPostprocessId<T>(id));
     CS_RUN(processing::deserializeDataContextPostprocessRest<T>(ctx, minimumInterfaceVersion));
     
+    // If user is not supplied pointers map we need to create temporary one
+    if (ctx.checkRecursivePointers() && !ctx.getPointersMap())
+    {
+        context::DPointersMap pointersMap;
+        ctx.setPointersMap(&pointersMap);
+        return processing::data::BodyProcessor::deserialize(ctx, static_cast<T&>(*this));
+    }
+
     return processing::data::BodyProcessor::deserialize(ctx, static_cast<T&>(*this));
 }
 

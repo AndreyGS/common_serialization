@@ -54,7 +54,8 @@ public:
 
     /// @brief Set map that holding pointers and their relative offsets in binary data.
     /// @note When we set map to ExtendedPointersProcessing 
-    ///     it will not owns this map and does not clears its contents on destruction.
+    ///     it will not owning this map and does not clears its contents on destruction.
+    ///     Supplying of this map by user is optional. Temporary object will be created by library if necessary.
     /// @param pPointersMap Pointer to pointers map (could be nullptr)
     constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
 
@@ -97,7 +98,7 @@ public:
 
     /// @brief Set pointer to added pointers container
     /// @note When we set map to DeserializeExtendedPointersProcessing 
-    ///     it will not owns this container and does not clears its contents on destruction.
+    ///     it will not owning this container and does not clears its contents on destruction.
     /// @param pAddedPointers Pointer to added free pointers container
     constexpr void setAddedPointers(VectorT<GenericPointerKeeperT>* pAddedPointers) noexcept { m_pAddedPointers = pAddedPointers; }
 
@@ -108,7 +109,8 @@ public:
 
     /// @brief Set map that holding pointers and their relative offsets in binary data.
     /// @note When we set map to DeserializeExtendedPointersProcessing 
-    ///     it will not owns this map and does not clears its contents on destruction.
+    ///     it will not owning this map and does not clears its contents on destruction.
+    ///     Supplying of this map by user is optional. Temporary object will be created by library if necessary.
     /// @param pPointersMap Set pointer map to this
     constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
     
