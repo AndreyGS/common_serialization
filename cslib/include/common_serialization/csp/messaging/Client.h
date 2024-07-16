@@ -385,9 +385,8 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
     if (ctxIn.checkRecursivePointers())
     {
-        context::SPointersMap pointersMapIn;
-        ctxIn.setPointersMap(&pointersMapIn);
-        CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn));
+        context::SPointersMap pointersMap;
+        CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn.setPointersMap(&pointersMap)));
     }
     else
         CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn));
@@ -414,10 +413,6 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
         ctxOut.setAddedPointers(pUnmanagedPointers);
 
-        context::DPointersMap pointersMapOut;
-        if (ctxOut.checkRecursivePointers())
-            ctxOut.setPointersMap(&pointersMapOut);
-
         CS_RUN(processing::deserializeDataContextPostprocessId<OutputType>(outId));
         CS_RUN(processing::deserializeDataContextPostprocessRest<OutputType>(ctxOut, OutputType::getOriginPrivateVersion()));
 
@@ -428,9 +423,8 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
         if (ctxOut.checkRecursivePointers())
         {
-            context::DPointersMap pointersMapOut;
-            ctxOut.setPointersMap(&pointersMapOut);
-            return processing::data::BodyProcessor::deserialize(ctxOut, output);
+            context::DPointersMap pointersMap;
+            return processing::data::BodyProcessor::deserialize(ctxOut.setPointersMap(&pointersMap), output);
         }
         else
             return processing::data::BodyProcessor::deserialize(ctxOut, output);

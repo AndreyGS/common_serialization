@@ -39,8 +39,8 @@ constexpr Status testCommonFlagsCompatibility(context::CommonFlags commonFlags
 
 inline Status serializeCommonContextNoChecks(context::SCommon& ctx)
 {
-    // Common context must always be serialized by the same rules -
-    // CommonFlags has no impact - it (context) must always be in little-endian format
+    // Common context is always in little-endiann format.
+    // CommonFlags should have no impact here.
     context::SCommon commonContextSpecial(ctx.getBinaryData());
     commonContextSpecial.setCommonFlags(context::CommonFlags::kNoFlagsMask);
 
@@ -63,8 +63,8 @@ constexpr Status serializeCommonContext(context::SCommon& ctx)
 
 inline Status deserializeCommonContext(context::DCommon& ctx)
 {
-    // Common context must always be deserialized by the same rules
-    // no matter of CommonFlags impact - it must always be in little-endian format
+    // Common context is always in little-endiann format.
+    // CommonFlags should have no impact here.
     context::DCommon commonContextSpecial(ctx.getBinaryData());
     commonContextSpecial.setCommonFlags(context::CommonFlags::kNoFlagsMask);
 
@@ -95,7 +95,7 @@ inline Status deserializeCommonContextNoChecks(context::DCommon& ctx)
     // Common context must always be deserialized by the same rules
     // no matter of CommonFlags impact - it must always be in little-endian format
     context::DCommon commonContextSpecial(ctx.getBinaryData(), ctx.getProtocolVersion()
-        , ctx.getMessageType(), context::CommonFlags{ 0 });
+        , ctx.getMessageType(), context::CommonFlags{ context::CommonFlags::kNoFlagsMask });
 
     uint16_t version = 0;
     CS_RUN(readPrimitive(commonContextSpecial, version));
@@ -149,13 +149,8 @@ constexpr Status serializeDataContext(context::SData& ctx)
     if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
     
-    if (ctx.checkRecursivePointers())
-    {
-        if (ctx.getPointersMap() == nullptr)
-            return Status::ErrorInvalidArgument;
-        else if (!ctx.allowUnmanagedPointers())
-            return Status::ErrorNotCompatibleDataFlagsSettings;
-    }
+    if (ctx.checkRecursivePointers() && !ctx.allowUnmanagedPointers())
+        return Status::ErrorNotCompatibleDataFlagsSettings;
 
     context::DataFlags dataFlags = ctx.getDataFlags();
 
@@ -224,13 +219,8 @@ constexpr Status deserializeDataContextPostprocessRest(context::DData& ctx, inte
     if (ctx.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)
         return Status::ErrorInvalidArgument;
     
-    if (ctx.checkRecursivePointers())
-    {
-        if (ctx.getPointersMap() == nullptr)
-            return Status::ErrorInvalidArgument;
-        else if (!ctx.allowUnmanagedPointers())
-            return Status::ErrorNotCompatibleDataFlagsSettings;
-    }
+    if (ctx.checkRecursivePointers() && !ctx.allowUnmanagedPointers())
+        return Status::ErrorNotCompatibleDataFlagsSettings;
 
     return Status::NoError;
 }

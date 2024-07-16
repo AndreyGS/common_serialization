@@ -161,15 +161,16 @@ constexpr Status ISerializable<T>::serialize(context::SData& ctx) const
     CS_RUN(processing::serializeCommonContext(ctx));
     CS_RUN(processing::serializeDataContext<T>(ctx));
 
-    // If user is not supplied pointers map we need to create temporary one
+    // If user is not supplied pointers map we need to use temporary one
     if (ctx.checkRecursivePointers() && !ctx.getPointersMap())
     {
         context::SPointersMap pointersMap;
-        ctx.setPointersMap(&pointersMap);
-        return processing::data::BodyProcessor::serialize(static_cast<const T&>(*this), ctx);
+        Status status = processing::data::BodyProcessor::serialize(static_cast<const T&>(*this), ctx.setPointersMap(&pointersMap));
+        ctx.setPointersMap(nullptr);
+        return status;
     }
-
-    return processing::data::BodyProcessor::serialize(static_cast<const T&>(*this), ctx);
+    else
+        return processing::data::BodyProcessor::serialize(static_cast<const T&>(*this), ctx);
 }
 
 template<typename T>
@@ -191,15 +192,16 @@ constexpr Status ISerializable<T>::deserialize(context::DData& ctx)
     CS_RUN(processing::deserializeDataContextPostprocessId<T>(id));
     CS_RUN(processing::deserializeDataContextPostprocessRest<T>(ctx, minimumInterfaceVersion));
     
-    // If user is not supplied pointers map we need to create temporary one
+    // If user is not supplied pointers map we need to use temporary one
     if (ctx.checkRecursivePointers() && !ctx.getPointersMap())
     {
         context::DPointersMap pointersMap;
-        ctx.setPointersMap(&pointersMap);
-        return processing::data::BodyProcessor::deserialize(ctx, static_cast<T&>(*this));
+        Status status = processing::data::BodyProcessor::deserialize(ctx.setPointersMap(&pointersMap), static_cast<T&>(*this));
+        ctx.setPointersMap(nullptr);
+        return status;
     }
-
-    return processing::data::BodyProcessor::deserialize(ctx, static_cast<T&>(*this));
+    else
+        return processing::data::BodyProcessor::deserialize(ctx, static_cast<T&>(*this));
 }
 
 template<typename T>
