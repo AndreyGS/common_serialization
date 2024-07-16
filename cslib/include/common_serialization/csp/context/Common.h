@@ -36,9 +36,9 @@ template<bool _serialize>
 class Common
 {
 public:
-    static constexpr bool serialize = _serialize;
+    static constexpr bool kSerialize = _serialize;
 
-    using Bin = std::conditional_t<serialize, BinVectorT, BinWalkerT>;
+    using Bin = std::conditional_t<kSerialize, BinVectorT, BinWalkerT>;
 
     /// @brief Constructor
     /// @param binaryData Container that hold or would hold binary data of processing
@@ -55,7 +55,7 @@ public:
         setCommonFlags(commonFlags);
         m_endiannessNotMatch = bigEndianFormat() != helpers::isBigEndianPlatform();
 
-        if constexpr (serialize)
+        if constexpr (kSerialize)
             m_binaryData.reserve(256);
     }
 
@@ -92,7 +92,7 @@ public:
     [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isProtocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
 
     /// @brief Is target endianness differs from current platform
-    /// @note "Endianness not match" is not the same as "endiann difference". The first one is simply
+    /// @note "Endianness not match" is not the same as "endianness difference". The first one is simply
     ///     precalculated value to determining the need of primitives bytes order change, and the last one
     ///     is the mode that drops off most of optimizations in processing so that there is an opportunity
     ///     to deserialize binary data on platform with any endianness.

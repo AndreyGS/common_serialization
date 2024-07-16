@@ -377,65 +377,69 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         , targetInterfaceVersion
         , nullptr);
 
-    context::SPointersMap pointersMapIn;
-    if (ctxIn.checkRecursivePointers())
-        ctxIn.setPointersMap(&pointersMapIn);
-
     CS_RUN(processing::serializeCommonContext(ctxIn));
     CS_RUN(processing::serializeDataContext<InputType>(ctxIn));
 
     if (ctxIn.allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
         return Status::ErrorInvalidArgument;
 
-    CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn));
-
-    pointersMapIn.clear();
+    if (ctxIn.checkRecursivePointers())
+    {
+        context::SPointersMap pointersMapIn;
+        ctxIn.setPointersMap(&pointersMapIn);
+        CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn));
+    }
+    else
+        CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn));
 
     BinWalkerT binOutput;
     CS_RUN(m_communicator.process(binInput, binOutput.getVector()));
 
-    ctxIn.clear();
+    context::DCommon ctxOutCommon(binOutput);
+    CS_RUN(processing::deserializeCommonContext(ctxOutCommon));
 
-    context::DCommon ctxOut(binOutput);
+    if (ctxIn.getCommonFlags() != ctxOutCommon.getCommonFlags())
+        return Status::ErrorNotCompatibleCommonFlagsSettings;
 
-    CS_RUN(processing::deserializeCommonContext(ctxOut));
-
-    if (ctxIn.getCommonFlags() != ctxOut.getCommonFlags())
-        return Status::ErrorDataCorrupted;
-
-    if (ctxOut.getMessageType() == context::Message::Data)
+    if (ctxOutCommon.getMessageType() == context::Message::Data)
     {
+        Id outId;
+        context::DData ctxOut(ctxOutCommon);
+        CS_RUN(processing::deserializeDataContext(ctxOut, outId));
+
+        if (ctxIn.getDataFlags() != ctxOut.getDataFlags())
+            return Status::ErrorNotCompatibleDataFlagsSettings;
+
         ctxIn.clear();
 
-        Id outId;
-        context::DData ctxOutData(ctxOut);
-
-        CS_RUN(processing::deserializeDataContext(ctxOutData, outId));
-
-        context::DataFlags outDataFlags = ctxOutData.getDataFlags();
-
-        if (Status status = processing::testDataFlagsCompatibility<OutputType>(outDataFlags); !statusSuccess(status))
-            return status == Status::ErrorNotCompatibleDataFlagsSettings ? Status::ErrorDataCorrupted : status;
-
-        ctxOutData.setAddedPointers(pUnmanagedPointers);
+        ctxOut.setAddedPointers(pUnmanagedPointers);
 
         context::DPointersMap pointersMapOut;
-        if (ctxOutData.checkRecursivePointers())
-            ctxOutData.setPointersMap(&pointersMapOut);
+        if (ctxOut.checkRecursivePointers())
+            ctxOut.setPointersMap(&pointersMapOut);
 
         CS_RUN(processing::deserializeDataContextPostprocessId<OutputType>(outId));
-        // Here we no need to check minimum value of output version, because if we run Client::handleData
-        // we're already agreed with interface version that server have
-        CS_RUN(processing::deserializeDataContextPostprocessRest<OutputType>(ctxOutData, OutputType::getOriginPrivateVersion()));
+        CS_RUN(processing::deserializeDataContextPostprocessRest<OutputType>(ctxOut, OutputType::getOriginPrivateVersion()));
 
-        ctxOutData.setHeapUseForTemp(kForTempUseHeap);
+        if (ctxOut.getInterfaceVersion() > targetInterfaceVersion)
+            return Status::ErrorMismatchOfInterfaceVersions;
 
-        return processing::data::BodyProcessor::deserialize(ctxOutData, output);
+        ctxOut.setHeapUseForTemp(kForTempUseHeap);
+
+        if (ctxOut.checkRecursivePointers())
+        {
+            context::DPointersMap pointersMapOut;
+            ctxOut.setPointersMap(&pointersMapOut);
+            return processing::data::BodyProcessor::deserialize(ctxOut, output);
+        }
+        else
+            return processing::data::BodyProcessor::deserialize(ctxOut, output);
     }
-    else if (ctxOut.getMessageType() == context::Message::Status)
+    else if (ctxOutCommon.getMessageType() == context::Message::Status)
     {
         Status statusOut = Status::NoError;
-        CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+        if (!statusSuccess(processing::deserializeStatusContext(ctxOutCommon, statusOut)))
+            return Status::ErrorDataCorrupted;
 
         return statusOut;
     }

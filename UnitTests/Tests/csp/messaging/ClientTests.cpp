@@ -97,13 +97,13 @@ TEST_F(ClientTests, Init2ServerCspSettingsAreNotCompatibleWithClientOne)
     )).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
         {
-            output.init(getBinSettingsWithMandatoryBigEndian());
+            output.init(getBinSettingsWithMandatoryAnotherEndianness());
             return Status::NoError;
         }
     ));
 
     CspPartySettings serverSettings;
-    EXPECT_EQ(m_client.init(getForbiddenBigEndianCspPartySettings(), serverSettings), Status::ErrorNotCompatibleCommonFlagsSettings);
+    EXPECT_EQ(m_client.init(getForbiddenAnotherEndiannessCspPartySettings(), serverSettings), Status::ErrorNotCompatibleCommonFlagsSettings);
     EXPECT_EQ(m_client.isValid(), false);
 }
 
@@ -374,7 +374,7 @@ TEST_F(ClientTests, HandleDataAnyStructHasInterfaceVersionHigherThanSettedUpForC
 
 TEST_F(ClientTests, HandleDataNotCompatibleAdditionalCommonFlags)
 {
-    m_client.init(getForbiddenBigEndianCspPartySettings());
+    m_client.init(getForbiddenAnotherEndiannessCspPartySettings());
 
     interface_for_test::SimplyAssignableAlignedToOne<> input;
     interface_for_test::SimplyAssignableDescendant<> output;
@@ -396,8 +396,8 @@ TEST_F(ClientTests, HandleDataUnmanagedPointersContainerNotSuppliedWhenNeed)
 
 TEST_F(ClientTests, HandleDataContextFillingCheck)
 {
-    CspPartySettings settings = getMandatoryBigEndianCspPartySettings();
-    m_client.init(getMandatoryBigEndianCspPartySettings());
+    CspPartySettings settings = getMandatoryAnotherEndiannessCspPartySettings();
+    m_client.init(settings);
 
     interface_for_test::SimplyAssignableAlignedToOne<> input;
     interface_for_test::SimplyAssignableDescendant<> output;
@@ -443,7 +443,7 @@ TEST_F(ClientTests, HandleDataErrorFromSpeaker)
     EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::ErrorOverflow);
 }
 
-TEST_F(ClientTests, HandleDataWrongMessageTypeFromServer)
+TEST_F(ClientTests, HandleDataBadCommonContext)
 {
     m_client.init(getValidCspPartySettings());
 
@@ -453,18 +453,37 @@ TEST_F(ClientTests, HandleDataWrongMessageTypeFromServer)
     EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
         {
-            SCommon ctx(output, getLatestProtocolVersion(), Message::GetSettings, {});
+            SCommon ctx(output, kProtocolVersionUndefined, Message::Status);
+            processing::serializeCommonContextNoChecks(ctx);
+            return Status::NoError;
+        }
+    ));
+
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::ErrorNotSupportedProtocolVersion);
+}
+
+TEST_F(ClientTests, HandleDataOutputCommonFlagsMismatchedWithInputOnes)
+{
+    m_client.init(getMandatoryAndForbiddenCommonFlagsCspPartySettings());
+
+    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    interface_for_test::SimplyAssignableDescendant<> output;
+
+    EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
+        [](const BinVectorT& input, BinVectorT& output)
+        {
+            SCommon ctx(output, getLatestProtocolVersion(), Message::Status);
             processing::serializeCommonContext(ctx);
             return Status::NoError;
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::ErrorDataCorrupted);
+    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::ErrorNotCompatibleCommonFlagsSettings);
 }
 
-TEST_F(ClientTests, HandleDataOutputCommonFlagsMismatchedWithInputOnes)
+TEST_F(ClientTests, HandleDataWrongMessageTypeFromServer)
 {
-    m_client.init(getValidCspPartySettings());
+    m_client.init(getMandatoryAnotherEndiannessCspPartySettings());
 
     interface_for_test::SimplyAssignableAlignedToOne<> input;
     interface_for_test::SimplyAssignableDescendant<> output;
@@ -472,7 +491,7 @@ TEST_F(ClientTests, HandleDataOutputCommonFlagsMismatchedWithInputOnes)
     EXPECT_CALL(m_communicator, process).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
         {
-            SCommon ctx(output, getLatestProtocolVersion(), Message::Status, CommonFlags{ CommonFlags::kBigEndianFormat });
+            SCommon ctx(output, getLatestProtocolVersion(), Message::GetSettings, CommonFlags{ getAnotherEndianessPlatformFlags() });
             processing::serializeCommonContext(ctx);
             return Status::NoError;
         }

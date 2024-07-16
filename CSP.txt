@@ -178,7 +178,8 @@ Status Message
 
     -7: ErrorMismatchOfProtocolVersions.
 
-    -8: ErrorMismatchOfInterfaceVersions.
+    -8: ErrorMismatchOfInterfaceVersions; if version of struct Interface
+      returned from Server is not compatible with Client settings.
 
     -9: ErrorMismatchOfStructId; struct id that is deserialized not
       correspond to that which is expect.
@@ -202,9 +203,10 @@ Status Message
       procedures for User Application specific structs.
 
     -14: ErrorDataCorrupted; returns when there is possibility of data
-      corruption in Serialization.  But there is also can be internal
-      error in CSP implementation which was lead to this condition.
-      
+      corruption in Serialization or in data transfering.  There is also
+      can be internal error in CSP implementation which was lead to this
+      condition.
+
     -15: ErrorNotCompatibleCommonFlagsSettings; if some of the common
       flags have mutual contradictory status.
       

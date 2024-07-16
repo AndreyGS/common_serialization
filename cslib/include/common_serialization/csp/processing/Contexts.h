@@ -39,8 +39,8 @@ constexpr Status testCommonFlagsCompatibility(context::CommonFlags commonFlags
 
 inline Status serializeCommonContextNoChecks(context::SCommon& ctx)
 {
-    // Common context must always be serialized by the same rules
-    // no matter of CommonFlags impact - it must always be in little-endian format
+    // Common context must always be serialized by the same rules -
+    // CommonFlags has no impact - it (context) must always be in little-endian format
     context::SCommon commonContextSpecial(ctx.getBinaryData());
     commonContextSpecial.setCommonFlags(context::CommonFlags::kNoFlagsMask);
 
@@ -55,6 +55,8 @@ constexpr Status serializeCommonContext(context::SCommon& ctx)
 {
     if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
         return Status::ErrorNotSupportedProtocolVersion;
+    else if (ctx.isEndiannessNotMatch() && !ctx.endiannessDifference())
+        return Status::ErrorNotCompatibleCommonFlagsSettings;
 
     return serializeCommonContextNoChecks(ctx);
 }
@@ -76,13 +78,14 @@ inline Status deserializeCommonContext(context::DCommon& ctx)
 
     context::Message messageType = context::Message::Data;
     CS_RUN(readPrimitive(commonContextSpecial, messageType));
-
     ctx.setMessageType(messageType);
 
     uint32_t intFlags = 0;
     CS_RUN(readPrimitive(commonContextSpecial, intFlags));
     context::CommonFlags commonFlags(intFlags);
     ctx.setCommonFlags(commonFlags);
+    if (ctx.isEndiannessNotMatch() && !ctx.endiannessDifference())
+        return Status::ErrorNotCompatibleCommonFlagsSettings;
 
     return Status::NoError;
 }
@@ -113,18 +116,18 @@ inline Status deserializeCommonContextNoChecks(context::DCommon& ctx)
 }
 
 template<typename T>
-constexpr Status testDataFlagsCompatibility(context::DataFlags dataFlags)
+[[nodiscard]] CS_ALWAYS_INLINE constexpr Status testDataFlagsCompatibility(context::DataFlags dataFlags)
 {
     if constexpr (!StructHaveDataFlags<T>)
         return Status::NoError;
     else
     {
         constexpr context::DataFlags effectiveMandatoryDataFlags = T::getEffectiveMandatoryDataFlags();
-        constexpr context::DataFlags effectiveForbiddenDataFlags = T::getEffectiveForbiddenDataFlags();
+        constexpr context::DataFlags forbiddenDataFlags = T::getEffectiveForbiddenDataFlags() | context::DataFlags::kForbiddenFlagsMask;
 
-        return dataFlags & (effectiveForbiddenDataFlags | context::DataFlags::kForbiddenFlagsMask) || (dataFlags & effectiveMandatoryDataFlags) != effectiveMandatoryDataFlags
-            ? Status::ErrorNotCompatibleDataFlagsSettings
-            : Status::NoError;
+        return !(dataFlags & forbiddenDataFlags) && (dataFlags & effectiveMandatoryDataFlags) == effectiveMandatoryDataFlags
+            ? Status::NoError
+            : Status::ErrorNotCompatibleDataFlagsSettings;
     }
 }
 
@@ -209,7 +212,7 @@ constexpr Status deserializeDataContextPostprocessRest(context::DData& ctx, inte
     constexpr interface_version_t interfaceVersion = _T::getInterface().version;
 
     // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
-    // however for some special subscribers of data struct you may override it by
+    // however for some special cases you may override it by
     // value that is higher than minimum defined in interface version
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, interfaceVersion))
         return Status::ErrorNotSupportedInterfaceVersion;

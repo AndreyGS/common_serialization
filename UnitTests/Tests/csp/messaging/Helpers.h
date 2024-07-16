@@ -36,6 +36,11 @@ using namespace common_serialization::csp::traits;
 constexpr protocol_version_t kValidProtocolVersion = 1;
 constexpr protocol_version_t kInvalidProtocolVersion = kProtocolVersions[getProtocolVersionsCount() - 1] + 1;
 
+uint32_t getAnotherEndianessPlatformFlags()
+{
+    return (helpers::isLittleEndianPlatform() ? CommonFlags::kBigEndianFormat : CommonFlags::kNoFlagsMask) | CommonFlags::kEndiannessDifference;
+}
+
 CspPartySettings<> getValidCspPartySettings()
 {
     RawVectorT<protocol_version_t> protocolVersions;
@@ -55,32 +60,44 @@ CspPartySettings<> getInvalidCspPartySettings()
     CspPartySettings settings = getValidCspPartySettings();
     settings.init(
           settings.getProtocolVersions()
-        , CommonFlags{ CommonFlags::kBigEndianFormat }
-        , CommonFlags{ CommonFlags::kBigEndianFormat }
+        , CommonFlags{ getAnotherEndianessPlatformFlags() }
+        , CommonFlags{ getAnotherEndianessPlatformFlags() }
         , settings.getInterfaces());
 
     return settings;
 }
 
-CspPartySettings<> getMandatoryBigEndianCspPartySettings()
+CspPartySettings<> getMandatoryAnotherEndiannessCspPartySettings()
 {
     CspPartySettings settings = getValidCspPartySettings();
     settings.init(
           settings.getProtocolVersions()
-        , CommonFlags{ CommonFlags::kBigEndianFormat }
+        , CommonFlags{ getAnotherEndianessPlatformFlags() }
         , {}
         , settings.getInterfaces());
 
     return settings;
 }
 
-CspPartySettings<> getForbiddenBigEndianCspPartySettings()
+CspPartySettings<> getForbiddenAnotherEndiannessCspPartySettings()
 {
     CspPartySettings settings = getValidCspPartySettings();
     settings.init(
           settings.getProtocolVersions()
         , {}
-        , CommonFlags{ CommonFlags::kBigEndianFormat }
+        , CommonFlags{ getAnotherEndianessPlatformFlags() }
+        , settings.getInterfaces());
+
+    return settings;
+}
+
+CspPartySettings<> getMandatoryAndForbiddenCommonFlagsCspPartySettings()
+{
+    CspPartySettings settings = getValidCspPartySettings();
+    settings.init(
+          settings.getProtocolVersions()
+        , CommonFlags{ getAnotherEndianessPlatformFlags() }
+        , CommonFlags{ CommonFlags::kBitness32 }
         , settings.getInterfaces());
 
     return settings;
@@ -135,22 +152,22 @@ BinVectorT getBinNotSupportedProtocolVersionsWithExtraOutput()
     return binOutput;
 }
 
-BinVectorT getBinSettingsWithMandatoryBigEndian()
+BinVectorT getBinSettingsWithMandatoryAnotherEndianness()
 {
     BinVectorT binOutput;
-    SData ctxOut(binOutput, 1, CommonFlags{ CommonFlags::kBigEndianFormat }, {}, false, 1);
+    SData ctxOut(binOutput, 1, CommonFlags{ getAnotherEndianessPlatformFlags() }, {}, false, 1);
 
-    CspPartySettings<> settings = getMandatoryBigEndianCspPartySettings();
+    CspPartySettings<> settings = getMandatoryAnotherEndiannessCspPartySettings();
     settings.serialize(ctxOut);
     return binOutput;
 }
 
-BinVectorT getBinSettingsWithForbiddenBigEndian()
+BinVectorT getBinSettingsWithForbiddenAnotherEndianness()
 {
     BinVectorT binOutput;
-    SData ctxOut(binOutput, 1, CommonFlags{ CommonFlags::kBigEndianFormat }, {}, false, 1);
+    SData ctxOut(binOutput, 1, CommonFlags{ getAnotherEndianessPlatformFlags() }, {}, false, 1);
 
-    CspPartySettings<> settings = getForbiddenBigEndianCspPartySettings();
+    CspPartySettings<> settings = getForbiddenAnotherEndiannessCspPartySettings();
     settings.serialize(ctxOut);
     return binOutput;
 }
