@@ -131,6 +131,8 @@ template<typename T>
     }
 }
 
+// This function does not check presence of pointer map.
+// It is library code responsibility to provide it if it's absent.
 template<typename T>
 constexpr Status serializeDataContext(context::SData& ctx)
 {
@@ -161,7 +163,7 @@ constexpr Status serializeDataContext(context::SData& ctx)
     return Status::NoError;
 }
 
-constexpr Status deserializeDataContext(context::DData& ctx, Id& id)
+constexpr Status deserializeDataContextNoChecks(context::DData& ctx, Id& id)
 {
     CS_RUN(readRawData(ctx, 1, &id));
 
@@ -201,6 +203,8 @@ CS_ALWAYS_INLINE constexpr Status deserializeDataContextPostprocessId(const Id& 
     return tUuid == id ? Status::NoError : Status::ErrorMismatchOfStructId;
 }
 
+// This function does not check presence of pointer map.
+// It is library code responsibility to provide it if it's absent.
 template<typename _T>
 constexpr Status deserializeDataContextPostprocessRest(context::DData& ctx, interface_version_t minimumSupportedInterfaceVersion) noexcept
 {

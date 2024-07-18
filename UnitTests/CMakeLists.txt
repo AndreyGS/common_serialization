@@ -38,7 +38,9 @@ add_executable(csp_tests
     "Tests/csp/processing/ISerializableAnotherBitness.cpp"
     "Tests/csp/messaging/MessagingTests.cpp"
     "Tests/csp/messaging/ClientTests.cpp"
-    "Tests/csp/processing/ProfillingTests.cpp")
+    "Tests/csp/messaging/ServerTests.cpp"
+    "Tests/csp/processing/ProfillingTests.cpp" 
+    )
 
 target_compile_definitions(csp_tests PRIVATE USER_MODE)
 target_link_libraries(csp_tests PRIVATE cslib ForTestsHelpers SerializableStructs gtest_main gmock_main)

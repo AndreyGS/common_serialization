@@ -60,14 +60,13 @@ public:
     Status init(const service_structs::CspPartySettings<>& settings, _Ts&&... ts) noexcept;
 
     CS_ALWAYS_INLINE constexpr bool isValid() const noexcept;
+    CS_ALWAYS_INLINE const UniquePtrT<IServerDataHandlerRegistrar>& getDataHandlersRegistrar() const noexcept;
 
     /// @brief Entry point for all CSP client requests
     /// @param binInput Binary data received from client
     /// @param binOutput Binary data that should be send back to client
     /// @return Status of operation
     Status handleMessage(BinWalkerT& binInput, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const;
-
-    CS_ALWAYS_INLINE const UniquePtrT<IServerDataHandlerRegistrar>& getDataHandlersRegistrar() const noexcept;
 
 private:
     CS_ALWAYS_INLINE Status handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept;
@@ -119,6 +118,11 @@ CS_ALWAYS_INLINE constexpr bool Server::isValid() const noexcept
     return m_isInited;
 }
 
+CS_ALWAYS_INLINE const UniquePtr<IServerDataHandlerRegistrar>& Server::getDataHandlersRegistrar() const noexcept
+{
+    return m_dataHandlersRegistrar;
+}
+
 inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const
 {
     if (!isValid())
@@ -157,11 +161,6 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
     return status;
 }
 
-CS_ALWAYS_INLINE const UniquePtr<IServerDataHandlerRegistrar>& Server::getDataHandlersRegistrar() const noexcept
-{
-    return m_dataHandlersRegistrar;
-}
-
 CS_ALWAYS_INLINE Status Server::handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept
 {
     binOutput.clear();
@@ -176,7 +175,7 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
     context::DData ctx(ctxCommon);
     Id id;
 
-    CS_RUN(processing::deserializeDataContext(ctx, id));
+    CS_RUN(processing::deserializeDataContextNoChecks(ctx, id));
 
     VectorT<GenericPointerKeeperT> addedPointers;
     if (ctx.allowUnmanagedPointers())

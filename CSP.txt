@@ -382,7 +382,7 @@ Data Message
     Bit 4 (0x10): simply assignable tags optimizations are turned off.
       Turns of all optimizations of "simply assignable" tags. Must be
       used when dealing with CSP implementations that does not support
-      such (like Java, for instance).
+      such.
     
     Bits 5-31: unused (reserved, must be zero).
 
@@ -497,15 +497,17 @@ Structures tags
     Struct must be Serialized field-by-field no matter of other options.
     
   Note that any of simply assignable tags can be implied only when
-  structure is not containing any kind of virtual tables.  So if
-  environment where CSP is running is implying virtual tables to every
-  struct (like Java, for instance) no symply assignable tags
-  optimizations can be made and "simply assignable tags optimizations 
-  are turned off" Data Flag must be set when interacting with such CSP
-  instance.  If at the same time CSP implementation does not have
-  distinct Serialization function to current operation with type that
-  have any of such tags ErrorNotSupportedSerializationSettingsForStruct
-  status must be returned.
+  structure is not containing any kind of virtual tables or other hidden
+  or meta information and environment allows direct memory copying.  In
+  other case no symply assignable tags optimizations can be made and
+  "simply assignable tags optimizations are turned off" Data Flag must
+  be set when interacting with such CSP instance.  If at the same time
+  CSP implementation does not have distinct Serialization function to
+  current operation with type that have any of such tags
+  ErrorNotSupportedSerializationSettingsForStruct status must be
+  returned.
+  
+  But serialization
     
 Structures in the CSP view
 ==========================

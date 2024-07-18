@@ -69,7 +69,7 @@ public:
     /// @param handlers Container that would be filled with target handlers
     /// @return Status of operation.
     ///     If no handlers were found, Status::ErrorNoSuchHandler is returned.
-    virtual Status aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handlers) noexcept = 0;
+    virtual Status aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handlers) = 0;
 
     /// @brief Aquire single handler that is subsribed to handle Input-struct with given id
     /// @param id Input-struct id related to handler

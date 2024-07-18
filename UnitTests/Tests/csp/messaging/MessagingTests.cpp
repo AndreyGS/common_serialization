@@ -47,26 +47,8 @@ class MessagingTests : public ::testing::Test
 protected:
     csp::messaging::Server m_server;
     csp::messaging::Client m_client;
-    std::unique_ptr<ClientToServerCommunicatorMock> m_communicator;
+    std::unique_ptr<ClientToServerCommunicatorMock> m_clientToServerCommunicator;
 };
-
-
-TEST(MessagingTests, InitCommonServerT)
-{
-    // Standard initialization
-    Server commonServer;
-    EXPECT_EQ(commonServer.init<GenericServerDataHandlerRegistrar>(getValidCspPartySettings()), Status::NoError);
-    EXPECT_TRUE(commonServer.isValid());
-
-    // Repeated initialization attempt
-    EXPECT_EQ(commonServer.init<GenericServerDataHandlerRegistrar>(getValidCspPartySettings()), Status::ErrorAlreadyInited);
-    EXPECT_TRUE(commonServer.isValid());
-
-    // Init with invalid settings
-    Server commonServer2;
-    EXPECT_EQ(commonServer2.init<GenericServerDataHandlerRegistrar>({}), Status::ErrorInvalidArgument);
-    EXPECT_FALSE(commonServer2.isValid());
-}
 
 TEST(MessagingTests, DataMessageHandling)
 {

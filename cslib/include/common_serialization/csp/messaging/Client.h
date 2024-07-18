@@ -76,8 +76,8 @@ public:
 
     /// @brief Get IClientToServerCommunicator reference associated with current instance
     /// @return IClientToServerCommunicator reference
-    IClientToServerCommunicator& getCommunicator() noexcept;
-    const IClientToServerCommunicator& getCommunicator() const noexcept;
+    IClientToServerCommunicator& getClientToServerCommunicator() noexcept;
+    const IClientToServerCommunicator& getClientToServerCommunicator() const noexcept;
 
     /// @brief Shortcut to receive server supported CSP versions
     /// @param output Server supported CSP versions
@@ -148,17 +148,17 @@ public:
 
 private:
     service_structs::CspPartySettings<> m_settings;
-    IClientToServerCommunicator& m_communicator;
+    IClientToServerCommunicator& m_clientToServerCommunicator;
     bool m_isValid{ false };
 };
 
 inline Client::Client(IClientToServerCommunicator& communicator)
-    : m_communicator(communicator)
+    : m_clientToServerCommunicator(communicator)
 {
 }
 
 inline Client::Client(IClientToServerCommunicator& communicator, const service_structs::CspPartySettings<>& settings)
-    : m_communicator(communicator)
+    : m_clientToServerCommunicator(communicator)
 {
     init(settings);
 }
@@ -231,14 +231,14 @@ CS_ALWAYS_INLINE bool Client::isValid() const noexcept
     return m_isValid;
 }
 
-CS_ALWAYS_INLINE IClientToServerCommunicator& Client::getCommunicator() noexcept
+CS_ALWAYS_INLINE IClientToServerCommunicator& Client::getClientToServerCommunicator() noexcept
 {
-    return m_communicator;
+    return m_clientToServerCommunicator;
 }
 
-CS_ALWAYS_INLINE const IClientToServerCommunicator& Client::getCommunicator() const noexcept
+CS_ALWAYS_INLINE const IClientToServerCommunicator& Client::getClientToServerCommunicator() const noexcept
 {
-    return m_communicator;
+    return m_clientToServerCommunicator;
 }
 
 inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& output) const noexcept
@@ -248,7 +248,7 @@ inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& 
     CS_RUN(processing::serializeCommonContextNoChecks(ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_communicator.process(binInput, binOutput.getVector()));
+    CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOut(binOutput);
     CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
@@ -272,7 +272,7 @@ inline Status Client::getServerSettings(protocol_version_t serverCspVersion, ser
     CS_RUN(processing::serializeCommonContext(ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_communicator.process(binInput, binOutput.getVector()));
+    CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     return cspPartySettings.deserialize(binOutput);
 }
@@ -295,7 +295,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_communicator.process(binInput, binOutput.getVector()));
+    CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOut(binOutput);
     CS_RUN(processing::deserializeCommonContext(ctxOut));
@@ -367,7 +367,6 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         return Status::ErrorNotCompatibleCommonFlagsSettings;
 
     BinVectorT binInput;
-
     context::SData ctxIn(
           binInput
         , m_settings.getLatestProtocolVersion()
@@ -392,7 +391,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_communicator.process(binInput, binOutput.getVector()));
+    CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOutCommon(binOutput);
     CS_RUN(processing::deserializeCommonContext(ctxOutCommon));
@@ -400,11 +399,13 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     if (ctxIn.getCommonFlags() != ctxOutCommon.getCommonFlags())
         return Status::ErrorNotCompatibleCommonFlagsSettings;
 
-    if (ctxOutCommon.getMessageType() == context::Message::Data)
+    switch (ctxOutCommon.getMessageType())
+    {
+    case context::Message::Data:
     {
         Id outId;
         context::DData ctxOut(ctxOutCommon);
-        CS_RUN(processing::deserializeDataContext(ctxOut, outId));
+        CS_RUN(processing::deserializeDataContextNoChecks(ctxOut, outId));
 
         if (ctxIn.getDataFlags() != ctxOut.getDataFlags())
             return Status::ErrorNotCompatibleDataFlagsSettings;
@@ -416,7 +417,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         CS_RUN(processing::deserializeDataContextPostprocessId<OutputType>(outId));
         CS_RUN(processing::deserializeDataContextPostprocessRest<OutputType>(ctxOut, OutputType::getOriginPrivateVersion()));
 
-        if (ctxOut.getInterfaceVersion() > targetInterfaceVersion)
+        if (ctxOut.getInterfaceVersion() != targetInterfaceVersion)
             return Status::ErrorMismatchOfInterfaceVersions;
 
         ctxOut.setHeapUseForTemp(kForTempUseHeap);
@@ -429,16 +430,15 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         else
             return processing::data::BodyProcessor::deserialize(ctxOut, output);
     }
-    else if (ctxOutCommon.getMessageType() == context::Message::Status)
+    case context::Message::Status:
     {
         Status statusOut = Status::NoError;
-        if (!statusSuccess(processing::deserializeStatusContext(ctxOutCommon, statusOut)))
-            return Status::ErrorDataCorrupted;
-
+        CS_RUN(processing::deserializeStatusContext(ctxOutCommon, statusOut));
         return statusOut;
     }
-    else
+    default:
         return Status::ErrorDataCorrupted;
+    }
 }
 
 } // namespace common_serialization::csp::messaging

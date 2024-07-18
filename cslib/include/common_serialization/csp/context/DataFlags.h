@@ -76,7 +76,7 @@ public:
 
     /// @brief Turns of all optimizations of "simply assignable" tags.
     ///     Must be used when dealing with CSP implementations that does
-    ///     not support such (like Java, for instance). 
+    ///     not support such. 
     static constexpr uint32_t kSimplyAssignableTagsOptimizationsAreTurnedOff = 0x10;
 
     static constexpr uint32_t kValidFlagsMask = 0x1f;

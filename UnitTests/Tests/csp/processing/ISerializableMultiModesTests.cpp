@@ -68,7 +68,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     csp::Id id;
     uint32_t minimumInterfaceVersion = 0;
 
-    EXPECT_EQ(csp::processing::deserializeDataContext(ctxOut, id), Status::NoError);
+    EXPECT_EQ(csp::processing::deserializeDataContextNoChecks(ctxOut, id), Status::NoError);
     EXPECT_EQ(csp::processing::deserializeDataContextPostprocessId<TD>(id), Status::NoError);
     EXPECT_EQ(csp::processing::deserializeDataContextPostprocessRest<TD>(ctxOut, minimumInterfaceVersion), Status::NoError);
 

@@ -34,7 +34,7 @@ public:
     Status registerHandler(const Id& id, bool kMulticast, Service* pService, IServerDataHandlerBase& handler) override;
     void unregisterHandler(const Id& id, IServerDataHandlerBase& handler) noexcept override;
     void unregisterService(Service* pService) noexcept override;
-    Status aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handlers) noexcept override;
+    Status aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handlers) override;
     Status aquireHandler(const Id& id, IServerDataHandlerBase*& pHandler) noexcept override;
     void releaseHandler(IServerDataHandlerBase* pHandler) noexcept override;
 
@@ -187,7 +187,7 @@ inline void GenericServerDataHandlerRegistrar::unregisterService(Service* pServi
             ++it;
 }
 
-inline Status GenericServerDataHandlerRegistrar::aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handles) noexcept
+inline Status GenericServerDataHandlerRegistrar::aquireHandlers(const Id& id, RawVectorT<IServerDataHandlerBase*>& handles)
 {
     Status status{ Status::NoError };
     bool wasNotAvailable{ false };
