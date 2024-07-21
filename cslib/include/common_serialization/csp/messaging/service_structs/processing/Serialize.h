@@ -60,8 +60,7 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::CspP
     CS_RUN(serialize(static_cast<uint32_t>(value.m_mandatoryCommonFlags), ctx));
     CS_RUN(serialize(static_cast<uint32_t>(value.m_forbiddenCommonFlags), ctx));
 
-    CS_RUN(serialize(value.m_interfaces.size(), ctx));
-    CS_RUN(serialize(value.m_interfaces.data(), value.m_interfaces.size(), ctx));
+    CS_RUN(serialize(value.m_interfaces, ctx));
 
     return Status::NoError;
 }

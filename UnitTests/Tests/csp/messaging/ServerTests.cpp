@@ -22,6 +22,7 @@
  */
 
 #include "Tests/csp/messaging/Helpers.h"
+#include "Tests/csp/messaging/ServerDataHandlerBaseMock.h"
 #include "Tests/csp/messaging/ServerDataHandlerRegistrarMock.h"
 
 using ::testing::_;
@@ -46,6 +47,7 @@ public:
 
 protected:
     Server m_server;
+    GenericPointerKeeperT m_clientId;
 };
 
 TEST_F(ServerTests, ConstructorInvalidSettings)
@@ -84,11 +86,100 @@ TEST_F(ServerTests, InitValidSettings)
     EXPECT_TRUE(m_server.isValid());
 }
 
-TEST_F(ServerTests, getDataHandlersRegistrar)
+TEST_F(ServerTests, GetDataHandlersRegistrar)
 {
     EXPECT_FALSE(m_server.getDataHandlersRegistrar());
     init(getValidCspPartySettings());
     EXPECT_TRUE(m_server.getDataHandlersRegistrar());
+}
+
+TEST_F(ServerTests, GetSettingsServerNotInited)
+{
+    EXPECT_EQ(m_server.getSettings(), CspPartySettings<>());
+}
+
+TEST_F(ServerTests, GetSettingsServerInited)
+{
+    CspPartySettings settings = getValidCspPartySettings();
+    init(getValidCspPartySettings());
+    EXPECT_EQ(m_server.getSettings(), settings);
+}
+
+TEST_F(ServerTests, HandleMessageNotInited)
+{
+    BinWalkerT binInput;
+    BinVectorT binOutput;
+    EXPECT_EQ(m_server.handleMessage(binInput, m_clientId, binOutput), Status::ErrorNotInited);
+}
+
+TEST_F(ServerTests, HandleMessageErrorInCommonContextDeserialize)
+{
+    init(getValidCspPartySettings());
+    BinWalkerT binInput;
+    BinWalkerT binOutput;
+    EXPECT_EQ(m_server.handleMessage(binInput, m_clientId, binOutput.getVector()), Status::ErrorOverflow);
+
+    DData ctxOut(binOutput);
+    Status statusOut{ Status::NoError };
+    EXPECT_EQ(processing::deserializeCommonContext(ctxOut), Status::NoError);
+    EXPECT_EQ(ctxOut.getMessageType(), Message::Status);
+    
+    EXPECT_EQ(processing::deserializeStatusContext(ctxOut, statusOut), Status::NoError);
+    EXPECT_EQ(statusOut, Status::ErrorOverflow);
+}
+
+TEST_F(ServerTests, HandleMessageProcessErrorNotSupportedProtocolVersion)
+{
+    init(getValidCspPartySettings());
+    BinWalkerT binInput;
+    SCommon ctxIn(binInput.getVector(), traits::kProtocolVersionUndefined);
+    processing::serializeCommonContextNoChecks(ctxIn);
+    BinWalkerT binOutput;
+
+    EXPECT_EQ(m_server.handleMessage(binInput, m_clientId, binOutput.getVector()), Status::NoError);
+
+    DData ctxOut(binOutput);
+    Status statusOut{ Status::NoError };
+    EXPECT_EQ(processing::deserializeCommonContextNoChecks(ctxOut), Status::NoError);
+    EXPECT_EQ(ctxOut.getMessageType(), Message::Status);
+
+    EXPECT_EQ(processing::deserializeStatusContext(ctxOut, statusOut), Status::NoError);
+    EXPECT_EQ(statusOut, Status::ErrorNotSupportedProtocolVersion);
+
+    RawVectorT<protocol_version_t> protocolVersions;
+    EXPECT_EQ(processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, protocolVersions), Status::NoError);
+    EXPECT_EQ(protocolVersions, m_server.getSettings().getProtocolVersions());
+}
+
+TEST_F(ServerTests, HandleMessageGetSettings)
+{
+    init(getValidCspPartySettings());
+    BinWalkerT binInput;
+    SCommon ctxIn(binInput.getVector(), getLatestProtocolVersion(), context::Message::GetSettings, {});
+    processing::serializeCommonContext(ctxIn);
+    BinWalkerT binOutput;
+
+    EXPECT_EQ(m_server.handleMessage(binInput, m_clientId, binOutput.getVector()), Status::NoError);
+
+    service_structs::CspPartySettings<> receivedSettings;
+    EXPECT_EQ(receivedSettings.deserialize(binOutput), Status::NoError);
+    EXPECT_EQ(receivedSettings, m_server.getSettings());
+}
+
+TEST_F(ServerTests, HandleMessageNotSupportedOne)
+{
+    init(getValidCspPartySettings());
+    BinWalkerT binInput;
+    processing::serializeStatusFullContext(binInput.getVector(), m_server.getSettings().getLatestProtocolVersion(), m_server.getSettings().getMandatoryCommonFlags(), Status::NoError);
+    BinWalkerT binOutput;
+
+    EXPECT_EQ(m_server.handleMessage(binInput, m_clientId, binOutput.getVector()), Status::ErrorDataCorrupted);
+
+    DData ctxOut(binOutput);
+    processing::deserializeCommonContext(ctxOut);
+    Status statusOut{ Status::NoError };
+    processing::deserializeStatusContext(ctxOut, statusOut);
+    EXPECT_EQ(statusOut, Status::ErrorDataCorrupted);
 }
 
 } // namespace

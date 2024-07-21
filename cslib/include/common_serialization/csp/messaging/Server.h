@@ -35,12 +35,15 @@ namespace common_serialization::csp::messaging
 
 /// @brief Common CSP server for handling input/output
 /// @details See documentation of CSP
-/// @note Thread-safe as long as IServerDataHandlerRegistrar is thread-safe.
+/// @note Thread-safe after intitialization as long as IServerDataHandlerRegistrar is thread-safe.
 class Server
 {
 public:
     Server() = default;
 
+    /// @brief Intitializing constructor
+    /// @param settings Server settings. Must be valid or initialization will fail.
+    /// @param dataHandlersRegistrar Data handler registrar
     Server(const service_structs::CspPartySettings<>& settings, UniquePtrT<IServerDataHandlerRegistrar>&& dataHandlersRegistrar) noexcept;
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
@@ -49,10 +52,10 @@ public:
     Server& operator=(Server&&) = default;
 
 
-    /// @brief Init server by settings and custom registrar type
+    /// @brief Init server by settings and custom data handler registrar type
     /// @tparam _T Registrar type (must implement IServerDataHandlerRegistrar)
     /// @tparam _Ts Registrar constructor params types
-    /// @param settings Server settings (must be valid)
+    /// @param settings Server settings. Must be valid or initialization will fail.
     /// @param ts Registrar constructor params
     /// @return Status of operation
     /// @note Can be inited one time. After this if object becomes valid no changes are allowed.
@@ -61,6 +64,10 @@ public:
 
     CS_ALWAYS_INLINE constexpr bool isValid() const noexcept;
     CS_ALWAYS_INLINE const UniquePtrT<IServerDataHandlerRegistrar>& getDataHandlersRegistrar() const noexcept;
+
+    /// @brief Get settings installed in current Server instance
+    /// @return Server settings
+    constexpr const service_structs::CspPartySettings<>& getSettings() const noexcept;
 
     /// @brief Entry point for all CSP client requests
     /// @param binInput Binary data received from client
@@ -123,37 +130,38 @@ CS_ALWAYS_INLINE const UniquePtr<IServerDataHandlerRegistrar>& Server::getDataHa
     return m_dataHandlersRegistrar;
 }
 
+CS_ALWAYS_INLINE constexpr const service_structs::CspPartySettings<>& Server::getSettings() const noexcept
+{
+    return m_settings;
+}
+
 inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const
 {
     if (!isValid())
         return Status::ErrorNotInited;
 
-    context::DCommon ctx(binInput, m_settings.getOldestProtocolVersion());
-
-    if (Status status = processing::deserializeCommonContext(ctx); !statusSuccess(status))
-    {
-        if (status == Status::ErrorNotSupportedProtocolVersion)
-        {
-            binOutput.clear();
-            return processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_settings.getProtocolVersions(), m_settings.getMandatoryCommonFlags());
-        }
-        else
-            return status;
-    }
+    binOutput.clear();
 
     Status status{ Status::NoError };
+    context::DCommon ctx(binInput, m_settings.getOldestProtocolVersion());
 
-    if (ctx.getMessageType() == context::Message::GetSettings)
-        status = handleGetSettings(ctx.getProtocolVersion(), binOutput);
-
-    else if (ctx.getMessageType() == context::Message::Data)
-    {
-        status = processing::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_settings.getForbiddenCommonFlags(), m_settings.getMandatoryCommonFlags());
-        if (statusSuccess(status))
-            status = handleData(ctx, clientId, binOutput);
-    }
-    else
-        status = Status::ErrorDataCorrupted;
+    if (statusSuccess(status = processing::deserializeCommonContext(ctx)))
+        switch (ctx.getMessageType())
+        {
+        case context::Message::GetSettings:
+            status = handleGetSettings(ctx.getProtocolVersion(), binOutput);
+            break;
+        case context::Message::Data:
+            status = processing::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_settings.getForbiddenCommonFlags(), m_settings.getMandatoryCommonFlags());
+            if (statusSuccess(status))
+                status = handleData(ctx, clientId, binOutput);
+            break;
+        default:
+            status = Status::ErrorDataCorrupted;
+            break;
+        }
+    else if (status == Status::ErrorNotSupportedProtocolVersion)
+        status = processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_settings.getProtocolVersions(), m_settings.getMandatoryCommonFlags());
 
     if (binOutput.size() == 0)
         CS_SET_NEW_ERROR(processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), status));
@@ -163,8 +171,6 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
 
 CS_ALWAYS_INLINE Status Server::handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept
 {
-    binOutput.clear();
-
     context::SData ctxOut(binOutput, cspVersion, m_settings.getMandatoryCommonFlags(), {}, true, cspVersion);
 
     return m_settings.serialize(ctxOut);

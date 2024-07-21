@@ -314,7 +314,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 
-constexpr const service_structs::CspPartySettings<>& Client::getSettings() const noexcept
+CS_ALWAYS_INLINE constexpr const service_structs::CspPartySettings<>& Client::getSettings() const noexcept
 {
     return m_settings;
 }

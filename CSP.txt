@@ -123,7 +123,7 @@ Private parts
 Status Message
 ==============
 
-  Status Messages are sends in Messaging process, in several cases.
+  Status Messages are sent in Messaging process, in several cases.
   That will be discused in Messaging section.
   
   Status Context
@@ -397,9 +397,9 @@ Data Message
 GetSettings Message
 ===================
 
-  GetSettings Message is sends by client in Messaging process when he
-  want to know capabilities and restrictions of server including
-  supported Interfaces.
+  GetSettings Message sent by client in Messaging process when he want
+  to know capabilities and restrictions of server including supported
+  Interfaces.
   
   This Message has no Private Context and Body.
   
@@ -1811,7 +1811,7 @@ CSP Service Structs Interface
       Interface ID: 08c68657-4fa7-4419-8c13-66aec2b06cb0
       Fields:
         Id: GUIDv4 of CSP Interface
-      Description: sends for request of Interface propreties
+      Description: sent for request of Interface propreties
       
     OutGetInterface
     
@@ -1824,7 +1824,7 @@ CSP Service Structs Interface
         
         Note: these 4 fields may also be named as Interface Properties
         struct
-      Description: sends in response of GetInterface.
+      Description: sent in response of GetInterface.
       
     InterfaceVersion
     
@@ -1837,18 +1837,17 @@ CSP Service Structs Interface
     
       Interface ID: bf8c27e8-fe6a-4492-91cb-e4cf411e1236
       Fields:
-        Count of CSP versions: count of versions in the next field, as
-          size_t
-        CSP versions: array of versions of CSP protocol in decreasing
-          order
+        8 bit integer: next field item count.
+        CSP versions array: array of versions of CSP protocol in
+          decreasing order.
         Mandatory Common flags: Mandatory common flags
         Forbidden Common flags: Forbidden common flags
-        Count of CSP Interfaces: count of versions in the next field, as
-          size_t
-        CSP Interfaces: array of InterfaceVersion structs
-
+        size_t: next field item count.
+        InterfaceVersion array: array of InterfaceVersion structs
       Description: contain supported settings of CSP party (Client or
-        Server).  Sends in response of GetSettings Message.        
+        Server).  Sent in response of GetSettings Message.  It is not
+        recommended to use additional Data Flags when packing this
+        struct in response to Client GetSettings message.
         
 ========================================================================
 ========================================================================

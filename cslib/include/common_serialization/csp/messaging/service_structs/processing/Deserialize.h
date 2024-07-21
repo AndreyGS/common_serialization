@@ -66,10 +66,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::serv
     CS_RUN(deserialize(ctx, forbiddenCommonFlags));
     value.m_forbiddenCommonFlags = forbiddenCommonFlags;
 
-    size_t interfacesSize{ 0 };
-    CS_RUN(deserialize(ctx, interfacesSize));
-    value.m_interfaces.setSize(interfacesSize);
-    CS_RUN(deserialize(ctx, interfacesSize, value.m_interfaces.data()));
+    CS_RUN(deserialize(ctx, value.m_interfaces));
 
     return Status::NoError;
 }
