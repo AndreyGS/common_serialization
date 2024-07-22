@@ -117,7 +117,7 @@ constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SD
         && (   std::is_arithmetic_v<_T>
             || std::is_enum_v<_T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-                && (!ISerializableBased<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
+                && (!ISerializableImpl<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
                 && (   AlwaysSimplyAssignable<_T>
                     || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
                     || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()
@@ -267,7 +267,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _
         && (   std::is_arithmetic_v<_T>
             || std::is_enum_v<_T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-                && (!ISerializableBased<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
+                && (!ISerializableImpl<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
                 && (   AlwaysSimplyAssignable<_T>
                     || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
                     || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()
@@ -447,7 +447,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSimplyAssignable(const
         return Status::ErrorInvalidType;
     else
     {
-        if constexpr (ISerializableBased<_T>)
+        if constexpr (ISerializableImpl<_T>)
             if (_T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
                 return Status::NoError;
 
@@ -480,7 +480,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSimplyAssignable(con
         return Status::ErrorInvalidType;
     else
     {
-        if constexpr (ISerializableBased<_T>)
+        if constexpr (ISerializableImpl<_T>)
             if (_T::getLatestInterfaceVersion() > ctx.getInterfaceVersion())
                 return Status::NoError;
 

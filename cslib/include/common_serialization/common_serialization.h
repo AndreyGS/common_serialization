@@ -53,7 +53,7 @@
 #include "common_serialization/Helpers.h"
 
 #include "common_serialization/Allocators/allocators.h"
-#include "common_serialization/AllocatorHelpers/allocatorHelpers.h"
+#include "common_serialization/AllocatorHelpers/allocator_helpers.h"
 #include "common_serialization/Concurrency/concurrency.h"
 #include "common_serialization/Containers/containers.h"
 #include "common_serialization/Interfaces/interfaces.h"

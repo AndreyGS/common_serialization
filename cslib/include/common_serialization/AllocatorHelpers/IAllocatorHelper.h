@@ -32,22 +32,19 @@ namespace common_serialization
 /// @details This is interface for convenient usage of IAllocators.
 ///     In many (or most) scenarios there is no need of direct using of IAllocators.
 ///     Instead use this one supplying it with suitable IAllocator.
-/// @tparam T Type of objects that allocator would allocate and construct
-/// @tparam Allocator Class that implement IAllocator interface
-/// @tparam AllocatorHelper Most derived class (instance type)
-template<typename T, IAllocator Allocator, typename AllocatorHelper>
+/// @tparam _Allocator Allocator
+/// @tparam _AllocatorHelper Most derived class (instance type)
+template<IAllocator _Allocator, typename _AllocatorHelper>
 class IAllocatorHelper
 {
 public:
-    using instance_type = AllocatorHelper;
-    using interface_type = IAllocatorHelper<T, Allocator, AllocatorHelper>;
-
-    using value_type = typename Allocator::value_type;
-    using pointer = typename Allocator::pointer;
-    using size_type = typename Allocator::size_type;
-    using difference_type = typename Allocator::difference_type;
-    using constructor_allocator = typename Allocator::constructor_allocator;
-    using allocator = Allocator;
+    using allocator_type = _Allocator;
+    using value_type = typename allocator_type::value_type;
+    using pointer = typename allocator_type::pointer;
+    using const_pointer = const value_type*;
+    using size_type = typename allocator_type::size_type;
+    using difference_type = typename allocator_type::difference_type;
+    using constructor_allocator = typename allocator_type::constructor_allocator;
 
     /// @brief Shortcut for allocating and subsequent constructing operations
     /// @tparam ...Args Parameters types that go to constructor of every element
@@ -57,9 +54,9 @@ public:
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     ///     or if object construction process return error.
     template<typename... Args>
-    [[nodiscard]] constexpr T* allocateAndConstruct(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
+    [[nodiscard]] constexpr pointer allocateAndConstruct(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
     {
-        return static_cast<const AllocatorHelper*>(this)->allocateAndConstructImpl(requestedN, pAllocatedN, std::forward<Args>(args)...);
+        return static_cast<const _AllocatorHelper*>(this)->allocateAndConstructImpl(requestedN, pAllocatedN, std::forward<Args>(args)...);
     }
 
     /// @brief Allocate storage for n elements of type T with support to apply 
@@ -68,17 +65,17 @@ public:
     /// @param requestedN Number of elements that storage should be capable to hold
     /// @param pAllocatedN Returned the actual number of elements that allocated storage can hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    [[nodiscard]] constexpr T* allocate(size_type requestedN, size_type* pAllocatedN) const
+    [[nodiscard]] constexpr pointer allocate(size_type requestedN, size_type* pAllocatedN) const
     {
-        return static_cast<const AllocatorHelper*>(this)->allocateImpl(requestedN, pAllocatedN);
+        return static_cast<const _AllocatorHelper*>(this)->allocateImpl(requestedN, pAllocatedN);
     }
 
     /// @brief Allocate storage for n elements of type T
     /// @param n Number of elements that storage should be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    [[nodiscard]] constexpr T* allocateStrict(size_type n) const
+    [[nodiscard]] constexpr pointer allocateStrict(size_type n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->allocateStrictImpl(n);
+        return static_cast<const _AllocatorHelper*>(this)->allocateStrictImpl(n);
     }
 
     /// @brief Call ctor with args on memory pointed by p
@@ -87,9 +84,9 @@ public:
     /// @param ...args Parameters that are go to ctors
     /// @return Status of operation
     template<typename... Args>
-    constexpr Status construct(T* p, Args&&... args) const
+    constexpr Status construct(pointer p, Args&&... args) const
     {
-        return static_cast<const AllocatorHelper*>(this)->constructImpl(p, std::forward<Args>(args)...);
+        return static_cast<const _AllocatorHelper*>(this)->constructImpl(p, std::forward<Args>(args)...);
     }
 
     /// @brief Call ctor for n elements with args on memory pointed by p
@@ -101,9 +98,9 @@ public:
     /// @param ...args Parameters that go to ctors
     /// @return Status of operation
     template<typename... Args>
-    constexpr Status constructN(T* p, T** pNError, size_type n, Args&&... args) const
+    constexpr Status constructN(pointer p, pointer* pNError, size_type n, Args&&... args) const
     {
-        return static_cast<const AllocatorHelper*>(this)->constructNImpl(p, pNError, n, std::forward<Args>(args)...);
+        return static_cast<const _AllocatorHelper*>(this)->constructNImpl(p, pNError, n, std::forward<Args>(args)...);
     }
 
     /// @brief Copy elements using copy ctors
@@ -111,9 +108,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    constexpr Status copy(T* pDest, const T* pSrc, size_type n) const
+    constexpr Status copy(pointer pDest, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDest, pSrc, n);
     }
 
     /// @brief Copy elements using copy ctors when
@@ -122,9 +119,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    constexpr Status copyNoOverlap(T* pDest, const T* pSrc, size_type n) const
+    constexpr Status copyNoOverlap(pointer pDest, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDest, pSrc, n);
     }
 
     /// @brief Copy elements using copy ctors when
@@ -135,9 +132,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    constexpr Status copyDirty(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
+    constexpr Status copyDirty(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Copy elements using copy ctors when
@@ -149,9 +146,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    constexpr Status copyDirtyNoOverlap(T* pDest, T* pDirtyMemoryFinish, const T* pSrc, size_type n) const
+    constexpr Status copyDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Move elements using move ctors
@@ -159,9 +156,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    constexpr Status move(T* pDest, T* pSrc, size_type n) const
+    constexpr Status move(pointer pDest, pointer pSrc, size_type n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->moveImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocatorHelper*>(this)->moveImpl(pDest, pDest, pSrc, n);
     }
 
     /// @brief Move elements using move ctors when
@@ -170,9 +167,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    constexpr Status moveNoOverlap(T* pDest, T* pSrc, size_type n) const
+    constexpr Status moveNoOverlap(pointer pDest, pointer pSrc, size_type n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDest, pSrc, n);
     }
 
     /// @brief Move elements using move ctors when
@@ -183,9 +180,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    constexpr Status moveDirty(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
+    constexpr Status moveDirty(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->moveImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocatorHelper*>(this)->moveImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Move elements using move ctors when
@@ -197,62 +194,65 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    constexpr Status moveDirtyNoOverlap(T* pDest, T* pDirtyMemoryFinish, T* pSrc, size_type n) const
+    constexpr Status moveDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
-        return static_cast<const AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Shortcut for destroying and subsequent deallocating operations 
     /// @param p Pointer to storage of elements which must be deallocated
     /// @param n Number of elements to destroy
-    constexpr void destroyAndDeallocate(T* p, size_type n) const noexcept
+    constexpr void destroyAndDeallocate(pointer p, size_type n) const noexcept
     {
-        return static_cast<const AllocatorHelper*>(this)->destroyAndDeallocateImpl(p, n);
+        return static_cast<const _AllocatorHelper*>(this)->destroyAndDeallocateImpl(p, n);
     }
 
     /// @brief Deallocate storage
     /// @param p Pointer to storage
-    constexpr void deallocate(T* p) const noexcept
+    constexpr void deallocate(pointer p) const noexcept
     {
-        return static_cast<const AllocatorHelper*>(this)->deallocateImpl(p);
+        return static_cast<const _AllocatorHelper*>(this)->deallocateImpl(p);
     }
 
     /// @brief Destroy object
     /// @param p Pointer to object
-    constexpr void destroy(T* p) const noexcept
+    constexpr void destroy(pointer p) const noexcept
     {
-        return static_cast<const AllocatorHelper*>(this)->destroyImpl(p);
+        return static_cast<const _AllocatorHelper*>(this)->destroyImpl(p);
     }
 
     /// @brief Destroy n objects
     /// @param p Pointer to objects
     /// @param n Number of objects
-    constexpr void destroyN(T* p, size_t n) const noexcept
+    constexpr void destroyN(pointer p, size_t n) const noexcept
     {
-        return static_cast<const AllocatorHelper*>(this)->destroyNImpl(p, n);
+        return static_cast<const _AllocatorHelper*>(this)->destroyNImpl(p, n);
     }
 
     /// @brief Get number of elements that can be allocated
     /// @return Number of elements that can be allocated
     constexpr size_t max_size() const noexcept
     {
-        return static_cast<const AllocatorHelper*>(this)->max_size_impl();
+        return static_cast<const _AllocatorHelper*>(this)->max_size_impl();
     }
 
-    /// @brief Get managed Allocator
-    /// @return Managed Allocator
-    constexpr Allocator& getAllocator() noexcept
+    /// @brief Get managed allocator
+    /// @return Managed allocator
+    constexpr allocator_type& getAllocator() noexcept
     {
         return m_allocator;
     }
 
-    constexpr const Allocator& getAllocator() const noexcept
+    constexpr const allocator_type& getAllocator() const noexcept
     {
         return m_allocator;
     }
 
 private:
-    Allocator m_allocator;
+    allocator_type m_allocator;
 };
+
+template<typename _T>
+concept IAllocatorHelperImpl = std::is_base_of_v<IAllocatorHelper<typename _T::allocator_type, normalize_t<_T>>, normalize_t<_T>>;
 
 } // namespace common_serialization

@@ -46,7 +46,7 @@ auto getStringsFilledContainer()
 template<>
 auto getStringsFilledContainer<PodStruct>()
 {
-    Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> walker;
+    Walker<PodStruct, RStrategicAllocatorHelperT<PodStruct>> walker;
     walker.pushBackN(g_data_array<PodStruct>, 3);
 
     EXPECT_EQ(walker.capacity(), 6); // check that nothing is changed in allocation strategy
@@ -242,12 +242,12 @@ TEST(WalkerTest, InitPod)
 
 TEST(WalkerTest, InitNoMemory)
 {
-    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker1;
+    Walker<PodStruct, RkGenericAllocatorHelperT<PodStruct>> walker1;
     PodStruct ps[1] = { { } };
     walker1.getAllocatorHelper().getAllocator().setStorage(ps, 1);
     walker1.pushBack("123");
 
-    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker2;
+    Walker<PodStruct, RkGenericAllocatorHelperT<PodStruct>> walker2;
     EXPECT_EQ(walker2.init(walker1), Status::ErrorNoMemory);
 }
 
@@ -303,19 +303,19 @@ TEST(WalkerTest, InitMovePod)
 {
     FInitMove<PodStruct>();
 
-    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker1;
+    Walker<PodStruct, RkGenericAllocatorHelperT<PodStruct>> walker1;
     PodStruct ps[1] = { { } };
     walker1.getAllocatorHelper().getAllocator().setStorage(ps, 1);
     walker1.pushBack("123");
 
-    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker2;
+    Walker<PodStruct, RkGenericAllocatorHelperT<PodStruct>> walker2;
     EXPECT_EQ(walker2.init(std::move(walker1)), Status::NoError);
 }
 
 TEST(WalkerTest, SetSize)
 {
     uint8_t buffer[32]{ 0 };
-    Walker<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> walker;
+    Walker<uint8_t, RkGenericAllocatorHelperT<uint8_t>> walker;
     walker.getAllocatorHelper().getAllocator().setStorage(buffer, 32);
     EXPECT_EQ(walker.tell(), 0);
 
@@ -416,7 +416,7 @@ TEST(WalkerTest, PushBackNoMove)
 
 TEST(WalkerTest, PushBackPod)
 {
-    Walker<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> walker_pod;
+    Walker<PodStruct, RStrategicAllocatorHelperT<PodStruct>> walker_pod;
 
     // test l-value
     EXPECT_EQ(walker_pod.pushBack("123"), Status::NoError);
@@ -429,7 +429,7 @@ TEST(WalkerTest, PushBackPod)
     EXPECT_EQ(memcmp(walker_pod.data() + 1, "456", sizeof(PodStruct)), 0);
     EXPECT_EQ(walker_pod.tell(), 2);
 
-    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker_pod2;
+    Walker<PodStruct, RkGenericAllocatorHelperT<PodStruct>> walker_pod2;
     walker_pod2.getAllocatorHelper().getAllocator().setStorage(&ps, 1);
     walker_pod2.pushBack(ps);
     walker_pod2.seek(0);
@@ -495,7 +495,7 @@ TEST(WalkerTest, PushBackNPod)
 {
     FPushBackN<PodStruct>();
 
-    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker_pod;
+    Walker<PodStruct, RkGenericAllocatorHelperT<PodStruct>> walker_pod;
     PodStruct ps("456");
     walker_pod.getAllocatorHelper().getAllocator().setStorage(&ps, 1);
     walker_pod.pushBack(ps);
@@ -520,7 +520,7 @@ TEST(WalkerTest, PushBackArithmeticValue)
     EXPECT_EQ(walker.capacity(), 2 * sizeof(value));
     EXPECT_EQ(walker.tell(), sizeof(value));
 
-    Walker<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> walker2;
+    Walker<uint8_t, RkGenericAllocatorHelperT<uint8_t>> walker2;
     uint8_t storage[sizeof(double)]{ 0 };
     walker2.getAllocatorHelper().getAllocator().setStorage(storage, 1);
     walker2.pushBack(value);
@@ -591,7 +591,7 @@ TEST(WalkerTest, ReplacePod)
 {
     FReplace<PodStruct>();
 
-    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker;
+    Walker<PodStruct, RkGenericAllocatorHelperT<PodStruct>> walker;
 
     PodStruct psArr[1] = { "456" };
     walker.getAllocatorHelper().getAllocator().setStorage(psArr, sizeof(psArr) / sizeof(PodStruct));
@@ -696,7 +696,7 @@ TEST(WalkerTest, InsertPod)
 {
     FInsert<PodStruct>();
 
-    Walker<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> walker;
+    Walker<uint8_t, RkGenericAllocatorHelperT<uint8_t>> walker;
     uint8_t i = 1;
 
     EXPECT_EQ(walker.insert(&i, 1, 0), Status::ErrorNoMemory);
@@ -815,7 +815,7 @@ TEST(WalkerTest, InsertItPod)
 {
     FInsertIt<PodStruct>();
 
-    Walker<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> walker;
+    Walker<uint8_t, RkGenericAllocatorHelperT<uint8_t>> walker;
     uint8_t i = 0;
     walker.getAllocatorHelper().getAllocator().setStorage(&i, 1);
     walker.pushBack(i);
@@ -1024,7 +1024,7 @@ TEST(WalkerTest, WritePod)
 {
     FWrite<PodStruct>();
 
-    Walker<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> walker;
+    Walker<PodStruct, RkGenericAllocatorHelperT<PodStruct>> walker;
 
     PodStruct psArr{ "456" };
 

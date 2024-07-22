@@ -36,25 +36,26 @@ enum class AllocationStrategy
 
 /// @brief Stateful allocator helper which allocates storage
 ///     using allocation strategy
-/// @tparam _T Type of objects that allocator would allocate and construct
 /// @tparam Allocator Class that implement IAllocator interface
 /// @tparam MostDerivedClass Instance type. But if type of current instance 
 ///     is GenericAllocatorHelper it must be Dummy.
-template<typename _T, IAllocator _Allocator, typename _MostDerivedClass = Dummy>
-class StrategicAllocatorHelper : public GenericAllocatorHelper<_T, _Allocator, GetCrtpMainType<StrategicAllocatorHelper<_T, _Allocator>, _MostDerivedClass>>
+template<IAllocator _Allocator, typename _MostDerivedClass = Dummy>
+class StrategicAllocatorHelper : public GenericAllocatorHelper<_Allocator, GetCrtpMainType<StrategicAllocatorHelper<_Allocator>, _MostDerivedClass>>
 {
 public:
-    using value_type = _T;
     using allocator_type = _Allocator;
+    using value_type = typename allocator_type::value_type;
+    using pointer = typename allocator_type::pointer;
+    using const_pointer = const value_type*;
+    using size_type = typename allocator_type::size_type;
+    using difference_type = typename allocator_type::difference_type;
     using constructor_allocator = typename allocator_type::constructor_allocator;
 
     /// @brief Real most derived class
-    using instance_type = GetCrtpMainType<StrategicAllocatorHelper<value_type, allocator_type>, _MostDerivedClass>;
+    using instance_type = GetCrtpMainType<StrategicAllocatorHelper<allocator_type>, _MostDerivedClass>;
 
     /// @brief IAllocatorHelper interface
-    using interface_type = typename IAllocatorHelper<value_type, allocator_type, instance_type>::interface_type;
-    using size_type = typename interface_type::size_type;
-    using difference_type = typename interface_type::difference_type;
+    using interface_type = IAllocatorHelper<allocator_type, instance_type>;
 
     explicit constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::DoubleOfDataSize) noexcept;
 
@@ -69,32 +70,32 @@ public:
 protected:
     friend interface_type;
 
-    [[nodiscard]] constexpr value_type* allocateImpl(size_type n, size_type* pAllocatedN) const;
+    [[nodiscard]] constexpr pointer allocateImpl(size_type n, size_type* pAllocatedN) const;
 
 private:
     AllocationStrategy m_allocation_strategy{ AllocationStrategy::DoubleOfDataSize };
 };
 
-template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
-constexpr StrategicAllocatorHelper<_T, _Allocator, _MostDerivedClass>::StrategicAllocatorHelper(AllocationStrategy allocationStrategy) noexcept
-    : GenericAllocatorHelper<value_type, allocator_type, instance_type>(), m_allocation_strategy(allocationStrategy)
+template<IAllocator _Allocator, typename _MostDerivedClass>
+constexpr StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::StrategicAllocatorHelper(AllocationStrategy allocationStrategy) noexcept
+    : GenericAllocatorHelper<allocator_type, instance_type>(), m_allocation_strategy(allocationStrategy)
 { }
 
 
-template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
-[[nodiscard]] constexpr AllocationStrategy StrategicAllocatorHelper<_T, _Allocator, _MostDerivedClass>::getAllocationStrategy() const noexcept
+template<IAllocator _Allocator, typename _MostDerivedClass>
+constexpr AllocationStrategy StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::getAllocationStrategy() const noexcept
 {
     return m_allocation_strategy;
 }
 
-template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
-constexpr void StrategicAllocatorHelper<_T, _Allocator, _MostDerivedClass>::setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
+template<IAllocator _Allocator, typename _MostDerivedClass>
+constexpr void StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
 {
     m_allocation_strategy = allocationStrategy;
 }
 
-template<typename _T, IAllocator _Allocator, typename _MostDerivedClass>
-[[nodiscard]] constexpr _T* StrategicAllocatorHelper<_T, _Allocator, _MostDerivedClass>::allocateImpl(size_type requestedN, size_type* pAllocatedN) const
+template<IAllocator _Allocator, typename _MostDerivedClass>
+constexpr StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::pointer StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::allocateImpl(size_type requestedN, size_type* pAllocatedN) const
 {
     value_type* p = nullptr;
 

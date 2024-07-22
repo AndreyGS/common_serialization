@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelpers/allocatorHelpers.h
+ * @file cslib/include/common_serialization/AllocatorHelpers/allocator_helpers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -31,18 +31,18 @@ namespace common_serialization
 {
 
 template<typename _T>
-using RGenericAllocatorHelperT = GenericAllocatorHelper<_T, RawNoexceptAllocatorT<_T>>;
+using RGenericAllocatorHelperT = GenericAllocatorHelper<RawNoexceptAllocatorT<_T>>;
 
 template<typename _T>
-using RkGenericAllocatorHelperT = GenericAllocatorHelper<_T, RawKeeperAllocatorT<_T>>;
+using RkGenericAllocatorHelperT = GenericAllocatorHelper<RawKeeperAllocatorT<_T>>;
 
 template<typename _T>
-using CGenericAllocatorHelperT = GenericAllocatorHelper<_T, ConstructorNoexceptAllocatorT<_T>>;
+using CGenericAllocatorHelperT = GenericAllocatorHelper<ConstructorNoexceptAllocatorT<_T>>;
 
 template<typename _T>
-using RStrategicAllocatorHelperT = StrategicAllocatorHelper<_T, RawNoexceptAllocatorT<_T>>;
+using RStrategicAllocatorHelperT = StrategicAllocatorHelper<RawNoexceptAllocatorT<_T>>;
 
 template<typename _T>
-using CStrategicAllocatorHelperT = StrategicAllocatorHelper<_T, ConstructorNoexceptAllocatorT<_T>>;
+using CStrategicAllocatorHelperT = StrategicAllocatorHelper<ConstructorNoexceptAllocatorT<_T>>;
 
 } // namespace common_serialization

@@ -30,7 +30,7 @@ using namespace common_serialization;
 // Explicitly set default allocator helper so we wouldn't depend on 
 // possible future changes of default allocator helper of Vector
 template<typename T>
-using DefaultAllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>;
+using DefaultAllocatorHelper = CStrategicAllocatorHelperT<T>;
 
 using size_type = typename Vector<int, DefaultAllocatorHelper<int>>::size_type;
 
@@ -51,7 +51,7 @@ auto getStringsFilledContainer()
 template<>
 auto getStringsFilledContainer<PodStruct>()
 {
-    Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> vec;
+    Vector<PodStruct, RStrategicAllocatorHelperT<PodStruct>> vec;
     vec.pushBackN(g_data_array<PodStruct>, 3);
 
     EXPECT_EQ(vec.capacity(), 6); // check that nothing is changed in allocation strategy
@@ -230,12 +230,12 @@ TEST(VectorTest, InitPod)
 {
     FInit<PodStruct>();
 
-    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec1;
+    Vector<PodStruct, RkGenericAllocatorHelperT<PodStruct>> vec1;
     PodStruct ps[1] = { { } };
     vec1.getAllocatorHelper().getAllocator().setStorage(ps, 1);
     vec1.pushBack("123");
 
-    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec2;
+    Vector<PodStruct, RkGenericAllocatorHelperT<PodStruct>> vec2;
     EXPECT_EQ(vec2.init(vec1), Status::ErrorNoMemory);
 }
 
@@ -288,19 +288,19 @@ TEST(VectorTest, InitMovePod)
 {
     FInitMove<PodStruct>();
 
-    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec1;
+    Vector<PodStruct, RkGenericAllocatorHelperT<PodStruct>> vec1;
     PodStruct ps[1] = { { } };
     vec1.getAllocatorHelper().getAllocator().setStorage(ps, 1);
     vec1.pushBack("123");
 
-    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec2;
+    Vector<PodStruct, RkGenericAllocatorHelperT<PodStruct>> vec2;
     EXPECT_EQ(vec2.init(std::move(vec1)), Status::NoError);
 }
 
 TEST(VectorTest, SetSize)
 {
     uint8_t buffer[32]{ 0 };
-    Vector<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> vec;
+    Vector<uint8_t, RkGenericAllocatorHelperT<uint8_t>> vec;
     vec.getAllocatorHelper().getAllocator().setStorage(buffer, 32);
 
     EXPECT_EQ(vec.setSize(32), Status::NoError);
@@ -404,7 +404,7 @@ TEST(VectorTest, PushBackNoMove)
 
 TEST(VectorTest, PushBackPod)
 {
-    Vector<PodStruct, StrategicAllocatorHelper<PodStruct, RawNoexceptAllocator<PodStruct>>> vec_pod;
+    Vector<PodStruct, RStrategicAllocatorHelperT<PodStruct>> vec_pod;
 
     // test l-value
     EXPECT_EQ(vec_pod.pushBack("123"), Status::NoError);
@@ -416,7 +416,7 @@ TEST(VectorTest, PushBackPod)
     EXPECT_EQ(vec_pod.pushBack(std::move(ps)), Status::NoError);
     EXPECT_EQ(memcmp(vec_pod.data() + 1, "456", sizeof(PodStruct)), 0);
 
-    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec_pod2;
+    Vector<PodStruct, RkGenericAllocatorHelperT<PodStruct>> vec_pod2;
 
     // test l-value
     EXPECT_EQ(vec_pod2.pushBack(ps), Status::ErrorNoMemory);
@@ -479,7 +479,7 @@ TEST(VectorTest, PushBackNPod)
 {
     FPushBackN<PodStruct>();
 
-    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec_pod;
+    Vector<PodStruct, RkGenericAllocatorHelperT<PodStruct>> vec_pod;
     PodStruct ps("456");
 
     EXPECT_EQ(vec_pod.pushBackN(&ps, 1), Status::ErrorNoMemory);
@@ -510,7 +510,7 @@ TEST(VectorTest, PushBackArithmeticValue)
     EXPECT_EQ(vec.size(), sizeof(value));
     EXPECT_EQ(vec.capacity(), 2 * sizeof(value));
 
-    Vector<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> vec2;
+    Vector<uint8_t, RkGenericAllocatorHelperT<uint8_t>> vec2;
 
     EXPECT_EQ(vec2.pushBackArithmeticValue(value), Status::ErrorNoMemory);
     EXPECT_EQ(vec2.size(), 0);
@@ -577,7 +577,7 @@ TEST(VectorTest, ReplacePod)
 {
     FReplace<PodStruct>();
 
-    Vector<PodStruct, GenericAllocatorHelper<PodStruct, RawKeeperAllocator<PodStruct>>> vec_pod;
+    Vector<PodStruct, RkGenericAllocatorHelperT<PodStruct>> vec_pod;
     PodStruct psArr{ "456" };
 
     EXPECT_EQ(vec_pod.replace(&psArr, 1, 0), Status::ErrorNoMemory);
@@ -693,7 +693,7 @@ TEST(VectorTest, InsertPod)
 {
     FInsert<PodStruct>();
 
-    Vector<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> vec;
+    Vector<uint8_t, RkGenericAllocatorHelperT<uint8_t>> vec;
     uint8_t i = 1;
 
     EXPECT_EQ(vec.insert(&i, 1, 0), Status::ErrorNoMemory);
@@ -818,7 +818,7 @@ TEST(VectorTest, InsertItPod)
 {
     FInsertIt<PodStruct>();
 
-    Vector<uint8_t, GenericAllocatorHelper<uint8_t, RawKeeperAllocator<uint8_t>>> vec;
+    Vector<uint8_t, RkGenericAllocatorHelperT<uint8_t>> vec;
     uint8_t i = 0;
     vec.getAllocatorHelper().getAllocator().setStorage(&i, 1);
     vec.pushBack(i);
@@ -1224,7 +1224,7 @@ TEST(VectorTest, MaxSize)
 
     EXPECT_EQ(vec1.max_size(), (ConstructorNoexceptAllocator<std::string>().max_size()));
 
-    Vector<uint8_t, StrategicAllocatorHelper<uint8_t, RawNoexceptAllocator<uint8_t>>> vec2;
+    Vector<uint8_t, RStrategicAllocatorHelperT<uint8_t>> vec2;
 
     EXPECT_EQ(vec2.max_size(), RawNoexceptAllocator<uint8_t>().max_size());
 }

@@ -87,30 +87,31 @@ public:
 
     /// @brief Allocates storage and constructs an object 
     ///     or array of objects using supplied arguments
-    /// @tparam T Type of object(s) to create
     /// @tparam AllocatorHelper Type that implements AllocatorHelper interface
     /// @tparam ...Args Parameters types that go to ctor of every element
     /// @param n 
     /// @param ...args Parameters that go to ctor of every element
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     ///     or if object construction process return error.
-    template<typename _T, typename _AllocatorHelper, typename... _Args>
-    _T* allocateAndConstruct(size_t n, _Args&&... args)
+    template<typename _AllocatorHelper, typename... _Args>
+    _AllocatorHelper::pointer allocateAndConstruct(size_t n, _Args&&... args)
     {
         if (m_p)
             destroyAndDeallocate();
+
+        using pointer = typename _AllocatorHelper::pointer;
 
         _AllocatorHelper allocatorHelper{};
 
         if (n > allocatorHelper.getAllocator().max_size())
             return nullptr;
 
-        _T* p = allocatorHelper.allocateAndConstruct(n, nullptr, std::forward<_Args>(args)...);
+        pointer p = allocatorHelper.allocateAndConstruct(n, nullptr, std::forward<_Args>(args)...);
         if (p)
         {
             m_p = p;
             m_size = n;
-            m_destroyAndDeallocate = reinterpret_cast<DestroyAndDeallocateFunc>(&destroyAndDeallocateHelper<_T, _AllocatorHelper>);
+            m_destroyAndDeallocate = reinterpret_cast<DestroyAndDeallocateFunc>(&destroyAndDeallocateHelper<_AllocatorHelper>);
         }
 
         return p;
@@ -119,7 +120,7 @@ public:
     template<typename _T, typename... _Args>
     _T* allocateAndConstructOne(_Args&&... args)
     {
-        return allocateAndConstruct<_T, CGenericAllocatorHelperT<_T>, _Args...>(1, std::forward<_Args>(args)...);
+        return allocateAndConstruct<CGenericAllocatorHelperT<_T>, _Args...>(1, std::forward<_Args>(args)...);
     }
 
     /// @brief Destroys holding objects 
@@ -144,8 +145,8 @@ public:
     }
 
 private:
-    template<typename _T, typename _AllocatorHelper>
-    static void destroyAndDeallocateHelper(_T* p, size_t n)
+    template<typename _AllocatorHelper>
+    static void destroyAndDeallocateHelper(typename _AllocatorHelper::pointer p, size_t n)
     {
         _AllocatorHelper().destroyAndDeallocate(p, n);
     }

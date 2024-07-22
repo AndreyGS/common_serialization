@@ -28,25 +28,25 @@
 namespace common_serialization
 {
 
-template<typename T, typename AllocatorHelper = StrategicAllocatorHelper<T, ConstructorNoexceptAllocator<T>>>
+template<typename T, typename _AllocatorHelper = CStrategicAllocatorHelperT<T>>
 class Walker
 {
 public:
-    using value_type = typename Vector<T, AllocatorHelper>::value_type;
-    using size_type = typename Vector<T, AllocatorHelper>::size_type;
+    using value_type = typename Vector<T, _AllocatorHelper>::value_type;
+    using size_type = typename Vector<T, _AllocatorHelper>::size_type;
 
-    using iterator = VectorIterator<Vector<T, AllocatorHelper>>;
-    using const_iterator = ConstVectorIterator<Vector<T, AllocatorHelper>>;
+    using iterator = VectorIterator<Vector<T, _AllocatorHelper>>;
+    using const_iterator = ConstVectorIterator<Vector<T, _AllocatorHelper>>;
 
     Walker() = default;
 
-    explicit constexpr Walker(const Vector<T, AllocatorHelper>& rhs);
-    explicit constexpr Walker(Vector<T, AllocatorHelper>&& rhs) noexcept;
+    explicit constexpr Walker(const Vector<T, _AllocatorHelper>& rhs);
+    explicit constexpr Walker(Vector<T, _AllocatorHelper>&& rhs) noexcept;
 
     constexpr Status init(const Walker& rhs);
     constexpr Status init(Walker&& rhs) noexcept;
-    constexpr Status init(const Vector<T, AllocatorHelper>& rhs);
-    constexpr Status init(Vector<T, AllocatorHelper>&& rhs) noexcept;
+    constexpr Status init(const Vector<T, _AllocatorHelper>& rhs);
+    constexpr Status init(Vector<T, _AllocatorHelper>&& rhs) noexcept;
 
     // only set data size, no default values are set
     constexpr Status setSize(size_type n) noexcept
@@ -96,11 +96,11 @@ public:
     // you shall free memory returned by this method manually
     [[nodiscard]] constexpr T* release() noexcept;
 
-    [[nodiscard]] constexpr AllocatorHelper& getAllocatorHelper() noexcept;
-    [[nodiscard]] constexpr const AllocatorHelper& getAllocatorHelper() const noexcept;
+    [[nodiscard]] constexpr _AllocatorHelper& getAllocatorHelper() noexcept;
+    [[nodiscard]] constexpr const _AllocatorHelper& getAllocatorHelper() const noexcept;
 
-    [[nodiscard]] constexpr Vector<T, AllocatorHelper>& getVector() noexcept;
-    [[nodiscard]] constexpr const Vector<T, AllocatorHelper>& getVector() const noexcept;
+    [[nodiscard]] constexpr Vector<T, _AllocatorHelper>& getVector() noexcept;
+    [[nodiscard]] constexpr const Vector<T, _AllocatorHelper>& getVector() const noexcept;
 
     [[nodiscard]] constexpr size_type tell() const noexcept;
     constexpr Status seek(size_type offset) noexcept;
@@ -108,24 +108,24 @@ public:
 private:
     void setValidOffset(size_type offset) noexcept;
 
-    Vector<T, AllocatorHelper> m_vector;
+    Vector<T, _AllocatorHelper> m_vector;
     size_type m_offset{ 0 };
 };
 
-template<typename T, typename AllocatorHelper>
-constexpr Walker<T, AllocatorHelper>::Walker(const Vector<T, AllocatorHelper>& rhs)
+template<typename T, typename _AllocatorHelper>
+constexpr Walker<T, _AllocatorHelper>::Walker(const Vector<T, _AllocatorHelper>& rhs)
 {
     init(rhs);
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Walker<T, AllocatorHelper>::Walker(Vector<T, AllocatorHelper>&& rhs) noexcept
+template<typename T, typename _AllocatorHelper>
+constexpr Walker<T, _AllocatorHelper>::Walker(Vector<T, _AllocatorHelper>&& rhs) noexcept
 {
     init(std::move(rhs));
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::init(const Walker& rhs)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::init(const Walker& rhs)
 {
     if (this != &rhs)
     {
@@ -136,8 +136,8 @@ constexpr Status Walker<T, AllocatorHelper>::init(const Walker& rhs)
     return Status::NoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::init(Walker&& rhs) noexcept
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::init(Walker&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -149,8 +149,8 @@ constexpr Status Walker<T, AllocatorHelper>::init(Walker&& rhs) noexcept
     return Status::NoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::init(const Vector<T, AllocatorHelper>& rhs)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::init(const Vector<T, _AllocatorHelper>& rhs)
 {
     if (&this->getVector() != &rhs)
     {
@@ -161,8 +161,8 @@ constexpr Status Walker<T, AllocatorHelper>::init(const Vector<T, AllocatorHelpe
     return Status::NoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::init(Vector<T, AllocatorHelper>&& rhs) noexcept
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::init(Vector<T, _AllocatorHelper>&& rhs) noexcept
 {
     if (&this->getVector() != &rhs)
     {
@@ -173,8 +173,8 @@ constexpr Status Walker<T, AllocatorHelper>::init(Vector<T, AllocatorHelper>&& r
     return Status::NoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::setSize(size_type n) noexcept
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::setSize(size_type n) noexcept
     requires std::is_trivially_copyable_v<T>
 {
     Status status = m_vector.setSize(n);
@@ -182,14 +182,14 @@ constexpr Status Walker<T, AllocatorHelper>::setSize(size_type n) noexcept
     return status;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::reserve(size_type n)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::reserve(size_type n)
 {
     return m_vector.reserve(n);
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::reserve_from_current_offset(size_type n)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::reserve_from_current_offset(size_type n)
 {
     if (m_offset + n < m_offset)
         return Status::ErrorOverflow;
@@ -197,33 +197,33 @@ constexpr Status Walker<T, AllocatorHelper>::reserve_from_current_offset(size_ty
         return m_vector.reserve(m_offset + n);
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::pushBack(const T& value)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::pushBack(const T& value)
 {
     Status status = m_vector.pushBack(value);
     m_offset = size();
     return status;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::pushBack(T&& value)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::pushBack(T&& value)
 {
     Status status = m_vector.pushBack(std::move(value));
     m_offset = size();
     return status;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::pushBackN(const T* p, size_type n)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::pushBackN(const T* p, size_type n)
 {
     Status status = m_vector.pushBackN(p, n);
     m_offset = size();
     return status;
 }
 
-template<typename T, typename AllocatorHelper>
+template<typename T, typename _AllocatorHelper>
 template<typename V>
-constexpr Status Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value)
+constexpr Status Walker<T, _AllocatorHelper>::pushBackArithmeticValue(V value)
     requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
 {
     Status status = m_vector.pushBackArithmeticValue(value);
@@ -231,8 +231,8 @@ constexpr Status Walker<T, AllocatorHelper>::pushBackArithmeticValue(V value)
     return status;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::replace(const T* p, size_type n, size_type offset)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::replace(const T* p, size_type n, size_type offset)
 {
     setValidOffset(offset);
     CS_RUN(m_vector.replace(p, n, offset));
@@ -241,9 +241,9 @@ constexpr Status Walker<T, AllocatorHelper>::replace(const T* p, size_type n, si
     return Status::NoError;
 }
 
-template<typename T, typename AllocatorHelper>
+template<typename T, typename _AllocatorHelper>
 template<typename V>
-constexpr Status Walker<T, AllocatorHelper>::readArithmeticValue(V& value) noexcept
+constexpr Status Walker<T, _AllocatorHelper>::readArithmeticValue(V& value) noexcept
     requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
 {
     if (sizeof(V) + m_offset <= size())
@@ -256,8 +256,8 @@ constexpr Status Walker<T, AllocatorHelper>::readArithmeticValue(V& value) noexc
         return Status::ErrorOverflow;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::insert(const T* p, size_type n, size_type offset)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::insert(const T* p, size_type n, size_type offset)
 {
     size_type oldSize = size();
     setValidOffset(offset);
@@ -268,9 +268,9 @@ constexpr Status Walker<T, AllocatorHelper>::insert(const T* p, size_type n, siz
     return Status::NoError;
 }
 
-template<typename T, typename AllocatorHelper>
+template<typename T, typename _AllocatorHelper>
 template<typename ItSrc>
-constexpr Status Walker<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
+constexpr Status Walker<T, _AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
 {
     size_type oldSize = size();
     size_type newOffset = destBegin - m_vector.begin();
@@ -282,29 +282,29 @@ constexpr Status Walker<T, AllocatorHelper>::insert(ItSrc srcBegin, ItSrc srcEnd
     return Status::NoError;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::erase(size_type offset, size_type n)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::erase(size_type offset, size_type n)
 {
     setValidOffset(offset);
     return m_vector.erase(offset, n);
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::erase(iterator destBegin, iterator destEnd)
 {
     size_type offset = destBegin - m_vector.begin();
     setValidOffset(offset);
     return m_vector.erase(destBegin, destEnd);
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::write(const T* p, size_type n)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::write(const T* p, size_type n)
 {
     return replace(p, n, m_offset);
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::read(T* p, size_type n, size_type* pNRead)
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::read(T* p, size_type n, size_type* pNRead)
 {
     T* pNew = nullptr;
 
@@ -319,107 +319,107 @@ constexpr Status Walker<T, AllocatorHelper>::read(T* p, size_type n, size_type* 
     return Status::NoError;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr T* Walker<T, AllocatorHelper>::data() noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr T* Walker<T, _AllocatorHelper>::data() noexcept
 {
     return m_vector.data();
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const T* Walker<T, AllocatorHelper>::data() const noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr const T* Walker<T, _AllocatorHelper>::data() const noexcept
 {
     return m_vector.data();
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr T& Walker<T, AllocatorHelper>::operator[](size_type offset)
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr T& Walker<T, _AllocatorHelper>::operator[](size_type offset)
 { 
     setValidOffset(offset);
     return m_vector[offset];
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const T& Walker<T, AllocatorHelper>::operator[](size_type offset) const
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr const T& Walker<T, _AllocatorHelper>::operator[](size_type offset) const
 {
     setValidOffset(offset);
     return m_vector[offset];
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::size() const noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr typename Walker<T, _AllocatorHelper>::size_type Walker<T, _AllocatorHelper>::size() const noexcept
 {
     return m_vector.size();
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::max_size() const noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr typename Walker<T, _AllocatorHelper>::size_type Walker<T, _AllocatorHelper>::max_size() const noexcept
 {
     return m_vector.max_size();
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::capacity() const noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr typename Walker<T, _AllocatorHelper>::size_type Walker<T, _AllocatorHelper>::capacity() const noexcept
 {
     return m_vector.capacity();
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr void Walker<T, AllocatorHelper>::clear() noexcept
+template<typename T, typename _AllocatorHelper>
+constexpr void Walker<T, _AllocatorHelper>::clear() noexcept
 {
     m_vector.clear(), m_offset = 0;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr void Walker<T, AllocatorHelper>::invalidate() noexcept
+template<typename T, typename _AllocatorHelper>
+constexpr void Walker<T, _AllocatorHelper>::invalidate() noexcept
 {
     m_vector.invalidate(), m_offset = 0;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr T* Walker<T, AllocatorHelper>::release() noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr T* Walker<T, _AllocatorHelper>::release() noexcept
 {
     return m_offset = 0, m_vector.release();
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr AllocatorHelper& Walker<T, AllocatorHelper>::getAllocatorHelper() noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr _AllocatorHelper& Walker<T, _AllocatorHelper>::getAllocatorHelper() noexcept
 {
     return m_vector.getAllocatorHelper();
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const AllocatorHelper& Walker<T, AllocatorHelper>::getAllocatorHelper() const noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr const _AllocatorHelper& Walker<T, _AllocatorHelper>::getAllocatorHelper() const noexcept
 {
     return m_vector.getAllocatorHelper();
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr Vector<T, AllocatorHelper>& Walker<T, AllocatorHelper>::getVector() noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr Vector<T, _AllocatorHelper>& Walker<T, _AllocatorHelper>::getVector() noexcept
 {
     return m_vector;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr const Vector<T, AllocatorHelper>& Walker<T, AllocatorHelper>::getVector() const noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr const Vector<T, _AllocatorHelper>& Walker<T, _AllocatorHelper>::getVector() const noexcept
 {
     return m_vector;
 }
 
-template<typename T, typename AllocatorHelper>
-[[nodiscard]] constexpr typename Walker<T, AllocatorHelper>::size_type Walker<T, AllocatorHelper>::tell() const noexcept
+template<typename T, typename _AllocatorHelper>
+[[nodiscard]] constexpr typename Walker<T, _AllocatorHelper>::size_type Walker<T, _AllocatorHelper>::tell() const noexcept
 {
     return m_offset;
 }
 
-template<typename T, typename AllocatorHelper>
-constexpr Status Walker<T, AllocatorHelper>::seek(size_type offset) noexcept
+template<typename T, typename _AllocatorHelper>
+constexpr Status Walker<T, _AllocatorHelper>::seek(size_type offset) noexcept
 {
     setValidOffset(offset);
     return offset <= size() ? Status::NoError : Status::ErrorOverflow;
 }
 
-template<typename T, typename AllocatorHelper>
-void Walker<T, AllocatorHelper>::setValidOffset(size_type offset) noexcept
+template<typename T, typename _AllocatorHelper>
+void Walker<T, _AllocatorHelper>::setValidOffset(size_type offset) noexcept
 {
     m_offset = offset < size() ? offset : size();
 }

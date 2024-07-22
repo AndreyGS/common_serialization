@@ -32,15 +32,15 @@ namespace common_serialization::csp::messaging
 /// @brief Properties of IServerDataHandler
 template<typename _T>
 concept IServerDataHandlerTraits
-    =  ISerializableBased<typename _T::InputType>
-    && ISerializableBased<typename _T::OutputType>
+    =  ISerializableImpl<typename _T::InputType>
+    && ISerializableImpl<typename _T::OutputType>
     && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>
     && std::is_same_v<const bool, decltype(_T::kMulticast)>
     && std::is_same_v<const interface_version_t, decltype(_T::kMinimumInterfaceVersion)>;
 
 template<
-      ISerializableBased _InputType
-    , ISerializableBased _OutputType
+      ISerializableImpl _InputType
+    , ISerializableImpl _OutputType
     , bool _forTempUseHeap
     , bool _multicast
     , interface_version_t _minimumInterfaceVersion
@@ -55,7 +55,7 @@ struct IServerDataHandlerTraitsConcrete
     static constexpr interface_version_t kMinimumInterfaceVersion = _minimumInterfaceVersion;
 };
 
-template<ISerializableBased _InputType, ISerializableBased _OutputType>
+template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
 struct MinimumInterfaceVersion
 {
     static constexpr interface_version_t value
@@ -65,29 +65,29 @@ struct MinimumInterfaceVersion
 };
 
 template<
-      ISerializableBased _InputType
-    , ISerializableBased _OutputType
+      ISerializableImpl _InputType
+    , ISerializableImpl _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
 using SdhStack = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, false, false, _minimumInterfaceVersion>;
 
 template<
-      ISerializableBased _InputType
-    , ISerializableBased _OutputType
+      ISerializableImpl _InputType
+    , ISerializableImpl _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
 using SdhStackMulti = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, false, true, _minimumInterfaceVersion>;
 
 template<
-      ISerializableBased _InputType
-    , ISerializableBased _OutputType
+      ISerializableImpl _InputType
+    , ISerializableImpl _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
 using SdhHeap = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, true, false, _minimumInterfaceVersion>;
 
 template<
-      ISerializableBased _InputType
-    , ISerializableBased _OutputType
+      ISerializableImpl _InputType
+    , ISerializableImpl _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
 using SdhHeapMulti = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, true, true, _minimumInterfaceVersion>;

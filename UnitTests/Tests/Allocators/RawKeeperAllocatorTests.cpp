@@ -28,7 +28,7 @@ namespace
 {
 
 template<typename T>
-using ConstructorVectorAllocatorHelper = GenericAllocatorHelper<T, RawKeeperAllocator<T>>;
+using ConstructorVectorAllocatorHelper = RkGenericAllocatorHelperT<T>;
 
 using size_type = typename Vector<int, ConstructorVectorAllocatorHelper<int>>::size_type;
 

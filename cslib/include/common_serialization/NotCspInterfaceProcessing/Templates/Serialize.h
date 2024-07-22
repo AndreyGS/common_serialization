@@ -28,7 +28,7 @@
 namespace common_serialization::csp::processing::data::templates
 {
 
-template<typename T, typename A, typename X>
+template<typename T, IAllocatorHelperImpl A, typename X>
 Status serialize(const Vector<T, A>& value, X& ctx)
 {
     CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));

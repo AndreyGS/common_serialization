@@ -146,10 +146,7 @@ concept EmptyType
     =  requires(T t) { typename normalize_t<T>::empty_type_tag; };
 
 template<typename T>
-concept ISerializableBased = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;
-
-template<typename T>
-concept NotISerializableBased = !ISerializableBased<T>;
+concept ISerializableImpl = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;
 
 template<typename T>
 concept StructHaveDataFlags = requires
