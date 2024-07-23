@@ -31,7 +31,9 @@ namespace common_serialization
 ///     Any synchronization if need shall be used additionally.
 /// @tparam _T Type of objects that allocator would allocate and construct
 template<typename _T>
-class RawKeeperAllocator : public IAllocator<RawAllocatorTraits<_T>, RawKeeperAllocator<_T>>
+class RawKeeperAllocator 
+    : public IAllocator<RawAllocatorTraits<_T>, RawKeeperAllocator<_T>>
+    , public IStorageSetter<RawKeeperAllocator<_T>>
 {
 public:
     using allocator_traits = RawAllocatorTraits<_T>;
@@ -41,7 +43,8 @@ public:
     using difference_type = typename allocator_traits::difference_type;
     using constructor_allocator = typename allocator_traits::constructor_allocator;
 
-    using interface_type = IAllocator<RawAllocatorTraits<_T>, RawKeeperAllocator<_T>>;
+    using allocator_interface_type = IAllocator<RawAllocatorTraits<_T>, RawKeeperAllocator<_T>>;
+    using storage_setter_interface_type = IStorageSetter<RawKeeperAllocator<_T>>;
 
     CS_ALWAYS_INLINE constexpr RawKeeperAllocator() = default;
 
@@ -107,24 +110,9 @@ public:
         return operator=<value_type>(std::move(rhs));
     }
 
-    /// @brief Init with storage
-    /// @param p Pointer to storage
-    /// @param memorySize Size of storage
-    constexpr void setStorage(pointer p, size_type memorySize) noexcept
-    {
-        if (p && !memorySize || !p && memorySize)
-        {
-            m_p = nullptr;
-            m_memorySize = 0;
-            return;
-        }
-
-        m_p = p;
-        m_memorySize = memorySize;
-    }
-    
 protected:
-    friend interface_type;
+    friend allocator_interface_type;
+    friend storage_setter_interface_type;
 
     /// @brief Get pointer on storage if n*value_type <= sizeof(storage)
     /// @param n Number of elements of type _T that storage must be capable to hold
@@ -147,10 +135,9 @@ protected:
 
     }
 
-    /// @brief Call ctor with args on memory pointed by p
+    /// @brief Call ctor in range of internal storage
     /// @note If p is out of storage memory range or if it does not
     ///     aligned to sizeof(value_type) unit boundaries, returns error.
-    /// @remark This method only for compatibility
     /// @tparam ..._Args Parameters types that go to ctor
     /// @param p Pointer to memory where object shall be created
     /// @param ...args Parameters that go to ctor
@@ -177,9 +164,24 @@ protected:
 
     /// @brief Get size of storage in value_type units
     /// @return Size of storage in value_type units
-    CS_ALWAYS_INLINE constexpr size_type max_sizeImpl() const noexcept
+    CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
     {
         return m_memorySize;
+    }
+
+    constexpr bool setStorageImpl(pointer p, size_t size) noexcept
+    {
+        if (p && !size || !p && size)
+        {
+            m_p = nullptr;
+            m_memorySize = 0;
+            return false;
+        }
+
+        m_p = reinterpret_cast<pointer>(p);
+        m_memorySize = size;
+
+        return true;
     }
 
 private:

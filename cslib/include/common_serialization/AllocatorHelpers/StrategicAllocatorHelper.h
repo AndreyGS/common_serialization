@@ -28,19 +28,15 @@
 namespace common_serialization
 {
 
-enum class AllocationStrategy
-{
-    StrictByDataSize,
-    DoubleOfDataSize
-};
-
 /// @brief Stateful allocator helper which allocates storage
 ///     using allocation strategy
 /// @tparam _Allocator Class that implement IAllocatorImpl interface
 /// @tparam _MostDerivedClass Instance type. But if type of current instance 
 ///     is GenericAllocatorHelper it must be Dummy.
 template<IAllocatorImpl _Allocator, typename _MostDerivedClass = Dummy>
-class StrategicAllocatorHelper : public GenericAllocatorHelper<_Allocator, GetCrtpMainType<StrategicAllocatorHelper<_Allocator>, _MostDerivedClass>>
+class StrategicAllocatorHelper 
+    : public GenericAllocatorHelper<_Allocator, GetCrtpMainType<StrategicAllocatorHelper<_Allocator>, _MostDerivedClass>>
+    , public IAllocationStrategyUser<GetCrtpMainType<StrategicAllocatorHelper<_Allocator>, _MostDerivedClass>>
 {
 public:
     using allocator_type = _Allocator;
@@ -55,66 +51,56 @@ public:
     using instance_type = GetCrtpMainType<StrategicAllocatorHelper<allocator_type>, _MostDerivedClass>;
 
     /// @brief IAllocatorHelper interface
-    using interface_type = IAllocatorHelper<allocator_type, instance_type>;
+    using allocator_helper_interface_type = IAllocatorHelper<allocator_type, instance_type>;
 
-    explicit constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::DoubleOfDataSize) noexcept;
+    using allocation_strategy_user_interface_type = IAllocationStrategyUser<instance_type>;
+
+    explicit constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::DoubleOfDataSize) noexcept
+        : GenericAllocatorHelper<allocator_type, instance_type>(), m_allocation_strategy(allocationStrategy)
+    { }
+
+protected:
+    friend allocator_helper_interface_type;
+    friend allocation_strategy_user_interface_type;
 
     /// @brief Get current allocation strategy
     /// @return Current allocation strategy
-    [[nodiscard]] constexpr AllocationStrategy getAllocationStrategy() const noexcept;
+    [[nodiscard]] constexpr AllocationStrategy getAllocationStrategyImpl() const noexcept
+    {
+        return m_allocation_strategy;
+    }
 
     /// @brief Set allocation strategy
     /// @param allocationStrategy Allocation strategy
-    constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept;
+    constexpr void setAllocationStrategyImpl(AllocationStrategy allocationStrategy) noexcept
+    {
+        m_allocation_strategy = allocationStrategy;
+    }
 
-protected:
-    friend interface_type;
+    [[nodiscard]] constexpr pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
+    {
+        value_type* p = nullptr;
 
-    [[nodiscard]] constexpr pointer allocateImpl(size_type n, size_type* pAllocatedN) const;
+        if (m_allocation_strategy == AllocationStrategy::DoubleOfDataSize)
+        {
+            *pAllocatedN = requestedN << 1;
+            p = this->allocateStrict(*pAllocatedN);
+        }
+
+        if (!p)
+        {
+            *pAllocatedN = requestedN;
+            p = this->allocateStrict(*pAllocatedN);
+        }
+
+        if (!p)
+            *pAllocatedN = 0;
+
+        return p;
+    }
 
 private:
     AllocationStrategy m_allocation_strategy{ AllocationStrategy::DoubleOfDataSize };
 };
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::StrategicAllocatorHelper(AllocationStrategy allocationStrategy) noexcept
-    : GenericAllocatorHelper<allocator_type, instance_type>(), m_allocation_strategy(allocationStrategy)
-{ }
-
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr AllocationStrategy StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::getAllocationStrategy() const noexcept
-{
-    return m_allocation_strategy;
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr void StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
-{
-    m_allocation_strategy = allocationStrategy;
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::pointer StrategicAllocatorHelper<_Allocator, _MostDerivedClass>::allocateImpl(size_type requestedN, size_type* pAllocatedN) const
-{
-    value_type* p = nullptr;
-
-    if (m_allocation_strategy == AllocationStrategy::DoubleOfDataSize)
-    {
-        *pAllocatedN = requestedN << 1;
-        p = this->allocateStrict(*pAllocatedN);
-    }
-
-    if (!p)
-    {
-        *pAllocatedN = requestedN;
-        p = this->allocateStrict(*pAllocatedN);
-    }
-
-    if (!p)
-        *pAllocatedN = 0;
-
-    return p;
-}
 
 } // namespace common_serialization

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelperInterface/allocator_helper_interface.h
+ * @file cslib/include/common_serialization/MemoryManagement/Typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,5 +23,9 @@
 
 #pragma once
 
-#include "common_serialization/Common/common.h"
-#include "common_serialization/AllocatorHelperInterface/IAllocatorHelper.h"
+namespace common_serialization
+{
+
+using HeapAllocatorT = HeapAllocator;
+
+} // namespace common_serialization

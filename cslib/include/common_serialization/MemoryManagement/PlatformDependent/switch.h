@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "common_serialization/MemoryManagementInterfaces/IStorageAllocator.h"
+
 #if defined WINDOWS_KERNEL
 
 #include "common_serialization/MemoryManagement/PlatformDependent/WindowsKernel.h"

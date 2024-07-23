@@ -29,8 +29,8 @@ namespace common_serialization
 /// @brief Constructor Allocator that not throwing
 ///     (as long as constructed objects don't do it)
 /// @tparam _T Type of objects that allocator would allocate and construct
-template<typename _T>
-class ConstructorNoexceptAllocator : public IAllocator<ConstructorAllocatorTraits<_T>, ConstructorNoexceptAllocator<_T>>
+template<typename _T, IStorageAllocatorImpl _StorageAllocator = HeapAllocatorT>
+class ConstructorNoexceptAllocator : public IAllocator<ConstructorAllocatorTraits<_T, _StorageAllocator>, ConstructorNoexceptAllocator<_T>>
 {
 public:
     using allocator_traits = ConstructorAllocatorTraits<_T>;
@@ -38,9 +38,10 @@ public:
     using pointer = typename allocator_traits::pointer;
     using size_type = typename allocator_traits::size_type;
     using difference_type = typename allocator_traits::difference_type;
+    using storage_allocator = _StorageAllocator;
     using constructor_allocator = typename allocator_traits::constructor_allocator;
 
-    using interface_type = IAllocator<ConstructorAllocatorTraits<_T>, ConstructorNoexceptAllocator<_T>>;
+    using allocator_interface_type = IAllocator<ConstructorAllocatorTraits<_T>, ConstructorNoexceptAllocator<_T>>;
 
     constexpr ConstructorNoexceptAllocator() = default;
 
@@ -51,7 +52,7 @@ public:
     explicit constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator<_T2>&) noexcept {}
 
 protected:
-    friend interface_type;
+    friend allocator_interface_type;
 
     [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateImpl(size_type n) const noexcept
     {
@@ -96,7 +97,7 @@ protected:
         p->~value_type();
     }
 
-    CS_ALWAYS_INLINE constexpr size_type max_sizeImpl() const noexcept
+    CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
     {
         return max_size_v;
     }

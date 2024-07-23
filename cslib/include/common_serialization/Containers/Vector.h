@@ -330,8 +330,6 @@ public:
     /// @return Status of initialization
     constexpr Status init(Vector&& rhs) noexcept;
 
-    // only set data size, no default values are set
-
     /// @brief Set size of data
     /// @note For trivially copyable types.
     ///     Only set data size, no default values are set.

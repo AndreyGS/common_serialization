@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/MemoryManagement/PlatformDependent/UserMode.h
+ * @file cslib/include/common_serialization/MemoryManagementInterfaces/IStorageAllocator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -20,30 +20,34 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-
 #pragma once
 
 namespace common_serialization
 {
 
-/// @brief Raw heap allocator that not throwing
-class HeapAllocator : public IStorageAllocator<HeapAllocator>
+/// @brief Interface for allocation of raw storage
+/// @tparam _PsAllocator Most derived class (instance type)
+template<typename _StorageAllocator>
+class IStorageAllocator
 {
 public:
-    using storage_allocator_interface_type = IStorageAllocator<HeapAllocator>;
-
-protected:
-    friend storage_allocator_interface_type;
-
-    [[nodiscard]] CS_ALWAYS_INLINE void* allocateImpl(size_t dataSizeInBytes) noexcept
+    /// @brief Allocate memory
+    /// @param dataSizeInBytes Requested size
+    /// @return Pointer to allocated storage
+    [[nodiscard]] inline void* allocate(size_t dataSizeInBytes) noexcept
     {
-        return std::malloc(dataSizeInBytes);
+        return static_cast<IStorageAllocator*>(this)->allocate(dataSizeInBytes);
     }
 
-    CS_ALWAYS_INLINE void deallocateImpl(void* p) noexcept
+    /// @brief Deallocate memory
+    /// @param p Pointer to previously allocated storage
+    inline void deallocate(void* p) noexcept
     {
-        std::free(p);
+        static_cast<IStorageAllocator*>(this)->deallocate(p);
     }
 };
+
+template<typename _StorageAllocator>
+concept IStorageAllocatorImpl = std::is_base_of_v<IStorageAllocator<normalize_t<_StorageAllocator>>, normalize_t<_StorageAllocator>>;
 
 } // namespace common_serialization

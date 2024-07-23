@@ -27,7 +27,7 @@
 #pragma once
 
 #include "common_serialization/Common/Concepts.h"
-#include "common_serialization/AllocatorHelperInterface/IAllocatorHelper.h"
+#include "common_serialization/AllocatorHelperInterfaces/IAllocatorHelper.h"
 
 namespace common_serialization
 {

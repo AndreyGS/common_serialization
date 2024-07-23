@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/MemoryManagement/PlatformDependent/UserMode.h
+ * @file cslib/include/common_serialization/MemoryManagementInterfaces/memory_management_interfaces.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,27 +23,5 @@
 
 #pragma once
 
-namespace common_serialization
-{
-
-/// @brief Raw heap allocator that not throwing
-class HeapAllocator : public IStorageAllocator<HeapAllocator>
-{
-public:
-    using storage_allocator_interface_type = IStorageAllocator<HeapAllocator>;
-
-protected:
-    friend storage_allocator_interface_type;
-
-    [[nodiscard]] CS_ALWAYS_INLINE void* allocateImpl(size_t dataSizeInBytes) noexcept
-    {
-        return std::malloc(dataSizeInBytes);
-    }
-
-    CS_ALWAYS_INLINE void deallocateImpl(void* p) noexcept
-    {
-        std::free(p);
-    }
-};
-
-} // namespace common_serialization
+#include "common_serialization/Common/common.h"
+#include "common_serialization/MemoryManagementInterfaces/IStorageAllocator.h"

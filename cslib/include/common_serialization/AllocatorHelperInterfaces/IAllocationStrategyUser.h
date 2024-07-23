@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/MemoryManagement/PlatformDependent/UserMode.h
+ * @file cslib/include/common_serialization/AllocatorHelperInterfaces/IAllocationStrategyUser.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,27 +23,39 @@
 
 #pragma once
 
+#include "common_serialization/AllocatorInterfaces/allocator_interface.h"
+
 namespace common_serialization
 {
 
-/// @brief Raw heap allocator that not throwing
-class HeapAllocator : public IStorageAllocator<HeapAllocator>
+enum class AllocationStrategy
+{
+    StrictByDataSize,
+    DoubleOfDataSize
+};
+
+/// @brief Interface of user of allocation strategy (CRTP)
+/// @tparam _User Most derived class (instance type)
+template<typename _User>
+class IAllocationStrategyUser
 {
 public:
-    using storage_allocator_interface_type = IStorageAllocator<HeapAllocator>;
-
-protected:
-    friend storage_allocator_interface_type;
-
-    [[nodiscard]] CS_ALWAYS_INLINE void* allocateImpl(size_t dataSizeInBytes) noexcept
+    /// @brief Get current allocation strategy
+    /// @return Current allocation strategy
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr AllocationStrategy getAllocationStrategy() const noexcept
     {
-        return std::malloc(dataSizeInBytes);
+        return static_cast<const _User*>(this)->getAllocationStrategyImpl();
     }
 
-    CS_ALWAYS_INLINE void deallocateImpl(void* p) noexcept
+    /// @brief Set allocation strategy
+    /// @param allocationStrategy Allocation strategy
+    CS_ALWAYS_INLINE constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
     {
-        std::free(p);
+        static_cast<const _User*>(this)->setAllocationStrategyImpl(allocationStrategy);
     }
 };
+
+template<typename _User>
+concept IAllocationStrategyUserImpl = std::is_base_of_v<IAllocationStrategyUser<normalize_t<_User>>, normalize_t<_User>>;
 
 } // namespace common_serialization

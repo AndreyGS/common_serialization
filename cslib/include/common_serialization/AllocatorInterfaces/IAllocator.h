@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorInterface/IAllocator.h
+ * @file cslib/include/common_serialization/AllocatorInterfaces/IAllocator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include "common_serialization/AllocatorInterface/IAllocatorTraits.h"
+#include "common_serialization/AllocatorInterfaces/IAllocatorTraits.h"
 
 namespace common_serialization
 {
@@ -88,7 +88,7 @@ public:
     /// @return Maximum number of objects
     CS_ALWAYS_INLINE constexpr size_type max_size() const noexcept
     {
-        return static_cast<const _Allocator*>(this)->max_sizeImpl();
+        return static_cast<const _Allocator*>(this)->max_size_impl();
     }
 };
 

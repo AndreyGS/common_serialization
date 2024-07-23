@@ -24,8 +24,11 @@
 #pragma once
 
 #include "common_serialization/Common/common.h"
-#include "common_serialization/AllocatorHelperInterface/allocator_helper_interface.h"
+#include "common_serialization/AllocatorHelperInterfaces/allocator_helper_interface.h"
 
 #include "common_serialization/AllocatorHelpers/GenericAllocatorHelper.h"
 #include "common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h"
+
+#ifndef CS_CUSTOM_ALLOCATOR_HELPER_TYPEDEFS
 #include "common_serialization/AllocatorHelpers/Typdefs.h"
+#endif

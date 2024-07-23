@@ -23,17 +23,27 @@
 
 #pragma once
 
-namespace common_serialization::memory_management
+namespace common_serialization
 {
 
-[[nodiscard]] inline void* allocate(size_t dataSizeInBytes) noexcept
+/// @brief Raw heap allocator that not throwing
+class HeapAllocator : public IStorageAllocator<HeapAllocator>
 {
-    return ExAllocatePool2(POOL_FLAG_NON_PAGED | POOL_FLAG_UNINITIALIZED, dataSizeInBytes, "s-ga");
-}
+public:
+    using storage_allocator_interface_type = IStorageAllocator<HeapAllocator>;
 
-inline void deallocate(void* p) noexcept
-{
-    ExFreePool(p);
-}
+protected:
+    friend storage_allocator_interface_type;
 
-} // namespace common_serialization::memory_management
+    [[nodiscard]] CS_ALWAYS_INLINE inline void* allocateImpl(size_t dataSizeInBytes) noexcept
+    {
+        return ExAllocatePool2(POOL_FLAG_NON_PAGED | POOL_FLAG_UNINITIALIZED, dataSizeInBytes, "s-ga");
+    }
+
+    CS_ALWAYS_INLINE inline void deallocateImpl(void* p) noexcept
+    {
+        ExFreePool(p);
+    }
+};
+
+} // namespace common_serialization

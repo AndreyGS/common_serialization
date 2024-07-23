@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/Common/Helpers.h"
-#include "common_serialization/AllocatorHelperInterface/IAllocatorHelper.h"
+#include "common_serialization/AllocatorHelperInterfaces/IAllocatorHelper.h"
 
 namespace common_serialization
 {
@@ -49,276 +49,239 @@ public:
     using instance_type = GetCrtpMainType<GenericAllocatorHelper<allocator_type>, _MostDerivedClass>;
 
     /// @brief IAllocatorHelper interface
-    using interface_type = IAllocatorHelper<_Allocator, instance_type>;
+    using allocator_helper_interface_type = IAllocatorHelper<_Allocator, instance_type>;
 
 protected:
-    friend interface_type;
+    friend allocator_helper_interface_type;
 
     template<typename... Args>
-    [[nodiscard]] constexpr pointer allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const;
-    [[nodiscard]] constexpr pointer allocateImpl(size_type n, size_type* pAllocatedN) const;
-    [[nodiscard]] constexpr pointer allocateStrictImpl(size_type n) const;
+    [[nodiscard]] constexpr pointer allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
+    {
+        size_type allocatedN = 0;
+
+        pointer p = this->allocate(requestedN, &allocatedN);
+
+        if (p)
+        {
+            pointer pNError = nullptr;
+            if (Status status = this->constructN(p, &pNError, allocatedN, std::forward<Args>(args)...); !statusSuccess(status))
+            {
+                this->destroyAndDeallocateImpl(p, pNError - p);
+                allocatedN = 0;
+                p = nullptr;
+            }
+        }
+
+        if (pAllocatedN)
+            *pAllocatedN = allocatedN;
+
+        return p;
+    }
+
+    [[nodiscard]] constexpr pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
+    {
+        pointer p = this->getAllocator().allocate(requestedN);
+
+        if (pAllocatedN)
+            *pAllocatedN = p ? requestedN : 0;
+
+        return p;
+    }
+
+    [[nodiscard]] constexpr pointer allocateStrictImpl(size_type n) const
+    {
+        return this->getAllocator().allocate(n);
+    }
 
     template<typename... Args>
-    constexpr Status constructImpl(pointer p, Args&&... args) const;
-    template<typename... Args>
-    constexpr Status constructNImpl(pointer p, pointer* pNError, size_type n, Args&&... args) const;
-
-    constexpr Status copyDirtyImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const;
-    constexpr Status copyDirtyNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const;
-
-    constexpr Status moveImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const;
-    constexpr Status moveNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const;
-
-    constexpr void destroyAndDeallocateImpl(pointer p, size_type n) const noexcept;
-    constexpr void deallocateImpl(pointer p) const noexcept;
-    constexpr void destroyImpl(pointer p) const noexcept;
-    constexpr void destroyNImpl(pointer p, size_type n) const noexcept;
-
-    constexpr size_type max_size_impl() const noexcept;
-};
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-template<typename... Args>
-constexpr GenericAllocatorHelper<_Allocator, _MostDerivedClass>::pointer GenericAllocatorHelper<_Allocator, _MostDerivedClass>::allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
-{
-    size_type allocatedN = 0;
-
-    pointer p = this->allocate(requestedN, &allocatedN);
-
-    if (p)
+    constexpr Status constructImpl(pointer p, Args&&... args) const
     {
         pointer pNError = nullptr;
-        if (Status status = this->constructN(p, &pNError, allocatedN, std::forward<Args>(args)...); !statusSuccess(status))
-        {
-            this->destroyAndDeallocateImpl(p, pNError - p);
-            allocatedN = 0;
-            p = nullptr;
-        }
+        return this->constructNImpl(p, &pNError, 1, std::forward<Args>(args)...);
     }
 
-    if (pAllocatedN)
-        *pAllocatedN = allocatedN;
-
-    return p;
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr GenericAllocatorHelper<_Allocator, _MostDerivedClass>::pointer GenericAllocatorHelper<_Allocator, _MostDerivedClass>::allocateImpl(size_type requestedN, size_type* pAllocatedN) const
-{
-    pointer p = this->getAllocator().allocate(requestedN);
-
-    if (pAllocatedN)
-        *pAllocatedN = p ? requestedN : 0;
-
-    return p;
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr GenericAllocatorHelper<_Allocator, _MostDerivedClass>::pointer GenericAllocatorHelper<_Allocator, _MostDerivedClass>::allocateStrictImpl(size_type n) const
-{
-    return this->getAllocator().allocate(n);
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-template<typename... Args>
-constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::constructImpl(pointer p, Args&&... args) const
-{
-    pointer pNError = nullptr;
-    return this->constructNImpl(p, &pNError, 1, std::forward<Args>(args)...);
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-template<typename... Args>
-constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::constructNImpl(pointer p, pointer* nError, size_type n, Args&&... args) const
-{
-    if (p)
-        for (size_type i = 0, lastElement = n - 1; i < n; ++i)
-        {
-            Status status = Status::NoError;
-
-            if (i == lastElement)
-                status = this->getAllocator().construct(p++, std::forward<Args>(args)...);
-            else
-                status = this->getAllocator().construct(p++, args...);
-
-            if (!statusSuccess(status))
-            {
-                *nError = p + i;
-                return status;
-            }
-        }
-    else
-        return Status::ErrorInvalidArgument;
-
-    return Status::NoError;
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::copyDirtyImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
-{
-    assert(!n || pDest && pSrc);
-
-    if (pDest == pSrc)
-        return Status::NoError;
-
-    if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
+    template<typename... Args>
+    constexpr Status constructNImpl(pointer p, pointer* pNError, size_type n, Args&&... args) const
     {
-        if constexpr (constructor_allocator::value)
-        {
-            size_type lastElementOffset = n - 1;
-            pDest += lastElementOffset;
-            pSrc += lastElementOffset;
-
-            for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
+        if (p)
+            for (size_type i = 0, lastElement = n - 1; i < n; ++i)
             {
-                if (pDest < pDirtyMemoryFinish)
-                    this->getAllocator().destroy(pDest);
+                Status status = Status::NoError;
 
-                CS_RUN(this->getAllocator().construct(pDest--, *pSrc--));
+                if (i == lastElement)
+                    status = this->getAllocator().construct(p++, std::forward<Args>(args)...);
+                else
+                    status = this->getAllocator().construct(p++, args...);
+
+                if (!statusSuccess(status))
+                {
+                    *pNError = p + i;
+                    return status;
+                }
             }
+        else
+            return Status::ErrorInvalidArgument;
+
+        return Status::NoError;
+    }
+
+    constexpr Status copyDirtyImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
+    {
+        assert(!n || pDest && pSrc);
+
+        if (pDest == pSrc)
+            return Status::NoError;
+
+        if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
+        {
+            if constexpr (constructor_allocator::value)
+            {
+                size_type lastElementOffset = n - 1;
+                pDest += lastElementOffset;
+                pSrc += lastElementOffset;
+
+                for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
+                {
+                    if (pDest < pDirtyMemoryFinish)
+                        this->getAllocator().destroy(pDest);
+
+                    CS_RUN(this->getAllocator().construct(pDest--, *pSrc--));
+                }
+            }
+            else
+                memmove(pDest, pSrc, n * sizeof(value_type));
         }
         else
-            memmove(pDest, pSrc, n * sizeof(value_type));
+            return copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+
+        return Status::NoError;
     }
-    else
-        return copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
 
-    return Status::NoError;
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::copyDirtyNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
-{
-    assert(!n || pDest && pSrc);
-
-    if (pDest == pSrc)
-        return Status::NoError;
-
-    if constexpr (constructor_allocator::value)
-        for (size_type i = 0; i < n; ++i)
-        {
-            if (pDest < pDirtyMemoryFinish)
-                this->getAllocator().destroy(pDest);
-
-            CS_RUN(this->getAllocator().construct(pDest++, *pSrc++));
-        }
-    else
-        memcpy(pDest, pSrc, n * sizeof(value_type));
-
-    return Status::NoError;
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::moveImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
-{
-    assert(!n || pDest && pSrc);
-
-    if (pDest == pSrc)
-        return Status::NoError;
-
-    if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
+    constexpr Status copyDirtyNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
-        if constexpr (constructor_allocator::value)
-        {
-            size_type lastElementOffset = n - 1;
-            pDest += lastElementOffset;
-            pSrc += lastElementOffset;
+        assert(!n || pDest && pSrc);
 
-            for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
+        if (pDest == pSrc)
+            return Status::NoError;
+
+        if constexpr (constructor_allocator::value)
+            for (size_type i = 0; i < n; ++i)
             {
                 if (pDest < pDirtyMemoryFinish)
                     this->getAllocator().destroy(pDest);
-                /*
-                if (Status status = this->getAllocator().construct(pDest--, std::move(*pSrc--)); !statusSuccess(status))
+
+                CS_RUN(this->getAllocator().construct(pDest++, *pSrc++));
+            }
+        else
+            memcpy(pDest, pSrc, n * sizeof(value_type));
+
+        return Status::NoError;
+    }
+
+    constexpr Status moveImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
+    {
+        assert(!n || pDest && pSrc);
+
+        if (pDest == pSrc)
+            return Status::NoError;
+
+        if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
+        {
+            if constexpr (constructor_allocator::value)
+            {
+                size_type lastElementOffset = n - 1;
+                pDest += lastElementOffset;
+                pSrc += lastElementOffset;
+
+                for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
                 {
-                    ++pDest;
+                    if (pDest < pDirtyMemoryFinish)
+                        this->getAllocator().destroy(pDest);
+                    /*
+                    if (Status status = this->getAllocator().construct(pDest--, std::move(*pSrc--)); !statusSuccess(status))
+                    {
+                        ++pDest;
+                        for (pointer pDestDone = pDest - i; pDestDone != pDest;)
+                            this->getAllocator().destroy(pDestDone++);
+                    }*/
+                }
+            }
+            else
+                memmove(pDest, pSrc, n * sizeof(value_type));
+        }
+        else
+            return moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+
+        return Status::NoError;
+    }
+
+    constexpr Status moveNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
+    {
+        assert(!n || pDest && pSrc);
+
+        if (pDest == pSrc)
+            return Status::NoError;
+
+        if constexpr (constructor_allocator::value)
+            for (size_type i = 0; i < n; ++i)
+            {
+                if (pDest < pDirtyMemoryFinish)
+                    this->getAllocator().destroy(pDest);
+
+                if (Status status = this->getAllocator().construct(pDest++, std::move(*pSrc++)); !statusSuccess(status))
+                {
+                    // need to apply logic for overlapping case!
+                    --pDest;
                     for (pointer pDestDone = pDest - i; pDestDone != pDest;)
                         this->getAllocator().destroy(pDestDone++);
-                }*/
-            }
-        }
-        else
-            memmove(pDest, pSrc, n * sizeof(value_type));
-    }
-    else
-        return moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
-
-    return Status::NoError;
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::moveNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
-{
-    assert(!n || pDest && pSrc);
-
-    if (pDest == pSrc)
-        return Status::NoError;
-
-    if constexpr (constructor_allocator::value)
-        for (size_type i = 0; i < n; ++i)
-        {
-            if (pDest < pDirtyMemoryFinish)
-                this->getAllocator().destroy(pDest);
-
-            if (Status status = this->getAllocator().construct(pDest++, std::move(*pSrc++)); !statusSuccess(status))
-            {
-                // need to apply logic for overlapping case!
-                --pDest;
-                for (pointer pDestDone = pDest - i; pDestDone != pDest;)
-                    this->getAllocator().destroy(pDestDone++);
                 
-                while (++pDest < pDirtyMemoryFinish)
-                    this->getAllocator().destroy(pDest);
+                    while (++pDest < pDirtyMemoryFinish)
+                        this->getAllocator().destroy(pDest);
 
-                for (value_type* pSrcBegin = pSrc - i - 1, *pSrcEnd = pSrc - i + n; pSrcBegin != pSrcEnd;)
-                    this->getAllocator().destroy(pSrcBegin++);
+                    for (value_type* pSrcBegin = pSrc - i - 1, *pSrcEnd = pSrc - i + n; pSrcBegin != pSrcEnd;)
+                        this->getAllocator().destroy(pSrcBegin++);
 
-                return status;
+                    return status;
+                }
+
             }
+        else
+            memcpy(pDest, pSrc, n * sizeof(value_type));
 
-        }
-    else
-        memcpy(pDest, pSrc, n * sizeof(value_type));
+        return Status::NoError;
+    }
 
-    return Status::NoError;
-}
+    constexpr void destroyAndDeallocateImpl(pointer p, size_type n) const noexcept
+    {
+        if constexpr (constructor_allocator::value)
+            this->destroyN(p, n);
+        this->deallocate(p);
+    }
 
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::destroyAndDeallocateImpl(pointer p, size_type n) const noexcept
-{
-    if constexpr (constructor_allocator::value)
-        this->destroyN(p, n);
-    this->deallocate(p);
-}
+    constexpr void deallocateImpl(pointer p) const noexcept
+    {
+        this->getAllocator().deallocate(p);
+    }
 
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::deallocateImpl(pointer p) const noexcept
-{
-    this->getAllocator().deallocate(p);
-}
+    constexpr void destroyImpl(pointer p) const noexcept
+    {
+        if constexpr (constructor_allocator::value)
+            if (p)
+                this->getAllocator().destroy(p);
+    }
 
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::destroyImpl(pointer p) const noexcept
-{
-    if constexpr (constructor_allocator::value)
-        if (p)
-            this->getAllocator().destroy(p);
-}
+    constexpr void destroyNImpl(pointer p, size_type n) const noexcept
+    {
+        if constexpr (constructor_allocator::value)
+            if (p)
+                for (size_type i = 0; i < n; ++i)
+                    this->getAllocator().destroy(p + i);
+    }
 
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::destroyNImpl(pointer p, size_type n) const noexcept
-{   
-    if constexpr (constructor_allocator::value)
-        if (p)
-            for (size_type i = 0; i < n; ++i)
-                this->getAllocator().destroy(p + i);
-}
-
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
-constexpr typename GenericAllocatorHelper<_Allocator, _MostDerivedClass>::size_type GenericAllocatorHelper<_Allocator, _MostDerivedClass>::max_size_impl() const noexcept
-{
-    return this->getAllocator().max_size();
-}
+    constexpr size_type max_size_impl() const noexcept
+    {
+        return this->getAllocator().max_size();
+    }
+};
 
 } // namespace common_serialization

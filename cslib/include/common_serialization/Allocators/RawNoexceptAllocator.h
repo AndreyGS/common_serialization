@@ -38,7 +38,7 @@ public:
     using difference_type = typename allocator_traits::difference_type;
     using constructor_allocator = typename allocator_traits::constructor_allocator;
 
-    using interface_type = IAllocator<RawAllocatorTraits<_T>, RawNoexceptAllocator<_T>>;
+    using allocator_interface_type = IAllocator<RawAllocatorTraits<_T>, RawNoexceptAllocator<_T>>;
 
     CS_ALWAYS_INLINE constexpr RawNoexceptAllocator() = default;
 
@@ -49,7 +49,7 @@ public:
     explicit CS_ALWAYS_INLINE constexpr RawNoexceptAllocator(const RawNoexceptAllocator<_T2>&) noexcept {}
 
 protected:
-    friend interface_type;
+    friend allocator_interface_type;
 
     [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateImpl(size_type n) const noexcept
     {
@@ -77,7 +77,7 @@ protected:
 
     CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept {}
 
-    CS_ALWAYS_INLINE constexpr size_type max_sizeImpl() const noexcept
+    CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
     {
         return max_size_v;
     }
