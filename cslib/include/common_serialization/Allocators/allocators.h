@@ -23,23 +23,10 @@
 
 #pragma once
 
+#include "common_serialization/Common/common.h"
+#include "common_serialization/AllocatorInterface/allocator_interface.h"
+
 #include "common_serialization/Allocators/ConstructorNoexceptAllocator.h"
 #include "common_serialization/Allocators/RawKeeperAllocator.h"
 #include "common_serialization/Allocators/RawNoexceptAllocator.h"
-#include "common_serialization/Allocators/PlatformDependent/switch.h"
-
-namespace common_serialization
-{
-
-template<typename _T>
-using ConstructorNoexceptAllocatorT = ConstructorNoexceptAllocator<_T>;
-
-template<typename _T>
-    requires std::is_trivially_copyable_v<_T>
-using RawKeeperAllocatorT = RawKeeperAllocator<_T>;
-
-template<typename _T>
-    requires std::is_trivially_copyable_v<_T>
-using RawNoexceptAllocatorT = RawNoexceptAllocator<_T>;
-
-} // namespace common_serialization
+#include "common_serialization/Allocators/Typedefs.h"

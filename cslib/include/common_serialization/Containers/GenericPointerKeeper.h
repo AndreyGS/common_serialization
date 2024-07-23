@@ -93,7 +93,7 @@ public:
     /// @param ...args Parameters that go to ctor of every element
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     ///     or if object construction process return error.
-    template<typename _AllocatorHelper, typename... _Args>
+    template<IAllocatorHelperImpl _AllocatorHelper, typename... _Args>
     _AllocatorHelper::pointer allocateAndConstruct(size_t n, _Args&&... args)
     {
         if (m_p)
@@ -145,7 +145,7 @@ public:
     }
 
 private:
-    template<typename _AllocatorHelper>
+    template<IAllocatorHelperImpl _AllocatorHelper>
     static void destroyAndDeallocateHelper(typename _AllocatorHelper::pointer p, size_t n)
     {
         _AllocatorHelper().destroyAndDeallocate(p, n);

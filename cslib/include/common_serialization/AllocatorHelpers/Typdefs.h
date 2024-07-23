@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/PlatformDependent/LinuxKernelMemoryManagement.h
+ * @file cslib/include/common_serialization/AllocatorHelpers/Typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,17 +23,32 @@
 
 #pragma once
 
-namespace common_serialization::memory_management
+#include "common_serialization/AllocatorHelpers/GenericAllocatorHelper.h"
+#include "common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h"
+
+namespace common_serialization
 {
 
-[[nodiscard]] inline void* raw_heap_allocate(size_t data_size_in_bytes) noexcept
-{
-    return kmalloc(data_size_in_bytes, GFP_KERNEL);
-}
+template<IAllocatorImpl _Allocator>
+using GenericAllocatorHelperT = GenericAllocatorHelper<_Allocator>;
 
-inline void raw_heap_deallocate(void* p) noexcept
-{
-    kfree(p);
-}
+template<IAllocatorImpl _Allocator>
+using StrategicAllocatorHelperT = StrategicAllocatorHelper<_Allocator>;
 
-} // namespace common_serialization::memory_management
+
+template<typename _T>
+using RGenericAllocatorHelperT = GenericAllocatorHelper<RawNoexceptAllocatorT<_T>>;
+
+template<typename _T>
+using RkGenericAllocatorHelperT = GenericAllocatorHelper<RawKeeperAllocatorT<_T>>;
+
+template<typename _T>
+using CGenericAllocatorHelperT = GenericAllocatorHelper<ConstructorNoexceptAllocatorT<_T>>;
+
+template<typename _T>
+using RStrategicAllocatorHelperT = StrategicAllocatorHelper<RawNoexceptAllocatorT<_T>>;
+
+template<typename _T>
+using CStrategicAllocatorHelperT = StrategicAllocatorHelper<ConstructorNoexceptAllocatorT<_T>>;
+
+} // namespace common_serialization

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelpers/IAllocatorHelper.h
+ * @file cslib/include/common_serialization/AllocatorHelperInterface/IAllocatorHelper.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/Allocators/Concepts.h"
+#include "common_serialization/AllocatorInterface/allocator_interface.h"
 
 namespace common_serialization
 {
@@ -34,7 +34,7 @@ namespace common_serialization
 ///     Instead use this one supplying it with suitable IAllocator.
 /// @tparam _Allocator Allocator
 /// @tparam _AllocatorHelper Most derived class (instance type)
-template<IAllocator _Allocator, typename _AllocatorHelper>
+template<IAllocatorImpl _Allocator, typename _AllocatorHelper>
 class IAllocatorHelper
 {
 public:

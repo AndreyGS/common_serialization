@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorInterface/allocator_interface.h
+ * @file cslib/include/common_serialization/MemoryManagement/memory_management.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,5 +23,10 @@
 
 #pragma once
 
-#include "common_serialization/Common/common.h"
-#include "common_serialization/AllocatorInterface/IAllocator.h"
+#include "common_serialization/MemoryManagement/PlatformDependent/switch.h"
+
+#if !defined CS_NO_STD_NEW_DELETE_REPLACEMENT && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
+
+#include "common_serialization/MemoryManagement/PlatformDependent/NewDeleteReplacements.h"
+
+#endif // defined WINDOWS_KERNEL || defined LINUX_KERNEL

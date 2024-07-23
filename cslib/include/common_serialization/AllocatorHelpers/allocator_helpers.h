@@ -23,26 +23,9 @@
 
 #pragma once
 
+#include "common_serialization/Common/common.h"
+#include "common_serialization/AllocatorHelperInterface/allocator_helper_interface.h"
+
 #include "common_serialization/AllocatorHelpers/GenericAllocatorHelper.h"
-#include "common_serialization/AllocatorHelpers/IAllocatorHelper.h"
 #include "common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h"
-
-namespace common_serialization
-{
-
-template<typename _T>
-using RGenericAllocatorHelperT = GenericAllocatorHelper<RawNoexceptAllocatorT<_T>>;
-
-template<typename _T>
-using RkGenericAllocatorHelperT = GenericAllocatorHelper<RawKeeperAllocatorT<_T>>;
-
-template<typename _T>
-using CGenericAllocatorHelperT = GenericAllocatorHelper<ConstructorNoexceptAllocatorT<_T>>;
-
-template<typename _T>
-using RStrategicAllocatorHelperT = StrategicAllocatorHelper<RawNoexceptAllocatorT<_T>>;
-
-template<typename _T>
-using CStrategicAllocatorHelperT = StrategicAllocatorHelper<ConstructorNoexceptAllocatorT<_T>>;
-
-} // namespace common_serialization
+#include "common_serialization/AllocatorHelpers/Typdefs.h"

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Interfaces/interfaces.h
+ * @file cslib/include/common_serialization/MemoryManagement/NewReplacements.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,4 +23,38 @@
 
 #pragma once
 
-#include "common_serialization/Interfaces/IIoProcessor.h"
+// new
+[[nodiscard]] constexpr void* operator new(size_t dataSizeInBytes) noexcept
+{
+    return common_serialization::memory_management::allocate(dataSizeInBytes);
+}
+
+// new[]
+[[nodiscard]] constexpr void* operator new[](size_t dataSizeInBytes) noexcept
+{
+    return common_serialization::memory_management::allocate(dataSizeInBytes);
+}
+
+// new nothrow
+[[nodiscard]] constexpr void* operator new(size_t dataSizeInBytes, const std::nothrow_t&) noexcept
+{
+    return common_serialization::memory_management::allocate(dataSizeInBytes);
+}
+
+// new[] nothrow
+[[nodiscard]] constexpr void* operator new[](size_t dataSizeInBytes, const std::nothrow_t&) noexcept
+{
+    return common_serialization::memory_management::allocate(dataSizeInBytes);
+}
+
+// placement new
+[[nodiscard]] constexpr void* operator new(uint64_t, void* p) noexcept
+{
+    return p;
+}
+
+// placement new[]
+[[nodiscard]] constexpr void* operator new[](uint64_t, void* p) noexcept
+{
+    return p;
+}

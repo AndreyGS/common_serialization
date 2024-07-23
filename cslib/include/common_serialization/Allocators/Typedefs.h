@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/PlatformDependent/UserModeMemoryManagement.h
+ * @file cslib/include/common_serialization/Allocators/Typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,17 +23,16 @@
 
 #pragma once
 
-namespace common_serialization::memory_management
+namespace common_serialization
 {
 
-[[nodiscard]] inline void* raw_heap_allocate(size_t data_size_in_bytes) noexcept
-{
-    return std::malloc(data_size_in_bytes);
-}
+template<typename _T>
+using ConstructorNoexceptAllocatorT = ConstructorNoexceptAllocator<_T>;
 
-inline void raw_heap_deallocate(void* p) noexcept
-{
-    std::free(p);
-}
+template<typename _T>
+using RawKeeperAllocatorT = RawKeeperAllocator<_T>;
 
-} // namespace common_serialization::memory_management
+template<typename _T>
+using RawNoexceptAllocatorT = RawNoexceptAllocator<_T>;
+
+} // namespace common_serialization

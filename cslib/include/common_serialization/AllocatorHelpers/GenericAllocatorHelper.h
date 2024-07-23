@@ -23,17 +23,17 @@
 
 #pragma once
 
-#include "common_serialization/Helpers.h"
-#include "common_serialization/AllocatorHelpers/IAllocatorHelper.h"
+#include "common_serialization/Common/Helpers.h"
+#include "common_serialization/AllocatorHelperInterface/IAllocatorHelper.h"
 
 namespace common_serialization
 {
 
 /// @brief Generic stateless class for allocation helping
-/// @tparam _Allocator Class that implement IAllocator interface
+/// @tparam _Allocator Class that implement IAllocatorImpl interface
 /// @tparam _MostDerivedClass Instance type. But if type of current instance 
 ///     is GenericAllocatorHelper it must be Dummy.
-template<IAllocator _Allocator, typename _MostDerivedClass = Dummy>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass = Dummy>
 class GenericAllocatorHelper : public IAllocatorHelper<_Allocator, GetCrtpMainType<GenericAllocatorHelper<_Allocator>, _MostDerivedClass>>
 {
 public:
@@ -78,7 +78,7 @@ protected:
     constexpr size_type max_size_impl() const noexcept;
 };
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 template<typename... Args>
 constexpr GenericAllocatorHelper<_Allocator, _MostDerivedClass>::pointer GenericAllocatorHelper<_Allocator, _MostDerivedClass>::allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
 {
@@ -103,7 +103,7 @@ constexpr GenericAllocatorHelper<_Allocator, _MostDerivedClass>::pointer Generic
     return p;
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr GenericAllocatorHelper<_Allocator, _MostDerivedClass>::pointer GenericAllocatorHelper<_Allocator, _MostDerivedClass>::allocateImpl(size_type requestedN, size_type* pAllocatedN) const
 {
     pointer p = this->getAllocator().allocate(requestedN);
@@ -114,13 +114,13 @@ constexpr GenericAllocatorHelper<_Allocator, _MostDerivedClass>::pointer Generic
     return p;
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr GenericAllocatorHelper<_Allocator, _MostDerivedClass>::pointer GenericAllocatorHelper<_Allocator, _MostDerivedClass>::allocateStrictImpl(size_type n) const
 {
     return this->getAllocator().allocate(n);
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 template<typename... Args>
 constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::constructImpl(pointer p, Args&&... args) const
 {
@@ -128,7 +128,7 @@ constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::construc
     return this->constructNImpl(p, &pNError, 1, std::forward<Args>(args)...);
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 template<typename... Args>
 constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::constructNImpl(pointer p, pointer* nError, size_type n, Args&&... args) const
 {
@@ -154,7 +154,7 @@ constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::construc
     return Status::NoError;
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::copyDirtyImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
@@ -187,7 +187,7 @@ constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::copyDirt
     return Status::NoError;
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::copyDirtyNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
@@ -209,7 +209,7 @@ constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::copyDirt
     return Status::NoError;
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::moveImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
@@ -247,7 +247,7 @@ constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::moveImpl
     return Status::NoError;
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::moveNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
 {
     assert(!n || pDest && pSrc);
@@ -284,7 +284,7 @@ constexpr Status GenericAllocatorHelper<_Allocator, _MostDerivedClass>::moveNoOv
     return Status::NoError;
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::destroyAndDeallocateImpl(pointer p, size_type n) const noexcept
 {
     if constexpr (constructor_allocator::value)
@@ -292,13 +292,13 @@ constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::destroyAnd
     this->deallocate(p);
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::deallocateImpl(pointer p) const noexcept
 {
     this->getAllocator().deallocate(p);
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::destroyImpl(pointer p) const noexcept
 {
     if constexpr (constructor_allocator::value)
@@ -306,7 +306,7 @@ constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::destroyImp
             this->getAllocator().destroy(p);
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::destroyNImpl(pointer p, size_type n) const noexcept
 {   
     if constexpr (constructor_allocator::value)
@@ -315,7 +315,7 @@ constexpr void GenericAllocatorHelper<_Allocator, _MostDerivedClass>::destroyNIm
                 this->getAllocator().destroy(p + i);
 }
 
-template<IAllocator _Allocator, typename _MostDerivedClass>
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass>
 constexpr typename GenericAllocatorHelper<_Allocator, _MostDerivedClass>::size_type GenericAllocatorHelper<_Allocator, _MostDerivedClass>::max_size_impl() const noexcept
 {
     return this->getAllocator().max_size();

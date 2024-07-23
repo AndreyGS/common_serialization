@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h
+ * @file cslib/include/common_serialization/AllocatorHelperInterface/allocator_helper_interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,17 +23,5 @@
 
 #pragma once
 
-namespace common_serialization::memory_management
-{
-
-[[nodiscard]] inline void* raw_heap_allocate(size_t data_size_in_bytes) noexcept
-{
-    return ExAllocatePool2(POOL_FLAG_NON_PAGED | POOL_FLAG_UNINITIALIZED, data_size_in_bytes, "s-ga");
-}
-
-inline void raw_heap_deallocate(void* p) noexcept
-{
-    ExFreePool(p);
-}
-
-} // namespace common_serialization::memory_management
+#include "common_serialization/Common/common.h"
+#include "common_serialization/AllocatorHelperInterface/IAllocatorHelper.h"

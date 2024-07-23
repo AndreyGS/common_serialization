@@ -26,7 +26,7 @@
 // must be included before common_serialization.h header because
 // it contains declarations of serialization functions that are not
 // parsed properly later if BodyProcessor class is declared before them
-#include "common_serialization/Status.h"
+#include "common_serialization/Common/common.h"
 #include "interface_for_test/processing/Declarations.h"
 #include "std_structs_serialization/processing/Declarations.h"
 
