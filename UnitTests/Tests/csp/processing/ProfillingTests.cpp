@@ -166,7 +166,7 @@ TEST(ProfillingTests, ContainBigStructs2T)
                                             | csp::context::DataFlags::kAlignmentMayBeNotEqual
                                             | csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual));
     ctxIn.setInterfaceVersion(0);
-    std::unordered_map<const void*, size_t> sMap;
+    csp::context::SPointersMap sMap;
     ctxIn.setPointersMap(&sMap);
 
     const auto serStart = std::chrono::steady_clock::now();
@@ -176,7 +176,7 @@ TEST(ProfillingTests, ContainBigStructs2T)
     std::cout << "Serialization Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(serEnd - serStart) << "\n";
 
     csp::context::DData ctxOut(bin);
-    std::unordered_map<size_t, void*> dMap;
+    csp::context::DPointersMap dMap;
     ctxOut.setPointersMap(&dMap);
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(&addedPointers);
