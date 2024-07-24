@@ -36,14 +36,14 @@ public:
     /// @return Pointer to allocated storage
     [[nodiscard]] inline void* allocate(size_t dataSizeInBytes) noexcept
     {
-        return static_cast<IStorageAllocator*>(this)->allocate(dataSizeInBytes);
+        return static_cast<_StorageAllocator*>(this)->allocateImpl(dataSizeInBytes);
     }
 
     /// @brief Deallocate memory
     /// @param p Pointer to previously allocated storage
     inline void deallocate(void* p) noexcept
     {
-        static_cast<IStorageAllocator*>(this)->deallocate(p);
+        static_cast<_StorageAllocator*>(this)->deallocateImpl(p);
     }
 };
 

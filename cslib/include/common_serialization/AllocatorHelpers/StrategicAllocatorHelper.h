@@ -63,20 +63,6 @@ protected:
     friend allocator_helper_interface_type;
     friend allocation_strategy_user_interface_type;
 
-    /// @brief Get current allocation strategy
-    /// @return Current allocation strategy
-    [[nodiscard]] constexpr AllocationStrategy getAllocationStrategyImpl() const noexcept
-    {
-        return m_allocation_strategy;
-    }
-
-    /// @brief Set allocation strategy
-    /// @param allocationStrategy Allocation strategy
-    constexpr void setAllocationStrategyImpl(AllocationStrategy allocationStrategy) noexcept
-    {
-        m_allocation_strategy = allocationStrategy;
-    }
-
     [[nodiscard]] constexpr pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
     {
         value_type* p = nullptr;
@@ -97,6 +83,16 @@ protected:
             *pAllocatedN = 0;
 
         return p;
+    }
+
+    [[nodiscard]] constexpr AllocationStrategy getAllocationStrategyImpl() const noexcept
+    {
+        return m_allocation_strategy;
+    }
+
+    constexpr void setAllocationStrategyImpl(AllocationStrategy allocationStrategy) noexcept
+    {
+        m_allocation_strategy = allocationStrategy;
     }
 
 private:

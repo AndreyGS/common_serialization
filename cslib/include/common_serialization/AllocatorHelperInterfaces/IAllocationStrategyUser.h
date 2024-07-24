@@ -51,7 +51,7 @@ public:
     /// @param allocationStrategy Allocation strategy
     CS_ALWAYS_INLINE constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
     {
-        static_cast<const _User*>(this)->setAllocationStrategyImpl(allocationStrategy);
+        static_cast<_User*>(this)->setAllocationStrategyImpl(allocationStrategy);
     }
 };
 

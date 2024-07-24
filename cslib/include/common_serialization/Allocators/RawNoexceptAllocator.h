@@ -53,12 +53,12 @@ protected:
 
     [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateImpl(size_type n) const noexcept
     {
-        return reinterpret_cast<pointer>(memory_management::allocate(n * sizeof(value_type)));
+        return reinterpret_cast<pointer>(HeapAllocatorT().allocate(n * sizeof(value_type)));
     }
 
     CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
     {
-        memory_management::deallocate(p);
+        HeapAllocatorT().deallocate(p);
     }
 
     CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p, size_type n) const noexcept

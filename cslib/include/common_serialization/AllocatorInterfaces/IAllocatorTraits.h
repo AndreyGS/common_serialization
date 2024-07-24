@@ -26,7 +26,7 @@
 namespace common_serialization
 {
 
-template<typename _T, IStorageAllocatorImpl _StorageAllocator, typename _ConstructorAllocator>
+template<typename _T, typename _ConstructorAllocator>
 struct IAllocatorTraits
 {
     static_assert(std::is_trivially_copyable_v<_T> || _ConstructorAllocator::value);
@@ -35,17 +35,16 @@ struct IAllocatorTraits
     using pointer = value_type*;
     using size_type = size_t;
     using difference_type = ptrdiff_t;
-    using storage_allocator = _StorageAllocator;
     using constructor_allocator = _ConstructorAllocator;
 };
 
 template<typename _T>
-concept IAllocatorTraitsImpl = std::is_base_of_v<IAllocatorTraits<typename _T::value_type, typename _T::storage_allocator, typename _T::constructor_allocator>, normalize_t<_T>>;
+concept IAllocatorTraitsImpl = std::is_base_of_v<IAllocatorTraits<typename _T::value_type, typename _T::constructor_allocator>, normalize_t<_T>>;
 
-template<typename _T, IStorageAllocatorImpl _StorageAllocator>
-using RawAllocatorTraits = IAllocatorTraits<_T, _StorageAllocator, std::false_type>;
+template<typename _T>
+using RawAllocatorTraits = IAllocatorTraits<_T, std::false_type>;
 
-template<typename _T, IStorageAllocatorImpl _StorageAllocator>
-using ConstructorAllocatorTraits = IAllocatorTraits<_T, _StorageAllocator, std::true_type>;
+template<typename _T>
+using ConstructorAllocatorTraits = IAllocatorTraits<_T, std::true_type>;
 
 } // namespace common_serialization

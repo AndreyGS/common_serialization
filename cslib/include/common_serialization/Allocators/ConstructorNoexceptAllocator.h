@@ -29,8 +29,8 @@ namespace common_serialization
 /// @brief Constructor Allocator that not throwing
 ///     (as long as constructed objects don't do it)
 /// @tparam _T Type of objects that allocator would allocate and construct
-template<typename _T, IStorageAllocatorImpl _StorageAllocator = HeapAllocatorT>
-class ConstructorNoexceptAllocator : public IAllocator<ConstructorAllocatorTraits<_T, _StorageAllocator>, ConstructorNoexceptAllocator<_T>>
+template<typename _T>
+class ConstructorNoexceptAllocator : public IAllocator<ConstructorAllocatorTraits<_T>, ConstructorNoexceptAllocator<_T>>
 {
 public:
     using allocator_traits = ConstructorAllocatorTraits<_T>;
@@ -38,7 +38,6 @@ public:
     using pointer = typename allocator_traits::pointer;
     using size_type = typename allocator_traits::size_type;
     using difference_type = typename allocator_traits::difference_type;
-    using storage_allocator = _StorageAllocator;
     using constructor_allocator = typename allocator_traits::constructor_allocator;
 
     using allocator_interface_type = IAllocator<ConstructorAllocatorTraits<_T>, ConstructorNoexceptAllocator<_T>>;
@@ -56,12 +55,12 @@ protected:
 
     [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateImpl(size_type n) const noexcept
     {
-        return static_cast<_T*>(memory_management::allocate(n * sizeof(_T)));
+        return static_cast<_T*>(HeapAllocatorT().allocate(n * sizeof(_T)));
     }
 
     CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
     {
-        memory_management::deallocate(p);
+        HeapAllocatorT().deallocate(p);
     }
 
     CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p, size_type n) const noexcept

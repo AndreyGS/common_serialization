@@ -96,8 +96,7 @@ protected:
     template<typename... Args>
     constexpr Status constructImpl(pointer p, Args&&... args) const
     {
-        pointer pNError = nullptr;
-        return this->constructNImpl(p, &pNError, 1, std::forward<Args>(args)...);
+        return this->getAllocator().construct(p++, std::forward<Args>(args)...);
     }
 
     template<typename... Args>
