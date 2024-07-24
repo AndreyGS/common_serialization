@@ -29,7 +29,7 @@
 namespace common_serialization::csp::context
 {
 
-using SPointersMap = MapT<const void*, csp_size_t>;
+using SPointersMap = HashMapT<const void*, csp_size_t>;
 using DPointersMap = MapT<csp_size_t, void*>;
 
 template<bool serialize>

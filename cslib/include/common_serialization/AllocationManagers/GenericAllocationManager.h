@@ -78,7 +78,7 @@ protected:
         return p;
     }
 
-    [[nodiscard]] constexpr pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
     {
         pointer p = this->getAllocator().allocate(requestedN);
 
@@ -88,13 +88,13 @@ protected:
         return p;
     }
 
-    [[nodiscard]] constexpr pointer allocateStrictImpl(size_type n) const
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateStrictImpl(size_type n) const
     {
         return this->getAllocator().allocate(n);
     }
 
     template<typename... Args>
-    constexpr Status constructImpl(pointer p, Args&&... args) const
+    CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, Args&&... args) const
     {
         return this->getAllocator().construct(p++, std::forward<Args>(args)...);
     }
@@ -250,26 +250,26 @@ protected:
         return Status::NoError;
     }
 
-    constexpr void destroyAndDeallocateImpl(pointer p, size_type n) const noexcept
+    CS_ALWAYS_INLINE constexpr void destroyAndDeallocateImpl(pointer p, size_type n) const noexcept
     {
         if constexpr (constructor_allocator::value)
             this->destroyN(p, n);
         this->deallocate(p);
     }
 
-    constexpr void deallocateImpl(pointer p) const noexcept
+    CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
     {
         this->getAllocator().deallocate(p);
     }
 
-    constexpr void destroyImpl(pointer p) const noexcept
+    CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept
     {
         if constexpr (constructor_allocator::value)
             if (p)
                 this->getAllocator().destroy(p);
     }
 
-    constexpr void destroyNImpl(pointer p, size_type n) const noexcept
+    CS_ALWAYS_INLINE constexpr void destroyNImpl(pointer p, size_type n) const noexcept
     {
         if constexpr (constructor_allocator::value)
             if (p)
@@ -277,7 +277,7 @@ protected:
                     this->getAllocator().destroy(p + i);
     }
 
-    constexpr size_type max_size_impl() const noexcept
+    CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
     {
         return this->getAllocator().max_size();
     }

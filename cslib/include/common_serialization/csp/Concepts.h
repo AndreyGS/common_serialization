@@ -84,7 +84,7 @@ concept ISerializationPointersMap
         }
     && std::is_same_v<typename PM::key_type, const void*> && std::is_same_v<typename PM::mapped_type, uint64_t>;
 
-static_assert(ISerializationPointersMap<MapT<const void*, uint64_t>>, "MapT<const void*, uint64_t> must comply with ISerializationPointersMap concept");
+static_assert(ISerializationPointersMap<HashMapT<const void*, uint64_t>>, "MapT<const void*, uint64_t> must comply with ISerializationPointersMap concept");
 
 template<typename PM>
 concept IDeserializationPointersMap
