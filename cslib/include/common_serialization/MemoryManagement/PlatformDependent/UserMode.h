@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/PlatformDependent/WindowsKernelMemoryManagement.h
+ * @file cslib/include/common_serialization/MemoryManagement/PlatformDependent/UserMode.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,17 +23,27 @@
 
 #pragma once
 
-namespace common_serialization::memory_management
+namespace common_serialization
 {
 
-[[nodiscard]] inline void* raw_heap_allocate(size_t data_size_in_bytes) noexcept
+/// @brief Raw heap allocator that not throwing
+class HeapAllocator : public IStorageAllocator<HeapAllocator>
 {
-    return ExAllocatePool2(POOL_FLAG_NON_PAGED | POOL_FLAG_UNINITIALIZED, data_size_in_bytes, "s-ga");
-}
+public:
+    using storage_allocator_interface_type = IStorageAllocator<HeapAllocator>;
 
-inline void raw_heap_deallocate(void* p) noexcept
-{
-    ExFreePool(p);
-}
+protected:
+    friend storage_allocator_interface_type;
 
-} // namespace common_serialization::memory_management
+    [[nodiscard]] CS_ALWAYS_INLINE void* allocateImpl(size_t dataSizeInBytes) noexcept
+    {
+        return std::malloc(dataSizeInBytes);
+    }
+
+    CS_ALWAYS_INLINE void deallocateImpl(void* p) noexcept
+    {
+        std::free(p);
+    }
+};
+
+} // namespace common_serialization

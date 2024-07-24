@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IClientDataHandlerTraits.h
+ * @file cslib/include/common_serialization/MemoryManagement/PlatformDependent/switch.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,35 +23,18 @@
 
 #pragma once
 
-#include "common_serialization/csp/Concepts.h"
+#include "common_serialization/MemoryManagementInterfaces/IStorageAllocator.h"
 
-namespace common_serialization::csp::messaging
-{
+#if defined WINDOWS_KERNEL
 
-/// @brief Properties of CSP Client
-template<typename _T>
-concept IClientDataHandlerTraits
-    =  ISerializableImpl<typename _T::InputType>
-    && ISerializableImpl<typename _T::OutputType>
-    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
+#include "common_serialization/MemoryManagement/PlatformDependent/WindowsKernel.h"
 
-template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , bool _forTempUseHeap
->
-struct IClientDataHandlerTraitsConcrete
-{
-    using InputType = _InputType;
-    using OutputType = _OutputType;
+#elif defined LINUX_KERNEL
 
-    static constexpr bool kForTempUseHeap = _forTempUseHeap;
-};
+#include "common_serialization/MemoryManagement/PlatformDependent/LinuxKernel.h"
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhStack = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
+#else // USER_MODE
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhHeap = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
+#include "common_serialization/MemoryManagement/PlatformDependent/UserMode.h"
 
-} // namespace common_serialization::csp::messaging
+#endif // defined WINDOWS_KERNEL, defined LINUX_KERNEL

@@ -48,6 +48,8 @@ concept ISerializationBinContainer
          } 
     && std::is_same_v<typename Sbin::value_type, uint8_t>;
 
+static_assert(ISerializationBinContainer<BinVectorT>, "BinVectorT must comply with ISerializationBinContainer concept");
+
 template<typename Dbin>
 concept IDeserializationBinContainer
     =  requires(Dbin e)
@@ -66,6 +68,8 @@ concept IDeserializationBinContainer
          } 
     && std::is_same_v<typename Dbin::value_type, uint8_t>;
 
+static_assert(IDeserializationBinContainer<BinWalkerT>, "BinWalkerT must comply with IDeserializationBinContainer concept");
+
 template<typename PM>
 concept ISerializationPointersMap
     = requires(PM pm)
@@ -80,6 +84,8 @@ concept ISerializationPointersMap
         }
     && std::is_same_v<typename PM::key_type, const void*> && std::is_same_v<typename PM::mapped_type, uint64_t>;
 
+static_assert(ISerializationPointersMap<MapT<const void*, uint64_t>>, "MapT<const void*, uint64_t> must comply with ISerializationPointersMap concept");
+
 template<typename PM>
 concept IDeserializationPointersMap
     = requires(PM pm)
@@ -93,6 +99,8 @@ concept IDeserializationPointersMap
             { pm.clear() };
         }
     && std::is_same_v<typename PM::key_type, uint64_t> && std::is_same_v<typename PM::mapped_type, void*>;
+
+static_assert(IDeserializationPointersMap<MapT<uint64_t, void*>>, "MapT<uint64_t, void*> must comply with IDeserializationPointersMap concept");
 
 template<typename PM>
 concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;
@@ -146,10 +154,7 @@ concept EmptyType
     =  requires(T t) { typename normalize_t<T>::empty_type_tag; };
 
 template<typename T>
-concept ISerializableBased = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;
-
-template<typename T>
-concept NotISerializableBased = !ISerializableBased<T>;
+concept ISerializableImpl = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;
 
 template<typename T>
 concept StructHaveDataFlags = requires

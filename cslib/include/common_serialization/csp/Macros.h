@@ -33,11 +33,11 @@
             return Status::NoError;                                                     \
         else if (                                                                       \
                     !statusSuccess(status)                                              \
-                && status != Status::ErrorNotSupportedSerializationSettingsForStruct   \
+                && status != Status::ErrorNotSupportedSerializationSettingsForStruct    \
         )                                                                               \
             return status;                                                              \
                                                                                         \
-        /* if we get Status::ErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* if we get Status::ErrorNotSupportedSerializationSettingsForStruct, */        \
         /* than we should serialize it field-by-field */                                \
     }                                                                                   \
 }
@@ -51,11 +51,11 @@
             return Status::NoError;                                                     \
         else if (                                                                       \
                     !statusSuccess(status)                                              \
-                && status != Status::ErrorNotSupportedSerializationSettingsForStruct   \
+                && status != Status::ErrorNotSupportedSerializationSettingsForStruct    \
         )                                                                               \
             return status;                                                              \
                                                                                         \
-        /* if we get Status::ErrorNotSupportedSerializationSettingsForStruct, */       \
+        /* if we get Status::ErrorNotSupportedSerializationSettingsForStruct, */        \
         /* than we should deserialize it field-by-field */                              \
    }                                                                                    \
 }
@@ -63,7 +63,7 @@
 #define CSP_SERIALIZE_COMMON(value, ctx)                                                \
 {                                                                                       \
     if (                                                                                \
-           ISerializableBased<decltype(value)>                                          \
+           ISerializableImpl<decltype(value)>                                           \
         && ctx.isInterfaceVersionsNotMatch()                                            \
     )                                                                                   \
     {                                                                                   \
@@ -86,7 +86,7 @@
 #define CSP_DESERIALIZE_COMMON(ctx, value)                                              \
 {                                                                                       \
     if (                                                                                \
-           ISerializableBased<decltype(value)>                                          \
+           ISerializableImpl<decltype(value)>                                           \
         && ctx.isInterfaceVersionsNotMatch()                                            \
     )                                                                                   \
     {                                                                                   \

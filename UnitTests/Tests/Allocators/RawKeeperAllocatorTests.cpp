@@ -28,9 +28,9 @@ namespace
 {
 
 template<typename T>
-using ConstructorVectorAllocatorHelper = GenericAllocatorHelper<T, RawKeeperAllocator<T>>;
+using ConstructorVectorAllocationManager = RawKeeperGenAllocationManagerT<T>;
 
-using size_type = typename Vector<int, ConstructorVectorAllocatorHelper<int>>::size_type;
+using size_type = typename Vector<int, ConstructorVectorAllocationManager<int>>::size_type;
 
 constexpr size_t kArraySize = 3;
 int g_array[kArraySize] = { 0 };
@@ -166,14 +166,14 @@ TEST(RawKeeperAllocatorTest, ConstructT)
 
 TEST(RawKeeperAllocatorTest, VectorWorkTest)
 {
-    Vector<int, ConstructorVectorAllocatorHelper<int>> vec;
+    Vector<int, ConstructorVectorAllocationManager<int>> vec;
 
     EXPECT_EQ(vec.size(), 0);
     EXPECT_EQ(vec.capacity(), 0);
     EXPECT_EQ(vec.max_size(), 0);
     EXPECT_EQ(vec.data(), nullptr);
 
-    vec.getAllocatorHelper().getAllocator().setStorage(g_array, kArraySize);
+    vec.getAllocationManager().getAllocator().setStorage(g_array, kArraySize);
     EXPECT_EQ(vec.max_size(), kArraySize);
 
     vec.pushBack(0);

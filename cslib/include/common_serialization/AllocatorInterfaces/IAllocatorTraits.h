@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IClientDataHandlerTraits.h
+ * @file cslib/include/common_serialization/AllocatorInterfaces/IAllocatorTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,35 +23,28 @@
 
 #pragma once
 
-#include "common_serialization/csp/Concepts.h"
-
-namespace common_serialization::csp::messaging
+namespace common_serialization
 {
 
-/// @brief Properties of CSP Client
-template<typename _T>
-concept IClientDataHandlerTraits
-    =  ISerializableImpl<typename _T::InputType>
-    && ISerializableImpl<typename _T::OutputType>
-    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
-
-template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , bool _forTempUseHeap
->
-struct IClientDataHandlerTraitsConcrete
+template<typename _T, typename _ConstructorAllocator>
+struct IAllocatorTraits
 {
-    using InputType = _InputType;
-    using OutputType = _OutputType;
+    static_assert(std::is_trivially_copyable_v<_T> || _ConstructorAllocator::value);
 
-    static constexpr bool kForTempUseHeap = _forTempUseHeap;
+    using value_type = _T;
+    using pointer = value_type*;
+    using size_type = size_t;
+    using difference_type = ptrdiff_t;
+    using constructor_allocator = _ConstructorAllocator;
 };
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhStack = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
+template<typename _T>
+concept IAllocatorTraitsImpl = std::is_base_of_v<IAllocatorTraits<typename _T::value_type, typename _T::constructor_allocator>, normalize_t<_T>>;
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhHeap = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
+template<typename _T>
+using RawAllocatorTraits = IAllocatorTraits<_T, std::false_type>;
 
-} // namespace common_serialization::csp::messaging
+template<typename _T>
+using ConstructorAllocatorTraits = IAllocatorTraits<_T, std::true_type>;
+
+} // namespace common_serialization

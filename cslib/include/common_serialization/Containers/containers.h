@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include "common_serialization/Common/common.h"
+#include "common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h"
+
 #include "common_serialization/Containers/CompressedPair.h"
 #include "common_serialization/Containers/Concepts.h"
 #include "common_serialization/Containers/DefaultDeleter.h"
@@ -32,34 +35,6 @@
 #include "common_serialization/Containers/Vector.h"
 #include "common_serialization/Containers/Walker.h"
 
-namespace common_serialization
-{
-
-using GenericPointerKeeperT = GenericPointerKeeper;
-
-template<typename _T, typename... _Ts>
-using UniquePtrT = UniquePtr<_T, _Ts...>;
-
-template<typename _T>
-using RawVectorT = Vector<_T, RStrategicAllocatorHelperT<_T>>;
-
-using BinVectorT = RawVectorT<uint8_t>;
-
-template<typename _T, typename... _Ts>
-using VectorT = Vector<_T, _Ts...>;
-
-template<typename _T>
-using RawWalkerT = Walker<_T, RStrategicAllocatorHelperT<_T>>;
-
-using BinWalkerT = RawWalkerT<uint8_t>;
-
-template<typename _K, typename _V, typename... _Ts>
-using HashMapT = std::unordered_map<_K, _V, _Ts...>;
-
-template<typename _K, typename _V, typename... _Ts>
-using HashMultiMapT = std::unordered_multimap<_K, _V, _Ts...>;
-
-template<typename _T, typename... Ts>
-using ListT = std::list<_T, Ts...>;
-
-} // namespace common_serialization
+#ifndef CS_CUSTOM_CONTAINERS_TYPEDEFS
+#include "common_serialization/Containers/Typedefs.h"
+#endif

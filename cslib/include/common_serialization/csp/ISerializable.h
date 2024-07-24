@@ -282,7 +282,7 @@ template<typename T>
 template<typename T>
 consteval interface_version_t getLatestInterfaceVersion()
 {
-    if constexpr (ISerializableBased<T>)
+    if constexpr (ISerializableImpl<T>)
         return T::getLatestInterfaceVersion();
     else
         return 0;

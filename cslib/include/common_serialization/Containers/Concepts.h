@@ -26,27 +26,6 @@
 namespace common_serialization
 {
 
-class GenericPointerKeeper;
-
-template<template<typename...> typename _Bc>
-concept IBasicContainer
-    =  requires(_Bc<int> b)
-         {
-             typename _Bc<int>::value_type;
-             typename _Bc<int>::size_type;
-
-             { b.begin() };
-             { b.end() };
-
-             { b.clear() };
-             { b.size() } -> std::same_as<typename _Bc<int>::size_type>;
-             
-             { b.pushBack(typename _Bc<int>::value_type{}) } -> std::same_as<Status>;
-         } && std::is_constructible_v<_Bc<int>, _Bc<int>>;
-
-template<typename _T>
-concept HasDestroyingDeleteOp = requires (_T t) { _T::operator delete(&t, std::destroying_delete_t{}); };
-
 template<typename _T1, typename _D1, typename _T2, typename _D2>
 concept SmartPtrArrConvertible =std::is_convertible_v<_T2*, _T1*>
                             && (std::is_reference_v<_D1> && std::is_same_v<_D2, _D1> || !std::is_reference_v<_D1> && std::is_convertible_v<_D2, _D1>)

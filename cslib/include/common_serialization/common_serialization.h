@@ -23,40 +23,16 @@
 
 #pragma once
 
-#if !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
-#include <string.h>
-#include <cstdint>
-#include <cstdlib>
-#include <cassert>
-#include <concepts>
-#include <type_traits>
-#include <bit>
-#include <shared_mutex>
-#include <unordered_map> 
-#include <semaphore>
-#include <latch>
-#include <atomic>
-#include <list>
-#include <iostream>
-#endif // !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
+#include "common_serialization/Common/common.h"
 
-#include "common_serialization/Status.h"
 #include "common_serialization/NotCspInterfaceProcessing/Templates/Declarations.h"
 
-// if implementation wants to define own new shadowing functions
-// it should define CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION macro
-#if !defined CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
-#include "common_serialization/std_equivalents.h"
-#endif // #ifndef CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION
-
-#include "common_serialization/Types.h"
-#include "common_serialization/Helpers.h"
+#include "common_serialization/MemoryManagement/memory_management.h"
 
 #include "common_serialization/Allocators/allocators.h"
-#include "common_serialization/AllocatorHelpers/allocatorHelpers.h"
+#include "common_serialization/AllocationManagers/allocation_managers.h"
 #include "common_serialization/Concurrency/concurrency.h"
 #include "common_serialization/Containers/containers.h"
-#include "common_serialization/Interfaces/interfaces.h"
 #include "common_serialization/csp/csp.h"
 
 #include "common_serialization/NotCspInterfaceProcessing/Templates/Serialize.h"

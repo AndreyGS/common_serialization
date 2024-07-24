@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IClientDataHandlerTraits.h
+ * @file cslib/include/common_serialization/MemoryManagement/Typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,35 +23,9 @@
 
 #pragma once
 
-#include "common_serialization/csp/Concepts.h"
-
-namespace common_serialization::csp::messaging
+namespace common_serialization
 {
 
-/// @brief Properties of CSP Client
-template<typename _T>
-concept IClientDataHandlerTraits
-    =  ISerializableImpl<typename _T::InputType>
-    && ISerializableImpl<typename _T::OutputType>
-    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
+using HeapAllocatorT = HeapAllocator;
 
-template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , bool _forTempUseHeap
->
-struct IClientDataHandlerTraitsConcrete
-{
-    using InputType = _InputType;
-    using OutputType = _OutputType;
-
-    static constexpr bool kForTempUseHeap = _forTempUseHeap;
-};
-
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhStack = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
-
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhHeap = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
-
-} // namespace common_serialization::csp::messaging
+} // namespace common_serialization

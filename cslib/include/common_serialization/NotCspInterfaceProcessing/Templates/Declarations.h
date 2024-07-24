@@ -26,10 +26,13 @@
 
 #pragma once
 
+#include "common_serialization/Common/common.h"
+#include "common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h"
+
 namespace common_serialization
 {
 
-template<typename, typename>
+template<typename, IAllocationManagerImpl>
 class Vector;
 
 }
@@ -37,10 +40,10 @@ class Vector;
 namespace common_serialization::csp::processing::data::templates
 {
 
-template<typename T, typename A, typename C>
+template<typename T, IAllocationManagerImpl A, typename C>
 Status serialize(const Vector<T, A>& value, C& ctx);
 
-template<typename T, typename A, typename C>
+template<typename T, IAllocationManagerImpl A, typename C>
 Status deserialize(C& ctx, Vector<T, A>& value);
 
 } // namespace common_serialization::csp::processing::data::templates

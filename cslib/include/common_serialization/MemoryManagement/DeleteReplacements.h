@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/NewDeleteReplacements.h
+ * @file cslib/include/common_serialization/MemoryManagement/DeleteReplacements.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,64 +23,28 @@
 
 #pragma once
 
-// new
-[[nodiscard]] constexpr void* operator new(size_t data_size_in_bytes) noexcept
-{
-    return common_serialization::memory_management::raw_heap_allocate(data_size_in_bytes);
-}
-
-// new[]
-[[nodiscard]] constexpr void* operator new[](size_t data_size_in_bytes) noexcept
-{
-    return common_serialization::memory_management::raw_heap_allocate(data_size_in_bytes);
-}
-
-// new nothrow
-[[nodiscard]] constexpr void* operator new(size_t data_size_in_bytes, const std::nothrow_t&) noexcept
-{
-    return common_serialization::memory_management::raw_heap_allocate(data_size_in_bytes);
-}
-
-// new[] nothrow
-[[nodiscard]] constexpr void* operator new[](size_t data_size_in_bytes, const std::nothrow_t&) noexcept
-{
-    return common_serialization::memory_management::raw_heap_allocate(data_size_in_bytes);
-}
-
-// placement new
-[[nodiscard]] constexpr void* operator new(uint64_t, void* p) noexcept
-{
-    return p;
-}
-
-// placement new[]
-[[nodiscard]] constexpr void* operator new[](uint64_t, void* p) noexcept
-{
-    return p;
-}
-
 // delete
 constexpr void operator delete(void* p) noexcept
 {
-    common_serialization::memory_management::raw_heap_deallocate(p);
+    common_serialization::memory_management::deallocate(p);
 }
 
 // delete[]
 constexpr void operator delete[](void* p) noexcept
 {
-    common_serialization::memory_management::raw_heap_deallocate(p);
+    common_serialization::memory_management::deallocate(p);
 }
 
 // delete nothrow
 constexpr void operator delete(void* p, const std::nothrow_t&) noexcept
 {
-    common_serialization::memory_management::raw_heap_deallocate(p);
+    common_serialization::memory_management::deallocate(p);
 }
 
 // delete[] nothrow
 constexpr void operator delete[](void* p, const std::nothrow_t&) noexcept
 {
-    common_serialization::memory_management::raw_heap_deallocate(p);
+    common_serialization::memory_management::deallocate(p);
 }
 
 // placement delete

@@ -28,7 +28,7 @@
 namespace common_serialization::csp::processing::data::templates
 {
 
-template<typename T, typename A, typename X>
+template<typename T, IAllocationManagerImpl A, typename X>
 Status deserialize(X& ctx, Vector<T, A>& value)
 {
     value.clear();

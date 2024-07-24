@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/Helpers.h"
+#include "common_serialization/Common/Helpers.h"
 #include "common_serialization/csp/context/Common.h"
 
 namespace common_serialization::csp::processing

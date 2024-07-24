@@ -28,7 +28,7 @@ namespace common_serialization
     
 /// @brief Interface that shared mutex must implement
 template<typename _T>
-concept ISharedMutex = requires(_T t)
+concept ISharedMutexImpl = requires(_T t)
 {
     { t.lock() };
     { t.lock_shared() };
@@ -38,7 +38,7 @@ concept ISharedMutex = requires(_T t)
 
 /// @brief Interface that exclusive mutex must implement
 template<typename _T>
-concept IExclusiveMutex = requires(_T t)
+concept IExclusiveMutexImpl = requires(_T t)
 {
     { t.lock() };
     { t.unlock() };

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/PlatformDependent/LinuxKernelMemoryManagement.h
+ * @file cslib/include/common_serialization/MemoryManagement/NewReplacements.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,17 +23,38 @@
 
 #pragma once
 
-namespace common_serialization::memory_management
+// new
+[[nodiscard]] constexpr void* operator new(size_t dataSizeInBytes) noexcept
 {
-
-[[nodiscard]] inline void* raw_heap_allocate(size_t data_size_in_bytes) noexcept
-{
-    return kmalloc(data_size_in_bytes, GFP_KERNEL);
+    return common_serialization::memory_management::allocate(dataSizeInBytes);
 }
 
-inline void raw_heap_deallocate(void* p) noexcept
+// new[]
+[[nodiscard]] constexpr void* operator new[](size_t dataSizeInBytes) noexcept
 {
-    kfree(p);
+    return common_serialization::memory_management::allocate(dataSizeInBytes);
 }
 
-} // namespace common_serialization::memory_management
+// new nothrow
+[[nodiscard]] constexpr void* operator new(size_t dataSizeInBytes, const std::nothrow_t&) noexcept
+{
+    return common_serialization::memory_management::allocate(dataSizeInBytes);
+}
+
+// new[] nothrow
+[[nodiscard]] constexpr void* operator new[](size_t dataSizeInBytes, const std::nothrow_t&) noexcept
+{
+    return common_serialization::memory_management::allocate(dataSizeInBytes);
+}
+
+// placement new
+[[nodiscard]] constexpr void* operator new(uint64_t, void* p) noexcept
+{
+    return p;
+}
+
+// placement new[]
+[[nodiscard]] constexpr void* operator new[](uint64_t, void* p) noexcept
+{
+    return p;
+}

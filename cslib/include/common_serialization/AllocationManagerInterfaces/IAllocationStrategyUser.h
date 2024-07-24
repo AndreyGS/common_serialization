@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IClientDataHandlerTraits.h
+ * @file cslib/include/common_serialization/AllocationManagerInterfaces/IAllocationStrategyUser.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,35 +23,37 @@
 
 #pragma once
 
-#include "common_serialization/csp/Concepts.h"
-
-namespace common_serialization::csp::messaging
+namespace common_serialization
 {
 
-/// @brief Properties of CSP Client
-template<typename _T>
-concept IClientDataHandlerTraits
-    =  ISerializableImpl<typename _T::InputType>
-    && ISerializableImpl<typename _T::OutputType>
-    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
-
-template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , bool _forTempUseHeap
->
-struct IClientDataHandlerTraitsConcrete
+enum class AllocationStrategy
 {
-    using InputType = _InputType;
-    using OutputType = _OutputType;
-
-    static constexpr bool kForTempUseHeap = _forTempUseHeap;
+    StrictByDataSize,
+    DoubleOfDataSize
 };
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhStack = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
+/// @brief Interface of user of allocation strategy (CRTP)
+/// @tparam _User Most derived class (instance type)
+template<typename _User>
+class IAllocationStrategyUser
+{
+public:
+    /// @brief Get current allocation strategy
+    /// @return Current allocation strategy
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr AllocationStrategy getAllocationStrategy() const noexcept
+    {
+        return static_cast<const _User*>(this)->getAllocationStrategyImpl();
+    }
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhHeap = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
+    /// @brief Set allocation strategy
+    /// @param allocationStrategy Allocation strategy
+    CS_ALWAYS_INLINE constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
+    {
+        static_cast<_User*>(this)->setAllocationStrategyImpl(allocationStrategy);
+    }
+};
 
-} // namespace common_serialization::csp::messaging
+template<typename _User>
+concept IAllocationStrategyUserImpl = std::is_base_of_v<IAllocationStrategyUser<normalize_t<_User>>, normalize_t<_User>>;
+
+} // namespace common_serialization

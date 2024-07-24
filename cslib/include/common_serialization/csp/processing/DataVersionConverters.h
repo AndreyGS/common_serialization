@@ -48,7 +48,7 @@ constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, _T& 
 template<typename _T>
 constexpr Status toOldStructIfNeed(const _T& value, context::SData& ctx)
 {
-    if constexpr (NotISerializableBased<_T>)
+    if constexpr (!ISerializableImpl<_T>)
         return Status::ErrorInvalidType;
     else
     {
@@ -67,7 +67,7 @@ constexpr Status toOldStructIfNeed(const _T& value, context::SData& ctx)
 template<typename _T>
 constexpr Status fromOldStructIfNeed(context::DData& ctx, _T& value)
 {
-    if constexpr (NotISerializableBased<_T>)
+    if constexpr (!ISerializableImpl<_T>)
         return Status::ErrorInvalidType;
     else
     {
@@ -113,7 +113,7 @@ private:
     interface_version_t m_targetVersion{ traits::kInterfaceVersionUndefined };
 };
 
-template<ISerializableBased _To, typename... _NextTo>
+template<ISerializableImpl _To, typename... _NextTo>
 class ToVersion<_To, _NextTo...> : public ToVersion<_NextTo...>
 {
 public:
@@ -123,7 +123,7 @@ public:
 
     constexpr uint32_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
-    template<ISerializableBased _From>
+    template<ISerializableImpl _From>
     Status convert(const _From& from, context::SData& ctx)
     {
         return ctx.isHeapUsedForTemp() ? convertOnHeap(from, ctx) : convertOnStack(from, ctx);
@@ -132,11 +132,11 @@ public:
 protected:
     using base_class = ToVersion<_NextTo...>;
 
-    template<ISerializableBased _From>
+    template<ISerializableImpl _From>
     Status convertOnHeap(const _From& from, context::SData& ctx)
     {
         GenericPointerKeeper pointerKeeper;
-        if (!pointerKeeper.allocateAndConstruct<_To, GenericAllocatorHelper<_To, ConstructorNoexceptAllocator<_To>>>(1))
+        if (!pointerKeeper.allocateAndConstruct<ConstrGenAllocationManagerT<_To>>(1))
             return Status::ErrorNoMemory;
 
         CS_RUN(pointerKeeper.get<_To>()->init(from));
@@ -147,7 +147,7 @@ protected:
             return BodyProcessor::serialize(*pointerKeeper.get<_To>(), ctx);
     }
 
-    template<ISerializableBased _From>
+    template<ISerializableImpl _From>
     Status convertOnStack(const _From& from, context::SData& ctx)
     {
         _To to;
@@ -173,7 +173,7 @@ public:
         : m_targetVersion(targetVersion)
     { }
 
-    template<ISerializableBased _To>
+    template<ISerializableImpl _To>
     Status convert(context::DData& ctx, _To& to) noexcept
     {
         return Status::ErrorInternal;
@@ -186,13 +186,13 @@ protected:
 
     static constexpr interface_version_t privateVersion = traits::kInterfaceVersionUndefined;
 
-    template<ISerializableBased _To>
+    template<ISerializableImpl _To>
     Status convertToUpperVersionOnHeap(const from_type& from, context::DData& ctx, _To& to) noexcept
     {
         return Status::ErrorInternal;
     }
 
-    template<ISerializableBased _To>
+    template<ISerializableImpl _To>
     Status convertToUpperVersionOnStack(const from_type& from, context::DData& ctx, _To& to) noexcept
     {
         return Status::ErrorInternal;
@@ -203,7 +203,7 @@ private:
 };
 
 
-template<ISerializableBased _From, typename... _NextFrom>
+template<ISerializableImpl _From, typename... _NextFrom>
 class FromVersion<_From, _NextFrom...> : public FromVersion<_NextFrom...>
 {
 public:
@@ -213,7 +213,7 @@ public:
 
     constexpr interface_version_t getTargetVersion() const noexcept { return base_class::getTargetVersion(); }
 
-    template<ISerializableBased _To>
+    template<ISerializableImpl _To>
     Status convert(context::DData& ctx, _To& to)
     {
         // Skip versions that are older than serialized one
@@ -230,11 +230,11 @@ protected:
 
     static constexpr interface_version_t privateVersion = _From::getLatestPrivateVersion();
 
-    template<ISerializableBased _To>
+    template<ISerializableImpl _To>
     Status convertOnHeap(context::DData& ctx, _To& to)
     {
         GenericPointerKeeper pointerKeeper;
-        if (!pointerKeeper.allocateAndConstruct<_From, GenericAllocatorHelper<_From, ConstructorNoexceptAllocator<_From>>>(1))
+        if (!pointerKeeper.allocateAndConstruct<ConstrGenAllocationManagerT<_From>>(1))
             return Status::ErrorNoMemory;
 
         CS_RUN(BodyProcessor::deserialize(ctx, *pointerKeeper.get<_From>()));
@@ -242,7 +242,7 @@ protected:
         return convertToUpperVersionOnHeap(*pointerKeeper.get<_From>(), ctx, to);
     }
 
-    template<ISerializableBased _To>
+    template<ISerializableImpl _To>
     Status convertOnStack(context::DData& ctx, _To& to)
     {
         _From from;
@@ -251,13 +251,13 @@ protected:
         return convertToUpperVersionOnStack(from, ctx, to);
     }
 
-    template<ISerializableBased _To>
+    template<ISerializableImpl _To>
     Status convertToUpperVersionOnHeap(const _From& from, context::DData& ctx, _To& to)
     {
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)
         {
             GenericPointerKeeper pointerKeeper;
-            if (!pointerKeeper.allocateAndConstruct<base_from, GenericAllocatorHelper<base_from, ConstructorNoexceptAllocator<base_from>>>(1))
+            if (!pointerKeeper.allocateAndConstruct<ConstrGenAllocationManagerT<base_from>>(1))
                 return Status::ErrorNoMemory;
 
             if constexpr (InitableBySpecialClass<_To, base_from>)
@@ -273,7 +273,7 @@ protected:
             return Status::ErrorNoSuchHandler;
     }
 
-    template<ISerializableBased _To>
+    template<ISerializableImpl _To>
     Status convertToUpperVersionOnStack(const _From& from, context::DData& ctx, _To& to)
     {
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)

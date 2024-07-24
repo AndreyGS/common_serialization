@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IClientDataHandlerTraits.h
+ * @file cslib/include/common_serialization/AllocationManagers/Typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,35 +23,32 @@
 
 #pragma once
 
-#include "common_serialization/csp/Concepts.h"
+#include "common_serialization/AllocationManagers/GenericAllocationManager.h"
+#include "common_serialization/AllocationManagers/StrategicAllocationManager.h"
 
-namespace common_serialization::csp::messaging
+namespace common_serialization
 {
 
-/// @brief Properties of CSP Client
+template<IAllocatorImpl _Allocator>
+using GenericAllocationManagerT = GenericAllocationManager<_Allocator>;
+
+template<IAllocatorImpl _Allocator>
+using StrategicAllocationManagerT = StrategicAllocationManager<_Allocator>;
+
+
 template<typename _T>
-concept IClientDataHandlerTraits
-    =  ISerializableImpl<typename _T::InputType>
-    && ISerializableImpl<typename _T::OutputType>
-    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
+using RawGenAllocationManagerT = GenericAllocationManager<RawNoexceptAllocatorT<_T>>;
 
-template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , bool _forTempUseHeap
->
-struct IClientDataHandlerTraitsConcrete
-{
-    using InputType = _InputType;
-    using OutputType = _OutputType;
+template<typename _T>
+using RawKeeperGenAllocationManagerT = GenericAllocationManager<RawKeeperAllocatorT<_T>>;
 
-    static constexpr bool kForTempUseHeap = _forTempUseHeap;
-};
+template<typename _T>
+using ConstrGenAllocationManagerT = GenericAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhStack = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
+template<typename _T>
+using RawStratAllocationManagerT = StrategicAllocationManager<RawNoexceptAllocatorT<_T>>;
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhHeap = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
+template<typename _T>
+using ConstrStratAllocationManagerT = StrategicAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
 
-} // namespace common_serialization::csp::messaging
+} // namespace common_serialization

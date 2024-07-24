@@ -94,7 +94,7 @@ public:
     /// @param minimumInterfaceVersion Minimum supported interface version
     /// @param outputTypeId Handler output type
     /// @return Status of operation
-    template<ISerializableBased InputType>
+    template<ISerializableImpl InputType>
     Status getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
 
     /// @brief Get settings installed in current Client instance
@@ -277,13 +277,13 @@ inline Status Client::getServerSettings(protocol_version_t serverCspVersion, ser
     return cspPartySettings.deserialize(binOutput);
 }
 
-template<ISerializableBased InputType>
+template<ISerializableImpl _InputType>
 Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
 {
     if (!isValid())
         return Status::ErrorNotInited;
 
-    const Interface& interface_ = InputType::getInterface();
+    const Interface& interface_ = _InputType::getInterface();
 
     if (getInterfaceVersion(interface_.id) == traits::kInterfaceVersionUndefined)
         return Status::ErrorNotSupportedInterface;
@@ -292,7 +292,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     context::SData ctxIn(binInput, m_settings.getLatestProtocolVersion(), m_settings.getMandatoryCommonFlags());
 
     CS_RUN(processing::serializeCommonContext(ctxIn));
-    CS_RUN(processing::serializeDataContextNoChecks<InputType>(ctxIn));
+    CS_RUN(processing::serializeDataContextNoChecks<_InputType>(ctxIn));
 
     BinWalkerT binOutput;
     CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));

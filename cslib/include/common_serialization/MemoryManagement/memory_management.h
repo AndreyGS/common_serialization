@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/messaging/IClientDataHandlerTraits.h
+ * @file cslib/include/common_serialization/MemoryManagement/memory_management.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,35 +23,16 @@
 
 #pragma once
 
-#include "common_serialization/csp/Concepts.h"
+#include "common_serialization/Common/common.h"
 
-namespace common_serialization::csp::messaging
-{
+#include "common_serialization/MemoryManagement/PlatformDependent/switch.h"
 
-/// @brief Properties of CSP Client
-template<typename _T>
-concept IClientDataHandlerTraits
-    =  ISerializableImpl<typename _T::InputType>
-    && ISerializableImpl<typename _T::OutputType>
-    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
+#if !defined CS_NO_STD_NEW_DELETE_REPLACEMENT && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
 
-template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , bool _forTempUseHeap
->
-struct IClientDataHandlerTraitsConcrete
-{
-    using InputType = _InputType;
-    using OutputType = _OutputType;
+#include "common_serialization/MemoryManagement/PlatformDependent/NewDeleteReplacements.h"
 
-    static constexpr bool kForTempUseHeap = _forTempUseHeap;
-};
+#endif // defined WINDOWS_KERNEL || defined LINUX_KERNEL
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhStack = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
-
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using CdhHeap = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
-
-} // namespace common_serialization::csp::messaging
+#ifndef CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS
+#include "common_serialization/MemoryManagement/Typedefs.h"
+#endif
