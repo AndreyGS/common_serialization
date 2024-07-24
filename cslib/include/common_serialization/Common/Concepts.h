@@ -61,4 +61,7 @@ concept IsSigned
         && (   std::is_same_v<T, signed char> || std::is_same_v<T, short> || std::is_same_v<T, int> || std::is_same_v<T, long>
             || std::is_same_v<T, long long> || std::is_same_v<T, float> || std::is_same_v<T, double> || std::is_same_v<T, long double>);
 
+template<typename _T>
+concept HasDestroyingDeleteOp = requires (_T t) { _T::operator delete(&t, std::destroying_delete_t{}); };
+
 } // namespace common_serialization

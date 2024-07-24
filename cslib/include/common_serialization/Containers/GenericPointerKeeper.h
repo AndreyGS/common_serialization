@@ -87,31 +87,31 @@ public:
 
     /// @brief Allocates storage and constructs an object 
     ///     or array of objects using supplied arguments
-    /// @tparam AllocatorHelper Type that implements AllocatorHelper interface
+    /// @tparam AllocationManager Type that implements AllocationManager interface
     /// @tparam ...Args Parameters types that go to ctor of every element
     /// @param n 
     /// @param ...args Parameters that go to ctor of every element
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     ///     or if object construction process return error.
-    template<IAllocatorHelperImpl _AllocatorHelper, typename... _Args>
-    _AllocatorHelper::pointer allocateAndConstruct(size_t n, _Args&&... args)
+    template<IAllocationManagerImpl _AllocationManager, typename... _Args>
+    _AllocationManager::pointer allocateAndConstruct(size_t n, _Args&&... args)
     {
         if (m_p)
             destroyAndDeallocate();
 
-        using pointer = typename _AllocatorHelper::pointer;
+        using pointer = typename _AllocationManager::pointer;
 
-        _AllocatorHelper allocatorHelper{};
+        _AllocationManager AllocationManager{};
 
-        if (n > allocatorHelper.getAllocator().max_size())
+        if (n > AllocationManager.getAllocator().max_size())
             return nullptr;
 
-        pointer p = allocatorHelper.allocateAndConstruct(n, nullptr, std::forward<_Args>(args)...);
+        pointer p = AllocationManager.allocateAndConstruct(n, nullptr, std::forward<_Args>(args)...);
         if (p)
         {
             m_p = p;
             m_size = n;
-            m_destroyAndDeallocate = reinterpret_cast<DestroyAndDeallocateFunc>(&destroyAndDeallocateHelper<_AllocatorHelper>);
+            m_destroyAndDeallocate = reinterpret_cast<DestroyAndDeallocateFunc>(&destroyAndDeallocateHelper<_AllocationManager>);
         }
 
         return p;
@@ -120,7 +120,7 @@ public:
     template<typename _T, typename... _Args>
     _T* allocateAndConstructOne(_Args&&... args)
     {
-        return allocateAndConstruct<CGenericAllocatorHelperT<_T>, _Args...>(1, std::forward<_Args>(args)...);
+        return allocateAndConstruct<ConstrGenAllocationManagerT<_T>, _Args...>(1, std::forward<_Args>(args)...);
     }
 
     /// @brief Destroys holding objects 
@@ -145,10 +145,10 @@ public:
     }
 
 private:
-    template<IAllocatorHelperImpl _AllocatorHelper>
-    static void destroyAndDeallocateHelper(typename _AllocatorHelper::pointer p, size_t n)
+    template<IAllocationManagerImpl _AllocationManager>
+    static void destroyAndDeallocateHelper(typename _AllocationManager::pointer p, size_t n)
     {
-        _AllocatorHelper().destroyAndDeallocate(p, n);
+        _AllocationManager().destroyAndDeallocate(p, n);
     }
 
     void* m_p{ nullptr };

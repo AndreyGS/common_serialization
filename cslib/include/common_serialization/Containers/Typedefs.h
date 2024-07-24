@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelperInterfaces/allocator_helper_interface.h
+ * @file cslib/include/common_serialization/Containers/Typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,6 +23,37 @@
 
 #pragma once
 
-#include "common_serialization/Common/common.h"
-#include "common_serialization/AllocatorHelperInterfaces/IAllocatorHelper.h"
-#include "common_serialization/AllocatorHelperInterfaces/IAllocationStrategyUser.h"
+namespace common_serialization
+{
+
+using GenericPointerKeeperT = GenericPointerKeeper;
+
+template<typename _T, typename... _Ts>
+using UniquePtrT = UniquePtr<_T, _Ts...>;
+
+template<typename _T>
+using RawVectorT = Vector<_T, RawStratAllocationManagerT<_T>>;
+
+using BinVectorT = RawVectorT<uint8_t>;
+
+template<typename _T, typename... _Ts>
+using VectorT = Vector<_T, _Ts...>;
+
+template<typename _T>
+using RawWalkerT = Walker<_T, RawStratAllocationManagerT<_T>>;
+
+using BinWalkerT = RawWalkerT<uint8_t>;
+
+// Next 3 typedefs are temporary solutions
+
+template<typename _K, typename _V, typename... _Ts>
+using MapT = std::map<_K, _V, _Ts...>;
+
+template<typename _K, typename _V, typename... _Ts>
+using HashMultiMapT = std::unordered_multimap<_K, _V, _Ts...>;
+
+template<typename _T, typename... Ts>
+using ListT = std::list<_T, Ts...>;
+
+} // namespace common_serialization
+

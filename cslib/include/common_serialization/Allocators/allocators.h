@@ -30,6 +30,6 @@
 #include "common_serialization/Allocators/RawKeeperAllocator.h"
 #include "common_serialization/Allocators/RawNoexceptAllocator.h"
 
-#ifndef CS_CUSTOM_ALLOCATOR_TYPEDEFS
+#ifndef CS_CUSTOM_ALLOCATORS_TYPEDEFS
 #include "common_serialization/Allocators/Typedefs.h"
 #endif

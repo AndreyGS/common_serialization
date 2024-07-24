@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelpers/allocator_helpers.h
+ * @file cslib/include/common_serialization/Concurrency/Typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,12 +23,13 @@
 
 #pragma once
 
-#include "common_serialization/Common/common.h"
-#include "common_serialization/AllocatorHelperInterfaces/allocator_helper_interface.h"
+namespace common_serialization
+{
 
-#include "common_serialization/AllocatorHelpers/GenericAllocatorHelper.h"
-#include "common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h"
+using SharedMutexT = SharedMutex;
+using BinarySemaphoreT = BinarySemaphore;
+using LatchT = Latch;
+using AtomicUint32T = AtomicUint32;
+using AtomicBoolT = AtomicBool;
 
-#ifndef CS_CUSTOM_ALLOCATOR_HELPER_TYPEDEFS
-#include "common_serialization/AllocatorHelpers/Typdefs.h"
-#endif
+} // namespace common_serialization

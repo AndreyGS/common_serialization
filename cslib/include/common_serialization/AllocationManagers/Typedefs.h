@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelperInterfaces/IAllocationStrategyUser.h
+ * @file cslib/include/common_serialization/AllocationManagers/Typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,39 +23,32 @@
 
 #pragma once
 
-#include "common_serialization/AllocatorInterfaces/allocator_interface.h"
+#include "common_serialization/AllocationManagers/GenericAllocationManager.h"
+#include "common_serialization/AllocationManagers/StrategicAllocationManager.h"
 
 namespace common_serialization
 {
 
-enum class AllocationStrategy
-{
-    StrictByDataSize,
-    DoubleOfDataSize
-};
+template<IAllocatorImpl _Allocator>
+using GenericAllocationManagerT = GenericAllocationManager<_Allocator>;
 
-/// @brief Interface of user of allocation strategy (CRTP)
-/// @tparam _User Most derived class (instance type)
-template<typename _User>
-class IAllocationStrategyUser
-{
-public:
-    /// @brief Get current allocation strategy
-    /// @return Current allocation strategy
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr AllocationStrategy getAllocationStrategy() const noexcept
-    {
-        return static_cast<const _User*>(this)->getAllocationStrategyImpl();
-    }
+template<IAllocatorImpl _Allocator>
+using StrategicAllocationManagerT = StrategicAllocationManager<_Allocator>;
 
-    /// @brief Set allocation strategy
-    /// @param allocationStrategy Allocation strategy
-    CS_ALWAYS_INLINE constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
-    {
-        static_cast<_User*>(this)->setAllocationStrategyImpl(allocationStrategy);
-    }
-};
 
-template<typename _User>
-concept IAllocationStrategyUserImpl = std::is_base_of_v<IAllocationStrategyUser<normalize_t<_User>>, normalize_t<_User>>;
+template<typename _T>
+using RawGenAllocationManagerT = GenericAllocationManager<RawNoexceptAllocatorT<_T>>;
+
+template<typename _T>
+using RawKeeperGenAllocationManagerT = GenericAllocationManager<RawKeeperAllocatorT<_T>>;
+
+template<typename _T>
+using ConstrGenAllocationManagerT = GenericAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
+
+template<typename _T>
+using RawStratAllocationManagerT = StrategicAllocationManager<RawNoexceptAllocatorT<_T>>;
+
+template<typename _T>
+using ConstrStratAllocationManagerT = StrategicAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
 
 } // namespace common_serialization

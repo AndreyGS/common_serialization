@@ -29,7 +29,7 @@ namespace special_types
 namespace cs = common_serialization;
 
 template<typename T>
-using DefaultAllocatorHelper = cs::CStrategicAllocatorHelperT<T>;
+using DefaultAllocationManager = cs::ConstrStratAllocationManagerT<T>;
 
 class NoMoveConstructible
 {

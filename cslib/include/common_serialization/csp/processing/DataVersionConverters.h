@@ -136,7 +136,7 @@ protected:
     Status convertOnHeap(const _From& from, context::SData& ctx)
     {
         GenericPointerKeeper pointerKeeper;
-        if (!pointerKeeper.allocateAndConstruct<CGenericAllocatorHelperT<_To>>(1))
+        if (!pointerKeeper.allocateAndConstruct<ConstrGenAllocationManagerT<_To>>(1))
             return Status::ErrorNoMemory;
 
         CS_RUN(pointerKeeper.get<_To>()->init(from));
@@ -234,7 +234,7 @@ protected:
     Status convertOnHeap(context::DData& ctx, _To& to)
     {
         GenericPointerKeeper pointerKeeper;
-        if (!pointerKeeper.allocateAndConstruct<CGenericAllocatorHelperT<_From>>(1))
+        if (!pointerKeeper.allocateAndConstruct<ConstrGenAllocationManagerT<_From>>(1))
             return Status::ErrorNoMemory;
 
         CS_RUN(BodyProcessor::deserialize(ctx, *pointerKeeper.get<_From>()));
@@ -257,7 +257,7 @@ protected:
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)
         {
             GenericPointerKeeper pointerKeeper;
-            if (!pointerKeeper.allocateAndConstruct<CGenericAllocatorHelperT<base_from>>(1))
+            if (!pointerKeeper.allocateAndConstruct<ConstrGenAllocationManagerT<base_from>>(1))
                 return Status::ErrorNoMemory;
 
             if constexpr (InitableBySpecialClass<_To, base_from>)

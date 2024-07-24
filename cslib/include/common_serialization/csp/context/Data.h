@@ -29,8 +29,8 @@
 namespace common_serialization::csp::context
 {
 
-using SPointersMap = HashMapT<const void*, csp_size_t>;
-using DPointersMap = HashMapT<csp_size_t, void*>;
+using SPointersMap = MapT<const void*, csp_size_t>;
+using DPointersMap = MapT<csp_size_t, void*>;
 
 template<bool serialize>
 class ExtendedPointersProcessing
@@ -73,7 +73,7 @@ private:
 /// @brief Auxillary class for holding pointers containers using in some deserialization scenarios
 /// @tparam Allocator Stateless Allocator that would be used for free pointers allocation
 ///     (should be construction capable)
-/// @tparam AllocatorHelperStateless AllocatorHelper that would be used for free pointers allocation help
+/// @tparam AllocationManagerStateless AllocationManager that would be used for free pointers allocation help
 ///     (should be construction capable)
 template<>
 class ExtendedPointersProcessing<false>

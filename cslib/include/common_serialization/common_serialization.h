@@ -30,7 +30,7 @@
 #include "common_serialization/MemoryManagement/memory_management.h"
 
 #include "common_serialization/Allocators/allocators.h"
-#include "common_serialization/AllocatorHelpers/allocator_helpers.h"
+#include "common_serialization/AllocationManagers/allocation_managers.h"
 #include "common_serialization/Concurrency/concurrency.h"
 #include "common_serialization/Containers/containers.h"
 #include "common_serialization/csp/csp.h"

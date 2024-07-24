@@ -136,7 +136,7 @@ public:
     ///     rather environment tool option instead of struct/operation specific.
     virtual Common& resetToDefaultsExceptDataContents() noexcept
     {
-        if constexpr (IDeserializationBinContainer<Bin>)
+        if constexpr (!_serialize)
             m_binaryData.seek(0);
         m_protocolVersion = traits::getLatestProtocolVersion();
         m_messageType = Message::Data;

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorInterfaces/allocator_interface.h
+ * @file cslib/include/common_serialization/AllocationManagers/allocation_managers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,7 +24,11 @@
 #pragma once
 
 #include "common_serialization/Common/common.h"
-#include "common_serialization/MemoryManagementInterfaces/memory_management_interfaces.h"
+#include "common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h"
 
-#include "common_serialization/AllocatorInterfaces/IAllocator.h"
-#include "common_serialization/AllocatorInterfaces/IStorageSetter.h"
+#include "common_serialization/AllocationManagers/GenericAllocationManager.h"
+#include "common_serialization/AllocationManagers/StrategicAllocationManager.h"
+
+#ifndef CS_CUSTOM_ALLOCATION_MANAGERS_TYPEDEFS
+#include "common_serialization/AllocationManagers/Typedefs.h"
+#endif

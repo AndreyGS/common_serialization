@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelperInterfaces/IAllocatorHelper.h
+ * @file cslib/include/common_serialization/AllocationManagerInterfaces/IAllocationManager.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "common_serialization/AllocatorInterfaces/allocator_interface.h"
-
 namespace common_serialization
 {
 
@@ -33,9 +31,9 @@ namespace common_serialization
 ///     In many (or most) scenarios there is no need of direct using of IAllocators.
 ///     Instead use this one supplying it with suitable IAllocator.
 /// @tparam _Allocator Allocator
-/// @tparam _AllocatorHelper Most derived class (instance type)
-template<IAllocatorImpl _Allocator, typename _AllocatorHelper>
-class IAllocatorHelper
+/// @tparam _AllocationManager Most derived class (instance type)
+template<IAllocatorImpl _Allocator, typename _AllocationManager>
+class IAllocationManager
 {
 public:
     using allocator_type = _Allocator;
@@ -56,18 +54,18 @@ public:
     template<typename... Args>
     [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateAndConstruct(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->allocateAndConstructImpl(requestedN, pAllocatedN, std::forward<Args>(args)...);
+        return static_cast<const _AllocationManager*>(this)->allocateAndConstructImpl(requestedN, pAllocatedN, std::forward<Args>(args)...);
     }
 
     /// @brief Allocate storage for n elements of type T with support to apply 
     ///     internal management (strategy) of allocating storage by actual implementation
-    ///     of IAllocatorHelper
+    ///     of IAllocationManager
     /// @param requestedN Number of elements that storage should be capable to hold
     /// @param pAllocatedN Returned the actual number of elements that allocated storage can hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocate(size_type requestedN, size_type* pAllocatedN) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->allocateImpl(requestedN, pAllocatedN);
+        return static_cast<const _AllocationManager*>(this)->allocateImpl(requestedN, pAllocatedN);
     }
 
     /// @brief Allocate storage for n elements of type T
@@ -75,7 +73,7 @@ public:
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateStrict(size_type n) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->allocateStrictImpl(n);
+        return static_cast<const _AllocationManager*>(this)->allocateStrictImpl(n);
     }
 
     /// @brief Call ctor with args on memory pointed by p
@@ -86,7 +84,7 @@ public:
     template<typename... Args>
     CS_ALWAYS_INLINE constexpr Status construct(pointer p, Args&&... args) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->constructImpl(p, std::forward<Args>(args)...);
+        return static_cast<const _AllocationManager*>(this)->constructImpl(p, std::forward<Args>(args)...);
     }
 
     /// @brief Call ctor for n elements with args on memory pointed by p
@@ -100,7 +98,7 @@ public:
     template<typename... Args>
     CS_ALWAYS_INLINE constexpr Status constructN(pointer p, pointer* pNError, size_type n, Args&&... args) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->constructNImpl(p, pNError, n, std::forward<Args>(args)...);
+        return static_cast<const _AllocationManager*>(this)->constructNImpl(p, pNError, n, std::forward<Args>(args)...);
     }
 
     /// @brief Copy elements using copy ctors
@@ -110,7 +108,7 @@ public:
     /// @return Status of operation
     CS_ALWAYS_INLINE constexpr Status copy(pointer pDest, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->copyDirtyImpl(pDest, pDest, pSrc, n);
     }
 
     /// @brief Copy elements using copy ctors when
@@ -121,7 +119,7 @@ public:
     /// @return Status of operation
     CS_ALWAYS_INLINE constexpr Status copyNoOverlap(pointer pDest, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->copyDirtyNoOverlapImpl(pDest, pDest, pSrc, n);
     }
 
     /// @brief Copy elements using copy ctors when
@@ -134,7 +132,7 @@ public:
     /// @return Status of operation
     CS_ALWAYS_INLINE constexpr Status copyDirty(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->copyDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->copyDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Copy elements using copy ctors when
@@ -148,7 +146,7 @@ public:
     /// @return Status of operation
     CS_ALWAYS_INLINE constexpr Status copyDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Move elements using move ctors
@@ -158,7 +156,7 @@ public:
     /// @return Status of operation
     CS_ALWAYS_INLINE constexpr Status move(pointer pDest, pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->moveImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->moveImpl(pDest, pDest, pSrc, n);
     }
 
     /// @brief Move elements using move ctors when
@@ -169,7 +167,7 @@ public:
     /// @return Status of operation
     CS_ALWAYS_INLINE constexpr Status moveNoOverlap(pointer pDest, pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->moveNoOverlapImpl(pDest, pDest, pSrc, n);
     }
 
     /// @brief Move elements using move ctors when
@@ -182,7 +180,7 @@ public:
     /// @return Status of operation
     CS_ALWAYS_INLINE constexpr Status moveDirty(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->moveImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->moveImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Move elements using move ctors when
@@ -196,7 +194,7 @@ public:
     /// @return Status of operation
     CS_ALWAYS_INLINE constexpr Status moveDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocatorHelper*>(this)->moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Shortcut for destroying and subsequent deallocating operations 
@@ -204,21 +202,21 @@ public:
     /// @param n Number of elements to destroy
     CS_ALWAYS_INLINE constexpr void destroyAndDeallocate(pointer p, size_type n) const noexcept
     {
-        return static_cast<const _AllocatorHelper*>(this)->destroyAndDeallocateImpl(p, n);
+        return static_cast<const _AllocationManager*>(this)->destroyAndDeallocateImpl(p, n);
     }
 
     /// @brief Deallocate storage
     /// @param p Pointer to storage
     CS_ALWAYS_INLINE constexpr void deallocate(pointer p) const noexcept
     {
-        return static_cast<const _AllocatorHelper*>(this)->deallocateImpl(p);
+        return static_cast<const _AllocationManager*>(this)->deallocateImpl(p);
     }
 
     /// @brief Destroy object
     /// @param p Pointer to object
     CS_ALWAYS_INLINE constexpr void destroy(pointer p) const noexcept
     {
-        return static_cast<const _AllocatorHelper*>(this)->destroyImpl(p);
+        return static_cast<const _AllocationManager*>(this)->destroyImpl(p);
     }
 
     /// @brief Destroy n objects
@@ -226,14 +224,14 @@ public:
     /// @param n Number of objects
     CS_ALWAYS_INLINE constexpr void destroyN(pointer p, size_t n) const noexcept
     {
-        return static_cast<const _AllocatorHelper*>(this)->destroyNImpl(p, n);
+        return static_cast<const _AllocationManager*>(this)->destroyNImpl(p, n);
     }
 
     /// @brief Get number of elements that can be allocated
     /// @return Number of elements that can be allocated
     CS_ALWAYS_INLINE constexpr size_t max_size() const noexcept
     {
-        return static_cast<const _AllocatorHelper*>(this)->max_size_impl();
+        return static_cast<const _AllocationManager*>(this)->max_size_impl();
     }
 
     /// @brief Get managed allocator
@@ -253,6 +251,6 @@ private:
 };
 
 template<typename _T>
-concept IAllocatorHelperImpl = std::is_base_of_v<IAllocatorHelper<typename _T::allocator_type, normalize_t<_T>>, normalize_t<_T>>;
+concept IAllocationManagerImpl = std::is_base_of_v<IAllocationManager<typename _T::allocator_type, normalize_t<_T>>, normalize_t<_T>>;
 
 } // namespace common_serialization

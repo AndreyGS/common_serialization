@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelpers/GenericAllocatorHelper.h
+ * @file cslib/include/common_serialization/AllocationManagers/GenericAllocationManager.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common_serialization/Common/Helpers.h"
-#include "common_serialization/AllocatorHelperInterfaces/IAllocatorHelper.h"
+#include "common_serialization/AllocationManagerInterfaces/IAllocationManager.h"
 
 namespace common_serialization
 {
@@ -32,9 +32,9 @@ namespace common_serialization
 /// @brief Generic stateless class for allocation helping
 /// @tparam _Allocator Class that implement IAllocatorImpl interface
 /// @tparam _MostDerivedClass Instance type. But if type of current instance 
-///     is GenericAllocatorHelper it must be Dummy.
+///     is GenericAllocationManager it must be Dummy.
 template<IAllocatorImpl _Allocator, typename _MostDerivedClass = Dummy>
-class GenericAllocatorHelper : public IAllocatorHelper<_Allocator, GetCrtpMainType<GenericAllocatorHelper<_Allocator>, _MostDerivedClass>>
+class GenericAllocationManager : public IAllocationManager<_Allocator, GetCrtpMainType<GenericAllocationManager<_Allocator>, _MostDerivedClass>>
 {
 public:
     using allocator_type = _Allocator;
@@ -46,10 +46,10 @@ public:
     using constructor_allocator = typename allocator_type::constructor_allocator;
 
     /// @brief Real most derived class
-    using instance_type = GetCrtpMainType<GenericAllocatorHelper<allocator_type>, _MostDerivedClass>;
+    using instance_type = GetCrtpMainType<GenericAllocationManager<allocator_type>, _MostDerivedClass>;
 
-    /// @brief IAllocatorHelper interface
-    using allocator_helper_interface_type = IAllocatorHelper<_Allocator, instance_type>;
+    /// @brief IAllocationManager interface
+    using allocator_helper_interface_type = IAllocationManager<_Allocator, instance_type>;
 
 protected:
     friend allocator_helper_interface_type;

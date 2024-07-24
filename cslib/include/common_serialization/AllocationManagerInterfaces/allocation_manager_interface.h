@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelpers/Typedefs.h
+ * @file cslib/include/common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,32 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/AllocatorHelpers/GenericAllocatorHelper.h"
-#include "common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h"
+#include "common_serialization/Common/common.h"
+#include "common_serialization/AllocatorInterfaces/allocator_interface.h"
 
-namespace common_serialization
-{
-
-template<IAllocatorImpl _Allocator>
-using GenericAllocatorHelperT = GenericAllocatorHelper<_Allocator>;
-
-template<IAllocatorImpl _Allocator>
-using StrategicAllocatorHelperT = StrategicAllocatorHelper<_Allocator>;
-
-
-template<typename _T>
-using RGenericAllocatorHelperT = GenericAllocatorHelper<RawNoexceptAllocatorT<_T>>;
-
-template<typename _T>
-using RkGenericAllocatorHelperT = GenericAllocatorHelper<RawKeeperAllocatorT<_T>>;
-
-template<typename _T>
-using CGenericAllocatorHelperT = GenericAllocatorHelper<ConstructorNoexceptAllocatorT<_T>>;
-
-template<typename _T>
-using RStrategicAllocatorHelperT = StrategicAllocatorHelper<RawNoexceptAllocatorT<_T>>;
-
-template<typename _T>
-using CStrategicAllocatorHelperT = StrategicAllocatorHelper<ConstructorNoexceptAllocatorT<_T>>;
-
-} // namespace common_serialization
+#include "common_serialization/AllocationManagerInterfaces/IAllocationManager.h"
+#include "common_serialization/AllocationManagerInterfaces/IAllocationStrategyUser.h"

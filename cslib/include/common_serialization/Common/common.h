@@ -32,6 +32,7 @@
 #include <type_traits>
 #include <bit>
 #include <shared_mutex>
+#include <map>
 #include <unordered_map> 
 #include <semaphore>
 #include <latch>

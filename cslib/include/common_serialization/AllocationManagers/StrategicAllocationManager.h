@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/AllocatorHelpers/StrategicAllocatorHelper.h
+ * @file cslib/include/common_serialization/AllocationManagers/StrategicAllocationManager.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/AllocatorHelpers/GenericAllocatorHelper.h"
+#include "common_serialization/AllocationManagers/GenericAllocationManager.h"
 
 namespace common_serialization
 {
@@ -32,11 +32,11 @@ namespace common_serialization
 ///     using allocation strategy
 /// @tparam _Allocator Class that implement IAllocatorImpl interface
 /// @tparam _MostDerivedClass Instance type. But if type of current instance 
-///     is GenericAllocatorHelper it must be Dummy.
+///     is GenericAllocationManager it must be Dummy.
 template<IAllocatorImpl _Allocator, typename _MostDerivedClass = Dummy>
-class StrategicAllocatorHelper 
-    : public GenericAllocatorHelper<_Allocator, GetCrtpMainType<StrategicAllocatorHelper<_Allocator>, _MostDerivedClass>>
-    , public IAllocationStrategyUser<GetCrtpMainType<StrategicAllocatorHelper<_Allocator>, _MostDerivedClass>>
+class StrategicAllocationManager 
+    : public GenericAllocationManager<_Allocator, GetCrtpMainType<StrategicAllocationManager<_Allocator>, _MostDerivedClass>>
+    , public IAllocationStrategyUser<GetCrtpMainType<StrategicAllocationManager<_Allocator>, _MostDerivedClass>>
 {
 public:
     using allocator_type = _Allocator;
@@ -48,15 +48,15 @@ public:
     using constructor_allocator = typename allocator_type::constructor_allocator;
 
     /// @brief Real most derived class
-    using instance_type = GetCrtpMainType<StrategicAllocatorHelper<allocator_type>, _MostDerivedClass>;
+    using instance_type = GetCrtpMainType<StrategicAllocationManager<allocator_type>, _MostDerivedClass>;
 
-    /// @brief IAllocatorHelper interface
-    using allocator_helper_interface_type = IAllocatorHelper<allocator_type, instance_type>;
+    /// @brief IAllocationManager interface
+    using allocator_helper_interface_type = IAllocationManager<allocator_type, instance_type>;
 
     using allocation_strategy_user_interface_type = IAllocationStrategyUser<instance_type>;
 
-    explicit constexpr StrategicAllocatorHelper(AllocationStrategy allocationStrategy = AllocationStrategy::DoubleOfDataSize) noexcept
-        : GenericAllocatorHelper<allocator_type, instance_type>(), m_allocation_strategy(allocationStrategy)
+    explicit constexpr StrategicAllocationManager(AllocationStrategy allocationStrategy = AllocationStrategy::DoubleOfDataSize) noexcept
+        : GenericAllocationManager<allocator_type, instance_type>(), m_allocation_strategy(allocationStrategy)
     { }
 
 protected:
