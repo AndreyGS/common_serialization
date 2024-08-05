@@ -23,6 +23,12 @@
 
 #pragma once
 
+#ifndef CS_CUSTOM_ALLOCATORS_TYPEDEFS
+
+#include <common_serialization/Allocators/ConstructorNoexceptAllocator.h>
+#include <common_serialization/Allocators/RawKeeperAllocator.h>
+#include <common_serialization/Allocators/RawNoexceptAllocator.h>
+
 namespace common_serialization
 {
 
@@ -36,3 +42,5 @@ template<typename _T>
 using RawNoexceptAllocatorT = RawNoexceptAllocator<_T>;
 
 } // namespace common_serialization
+
+#endif // #ifndef CS_CUSTOM_ALLOCATORS_TYPEDEFS

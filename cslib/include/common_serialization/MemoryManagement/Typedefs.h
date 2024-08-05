@@ -23,9 +23,15 @@
 
 #pragma once
 
+#ifndef CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS
+
+#include <common_serialization/MemoryManagement/PlatformDependent/switch.h>
+
 namespace common_serialization
 {
 
 using HeapAllocatorT = HeapAllocator;
 
 } // namespace common_serialization
+
+#endif // #ifndef CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS

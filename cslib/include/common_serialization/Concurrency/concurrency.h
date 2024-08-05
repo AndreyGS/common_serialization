@@ -23,12 +23,8 @@
 
 #pragma once
 
-#include <common_serialization/Common/common.h>
-
 #include <common_serialization/Concurrency/Concepts.h>
 #include <common_serialization/Concurrency/GuardRW.h>
 #include <common_serialization/Concurrency/PlatformDependent/switch.h>
 
-#ifndef CS_CUSTOM_CONCURENCY_TYPEDEFS
 #include <common_serialization/Concurrency/Typedefs.h>
-#endif

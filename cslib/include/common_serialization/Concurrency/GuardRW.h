@@ -27,18 +27,22 @@
 
 namespace common_serialization
 {
-
-/// @brief Simple RAII guard for shared or unique mutex
-/// @tparam _T Mutex which implement ISharedMutex interface
-template<typename _T, bool exclusive = true>
+    
+/// @brief Simple RAII guard for shared or unique lockable type
+/// @tparam _T Lockable
+template<IExclusiveLockableImpl _T, bool exclusive = true>
 class Guard
 {
 public:
+    // For some reason I've got compiler internal error 
+    // when using requires clause with (exclusive || ISharedLockableImpl<_T>)
+    static_assert(exclusive || ISharedLockableImpl<_T>);
+
     /// @brief Init ctor
-    /// @param mutex Mutex
+    /// @param lockable Lockable
     /// @param deferred Should be locked later
-    explicit Guard(_T& mutex, bool deferred = false)
-        : m_mutex(mutex), m_locked(false)
+    explicit Guard(_T& lockable, bool deferred = false)
+        : m_lockable(lockable), m_locked(false)
     {
         if (!deferred)
             lock();
@@ -55,9 +59,9 @@ public:
             return;
 
         if constexpr (exclusive)
-            m_mutex.lock();
+            m_lockable.lock();
         else
-            m_mutex.lock_shared();
+            m_lockable.lock_shared();
 
         m_locked = true;
     }
@@ -68,9 +72,9 @@ public:
             return;
 
         if constexpr (exclusive)
-            m_mutex.unlock();
+            m_lockable.unlock();
         else
-            m_mutex.unlock_shared();
+            m_lockable.unlock_shared();
 
         m_locked = false;
     }
@@ -81,14 +85,14 @@ public:
     }
 
 private:
-    _T& m_mutex;
+    _T& m_lockable;
     bool m_locked{ false };
 };
 
-template<typename _T>
+template<ISharedLockableImpl _T>
 using RGuard = Guard<_T, false>;
 
-template<typename _T>
+template<IExclusiveLockableImpl _T>
 using WGuard = Guard<_T, true>;
 
 } // namespace common_serialization

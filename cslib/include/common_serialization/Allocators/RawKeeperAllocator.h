@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <common_serialization/AllocatorInterfaces/IAllocator.h>
+#include <common_serialization/AllocatorInterfaces/IStorageSetter.h>
+
 namespace common_serialization
 {
 

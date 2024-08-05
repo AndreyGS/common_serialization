@@ -25,23 +25,21 @@
 
 namespace common_serialization
 {
-    
-/// @brief Interface that shared mutex must implement
+
+/// @brief Interface that exclusive lockable type must implement
 template<typename _T>
-concept ISharedMutexImpl = requires(_T t)
+concept IExclusiveLockableImpl = requires(_T t)
 {
     { t.lock() };
-    { t.lock_shared() };
     { t.unlock() };
-    { t.unlock_shared() };
 };
 
-/// @brief Interface that exclusive mutex must implement
+/// @brief Interface that shared lockable type must implement
 template<typename _T>
-concept IExclusiveMutexImpl = requires(_T t)
+concept ISharedLockableImpl = IExclusiveLockableImpl<_T> && requires(_T t)
 {
-    { t.lock() };
-    { t.unlock() };
+    { t.lock_shared() };
+    { t.unlock_shared() };
 };
 
 } // namespace common_serialization

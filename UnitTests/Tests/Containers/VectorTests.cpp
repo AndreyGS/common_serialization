@@ -30,7 +30,7 @@ using namespace common_serialization;
 // Explicitly set default allocator helper so we wouldn't depend on 
 // possible future changes of default allocator helper of Vector
 template<typename T>
-using DefaultAllocationManager = ConstrStratAllocationManagerT<T>;
+using DefaultAllocationManager = CtorStratAllocationManagerT<T>;
 
 using size_type = typename Vector<int, DefaultAllocationManager<int>>::size_type;
 

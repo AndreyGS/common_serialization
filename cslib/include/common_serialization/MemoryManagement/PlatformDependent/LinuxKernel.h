@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <common_serialization/Common/common.h>
+#include <common_serialization/MemoryManagementInterfaces/IStorageAllocator.h>
+
 namespace common_serialization
 {
 

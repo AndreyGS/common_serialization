@@ -28,7 +28,7 @@
 namespace common_serialization
 {
 
-template<typename T, IAllocationManagerImpl _AllocationManager = ConstrStratAllocationManagerT<T>>
+template<typename T, IAllocationManagerImpl _AllocationManager = CtorStratAllocationManagerT<T>>
 class Walker
 {
 public:

@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <common_serialization/AllocationManagerInterfaces/IAllocationManager.h>
 #include <common_serialization/Containers/IteratorTagsDeclarations.h>
 
 namespace common_serialization
@@ -293,7 +294,7 @@ template<typename Vec>
 /// @tparam _T Type of elements
 /// @tparam _AllocationManager Allocator Helper using for storage management
 ///     and objects creation/deletion
-template<typename _T, IAllocationManagerImpl _AllocationManager = ConstrStratAllocationManagerT<_T>>
+template<typename _T, IAllocationManagerImpl _AllocationManager = CtorStratAllocationManagerT<_T>>
 class Vector
 {
 public:

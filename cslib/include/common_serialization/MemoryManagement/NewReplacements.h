@@ -23,6 +23,10 @@
 
 #pragma once
 
+#ifdef CS_OPERATOR_NEW_REPLACEMENT
+
+#include <common_serialization/MemoryManagement/PlatformDependent/switch.h>
+
 // new
 [[nodiscard]] constexpr void* operator new(size_t dataSizeInBytes) noexcept
 {
@@ -58,3 +62,5 @@
 {
     return p;
 }
+
+#endif // #ifdef CS_OPERATOR_NEW_REPLACEMENT

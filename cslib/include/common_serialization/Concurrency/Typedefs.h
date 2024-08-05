@@ -23,6 +23,8 @@
 
 #pragma once
 
+#ifndef CS_CUSTOM_CONCURENCY_TYPEDEFS
+
 namespace common_serialization
 {
 
@@ -33,3 +35,5 @@ using AtomicUint32T = AtomicUint32;
 using AtomicBoolT = AtomicBool;
 
 } // namespace common_serialization
+
+#endif // #ifndef CS_CUSTOM_CONCURENCY_TYPEDEFS

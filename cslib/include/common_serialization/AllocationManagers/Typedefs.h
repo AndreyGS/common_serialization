@@ -23,6 +23,8 @@
 
 #pragma once
 
+#ifndef CS_CUSTOM_ALLOCATION_MANAGERS_TYPEDEFS
+
 #include <common_serialization/AllocationManagers/GenericAllocationManager.h>
 #include <common_serialization/AllocationManagers/StrategicAllocationManager.h>
 
@@ -43,12 +45,14 @@ template<typename _T>
 using RawKeeperGenAllocationManagerT = GenericAllocationManager<RawKeeperAllocatorT<_T>>;
 
 template<typename _T>
-using ConstrGenAllocationManagerT = GenericAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
+using CtorGenAllocationManagerT = GenericAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
 
 template<typename _T>
 using RawStratAllocationManagerT = StrategicAllocationManager<RawNoexceptAllocatorT<_T>>;
 
 template<typename _T>
-using ConstrStratAllocationManagerT = StrategicAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
+using CtorStratAllocationManagerT = StrategicAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
 
 } // namespace common_serialization
+
+#endif // #ifndef CS_CUSTOM_ALLOCATION_MANAGERS_TYPEDEFS

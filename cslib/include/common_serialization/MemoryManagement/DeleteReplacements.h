@@ -23,6 +23,10 @@
 
 #pragma once
 
+#ifdef CS_OPERATOR_DELETE_REPLACEMENT
+
+#include <common_serialization/MemoryManagement/PlatformDependent/switch.h>
+
 // delete
 constexpr void operator delete(void* p) noexcept
 {
@@ -56,3 +60,5 @@ constexpr void operator delete(void*, void* ) noexcept
 constexpr void operator delete[](void*, void* ) noexcept
 {
 }
+
+#endif // #ifdef CS_OPERATOR_DELETE_REPLACEMENT

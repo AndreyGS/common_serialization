@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include <common_serialization/Common/common.h>
-#include <common_serialization/MemoryManagementInterfaces/memory_management_interfaces.h>
-
 #include <common_serialization/AllocatorInterfaces/IAllocator.h>
+#include <common_serialization/AllocatorInterfaces/IAllocatorTraits.h>
 #include <common_serialization/AllocatorInterfaces/IStorageSetter.h>

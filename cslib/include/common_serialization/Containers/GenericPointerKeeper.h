@@ -23,10 +23,10 @@
 
 #pragma once
 
+#include <common_serialization/AllocationManagerInterfaces/IAllocationManager.h>
+
 namespace common_serialization
 {
-
-// This class is something like unique_ptr, but not template.
 
 /// @brief Container for keeping any pointer type
 /// @details This class is something like unique_ptr, but not template
@@ -120,7 +120,7 @@ public:
     template<typename _T, typename... _Args>
     _T* allocateAndConstructOne(_Args&&... args)
     {
-        return allocateAndConstruct<ConstrGenAllocationManagerT<_T>, _Args...>(1, std::forward<_Args>(args)...);
+        return allocateAndConstruct<CtorGenAllocationManagerT<_T>, _Args...>(1, std::forward<_Args>(args)...);
     }
 
     /// @brief Destroys holding objects 

@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <common_serialization/AllocatorInterfaces/allocator_interface.h>
+
 namespace common_serialization
 {
 

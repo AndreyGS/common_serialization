@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <common_serialization/Common/Helpers.h>
 #include <common_serialization/AllocationManagerInterfaces/IAllocationManager.h>
 
 namespace common_serialization

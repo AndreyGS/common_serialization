@@ -23,12 +23,7 @@
 
 #pragma once
 
-#include <common_serialization/Common/common.h>
-#include <common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h>
-
 #include <common_serialization/AllocationManagers/GenericAllocationManager.h>
 #include <common_serialization/AllocationManagers/StrategicAllocationManager.h>
 
-#ifndef CS_CUSTOM_ALLOCATION_MANAGERS_TYPEDEFS
 #include <common_serialization/AllocationManagers/Typedefs.h>
-#endif

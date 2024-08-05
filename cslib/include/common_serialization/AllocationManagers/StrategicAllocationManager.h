@@ -24,6 +24,7 @@
 #pragma once
 
 #include <common_serialization/AllocationManagers/GenericAllocationManager.h>
+#include <common_serialization/AllocationManagerInterfaces/IAllocationStrategyUser.h>
 
 namespace common_serialization
 {

@@ -23,6 +23,13 @@
 
 #pragma once
 
+#ifndef CS_CUSTOM_CONTAINERS_TYPEDEFS
+
+#include <common_serialization/Containers/GenericPointerKeeper.h>
+#include <common_serialization/Containers/UniquePtr.h>
+#include <common_serialization/Containers/Vector.h>
+#include <common_serialization/Containers/Walker.h>
+
 namespace common_serialization
 {
 
@@ -44,7 +51,7 @@ using RawWalkerT = Walker<_T, RawStratAllocationManagerT<_T>>;
 
 using BinWalkerT = RawWalkerT<uint8_t>;
 
-// Next 3 typedefs are temporary solutions
+// Next 3 typedefs are temporary solutions before embedded added
 
 template<typename _K, typename _V, typename... _Ts>
 using MapT = std::map<_K, _V, _Ts...>;
@@ -60,3 +67,4 @@ using ListT = std::list<_T, Ts...>;
 
 } // namespace common_serialization
 
+#endif // #ifndef CS_CUSTOM_CONTAINERS_TYPEDEFS
