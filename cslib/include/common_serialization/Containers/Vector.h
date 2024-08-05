@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/Containers/IteratorTagsDeclarations.h"
+#include <common_serialization/Containers/IteratorTagsDeclarations.h>
 
 namespace common_serialization
 {

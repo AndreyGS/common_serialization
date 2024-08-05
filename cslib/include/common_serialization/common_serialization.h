@@ -23,17 +23,17 @@
 
 #pragma once
 
-#include "common_serialization/Common/common.h"
+#include <common_serialization/Common/common.h>
 
-#include "common_serialization/NotCspInterfaceProcessing/Templates/Declarations.h"
+#include <common_serialization/NotCspInterfaceProcessing/Templates/Declarations.h>
 
-#include "common_serialization/MemoryManagement/memory_management.h"
+#include <common_serialization/MemoryManagement/memory_management.h>
 
-#include "common_serialization/Allocators/allocators.h"
-#include "common_serialization/AllocationManagers/allocation_managers.h"
-#include "common_serialization/Concurrency/concurrency.h"
-#include "common_serialization/Containers/containers.h"
-#include "common_serialization/csp/csp.h"
+#include <common_serialization/Allocators/allocators.h>
+#include <common_serialization/AllocationManagers/allocation_managers.h>
+#include <common_serialization/Concurrency/concurrency.h>
+#include <common_serialization/Containers/containers.h>
+#include <common_serialization/csp/csp.h>
 
-#include "common_serialization/NotCspInterfaceProcessing/Templates/Serialize.h"
-#include "common_serialization/NotCspInterfaceProcessing/Templates/Deserialize.h"
+#include <common_serialization/NotCspInterfaceProcessing/Templates/Serialize.h>
+#include <common_serialization/NotCspInterfaceProcessing/Templates/Deserialize.h>

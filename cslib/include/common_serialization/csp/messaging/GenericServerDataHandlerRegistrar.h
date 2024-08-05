@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/csp/messaging/IServerDataHandlerRegistrar.h"
+#include <common_serialization/csp/messaging/IServerDataHandlerRegistrar.h>
 
 namespace common_serialization::csp::messaging
 {

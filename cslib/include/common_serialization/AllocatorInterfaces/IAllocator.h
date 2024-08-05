@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include "common_serialization/AllocatorInterfaces/IAllocatorTraits.h"
+#include <common_serialization/AllocatorInterfaces/IAllocatorTraits.h>
 
 namespace common_serialization
 {

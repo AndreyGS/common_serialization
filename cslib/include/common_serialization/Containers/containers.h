@@ -23,18 +23,18 @@
 
 #pragma once
 
-#include "common_serialization/Common/common.h"
-#include "common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h"
+#include <common_serialization/Common/common.h>
+#include <common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h>
 
-#include "common_serialization/Containers/CompressedPair.h"
-#include "common_serialization/Containers/Concepts.h"
-#include "common_serialization/Containers/DefaultDeleter.h"
-#include "common_serialization/Containers/GenericPointerKeeper.h"
-#include "common_serialization/Containers/IteratorTagsDeclarations.h"
-#include "common_serialization/Containers/UniquePtr.h"
-#include "common_serialization/Containers/Vector.h"
-#include "common_serialization/Containers/Walker.h"
+#include <common_serialization/Containers/CompressedPair.h>
+#include <common_serialization/Containers/Concepts.h>
+#include <common_serialization/Containers/DefaultDeleter.h>
+#include <common_serialization/Containers/GenericPointerKeeper.h>
+#include <common_serialization/Containers/IteratorTagsDeclarations.h>
+#include <common_serialization/Containers/UniquePtr.h>
+#include <common_serialization/Containers/Vector.h>
+#include <common_serialization/Containers/Walker.h>
 
 #ifndef CS_CUSTOM_CONTAINERS_TYPEDEFS
-#include "common_serialization/Containers/Typedefs.h"
+#include <common_serialization/Containers/Typedefs.h>
 #endif

@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/csp/context/Data.h"
-#include "common_serialization/csp/processing/Rw.h"
+#include <common_serialization/csp/context/Data.h>
+#include <common_serialization/csp/processing/Rw.h>
 
 namespace common_serialization::csp::processing
 {

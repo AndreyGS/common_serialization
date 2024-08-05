@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include "common_serialization/Common/common.h"
-#include "common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h"
+#include <common_serialization/Common/common.h>
+#include <common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h>
 
 namespace common_serialization
 {

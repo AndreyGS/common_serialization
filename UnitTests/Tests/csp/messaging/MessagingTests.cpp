@@ -22,8 +22,8 @@
  */
 
 #include <thread>
-#include "Tests/csp/messaging/ClientToServerCommunicatorMock.h"
-#include "Tests/csp/messaging/Helpers.h"
+#include <Tests/csp/messaging/ClientToServerCommunicatorMock.h>
+#include <Tests/csp/messaging/Helpers.h>
 
 using ::testing::_;
 using ::testing::SetArgReferee;

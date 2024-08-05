@@ -29,6 +29,6 @@
 
 #else // USER_MODE
 
-#include "common_serialization/Concurrency/PlatformDependent/UserMode.h"
+#include <common_serialization/Concurrency/PlatformDependent/UserMode.h>
 
 #endif // defined WINDOWS_KERNEL, defined LINUX_KERNEL

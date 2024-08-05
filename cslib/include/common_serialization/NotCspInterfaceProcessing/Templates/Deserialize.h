@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/csp/processing/DataBodyProcessor.h"
+#include <common_serialization/csp/processing/DataBodyProcessor.h>
 
 namespace common_serialization::csp::processing::data::templates
 {

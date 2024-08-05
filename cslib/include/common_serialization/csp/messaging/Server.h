@@ -23,12 +23,12 @@
 
 #pragma once
 
-#include "common_serialization/csp/context/Data.h"
-#include "common_serialization/csp/messaging/IServerDataHandlerRegistrar.h"
-#include "common_serialization/csp/messaging/IServerDataHandlerBase.h"
-#include "common_serialization/csp/messaging/service_structs/Interface.h"
-#include "common_serialization/csp/processing/DataBodyProcessor.h"
-#include "common_serialization/csp/processing/DataVersionConverters.h"
+#include <common_serialization/csp/context/Data.h>
+#include <common_serialization/csp/messaging/IServerDataHandlerRegistrar.h>
+#include <common_serialization/csp/messaging/IServerDataHandlerBase.h>
+#include <common_serialization/csp/messaging/service_structs/Interface.h>
+#include <common_serialization/csp/processing/DataBodyProcessor.h>
+#include <common_serialization/csp/processing/DataVersionConverters.h>
 
 namespace common_serialization::csp::messaging
 {

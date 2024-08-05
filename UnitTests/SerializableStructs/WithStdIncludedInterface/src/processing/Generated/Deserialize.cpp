@@ -21,7 +21,7 @@
  *
  */
 
-#include "with_std_included_interface/Interface.h"
+#include <with_std_included_interface/Interface.h>
 
 namespace common_serialization::csp::processing::data
 {

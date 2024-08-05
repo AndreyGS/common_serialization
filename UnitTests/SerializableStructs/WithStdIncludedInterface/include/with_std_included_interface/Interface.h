@@ -42,6 +42,6 @@ constexpr cs::csp::Interface properties(
 
 } // namespace with_std_included_interface
 
-#include "with_std_included_interface/Structs.h"
-#include "with_std_included_interface/processing/Generated/Serialize.h"
-#include "with_std_included_interface/processing/Generated/Deserialize.h"
+#include <with_std_included_interface/Structs.h>
+#include <with_std_included_interface/processing/Generated/Serialize.h>
+#include <with_std_included_interface/processing/Generated/Deserialize.h>

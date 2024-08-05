@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/Containers/CompressedPair.h"
-#include "common_serialization/Containers/DefaultDeleter.h"
+#include <common_serialization/Containers/CompressedPair.h>
+#include <common_serialization/Containers/DefaultDeleter.h>
 
 namespace common_serialization
 {

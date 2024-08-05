@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/Concurrency/Concepts.h"
+#include <common_serialization/Concurrency/Concepts.h>
 
 namespace common_serialization
 {

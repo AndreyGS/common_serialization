@@ -23,18 +23,18 @@
 
 #pragma once
 
-#include "common_serialization/MemoryManagementInterfaces/IStorageAllocator.h"
+#include <common_serialization/MemoryManagementInterfaces/IStorageAllocator.h>
 
 #if defined WINDOWS_KERNEL
 
-#include "common_serialization/MemoryManagement/PlatformDependent/WindowsKernel.h"
+#include <common_serialization/MemoryManagement/PlatformDependent/WindowsKernel.h>
 
 #elif defined LINUX_KERNEL
 
-#include "common_serialization/MemoryManagement/PlatformDependent/LinuxKernel.h"
+#include <common_serialization/MemoryManagement/PlatformDependent/LinuxKernel.h>
 
 #else // USER_MODE
 
-#include "common_serialization/MemoryManagement/PlatformDependent/UserMode.h"
+#include <common_serialization/MemoryManagement/PlatformDependent/UserMode.h>
 
 #endif // defined WINDOWS_KERNEL, defined LINUX_KERNEL

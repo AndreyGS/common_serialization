@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "interface_for_test/Interface.h"
+#include <interface_for_test/Interface.h>
 
 namespace descendant_interface
 {
@@ -39,6 +39,6 @@ constexpr cs::csp::Interface properties(
 
 } // namespace descendant_interface
 
-#include "descendant_interface/Structs.h"
-#include "descendant_interface/processing/Generated/Serialize.h"
-#include "descendant_interface/processing/Generated/Deserialize.h"
+#include <descendant_interface/Structs.h>
+#include <descendant_interface/processing/Generated/Serialize.h>
+#include <descendant_interface/processing/Generated/Deserialize.h>

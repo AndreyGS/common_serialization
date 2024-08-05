@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/Common/Concepts.h"
+#include <common_serialization/Common/Concepts.h>
 
 namespace common_serialization
 {
@@ -235,7 +235,7 @@ template<>
 struct fixed_width_integer<8, true>
 {
     using type = int64_t;
-    static constexpr type min = -9223372036854775808LL;
+    static constexpr type min = -9223372036854775807LL - 1;
     static constexpr type max = 9223372036854775807LL;
 };
 
@@ -251,7 +251,7 @@ template<>
 struct fixed_width_integer<4, true>
 {
     using type = int32_t;
-    static constexpr type min = -2147483648;
+    static constexpr type min = -2147483647 - 1;
     static constexpr type max = 2147483647;
 };
 
@@ -267,7 +267,7 @@ template<>
 struct fixed_width_integer<2, true>
 {
     using type = int16_t;
-    static constexpr type min = -32768;
+    static constexpr type min = -32767 - 1;
     static constexpr type max = 32767;
 };
 
@@ -283,7 +283,7 @@ template<>
 struct fixed_width_integer<1, true>
 {
     using type = int8_t;
-    static constexpr type min = -128;
+    static constexpr type min = -127 - 1;
     static constexpr type max = 127;
 };
 

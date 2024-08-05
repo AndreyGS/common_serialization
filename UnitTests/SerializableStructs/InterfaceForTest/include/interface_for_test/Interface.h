@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "not_part_of_interfaces/NotInterface.h"
+#include <not_part_of_interfaces/NotInterface.h>
 
 namespace interface_for_test
 {
@@ -39,16 +39,16 @@ constexpr cs::csp::Interface properties(
 
 } // namespace interface_for_test
 
-#include "interface_for_test/Structs.h"
-#include "interface_for_test/StructsLegacy.h"
+#include <interface_for_test/Structs.h>
+#include <interface_for_test/StructsLegacy.h>
 
-#include "interface_for_test/processing/Serialize.h"
-#include "interface_for_test/processing/Deserialize.h"
+#include <interface_for_test/processing/Serialize.h>
+#include <interface_for_test/processing/Deserialize.h>
 
-#include "interface_for_test/processing/Generated/Serialize.h"
-#include "interface_for_test/processing/Generated/SerializeLegacy.h"
-#include "interface_for_test/processing/Generated/Deserialize.h"
-#include "interface_for_test/processing/Generated/DeserializeLegacy.h"
+#include <interface_for_test/processing/Generated/Serialize.h>
+#include <interface_for_test/processing/Generated/SerializeLegacy.h>
+#include <interface_for_test/processing/Generated/Deserialize.h>
+#include <interface_for_test/processing/Generated/DeserializeLegacy.h>
 
-#include "interface_for_test/processing/Generated/ConvertToOldStruct.h"
-#include "interface_for_test/processing/Generated/ConvertFromOldStruct.h"
+#include <interface_for_test/processing/Generated/ConvertToOldStruct.h>
+#include <interface_for_test/processing/Generated/ConvertFromOldStruct.h>

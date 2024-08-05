@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/AllocationManagers/GenericAllocationManager.h"
-#include "common_serialization/AllocationManagers/StrategicAllocationManager.h"
+#include <common_serialization/AllocationManagers/GenericAllocationManager.h>
+#include <common_serialization/AllocationManagers/StrategicAllocationManager.h>
 
 namespace common_serialization
 {

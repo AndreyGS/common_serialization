@@ -41,14 +41,14 @@
 #include <iostream>
 #endif // !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
 
-#include "common_serialization/Common/Status.h"
+#include <common_serialization/Common/Status.h>
 
 // if implementation wants to define own new shadowing functions
 // it should define CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION macro
 #if !defined CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
-#include "common_serialization/Common/std_equivalents.h"
+#include <common_serialization/Common/std_equivalents.h>
 #endif // #ifndef CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION
 
-#include "common_serialization/Common/Types.h"
-#include "common_serialization/Common/Helpers.h"
-#include "common_serialization/Common/Interfaces/IIoProcessor.h"
+#include <common_serialization/Common/Types.h>
+#include <common_serialization/Common/Helpers.h>
+#include <common_serialization/Common/Interfaces/IIoProcessor.h>

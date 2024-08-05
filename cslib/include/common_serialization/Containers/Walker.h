@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "common_serialization/Containers/Vector.h"
+#include <common_serialization/Containers/Vector.h>
 
 namespace common_serialization
 {

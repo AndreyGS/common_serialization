@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "common_serialization/Containers/Concepts.h"
-#include "common_serialization/csp/context/DataFlags.h"
+#include <common_serialization/Containers/Concepts.h>
+#include <common_serialization/csp/context/DataFlags.h>
 
 namespace common_serialization::csp
 {
