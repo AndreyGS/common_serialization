@@ -25,8 +25,6 @@
 
 #include <common_serialization/Common/common.h>
 
-#include <common_serialization/NotCspInterfaceProcessing/Templates/Declarations.h>
-
 #include <common_serialization/MemoryManagement/memory_management.h>
 
 #include <common_serialization/Allocators/allocators.h>
@@ -35,6 +33,5 @@
 #include <common_serialization/Containers/containers.h>
 #include <common_serialization/CspBase/csp_base.h>
 #include <common_serialization/CspMessaging/csp_messaging.h>
+#include <common_serialization/NotCspInterfaceProcessing/processing/data/TemplateProcessor.h>
 
-#include <common_serialization/NotCspInterfaceProcessing/Templates/Serialize.h>
-#include <common_serialization/NotCspInterfaceProcessing/Templates/Deserialize.h>

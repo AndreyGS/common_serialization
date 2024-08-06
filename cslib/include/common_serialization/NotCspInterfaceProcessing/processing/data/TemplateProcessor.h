@@ -23,18 +23,35 @@
 
 #pragma once
 
-#include <common_serialization/CspBase/processing/data/BodyProcessor.h>
+#include <common_serialization/CspBase/processing/data/TemplateProcessor.h>
 
-namespace common_serialization::csp::processing::data::templates
+namespace common_serialization::csp::processing::data
 {
 
-template<typename T, IAllocationManagerImpl A, typename X>
-Status serialize(const Vector<T, A>& value, X& ctx)
+template<typename T, IAllocationManagerImpl A>
+class TemplateProcessor<Vector, T, A>
 {
-    CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
-    CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
-    
-    return Status::NoError;
-}
+public:
+    Status serialize(const Vector<T, A>& value, context::SData& ctx)
+    {
+        CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
+        CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
 
-} // namespace common_serialization::csp::processing::data::templates
+        return Status::NoError;
+    }
+
+    Status deserialize(context::DData& ctx, Vector<T, A>& value)
+    {
+        value.clear();
+
+        typename Vector<T, A>::size_type size = 0;
+        CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
+        CS_RUN(value.reserve(size));
+        CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
+        value.m_dataSize = size;
+
+        return Status::NoError;
+    }
+};
+
+} // namespace common_serialization::csp::processing::data

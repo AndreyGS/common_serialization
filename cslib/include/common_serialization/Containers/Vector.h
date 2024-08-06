@@ -26,6 +26,14 @@
 #include <common_serialization/AllocationManagerInterfaces/IAllocationManager.h>
 #include <common_serialization/Containers/IteratorTagsDeclarations.h>
 
+namespace common_serialization::csp::processing::data
+{
+
+template<template<typename...> typename _T, typename... _Ts>
+class TemplateProcessor;
+
+}
+
 namespace common_serialization
 {
 
@@ -300,6 +308,8 @@ class Vector
 public:
     static_assert(std::is_same_v<_T, typename _AllocationManager::value_type>, "Types _T and _AllocationManager::value_type are not the same");
 
+    using TestType = char;
+
     using allocator_type = typename _AllocationManager::allocator_type;
     using value_type = typename allocator_type::value_type;
     using pointer = typename allocator_type::pointer;
@@ -457,12 +467,11 @@ private:
     _AllocationManager m_AllocationManager;
 
 private:
-    // It's not mandatory to have friend csp::processing::deserialize function 
+    // It's not mandatory to have friend csp::processing::TemplateProcessor class 
     // to have deserialization capability.
     // The only reason this is done is because it allows some optimizations in
     // processing when we have direct access to private fields.
-    template<typename C, IAllocationManagerImpl A, typename X>
-    friend Status csp::processing::data::templates::deserialize(X& ctx, Vector<C, A>& value);
+    friend csp::processing::data::TemplateProcessor<Vector, _T, _AllocationManager>;
 };
 
 template<typename _T, IAllocationManagerImpl _AllocationManager>

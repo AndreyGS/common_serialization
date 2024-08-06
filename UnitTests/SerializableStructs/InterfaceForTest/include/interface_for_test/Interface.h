@@ -42,8 +42,7 @@ constexpr cs::csp::Interface properties(
 #include <interface_for_test/Structs.h>
 #include <interface_for_test/StructsLegacy.h>
 
-#include <interface_for_test/processing/Serialize.h>
-#include <interface_for_test/processing/Deserialize.h>
+#include <interface_for_test/processing/data/TemplateProcessor.h>
 
 #include <interface_for_test/processing/Generated/Serialize.h>
 #include <interface_for_test/processing/Generated/SerializeLegacy.h>

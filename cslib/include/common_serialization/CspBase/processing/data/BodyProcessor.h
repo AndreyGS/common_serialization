@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <common_serialization/CspBase/context/Data.h>
+#include <common_serialization/CspBase/processing/data/TemplateProcessor.h>
 #include <common_serialization/CspBase/processing/Rw.h>
 
 namespace common_serialization::csp
@@ -200,9 +200,9 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
     }
     else if constexpr (AnySimplyAssignable<_T>)
         return serializeSimplyAssignable(value, ctx);
-    // we must implicitly use condition !EmptyType<_T> otherwise we get an error which states that processing::serialize not found
+    // we must implicitly use condition !EmptyType<_T> otherwise we get an error which states that processing::serialize not found 
     else if constexpr (!EmptyType<_T>)
-        return templates::template serialize(value, ctx);
+        return templateProcessorSerializationWrapper(value, ctx);
 }
 
 template<typename _T>
@@ -382,7 +382,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
         return deserializeSimplyAssignable(ctx, value);
     // we must implicitly use condition !EmptyType<_T> otherwise we get an error which states that processing::deserialize not found
     else if constexpr (!EmptyType<_T>)
-        return templates::template deserialize(ctx, value);
+        return templateProcessorDeserializationWrapper(ctx, value);
 }
 
 template<typename _T>

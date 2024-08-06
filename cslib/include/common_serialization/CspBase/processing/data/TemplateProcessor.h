@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/processing/Deserialize.h
+ * @file cslib/include/common_serialization/CspBase/processing/data/TemplateProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,31 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing::data::templates
+#include <common_serialization/CspBase/context/Data.h>
+
+namespace common_serialization::csp::processing::data
 {
 
-template<typename _T, typename _X>
-Status deserialize(_X& ctx, interface_for_test::BigStructs<_T>& value)
+template<template<typename...> typename _T, typename... _Ts>
+class TemplateProcessor
 {
-    CS_RUN(BodyProcessor::deserialize(ctx, value.m_vector));
+public:
+    Status serialize(const _T<_Ts...>& value, context::SData& ctx);
+    Status deserialize(context::DData& ctx, _T<_Ts...>& value);
+};
 
-    return Status::NoError;
+
+template<template<typename...> typename _T, typename... _Ts>
+Status templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx)
+{
+    return TemplateProcessor<_T, _Ts...>().serialize(value, ctx);
 }
 
-} // namespace common_serialization::csp::processing::data::templates
+
+template<template<typename...> typename _T, typename... _Ts>
+Status templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value)
+{
+    return TemplateProcessor<_T, _Ts...>().deserialize(ctx, value);
+}
+
+} // namespace common_serialization::csp::processing::data

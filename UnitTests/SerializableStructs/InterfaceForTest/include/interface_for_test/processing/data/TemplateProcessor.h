@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/processing/Serialize.h
+ * @file UnitTests/SerializableStructs/InterfaceForTest/include/interface_for_test/processing/TemplateProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,29 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing::data::templates
+#include <interface_for_test/Structs.h>
+#include <interface_for_test/StructsLegacy.h>
+
+namespace common_serialization::csp::processing::data
 {
 
-template<typename _T, typename _X>
-Status serialize(const interface_for_test::BigStructs<_T>& value, _X& ctx)
+template<typename _T>
+class TemplateProcessor<interface_for_test::BigStructs, _T>
 {
-    CS_RUN(BodyProcessor::serialize(value.m_vector, ctx));
+public:
+    Status serialize(const interface_for_test::BigStructs<_T>& value, context::SData& ctx)
+    {
+        CS_RUN(BodyProcessor::serialize(value.m_vector, ctx));
 
-    return Status::NoError;
-}
+        return Status::NoError;
+    }
 
-} // namespace common_serialization::csp::processing::data::templates
+    Status deserialize(context::DData& ctx, interface_for_test::BigStructs<_T>& value)
+    {
+        CS_RUN(BodyProcessor::deserialize(ctx, value.m_vector));
+
+        return Status::NoError;
+    }
+};
+
+} // namespace common_serialization::csp::processing::data
