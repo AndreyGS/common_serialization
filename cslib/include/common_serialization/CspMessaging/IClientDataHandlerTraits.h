@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/allocators.h
+ * @file cslib/include/common_serialization/CspMessaging/IClientDataHandlerTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,10 +23,35 @@
 
 #pragma once
 
-#include <common_serialization/AllocatorInterfaces/allocator_interface.h>
+#include <common_serialization/CspBase/Concepts.h>
 
-#include <common_serialization/Allocators/ConstructorNoexceptAllocator.h>
-#include <common_serialization/Allocators/RawKeeperAllocator.h>
-#include <common_serialization/Allocators/RawNoexceptAllocator.h>
+namespace common_serialization::csp::messaging
+{
 
-#include <common_serialization/Allocators/Typedefs.h>
+/// @brief Properties of CSP Client
+template<typename _T>
+concept IClientDataHandlerTraits
+    =  ISerializableImpl<typename _T::InputType>
+    && ISerializableImpl<typename _T::OutputType>
+    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>;
+
+template<
+      ISerializableImpl _InputType
+    , ISerializableImpl _OutputType
+    , bool _forTempUseHeap
+>
+struct IClientDataHandlerTraitsConcrete
+{
+    using InputType = _InputType;
+    using OutputType = _OutputType;
+
+    static constexpr bool kForTempUseHeap = _forTempUseHeap;
+};
+
+template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
+using CdhStack = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, false>;
+
+template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
+using CdhHeap = IClientDataHandlerTraitsConcrete<_InputType, _OutputType, true>;
+
+} // namespace common_serialization::csp::messaging

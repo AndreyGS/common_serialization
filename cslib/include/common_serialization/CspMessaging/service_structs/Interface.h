@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/allocators.h
+ * @file cslib/include/common_serialization/CspBase/service_structs/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,10 +23,23 @@
 
 #pragma once
 
-#include <common_serialization/AllocatorInterfaces/allocator_interface.h>
+// Service structs is a mandatory part of CSP.
+// Set of structs is completely depend on protocol version. 
 
-#include <common_serialization/Allocators/ConstructorNoexceptAllocator.h>
-#include <common_serialization/Allocators/RawKeeperAllocator.h>
-#include <common_serialization/Allocators/RawNoexceptAllocator.h>
+namespace common_serialization::csp::messaging::service_structs
+{
 
-#include <common_serialization/Allocators/Typedefs.h>
+namespace cs = common_serialization;
+
+constexpr cs::csp::Interface properties(
+      Uuid{ 0xe47be322, 0x232e, 0x4d66, 0x9175, 0x06eed2110b4b }
+    , 1
+    , context::DataFlags{}
+    , context::DataFlags{ context::DataFlags::kSizeOfIntegersMayBeNotEqual | context::DataFlags::kAllowUnmanagedPointers | context::DataFlags::kCheckRecursivePointers }
+);
+
+} // namespace common_serialization::csp::messaging::service_structs
+
+#include <common_serialization/CspMessaging/service_structs/Structs.h>
+#include <common_serialization/CspMessaging/service_structs/processing/Deserialize.h>
+#include <common_serialization/CspMessaging/service_structs/processing/Serialize.h>

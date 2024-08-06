@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/allocators.h
+ * @file cslib/include/common_serialization/CspBase/processing/status/ContextProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,10 +23,27 @@
 
 #pragma once
 
-#include <common_serialization/AllocatorInterfaces/allocator_interface.h>
+#include <common_serialization/CspBase/context/Common.h>
+#include <common_serialization/CspBase/processing/Rw.h>
 
-#include <common_serialization/Allocators/ConstructorNoexceptAllocator.h>
-#include <common_serialization/Allocators/RawKeeperAllocator.h>
-#include <common_serialization/Allocators/RawNoexceptAllocator.h>
+namespace common_serialization::csp::processing::status
+{
 
-#include <common_serialization/Allocators/Typedefs.h>
+class ContextProcessor
+{
+public:
+    static CS_ALWAYS_INLINE constexpr Status serialize(context::SCommon& ctx, Status statusOut);
+    static CS_ALWAYS_INLINE constexpr Status deserialize(context::DCommon& ctx, Status& statusOut) noexcept;
+};
+
+constexpr Status ContextProcessor::serialize(context::SCommon& ctx, Status statusOut)
+{
+    return writePrimitive(statusOut, ctx);
+}
+
+constexpr Status ContextProcessor::deserialize(context::DCommon& ctx, Status& statusOut) noexcept
+{
+    return readPrimitive(ctx, statusOut);
+}
+
+} // namespace common_serialization::csp::processing::status

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/allocators.h
+ * @file cslib/include/common_serialization/NotCspInterfaceProcessing/Others/Serialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,10 +23,39 @@
 
 #pragma once
 
-#include <common_serialization/AllocatorInterfaces/allocator_interface.h>
+#include <common_serialization/CspBase/Traits.h>
+#include <common_serialization/CspBase/processing/data/BodyProcessor.h>
 
-#include <common_serialization/Allocators/ConstructorNoexceptAllocator.h>
-#include <common_serialization/Allocators/RawKeeperAllocator.h>
-#include <common_serialization/Allocators/RawNoexceptAllocator.h>
+namespace common_serialization::csp::processing::data
+{
 
-#include <common_serialization/Allocators/Typedefs.h>
+template<>
+constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
+{
+    CS_RUN(serialize(value.id, ctx));
+
+    return Status::NoError;
+}
+
+template<>
+constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData& ctx)
+{
+    CS_RUN(serialize(static_cast<uint32_t>(value), ctx));
+
+    return Status::NoError;
+}
+
+template<>
+constexpr Status BodyProcessor::serialize(const Interface& value, context::SData& ctx)
+{
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
+
+    CS_RUN(serialize(value.id, ctx));
+    CS_RUN(serialize(value.version, ctx));
+    CS_RUN(serialize(value.mandatoryDataFlags, ctx));
+    CS_RUN(serialize(value.forbiddenDataFlags, ctx));
+
+    return Status::NoError;
+}
+
+} // namespace common_serialization::csp::processing::data

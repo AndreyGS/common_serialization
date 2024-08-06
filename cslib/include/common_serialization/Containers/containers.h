@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <common_serialization/AllocationManagerInterfaces/allocation_manager_interface.h>
+
 #include <common_serialization/Containers/CompressedPair.h>
 #include <common_serialization/Containers/Concepts.h>
 #include <common_serialization/Containers/DefaultDeleter.h>

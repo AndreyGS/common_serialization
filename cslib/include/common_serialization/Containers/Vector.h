@@ -315,11 +315,11 @@ public:
     using const_iterator = ConstVectorIterator<Vector<value_type, _AllocationManager>>;
 
     constexpr Vector() = default;
-    constexpr Vector(const Vector& rhs);
-    constexpr Vector(Vector&& rhs) noexcept;
-    constexpr Vector& operator=(const Vector& rhs);
-    constexpr Vector& operator=(Vector&& rhs) noexcept;
-    constexpr ~Vector() noexcept;
+    CS_ALWAYS_INLINE constexpr Vector(const Vector& rhs);
+    CS_ALWAYS_INLINE constexpr Vector(Vector&& rhs) noexcept;
+    CS_ALWAYS_INLINE constexpr Vector& operator=(const Vector& rhs);
+    CS_ALWAYS_INLINE constexpr Vector& operator=(Vector&& rhs) noexcept;
+    CS_ALWAYS_INLINE constexpr ~Vector() noexcept;
 
     /// @brief Copy init method
     /// @param rhs Another instance
@@ -336,7 +336,7 @@ public:
     ///     Only set data size, no default values are set.
     /// @param n New size
     /// @return Status of operation
-    constexpr Status setSize(size_type n) noexcept
+    CS_ALWAYS_INLINE constexpr Status setSize(size_type n) noexcept
         requires std::is_trivially_copyable_v<_T>;
 
     /// @brief Preallocate at least that much memory that
@@ -344,7 +344,7 @@ public:
     /// @param n Number of elements that underlying storage
     ///     must be capable to hold
     /// @return Status of operation
-    constexpr Status reserve(size_type n);
+    CS_ALWAYS_INLINE constexpr Status reserve(size_type n);
     
     /// @brief Append element to tail of the storage
     /// @param value Value that need to append
@@ -410,21 +410,21 @@ public:
     template<typename ItDest>
     constexpr Status copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd = nullptr);
 
-    [[nodiscard]] constexpr _T* data() noexcept;
-    [[nodiscard]] constexpr const _T* data() const noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr _T* data() noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr const _T* data() const noexcept;
 
-    [[nodiscard]] constexpr _T& operator[](size_type offset);
-    [[nodiscard]] constexpr const _T& operator[](size_type offset) const;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr _T& operator[](size_type offset);
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr const _T& operator[](size_type offset) const;
     
-    [[nodiscard]] constexpr _T& back();
-    [[nodiscard]] constexpr const _T& back() const;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr _T& back();
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr const _T& back() const;
 
-    [[nodiscard]] constexpr _T& front();
-    [[nodiscard]] constexpr const _T& front() const;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr _T& front();
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr const _T& front() const;
 
-    [[nodiscard]] constexpr size_type size() const noexcept;
-    [[nodiscard]] constexpr size_type max_size() const noexcept;
-    [[nodiscard]] constexpr size_type capacity() const noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr size_type size() const noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr size_type max_size() const noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr size_type capacity() const noexcept;
 
     constexpr void clear() noexcept;
     constexpr void invalidate() noexcept;
@@ -432,15 +432,15 @@ public:
     // you shall free memory returned by this method manually
     [[nodiscard]] constexpr _T* release() noexcept;
 
-    [[nodiscard]] constexpr iterator begin() noexcept;
-    [[nodiscard]] constexpr const_iterator begin() const noexcept;
-    [[nodiscard]] constexpr iterator end() noexcept;
-    [[nodiscard]] constexpr const_iterator end() const noexcept;
-    [[nodiscard]] constexpr const_iterator cbegin() const noexcept;
-    [[nodiscard]] constexpr const_iterator cend() const noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr iterator begin() noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr const_iterator begin() const noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr iterator end() noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr const_iterator end() const noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr const_iterator cbegin() const noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr const_iterator cend() const noexcept;
 
-    [[nodiscard]] constexpr _AllocationManager& getAllocationManager() noexcept;
-    [[nodiscard]] constexpr const _AllocationManager& getAllocationManager() const noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr _AllocationManager& getAllocationManager() noexcept;
+    CS_ALWAYS_INLINE [[nodiscard]] constexpr const _AllocationManager& getAllocationManager() const noexcept;
 
     [[nodiscard]] constexpr bool operator==(const Vector& rhs) const
         requires (IsNotPointer<_T> || IsNotPointer<std::remove_pointer_t<_T>>);

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/allocators.h
+ * @file cslib/include/common_serialization/CspMessaging/csp_messaging.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,10 +23,13 @@
 
 #pragma once
 
-#include <common_serialization/AllocatorInterfaces/allocator_interface.h>
-
-#include <common_serialization/Allocators/ConstructorNoexceptAllocator.h>
-#include <common_serialization/Allocators/RawKeeperAllocator.h>
-#include <common_serialization/Allocators/RawNoexceptAllocator.h>
-
-#include <common_serialization/Allocators/Typedefs.h>
+#include <common_serialization/CspBase/csp_base.h>
+#include <common_serialization/CspMessaging/Client.h>
+#include <common_serialization/CspMessaging/IClientDataHandlerTraits.h>
+#include <common_serialization/CspMessaging/GenericServerDataHandlerRegistrar.h>
+#include <common_serialization/CspMessaging/IServerDataHandler.h>
+#include <common_serialization/CspMessaging/IServerDataHandlerBase.h>
+#include <common_serialization/CspMessaging/IServerDataHandlerRegistrar.h>
+#include <common_serialization/CspMessaging/IServerDataHandlerTraits.h>
+#include <common_serialization/CspMessaging/Server.h>
+#include <common_serialization/CspMessaging/service_structs/Interface.h>

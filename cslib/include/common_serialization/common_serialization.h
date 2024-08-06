@@ -33,7 +33,8 @@
 #include <common_serialization/AllocationManagers/allocation_managers.h>
 #include <common_serialization/Concurrency/concurrency.h>
 #include <common_serialization/Containers/containers.h>
-#include <common_serialization/csp/csp.h>
+#include <common_serialization/CspBase/csp_base.h>
+#include <common_serialization/CspMessaging/csp_messaging.h>
 
 #include <common_serialization/NotCspInterfaceProcessing/Templates/Serialize.h>
 #include <common_serialization/NotCspInterfaceProcessing/Templates/Deserialize.h>

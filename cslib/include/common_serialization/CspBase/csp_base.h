@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/allocators.h
+ * @file cslib/include/common_serialization/CspBase/csp_base.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,10 +23,20 @@
 
 #pragma once
 
-#include <common_serialization/AllocatorInterfaces/allocator_interface.h>
-
-#include <common_serialization/Allocators/ConstructorNoexceptAllocator.h>
-#include <common_serialization/Allocators/RawKeeperAllocator.h>
-#include <common_serialization/Allocators/RawNoexceptAllocator.h>
-
-#include <common_serialization/Allocators/Typedefs.h>
+#include <common_serialization/CspBase/Concepts.h>
+#include <common_serialization/CspBase/Traits.h>
+#include <common_serialization/CspBase/ISerializable.h>
+#include <common_serialization/CspBase/Macros.h>
+#include <common_serialization/CspBase/context/Common.h>
+#include <common_serialization/CspBase/context/CommonFlags.h>
+#include <common_serialization/CspBase/context/Data.h>
+#include <common_serialization/CspBase/context/DataFlags.h>
+#include <common_serialization/CspBase/context/Message.h>
+#include <common_serialization/CspBase/processing/common/ContextProcessor.h>
+#include <common_serialization/CspBase/processing/data/BodyProcessor.h>
+#include <common_serialization/CspBase/processing/data/ContextProcessor.h>
+#include <common_serialization/CspBase/processing/data/VersionConverter.h>
+#include <common_serialization/CspBase/processing/status/BodyProcessor.h>
+#include <common_serialization/CspBase/processing/status/ContextProcessor.h>
+#include <common_serialization/CspBase/processing/status/Helpers.h>
+#include <common_serialization/CspBase/processing/Rw.h>

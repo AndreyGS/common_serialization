@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Allocators/allocators.h
+ * @file cslib/include/common_serialization/CspMessaging/IServerDataHandlerBase.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,10 +23,17 @@
 
 #pragma once
 
-#include <common_serialization/AllocatorInterfaces/allocator_interface.h>
+namespace common_serialization::csp::messaging
+{
 
-#include <common_serialization/Allocators/ConstructorNoexceptAllocator.h>
-#include <common_serialization/Allocators/RawKeeperAllocator.h>
-#include <common_serialization/Allocators/RawNoexceptAllocator.h>
+/// @brief Base of common interface of CSP data handlers
+class IServerDataHandlerBase
+{
+protected:
+    virtual ~IServerDataHandlerBase() = default;
 
-#include <common_serialization/Allocators/Typedefs.h>
+public:
+    virtual Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) = 0;
+};
+
+} // namespace common_serialization::csp::messaging
