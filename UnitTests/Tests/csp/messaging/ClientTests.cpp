@@ -345,7 +345,7 @@ TEST_F(ClientTests, HandleDataClientNotInited)
     interface_for_test::SimplyAssignableAlignedToOne<> input;
     interface_for_test::SimplyAssignableDescendant<> output;
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorNotInited);
 }
 
@@ -356,7 +356,7 @@ TEST_F(ClientTests, HandleDataClientNotSupportInterfaceVersionStruct)
     with_std_included_interface::OneBigType<> input;
     service_structs::ISerializableDummy output;
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<with_std_included_interface::OneBigType<>, service_structs::ISerializableDummy>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<with_std_included_interface::OneBigType<>, service_structs::ISerializableDummy>>(
         input, output)), Status::ErrorNotSupportedInterface);
 }
 
@@ -369,9 +369,9 @@ TEST_F(ClientTests, HandleDataAnyStructHasInterfaceVersionHigherThanSettedUpForC
     interface_for_test::SimplyAssignableDescendant<> output;
     interface_for_test::SimplyAssignableFixedSize<> unsupportedVersionStruct;
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableFixedSize<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableFixedSize<>, interface_for_test::SimplyAssignableDescendant<>>>(
         unsupportedVersionStruct, output)), Status::ErrorNotSupportedInterfaceVersion);
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableFixedSize<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableFixedSize<>>>(
         input, unsupportedVersionStruct)), Status::ErrorNotSupportedInterfaceVersion);
 }
 
@@ -382,7 +382,7 @@ TEST_F(ClientTests, HandleDataNotCompatibleAdditionalCommonFlags)
     interface_for_test::SimplyAssignableAlignedToOne<> input;
     interface_for_test::SimplyAssignableDescendant<> output;
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output, CommonFlags{ CommonFlags::kBigEndianFormat }, {}, nullptr)), Status::ErrorNotCompatibleCommonFlagsSettings);
 }
 
@@ -393,7 +393,7 @@ TEST_F(ClientTests, HandleDataUnmanagedPointersContainerNotSuppliedWhenNeed)
     interface_for_test::SimplyAssignableAlignedToOne<> input;
     interface_for_test::SimplyAssignableDescendant<> output;
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output, DataFlags{ DataFlags::kAllowUnmanagedPointers })), Status::ErrorInvalidArgument);
 }
 
@@ -425,7 +425,7 @@ TEST_F(ClientTests, HandleDataContextFillingCheck)
         }
     ));
 
-    m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output, additionalCommonFlags, additionalDataFlags);
 }
 
@@ -444,7 +444,7 @@ TEST_F(ClientTests, HandleDataErrorFromSpeaker)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorOverflow);
 }
 
@@ -464,7 +464,7 @@ TEST_F(ClientTests, HandleDataBadCommonContextReceivedFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorNotSupportedProtocolVersion);
 }
 
@@ -484,7 +484,7 @@ TEST_F(ClientTests, HandleDataOutputCommonFlagsReceivedFromServerMismatchedWithI
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorNotCompatibleCommonFlagsSettings);
 }
 
@@ -504,7 +504,7 @@ TEST_F(ClientTests, HandleDataWrongMessageTypeReceivedFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorDataCorrupted);
 }
 
@@ -523,7 +523,7 @@ TEST_F(ClientTests, HandleDataDataFlagsReceivedFromServerMismatchedWithInputOnes
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output, DataFlags{ DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff })), Status::ErrorNotCompatibleDataFlagsSettings);
 }
 
@@ -542,7 +542,7 @@ TEST_F(ClientTests, HandleDataWrongOutputTypeReceivedFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorMismatchOfStructId);
 }
 
@@ -561,7 +561,7 @@ TEST_F(ClientTests, HandleDataWrongStructInterfaceVersionReceivedFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorMismatchOfInterfaceVersions);
 }
 
@@ -581,7 +581,7 @@ TEST_F(ClientTests, HandleDataGetValidDataFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output)), Status::NoError);
     
     interface_for_test::SimplyAssignableDescendant<> reference;
@@ -604,7 +604,7 @@ TEST_F(ClientTests, HandleDataGetStatusFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorNoSuchHandler);
 }
 

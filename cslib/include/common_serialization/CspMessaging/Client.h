@@ -110,7 +110,7 @@ public:
     /// @param output Struct that is returned from server 
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<IClientDataHandlerTraits _Cht>
+    template<IClientDataHandlerTraitsImpl _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
@@ -120,7 +120,7 @@ public:
     /// @param dataFlags Data flags that must be applied to current operation
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<IClientDataHandlerTraits _Cht>
+    template<IClientDataHandlerTraitsImpl _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags dataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
@@ -143,7 +143,7 @@ public:
     /// @param additionalDataFlags Data flags that must be applied to current operation
     /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<IClientDataHandlerTraits _Cht>
+    template<IClientDataHandlerTraitsImpl _Cht>
     Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
         , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
@@ -329,20 +329,20 @@ constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const no
     return traits::kInterfaceVersionUndefined;
 }
 
-template<IClientDataHandlerTraits _Cht>
+template<IClientDataHandlerTraitsImpl _Cht>
 Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
     return handleData<_Cht>(input, output, {}, {}, pUnmanagedPointers);
 }
 
-template<IClientDataHandlerTraits _Cht>
+template<IClientDataHandlerTraitsImpl _Cht>
 Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags additionalDataFlags
     , VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
     return handleData<_Cht>(input, output, {}, additionalDataFlags, pUnmanagedPointers);
 }
 
-template<IClientDataHandlerTraits _Cht>
+template<IClientDataHandlerTraitsImpl _Cht>
 Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
     , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {

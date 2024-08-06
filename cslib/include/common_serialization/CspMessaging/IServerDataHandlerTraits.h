@@ -29,15 +29,7 @@
 namespace common_serialization::csp::messaging
 {
 
-/// @brief Properties of IServerDataHandler
-template<typename _T>
-concept IServerDataHandlerTraits
-    =  ISerializableImpl<typename _T::InputType>
-    && ISerializableImpl<typename _T::OutputType>
-    && std::is_same_v<const bool, decltype(_T::kForTempUseHeap)>
-    && std::is_same_v<const bool, decltype(_T::kMulticast)>
-    && std::is_same_v<const interface_version_t, decltype(_T::kMinimumInterfaceVersion)>;
-
+/// @brief Traits of CSP Server data handler
 template<
       ISerializableImpl _InputType
     , ISerializableImpl _OutputType
@@ -45,7 +37,7 @@ template<
     , bool _multicast
     , interface_version_t _minimumInterfaceVersion
 >
-struct IServerDataHandlerTraitsConcrete
+struct IServerDataHandlerTraits
 {
     using InputType = _InputType;
     using OutputType = _OutputType;
@@ -54,6 +46,9 @@ struct IServerDataHandlerTraitsConcrete
     static constexpr bool kMulticast = _multicast;
     static constexpr interface_version_t kMinimumInterfaceVersion = _minimumInterfaceVersion;
 };
+
+template<typename _T>
+concept IServerDataHandlerTraitsImpl = std::is_base_of_v<IServerDataHandlerTraits<typename _T::InputType, typename _T::OutputType, _T::kForTempUseHeap, _T::kMulticast, _T::kMinimumInterfaceVersion>, normalize_t<_T>>;
 
 template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
 struct MinimumInterfaceVersion
@@ -69,27 +64,27 @@ template<
     , ISerializableImpl _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
-using SdhStack = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, false, false, _minimumInterfaceVersion>;
+using ServerStackHandler = IServerDataHandlerTraits<_InputType, _OutputType, false, false, _minimumInterfaceVersion>;
 
 template<
       ISerializableImpl _InputType
     , ISerializableImpl _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
-using SdhStackMulti = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, false, true, _minimumInterfaceVersion>;
+using ServerStackMultiHandler = IServerDataHandlerTraits<_InputType, _OutputType, false, true, _minimumInterfaceVersion>;
 
 template<
       ISerializableImpl _InputType
     , ISerializableImpl _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
-using SdhHeap = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, true, false, _minimumInterfaceVersion>;
+using ServerHeapHandler = IServerDataHandlerTraits<_InputType, _OutputType, true, false, _minimumInterfaceVersion>;
 
 template<
       ISerializableImpl _InputType
     , ISerializableImpl _OutputType
     , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
 >
-using SdhHeapMulti = IServerDataHandlerTraitsConcrete<_InputType, _OutputType, true, true, _minimumInterfaceVersion>;
+using ServerHeapMultiHandler = IServerDataHandlerTraits<_InputType, _OutputType, true, true, _minimumInterfaceVersion>;
 
 } // namespace common_serialization::csp::messaging

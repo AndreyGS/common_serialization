@@ -73,7 +73,7 @@ TEST(MessagingTests, DataMessageHandling)
     interface_for_test::SimplyAssignableDescendant<> output;
 
     // Unicast test
-    EXPECT_EQ((dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::NoError);
+    EXPECT_EQ((dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::NoError);
 
     interface_for_test::SimplyAssignableDescendant<> outputReference;
     fillingStruct(outputReference);
@@ -89,7 +89,7 @@ TEST(MessagingTests, DataMessageHandling)
     ISerializableDummy outputDummy;
 
     ft_helpers::numberOfMultiEntrances = 0;
-    EXPECT_EQ((dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy)), Status::NoError);
+    EXPECT_EQ((dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy)), Status::NoError);
     EXPECT_EQ(ft_helpers::numberOfMultiEntrances, 2);
     
     /// Stress test
@@ -101,9 +101,9 @@ TEST(MessagingTests, DataMessageHandling)
 
             for (size_t i = 0; i < 10000; ++i)
             {
-                dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
-                dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
-                dataClient.handleData<CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
+                dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
+                dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
+                dataClient.handleData<ClientHeapHandler<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
             }
         });
 
@@ -115,9 +115,9 @@ TEST(MessagingTests, DataMessageHandling)
 
             for (size_t i = 0; i < 10000; ++i)
             {
-                dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
-                dataClient.handleData<CdhHeap<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
-                dataClient.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
+                dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
+                dataClient.handleData<ClientHeapHandler<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
+                dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
             }
         });
         
@@ -169,7 +169,7 @@ TEST(MessagingTests, DataMessageHandling)
 
     interface_for_test::SimplyAssignableDescendant<> output2;
 
-    EXPECT_EQ((dataClient2.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output2)), Status::NoError);
+    EXPECT_EQ((dataClient2.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output2)), Status::NoError);
     EXPECT_EQ(output2, outputReference);
 
     // Struct handler not support interface version
@@ -183,7 +183,7 @@ TEST(MessagingTests, DataMessageHandling)
 
     interface_for_test::SimplyAssignableDescendant<> output3;
 
-    EXPECT_EQ((dataClient3.handleData<CdhHeap<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output3)), Status::ErrorNotSupportedInterfaceVersion);
+    EXPECT_EQ((dataClient3.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output3)), Status::ErrorNotSupportedInterfaceVersion);
     EXPECT_EQ(output3.m_d, 0); // struct wasn't changed
 }
 
