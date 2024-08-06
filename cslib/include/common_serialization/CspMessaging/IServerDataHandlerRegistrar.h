@@ -36,14 +36,6 @@ using Service = void;
 class IServerDataHandlerRegistrar
 {
 public:
-    IServerDataHandlerRegistrar() = default;
-
-    IServerDataHandlerRegistrar(const IServerDataHandlerRegistrar&) = delete;
-    IServerDataHandlerRegistrar& operator=(const IServerDataHandlerRegistrar&) = delete;
-
-    IServerDataHandlerRegistrar(IServerDataHandlerRegistrar&&) noexcept = default;
-    IServerDataHandlerRegistrar& operator=(IServerDataHandlerRegistrar&&) noexcept = default;
-
     virtual ~IServerDataHandlerRegistrar() = default;
 
     /// @brief Adds handler to handlers database

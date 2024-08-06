@@ -253,7 +253,9 @@ inline void GenericServerDataHandlerRegistrar::releaseHandler(IServerDataHandler
     SdhHandle& handle = *reinterpret_cast<SdhHandle*>(pHandle);
     uint32_t prevUseCount = handle.inUseCounter.fetch_sub(1, std::memory_order_relaxed);
 
-    if (handle.state == SdhHandle::State::ServiceRemove)
+    switch (handle.state)
+    {
+    case SdhHandle::State::ServiceRemove:
     {
         for (auto& unregisterService : m_unregisterServiceList)
             if (unregisterService.pService == handle.pService)
@@ -266,15 +268,22 @@ inline void GenericServerDataHandlerRegistrar::releaseHandler(IServerDataHandler
                 break;
             }
     }
-    else if (handle.state == SdhHandle::State::HandlerRemove && prevUseCount == 1)
+    case SdhHandle::State::HandlerRemove:
     {
-        for (auto& unregisterHandler : m_unregisterHandlerList)
-            if (&unregisterHandler.handle.handler == &handle.handler)
-            {
-                guard.unlock();
-                unregisterHandler.done.count_down();
-                break;
-            }
+        if (prevUseCount == 1)
+        {
+            for (auto& unregisterHandler : m_unregisterHandlerList)
+                if (&unregisterHandler.handle.handler == &handle.handler)
+                {
+                    guard.unlock();
+                    unregisterHandler.done.count_down();
+                    break;
+                }
+        }
+        break;
+    }
+    default:
+        break;
     }
 }
 

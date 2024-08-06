@@ -30,16 +30,16 @@
 namespace common_serialization::csp
 {
 
-template<typename T>
-concept HasAddtionalMandatoryDataFlags = requires(T t)
+template<typename _T>
+concept HasAddtionalMandatoryDataFlags = requires(_T t)
 {
-    { T::kAddtionalMandatoryDataFlags } -> std::same_as<const context::DataFlags&>;
+    { _T::kAddtionalMandatoryDataFlags } -> std::same_as<const context::DataFlags&>;
 };
 
-template<typename T>
-concept HasAddtionalForbiddenDataFlags = requires(T t)
+template<typename _T>
+concept HasAddtionalForbiddenDataFlags = requires(_T t)
 {
-    { T::kAddtionalForbiddenDataFlags } -> std::same_as<const context::DataFlags&>;
+    { _T::kAddtionalForbiddenDataFlags } -> std::same_as<const context::DataFlags&>;
 };
 
 /// @brief Common interface for simplifying data serialization process.
@@ -47,7 +47,7 @@ concept HasAddtionalForbiddenDataFlags = requires(T t)
 ///     and may be used as top structs in CSP data messaging.
 /// @remark Implements CTRP pattern as base class.
 /// 
-/// @tparam T This is most derived class.
+/// @tparam _T This is most derived class.
 ///     Must have a few static fields:
 ///     - Id kId;
 ///         using as unique id of type (UUID v4)
@@ -58,17 +58,17 @@ concept HasAddtionalForbiddenDataFlags = requires(T t)
 ///     - interface_version_t kPrivateVersions[];
 ///         holds private versions of struct, from highest to lowest
 ///         every time when in this class or its parent class adds or removes member
-///         copy of defenition of T class is placed to legacy structs header
+///         copy of defenition of _T class is placed to legacy structs header
 ///         and its name is appended by _Version{kInterfaceVersion}
 ///         meanwhile here this array populates with interface version on time of change,
 ///         and kInterfaceVersion is also updated;
 ///         but when no member in this class or its parent are added or deleted
 ///         and there are changes in one or more of its members no action take place here
-template<typename T>
+template<typename _T>
 class ISerializable
 {
 public:
-    using instance_type = T;
+    using instance_type = _T;
 
     /// @brief It is a shortcut method for serialize this struct.
     /// @remark Use it when no context::DataFlags is need.
@@ -145,44 +145,44 @@ public:
     [[nodiscard]] constexpr auto operator<=>(const ISerializable&) const = default;
 };
 
-template<typename T>
-CS_ALWAYS_INLINE constexpr Status ISerializable<T>::serialize(BinVectorT& output) const
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status ISerializable<_T>::serialize(BinVectorT& output) const
 {
     context::SData ctx{ output, {}, {}, true, this->getLatestInterfaceVersion() };
 
     return serialize(ctx);
 }
 
-template<typename T>
-constexpr Status ISerializable<T>::serialize(context::SData& ctx) const
+template<typename _T>
+constexpr Status ISerializable<_T>::serialize(context::SData& ctx) const
 {
     if (ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined)
         ctx.setInterfaceVersion(this->getLatestInterfaceVersion());
 
     CS_RUN(processing::common::ContextProcessor::serialize(ctx));
-    CS_RUN(processing::data::ContextProcessor::serialize<T>(ctx));
+    CS_RUN(processing::data::ContextProcessor::serialize<_T>(ctx));
 
     // If user is not supplied pointers map we need to use temporary one
     if (ctx.checkRecursivePointers() && !ctx.getPointersMap())
     {
         context::SPointersMap pointersMap;
-        Status status = processing::data::BodyProcessor::serialize(static_cast<const T&>(*this), ctx.setPointersMap(&pointersMap));
+        Status status = processing::data::BodyProcessor::serialize(static_cast<const _T&>(*this), ctx.setPointersMap(&pointersMap));
         ctx.setPointersMap(nullptr);
         return status;
     }
     else
-        return processing::data::BodyProcessor::serialize(static_cast<const T&>(*this), ctx);
+        return processing::data::BodyProcessor::serialize(static_cast<const _T&>(*this), ctx);
 }
 
-template<typename T>
-CS_ALWAYS_INLINE constexpr Status ISerializable<T>::deserialize(BinWalkerT& input)
+template<typename _T>
+CS_ALWAYS_INLINE constexpr Status ISerializable<_T>::deserialize(BinWalkerT& input)
 {
     context::DData ctx{ input, {}, {}, true, this->getOriginPrivateVersion() };
     return deserialize(ctx);
 }
 
-template<typename T>
-constexpr Status ISerializable<T>::deserialize(context::DData& ctx)
+template<typename _T>
+constexpr Status ISerializable<_T>::deserialize(context::DData& ctx)
 {
     CS_RUN(processing::common::ContextProcessor::deserialize(ctx));
 
@@ -190,101 +190,101 @@ constexpr Status ISerializable<T>::deserialize(context::DData& ctx)
     uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? this->getOriginPrivateVersion() : ctx.getInterfaceVersion();
 
     CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctx, id));
-    CS_RUN(processing::data::ContextProcessor::deserializePostprocessId<T>(id));
-    CS_RUN(processing::data::ContextProcessor::deserializePostprocessRest<T>(ctx, minimumInterfaceVersion));
+    CS_RUN(processing::data::ContextProcessor::deserializePostprocessId<_T>(id));
+    CS_RUN(processing::data::ContextProcessor::deserializePostprocessRest<_T>(ctx, minimumInterfaceVersion));
     
     // If user is not supplied pointers map we need to use temporary one
     if (ctx.checkRecursivePointers() && !ctx.getPointersMap())
     {
         context::DPointersMap pointersMap;
-        Status status = processing::data::BodyProcessor::deserialize(ctx.setPointersMap(&pointersMap), static_cast<T&>(*this));
+        Status status = processing::data::BodyProcessor::deserialize(ctx.setPointersMap(&pointersMap), static_cast<_T&>(*this));
         ctx.setPointersMap(nullptr);
         return status;
     }
     else
-        return processing::data::BodyProcessor::deserialize(ctx, static_cast<T&>(*this));
+        return processing::data::BodyProcessor::deserialize(ctx, static_cast<_T&>(*this));
 }
 
-template<typename T>
-[[nodiscard]] consteval Id ISerializable<T>::getId() noexcept
+template<typename _T>
+[[nodiscard]] consteval Id ISerializable<_T>::getId() noexcept
 {
-    return T::kId;
+    return _T::kId;
 }
 
-template<typename T>
-[[nodiscard]] consteval interface_version_t ISerializable<T>::getLatestPrivateVersion() noexcept
+template<typename _T>
+[[nodiscard]] consteval interface_version_t ISerializable<_T>::getLatestPrivateVersion() noexcept
 {
-    return T::kPrivateVersions[0];
+    return _T::kPrivateVersions[0];
 }
 
-template<typename T>
-[[nodiscard]] consteval interface_version_t ISerializable<T>::getLatestInterfaceVersion() noexcept
+template<typename _T>
+[[nodiscard]] consteval interface_version_t ISerializable<_T>::getLatestInterfaceVersion() noexcept
 {
-    return T::kInterfaceVersion;
+    return _T::kInterfaceVersion;
 }
 
-template<typename T>
-[[nodiscard]] consteval interface_version_t ISerializable<T>::getOriginPrivateVersion() noexcept
+template<typename _T>
+[[nodiscard]] consteval interface_version_t ISerializable<_T>::getOriginPrivateVersion() noexcept
 {
     return getPrivateVersions()[getPrivateVersionsCount() - 1];
 }
 
-template<typename T>
-[[nodiscard]] CS_ALWAYS_INLINE constexpr const interface_version_t* ISerializable<T>::getPrivateVersions() noexcept
+template<typename _T>
+[[nodiscard]] CS_ALWAYS_INLINE constexpr const interface_version_t* ISerializable<_T>::getPrivateVersions() noexcept
 {
-    return T::kPrivateVersions;
+    return _T::kPrivateVersions;
 }
 
-template<typename T>
-[[nodiscard]] consteval interface_version_t ISerializable<T>::getPrivateVersionsCount() noexcept
+template<typename _T>
+[[nodiscard]] consteval interface_version_t ISerializable<_T>::getPrivateVersionsCount() noexcept
 {
-    return std::size(T::kPrivateVersions);
+    return std::size(_T::kPrivateVersions);
 }
 
-template<typename T>
-[[nodiscard]] consteval const Interface& ISerializable<T>::getInterface() noexcept
+template<typename _T>
+[[nodiscard]] consteval const Interface& ISerializable<_T>::getInterface() noexcept
 {
-    return T::getInterface();
+    return _T::getInterface();
 }
 
-template<typename T>
-[[nodiscard]] consteval context::DataFlags ISerializable<T>::getAddtionalMandatoryDataFlags() noexcept
+template<typename _T>
+[[nodiscard]] consteval context::DataFlags ISerializable<_T>::getAddtionalMandatoryDataFlags() noexcept
 {
-    if constexpr (HasAddtionalMandatoryDataFlags<T>)
-        return T::kAddtionalMandatoryDataFlags;
+    if constexpr (HasAddtionalMandatoryDataFlags<_T>)
+        return _T::kAddtionalMandatoryDataFlags;
     else
         return context::DataFlags{};
 }
 
-template<typename T>
-[[nodiscard]] consteval context::DataFlags ISerializable<T>::getAddtionalForbiddenDataFlags() noexcept
+template<typename _T>
+[[nodiscard]] consteval context::DataFlags ISerializable<_T>::getAddtionalForbiddenDataFlags() noexcept
 {
-    if constexpr (HasAddtionalForbiddenDataFlags<T>)
-        return T::kAddtionalForbiddenDataFlags;
+    if constexpr (HasAddtionalForbiddenDataFlags<_T>)
+        return _T::kAddtionalForbiddenDataFlags;
     else
         return context::DataFlags{};
 }
 
-template<typename T>
-[[nodiscard]] consteval context::DataFlags ISerializable<T>::getEffectiveMandatoryDataFlags() noexcept
+template<typename _T>
+[[nodiscard]] consteval context::DataFlags ISerializable<_T>::getEffectiveMandatoryDataFlags() noexcept
 {
     return getAddtionalMandatoryDataFlags() | getInterface().mandatoryDataFlags;
 }
 
-template<typename T>
-[[nodiscard]] consteval context::DataFlags ISerializable<T>::getEffectiveForbiddenDataFlags() noexcept
+template<typename _T>
+[[nodiscard]] consteval context::DataFlags ISerializable<_T>::getEffectiveForbiddenDataFlags() noexcept
 {
     return getAddtionalForbiddenDataFlags() | getInterface().forbiddenDataFlags;
 }
 
 /// @brief Shortcut to get type interface version in template contexts
-/// @tparam T Type for which interface version is requested
-/// @return Latest version of interface if T implements ISerializable and 0 otherwise
-template<typename T>
+/// @tparam _T Type for which interface version is requested
+/// @return Latest version of interface if _T implements ISerializable and 0 otherwise
+template<typename _T>
 consteval interface_version_t getLatestInterfaceVersion()
 {
-    if constexpr (ISerializableImpl<T>)
-        return T::getLatestInterfaceVersion();
+    if constexpr (ISerializableImpl<_T>)
+        return _T::getLatestInterfaceVersion();
     else
         return 0;
 }
