@@ -23,16 +23,17 @@
 
 #pragma once
 
+#include <common_serialization/CspBase/processing/data/BodyProcessor.h>
 #include <common_serialization/CspBase/processing/data/TemplateProcessor.h>
 
 namespace common_serialization::csp::processing::data
 {
 
-template<typename T, typename Traits, typename Allocator>
-class TemplateProcessor<std::basic_string, T, Traits, Allocator>
+template<typename _T, typename Traits, typename _Allocator>
+class TemplateProcessor<std::basic_string, _T, Traits, _Allocator>
 {
 public:
-    Status serialize(const std::basic_string<T, Traits, Allocator>& value, context::SData& ctx)
+    static Status serialize(const std::basic_string<_T, Traits, _Allocator>& value, context::SData& ctx)
     {
         CS_RUN(BodyProcessor::serializeSizeT(value.length(), ctx));
         CS_RUN(BodyProcessor::serialize(value.c_str(), value.length() + 1, ctx));
@@ -40,9 +41,9 @@ public:
         return Status::NoError;
     }
 
-    Status deserialize(context::DData& ctx, std::basic_string<T, Traits, Allocator>& value)
+    static Status deserialize(context::DData& ctx, std::basic_string<_T, Traits, _Allocator>& value)
     {
-        using size_type = typename std::basic_string<T, Traits, Allocator>::size_type;
+        using size_type = typename std::basic_string<_T, Traits, _Allocator>::size_type;
 
         assert(sizeof(size_type) <= sizeof(size_t));
 
@@ -56,11 +57,11 @@ public:
     }
 };
 
-template<typename T, typename Allocator>
-class TemplateProcessor<std::vector, T, Allocator>
+template<typename _T, typename _Allocator>
+class TemplateProcessor<std::vector, _T, _Allocator>
 {
 public:
-    Status serialize(const std::vector<T, Allocator>& value, context::SData& ctx)
+    static Status serialize(const std::vector<_T, _Allocator>& value, context::SData& ctx)
     {
         CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
         CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
@@ -68,9 +69,9 @@ public:
         return Status::NoError;
     }
 
-    Status deserialize(context::DData& ctx, std::vector<T, Allocator>& value)
+    static Status deserialize(context::DData& ctx, std::vector<_T, _Allocator>& value)
     {
-        using size_type = typename std::vector<T, Allocator>::size_type;
+        using size_type = typename std::vector<_T, _Allocator>::size_type;
 
         assert(sizeof(size_type) <= sizeof(size_t));
 
@@ -84,11 +85,11 @@ public:
     }
 };
 
-template<typename T1, typename T2>
-class TemplateProcessor<std::pair, T1, T2>
+template<typename _T1, typename _T2>
+class TemplateProcessor<std::pair, _T1, _T2>
 {
 public:
-    Status serialize(const std::pair<T1, T2>& value, context::SData& ctx)
+    static Status serialize(const std::pair<_T1, _T2>& value, context::SData& ctx)
     {
         CS_RUN(BodyProcessor::serialize(value.first, ctx));
         CS_RUN(BodyProcessor::serialize(value.second, ctx));
@@ -96,7 +97,7 @@ public:
         return Status::NoError;
     }
 
-    Status deserialize(context::DData& ctx, std::pair<T1, T2>& value)
+    static Status deserialize(context::DData& ctx, std::pair<_T1, _T2>& value)
     {
         CS_RUN(BodyProcessor::deserialize(ctx, value.first));
         CS_RUN(BodyProcessor::deserialize(ctx, value.second));
@@ -105,11 +106,11 @@ public:
     }
 };
 
-template<typename K, typename V, class Compare, class Allocator>
-class TemplateProcessor<std::map, K, V, Compare, Allocator>
+template<typename _K, typename _V, class Compare, class _Allocator>
+class TemplateProcessor<std::map, _K, _V, Compare, _Allocator>
 {
 public:
-    Status serialize(const std::map<K, V, Compare, Allocator>& value, context::SData& ctx)
+    static Status serialize(const std::map<_K, _V, Compare, _Allocator>& value, context::SData& ctx)
     {
         CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
 
@@ -119,9 +120,9 @@ public:
         return Status::NoError;
     }
 
-    Status deserialize(context::DData& ctx, std::map<K, V, Compare, Allocator>& value)
+    static Status deserialize(context::DData& ctx, std::map<_K, _V, Compare, _Allocator>& value)
     {
-        using size_type = std::map<K, V, Compare, Allocator>::size_type;
+        using size_type = std::map<_K, _V, Compare, _Allocator>::size_type;
 
         assert(sizeof(size_type) <= sizeof(size_t));
 
@@ -131,7 +132,7 @@ public:
 
         for (size_type i = 0; i < size; ++i)
         {
-            std::pair<K, V> element;
+            std::pair<_K, _V> element;
             CS_RUN(BodyProcessor::deserialize(ctx, element));
             value.insert(std::move(element));
         }
@@ -140,17 +141,17 @@ public:
     }
 };
 
-template<typename... Ts>
-class TemplateProcessor<std::tuple, Ts...>
+template<typename... _Ts>
+class TemplateProcessor<std::tuple, _Ts...>
 {
 public:
-    Status serialize(const std::tuple<Ts...>& value, context::SData& ctx)
+    static Status serialize(const std::tuple<_Ts...>& value, context::SData& ctx)
     {
-        return serializeTuple(value, std::make_index_sequence<sizeof...(Ts)>{}, ctx);
+        return serializeTupleHelper(value, std::make_index_sequence<sizeof...(_Ts)>{}, ctx);
     }
 
-    template<typename Tuple, size_t... Is>
-    Status serializeTuple(const Tuple& value, std::index_sequence<Is...>, context::SData& ctx)
+    template<size_t... _Is>
+    static Status serializeTupleHelper(const std::tuple<_Ts...>& value, std::index_sequence<_Is...>, context::SData& ctx)
     {
         Status status = Status::NoError;
 
@@ -158,18 +159,18 @@ public:
         // but this is not the case. I can transform this expression
         // in lambda that return this expression but I don't think that
         // we should be lead by analyzer mistakes.
-        (statusSuccess(status = BodyProcessor::serialize(std::get<Is>(value), ctx)) && ...);
+        (statusSuccess(status = BodyProcessor::serialize(std::get<_Is>(value), ctx)) && ...);
 
         return status;
     }
 
-    Status deserialize(context::DData& ctx, std::tuple<Ts...>& value)
+    static Status deserialize(context::DData& ctx, std::tuple<_Ts...>& value)
     {
-        return deserializeTuple(ctx, std::make_index_sequence<sizeof...(Ts)>{}, value);
+        return deserializeTupleHelper(ctx, std::make_index_sequence<sizeof...(_Ts)>{}, value);
     }
 
-    template<typename Tuple, size_t... Is>
-    Status deserializeTuple(context::DData& ctx, std::index_sequence<Is...>, Tuple& value)
+    template<size_t... _Is>
+    static Status deserializeTupleHelper(context::DData& ctx, std::index_sequence<_Is...>, std::tuple<_Ts...>& value)
     {
         Status status = Status::NoError;
 
@@ -177,7 +178,7 @@ public:
         // but this is not the case. I can transform this expression
         // in lambda that return this expression but I don't think that
         // we should be lead by analyzer mistakes.
-        (statusSuccess(status = BodyProcessor::deserialize(ctx, std::get<Is>(value))) && ...);
+        (statusSuccess(status = BodyProcessor::deserialize(ctx, std::get<_Is>(value))) && ...);
 
         return status;
     }

@@ -25,6 +25,8 @@
 
 #include <interface_for_test/Structs.h>
 #include <interface_for_test/StructsLegacy.h>
+#include <common_serialization/CspBase/processing/data/BodyProcessor.h>
+#include <common_serialization/CspBase/processing/data/TemplateProcessor.h>
 
 namespace common_serialization::csp::processing::data
 {
@@ -33,14 +35,14 @@ template<typename _T>
 class TemplateProcessor<interface_for_test::BigStructs, _T>
 {
 public:
-    Status serialize(const interface_for_test::BigStructs<_T>& value, context::SData& ctx)
+    static Status serialize(const interface_for_test::BigStructs<_T>& value, context::SData& ctx)
     {
         CS_RUN(BodyProcessor::serialize(value.m_vector, ctx));
 
         return Status::NoError;
     }
 
-    Status deserialize(context::DData& ctx, interface_for_test::BigStructs<_T>& value)
+    static Status deserialize(context::DData& ctx, interface_for_test::BigStructs<_T>& value)
     {
         CS_RUN(BodyProcessor::deserialize(ctx, value.m_vector));
 

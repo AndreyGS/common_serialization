@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <common_serialization/CspBase/processing/data/BodyProcessor.h>
 #include <common_serialization/CspBase/processing/data/TemplateProcessor.h>
 
 namespace common_serialization::csp::processing::data
@@ -32,7 +33,7 @@ template<typename T, IAllocationManagerImpl A>
 class TemplateProcessor<Vector, T, A>
 {
 public:
-    Status serialize(const Vector<T, A>& value, context::SData& ctx)
+    static Status serialize(const Vector<T, A>& value, context::SData& ctx)
     {
         CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
         CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
@@ -40,7 +41,7 @@ public:
         return Status::NoError;
     }
 
-    Status deserialize(context::DData& ctx, Vector<T, A>& value)
+    static Status deserialize(context::DData& ctx, Vector<T, A>& value)
     {
         value.clear();
 

@@ -32,22 +32,22 @@ template<template<typename...> typename _T, typename... _Ts>
 class TemplateProcessor
 {
 public:
-    Status serialize(const _T<_Ts...>& value, context::SData& ctx);
-    Status deserialize(context::DData& ctx, _T<_Ts...>& value);
+    static Status serialize(const _T<_Ts...>& value, context::SData& ctx);
+    static Status deserialize(context::DData& ctx, _T<_Ts...>& value);
 };
 
 
 template<template<typename...> typename _T, typename... _Ts>
-Status templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx)
+CS_ALWAYS_INLINE Status templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx)
 {
-    return TemplateProcessor<_T, _Ts...>().serialize(value, ctx);
+    return TemplateProcessor<_T, _Ts...>::serialize(value, ctx);
 }
 
 
 template<template<typename...> typename _T, typename... _Ts>
-Status templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value)
+CS_ALWAYS_INLINE Status templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value)
 {
-    return TemplateProcessor<_T, _Ts...>().deserialize(ctx, value);
+    return TemplateProcessor<_T, _Ts...>::deserialize(ctx, value);
 }
 
 } // namespace common_serialization::csp::processing::data

@@ -26,42 +26,43 @@
 namespace common_serialization
 {
 
-/// @brief Test for possibility to init object of type T
+/// @brief Test for possibility to init object of type _T
 ///     by another instance of the same type.
 /// @remark Using to figure out can initialization of object be
 ///     replaced from copy-ctor to init function.
 ///     Primary for avoid exceptions and consequently 
 ///     init function should not throw.
-template<typename T>
-concept Initable = requires(T t)
+template<typename _T>
+concept Initable = requires(_T t)
 {
-    { t.init(*(new T)) } -> std::same_as<Status>;
+    { t.init(*(new _T)) } -> std::same_as<Status>;
 };
 
-/// @brief Test for possibility to init object of type T
+/// @brief Test for possibility to init object of type _T
 ///     by another instance of type SpecClass.
-template<typename T, typename SpecClass>
-concept InitableBySpecialClass = requires(T t)
+template<typename _T, typename SpecClass>
+concept InitableBySpecialClass = requires(_T t)
 {
     { t.init(*(new SpecClass)) } -> std::same_as<Status>;
 };
 
-template<typename T>
-using normalize_t = std::remove_cv_t<std::remove_reference_t<T>>;
+template<typename _T>
+using normalize_t = std::remove_cv_t<std::remove_reference_t<_T>>;
 
-template<typename T>
-concept IsNotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || std::is_function_v<T> || std::is_member_function_pointer_v<T>);
+template<typename _T>
+concept IsNotPointer = !(std::is_pointer_v<_T> || std::is_member_pointer_v<_T> || std::is_function_v<_T> || std::is_member_function_pointer_v<_T>);
 
-template<typename T>
-concept IsEndiannessReversable = (std::is_arithmetic_v<T> || std::is_enum_v<T>) && sizeof(T) > 1  && sizeof(T) <= 8;
+template<typename _T>
+concept IsEndiannessReversable = (std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && sizeof(_T) > 1  && sizeof(_T) <= 8;
 
-template<typename T>
+template<typename _T>
 concept IsSigned
-        =      std::is_arithmetic_v<T>
-        && (   std::is_same_v<T, signed char> || std::is_same_v<T, short> || std::is_same_v<T, int> || std::is_same_v<T, long>
-            || std::is_same_v<T, long long> || std::is_same_v<T, float> || std::is_same_v<T, double> || std::is_same_v<T, long double>);
+        =      std::is_arithmetic_v<_T>
+        && (   std::is_same_v<_T, signed char> || std::is_same_v<_T, short> || std::is_same_v<_T, int> || std::is_same_v<_T, long>
+            || std::is_same_v<_T, long long> || std::is_same_v<_T, float> || std::is_same_v<_T, double> || std::is_same_v<_T, long double>);
 
 template<typename _T>
 concept HasDestroyingDeleteOp = requires (_T t) { _T::operator delete(&t, std::destroying_delete_t{}); };
+
 
 } // namespace common_serialization
