@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/processing/DataBodyProcessor.h
+ * @file cslib/include/common_serialization/csp/processing/data/BodyProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

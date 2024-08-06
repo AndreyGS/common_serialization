@@ -27,8 +27,8 @@
 #include <common_serialization/csp/messaging/IServerDataHandlerRegistrar.h>
 #include <common_serialization/csp/messaging/IServerDataHandlerBase.h>
 #include <common_serialization/csp/messaging/service_structs/Interface.h>
-#include <common_serialization/csp/processing/DataBodyProcessor.h>
-#include <common_serialization/csp/processing/DataVersionConverters.h>
+#include <common_serialization/csp/processing/data/BodyProcessor.h>
+#include <common_serialization/csp/processing/data/ContextProcessor.h>
 
 namespace common_serialization::csp::messaging
 {
@@ -181,7 +181,7 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
     context::DData ctx(ctxCommon);
     Id id;
 
-    CS_RUN(processing::deserializeDataContextNoChecks(ctx, id));
+    CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctx, id));
 
     VectorT<GenericPointerKeeperT> addedPointers;
     if (ctx.allowUnmanagedPointers())

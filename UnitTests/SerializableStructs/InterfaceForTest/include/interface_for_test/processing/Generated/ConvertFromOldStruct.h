@@ -23,20 +23,20 @@
 
 #pragma once
 
-namespace common_serialization::csp::processing::data::version_converters
+namespace common_serialization::csp::processing::data
 {
 
 template<>
-Status fromOldStruct(context::DData& ctx, uint32_t thisVersionCompat, interface_for_test::SimplyAssignableAlignedToOne<>& value);
+Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t thisVersionCompat, interface_for_test::SimplyAssignableAlignedToOne<>& value);
 template<>
-Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignable<>& value);
+Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignable<>& value);
 template<>
-Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value);
+Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableDescendant<>& value);
 template<>
-Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::AlwaysSimplyAssignable<>& value);
+Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::AlwaysSimplyAssignable<>& value);
 template<>
-Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableFixedSize<>& value);
+Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersion, interface_for_test::SimplyAssignableFixedSize<>& value);
 template<>
-Status fromOldStruct(context::DData& ctx, uint32_t thisVersionCompat, interface_for_test::DForAllModesTests<>& value);
+Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t thisVersionCompat, interface_for_test::DForAllModesTests<>& value);
 
-} // namespace common_serialization::csp::processing::data::version_converters
+} // namespace common_serialization::csp::processing::data

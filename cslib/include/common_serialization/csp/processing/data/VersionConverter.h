@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/processing/DataVersionConverters.h
+ * @file cslib/include/common_serialization/csp/processing/data/VersionConverter.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,30 +23,45 @@
 
 #pragma once
 
-#include <common_serialization/csp/processing/DataBodyProcessor.h>
+#include <common_serialization/csp/processing/data/BodyProcessor.h>
 
-namespace common_serialization::csp::processing::data::version_converters
+namespace common_serialization::csp::processing::data
 {
 
-template<typename _T>
-constexpr Status toOldStruct(const _T& value, uint32_t targetVersion, context::SData& ctx);
-template<typename _T>
-constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, _T& value);
+class VersionConverter
+{
+public:
+    template<typename _T>
+    static constexpr Status toOldStruct(const _T& value, uint32_t targetVersion, context::SData& ctx);
+    template<typename _T>
+    static constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, _T& value);
+
+    template<typename _T>
+    static constexpr Status toOldStructIfNeed(const _T& value, context::SData& ctx);
+    template<typename _T>
+    static constexpr Status fromOldStructIfNeed(context::DData& ctx, _T& value);
+
+    template<ISerializableImpl... _NextTo>
+    struct ToVersion;
+
+    template<ISerializableImpl... _NextFrom>
+    struct FromVersion;
+};
 
 template<typename _T>
-constexpr Status toOldStruct(const _T& value, uint32_t targetVersion, context::SData& ctx)
+constexpr Status VersionConverter::toOldStruct(const _T& value, uint32_t targetVersion, context::SData& ctx)
 {
     return Status::ErrorNoSuchHandler;
 }
 
 template<typename _T>
-constexpr Status fromOldStruct(context::DData& ctx, uint32_t targetVersion, _T& value)
+constexpr Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersion, _T& value)
 {
     return Status::ErrorNoSuchHandler;
 }
 
 template<typename _T>
-constexpr Status toOldStructIfNeed(const _T& value, context::SData& ctx)
+constexpr Status VersionConverter::toOldStructIfNeed(const _T& value, context::SData& ctx)
 {
     if constexpr (!ISerializableImpl<_T>)
         return Status::ErrorInvalidType;
@@ -65,7 +80,7 @@ constexpr Status toOldStructIfNeed(const _T& value, context::SData& ctx)
 }
 
 template<typename _T>
-constexpr Status fromOldStructIfNeed(context::DData& ctx, _T& value)
+constexpr Status VersionConverter::fromOldStructIfNeed(context::DData& ctx, _T& value)
 {
     if constexpr (!ISerializableImpl<_T>)
         return Status::ErrorInvalidType;
@@ -83,11 +98,8 @@ constexpr Status fromOldStructIfNeed(context::DData& ctx, _T& value)
     }
 }
 
-template<typename... _NextTo>
-struct ToVersion;
-
 template<>
-class ToVersion<>
+class VersionConverter::ToVersion<>
 {
 public:
     explicit ToVersion(uint32_t targetVersion)
@@ -97,13 +109,13 @@ public:
     constexpr uint32_t getTargetVersion() const noexcept { return m_targetVersion; }
 
 protected:
-    template<typename _From>
+    template<ISerializableImpl _From>
     Status convertOnHeap(const _From& from, context::SData& ctx) noexcept
     {
         return Status::ErrorInternal;
     }
 
-    template<typename _From>
+    template<ISerializableImpl _From>
     Status convertOnStack(const _From& from, context::SData& ctx) noexcept
     {
         return Status::ErrorInternal;
@@ -113,8 +125,8 @@ private:
     interface_version_t m_targetVersion{ traits::kInterfaceVersionUndefined };
 };
 
-template<ISerializableImpl _To, typename... _NextTo>
-class ToVersion<_To, _NextTo...> : public ToVersion<_NextTo...>
+template<ISerializableImpl _To, ISerializableImpl... _NextTo>
+class VersionConverter::ToVersion<_To, _NextTo...> : public VersionConverter::ToVersion<_NextTo...>
 {
 public:
     explicit ToVersion(interface_version_t targetVersion)
@@ -162,11 +174,8 @@ protected:
     static constexpr interface_version_t privateVersion = _To::getLatestPrivateVersion();
 };
 
-template<typename... _NextFrom>
-struct FromVersion;
-
 template<>
-class FromVersion<>
+class VersionConverter::FromVersion<>
 {
 public:
     explicit FromVersion(interface_version_t targetVersion)
@@ -203,8 +212,8 @@ private:
 };
 
 
-template<ISerializableImpl _From, typename... _NextFrom>
-class FromVersion<_From, _NextFrom...> : public FromVersion<_NextFrom...>
+template<ISerializableImpl _From, ISerializableImpl... _NextFrom>
+class VersionConverter::FromVersion<_From, _NextFrom...> : public VersionConverter::FromVersion<_NextFrom...>
 {
 public:
     explicit FromVersion(interface_version_t targetVersion)
@@ -294,4 +303,4 @@ protected:
     }
 };
 
-} // namespace common_serialization::csp::processing::data::version_converters
+} // namespace common_serialization::csp::processing::data

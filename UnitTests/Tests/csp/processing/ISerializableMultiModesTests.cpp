@@ -49,7 +49,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     // Currently this issue applies only in serialization to and from interface Version2.
     // And for bypassing this we manualy set interfaceVersionsNotMatch flag in respective contexts.
     EXPECT_EQ(csp::processing::serializeCommonContext(ctxIn), Status::NoError);
-    EXPECT_EQ(csp::processing::serializeDataContext<TS>(ctxIn), Status::NoError);
+    EXPECT_EQ(csp::processing::data::ContextProcessor::serialize<TS>(ctxIn), Status::NoError);
 
     if (TS::getLatestInterfaceVersion() == 2)
         ctxIn.setInterfaceVersionsNotMatch(true);
@@ -68,9 +68,9 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     csp::Id id;
     uint32_t minimumInterfaceVersion = 0;
 
-    EXPECT_EQ(csp::processing::deserializeDataContextNoChecks(ctxOut, id), Status::NoError);
-    EXPECT_EQ(csp::processing::deserializeDataContextPostprocessId<TD>(id), Status::NoError);
-    EXPECT_EQ(csp::processing::deserializeDataContextPostprocessRest<TD>(ctxOut, minimumInterfaceVersion), Status::NoError);
+    EXPECT_EQ(csp::processing::data::ContextProcessor::deserializeNoChecks(ctxOut, id), Status::NoError);
+    EXPECT_EQ(csp::processing::data::ContextProcessor::deserializePostprocessId<TD>(id), Status::NoError);
+    EXPECT_EQ(csp::processing::data::ContextProcessor::deserializePostprocessRest<TD>(ctxOut, minimumInterfaceVersion), Status::NoError);
 
     if (TD::getLatestInterfaceVersion() == 2)
         ctxOut.setInterfaceVersionsNotMatch(true);

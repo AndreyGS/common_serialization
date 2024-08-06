@@ -23,7 +23,10 @@
 
 #pragma once
 
-#include <common_serialization/csp/processing/DataBodyProcessor.h>
+#include <common_serialization/csp/mandatory_structs/processing/Deserialize.h>
+#include <common_serialization/csp/mandatory_structs/processing/Serialize.h>
+#include <common_serialization/csp/processing/data/BodyProcessor.h>
+#include <common_serialization/csp/processing/data/VersionConverter.h>
 
 namespace common_serialization::csp::messaging::service_structs
 {

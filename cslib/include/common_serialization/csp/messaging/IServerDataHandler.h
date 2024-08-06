@@ -26,6 +26,7 @@
 #include <common_serialization/csp/messaging/IServerDataHandlerBase.h>
 #include <common_serialization/csp/messaging/IServerDataHandlerRegistrar.h>
 #include <common_serialization/csp/messaging/IServerDataHandlerTraits.h>
+#include <common_serialization/csp/processing/data/ContextProcessor.h>
 
 namespace common_serialization::csp::messaging
 {
@@ -109,7 +110,7 @@ Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const Gener
     // so here it is only placeholder
     Id id = InputType::getId();
 
-    if (Status status = processing::deserializeDataContextPostprocessRest<InputType>(ctx, getMinimumInterfaceVersion()); !statusSuccess(status))
+    if (Status status = processing::data::ContextProcessor::deserializePostprocessRest<InputType>(ctx, getMinimumInterfaceVersion()); !statusSuccess(status))
     {
         if (status == Status::ErrorNotSupportedInterfaceVersion)
             CS_RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(ctx.getProtocolVersion(), ctx.getCommonFlags()

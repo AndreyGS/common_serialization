@@ -40,9 +40,6 @@ constexpr cs::csp::Interface properties(
 
 } // namespace common_serialization::csp::messaging::service_structs
 
-#include <common_serialization/csp/processing/DataVersionConverters.h>
-#include <common_serialization/csp/mandatory_structs/processing/Deserialize.h>
-#include <common_serialization/csp/mandatory_structs/processing/Serialize.h>
 #include <common_serialization/csp/messaging/service_structs/Structs.h>
 #include <common_serialization/csp/messaging/service_structs/processing/Deserialize.h>
 #include <common_serialization/csp/messaging/service_structs/processing/Serialize.h>

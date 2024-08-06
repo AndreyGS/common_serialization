@@ -24,7 +24,8 @@
 #pragma once
 
 #include <common_serialization/csp/processing/Contexts.h>
-#include <common_serialization/csp/processing/DataBodyProcessor.h>
+#include <common_serialization/csp/processing/data/BodyProcessor.h>
+#include <common_serialization/csp/processing/data/ContextProcessor.h>
 
 namespace common_serialization::csp
 {
@@ -159,7 +160,7 @@ constexpr Status ISerializable<T>::serialize(context::SData& ctx) const
         ctx.setInterfaceVersion(this->getLatestInterfaceVersion());
 
     CS_RUN(processing::serializeCommonContext(ctx));
-    CS_RUN(processing::serializeDataContext<T>(ctx));
+    CS_RUN(processing::data::ContextProcessor::serialize<T>(ctx));
 
     // If user is not supplied pointers map we need to use temporary one
     if (ctx.checkRecursivePointers() && !ctx.getPointersMap())
@@ -188,9 +189,9 @@ constexpr Status ISerializable<T>::deserialize(context::DData& ctx)
     Id id;
     uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? this->getOriginPrivateVersion() : ctx.getInterfaceVersion();
 
-    CS_RUN(processing::deserializeDataContextNoChecks(ctx, id));
-    CS_RUN(processing::deserializeDataContextPostprocessId<T>(id));
-    CS_RUN(processing::deserializeDataContextPostprocessRest<T>(ctx, minimumInterfaceVersion));
+    CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctx, id));
+    CS_RUN(processing::data::ContextProcessor::deserializePostprocessId<T>(id));
+    CS_RUN(processing::data::ContextProcessor::deserializePostprocessRest<T>(ctx, minimumInterfaceVersion));
     
     // If user is not supplied pointers map we need to use temporary one
     if (ctx.checkRecursivePointers() && !ctx.getPointersMap())

@@ -24,7 +24,7 @@
 #pragma once
 
 #include <common_serialization/csp/Traits.h>
-#include <common_serialization/csp/processing/DataBodyProcessor.h>
+#include <common_serialization/csp/processing/data/BodyProcessor.h>
 
 namespace common_serialization::csp::processing::data
 {

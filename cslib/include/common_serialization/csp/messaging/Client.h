@@ -27,8 +27,8 @@
 #include <common_serialization/csp/messaging/IClientDataHandlerTraits.h>
 #include <common_serialization/csp/messaging/service_structs/Interface.h>
 #include <common_serialization/csp/processing/Contexts.h>
-#include <common_serialization/csp/processing/DataBodyProcessor.h>
-#include <common_serialization/csp/processing/DataVersionConverters.h>
+#include <common_serialization/csp/processing/data/BodyProcessor.h>
+#include <common_serialization/csp/processing/data/ContextProcessor.h>
 #include <common_serialization/csp/processing/Status.h>
 
 namespace common_serialization::csp::messaging
@@ -292,7 +292,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     context::SData ctxIn(binInput, m_settings.getLatestProtocolVersion(), m_settings.getMandatoryCommonFlags());
 
     CS_RUN(processing::serializeCommonContext(ctxIn));
-    CS_RUN(processing::serializeDataContextNoChecks<_InputType>(ctxIn));
+    CS_RUN(processing::data::ContextProcessor::serializeNoChecks<_InputType>(ctxIn));
 
     BinWalkerT binOutput;
     CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
@@ -377,7 +377,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         , nullptr);
 
     CS_RUN(processing::serializeCommonContext(ctxIn));
-    CS_RUN(processing::serializeDataContext<InputType>(ctxIn));
+    CS_RUN(processing::data::ContextProcessor::serialize<InputType>(ctxIn));
 
     if (ctxIn.allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
         return Status::ErrorInvalidArgument;
@@ -405,7 +405,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     {
         Id outId;
         context::DData ctxOut(ctxOutCommon);
-        CS_RUN(processing::deserializeDataContextNoChecks(ctxOut, outId));
+        CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctxOut, outId));
 
         if (ctxIn.getDataFlags() != ctxOut.getDataFlags())
             return Status::ErrorNotCompatibleDataFlagsSettings;
@@ -414,8 +414,8 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
         ctxOut.setAddedPointers(pUnmanagedPointers);
 
-        CS_RUN(processing::deserializeDataContextPostprocessId<OutputType>(outId));
-        CS_RUN(processing::deserializeDataContextPostprocessRest<OutputType>(ctxOut, OutputType::getOriginPrivateVersion()));
+        CS_RUN(processing::data::ContextProcessor::deserializePostprocessId<OutputType>(outId));
+        CS_RUN(processing::data::ContextProcessor::deserializePostprocessRest<OutputType>(ctxOut, OutputType::getOriginPrivateVersion()));
 
         if (ctxOut.getInterfaceVersion() != targetInterfaceVersion)
             return Status::ErrorMismatchOfInterfaceVersions;

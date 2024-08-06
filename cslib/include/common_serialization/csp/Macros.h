@@ -67,17 +67,14 @@
         && ctx.isInterfaceVersionsNotMatch()                                            \
     )                                                                                   \
     {                                                                                   \
-        Status status = version_converters::toOldStructIfNeed(value, ctx);              \
+        Status status = VersionConverter::toOldStructIfNeed(value, ctx);                \
         if (status == Status::NoFurtherProcessingRequired)                              \
             return Status::NoError;                                                     \
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
         else                                                                            \
-            CS_RUN(                                                                     \
-                processing::testDataFlagsCompatibility                                  \
-                    <std::remove_reference_t                                            \
-                        <std::remove_cv_t                                               \
-                            <decltype(value)>>>(ctx.getDataFlags()));                   \
+            CS_RUN(ContextProcessor::testDataFlagsCompatibility                         \
+                    <normalize_t<decltype(value)>>(ctx.getDataFlags()));                \
     }                                                                                   \
                                                                                         \
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx)                                     \
@@ -90,18 +87,15 @@
         && ctx.isInterfaceVersionsNotMatch()                                            \
     )                                                                                   \
     {                                                                                   \
-        Status status = version_converters::fromOldStructIfNeed(ctx, value);            \
+        Status status = VersionConverter::fromOldStructIfNeed(ctx, value);              \
                                                                                         \
         if (status == Status::NoFurtherProcessingRequired)                              \
             return Status::NoError;                                                     \
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
         else                                                                            \
-            CS_RUN(                                                                     \
-                processing::testDataFlagsCompatibility                                  \
-                    <std::remove_reference_t                                            \
-                        <std::remove_cv_t                                               \
-                            <decltype(value)>>>(ctx.getDataFlags()));                   \
+            CS_RUN(ContextProcessor::testDataFlagsCompatibility                         \
+                    <normalize_t<decltype(value)>>(ctx.getDataFlags()));                \
     }                                                                                   \
                                                                                         \
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)                                   \
