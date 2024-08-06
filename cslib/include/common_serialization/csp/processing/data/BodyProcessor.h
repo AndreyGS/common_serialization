@@ -206,13 +206,13 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSizeT(_T value, context::SData& ctx)
+constexpr Status BodyProcessor::serializeSizeT(_T value, context::SData& ctx)
 {
     return serializeToAnotherSize(!ctx.bitness32() ? 8 : 4, value, ctx);
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeToAnotherSize(csp_size_t targetTypeSize, _T value, context::SData& ctx)
+constexpr Status BodyProcessor::serializeToAnotherSize(csp_size_t targetTypeSize, _T value, context::SData& ctx)
 {
     switch (targetTypeSize)
     {
@@ -386,13 +386,13 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSizeT(context::DData& ctx, _T& value)
+constexpr Status BodyProcessor::deserializeSizeT(context::DData& ctx, _T& value)
 {
     return deserializeFromAnotherSize(!ctx.bitness32() ? 8 : 4, ctx, value);
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeFromAnotherSize(csp_size_t originalTypeSize, context::DData& ctx, _T& value)
+constexpr Status BodyProcessor::deserializeFromAnotherSize(csp_size_t originalTypeSize, context::DData& ctx, _T& value)
 {
     switch (originalTypeSize)
     {
@@ -441,7 +441,7 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSimplyAssignable(const _T& value, context::SData&ctx)
+constexpr Status BodyProcessor::serializeSimplyAssignable(const _T& value, context::SData&ctx)
 {
     if constexpr (NotSimplyAssignable<_T>)
         return Status::ErrorInvalidType;
@@ -474,7 +474,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeSimplyAssignable(const
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSimplyAssignable(context::DData& ctx, _T& value)
+constexpr Status BodyProcessor::deserializeSimplyAssignable(context::DData& ctx, _T& value)
 {
     if constexpr (NotSimplyAssignable<_T>)
         return Status::ErrorInvalidType;
@@ -507,7 +507,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeSimplyAssignable(con
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const _T p, context::SData& ctx, bool& newPointer)
+constexpr Status BodyProcessor::addPointerToMap(const _T p, context::SData& ctx, bool& newPointer)
 {
     if (!p)
     {
@@ -534,7 +534,7 @@ CS_ALWAYS_INLINE constexpr Status BodyProcessor::addPointerToMap(const _T p, con
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::getPointerFromMap(context::DData& ctx, _T& p, bool& newPointer)
+constexpr Status BodyProcessor::getPointerFromMap(context::DData& ctx, _T& p, bool& newPointer)
 {
     csp_size_t offset = 0;
 

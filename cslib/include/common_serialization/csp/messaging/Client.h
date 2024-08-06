@@ -26,10 +26,10 @@
 #include <common_serialization/csp/Concepts.h>
 #include <common_serialization/csp/messaging/IClientDataHandlerTraits.h>
 #include <common_serialization/csp/messaging/service_structs/Interface.h>
-#include <common_serialization/csp/processing/Contexts.h>
+#include <common_serialization/csp/processing/common/ContextProcessor.h>
 #include <common_serialization/csp/processing/data/BodyProcessor.h>
 #include <common_serialization/csp/processing/data/ContextProcessor.h>
-#include <common_serialization/csp/processing/Status.h>
+#include <common_serialization/csp/processing/status/Helpers.h>
 
 namespace common_serialization::csp::messaging
 {
@@ -245,31 +245,31 @@ inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& 
 {
     BinVectorT binInput;
     context::SCommon ctxIn(binInput, traits::kProtocolVersionUndefined);
-    CS_RUN(processing::serializeCommonContextNoChecks(ctxIn));
+    CS_RUN(processing::common::ContextProcessor::serializeNoChecks(ctxIn));
 
     BinWalkerT binOutput;
     CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOut(binOutput);
-    CS_RUN(processing::deserializeCommonContextNoChecks(ctxOut));
+    CS_RUN(processing::common::ContextProcessor::deserializeNoChecks(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::Status)
         return Status::ErrorDataCorrupted;
 
     Status statusOut = Status::NoError;
-    CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+    CS_RUN(processing::status::ContextProcessor::deserialize(ctxOut, statusOut));
 
     if (statusOut != Status::ErrorNotSupportedProtocolVersion)
         return Status::ErrorDataCorrupted;
 
-    return processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, output);
+    return processing::status::BodyProcessor::deserializeErrorNotSupportedProtocolVersion(ctxOut, output);
 }
 
 inline Status Client::getServerSettings(protocol_version_t serverCspVersion, service_structs::CspPartySettings<>& cspPartySettings) const noexcept
 {
     BinVectorT binInput;
     context::SCommon ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
-    CS_RUN(processing::serializeCommonContext(ctxIn));
+    CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
 
     BinWalkerT binOutput;
     CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
@@ -291,27 +291,27 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     BinVectorT binInput;
     context::SData ctxIn(binInput, m_settings.getLatestProtocolVersion(), m_settings.getMandatoryCommonFlags());
 
-    CS_RUN(processing::serializeCommonContext(ctxIn));
+    CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
     CS_RUN(processing::data::ContextProcessor::serializeNoChecks<_InputType>(ctxIn));
 
     BinWalkerT binOutput;
     CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOut(binOutput);
-    CS_RUN(processing::deserializeCommonContext(ctxOut));
+    CS_RUN(processing::common::ContextProcessor::deserialize(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::Status)
         return Status::ErrorDataCorrupted;
 
     Status statusOut = Status::NoError;
-    CS_RUN(processing::deserializeStatusContext(ctxOut, statusOut));
+    CS_RUN(processing::status::ContextProcessor::deserialize(ctxOut, statusOut));
 
     if (statusSuccess(statusOut))
         return Status::ErrorDataCorrupted;
     else if (statusOut != Status::ErrorNotSupportedInterfaceVersion)
         return statusOut;
     
-    return processing::deserializeStatusErrorNotSupportedInterfaceVersionBody(ctxOut, minimumInterfaceVersion, outputTypeId);
+    return processing::status::BodyProcessor::deserializeErrorNotSupportedInterfaceVersion(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 
 CS_ALWAYS_INLINE constexpr const service_structs::CspPartySettings<>& Client::getSettings() const noexcept
@@ -376,7 +376,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         , targetInterfaceVersion
         , nullptr);
 
-    CS_RUN(processing::serializeCommonContext(ctxIn));
+    CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
     CS_RUN(processing::data::ContextProcessor::serialize<InputType>(ctxIn));
 
     if (ctxIn.allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
@@ -394,7 +394,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOutCommon(binOutput);
-    CS_RUN(processing::deserializeCommonContext(ctxOutCommon));
+    CS_RUN(processing::common::ContextProcessor::deserialize(ctxOutCommon));
 
     if (ctxIn.getCommonFlags() != ctxOutCommon.getCommonFlags())
         return Status::ErrorNotCompatibleCommonFlagsSettings;
@@ -433,7 +433,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     case context::Message::Status:
     {
         Status statusOut = Status::NoError;
-        CS_RUN(processing::deserializeStatusContext(ctxOutCommon, statusOut));
+        CS_RUN(processing::status::ContextProcessor::deserialize(ctxOutCommon, statusOut));
         return statusOut;
     }
     default:

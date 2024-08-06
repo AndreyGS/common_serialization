@@ -281,7 +281,7 @@ TEST_F(ClientTests, GetServerHandlerSettingsServerDoesNotHaveHandlerForThisStruc
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
         {
-            processing::serializeStatusFullContext(output, getLatestProtocolVersion(), {}, Status::ErrorNoSuchHandler);
+            processing::status::Helpers::serializeFullContext(output, getLatestProtocolVersion(), {}, Status::ErrorNoSuchHandler);
             return Status::NoError;
         }
     ));
@@ -302,7 +302,7 @@ TEST_F(ClientTests, GetServerHandlerSettingsValidReturnFromServer)
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [expectedMinimumVersion, &expectedOutputTypeId](const BinVectorT& input, BinVectorT& output)
         {
-            processing::serializeStatusErrorNotSupportedInterfaceVersion(
+            processing::status::Helpers::serializeErrorNotSupportedInterfaceVersion(
                   getLatestProtocolVersion()
                 , {}
                 , expectedMinimumVersion
@@ -459,7 +459,7 @@ TEST_F(ClientTests, HandleDataBadCommonContextReceivedFromServer)
         [](const BinVectorT& input, BinVectorT& output)
         {
             SCommon ctx(output, kProtocolVersionUndefined, Message::Status);
-            processing::serializeCommonContextNoChecks(ctx);
+            processing::common::ContextProcessor::serializeNoChecks(ctx);
             return Status::NoError;
         }
     ));
@@ -479,7 +479,7 @@ TEST_F(ClientTests, HandleDataOutputCommonFlagsReceivedFromServerMismatchedWithI
         [](const BinVectorT& input, BinVectorT& output)
         {
             SCommon ctx(output, getLatestProtocolVersion(), Message::Status);
-            processing::serializeCommonContext(ctx);
+            processing::common::ContextProcessor::serialize(ctx);
             return Status::NoError;
         }
     ));
@@ -499,7 +499,7 @@ TEST_F(ClientTests, HandleDataWrongMessageTypeReceivedFromServer)
         [](const BinVectorT& input, BinVectorT& output)
         {
             SCommon ctx(output, getLatestProtocolVersion(), Message::GetSettings, CommonFlags{ getAnotherEndianessPlatformFlags() });
-            processing::serializeCommonContext(ctx);
+            processing::common::ContextProcessor::serialize(ctx);
             return Status::NoError;
         }
     ));
@@ -599,7 +599,7 @@ TEST_F(ClientTests, HandleDataGetStatusFromServer)
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
         {
-            processing::serializeStatusFullContext(output, getLatestProtocolVersion(), {}, Status::ErrorNoSuchHandler);
+            processing::status::Helpers::serializeFullContext(output, getLatestProtocolVersion(), {}, Status::ErrorNoSuchHandler);
             return Status::NoError;
         }
     ));

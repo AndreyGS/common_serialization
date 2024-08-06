@@ -48,7 +48,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     // Otherwise serialization and deserialization of old interface can use newer structs inside main struct.
     // Currently this issue applies only in serialization to and from interface Version2.
     // And for bypassing this we manualy set interfaceVersionsNotMatch flag in respective contexts.
-    EXPECT_EQ(csp::processing::serializeCommonContext(ctxIn), Status::NoError);
+    EXPECT_EQ(csp::processing::common::ContextProcessor::serialize(ctxIn), Status::NoError);
     EXPECT_EQ(csp::processing::data::ContextProcessor::serialize<TS>(ctxIn), Status::NoError);
 
     if (TS::getLatestInterfaceVersion() == 2)
@@ -63,7 +63,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     Vector<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(&addedPointers);
 
-    EXPECT_EQ(csp::processing::deserializeCommonContext(ctxOut), Status::NoError);
+    EXPECT_EQ(csp::processing::common::ContextProcessor::deserialize(ctxOut), Status::NoError);
 
     csp::Id id;
     uint32_t minimumInterfaceVersion = 0;

@@ -27,6 +27,7 @@
 #include <common_serialization/csp/messaging/IServerDataHandlerRegistrar.h>
 #include <common_serialization/csp/messaging/IServerDataHandlerTraits.h>
 #include <common_serialization/csp/processing/data/ContextProcessor.h>
+#include <common_serialization/csp/processing/status/Helpers.h>
 
 namespace common_serialization::csp::messaging
 {
@@ -113,7 +114,7 @@ Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const Gener
     if (Status status = processing::data::ContextProcessor::deserializePostprocessRest<InputType>(ctx, getMinimumInterfaceVersion()); !statusSuccess(status))
     {
         if (status == Status::ErrorNotSupportedInterfaceVersion)
-            CS_RUN(processing::serializeStatusErrorNotSupportedInterfaceVersion(ctx.getProtocolVersion(), ctx.getCommonFlags()
+            CS_RUN(processing::status::Helpers::serializeErrorNotSupportedInterfaceVersion(ctx.getProtocolVersion(), ctx.getCommonFlags()
                 , getMinimumInterfaceVersion(), OutputType::getId(), binOutput));
         
         return status;

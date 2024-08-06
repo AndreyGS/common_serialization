@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp/processing/DataContext.h
+ * @file cslib/include/common_serialization/csp/processing/common/ContextProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,13 +23,26 @@
 
 #pragma once
 
-#include <common_serialization/csp/context/Data.h>
+#include <common_serialization/csp/context/Common.h>
 #include <common_serialization/csp/processing/Rw.h>
 
-namespace common_serialization::csp::processing
+namespace common_serialization::csp::processing::common
 {
 
-constexpr Status testCommonFlagsCompatibility(context::CommonFlags commonFlags
+class ContextProcessor
+{
+public:
+    static constexpr [[nodiscard]] Status testCommonFlagsCompatibility(context::CommonFlags commonFlags
+        , context::CommonFlags forbiddenCommonFlags, context::CommonFlags mandatoryCommonFlags);
+
+    static constexpr Status serialize(context::SCommon& ctx);
+    static constexpr Status serializeNoChecks(context::SCommon& ctx);
+
+    static constexpr Status deserialize(context::DCommon& ctx) noexcept;
+    static constexpr Status deserializeNoChecks(context::DCommon& ctx) noexcept;
+};
+
+constexpr Status ContextProcessor::testCommonFlagsCompatibility(context::CommonFlags commonFlags
     , context::CommonFlags forbiddenCommonFlags, context::CommonFlags mandatoryCommonFlags)
 {
     return commonFlags & (forbiddenCommonFlags | context::CommonFlags::kForbiddenFlagsMask) || (commonFlags & mandatoryCommonFlags) != mandatoryCommonFlags
@@ -37,7 +50,17 @@ constexpr Status testCommonFlagsCompatibility(context::CommonFlags commonFlags
         : Status::NoError;
 }
 
-inline Status serializeCommonContextNoChecks(context::SCommon& ctx)
+constexpr Status ContextProcessor::serialize(context::SCommon& ctx)
+{
+    if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
+        return Status::ErrorNotSupportedProtocolVersion;
+    else if (ctx.isEndiannessNotMatch() && !ctx.endiannessDifference())
+        return Status::ErrorNotCompatibleCommonFlagsSettings;
+
+    return serializeNoChecks(ctx);
+}
+
+constexpr Status ContextProcessor::serializeNoChecks(context::SCommon& ctx)
 {
     // Common context is always in little-endiann format.
     // CommonFlags should have no impact here.
@@ -51,17 +74,7 @@ inline Status serializeCommonContextNoChecks(context::SCommon& ctx)
     return Status::NoError;
 }
 
-constexpr Status serializeCommonContext(context::SCommon& ctx)
-{
-    if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
-        return Status::ErrorNotSupportedProtocolVersion;
-    else if (ctx.isEndiannessNotMatch() && !ctx.endiannessDifference())
-        return Status::ErrorNotCompatibleCommonFlagsSettings;
-
-    return serializeCommonContextNoChecks(ctx);
-}
-
-inline Status deserializeCommonContext(context::DCommon& ctx)
+constexpr Status ContextProcessor::deserialize(context::DCommon& ctx) noexcept
 {
     // Common context is always in little-endiann format.
     // CommonFlags should have no impact here.
@@ -90,7 +103,7 @@ inline Status deserializeCommonContext(context::DCommon& ctx)
     return Status::NoError;
 }
 
-inline Status deserializeCommonContextNoChecks(context::DCommon& ctx)
+constexpr Status ContextProcessor::deserializeNoChecks(context::DCommon& ctx) noexcept
 {
     // Common context must always be deserialized by the same rules
     // no matter of CommonFlags impact - it must always be in little-endian format
@@ -115,20 +128,4 @@ inline Status deserializeCommonContextNoChecks(context::DCommon& ctx)
     return Status::NoError;
 }
 
-
-
-constexpr Status serializeStatusContext(context::SCommon& ctx, Status statusOut)
-{
-    CS_RUN(writePrimitive(statusOut, ctx));
-
-    return Status::NoError;
-}
-
-constexpr Status deserializeStatusContext(context::DCommon& ctx, Status& statusOut)
-{
-    CS_RUN(readPrimitive(ctx, statusOut));
-
-    return Status::NoError;
-}
-
-} // namespace common_serialization::csp::processing
+} // namespace common_serialization::csp::processing::common

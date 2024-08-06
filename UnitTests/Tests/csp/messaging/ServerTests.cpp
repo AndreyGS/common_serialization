@@ -121,10 +121,10 @@ TEST_F(ServerTests, HandleMessageErrorInCommonContextDeserialize)
 
     DData ctxOut(binOutput);
     Status statusOut{ Status::NoError };
-    EXPECT_EQ(processing::deserializeCommonContext(ctxOut), Status::NoError);
+    EXPECT_EQ(processing::common::ContextProcessor::deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(ctxOut.getMessageType(), Message::Status);
     
-    EXPECT_EQ(processing::deserializeStatusContext(ctxOut, statusOut), Status::NoError);
+    EXPECT_EQ(processing::status::ContextProcessor::deserialize(ctxOut, statusOut), Status::NoError);
     EXPECT_EQ(statusOut, Status::ErrorOverflow);
 }
 
@@ -133,21 +133,21 @@ TEST_F(ServerTests, HandleMessageProcessErrorNotSupportedProtocolVersion)
     init(getValidCspPartySettings());
     BinWalkerT binInput;
     SCommon ctxIn(binInput.getVector(), traits::kProtocolVersionUndefined);
-    processing::serializeCommonContextNoChecks(ctxIn);
+    processing::common::ContextProcessor::serializeNoChecks(ctxIn);
     BinWalkerT binOutput;
 
     EXPECT_EQ(m_server.handleMessage(binInput, m_clientId, binOutput.getVector()), Status::NoError);
 
     DData ctxOut(binOutput);
     Status statusOut{ Status::NoError };
-    EXPECT_EQ(processing::deserializeCommonContextNoChecks(ctxOut), Status::NoError);
+    EXPECT_EQ(processing::common::ContextProcessor::deserializeNoChecks(ctxOut), Status::NoError);
     EXPECT_EQ(ctxOut.getMessageType(), Message::Status);
 
-    EXPECT_EQ(processing::deserializeStatusContext(ctxOut, statusOut), Status::NoError);
+    EXPECT_EQ(processing::status::ContextProcessor::deserialize(ctxOut, statusOut), Status::NoError);
     EXPECT_EQ(statusOut, Status::ErrorNotSupportedProtocolVersion);
 
     RawVectorT<protocol_version_t> protocolVersions;
-    EXPECT_EQ(processing::deserializeStatusErrorNotSupportedProtocolVersionBody(ctxOut, protocolVersions), Status::NoError);
+    EXPECT_EQ(processing::status::BodyProcessor::deserializeErrorNotSupportedProtocolVersion(ctxOut, protocolVersions), Status::NoError);
     EXPECT_EQ(protocolVersions, m_server.getSettings().getProtocolVersions());
 }
 
@@ -156,7 +156,7 @@ TEST_F(ServerTests, HandleMessageGetSettings)
     init(getValidCspPartySettings());
     BinWalkerT binInput;
     SCommon ctxIn(binInput.getVector(), getLatestProtocolVersion(), context::Message::GetSettings, {});
-    processing::serializeCommonContext(ctxIn);
+    processing::common::ContextProcessor::serialize(ctxIn);
     BinWalkerT binOutput;
 
     EXPECT_EQ(m_server.handleMessage(binInput, m_clientId, binOutput.getVector()), Status::NoError);
@@ -170,15 +170,15 @@ TEST_F(ServerTests, HandleMessageNotSupportedOne)
 {
     init(getValidCspPartySettings());
     BinWalkerT binInput;
-    processing::serializeStatusFullContext(binInput.getVector(), m_server.getSettings().getLatestProtocolVersion(), m_server.getSettings().getMandatoryCommonFlags(), Status::NoError);
+    processing::status::Helpers::serializeFullContext(binInput.getVector(), m_server.getSettings().getLatestProtocolVersion(), m_server.getSettings().getMandatoryCommonFlags(), Status::NoError);
     BinWalkerT binOutput;
 
     EXPECT_EQ(m_server.handleMessage(binInput, m_clientId, binOutput.getVector()), Status::ErrorDataCorrupted);
 
     DData ctxOut(binOutput);
-    processing::deserializeCommonContext(ctxOut);
+    processing::common::ContextProcessor::deserialize(ctxOut);
     Status statusOut{ Status::NoError };
-    processing::deserializeStatusContext(ctxOut, statusOut);
+    processing::status::ContextProcessor::deserialize(ctxOut, statusOut);
     EXPECT_EQ(statusOut, Status::ErrorDataCorrupted);
 }
 

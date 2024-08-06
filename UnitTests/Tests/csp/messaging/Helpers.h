@@ -128,7 +128,7 @@ BinVectorT getBinNotSupportedProtocolVersionsWithInvalidOutput()
     BinVectorT binOutput;
     RawVectorT<protocol_version_t> protocolVersions;
     protocolVersions.pushBack(kInvalidProtocolVersion);
-    processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, protocolVersions, {});
+    processing::status::Helpers::serializeErrorNotSupportedProtocolVersion(binOutput, protocolVersions, {});
 
     return binOutput;
 }
@@ -138,7 +138,7 @@ BinVectorT getBinNotSupportedProtocolVersionsWithValidOutput()
     BinVectorT binOutput;
     RawVectorT<protocol_version_t> protocolVersions;
     protocolVersions.pushBackN(kProtocolVersions, getProtocolVersionsCount());
-    processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, protocolVersions, {});
+    processing::status::Helpers::serializeErrorNotSupportedProtocolVersion(binOutput, protocolVersions, {});
 
     return binOutput;
 }
@@ -147,7 +147,7 @@ BinVectorT getBinNotSupportedProtocolVersionsWithExtraOutput()
 {
     BinVectorT binOutput;
     RawVectorT<protocol_version_t> protocolVersions = getExtendedProtocolVersionsList();
-    processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, protocolVersions, {});
+    processing::status::Helpers::serializeErrorNotSupportedProtocolVersion(binOutput, protocolVersions, {});
 
     return binOutput;
 }
@@ -175,7 +175,7 @@ BinVectorT getBinSettingsWithForbiddenAnotherEndianness()
 BinVectorT getBinNotSupportedInterfaceVersionValid(const Id& id, interface_version_t minimumInterfaceVersion)
 {
     BinVectorT binOutput;
-    processing::serializeStatusErrorNotSupportedInterfaceVersion(getLatestProtocolVersion(), {}, minimumInterfaceVersion, id, binOutput);
+    processing::status::Helpers::serializeErrorNotSupportedInterfaceVersion(getLatestProtocolVersion(), {}, minimumInterfaceVersion, id, binOutput);
 
     return binOutput;
 }

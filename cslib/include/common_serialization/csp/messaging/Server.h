@@ -23,12 +23,13 @@
 
 #pragma once
 
-#include <common_serialization/csp/context/Data.h>
 #include <common_serialization/csp/messaging/IServerDataHandlerRegistrar.h>
 #include <common_serialization/csp/messaging/IServerDataHandlerBase.h>
 #include <common_serialization/csp/messaging/service_structs/Interface.h>
+#include <common_serialization/csp/processing/common/ContextProcessor.h>
 #include <common_serialization/csp/processing/data/BodyProcessor.h>
 #include <common_serialization/csp/processing/data/ContextProcessor.h>
+#include <common_serialization/csp/processing/status/Helpers.h>
 
 namespace common_serialization::csp::messaging
 {
@@ -145,14 +146,14 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
     Status status{ Status::NoError };
     context::DCommon ctx(binInput, m_settings.getOldestProtocolVersion());
 
-    if (statusSuccess(status = processing::deserializeCommonContext(ctx)))
+    if (statusSuccess(status = processing::common::ContextProcessor::deserialize(ctx)))
         switch (ctx.getMessageType())
         {
         case context::Message::GetSettings:
             status = handleGetSettings(ctx.getProtocolVersion(), binOutput);
             break;
         case context::Message::Data:
-            status = processing::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_settings.getForbiddenCommonFlags(), m_settings.getMandatoryCommonFlags());
+            status = processing::common::ContextProcessor::testCommonFlagsCompatibility(ctx.getCommonFlags(), m_settings.getForbiddenCommonFlags(), m_settings.getMandatoryCommonFlags());
             if (statusSuccess(status))
                 status = handleData(ctx, clientId, binOutput);
             break;
@@ -161,10 +162,10 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
             break;
         }
     else if (status == Status::ErrorNotSupportedProtocolVersion)
-        status = processing::serializeStatusErrorNotSupportedProtocolVersion(binOutput, m_settings.getProtocolVersions(), m_settings.getMandatoryCommonFlags());
+        status = processing::status::Helpers::serializeErrorNotSupportedProtocolVersion(binOutput, m_settings.getProtocolVersions(), m_settings.getMandatoryCommonFlags());
 
     if (binOutput.size() == 0)
-        CS_SET_NEW_ERROR(processing::serializeStatusFullContext(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), status));
+        CS_SET_NEW_ERROR(processing::status::Helpers::serializeFullContext(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), status));
 
     return status;
 }

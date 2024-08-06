@@ -34,7 +34,7 @@ class ContextProcessor
 {
 public:
     template<typename _T>
-    static [[nodiscard]] CS_ALWAYS_INLINE constexpr Status testDataFlagsCompatibility(context::DataFlags dataFlags);
+    static CS_ALWAYS_INLINE constexpr [[nodiscard]] Status testDataFlagsCompatibility(context::DataFlags dataFlags);
 
     // This function does not check presence of pointer map.
     // It is library code responsibility to provide it if it is absent.
@@ -51,7 +51,7 @@ public:
 };
 
 template<typename _T>
-[[nodiscard]] CS_ALWAYS_INLINE constexpr Status ContextProcessor::testDataFlagsCompatibility(context::DataFlags dataFlags)
+constexpr [[nodiscard]] Status ContextProcessor::testDataFlagsCompatibility(context::DataFlags dataFlags)
 {
     if constexpr (!StructHaveDataFlags<_T>)
         return Status::NoError;
@@ -132,7 +132,7 @@ constexpr Status ContextProcessor::deserializeNoChecks(context::DData& ctx, Id& 
 }
 
 template<ISerializableImpl _T>
-CS_ALWAYS_INLINE constexpr Status ContextProcessor::deserializePostprocessId(const Id& id) noexcept
+constexpr Status ContextProcessor::deserializePostprocessId(const Id& id) noexcept
 {
     Id tUuid = _T::getId();
     return tUuid == id ? Status::NoError : Status::ErrorMismatchOfStructId;

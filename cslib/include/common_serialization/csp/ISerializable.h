@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <common_serialization/csp/processing/Contexts.h>
+#include <common_serialization/csp/processing/common/ContextProcessor.h>
 #include <common_serialization/csp/processing/data/BodyProcessor.h>
 #include <common_serialization/csp/processing/data/ContextProcessor.h>
 
@@ -159,7 +159,7 @@ constexpr Status ISerializable<T>::serialize(context::SData& ctx) const
     if (ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined)
         ctx.setInterfaceVersion(this->getLatestInterfaceVersion());
 
-    CS_RUN(processing::serializeCommonContext(ctx));
+    CS_RUN(processing::common::ContextProcessor::serialize(ctx));
     CS_RUN(processing::data::ContextProcessor::serialize<T>(ctx));
 
     // If user is not supplied pointers map we need to use temporary one
@@ -184,7 +184,7 @@ CS_ALWAYS_INLINE constexpr Status ISerializable<T>::deserialize(BinWalkerT& inpu
 template<typename T>
 constexpr Status ISerializable<T>::deserialize(context::DData& ctx)
 {
-    CS_RUN(processing::deserializeCommonContext(ctx));
+    CS_RUN(processing::common::ContextProcessor::deserialize(ctx));
 
     Id id;
     uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? this->getOriginPrivateVersion() : ctx.getInterfaceVersion();
