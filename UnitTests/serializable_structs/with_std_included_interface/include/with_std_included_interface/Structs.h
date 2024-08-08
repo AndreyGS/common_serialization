@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/serializable_structs/with_std_included_interface/include/with_std_included_interface/Structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,30 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+namespace with_std_included_interface
+{
 
-#include <common_serialization/memory_management/memory_management.h>
+template<typename T = cs::Dummy>
+class OneBigType : public cs::csp::ISerializable<cs::GetCrtpMainType<OneBigType<>, T>>
+{
+public:
+    using instance_type = cs::GetCrtpMainType<OneBigType<>, T>;
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+    static constexpr cs::csp::Id kId{ 0x93f1547d, 0xeebd, 0x4281, 0x9f64, 0xd23008e2c0b3 };
+    static constexpr cs::csp::interface_version_t kInterfaceVersion = 0;
+    static constexpr cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const cs::csp::Interface& getInterface() noexcept { return properties; }
 
+    [[nodiscard]] auto operator<=>(const OneBigType&) const = default;
+
+    std::string m_string1;
+    std::wstring m_string2;
+    std::vector<std::string> m_vector1;
+    std::vector<uint32_t> m_vector2;
+    std::map<uint8_t, float> m_map1;
+    std::map<std::string, std::vector<uint8_t>> m_map2;
+    std::tuple<uint8_t, int64_t, std::string> m_tuple1;
+    std::tuple<double> m_tuple2;
+};
+
+} // namespace with_std_included_interface

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/csp_base/processing/data/TemplateProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,31 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+#include <common_serialization/csp_base/context/Data.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization::csp::processing::data
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+template<template<typename...> typename _T, typename... _Ts>
+class TemplateProcessor
+{
+public:
+    static Status serialize(const _T<_Ts...>& value, context::SData& ctx);
+    static Status deserialize(context::DData& ctx, _T<_Ts...>& value);
+};
 
+
+template<template<typename...> typename _T, typename... _Ts>
+CS_ALWAYS_INLINE Status templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx)
+{
+    return TemplateProcessor<_T, _Ts...>::serialize(value, ctx);
+}
+
+
+template<template<typename...> typename _T, typename... _Ts>
+CS_ALWAYS_INLINE Status templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value)
+{
+    return TemplateProcessor<_T, _Ts...>::deserialize(ctx, value);
+}
+
+} // namespace common_serialization::csp::processing::data

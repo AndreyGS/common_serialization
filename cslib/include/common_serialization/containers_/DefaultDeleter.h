@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/containers_/DefaultDeleter.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -25,13 +25,41 @@
 
 #include <common_serialization/common_/common.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+template<typename _T>
+struct DefaultDeleter
+{
+    constexpr DefaultDeleter() noexcept = default;
 
+    template<typename _T2>
+        requires std::is_convertible_v<_T2*, _T*>
+    constexpr DefaultDeleter(const DefaultDeleter<_T2>&) noexcept {}
+
+    constexpr void operator()(_T* p) const noexcept
+    {
+        static_assert(0 < sizeof(_T), "Incomplete types are not allowed to be deleted");
+        delete p;
+    }
+};
+
+template<typename _T>
+struct DefaultDeleter<_T[]>
+{
+    constexpr DefaultDeleter() noexcept = default;
+
+    template<typename _T2>
+        requires std::is_convertible_v<_T2*, _T*>
+    constexpr DefaultDeleter(const DefaultDeleter<_T2[]>&) noexcept {}
+
+    template<typename _T2>
+        requires std::is_convertible_v<_T2*, _T*>
+    constexpr void operator()(_T2* p) const noexcept
+    {
+        static_assert(0 < sizeof(_T2), "Incomplete types are not allowed to be deleted");
+        delete[] p;
+    }
+};
+
+} // namespace common_serialization

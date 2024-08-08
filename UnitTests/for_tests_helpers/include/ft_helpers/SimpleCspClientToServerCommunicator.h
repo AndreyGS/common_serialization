@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/for_tests_helpers/include/ft_helpers/SimpleCspClientToServerCommunicator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,36 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+namespace ft_helpers
+{
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace cs = common_serialization;
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+class SimpleCspClientToServerCommunicator : public cs::csp::messaging::IClientToServerCommunicator
+{
+public:
+    SimpleCspClientToServerCommunicator(cs::csp::messaging::Server& server) : m_server(server) {}
+
+    void setValidState(bool isValid)
+    {
+        m_isValid = isValid;
+    }
+
+private:
+    // This function must transfer data from client to server.
+    // Way by which it will be done is up to concrete client realization.
+    // Here we do not need to overcomplicate things and we simply calling csp::messaging::Server::handleMessage.
+    cs::Status process(const cs::BinVectorT& input, cs::BinVectorT& output) override
+    {
+        cs::BinWalkerT inputW;
+        inputW.init(input);
+
+        return m_server.handleMessage(inputW, cs::GenericPointerKeeper{}, output);
+    }
+
+    cs::csp::messaging::Server& m_server;
+    bool m_isValid{ true };
+};
+
+} // namespace ft_helpers
 

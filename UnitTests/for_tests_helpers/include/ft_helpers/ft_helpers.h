@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/for_tests_helpers/include/ft_helpers/ft_helpers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,15 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+#include <common_serialization/common_serialization.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+#include <restricted_structs/NotInterface.h>
+#include <interface_for_test/Interface.h>
+#include <descendant_interface/Interface.h>
+#include <another_yet_interface/Interface.h>
+#include <with_std_included_interface/Interface.h>
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
-
+#include <ft_helpers/FillingStruct.h>
+#include <ft_helpers/CleanAfterStruct.h>
+#include <ft_helpers/SimpleCspClientToServerCommunicator.h>
+#include <ft_helpers/SimpleCspServices.h>

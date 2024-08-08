@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/serializable_structs/with_std_included_interface/src/Generated/Serialize.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,17 +21,26 @@
  *
  */
 
-#pragma once
+#include <with_std_included_interface/Interface.h>
 
-#include <common_serialization/common_/common.h>
+namespace common_serialization::csp::processing::data
+{
 
-#include <common_serialization/memory_management/memory_management.h>
+template<>
+Status BodyProcessor::serialize(const with_std_included_interface::OneBigType<>& value, context::SData& ctx)
+{
+    CSP_SERIALIZE_COMMON(value, ctx);
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+    CS_RUN(serialize(value.m_string1, ctx));
+    CS_RUN(serialize(value.m_string2, ctx));
+    CS_RUN(serialize(value.m_vector1, ctx));
+    CS_RUN(serialize(value.m_vector2, ctx));
+    CS_RUN(serialize(value.m_map1, ctx));
+    CS_RUN(serialize(value.m_map2, ctx));
+    CS_RUN(serialize(value.m_tuple1, ctx));
+    CS_RUN(serialize(value.m_tuple2, ctx));
 
+    return Status::NoError;
+}
+
+} // namespace common_serialization::csp::processing::data

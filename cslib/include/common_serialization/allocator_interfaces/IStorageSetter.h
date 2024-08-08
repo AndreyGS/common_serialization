@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/allocator_interfaces/IStorageSetter.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -20,18 +20,33 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-
 #pragma once
 
 #include <common_serialization/common_/common.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+/// @brief Interface of Allocator
+/// @tparam _Setter Most derived class (instance type)
+template<typename _Setter>
+class IStorageSetter
+{
+public:
+    /// @brief Set storage
+    /// @tparam _P Ponter type of storage
+    /// @param p Pointer to storage
+    /// @param size Size of storage in type units
+    /// @returns True if successful, false otherwise
+    template<typename _P>
+        requires (std::is_pointer_v<_P> || std::is_same_v<_P, decltype(nullptr)>)
+    CS_ALWAYS_INLINE constexpr bool setStorage(_P p, size_t size) noexcept
+    {
+        return static_cast<_Setter*>(this)->setStorageImpl(p, size);
+    }
+};
 
+template<typename _Setter>
+concept IStorageSetterImpl = std::is_base_of_v<IStorageSetter<normalize_t<_Setter>>, normalize_t<_Setter>>;
+
+} // namespace common_serialization

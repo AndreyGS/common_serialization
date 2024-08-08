@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/serializable_structs/another_yet_interface/include/another_yet_interface/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,20 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+namespace another_yet_interface
+{
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace cs = common_serialization;
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+constexpr cs::csp::Interface properties(
+      cs::Uuid{ 0xf7cbb63c, 0x2a5d, 0x44eb, 0x80fc, 0x591bd08941e2 }
+    , 0
+    , cs::csp::context::DataFlags{}
+    , cs::csp::context::DataFlags(cs::csp::context::DataFlags::kAllowUnmanagedPointers | cs::csp::context::DataFlags::kCheckRecursivePointers)
+);
 
+} // namespace another_yet_interface
+
+#include <another_yet_interface/Structs.h>
+#include <another_yet_interface/processing/Generated/Serialize.h>
+#include <another_yet_interface/processing/Generated/Deserialize.h>

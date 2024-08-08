@@ -9,40 +9,40 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_subdirectory(ForTestsHelpers)
-add_subdirectory(SerializableStructs)
+add_subdirectory(for_tests_helpers)
+add_subdirectory(serializable_structs)
 
-add_executable(containers_tests "Tests/Containers/VectorTests.cpp" "Tests/Containers/WalkerTests.cpp" "Tests/Containers/UniquePtrTests.cpp")
+add_executable(containers_tests "tests_/containers_/VectorTests.cpp" "tests_/containers_/WalkerTests.cpp" "tests_/containers_/UniquePtrTests.cpp")
 target_compile_definitions(containers_tests PRIVATE USER_MODE)
-target_link_libraries(containers_tests PRIVATE cslib ForTestsHelpers PRIVATE gtest_main)
+target_link_libraries(containers_tests PRIVATE cslib for_tests_helpers PRIVATE gtest_main)
 target_include_directories(containers_tests PRIVATE "${PROJECT_SOURCE_DIR}")
-target_precompile_headers(containers_tests PRIVATE "Tests/Containers/pch.h")
+target_precompile_headers(containers_tests PRIVATE "tests_/containers_/pch.h")
 
-add_executable(allocators_tests "Tests/Allocators/RawKeeperAllocatorTests.cpp" "Tests/Allocators/RawNoexceptAllocatorTests.cpp" "Tests/Allocators/ConstructorNoexceptAllocatorTests.cpp")
+add_executable(allocators_tests "tests_/allocators_/RawKeeperAllocatorTests.cpp" "tests_/allocators_/RawNoexceptAllocatorTests.cpp" "tests_/allocators_/ConstructorNoexceptAllocatorTests.cpp")
 target_compile_definitions(allocators_tests PRIVATE USER_MODE)
-target_link_libraries(allocators_tests PRIVATE cslib ForTestsHelpers PRIVATE gtest_main)
+target_link_libraries(allocators_tests PRIVATE cslib for_tests_helpers PRIVATE gtest_main)
 target_include_directories(allocators_tests PRIVATE "${PROJECT_SOURCE_DIR}")
-target_precompile_headers(allocators_tests PRIVATE "Tests/Allocators/pch.h")
+target_precompile_headers(allocators_tests PRIVATE "tests_/allocators_/pch.h")
 
 add_executable(csp_tests
-    "Tests/csp/processing/ISerializableAlignmentMayBeNotEqualTests.cpp"
-    "Tests/csp/processing/ISerializableAllowUnmanagedPointersTests.cpp"
-    "Tests/csp/processing/ISerializableBasicModeTests.cpp"
-    "Tests/csp/processing/ISerializableCheckRecursivePointersTests.cpp"
-    "Tests/csp/processing/ISerializableInterfaceVersionsNotMatchTests.cpp"
-    "Tests/csp/processing/ISerializableMultiModesTests.cpp"
-    "Tests/csp/processing/ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
-    "Tests/csp/processing/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
-    "Tests/csp/processing/StdIncludedTests.cpp"
-    "Tests/csp/processing/ISerializableAnotherEndianness.cpp" 
-    "Tests/csp/processing/ISerializableAnotherBitness.cpp"
-    "Tests/csp/messaging/MessagingTests.cpp"
-    "Tests/csp/messaging/ClientTests.cpp"
-    "Tests/csp/messaging/ServerTests.cpp"
-    "Tests/csp/processing/ProfillingTests.cpp" 
+    "tests_/csp/processing/ISerializableAlignmentMayBeNotEqualTests.cpp"
+    "tests_/csp/processing/ISerializableAllowUnmanagedPointersTests.cpp"
+    "tests_/csp/processing/ISerializableBasicModeTests.cpp"
+    "tests_/csp/processing/ISerializableCheckRecursivePointersTests.cpp"
+    "tests_/csp/processing/ISerializableInterfaceVersionsNotMatchTests.cpp"
+    "tests_/csp/processing/ISerializableMultiModesTests.cpp"
+    "tests_/csp/processing/ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
+    "tests_/csp/processing/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
+    "tests_/csp/processing/StdIncludedTests.cpp"
+    "tests_/csp/processing/ISerializableAnotherEndianness.cpp" 
+    "tests_/csp/processing/ISerializableAnotherBitness.cpp"
+    "tests_/csp/messaging/MessagingTests.cpp"
+    "tests_/csp/messaging/ClientTests.cpp"
+    "tests_/csp/messaging/ServerTests.cpp"
+    "tests_/csp/processing/ProfillingTests.cpp" 
     )
 
 target_compile_definitions(csp_tests PRIVATE USER_MODE)
-target_link_libraries(csp_tests PRIVATE cslib ForTestsHelpers SerializableStructs gtest_main gmock_main)
+target_link_libraries(csp_tests PRIVATE cslib for_tests_helpers serializable_structs gtest_main gmock_main)
 target_include_directories(csp_tests PRIVATE "${PROJECT_SOURCE_DIR}")
-target_precompile_headers(csp_tests PRIVATE "Tests/csp/pch.h")
+target_precompile_headers(csp_tests PRIVATE "tests_/csp/pch.h")

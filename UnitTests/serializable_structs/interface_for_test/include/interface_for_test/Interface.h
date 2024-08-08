@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/serializable_structs/interface_for_test/include/interface_for_test/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,31 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+#include <restricted_structs/NotInterface.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace interface_for_test
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+namespace cs = common_serialization;
 
+constexpr cs::csp::Interface properties(
+      cs::Uuid{ 0xa1cfd12a, 0x22b2, 0x49d3, 0x8575, 0x02342a630145 }
+    , 3
+    , cs::csp::context::DataFlags{}
+    , cs::csp::context::DataFlags{}
+);
+
+} // namespace interface_for_test
+
+#include <interface_for_test/Structs.h>
+#include <interface_for_test/StructsLegacy.h>
+
+#include <interface_for_test/processing/Generated/Serialize.h>
+#include <interface_for_test/processing/Generated/SerializeLegacy.h>
+#include <interface_for_test/processing/Generated/Deserialize.h>
+#include <interface_for_test/processing/Generated/DeserializeLegacy.h>
+
+#include <interface_for_test/processing/Generated/ConvertToOldStruct.h>
+#include <interface_for_test/processing/Generated/ConvertFromOldStruct.h>
+
+#include <interface_for_test/processing/data/TemplateProcessor.h>

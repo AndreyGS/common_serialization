@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/csp_restricted_structs_processing/Others/Deserialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,41 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+#include <common_serialization/csp_base/traits_.h>
+#include <common_serialization/csp_base/processing/data/BodyProcessor.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization::csp::processing::data
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
+{
+    CS_RUN(deserialize(ctx, value.id));
 
+    return Status::NoError;
+}
+
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, context::DataFlags& value)
+{
+    uint32_t dataFlags{ 0 };
+    CS_RUN(deserialize(ctx, dataFlags));
+    value = dataFlags;
+
+    return Status::NoError;
+}
+
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, Interface& value)
+{
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)
+
+    CS_RUN(deserialize(ctx, value.id));
+    CS_RUN(deserialize(ctx, value.version));
+    CS_RUN(deserialize(ctx, value.mandatoryDataFlags));
+    CS_RUN(deserialize(ctx, value.forbiddenDataFlags));
+
+    return Status::NoError;
+}
+
+} // namespace common_serialization::csp::processing::data

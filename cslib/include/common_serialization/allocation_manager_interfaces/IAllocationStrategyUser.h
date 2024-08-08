@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/allocation_manager_interfaces/IAllocationStrategyUser.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -25,13 +25,37 @@
 
 #include <common_serialization/common_/common.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+enum class AllocationStrategy
+{
+    StrictByDataSize,
+    DoubleOfDataSize
+};
 
+/// @brief Interface of user of allocation strategy (CRTP)
+/// @tparam _User Most derived class (instance type)
+template<typename _User>
+class IAllocationStrategyUser
+{
+public:
+    /// @brief Get current allocation strategy
+    /// @return Current allocation strategy
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr AllocationStrategy getAllocationStrategy() const noexcept
+    {
+        return static_cast<const _User*>(this)->getAllocationStrategyImpl();
+    }
+
+    /// @brief Set allocation strategy
+    /// @param allocationStrategy Allocation strategy
+    CS_ALWAYS_INLINE constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
+    {
+        static_cast<_User*>(this)->setAllocationStrategyImpl(allocationStrategy);
+    }
+};
+
+template<typename _User>
+concept IAllocationStrategyUserImpl = std::is_base_of_v<IAllocationStrategyUser<normalize_t<_User>>, normalize_t<_User>>;
+
+} // namespace common_serialization

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/serializable_structs/interface_for_test/include/interface_for_test/ISerializableForTestVersionsScheme.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,29 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+namespace special_types
+{
 
-#include <common_serialization/memory_management/memory_management.h>
+#pragma pack(push, 1)
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+struct ISerializableForTestVersionsScheme
+{
+    uint16_t minorV{ 0 };
+    uint16_t majorV{ 0 };
 
+    constexpr IForTestVersionsScheme() noexcept {}
+
+    constexpr explicit IForTestVersionsScheme(uint32_t value) noexcept
+    {
+        *static_cast<uint32_t*>(static_cast<void*>(this)) = value;
+    }
+
+    [[nodiscard]] constexpr explicit operator uint32_t() noexcept const
+    {
+        return *static_cast<const uint32_t*>(static_cast<const void*>(this));
+    }
+};
+
+#pragma pack(pop)
+
+} // namespace special_types

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/allocator_interfaces/IAllocatorTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -25,13 +25,28 @@
 
 #include <common_serialization/common_/common.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+template<typename _T, typename _ConstructorAllocator>
+struct IAllocatorTraits
+{
+    static_assert(std::is_trivially_copyable_v<_T> || _ConstructorAllocator::value);
 
+    using value_type = _T;
+    using pointer = value_type*;
+    using size_type = size_t;
+    using difference_type = ptrdiff_t;
+    using constructor_allocator = _ConstructorAllocator;
+};
+
+template<typename _T>
+concept IAllocatorTraitsImpl = std::is_base_of_v<IAllocatorTraits<typename _T::value_type, typename _T::constructor_allocator>, normalize_t<_T>>;
+
+template<typename _T>
+using RawAllocatorTraits = IAllocatorTraits<_T, std::false_type>;
+
+template<typename _T>
+using ConstructorAllocatorTraits = IAllocatorTraits<_T, std::true_type>;
+
+} // namespace common_serialization

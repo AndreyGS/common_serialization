@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/containers_/Concepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -25,13 +25,17 @@
 
 #include <common_serialization/common_/common.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+template<typename _T1, typename _D1, typename _T2, typename _D2>
+concept SmartPtrArrConvertible =std::is_convertible_v<_T2*, _T1*>
+                            && (std::is_reference_v<_D1> && std::is_same_v<_D2, _D1> || !std::is_reference_v<_D1> && std::is_convertible_v<_D2, _D1>)
+                            && (std::is_same_v<_T2, _T1> || std::has_virtual_destructor_v<_T1>);
 
+template<typename _T1, typename _D1, typename _T2, typename _D2>
+concept SmartPtrConvertible =   std::is_convertible_v<_T2*, _T1*>
+                            && (std::is_reference_v<_D1> && std::is_same_v<_D2, _D1> || !std::is_reference_v<_D1> && std::is_convertible_v<_D2, _D1>)
+                            && (std::is_same_v<_T2, _T1> || std::has_virtual_destructor_v<_T1> || HasDestroyingDeleteOp<_T1>);
+
+} // namespace common_serialization

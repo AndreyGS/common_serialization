@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/for_tests_helpers/include/ft_helpers/CleanAfterStruct.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,24 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+namespace ft_helpers
+{
 
-#include <common_serialization/memory_management/memory_management.h>
+// it shall be used only for input structs, that are filled with allocating heap memory
+// pointers of output structs are cleaned up with context::DeserializeExtendedPointersProcessing destructor
+template<typename T>
+void cleanAfterStruct(T& output)
+{ }
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+template<>
+void cleanAfterStruct(interface_for_test::SpecialProcessingType<>& output);
+template<>
+void cleanAfterStruct(interface_for_test::ManyPointersType<>& output);
+template<>
+void cleanAfterStruct(interface_for_test::SForAllModesTests_Version0<>& output);
+template<>
+void cleanAfterStruct(interface_for_test::SForAllModesTests_Version2<>& output);
+template<>
+void cleanAfterStruct(interface_for_test::DForAllModesTests<>& output);
 
+} // namespace ft_helpers

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/containers_/containers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,15 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+#include <common_serialization/allocation_manager_interfaces/allocation_manager_interface.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+#include <common_serialization/containers_/CompressedPair.h>
+#include <common_serialization/containers_/Concepts.h>
+#include <common_serialization/containers_/DefaultDeleter.h>
+#include <common_serialization/containers_/GenericPointerKeeper.h>
+#include <common_serialization/containers_/IteratorTagsDeclarations.h>
+#include <common_serialization/containers_/UniquePtr.h>
+#include <common_serialization/containers_/Vector.h>
+#include <common_serialization/containers_/Walker.h>
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
-
+#include <common_serialization/containers_/typedefs_.h>

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/memory_management_interfaces/IStorageAllocator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -20,18 +20,36 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-
 #pragma once
 
 #include <common_serialization/common_/common.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+/// @brief Interface for allocation of raw storage
+/// @tparam _PsAllocator Most derived class (instance type)
+template<typename _StorageAllocator>
+class IStorageAllocator
+{
+public:
+    /// @brief Allocate memory
+    /// @param dataSizeInBytes Requested size
+    /// @return Pointer to allocated storage
+    [[nodiscard]] CS_ALWAYS_INLINE void* allocate(size_t dataSizeInBytes) noexcept
+    {
+        return static_cast<_StorageAllocator*>(this)->allocateImpl(dataSizeInBytes);
+    }
 
+    /// @brief Deallocate memory
+    /// @param p Pointer to previously allocated storage
+    CS_ALWAYS_INLINE void deallocate(void* p) noexcept
+    {
+        static_cast<_StorageAllocator*>(this)->deallocateImpl(p);
+    }
+};
+
+template<typename _StorageAllocator>
+concept IStorageAllocatorImpl = std::is_base_of_v<IStorageAllocator<normalize_t<_StorageAllocator>>, normalize_t<_StorageAllocator>>;
+
+} // namespace common_serialization

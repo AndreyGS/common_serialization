@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/common_/common.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,32 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+#if !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
+#include <string.h>
+#include <cstdint>
+#include <cstdlib>
+#include <cassert>
+#include <concepts>
+#include <type_traits>
+#include <bit>
+#include <shared_mutex>
+#include <map>
+#include <unordered_map> 
+#include <semaphore>
+#include <latch>
+#include <atomic>
+#include <list>
+#include <iostream>
+#endif // !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
 
-#include <common_serialization/memory_management/memory_management.h>
+#include <common_serialization/common_/Status.h>
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+// if implementation wants to define own new shadowing functions
+// it should define CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION macro
+#if !defined CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
+#include <common_serialization/common_/std_equivalents.h>
+#endif // #ifndef CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION
 
+#include <common_serialization/common_/Uuid.h>
+#include <common_serialization/common_/Helpers.h>
+#include <common_serialization/common_/interfaces_/IIoProcessor.h>

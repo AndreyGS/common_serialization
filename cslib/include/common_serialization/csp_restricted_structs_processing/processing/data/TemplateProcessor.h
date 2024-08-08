@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file cslib/include/common_serialization/csp_restricted_structs_processing/Templates/Serialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,36 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+#include <common_serialization/csp_base/processing/data/BodyProcessor.h>
+#include <common_serialization/csp_base/processing/data/TemplateProcessor.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization::csp::processing::data
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+template<typename T, IAllocationManagerImpl A>
+class TemplateProcessor<Vector, T, A>
+{
+public:
+    static Status serialize(const Vector<T, A>& value, context::SData& ctx)
+    {
+        CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
+        CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
 
+        return Status::NoError;
+    }
+
+    static Status deserialize(context::DData& ctx, Vector<T, A>& value)
+    {
+        value.clear();
+
+        typename Vector<T, A>::size_type size = 0;
+        CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
+        CS_RUN(value.reserve(size));
+        CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
+        value.m_dataSize = size;
+
+        return Status::NoError;
+    }
+};
+
+} // namespace common_serialization::csp::processing::data

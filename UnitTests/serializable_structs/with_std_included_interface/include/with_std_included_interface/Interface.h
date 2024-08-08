@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/serializable_structs/with_std_included_interface/include/with_std_included_interface/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,25 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+#include <string>
+#include <vector>
+#include <map>
+#include <tuple>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace with_std_included_interface
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+namespace cs = common_serialization;
 
+constexpr cs::csp::Interface properties(
+    cs::Uuid{ 0x81ea8b21, 0xd3eb, 0x4e21, 0xa7f6, 0xab5f2449ce66 }
+    , 0
+    , cs::csp::context::DataFlags{}
+    , cs::csp::context::DataFlags{}
+);
+
+} // namespace with_std_included_interface
+
+#include <with_std_included_interface/Structs.h>
+#include <with_std_included_interface/processing/Generated/Serialize.h>
+#include <with_std_included_interface/processing/Generated/Deserialize.h>

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common_serialization.h
+ * @file UnitTests/serializable_structs/interface_for_test/include/interface_for_test/processing/TemplateProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,31 @@
 
 #pragma once
 
-#include <common_serialization/common_/common.h>
+#include <interface_for_test/Structs.h>
+#include <interface_for_test/StructsLegacy.h>
+#include <common_serialization/csp_base/processing/data/BodyProcessor.h>
+#include <common_serialization/csp_base/processing/data/TemplateProcessor.h>
 
-#include <common_serialization/memory_management/memory_management.h>
+namespace common_serialization::csp::processing::data
+{
 
-#include <common_serialization/allocators_/allocators.h>
-#include <common_serialization/allocation_managers/allocation_managers.h>
-#include <common_serialization/concurrency_/concurrency.h>
-#include <common_serialization/containers_/containers.h>
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_messaging/csp_messaging.h>
-#include <common_serialization/csp_restricted_structs_processing/processing/data/TemplateProcessor.h>
+template<typename _T>
+class TemplateProcessor<interface_for_test::BigStructs, _T>
+{
+public:
+    static Status serialize(const interface_for_test::BigStructs<_T>& value, context::SData& ctx)
+    {
+        CS_RUN(BodyProcessor::serialize(value.m_vector, ctx));
 
+        return Status::NoError;
+    }
+
+    static Status deserialize(context::DData& ctx, interface_for_test::BigStructs<_T>& value)
+    {
+        CS_RUN(BodyProcessor::deserialize(ctx, value.m_vector));
+
+        return Status::NoError;
+    }
+};
+
+} // namespace common_serialization::csp::processing::data
