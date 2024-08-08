@@ -161,9 +161,6 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
     static_assert(!(std::is_function_v<_T> || std::is_member_function_pointer_v<_T>)
         , "References and pointers on functions are not allowed to be serialized");
 
-    if constexpr (EmptyType<_T>)
-        return Status::NoError;
-
     if constexpr (std::is_arithmetic_v<_T> || std::is_enum_v<_T>)
     {
         if constexpr (!FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
@@ -188,10 +185,7 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
         else
         {
             if (value == nullptr)
-            {
-                CS_RUN(writePrimitive(uint8_t(0), ctx));
-                return Status::NoError;
-            }
+                return writePrimitive(uint8_t(0), ctx);
             else
                 CS_RUN(writePrimitive(uint8_t(1), ctx));
         }
@@ -200,9 +194,12 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
     }
     else if constexpr (AnySimplyAssignable<_T>)
         return serializeSimplyAssignable(value, ctx);
-    // we must implicitly use condition !EmptyType<_T> otherwise we get an error which states that processing::serialize not found 
-    else if constexpr (!EmptyType<_T>)
+    else if constexpr (EmptyType<_T>)
+        return Status::NoError;
+    else if constexpr (is_template_v<_T>)
         return templateProcessorSerializationWrapper(value, ctx);
+    else
+        static_assert("Type has no applicable function for serialization");
 }
 
 template<typename _T>
@@ -329,9 +326,6 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
     static_assert(!(std::is_function_v<_T> || std::is_member_function_pointer_v<_T>)
         , "References and pointers on functions are not allowed to be serialized");
 
-    if constexpr (EmptyType<_T>)
-        return Status::NoError;
-
     if constexpr (std::is_arithmetic_v<_T> || std::is_enum_v<_T>)
     {
         if constexpr (!FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
@@ -377,12 +371,14 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
 
         return deserialize(ctx, *value);
     }
-    // this will work for types that are not ISerializable
     else if constexpr (AnySimplyAssignable<_T>)
         return deserializeSimplyAssignable(ctx, value);
-    // we must implicitly use condition !EmptyType<_T> otherwise we get an error which states that processing::deserialize not found
-    else if constexpr (!EmptyType<_T>)
+    else if constexpr (EmptyType<_T>)
+        return Status::NoError;
+    else if constexpr (is_template_v<_T>)
         return templateProcessorDeserializationWrapper(ctx, value);
+    else
+        static_assert("Type has no applicable function for deserialization");
 }
 
 template<typename _T>

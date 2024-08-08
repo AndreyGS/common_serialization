@@ -47,9 +47,6 @@ concept InitableBySpecialClass = requires(_T t)
 };
 
 template<typename _T>
-using normalize_t = std::remove_cv_t<std::remove_reference_t<_T>>;
-
-template<typename _T>
 concept IsNotPointer = !(std::is_pointer_v<_T> || std::is_member_pointer_v<_T> || std::is_function_v<_T> || std::is_member_function_pointer_v<_T>);
 
 template<typename _T>
@@ -63,6 +60,5 @@ concept IsSigned
 
 template<typename _T>
 concept HasDestroyingDeleteOp = requires (_T t) { _T::operator delete(&t, std::destroying_delete_t{}); };
-
 
 } // namespace common_serialization
