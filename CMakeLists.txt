@@ -52,77 +52,8 @@ endif()
 
 option(COMMON_SERIALIZATION_BUILD_ALLOCATORS "Build allocators project" ON)
 
-if (COMMON_SERIALIZATION_BUILD_ALLOCATOR_INTERFACES)
-    add_subdirectory(allocator_interfaces)
-endif()
-
-# Allocation Manager Interfaces
-
-add_subdirectory(allocation_manager_interfaces)
-
-# Allocation Managers
-
-option(CS_CUSTOM_ALLOCATION_MANAGERS "Use custom Allocation Managers" OFF)
-option(CS_CUSTOM_ALLOCATION_MANAGERS_TYPEDEFS "Use custom Allocation Managers typedefs" OFF)
-
-if (CS_CUSTOM_ALLOCATION_MANAGERS AND NOT DEFINED CS_CUSTOM_ALLOCATION_MANAGERS_TYPEDEFS)
-    add_compile_definitions(CS_CUSTOM_ALLOCATION_MANAGERS_TYPEDEFS)
-endif()
-
-if (NOT CS_CUSTOM_ALLOCATION_MANAGERS)
-    add_subdirectory(allocation_managers)
-endif()
-
-# Containers
-
-option(CS_CUSTOM_CONTAINERS "Use custom Containers" OFF)
-option(CS_CUSTOM_CONTAINERS_TYPEDEFS "Use custom Containers typedefs" OFF)
-
-if (CS_CUSTOM_CONTAINERS AND NOT DEFINED CS_CUSTOM_CONTAINERS_TYPEDEFS)
-    add_compile_definitions(CS_CUSTOM_CONTAINERS_TYPEDEFS)
-endif()
-
-if (NOT CS_CUSTOM_CONTAINERS)
-    add_subdirectory(containers)
-endif()
-
-# Concurrency Interfaces
-
-add_subdirectory(concurrency_interfaces)
-
-# Concurrency
-
-option(CS_CUSTOM_CONCURRENCY "Use custom Concurrency types" OFF)
-option(CS_CUSTOM_CONCURENCY_TYPEDEFS "Use custom Concurrency typedefs" OFF)
-
-if (CS_CUSTOM_CONCURRENCY AND NOT DEFINED CS_CUSTOM_CONCURENCY_TYPEDEFS)
-    add_compile_definitions(CS_CUSTOM_CONCURENCY_TYPEDEFS)
-endif()
-
-if (NOT CS_CUSTOM_CONCURRENCY)
-    add_subdirectory(concurrency)
-endif()
-
-# Csp Base
-
-option(CS_CSP_BASE "Common Serialization Protocol base definition" ON)
-
-if (CS_CSP_BASE)
-    add_subdirectory(csp_base)
-endif()
-
-# Csp restricted structs processing
-
-option(CS_CSP_RESTRICTED_STRUCTS_PROCESSING "Processing of restricted types with Common Serialization Protocol" ON)
-
-if (CS_CSP_RESTRICTED_STRUCTS_PROCESSING)
-    add_subdirectory(csp_restricted_structs_processing)
-endif()
-
-# Csp Messaging
-
-option(CS_CSP_MESSAGING "Common Serialization Protocol Messaging definition" ON)
-
-if (CS_CSP_MESSAGING)
-    add_subdirectory(csp_messaging)
+if (COMMON_SERIALIZATION_BUILD_ALLOCATORS)
+    add_subdirectory(allocators)
+    set(ALLOCATORS_LIB_NAME "")
+    create_cs_allocators_lib(ALLOCATORS_LIB_NAME "")
 endif()

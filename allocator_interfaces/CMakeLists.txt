@@ -1,28 +1,31 @@
-project(common_serialization_allocator_interfaces)
+cmake_minimum_required(VERSION 3.26)
 
-add_library(common_serialization_allocator_interfaces_lib INTERFACE)
-add_library(common_serialization::allocator_interfaceslib ALIAS common_serialization_allocator_interfaces_lib)
+project(cs_allocator_interfaces)
 
-set(ALLOCATOR_INTERFACES_INCLUDE_DIR "include/common_serialization/allocator_interfaces")
-set(ALLOCATOR_INTERFACES_HEADERS
-    "${ALLOCATOR_INTERFACES_INCLUDE_DIR}/allocator_interface.h"
-    "${ALLOCATOR_INTERFACES_INCLUDE_DIR}/IAllocator.h"
-    "${ALLOCATOR_INTERFACES_INCLUDE_DIR}/IAllocatorTraits.h"
-    "${ALLOCATOR_INTERFACES_INCLUDE_DIR}/IStorageSetter.h"
+add_library(cs_allocator_interfaces_lib INTERFACE)
+add_library(cs::allocator_interfaces_lib ALIAS cs_allocator_interfaces_lib)
+
+set(SOURCE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+set(HEADERS_DIR "${SOURCE_INCLUDE_DIR}/common_serialization/allocator_interfaces")
+set(HEADERS
+    "${HEADERS_DIR}/allocator_interface.h"
+    "${HEADERS_DIR}/IAllocator.h"
+    "${HEADERS_DIR}/IAllocatorTraits.h"
+    "${HEADERS_DIR}/IStorageSetter.h"
 )
 
-target_sources(common_serialization_allocator_interfaces_lib
+target_sources(cs_allocator_interfaces_lib
     INTERFACE
-        ${ALLOCATOR_INTERFACES_HEADERS}
+        ${HEADERS}
 )
 
-target_include_directories(common_serialization_allocator_interfaces_lib
+target_include_directories(cs_allocator_interfaces_lib
     INTERFACE 
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<BUILD_INTERFACE:${SOURCE_INCLUDE_DIR}>
 )
 
-target_link_libraries(common_serialization_allocator_interfaces_lib
+target_link_libraries(cs_allocator_interfaces_lib
     INTERFACE
-        common_serialization::commonlib
+        cs::commonlib
 )

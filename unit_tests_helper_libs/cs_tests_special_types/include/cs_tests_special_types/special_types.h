@@ -28,9 +28,6 @@ namespace special_types
 
 namespace cs = common_serialization;
 
-template<typename T>
-using DefaultAllocationManager = cs::CtorStratAllocationManagerT<T>;
-
 class NoMoveConstructible
 {
 public:

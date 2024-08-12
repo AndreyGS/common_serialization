@@ -1,28 +1,29 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(common_serialization_memory_management_interfaces)
+project(cs_memory_management_interfaces)
 
-add_library(common_serialization_memory_management_interfaces_lib INTERFACE)
-add_library(common_serialization::memory_management_interfaceslib ALIAS common_serialization_memory_management_interfaces_lib)
+add_library(cs_memory_management_interfaces_lib INTERFACE)
+add_library(cs::memory_management_interfaces_lib ALIAS cs_memory_management_interfaces_lib)
 
-set(MEMORY_MANAGEMENT_INTERFACES_INCLUDE_DIR "include/common_serialization/memory_management_interfaces")
-set(MEMORY_MANAGEMENT_INTERFACES_HEADERS
-    "${MEMORY_MANAGEMENT_INTERFACES_INCLUDE_DIR}/IStorageAllocator.h"
-    "${MEMORY_MANAGEMENT_INTERFACES_INCLUDE_DIR}/memory_management_interfaces.h"
+set(SOURCE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+set(HEADERS_DIR "${SOURCE_INCLUDE_DIR}/common_serialization/memory_management_interfaces")
+set(HEADERS
+    "${HEADERS_DIR}/IStorageAllocator.h"
+    "${HEADERS_DIR}/memory_management_interfaces.h"
 )
 
-target_sources(common_serialization_memory_management_interfaces_lib
+target_sources(cs_memory_management_interfaces_lib
     INTERFACE
-        ${MEMORY_MANAGEMENT_INTERFACES_HEADERS}
+        ${HEADERS}
 )
 
-target_include_directories(common_serialization_memory_management_interfaces_lib
+target_include_directories(cs_memory_management_interfaces_lib
     INTERFACE 
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<BUILD_INTERFACE:${SOURCE_INCLUDE_DIR}>
 )
 
-target_link_libraries(common_serialization_memory_management_interfaces_lib
+target_link_libraries(cs_memory_management_interfaces_lib
     INTERFACE
-        common_serialization::commonlib
+        cs::commonlib
 )
