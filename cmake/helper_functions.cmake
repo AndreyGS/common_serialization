@@ -15,7 +15,7 @@ function(export_and_install_lib COMMON_CMAKE_DIR LIB_NAME LIB_VERSION)
     export(
         TARGETS ${LIB_NAME}
         NAMESPACE common_serialization::
-        FILE ${CMAKE_BINARY_DIR}/cmake/common_serialization/ags_common_serialization_${LIB_NAME}Targets.cmake
+        FILE ${CMAKE_BINARY_DIR}/cmake/common_serialization/${LIB_NAME}Targets.cmake
     )
 
     install(
@@ -26,7 +26,7 @@ function(export_and_install_lib COMMON_CMAKE_DIR LIB_NAME LIB_VERSION)
 
     install(
         EXPORT ${LIB_NAME}Targets
-        FILE ags_common_serialization_${LIB_NAME}Targets.cmake
+        FILE ${LIB_NAME}Targets.cmake
         NAMESPACE common_serialization::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/common_serialization
     )
@@ -34,7 +34,7 @@ function(export_and_install_lib COMMON_CMAKE_DIR LIB_NAME LIB_VERSION)
     include(CMakePackageConfigHelpers)
 
     write_basic_package_version_file(
-        ${CMAKE_BINARY_DIR}/cmake/common_serialization/ags_common_serialization_${LIB_NAME}ConfigVersion.cmake
+        ${CMAKE_BINARY_DIR}/cmake/common_serialization/${LIB_NAME}ConfigVersion.cmake
         VERSION ${LIB_VERSION}
         COMPATIBILITY AnyNewerVersion
     )
@@ -43,21 +43,21 @@ function(export_and_install_lib COMMON_CMAKE_DIR LIB_NAME LIB_VERSION)
 
     configure_package_config_file(
         ${TEMP_CONFIG_TEMPLATE}
-        ${CMAKE_BINARY_DIR}/cmake/common_serialization/ags_common_serialization_${LIB_NAME}Config.cmake
+        ${CMAKE_BINARY_DIR}/cmake/common_serialization/${LIB_NAME}Config.cmake
         INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/common_serialization
     )
 
     file(REMOVE ${TEMP_CONFIG_TEMPLATE})
 
     install(FILES
-        ${CMAKE_BINARY_DIR}/cmake/common_serialization/ags_common_serialization_${LIB_NAME}Config.cmake
-        ${CMAKE_BINARY_DIR}/cmake/common_serialization/ags_common_serialization_${LIB_NAME}ConfigVersion.cmake
+        ${CMAKE_BINARY_DIR}/cmake/common_serialization/${LIB_NAME}Config.cmake
+        ${CMAKE_BINARY_DIR}/cmake/common_serialization/${LIB_NAME}ConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/common_serialization
     )
 endfunction()
 
 function(update_lib_name_with_customized_names LIB_NAME CUSTOM_DEPENDENCY_LIB_NAME CUSTOM_DEPENDENCY_ALIAS CUSTOM_TYPEDEFS_HEADER_PATH CUSTOM_TYPEDEFS_ALIAS)
-    set(NOTE_CUSTOMIZED_LIB_NAME "Note: if there is more than one custom dependency name of building library maybe already customized with another dependencies.")
+    set(NOTE_CUSTOMIZED_LIB_NAME "Note: if there is more than one custom dependency, name of building library maybe already customized with another dependencies.")
 
     if (       "${CUSTOM_DEPENDENCY_LIB_NAME}" STREQUAL "" AND NOT "${CUSTOM_DEPENDENCY_ALIAS}" STREQUAL ""
         OR NOT "${CUSTOM_DEPENDENCY_LIB_NAME}" STREQUAL "" AND     "${CUSTOM_DEPENDENCY_ALIAS}" STREQUAL ""
@@ -81,33 +81,73 @@ function(update_lib_name_with_customized_names LIB_NAME CUSTOM_DEPENDENCY_LIB_NA
             ${NOTE_CUSTOMIZED_LIB_NAME}")
     endif()
 
-    set(CUSTOMIZED "customized")
-    set(FORBIDDEN_CHARS_REGEX "[^a-zA-Z0-9]")
-    set(FORBIDDEN_CHARS_SUBSTITUTION "\_")
+    set(DELIMITER "_x_")
 
     if (NOT "${CUSTOM_DEPENDENCY_ALIAS}" STREQUAL "")
-        string(REGEX REPLACE "${FORBIDDEN_CHARS_REGEX}" "${FORBIDDEN_CHARS_SUBSTITUTION}" CUSTOM_DEPENDENCY_ALIAS ${CUSTOM_DEPENDENCY_ALIAS})
-
-        set(I -1)
-        string(FIND ${LIB_NAME} ${CUSTOMIZED} I)
-        if (I EQUAL -1)
-            string(APPEND LIB_NAME "_and_${CUSTOM_DEPENDENCY_ALIAS}_lib")
-        else()
-            string(APPEND LIB_NAME "_customized_with_${TYPEDEFS_ALIAS}_lib")
-        endif()
+        string(APPEND LIB_NAME "${DELIMITER}${CUSTOM_DEPENDENCY_ALIAS}")
     endif()
 
     if (NOT "${CUSTOM_TYPEDEFS_ALIAS}" STREQUAL "")
-        string(REGEX REPLACE "${FORBIDDEN_CHARS_REGEX}" "${FORBIDDEN_CHARS_SUBSTITUTION}" CUSTOM_TYPEDEFS_ALIAS ${CUSTOM_TYPEDEFS_ALIAS})
-
-        set(I -1)
-        string(FIND ${LIB_NAME} ${CUSTOMIZED} I)
-        if (I EQUAL -1)
-            string(APPEND LIB_NAME "_and_${CUSTOM_TYPEDEFS_ALIAS}_typedefs")
-        else()
-            string(APPEND LIB_NAME "_customized_with_${CUSTOM_TYPEDEFS_ALIAS}_typedefs")
-        endif()
+        string(APPEND LIB_NAME "${DELIMITER}${CUSTOM_TYPEDEFS_ALIAS}")
     endif()
 
     set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
 endfunction()
+
+macro(ags_cs_add_interface_lib UNQUALIFIED_LIB_NAME)
+    
+    list(LENGTH DEPENDENCIES NUM_ELEMENTS)
+    set(DEPENDENCIES_NAMES)
+
+    set(I 0)
+    while (I LESS ${NUM_ELEMENTS})
+        math(EXPR NAME_INDEX "2 * ${I}")
+        math(EXPR VERSION_INDEX "2 * ${I} + 1")
+
+        list(GET DEPENDENCIES ${NAME_INDEX} DEPENDECY_NAME)
+        list(GET DEPENDENCIES ${VERSION_INDEX} DEPENDENCY_VERSION)
+
+        if (NOT TARGET "${DEPENDECY_NAME}")
+            string(REPLACE "ags_common_serialization::" "ags_cs_" DEPENDECY_NAME "${DEPENDECY_NAME}")
+            find_package(${DEPENDECY_NAME} ${DEPENDENCY_VERSION} REQUIRED)
+        endif()
+
+        list(APPEND DEPENDENCIES_NAMES "${DEPENDECY_NAME}")
+        message(WARNING "xxx ${DEPENDECY_NAME} ${DEPENDENCY_VERSION}")
+        math(EXPR I "${I} + 2")
+    endwhile()
+    
+
+    set(LIB_NAME "ags_cs_${UNQUALIFIED_LIB_NAME}")
+
+    add_library(${LIB_NAME} INTERFACE)
+    add_library(ags_common_serialization::${UNQUALIFIED_LIB_NAME} ALIAS ${LIB_NAME})
+
+    target_sources(${LIB_NAME}
+        INTERFACE
+            FILE_SET HEADERS
+            BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            FILES
+                ${HEADERS}
+    )
+
+    target_include_directories(${LIB_NAME}
+        INTERFACE 
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>
+    )
+
+    target_compile_features(${LIB_NAME} INTERFACE cxx_std_20)
+    target_compile_definitions(${LIB_NAME} INTERFACE _HAS_CXX20)
+
+    if (NOT ${DEPENDENCIES_NAMES} STREQUAL "")
+        target_link_libraries(${LIB_NAME}
+            INTERFACE
+                ${DEPENDENCIES_NAMES}
+        )
+    endif()
+
+    include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
+    export_and_install_lib("${CMAKE_CURRENT_SOURCE_DIR}/../cmake" "${LIB_NAME}" ${PROJECT_VERSION})
+
+endmacro()

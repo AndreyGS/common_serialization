@@ -59,7 +59,14 @@ option(COMMON_SERIALIZATION_BUILD_ALLOCATORS "Build allocators project" ON)
 
 if (COMMON_SERIALIZATION_BUILD_ALLOCATORS)
     add_subdirectory(allocators)
-    set(ALLOCATORS_LIB_NAME "")
-    create_allocators_lib("common_serialization/memory_management/typedefs 2.h" "second" "")
-    message(WARNING ${CREATED_LIB_NAME})
+    ags_cs_create_allocators_lib("" "" "" "")
+    message(WARNING ${QUALIFIED_LIB_NAME})
+endif()
+
+# Allocation Manager Interfaces
+
+option(COMMON_SERIALIZATION_ALLOCATION_MANAGER_INTERFACES "Build allocation manager interfaces project" ON)
+
+if (COMMON_SERIALIZATION_ALLOCATION_MANAGER_INTERFACES)
+    add_subdirectory(allocation_manager_interfaces)
 endif()

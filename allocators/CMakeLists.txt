@@ -2,41 +2,54 @@ cmake_minimum_required(VERSION 3.26)
 
 project(ags_common_serialization_allocators VERSION 0.1.0)
 
-set(SAVED_CS_ALLOCATORS_CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Saved cs::allocators_lib source folder")
-set(SAVED_CS_ALLOCATORS_PROJECT_VERSION ${PROJECT_VERSION} CACHE INTERNAL "Saved cs::allocators_lib version")
+set(SAVED_CS_ALLOCATORS_CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Saved ags_common_serialization_allocators project folder")
+set(SAVED_CS_ALLOCATORS_PROJECT_VERSION ${PROJECT_VERSION} CACHE INTERNAL "Saved ags_common_serialization_allocators project version")
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 
-# Creates allocators library optionally customized with memory management library and/or third-party memery management typedefs
-# If library is not customized it named cs::allocators_lib, otherwise cs::allocators_lib_customized_with_${<custom_names_list>}
-# Returns name in CREATED_LIB_NAME variable
-function(create_allocators_lib CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH TYPEDEFS_ALIAS CUSTOM_MEMORY_MANAGEMENT_LIB_NAME)
-
-    if ("${CUSTOM_MEMORY_MANAGEMENT_LIB_NAME}" STREQUAL "")
-        set(LIB_NAME "allocators_lib")
-        set(CREATED_LIB_NAME "cs::allocators_lib")
-    else()
-        string(REGEX REPLACE "[^a-zA-Z0-9]" "\_" CUSTOM_MEMORY_MANAGEMENT_CORRECTED_LIB_NAME ${CUSTOM_MEMORY_MANAGEMENT_LIB_NAME})
-        set(LIB_NAME "allocators_lib_customized_with_${CUSTOM_MEMORY_MANAGEMENT_CORRECTED_LIB_NAME}")
-        set(CREATED_LIB_NAME "cs::allocators_lib_customized_with_${CUSTOM_MEMORY_MANAGEMENT_CORRECTED_LIB_NAME}")
-    endif()
-
-    if (       "${CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}" STREQUAL "" AND NOT "${TYPEDEFS_ALIAS}" STREQUAL ""
-        OR NOT "${CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}" STREQUAL "" AND     "${TYPEDEFS_ALIAS}" STREQUAL ""
+# Creates allocators library optionally customized with third-party memory management library and/or memory management typedefs.
+# If library/package is not customized (all given arguments are empty strings) it will be named 'ags_cs_allocators_lib' ('ags_common_serialization::allocators_lib')
+# otherwise 'ags_cs_allocators_lib_customized[_x_<custom_alias1>[_x_<custom_alias2>]...]' and respective qualified alias.
+#
+# Note: custom library and/or typedef's header must be already available in current build at the time of this function call
+#
+# Params:
+#   CUSTOM_MEMORY_MANAGEMENT_LIB_NAME: name of custom memory management library that can be used in linking expressions
+#       If this argument is not empty string, then all other arguments must be not empty strings.
+#       If this argument is empty string, then CUSTOM_MEMORY_MANAGEMENT_ALIAS must be empty.
+#   CUSTOM_MEMORY_MANAGEMENT_ALIAS: alias that will be used in custom allocators library/package naming, it doesn't have to matter to the linker.
+#       If this argument is not empty string, then all other arguments must be not empty strings.
+#       If this argument is empty string, then CUSTOM_MEMORY_MANAGEMENT_LIB_NAME must be empty.
+#       Note: it should contain only C-style naming characters.
+#       Note: try make it shorter.
+#   CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH: path to custom header. For example 'common_serialization/memory_management/typedefs2.h'.
+#       If this argument is not empty string, then CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_ALIAS must be not empty string.
+#       If this argument is empty string, then CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_ALIAS must be empty.
+#       Note: path must be without quotes or double quotes on the edges.
+#   CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_ALIAS: alias that will be used in custom allocators library/package naming, it doesn't have any other purpose.
+#       If this argument is not empty string, then CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH must be not empty string.
+#       If this argument is empty string, then CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH must be empty.
+#       Note: try make it shorter.
+#
+# Returns:
+#   QUALIFIED_LIB_NAME name of created lib with namespace.
+function(ags_cs_create_allocators_lib 
+    CUSTOM_MEMORY_MANAGEMENT_LIB_NAME 
+    CUSTOM_MEMORY_MANAGEMENT_ALIAS 
+    CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH 
+    CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_ALIAS
+)
+    set(UNQUALIFIED_LIB_NAME "allocators_lib")
+    update_lib_name_with_customized_names(
+        "${UNQUALIFIED_LIB_NAME}"
+        "${CUSTOM_MEMORY_MANAGEMENT_LIB_NAME}"
+        "${CUSTOM_MEMORY_MANAGEMENT_ALIAS}"
+        "${CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}"
+        "${CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_ALIAS}"
     )
-        message(FATAL_ERROR "Custom header and respective alias must be both set or not at the same time")
-    elseif (NOT "${TYPEDEFS_ALIAS}" STREQUAL "")
-        set(POSITION -1)
-        string(FIND ${LIB_NAME} "customized" POSITION)
-        if (POSITION EQUAL -1)
-            string(APPEND LIB_NAME "_and_typedefs_${TYPEDEFS_ALIAS}")
-            string(APPEND CREATED_LIB_NAME "_and_typedefs_${TYPEDEFS_ALIAS}")
-            message(WARNING ${LIB_NAME})
-        else()
-            string(APPEND LIB_NAME "_customized_with_typedefs_${TYPEDEFS_ALIAS}")
-            string(APPEND CREATED_LIB_NAME "_customized_with_typedefs_${TYPEDEFS_ALIAS}")
-        endif()
-    endif()
+
+    set(QUALIFIED_LIB_NAME "ags_common_serialization::${UNQUALIFIED_LIB_NAME}")
+    set(LIB_NAME "ags_cs_${UNQUALIFIED_LIB_NAME}")
 
     if (TARGET ${LIB_NAME})
         message(WARNING "Target '${LIB_NAME}' already exists.")
@@ -44,9 +57,9 @@ function(create_allocators_lib CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH TYP
     endif()
 
     add_library(${LIB_NAME} INTERFACE)
-    add_library(${CREATED_LIB_NAME} ALIAS ${LIB_NAME})
+    add_library(${QUALIFIED_LIB_NAME} ALIAS ${LIB_NAME})
 
-    set(CREATED_LIB_NAME ${CREATED_LIB_NAME} PARENT_SCOPE)
+    set(QUALIFIED_LIB_NAME ${QUALIFIED_LIB_NAME} PARENT_SCOPE)
 
     if (NOT "${CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}" STREQUAL "")
         target_compile_definitions(${LIB_NAME}
@@ -77,14 +90,15 @@ function(create_allocators_lib CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH TYP
     target_include_directories(${LIB_NAME}
         INTERFACE 
             $<BUILD_INTERFACE:${SOURCE_INCLUDE_DIR}>
+            $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>
     )
 
     set(LINKED_LIBRARIES
-        cs::allocator_interfaces_lib
+        ags_common_serialization::allocator_interfaces_lib
     )
 
     if ("${CUSTOM_MEMORY_MANAGEMENT_LIB_NAME}" STREQUAL "")
-        list(APPEND LINKED_LIBRARIES cs::memory_management_lib)
+        list(APPEND LINKED_LIBRARIES ags_common_serialization::memory_management_lib)
     else()
         list(APPEND LINKED_LIBRARIES ${CUSTOM_MEMORY_MANAGEMENT_LIB_NAME})
     endif()
@@ -115,7 +129,7 @@ function(create_allocators_lib CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH TYP
                 ${UNIT_TESTS_SOURCES}
         )
 
-        if (NOT TARGET cs::tests_special_types_lib)
+        if (NOT TARGET ags_common_serialization::tests_special_types_lib)
             add_subdirectory("${SAVED_CS_ALLOCATORS_CMAKE_CURRENT_SOURCE_DIR}/../unit_tests_helper_libs/tests_special_types")
         endif()
 
@@ -123,13 +137,15 @@ function(create_allocators_lib CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH TYP
         target_link_libraries(${TESTS_NAME}
             PRIVATE
                 ${LIB_NAME}
-                cs::tests_special_types_lib
+                ags_common_serialization::tests_special_types_lib
                 gtest_main
         )
 
+        set_target_properties(${TESTS_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/unit-tests")
+
         include(GoogleTest)
         gtest_discover_tests(${TESTS_NAME})
+
+        add_test(NAME ${TESTS_NAME} COMMAND ${TESTS_NAME})
     endif()
-
 endfunction()
-

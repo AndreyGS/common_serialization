@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(tests_special_types)
+project(ags_common_serialization_tests_special_types)
 
-add_library(tests_special_types_lib INTERFACE)
-add_library(cs::tests_special_types_lib ALIAS tests_special_types_lib)
+add_library(ags_cs_tests_special_types_lib INTERFACE)
+add_library(ags_common_serialization::tests_special_types_lib ALIAS ags_cs_tests_special_types_lib)
 
 set(SOURCE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
@@ -13,12 +13,12 @@ set(HEADERS
     "${HEADERS_DIR}/special_types.h"
 )
 
-target_sources(tests_special_types_lib
+target_sources(ags_cs_tests_special_types_lib
     INTERFACE
         ${HEADERS}
 )
 
-target_include_directories(tests_special_types_lib
+target_include_directories(ags_cs_tests_special_types_lib
     INTERFACE
         $<BUILD_INTERFACE:${SOURCE_INCLUDE_DIR}>
 )
