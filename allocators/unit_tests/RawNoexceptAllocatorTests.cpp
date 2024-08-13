@@ -23,7 +23,7 @@
 
 #include <gtest/gtest.h>
 #include <common_serialization/allocators/allocators.h>
-#include <cs_tests_special_types/special_types.h>
+#include <tests_special_types/special_types.h>
 
 using namespace special_types;
 using namespace common_serialization;

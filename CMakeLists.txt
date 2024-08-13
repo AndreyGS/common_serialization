@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.26)
 
 project(common_serialization
+    VERSION 0.1.0
     DESCRIPTION "Definition and implementation of Common Serialization Protocol."
     HOMEPAGE_URL "https://github.com/AndreyGS/common_serialization"
 )
+
+if (NOT DEFINED FORCE_INSTALL_GTESTS)
+    set(INSTALL_GTEST OFF)
+endif()
 
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(FetchContent)
@@ -55,5 +60,6 @@ option(COMMON_SERIALIZATION_BUILD_ALLOCATORS "Build allocators project" ON)
 if (COMMON_SERIALIZATION_BUILD_ALLOCATORS)
     add_subdirectory(allocators)
     set(ALLOCATORS_LIB_NAME "")
-    create_cs_allocators_lib(ALLOCATORS_LIB_NAME "")
+    create_allocators_lib("common_serialization/memory_management/typedefs 2.h" "second" "")
+    message(WARNING ${CREATED_LIB_NAME})
 endif()

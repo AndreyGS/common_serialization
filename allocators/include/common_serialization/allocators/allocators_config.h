@@ -23,6 +23,8 @@
 
 #pragma once
 
-#ifndef CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS
+#ifndef CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER
 #include <common_serialization/memory_management/typedefs.h>
-#endif // #ifndef CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS
+#else
+#include CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER
+#endif // #ifndef CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER

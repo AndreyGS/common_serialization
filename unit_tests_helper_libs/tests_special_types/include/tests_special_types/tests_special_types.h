@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/for_tests_helpers/include/special_types/cs_tests_special_types.h
+ * @file UnitTests/for_tests_helpers/include/special_types/tests_special_types.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,4 +23,4 @@
 
 #include <string>
 #include <type_traits>
-#include <cs_tests_special_types/special_types.h>
+#include <tests_special_types/special_types.h>
