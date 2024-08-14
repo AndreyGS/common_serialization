@@ -35,15 +35,15 @@ namespace common_serialization
 template<typename _T>
 concept Initable = requires(_T t)
 {
-    { t.init(*(new _T)) } -> std::same_as<Status>;
+    { t.init(t) } -> std::same_as<Status>;
 };
 
 /// @brief Test for possibility to init object of type _T
 ///     by another instance of type SpecClass.
 template<typename _T, typename SpecClass>
-concept InitableBySpecialClass = requires(_T t)
+concept InitableBySpecialClass = requires(_T t, SpecClass sc)
 {
-    { t.init(*(new SpecClass)) } -> std::same_as<Status>;
+    { t.init(sc) } -> std::same_as<Status>;
 };
 
 template<typename _T>

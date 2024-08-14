@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/memory_management/new_replacements.h
+ * @file cslib/include/common_serialization/memory_management/typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,44 +23,11 @@
 
 #pragma once
 
-#ifdef CS_OPERATOR_NEW_REPLACEMENT
-
 #include <common_serialization/memory_management/platform_dependent/switch.h>
 
-// new
-[[nodiscard]] constexpr void* operator new(size_t dataSizeInBytes) noexcept
+namespace common_serialization
 {
-    return common_serialization::memory_management::allocate(dataSizeInBytes);
-}
 
-// new[]
-[[nodiscard]] constexpr void* operator new[](size_t dataSizeInBytes) noexcept
-{
-    return common_serialization::memory_management::allocate(dataSizeInBytes);
-}
+using HeapAllocatorT = HeapAllocator;
 
-// new nothrow
-[[nodiscard]] constexpr void* operator new(size_t dataSizeInBytes, const std::nothrow_t&) noexcept
-{
-    return common_serialization::memory_management::allocate(dataSizeInBytes);
-}
-
-// new[] nothrow
-[[nodiscard]] constexpr void* operator new[](size_t dataSizeInBytes, const std::nothrow_t&) noexcept
-{
-    return common_serialization::memory_management::allocate(dataSizeInBytes);
-}
-
-// placement new
-[[nodiscard]] constexpr void* operator new(size_t, void* p) noexcept
-{
-    return p;
-}
-
-// placement new[]
-[[nodiscard]] constexpr void* operator new[](size_t, void* p) noexcept
-{
-    return p;
-}
-
-#endif // #ifdef CS_OPERATOR_NEW_REPLACEMENT
+} // namespace common_serialization

@@ -23,6 +23,8 @@
 
 #pragma once
 
-#ifndef CS_CUSTOM_CONTAINERS_TYPEDEFS
+#ifndef AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH
 #include <common_serialization/containers/typedefs.h>
-#endif // #ifndef CS_CUSTOM_CONTAINERS_TYPEDEFS
+#else
+#include AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH
+#endif // #ifndef AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH

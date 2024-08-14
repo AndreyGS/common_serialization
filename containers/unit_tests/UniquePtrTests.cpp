@@ -21,6 +21,10 @@
  *
  */
 
+#include <gtest/gtest.h>
+#include <common_serialization/containers/containers.h>
+#include <tests_special_types/special_types.h>
+
 namespace
 {
 

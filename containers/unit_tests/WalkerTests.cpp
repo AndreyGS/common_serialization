@@ -21,11 +21,18 @@
  *
  */
 
+#include <gtest/gtest.h>
+#include <common_serialization/containers/containers.h>
+#include <tests_special_types/special_types.h>
+
 namespace
 {
 
 using namespace special_types;
 using namespace common_serialization;
+
+template<typename T>
+using DefaultAllocationManager = CtorStratAllocationManagerT<T>;
 
 using size_type = typename Walker<int, DefaultAllocationManager<int>>::size_type;
 

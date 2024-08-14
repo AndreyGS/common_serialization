@@ -24,6 +24,7 @@
 #pragma once
 
 #include <common_serialization/allocation_manager_interfaces/IAllocationManager.h>
+#include <common_serialization/containers/containers_config.h>
 
 namespace common_serialization
 {

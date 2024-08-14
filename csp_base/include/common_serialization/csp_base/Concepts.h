@@ -64,7 +64,7 @@ concept IDeserializationBinContainer
              { e.seek(0) } -> std::same_as<Status>;
              
              { e.read(nullptr, static_cast<typename Dbin::size_type>(0)) } -> std::same_as<Status>;
-             { e.readArithmeticValue(*(new unsigned)) } -> std::same_as<Status>;
+             { e.readArithmeticValue(1) } -> std::same_as<Status>;
          } 
     && std::is_same_v<typename Dbin::value_type, uint8_t>;
 
@@ -72,14 +72,14 @@ static_assert(IDeserializationBinContainer<BinWalkerT>, "BinWalkerT must comply 
 
 template<typename PM>
 concept ISerializationPointersMap
-    = requires(PM pm)
+    = requires(PM pm, typename PM::key_type key)
         {
             typename PM::key_type;
             typename PM::mapped_type;
             
             { pm.find(nullptr) };
             { pm.end() };
-            { pm[*(new typename PM::key_type)] } -> std::same_as<typename PM::mapped_type&>;
+            { pm[key] } -> std::same_as<typename PM::mapped_type&>;
             { pm.clear() };
         }
     && std::is_same_v<typename PM::key_type, const void*> && std::is_same_v<typename PM::mapped_type, uint64_t>;
@@ -88,14 +88,14 @@ static_assert(ISerializationPointersMap<HashMapT<const void*, uint64_t>>, "MapT<
 
 template<typename PM>
 concept IDeserializationPointersMap
-    = requires(PM pm)
+    = requires(PM pm, typename PM::key_type key)
         {
             typename PM::key_type;
             typename PM::mapped_type;
             
             { pm.find(1) };
             { pm.end() };
-            { pm[*(new typename PM::key_type)] } -> std::same_as<typename PM::mapped_type&>;
+            { pm[key] } -> std::same_as<typename PM::mapped_type&>;
             { pm.clear() };
         }
     && std::is_same_v<typename PM::key_type, uint64_t> && std::is_same_v<typename PM::mapped_type, void*>;

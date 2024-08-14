@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.28)
 
 project(ags_common_serialization_tests_special_types)
 
@@ -21,4 +21,9 @@ target_sources(ags_cs_tests_special_types_lib
 target_include_directories(ags_cs_tests_special_types_lib
     INTERFACE
         $<BUILD_INTERFACE:${SOURCE_INCLUDE_DIR}>
+)
+
+target_link_libraries(${LIB_NAME}
+    INTERFACE
+        ags_common_serialization::common_lib
 )

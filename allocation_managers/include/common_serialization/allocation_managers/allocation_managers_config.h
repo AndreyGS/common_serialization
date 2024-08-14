@@ -23,6 +23,8 @@
 
 #pragma once
 
-#ifndef CS_CUSTOM_ALLOCATORS_TYPEDEFS
+#ifndef AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH
 #include <common_serialization/allocators/typedefs.h>
-#endif // #ifndef CS_CUSTOM_ALLOCATORS_TYPEDEFS
+#else
+#include AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH
+#endif // #ifndef AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH
