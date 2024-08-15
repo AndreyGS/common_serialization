@@ -23,9 +23,9 @@
 
 #include <gtest/gtest.h>
 #include <common_serialization/allocators/allocators.h>
-#include <tests_special_types/special_types.h>
+#include <common_serialization/tests_special_types/structs.h>
 
-using namespace special_types;
+using namespace tests_special_types;
 using namespace common_serialization;
 
 namespace

@@ -27,73 +27,73 @@ namespace ft_helpers
 {
 
 template<>
-void fillingStruct(interface_for_test::SimplyAssignableAlignedToOne<>& output);
+void fillingStruct(tests_csp_interface::SimplyAssignableAlignedToOne<>& output);
 template<>
-void fillingStruct(restricted_structs::SimplyAssignable& output);
+void fillingStruct(tests_restricted_structs::SimplyAssignable& output);
 template<>
-void fillingStruct(interface_for_test::SimplyAssignableDescendant<>& output);
+void fillingStruct(tests_csp_interface::SimplyAssignableDescendant<>& output);
 template<>
-void fillingStruct(interface_for_test::DynamicPolymorphic<>& output);
+void fillingStruct(tests_csp_interface::DynamicPolymorphic<>& output);
 template<>
-void fillingStruct(interface_for_test::Diamond<>& output);
+void fillingStruct(tests_csp_interface::Diamond<>& output);
 template<>
-void fillingStruct(descendant_interface::SimpleStruct<>& output);
+void fillingStruct(tests_csp_descendant_interface::SimpleStruct<>& output);
 template<>
-void fillingStruct(descendant_interface::DiamondDescendant<>& output);
+void fillingStruct(tests_csp_descendant_interface::DiamondDescendant<>& output);
 template<>
-void fillingStruct(another_yet_interface::SimpleStruct<>& output);
+void fillingStruct(tests_csp_another_interface::SimpleStruct<>& output);
 
-namespace cs = common_serialization;
-using namespace cs::csp::messaging::service_structs;
+namespace ags_cs = common_serialization;
+using namespace ags_cs::csp::messaging::service_structs;
 
 inline int numberOfMultiEntrances = 0;
 
 template<typename InputStruct, typename OutputStruct>
-cs::Status defaultHandle(const InputStruct& input, OutputStruct& output)
+ags_cs::Status defaultHandle(const InputStruct& input, OutputStruct& output)
 {
     InputStruct test;
     fillingStruct(test);
 
     if (input != test)
-        return cs::Status::ErrorInternal;
+        return ags_cs::Status::ErrorInternal;
 
     fillingStruct(output);
 
-    return cs::Status::NoError;
+    return ags_cs::Status::NoError;
 }
 
 template<typename InputStruct>
-cs::Status multiHandle(const InputStruct& input)
+ags_cs::Status multiHandle(const InputStruct& input)
 {
     InputStruct test;
     fillingStruct(test);
 
     if (input != test)
-        return cs::Status::ErrorInternal;
+        return ags_cs::Status::ErrorInternal;
 
     ++numberOfMultiEntrances;
 
-    return cs::Status::NoError;
+    return ags_cs::Status::NoError;
 }
 
 template<typename _T>
-using IServerDataHandler = cs::csp::messaging::IServerDataHandler<_T>;
+using IServerDataHandler = ags_cs::csp::messaging::IServerDataHandler<_T>;
 
-namespace csm = cs::csp::messaging;
+namespace csm = ags_cs::csp::messaging;
 
 class FirstCspService
-    : IServerDataHandler<csm::ServerHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>
-    , IServerDataHandler<csm::ServerStackHandler<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>
-    , IServerDataHandler<csm::ServerStackMultiHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>
+    : IServerDataHandler<csm::ServerHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>, 1>>
+    , IServerDataHandler<csm::ServerStackHandler<tests_csp_interface::Diamond<>, tests_csp_interface::DynamicPolymorphic<>>>
+    , IServerDataHandler<csm::ServerStackMultiHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>
 {
 public:
     FirstCspService() = default;
     
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::ServerHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>::registerHandler(registrar, this);
-        IServerDataHandler<csm::ServerStackHandler<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>::registerHandler(registrar, this);
-        IServerDataHandler<csm::ServerStackMultiHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>::registerHandler(registrar, this);
+        IServerDataHandler<csm::ServerHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>, 1>>::registerHandler(registrar, this);
+        IServerDataHandler<csm::ServerStackHandler<tests_csp_interface::Diamond<>, tests_csp_interface::DynamicPolymorphic<>>>::registerHandler(registrar, this);
+        IServerDataHandler<csm::ServerStackMultiHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>::registerHandler(registrar, this);
 
         return Status::NoError;
     }
@@ -105,41 +105,41 @@ public:
 
     void unregisterSimplyAssignableAlignedToOne(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::ServerHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>, 1>>::unregisterHandler(registrar);
+        IServerDataHandler<csm::ServerHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>, 1>>::unregisterHandler(registrar);
     }
 
     void unregisterDiamond(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::ServerStackHandler<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>::unregisterHandler(registrar);
+        IServerDataHandler<csm::ServerStackHandler<tests_csp_interface::Diamond<>, tests_csp_interface::DynamicPolymorphic<>>>::unregisterHandler(registrar);
     }
 
     void unregisterSimplyAssignable(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::ServerStackMultiHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>::unregisterHandler(registrar);
+        IServerDataHandler<csm::ServerStackMultiHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>::unregisterHandler(registrar);
     }
 
-    cs::Status handleData(
-          const interface_for_test::SimplyAssignableAlignedToOne<>& input
-        , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
-        , const cs::GenericPointerKeeper& clientId
-        , interface_for_test::SimplyAssignableDescendant<>& output) override
+    ags_cs::Status handleData(
+          const tests_csp_interface::SimplyAssignableAlignedToOne<>& input
+        , ags_cs::Vector<ags_cs::GenericPointerKeeper>* pUnmanagedPointers
+        , const ags_cs::GenericPointerKeeper& clientId
+        , tests_csp_interface::SimplyAssignableDescendant<>& output) override
     {
         return defaultHandle(input, output);
     }
 
-    cs::Status handleData(
-          const interface_for_test::Diamond<>& input
-        , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
-        , const cs::GenericPointerKeeper& clientId
-        , interface_for_test::DynamicPolymorphic<>& output) override
+    ags_cs::Status handleData(
+          const tests_csp_interface::Diamond<>& input
+        , ags_cs::Vector<ags_cs::GenericPointerKeeper>* pUnmanagedPointers
+        , const ags_cs::GenericPointerKeeper& clientId
+        , tests_csp_interface::DynamicPolymorphic<>& output) override
     {
         return defaultHandle(input, output);
     }
 
-    cs::Status handleData(
-          const interface_for_test::SimplyAssignable<>& input
-        , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
-        , const cs::GenericPointerKeeper& clientId
+    ags_cs::Status handleData(
+          const tests_csp_interface::SimplyAssignable<>& input
+        , ags_cs::Vector<ags_cs::GenericPointerKeeper>* pUnmanagedPointers
+        , const ags_cs::GenericPointerKeeper& clientId
         , ISerializableDummy& output) override
     {
         
@@ -148,14 +148,14 @@ public:
 };
 
 class SecondCspService
-    : IServerDataHandler<csm::ServerStackMultiHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>
+    : IServerDataHandler<csm::ServerStackMultiHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>
 {
 public:
     SecondCspService() = default;
 
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::ServerStackMultiHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>::registerHandler(registrar, this);
+        IServerDataHandler<csm::ServerStackMultiHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>::registerHandler(registrar, this);
         return Status::NoError;
     }
 
@@ -164,9 +164,9 @@ public:
         registrar.unregisterService(this);
     }
 
-    cs::Status handleData(const interface_for_test::SimplyAssignable<>& input
-        , cs::Vector<cs::GenericPointerKeeper>* pUnmanagedPointers
-        , const cs::GenericPointerKeeper& clientId
+    ags_cs::Status handleData(const tests_csp_interface::SimplyAssignable<>& input
+        , ags_cs::Vector<ags_cs::GenericPointerKeeper>* pUnmanagedPointers
+        , const ags_cs::GenericPointerKeeper& clientId
         , ISerializableDummy& output) override
     {
         return multiHandle(input);
@@ -174,14 +174,14 @@ public:
 };
 
 class ThirdCspService
-    : IServerDataHandler<csm::ServerStackMultiHandler<descendant_interface::DiamondDescendant<>, ISerializableDummy>>
+    : IServerDataHandler<csm::ServerStackMultiHandler<tests_csp_descendant_interface::DiamondDescendant<>, ISerializableDummy>>
 {
 public:
     ThirdCspService() = default;
 
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::ServerStackMultiHandler<descendant_interface::DiamondDescendant<>, ISerializableDummy>>::registerHandler(registrar, this);
+        IServerDataHandler<csm::ServerStackMultiHandler<tests_csp_descendant_interface::DiamondDescendant<>, ISerializableDummy>>::registerHandler(registrar, this);
         return Status::NoError;
     }
 
@@ -190,10 +190,10 @@ public:
         registrar.unregisterService(this);
     }
 
-    cs::Status handleData(
-          const descendant_interface::DiamondDescendant<>& input
-        , cs::Vector<cs::GenericPointerKeeper>* unmanagedPointers
-        , const cs::GenericPointerKeeper& clientId
+    ags_cs::Status handleData(
+          const tests_csp_descendant_interface::DiamondDescendant<>& input
+        , ags_cs::Vector<ags_cs::GenericPointerKeeper>* unmanagedPointers
+        , const ags_cs::GenericPointerKeeper& clientId
         , ISerializableDummy& output) override
     {
         return defaultHandle(input, output);
@@ -201,14 +201,14 @@ public:
 };
 
 class FourthCspService
-    : IServerDataHandler<csm::ServerStackMultiHandler<another_yet_interface::SimpleStruct<>, ISerializableDummy>>
+    : IServerDataHandler<csm::ServerStackMultiHandler<tests_csp_another_interface::SimpleStruct<>, ISerializableDummy>>
 {
 public:
     FourthCspService() = default;
 
     Status registerHandlers(csm::IServerDataHandlerRegistrar& registrar)
     {
-        IServerDataHandler<csm::ServerStackMultiHandler<another_yet_interface::SimpleStruct<>, ISerializableDummy>>::registerHandler(registrar, this);
+        IServerDataHandler<csm::ServerStackMultiHandler<tests_csp_another_interface::SimpleStruct<>, ISerializableDummy>>::registerHandler(registrar, this);
         return Status::NoError;
     }
 
@@ -217,19 +217,19 @@ public:
         registrar.unregisterService(this);
     }
 
-    cs::Status handleData(
-          const another_yet_interface::SimpleStruct<>& input
-        , cs::Vector<cs::GenericPointerKeeper>* unmanagedPointers
-        , const cs::GenericPointerKeeper& clientId
+    ags_cs::Status handleData(
+          const tests_csp_another_interface::SimpleStruct<>& input
+        , ags_cs::Vector<ags_cs::GenericPointerKeeper>* unmanagedPointers
+        , const ags_cs::GenericPointerKeeper& clientId
         , ISerializableDummy& output) override
     {
-        another_yet_interface::SimpleStruct<> test;
+        tests_csp_another_interface::SimpleStruct<> test;
         fillingStruct(test);
 
         if (input != test)
-            return cs::Status::ErrorInternal;
+            return ags_cs::Status::ErrorInternal;
 
-        return cs::Status::NoError;
+        return ags_cs::Status::NoError;
     }
 };
 

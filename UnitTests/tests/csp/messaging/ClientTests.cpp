@@ -220,7 +220,7 @@ TEST_F(ClientTests, GetServerHandlerSettingsClientNotInited)
     interface_version_t minimumInterfaceVersion{ 0 };
     Id outputTypeId;
 
-    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotInited);
+    EXPECT_EQ(m_client.getServerHandlerSettings<tests_csp_interface::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotInited);
 }
 
 // Try to get info about struct that is part of interface that isn't present in Client settings
@@ -231,7 +231,7 @@ TEST_F(ClientTests, GetServerHandlerSettingsInterfaceNotSupported)
     interface_version_t minimumInterfaceVersion{ 0 };
     Id outputTypeId;
 
-    EXPECT_EQ(m_client.getServerHandlerSettings<with_std_included_interface::OneBigType<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotSupportedInterface);
+    EXPECT_EQ(m_client.getServerHandlerSettings<tests_csp_with_std_interface::OneBigType<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotSupportedInterface);
 }
 
 TEST_F(ClientTests, GetServerHandlerSettingsErrorFromSpeaker)
@@ -249,7 +249,7 @@ TEST_F(ClientTests, GetServerHandlerSettingsErrorFromSpeaker)
         }
     ));
 
-    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorDataCorrupted);
+    EXPECT_EQ(m_client.getServerHandlerSettings<tests_csp_interface::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorDataCorrupted);
 }
 
 TEST_F(ClientTests, GetServerHandlerSettingsWrongMessageTypeFromServer)
@@ -267,7 +267,7 @@ TEST_F(ClientTests, GetServerHandlerSettingsWrongMessageTypeFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId)), Status::ErrorDataCorrupted);
+    EXPECT_EQ((m_client.getServerHandlerSettings<tests_csp_interface::Diamond<>>(minimumInterfaceVersion, outputTypeId)), Status::ErrorDataCorrupted);
 }
 
 // Server haven't handler for this struct (or return any other error except ErrorNotSupportedInterfaceVersion)
@@ -286,7 +286,7 @@ TEST_F(ClientTests, GetServerHandlerSettingsServerDoesNotHaveHandlerForThisStruc
         }
     ));
 
-    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNoSuchHandler);
+    EXPECT_EQ(m_client.getServerHandlerSettings<tests_csp_interface::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNoSuchHandler);
 }
 
 TEST_F(ClientTests, GetServerHandlerSettingsValidReturnFromServer)
@@ -297,7 +297,7 @@ TEST_F(ClientTests, GetServerHandlerSettingsValidReturnFromServer)
     Id outputTypeId;
 
     constexpr interface_version_t expectedMinimumVersion{ 5 };
-    constexpr Id expectedOutputTypeId = interface_for_test::SpecialProcessingType<>::getId();
+    constexpr Id expectedOutputTypeId = tests_csp_interface::SpecialProcessingType<>::getId();
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [expectedMinimumVersion, &expectedOutputTypeId](const BinVectorT& input, BinVectorT& output)
@@ -312,7 +312,7 @@ TEST_F(ClientTests, GetServerHandlerSettingsValidReturnFromServer)
         }
     ));
 
-    EXPECT_EQ(m_client.getServerHandlerSettings<interface_for_test::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::NoError);
+    EXPECT_EQ(m_client.getServerHandlerSettings<tests_csp_interface::Diamond<>>(minimumInterfaceVersion, outputTypeId), Status::NoError);
     EXPECT_EQ(minimumInterfaceVersion, expectedMinimumVersion);
     EXPECT_EQ(outputTypeId, expectedOutputTypeId);
 }
@@ -331,21 +331,21 @@ TEST_F(ClientTests, GetSettingsClientInited)
 
 TEST_F(ClientTests, GetInterfaceClientNotInited)
 {
-    EXPECT_EQ(m_client.getInterfaceVersion(interface_for_test::properties.id), kInterfaceVersionUndefined);
+    EXPECT_EQ(m_client.getInterfaceVersion(tests_csp_interface::properties.id), kInterfaceVersionUndefined);
 }
 
 TEST_F(ClientTests, GetInterfaceClientInited)
 {
     m_client.init(getValidCspPartySettings());
-    EXPECT_EQ(m_client.getInterfaceVersion(interface_for_test::properties.id), interface_for_test::properties.version);
+    EXPECT_EQ(m_client.getInterfaceVersion(tests_csp_interface::properties.id), tests_csp_interface::properties.version);
 }
 
 TEST_F(ClientTests, HandleDataClientNotInited)
 {
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorNotInited);
 }
 
@@ -353,10 +353,10 @@ TEST_F(ClientTests, HandleDataClientNotSupportInterfaceVersionStruct)
 {
     m_client.init(getValidCspPartySettings());
 
-    with_std_included_interface::OneBigType<> input;
+    tests_csp_with_std_interface::OneBigType<> input;
     service_structs::ISerializableDummy output;
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<with_std_included_interface::OneBigType<>, service_structs::ISerializableDummy>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_with_std_interface::OneBigType<>, service_structs::ISerializableDummy>>(
         input, output)), Status::ErrorNotSupportedInterface);
 }
 
@@ -365,13 +365,13 @@ TEST_F(ClientTests, HandleDataAnyStructHasInterfaceVersionHigherThanSettedUpForC
 {
     m_client.init(getInterfaceVersionZeroCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
-    interface_for_test::SimplyAssignableFixedSize<> unsupportedVersionStruct;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableFixedSize<> unsupportedVersionStruct;
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableFixedSize<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableFixedSize<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         unsupportedVersionStruct, output)), Status::ErrorNotSupportedInterfaceVersion);
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableFixedSize<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableFixedSize<>>>(
         input, unsupportedVersionStruct)), Status::ErrorNotSupportedInterfaceVersion);
 }
 
@@ -379,10 +379,10 @@ TEST_F(ClientTests, HandleDataNotCompatibleAdditionalCommonFlags)
 {
     m_client.init(getForbiddenAnotherEndiannessCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output, CommonFlags{ CommonFlags::kBigEndianFormat }, {}, nullptr)), Status::ErrorNotCompatibleCommonFlagsSettings);
 }
 
@@ -390,10 +390,10 @@ TEST_F(ClientTests, HandleDataUnmanagedPointersContainerNotSuppliedWhenNeed)
 {
     m_client.init(getValidCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output, DataFlags{ DataFlags::kAllowUnmanagedPointers })), Status::ErrorInvalidArgument);
 }
 
@@ -402,8 +402,8 @@ TEST_F(ClientTests, HandleDataContextFillingCheck)
     CspPartySettings settings = getMandatoryAnotherEndiannessCspPartySettings();
     m_client.init(settings);
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     constexpr CommonFlags additionalCommonFlags{ CommonFlags::kBitness32 };
     constexpr DataFlags additionalDataFlags{ DataFlags::kAlignmentMayBeNotEqual };
@@ -413,7 +413,7 @@ TEST_F(ClientTests, HandleDataContextFillingCheck)
         {
             BinWalkerT dInput(input);
             DData ctx(dInput);
-            interface_for_test::SimplyAssignableAlignedToOne<> data;
+            tests_csp_interface::SimplyAssignableAlignedToOne<> data;
             EXPECT_EQ(data.deserialize(ctx), Status::NoError);
 
             EXPECT_EQ(ctx.getProtocolVersion(), settings.getLatestProtocolVersion());
@@ -425,7 +425,7 @@ TEST_F(ClientTests, HandleDataContextFillingCheck)
         }
     ));
 
-    m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output, additionalCommonFlags, additionalDataFlags);
 }
 
@@ -433,8 +433,8 @@ TEST_F(ClientTests, HandleDataErrorFromSpeaker)
 {
     m_client.init(getValidCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
@@ -444,7 +444,7 @@ TEST_F(ClientTests, HandleDataErrorFromSpeaker)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorOverflow);
 }
 
@@ -452,8 +452,8 @@ TEST_F(ClientTests, HandleDataBadCommonContextReceivedFromServer)
 {
     m_client.init(getValidCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
@@ -464,7 +464,7 @@ TEST_F(ClientTests, HandleDataBadCommonContextReceivedFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorNotSupportedProtocolVersion);
 }
 
@@ -472,8 +472,8 @@ TEST_F(ClientTests, HandleDataOutputCommonFlagsReceivedFromServerMismatchedWithI
 {
     m_client.init(getMandatoryAndForbiddenCommonFlagsCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
@@ -484,7 +484,7 @@ TEST_F(ClientTests, HandleDataOutputCommonFlagsReceivedFromServerMismatchedWithI
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorNotCompatibleCommonFlagsSettings);
 }
 
@@ -492,8 +492,8 @@ TEST_F(ClientTests, HandleDataWrongMessageTypeReceivedFromServer)
 {
     m_client.init(getMandatoryAnotherEndiannessCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
@@ -504,7 +504,7 @@ TEST_F(ClientTests, HandleDataWrongMessageTypeReceivedFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorDataCorrupted);
 }
 
@@ -512,8 +512,8 @@ TEST_F(ClientTests, HandleDataDataFlagsReceivedFromServerMismatchedWithInputOnes
 {
     m_client.init(getValidCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [&outputStruct = output](const BinVectorT& input, BinVectorT& output)
@@ -523,7 +523,7 @@ TEST_F(ClientTests, HandleDataDataFlagsReceivedFromServerMismatchedWithInputOnes
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output, DataFlags{ DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff })), Status::ErrorNotCompatibleDataFlagsSettings);
 }
 
@@ -531,8 +531,8 @@ TEST_F(ClientTests, HandleDataWrongOutputTypeReceivedFromServer)
 {
     m_client.init(getValidCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [&outputStruct = input](const BinVectorT& input, BinVectorT& output)
@@ -542,7 +542,7 @@ TEST_F(ClientTests, HandleDataWrongOutputTypeReceivedFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorMismatchOfStructId);
 }
 
@@ -550,8 +550,8 @@ TEST_F(ClientTests, HandleDataWrongStructInterfaceVersionReceivedFromServer)
 {
     m_client.init(getInterfaceVersionZeroCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [&outputStruct = output](const BinVectorT& input, BinVectorT& output)
@@ -561,7 +561,7 @@ TEST_F(ClientTests, HandleDataWrongStructInterfaceVersionReceivedFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorMismatchOfInterfaceVersions);
 }
 
@@ -569,8 +569,8 @@ TEST_F(ClientTests, HandleDataGetValidDataFromServer)
 {
     m_client.init(getValidCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [&outputStruct = output](const BinVectorT& input, BinVectorT& output)
@@ -581,10 +581,10 @@ TEST_F(ClientTests, HandleDataGetValidDataFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output)), Status::NoError);
     
-    interface_for_test::SimplyAssignableDescendant<> reference;
+    tests_csp_interface::SimplyAssignableDescendant<> reference;
     fillingStruct(reference);
     EXPECT_EQ(reference, output);
 }
@@ -593,8 +593,8 @@ TEST_F(ClientTests, HandleDataGetStatusFromServer)
 {
     m_client.init(getValidCspPartySettings());
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [](const BinVectorT& input, BinVectorT& output)
@@ -604,7 +604,7 @@ TEST_F(ClientTests, HandleDataGetStatusFromServer)
         }
     ));
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(
         input, output)), Status::ErrorNoSuchHandler);
 }
 

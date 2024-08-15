@@ -10,17 +10,6 @@ if (NOT DEFINED FORCE_INSTALL_GTESTS)
     set(INSTALL_GTEST OFF)
 endif()
 
-if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    include(FetchContent)
-    FetchContent_Declare(
-      googletest
-      URL https://github.com/google/googletest/archive/9fce5480448488e17a50bcbf88d2f3bdb637ad6c.zip
-    )
-    # For Windows: Prevent overriding the parent project's compiler/linker settings
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(googletest)
-endif()
-
 # Common
 
 option(AGS_CS_BUILD_COMMON "Build ags common serialization common project" ON)
@@ -58,34 +47,55 @@ endif()
 option(AGS_CS_BUILD_ALLOCATORS "Build ags common serialization allocators project" ON)
 
 if (AGS_CS_BUILD_ALLOCATORS)
-    add_subdirectory(allocators)
-    ags_cs_create_allocators_lib("ON" "" "" "" "")
-    ags_cs_create_allocators_lib("ON" "ags_common_serialization::memory_management_lib" "0.1.0" "common_serialization/memory_management/typedefs2.h" "mm")
+    if (NOT TARGET ags_common_serialization_allocators_included)
+        add_subdirectory(allocators)
+    endif()
+
+    ags_cs_create_allocators_lib("ON" "ON" "" "" "" "")
+    ags_cs_create_allocators_lib("ON" "ON" "ags_common_serialization::memory_management_lib" "0.1.0" "common_serialization/memory_management/typedefs2.h" "mm")
     message(WARNING ${QUALIFIED_LIB_NAME})
 endif()
 
 # Allocation Manager Interfaces
 
-option(AGS_CS_ALLOCATION_MANAGER_INTERFACES "Build ags common serialization allocation manager interfaces project" ON)
+option(AGS_CS_BUILD_ALLOCATION_MANAGER_INTERFACES "Build ags common serialization allocation manager interfaces project" ON)
 
-if (AGS_CS_ALLOCATION_MANAGER_INTERFACES)
+if (AGS_CS_BUILD_ALLOCATION_MANAGER_INTERFACES)
     add_subdirectory(allocation_manager_interfaces)
 endif()
 
 # Allocation Managers
 
-option(AGS_CS_ALLOCATION_MANAGERS "Build ags common serialization allocation managers project" ON)
+option(AGS_CS_BUILD_ALLOCATION_MANAGERS "Build ags common serialization allocation managers project" ON)
 
-if (AGS_CS_ALLOCATION_MANAGERS)
-    add_subdirectory(allocation_managers)
-    ags_cs_create_allocation_managers_lib("ON" "" "" "" "")
+if (AGS_CS_BUILD_ALLOCATION_MANAGERS)
+    if (NOT TARGET ags_common_serialization_allocation_managers_included)
+        add_subdirectory(allocation_managers)
+    endif()
+
+    ags_cs_create_allocation_managers_lib("ON" "ON" "" "" "" "")
 endif()
 
 # Containers
 
-option(AGS_CS_CONTAINERS "Build ags common serialization containers project" ON)
+option(AGS_CS_BUILD_CONTAINERS "Build ags common serialization containers project" ON)
 
-if (AGS_CS_ALLOCATION_MANAGERS)
-    add_subdirectory(containers)
-    ags_cs_create_containers_lib("ON" "" "" "" "")
+if (AGS_CS_BUILD_CONTAINERS)
+    if (NOT TARGET ags_common_serialization_containers_included)
+        add_subdirectory(containers)
+    endif()
+
+    ags_cs_create_containers_lib("ON" "ON" "" "" "" "")
+endif()
+
+# CSP base
+
+option(AGS_CS_BUILD_CSP_BASE "Build ags common serialization csp base project" ON)
+
+if (AGS_CS_BUILD_CSP_BASE)
+    if (NOT TARGET ags_common_serialization_csp_base_included)
+        add_subdirectory(csp_base)
+    endif()
+
+    ags_cs_create_csp_base_lib("ON" "OFF" "" "" "" "")
 endif()

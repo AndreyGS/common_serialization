@@ -29,7 +29,7 @@ namespace
 {
 
 using namespace common_serialization;
-using namespace interface_for_test;
+using namespace tests_csp_interface;
 using namespace ft_helpers;
 
 TEST(ISerializableAnotherBitness, SpecialTBasicT)

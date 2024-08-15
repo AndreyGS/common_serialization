@@ -1,54 +1,60 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(ags_common_serialization_allocation_managers VERSION 0.1.0)
+# We need a mark, that we already added project ags_common_serialization_allocators.
+# Because this project is library factory and can be used from multiple places.
+# Unfortunately cmake doesn't have direct way to do that (cached vars are caching until cache deleted and this is inconvenient).
+add_library(ags_common_serialization_csp_base_included INTERFACE)
 
-option(AGS_CS_CSP_BASE "Build ags common serialization csp base project" ON)
-
-set(AGS_CS_SAVED_CSP_BASE_CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Saved ags_common_serialization_csp_base project folder")
-set(AGS_CS_SAVED_CSP_BASE_PROJECT_VERSION ${PROJECT_VERSION} CACHE INTERNAL "Saved ags_common_serialization_csp_base project version")
+option(AGS_CS_BUILD_CSP_BASE "Build ags common serialization csp base project" ON)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 
 # Function description is similar to ags_cs_create_allocators_lib()
 function(ags_cs_create_csp_base_lib 
     EXPORT_AND_INSTALL_LIB
+    BUILD_UNIT_TESTS
     AGS_CS_CUSTOM_CONTAINERS_LIB_NAME 
     AGS_CS_CUSTOM_CONTAINERS_LIB_VERSION
     AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH 
     AGS_CS_CUSTOM_CONTAINERS_ALIAS 
 )
+    project(ags_common_serialization_csp_base VERSION 0.1.0)
+
     set(UNQUALIFIED_LIB_NAME "csp_base")
-    ags_cs_update_lib_name_with_customized_names(
+    ags_cs_update_lib_name_with_customized_name(
         "${UNQUALIFIED_LIB_NAME}"
         "${AGS_CS_CUSTOM_CONTAINERS_LIB_NAME}"
-        "${AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}"
         "${AGS_CS_CUSTOM_CONTAINERS_ALIAS}"
     )
 
-    set(HEADERS_DIR "${AGS_CS_CSP_BASE}/include/common_serialization/csp_base")
-    set(HEADERS
-        "${HEADERS_DIR}/Concepts.h"
-        "${HEADERS_DIR}/csp_base.h"
-        "${HEADERS_DIR}/csp_base_config.h"
-        "${HEADERS_DIR}/ISerializable.h"
-        "${HEADERS_DIR}/Macros.h"
-        "${HEADERS_DIR}/traits.h"
-        "${HEADERS_DIR}/context/Common.h"
-        "${HEADERS_DIR}/context/CommonFlags.h"
-        "${HEADERS_DIR}/context/Data.h"
-        "${HEADERS_DIR}/context/DataFlags.h"
-        "${HEADERS_DIR}/context/Message.h"
-        "${HEADERS_DIR}/mandatory_structs/processing/Deserialize.h"
-        "${HEADERS_DIR}/mandatory_structs/processing/Serialize.h"
-        "${HEADERS_DIR}/processing/Rw.h"
-        "${HEADERS_DIR}/processing/common/ContextProcessor.h"
-        "${HEADERS_DIR}/processing/data/BodyProcessor.h"
-        "${HEADERS_DIR}/processing/data/ContextProcessor.h"
-        "${HEADERS_DIR}/processing/data/TemplateProcessor.h"
-        "${HEADERS_DIR}/processing/data/VersionConverter.h"
-        "${HEADERS_DIR}/processing/status/BodyProcessor.h"
-        "${HEADERS_DIR}/processing/status/ContextProcessor.h"
-        "${HEADERS_DIR}/processing/status/Helpers.h"
+    set(LIB_HEADERS_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include/common_serialization/csp_base")
+    set(LIB_HEADERS
+        "${LIB_HEADERS_DIR}/Concepts.h"
+        "${LIB_HEADERS_DIR}/csp_base.h"
+        "${LIB_HEADERS_DIR}/csp_base_config.h"
+        "${LIB_HEADERS_DIR}/ISerializable.h"
+        "${LIB_HEADERS_DIR}/Macros.h"
+        "${LIB_HEADERS_DIR}/traits.h"
+        "${LIB_HEADERS_DIR}/context/Common.h"
+        "${LIB_HEADERS_DIR}/context/CommonFlags.h"
+        "${LIB_HEADERS_DIR}/context/Data.h"
+        "${LIB_HEADERS_DIR}/context/DataFlags.h"
+        "${LIB_HEADERS_DIR}/context/Message.h"
+        "${LIB_HEADERS_DIR}/processing/Rw.h"
+        "${LIB_HEADERS_DIR}/processing/common/ContextProcessor.h"
+        "${LIB_HEADERS_DIR}/processing/data/BodyProcessor.h"
+        "${LIB_HEADERS_DIR}/processing/data/ContextProcessor.h"
+        "${LIB_HEADERS_DIR}/processing/data/TemplateProcessor.h"
+        "${LIB_HEADERS_DIR}/processing/data/TemplateProcessorVector.h"
+        "${LIB_HEADERS_DIR}/processing/data/VersionConverter.h"
+        "${LIB_HEADERS_DIR}/processing/status/BodyProcessor.h"
+        "${LIB_HEADERS_DIR}/processing/status/ContextProcessor.h"
+        "${LIB_HEADERS_DIR}/processing/status/Helpers.h"
+    )
+
+    set(LIB_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src")
+    set(LIB_SOURCES
+        "${LIB_SOURCES_DIR}/processing/data/BodyProcessor.cpp"
     )
 
     set(LIBS_TO_LINK "ags_common_serialization::common_lib;0.1.0")
@@ -58,27 +64,30 @@ function(ags_cs_create_csp_base_lib
         string(APPEND LIBS_TO_LINK ";${AGS_CS_CUSTOM_CONTAINERS_LIB_NAME};${AGS_CS_CUSTOM_CONTAINERS_LIB_VERSION}")
     endif()
 
-    ags_cs_add_interface_lib(
+    ags_cs_add_static_lib(
         "${UNQUALIFIED_LIB_NAME}"
-        ${AGS_CS_SAVED_CSP_BASE_PROJECT_VERSION}
-        "${HEADERS}"
+        ${PROJECT_VERSION}
+        "${LIB_HEADERS}"
+        "${LIB_SOURCES}"
         "${LIBS_TO_LINK}"
         "ON"
-        "${AGS_CS_SAVED_CSP_BASE_CMAKE_CURRENT_SOURCE_DIR}"
+        "${CMAKE_CURRENT_FUNCTION_LIST_DIR}"
         ${EXPORT_AND_INSTALL_LIB}
     )
 
     set(QUALIFIED_LIB_NAME ${QUALIFIED_LIB_NAME} PARENT_SCOPE)
 
-    set(TESTS_SOURCES_DIR "${AGS_CS_SAVED_CSP_BASE_CMAKE_CURRENT_SOURCE_DIR}/unit_tests")
-    set(TESTS_SOURCES
-        "${TESTS_SOURCES_DIR}/UniquePtrTests.cpp"
-        "${TESTS_SOURCES_DIR}/VectorTests.cpp"
-        "${TESTS_SOURCES_DIR}/WalkerTests.cpp"
-    )
+    if (BUILD_UNIT_TESTS)
+        set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_tests")
+        set(TESTS_SOURCES
+           "${TESTS_SOURCES_DIR}/UniquePtrTests.cpp"
+           "${TESTS_SOURCES_DIR}/VectorTests.cpp"
+           "${TESTS_SOURCES_DIR}/WalkerTests.cpp"
+        )
 
-    set(TESTS_ADDITIONAL_LIBS_TO_LINK "ags_common_serialization::tests_special_types_lib")
+        set(TESTS_ADDITIONAL_LIBS_TO_LINK "ags_common_serialization::tests_special_types_lib")
 
-    ags_cs_add_unit_tests_to_lib(${LIB_NAME} "${TESTS_SOURCES}" "${TESTS_ADDITIONAL_LIBS_TO_LINK}" "${AGS_CS_SAVED_CSP_BASE_CMAKE_CURRENT_SOURCE_DIR}")
+        ags_cs_add_unit_tests_to_lib(${LIB_NAME} "${TESTS_SOURCES}" "${TESTS_ADDITIONAL_LIBS_TO_LINK}" "${CMAKE_CURRENT_FUNCTION_LIST_DIR}")
+    endif()
 
 endfunction()

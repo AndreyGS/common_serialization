@@ -5,22 +5,20 @@ project(ags_common_serialization_tests_special_types)
 add_library(ags_cs_tests_special_types_lib INTERFACE)
 add_library(ags_common_serialization::tests_special_types_lib ALIAS ags_cs_tests_special_types_lib)
 
-set(SOURCE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
-set(HEADERS_DIR "${SOURCE_INCLUDE_DIR}/tests_special_types")
-set(HEADERS
-    "${HEADERS_DIR}/tests_special_types.h"
-    "${HEADERS_DIR}/special_types.h"
+set(LIB_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/tests_special_types")
+set(LIB_HEADERS
+    "${LIB_HEADERS_DIR}/tests_special_types.h"
+    "${LIB_HEADERS_DIR}/structs.h"
 )
 
 target_sources(ags_cs_tests_special_types_lib
     INTERFACE
-        ${HEADERS}
+        ${LIB_HEADERS}
 )
 
 target_include_directories(ags_cs_tests_special_types_lib
     INTERFACE
-        $<BUILD_INTERFACE:${SOURCE_INCLUDE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
 target_link_libraries(${LIB_NAME}

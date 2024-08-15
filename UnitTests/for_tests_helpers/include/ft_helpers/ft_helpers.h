@@ -25,13 +25,12 @@
 
 #include <common_serialization/common_serialization.h>
 
-#include <restricted_structs/NotInterface.h>
-#include <interface_for_test/Interface.h>
-#include <descendant_interface/Interface.h>
-#include <another_yet_interface/Interface.h>
-#include <with_std_included_interface/Interface.h>
+#include <tests_restricted_structs/NotInterface.h>
+#include <tests_csp_interface/Interface.h>
+#include <tests_csp_descendant_interface/Interface.h>
+#include <tests_csp_another_interface/Interface.h>
+#include <tests_csp_with_std_interface/Interface.h>
 
-#include <ft_helpers/FillingStruct.h>
-#include <ft_helpers/CleanAfterStruct.h>
+
 #include <ft_helpers/SimpleCspClientToServerCommunicator.h>
 #include <ft_helpers/SimpleCspServices.h>

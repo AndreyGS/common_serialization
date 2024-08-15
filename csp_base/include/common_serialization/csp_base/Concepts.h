@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <common_serialization/containers/Concepts.h>
+#include <common_serialization/csp_base/csp_base_config.h>
 #include <common_serialization/csp_base/context/DataFlags.h>
 
 namespace common_serialization::csp
@@ -52,7 +52,7 @@ static_assert(ISerializationBinContainer<BinVectorT>, "BinVectorT must comply wi
 
 template<typename Dbin>
 concept IDeserializationBinContainer
-    =  requires(Dbin e)
+    =  requires(Dbin e, int i)
          {
              typename Dbin::value_type;
              typename Dbin::size_type;
@@ -64,7 +64,7 @@ concept IDeserializationBinContainer
              { e.seek(0) } -> std::same_as<Status>;
              
              { e.read(nullptr, static_cast<typename Dbin::size_type>(0)) } -> std::same_as<Status>;
-             { e.readArithmeticValue(1) } -> std::same_as<Status>;
+             { e.readArithmeticValue(i) } -> std::same_as<Status>;
          } 
     && std::is_same_v<typename Dbin::value_type, uint8_t>;
 

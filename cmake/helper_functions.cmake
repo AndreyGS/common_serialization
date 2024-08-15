@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.28)
 
+include(CMakePackageConfigHelpers)
+include(GoogleTest)
+
 function(get_template_lib_config_file LIB_NAME)
     set(GENERIC_CONFIG_TEMPLATE_FILE "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/generic_libConfig.cmake.in")
     set(TEMP_CONFIG_TEMPLATE "${CMAKE_BINARY_DIR}/temp/cmake/${LIB_NAME}Config.cmake.in")
@@ -31,8 +34,6 @@ function(ags_cs_export_and_install_lib LIB_NAME LIB_VERSION)
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/common_serialization
     )
 
-    include(CMakePackageConfigHelpers)
-
     write_basic_package_version_file(
         ${CMAKE_BINARY_DIR}/cmake/common_serialization/${LIB_NAME}ConfigVersion.cmake
         VERSION ${LIB_VERSION}
@@ -56,16 +57,15 @@ function(ags_cs_export_and_install_lib LIB_NAME LIB_VERSION)
     )
 endfunction()
 
-function(ags_cs_update_lib_name_with_customized_names UNQUALIFIED_LIB_NAME CUSTOM_DEPENDENCY_LIB_NAME CUSTOM_TYPEDEFS_HEADER_PATH CUSTOM_DEPENDENCY_ALIAS)
+function(ags_cs_update_lib_name_with_customized_name UNQUALIFIED_LIB_NAME CUSTOM_DEPENDENCY_LIB_NAME CUSTOM_DEPENDENCY_ALIAS)
     set(NOTE_CUSTOMIZED_LIB_NAME "Note: if there is more than one custom dependency, name of building library maybe already customized with another dependencies.")
 
-    if (    NOT (    "${CUSTOM_DEPENDENCY_LIB_NAME}" STREQUAL "" AND     "${CUSTOM_TYPEDEFS_HEADER_PATH}" STREQUAL "" AND     "${CUSTOM_DEPENDENCY_ALIAS}" STREQUAL "")
-        AND NOT (NOT "${CUSTOM_DEPENDENCY_LIB_NAME}" STREQUAL "" AND NOT "${CUSTOM_TYPEDEFS_HEADER_PATH}" STREQUAL "" AND NOT "${CUSTOM_DEPENDENCY_ALIAS}" STREQUAL "")
+    if (    NOT (    "${CUSTOM_DEPENDENCY_LIB_NAME}" STREQUAL "" AND     "${CUSTOM_DEPENDENCY_ALIAS}" STREQUAL "")
+        AND NOT (NOT "${CUSTOM_DEPENDENCY_LIB_NAME}" STREQUAL "" AND NOT "${CUSTOM_DEPENDENCY_ALIAS}" STREQUAL "")
     )
-        message(FATAL_ERROR "Custom library name, custom typedef's header path, custom alias must all together be an empty strings or not empty strings.
+        message(FATAL_ERROR "Custom library name and custom alias must be together an empty strings or not empty strings.
             Note: current values: building library: '${UNQUALIFIED_LIB_NAME}'; 
                 custom dependency library: '${CUSTOM_DEPENDENCY_LIB_NAME}'; 
-                custom typedef's header: '${CUSTOM_TYPEDEFS_HEADER_PATH}'
                 custom dependency library alias: '${CUSTOM_DEPENDENCY_ALIAS}'.
             Note: if there is more than one custom dependency, name of building library maybe already customized with another dependencies."
         )
@@ -80,34 +80,62 @@ function(ags_cs_update_lib_name_with_customized_names UNQUALIFIED_LIB_NAME CUSTO
     set(UNQUALIFIED_LIB_NAME ${UNQUALIFIED_LIB_NAME} PARENT_SCOPE)
 endfunction()
 
-macro(ags_cs_add_custom_typedef_header_paths)
+function(ags_cs_add_custom_typedef_header_paths LIB_NAME APPLICABILITY)
     if (NOT "${AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}" STREQUAL "")
-        target_compile_definitions(${LIB_NAME}
-            INTERFACE
-                AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}>
-        )
+        if ("${APPLICABILITY}" STREQUAL "INTERFACE")
+            target_compile_definitions(${LIB_NAME}
+                INTERFACE
+                    AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}>
+            )
+        else()
+            target_compile_definitions(${LIB_NAME}
+                PUBLIC
+                    AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}>
+            )
+        endif()
     endif()
     if (NOT "${AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}" STREQUAL "")
-        target_compile_definitions(${LIB_NAME}
-            INTERFACE
-                AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}>
-        )
+        if ("${APPLICABILITY}" STREQUAL "INTERFACE")
+            target_compile_definitions(${LIB_NAME}
+                INTERFACE
+                    AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}>
+            )
+        else()
+            target_compile_definitions(${LIB_NAME}
+                PUBLIC
+                    AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}>
+            )
+        endif()
     endif()
     if (NOT "${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}" STREQUAL "")
-        target_compile_definitions(${LIB_NAME}
-            INTERFACE
-                AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}>
-        )
+        if ("${APPLICABILITY}" STREQUAL "INTERFACE")
+            target_compile_definitions(${LIB_NAME}
+                INTERFACE
+                    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}>
+            )
+        else()
+            target_compile_definitions(${LIB_NAME}
+                PUBLIC
+                    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}>
+            )
+        endif()
     endif()
     if (NOT "${AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}" STREQUAL "")
-        target_compile_definitions(${LIB_NAME}
-            INTERFACE
-                AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}>
-        )
+        if ("${APPLICABILITY}" STREQUAL "INTERFACE")
+            target_compile_definitions(${LIB_NAME}
+                INTERFACE
+                    AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}>
+            )
+        else()
+            target_compile_definitions(${LIB_NAME}
+                PUBLIC
+                    AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}>
+            )
+        endif()
     endif()
-endmacro()
+endfunction()
 
-function(ags_cs_add_find_packages LIBS_TO_LINK)
+function(ags_cs_find_packages LIBS_TO_LINK)
     list(LENGTH LIBS_TO_LINK NUM_ELEMENTS)
     set(LIBS_TO_LINK_NAMES)
 
@@ -133,7 +161,9 @@ function(ags_cs_add_find_packages LIBS_TO_LINK)
     set(LIBS_TO_LINK_NAMES "${LIBS_TO_LINK_NAMES}" PARENT_SCOPE)
 endfunction()
 
-function(ags_cs_add_interface_lib UNQUALIFIED_LIB_NAME LIB_VERSION HEADERS LIBS_TO_LINK FIND_PACKAGES LIB_SOURCE_DIR EXPORT_AND_INSTALL_LIB)
+# Format of LIBS_TO_LINK if FIND_PACKAGES == "ON"  "${LIB_NAME};${LIB_VERSION}[;${LIB2_NAME};${LIB2_VERSION}...]"
+#                        if FIND_PACKAGES == "OFF" "${LIB_NAME}[;${LIB2_NAME}...]"
+function(ags_cs_add_interface_lib UNQUALIFIED_LIB_NAME LIB_VERSION LIB_HEADERS LIBS_TO_LINK FIND_PACKAGES LIB_SOURCE_DIR EXPORT_AND_INSTALL_LIB)
     
     set(LIB_NAME "ags_cs_${UNQUALIFIED_LIB_NAME}")
     set(QUALIFIED_LIB_NAME "ags_common_serialization::${UNQUALIFIED_LIB_NAME}")
@@ -147,7 +177,9 @@ function(ags_cs_add_interface_lib UNQUALIFIED_LIB_NAME LIB_VERSION HEADERS LIBS_
     endif()
 
     if (FIND_PACKAGES)
-        ags_cs_add_find_packages("${LIBS_TO_LINK}")
+        ags_cs_find_packages("${LIBS_TO_LINK}")
+    else()
+        set(LIBS_TO_LINK_NAMES "${LIBS_TO_LINK}")
     endif()
 
     add_library(${LIB_NAME} INTERFACE)
@@ -158,7 +190,7 @@ function(ags_cs_add_interface_lib UNQUALIFIED_LIB_NAME LIB_VERSION HEADERS LIBS_
             FILE_SET HEADERS
             BASE_DIRS "${LIB_SOURCE_DIR}/include"
             FILES
-                ${HEADERS}
+                ${LIB_HEADERS}
     )
 
     target_include_directories(${LIB_NAME}
@@ -170,7 +202,7 @@ function(ags_cs_add_interface_lib UNQUALIFIED_LIB_NAME LIB_VERSION HEADERS LIBS_
     target_compile_features(${LIB_NAME} INTERFACE cxx_std_20)
     target_compile_definitions(${LIB_NAME} INTERFACE _HAS_CXX20)
 
-    ags_cs_add_custom_typedef_header_paths()
+    ags_cs_add_custom_typedef_header_paths(${LIB_NAME} "INTERFACE")
 
     if (NOT "${LIBS_TO_LINK_NAMES}" STREQUAL "")
         target_link_libraries(${LIB_NAME}
@@ -188,46 +220,57 @@ function(ags_cs_add_interface_lib UNQUALIFIED_LIB_NAME LIB_VERSION HEADERS LIBS_
 
 endfunction()
 
-function(ags_cs_add_unit_tests_to_lib LIB_NAME TESTS_SOURCES TESTS_ADDITIONAL_LIBS_TO_LINK LIB_SOURCE_DIR)
-    if (TARGET gtest)
-        set(TESTS_NAME "${LIB_NAME}_tests")
+function(ags_cs_add_unit_test_libs_if_need TESTS_LIBS_TO_LINK)
+    foreach(LIB ${TESTS_LIBS_TO_LINK})
+        if (NOT TARGET gtest AND ${LIB} STREQUAL "gtest_main")
+            include(FetchContent)
+            FetchContent_Declare(
+                googletest
+                URL https://github.com/google/googletest/archive/9fce5480448488e17a50bcbf88d2f3bdb637ad6c.zip
+            )
 
-        if (TARGET ${TESTS_NAME})
-            message(WARNING "Target '${TESTS_NAME}' already exists.")
-            return()
-        endif()
-
-        enable_testing()
-
-        add_executable(${TESTS_NAME})
-
-        target_sources(${TESTS_NAME}
-            PRIVATE
-                ${TESTS_SOURCES}
-        )
-
-        if (NOT TARGET ags_common_serialization::tests_special_types_lib)
+            FetchContent_MakeAvailable(googletest)
+        elseif(NOT TARGET ags_common_serialization::tests_special_types_lib AND ${LIB} STREQUAL "ags_common_serialization::tests_special_types_lib")
             add_subdirectory("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../unit_tests_helper_libs/tests_special_types")
         endif()
 
-        target_compile_definitions(${TESTS_NAME} PRIVATE USER_MODE)
-        target_link_libraries(${TESTS_NAME}
-            PRIVATE
-                gtest_main    
-                ${LIB_NAME}
-                ${TESTS_ADDITIONAL_LIBS_TO_LINK}  
-        )
-
-        set_target_properties(${TESTS_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/unit-tests")
-
-        include(GoogleTest)
-        gtest_discover_tests(${TESTS_NAME})
-
-        add_test(NAME ${TESTS_NAME} COMMAND ${TESTS_NAME})
-    endif()
+    endforeach()
 endfunction()
 
-function(ags_cs_add_static_lib UNQUALIFIED_LIB_NAME LIB_VERSION HEADERS LIB_SOURCES LIBS_TO_LINK FIND_LIBS LIB_SOURCE_DIR EXPORT_AND_INSTALL_LIB)
+function(ags_cs_add_unit_tests_to_lib LIB_NAME TESTS_SOURCES TESTS_LIBS_TO_LINK LIB_SOURCE_DIR)
+    set(TESTS_NAME "${LIB_NAME}_tests")
+
+    if (TARGET ${TESTS_NAME})
+        message(WARNING "Target '${TESTS_NAME}' already exists.")
+        return()
+    endif()
+
+    enable_testing()
+
+    add_executable(${TESTS_NAME})
+
+    target_sources(${TESTS_NAME}
+        PRIVATE
+            ${TESTS_SOURCES}
+    )
+
+    ags_cs_add_unit_test_libs_if_need("${TESTS_LIBS_TO_LINK}")
+
+    target_link_libraries(${TESTS_NAME}
+        PRIVATE
+            ${TESTS_LIBS_TO_LINK}  
+    )
+
+    set_target_properties(${TESTS_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/unit-tests")
+
+    gtest_discover_tests(${TESTS_NAME})
+
+    add_test(NAME ${TESTS_NAME} COMMAND ${TESTS_NAME})
+endfunction()
+
+# Format of LIBS_TO_LINK if FIND_PACKAGES == "ON"  "${LIB_NAME};${LIB_VERSION}[;${LIB2_NAME};${LIB2_VERSION}...]"
+#                        if FIND_PACKAGES == "OFF" "${LIB_NAME}[;${LIB2_NAME}...]"
+function(ags_cs_add_static_lib UNQUALIFIED_LIB_NAME LIB_VERSION LIB_HEADERS LIB_SOURCES LIBS_TO_LINK FIND_PACKAGES LIB_SOURCE_DIR EXPORT_AND_INSTALL_LIB)
 
     set(LIB_NAME "ags_cs_${UNQUALIFIED_LIB_NAME}")
     set(QUALIFIED_LIB_NAME "ags_common_serialization::${UNQUALIFIED_LIB_NAME}")
@@ -241,7 +284,9 @@ function(ags_cs_add_static_lib UNQUALIFIED_LIB_NAME LIB_VERSION HEADERS LIB_SOUR
     endif()
 
     if (FIND_PACKAGES)
-        ags_cs_add_find_packages("${LIBS_TO_LINK}")
+        ags_cs_find_packages("${LIBS_TO_LINK}")
+    else()
+        set(LIBS_TO_LINK_NAMES "${LIBS_TO_LINK}")
     endif()
 
     add_library(${LIB_NAME} STATIC)
@@ -252,7 +297,7 @@ function(ags_cs_add_static_lib UNQUALIFIED_LIB_NAME LIB_VERSION HEADERS LIB_SOUR
             FILE_SET HEADERS
             BASE_DIRS "${LIB_SOURCE_DIR}/include"
             FILES
-                ${HEADERS}
+                ${LIB_HEADERS}
         PRIVATE
             ${LIB_SOURCES}
     )
@@ -266,7 +311,7 @@ function(ags_cs_add_static_lib UNQUALIFIED_LIB_NAME LIB_VERSION HEADERS LIB_SOUR
     target_compile_features(${LIB_NAME} PUBLIC cxx_std_20)
     target_compile_definitions(${LIB_NAME} PUBLIC _HAS_CXX20)
 
-    ags_cs_add_custom_typedef_header_paths()
+    ags_cs_add_custom_typedef_header_paths(${LIB_NAME} "PUBLIC")
 
     if (NOT "${LIBS_TO_LINK_NAMES}" STREQUAL "")
         target_link_libraries(${LIB_NAME}

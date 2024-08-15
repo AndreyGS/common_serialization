@@ -23,12 +23,12 @@
 
 #include <gtest/gtest.h>
 #include <common_serialization/containers/containers.h>
-#include <tests_special_types/special_types.h>
+#include <common_serialization/tests_special_types/structs.h>
 
 namespace
 {
 
-using namespace special_types;
+using namespace tests_special_types;
 using namespace common_serialization;
 
 // Explicitly set default allocator helper so we wouldn't depend on 

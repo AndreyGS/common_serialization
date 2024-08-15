@@ -1,43 +1,45 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(ags_common_serialization_allocation_managers VERSION 0.1.0)
+# We need a mark, that we already added project ags_common_serialization_allocators.
+# Because this project is library factory and can be used from multiple places.
+# Unfortunately cmake doesn't have direct way to do that (cached vars are caching until cache deleted and this is inconvenient).
+add_library(ags_common_serialization_containers_included INTERFACE)
 
-option(AGS_CS_CONTAINERS "Build ags common serialization containers project" ON)
-
-set(AGS_CS_SAVED_CONTAINERS_CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Saved ags_common_serialization_containers project folder")
-set(AGS_CS_SAVED_CONTAINERS_PROJECT_VERSION ${PROJECT_VERSION} CACHE INTERNAL "Saved ags_common_serialization_containers project version")
+option(AGS_CS_BUILD_CONTAINERS "Build ags common serialization containers project" ON)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 
 # Function description is similar to ags_cs_create_allocators_lib()
 function(ags_cs_create_containers_lib 
     EXPORT_AND_INSTALL_LIB
+    BUILD_UNIT_TESTS
     AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME 
     AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_LIB_VERSION
     AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH 
     AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_ALIAS 
 )
+    project(ags_common_serialization_containers VERSION 0.1.0)
+
     set(UNQUALIFIED_LIB_NAME "containers")
-    ags_cs_update_lib_name_with_customized_names(
+    ags_cs_update_lib_name_with_customized_name(
         "${UNQUALIFIED_LIB_NAME}"
         "${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME}"
-        "${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}"
         "${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_ALIAS}"
     )
 
-    set(HEADERS_DIR "${AGS_CS_SAVED_CONTAINERS_CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/containers")
-    set(HEADERS
-        "${HEADERS_DIR}/CompressedPair.h"
-        "${HEADERS_DIR}/Concepts.h"
-        "${HEADERS_DIR}/containers.h"
-        "${HEADERS_DIR}/containers_config.h"
-        "${HEADERS_DIR}/DefaultDeleter.h"
-        "${HEADERS_DIR}/GenericPointerKeeper.h"
-        "${HEADERS_DIR}/IteratorTagsDeclarations.h"
-        "${HEADERS_DIR}/typedefs.h"
-        "${HEADERS_DIR}/UniquePtr.h"
-        "${HEADERS_DIR}/Vector.h"
-        "${HEADERS_DIR}/Walker.h"
+    set(LIB_HEADERS_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include/common_serialization/containers")
+    set(LIB_HEADERS
+        "${LIB_HEADERS_DIR}/CompressedPair.h"
+        "${LIB_HEADERS_DIR}/Concepts.h"
+        "${LIB_HEADERS_DIR}/containers.h"
+        "${LIB_HEADERS_DIR}/containers_config.h"
+        "${LIB_HEADERS_DIR}/DefaultDeleter.h"
+        "${LIB_HEADERS_DIR}/GenericPointerKeeper.h"
+        "${LIB_HEADERS_DIR}/IteratorTagsDeclarations.h"
+        "${LIB_HEADERS_DIR}/typedefs.h"
+        "${LIB_HEADERS_DIR}/UniquePtr.h"
+        "${LIB_HEADERS_DIR}/Vector.h"
+        "${LIB_HEADERS_DIR}/Walker.h"
     )
 
     set(LIBS_TO_LINK "ags_common_serialization::allocation_manager_interfaces_lib;0.1.0")
@@ -49,25 +51,27 @@ function(ags_cs_create_containers_lib
 
     ags_cs_add_interface_lib(
         "${UNQUALIFIED_LIB_NAME}"
-        ${AGS_CS_SAVED_CONTAINERS_PROJECT_VERSION}
-        "${HEADERS}"
+        ${PROJECT_VERSION}
+        "${LIB_HEADERS}"
         "${LIBS_TO_LINK}"
         "ON"
-        "${AGS_CS_SAVED_CONTAINERS_CMAKE_CURRENT_SOURCE_DIR}"
+        "${CMAKE_CURRENT_FUNCTION_LIST_DIR}"
         ${EXPORT_AND_INSTALL_LIB}
     )
 
     set(QUALIFIED_LIB_NAME ${QUALIFIED_LIB_NAME} PARENT_SCOPE)
 
-    set(TESTS_SOURCES_DIR "${AGS_CS_SAVED_CONTAINERS_CMAKE_CURRENT_SOURCE_DIR}/unit_tests")
-    set(TESTS_SOURCES
-        "${TESTS_SOURCES_DIR}/UniquePtrTests.cpp"
-        "${TESTS_SOURCES_DIR}/VectorTests.cpp"
-        "${TESTS_SOURCES_DIR}/WalkerTests.cpp"
-    )
+    if (BUILD_UNIT_TESTS)
+        set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_tests")
+        set(TESTS_SOURCES
+            "${TESTS_SOURCES_DIR}/UniquePtrTests.cpp"
+            "${TESTS_SOURCES_DIR}/VectorTests.cpp"
+            "${TESTS_SOURCES_DIR}/WalkerTests.cpp"
+        )
 
-    set(TESTS_ADDITIONAL_LIBS_TO_LINK "ags_common_serialization::tests_special_types_lib")
+        set(TESTS_LIBS_TO_LINK "gtest_main;${LIB_NAME};ags_common_serialization::tests_special_types_lib")
 
-    ags_cs_add_unit_tests_to_lib(${LIB_NAME} "${TESTS_SOURCES}" "${TESTS_ADDITIONAL_LIBS_TO_LINK}" "${AGS_CS_SAVED_CONTAINERS_CMAKE_CURRENT_SOURCE_DIR}")
+        ags_cs_add_unit_tests_to_lib(${LIB_NAME} "${TESTS_SOURCES}" "${TESTS_LIBS_TO_LINK}" "${CMAKE_CURRENT_FUNCTION_LIST_DIR}")
+    endif()
 
 endfunction()

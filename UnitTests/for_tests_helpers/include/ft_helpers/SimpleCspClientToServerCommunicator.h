@@ -26,12 +26,12 @@
 namespace ft_helpers
 {
 
-namespace cs = common_serialization;
+namespace ags_cs = common_serialization;
 
-class SimpleCspClientToServerCommunicator : public cs::csp::messaging::IClientToServerCommunicator
+class SimpleCspClientToServerCommunicator : public ags_cs::csp::messaging::IClientToServerCommunicator
 {
 public:
-    SimpleCspClientToServerCommunicator(cs::csp::messaging::Server& server) : m_server(server) {}
+    SimpleCspClientToServerCommunicator(ags_cs::csp::messaging::Server& server) : m_server(server) {}
 
     void setValidState(bool isValid)
     {
@@ -42,15 +42,15 @@ private:
     // This function must transfer data from client to server.
     // Way by which it will be done is up to concrete client realization.
     // Here we do not need to overcomplicate things and we simply calling csp::messaging::Server::handleMessage.
-    cs::Status process(const cs::BinVectorT& input, cs::BinVectorT& output) override
+    ags_cs::Status process(const ags_cs::BinVectorT& input, ags_cs::BinVectorT& output) override
     {
-        cs::BinWalkerT inputW;
+        ags_cs::BinWalkerT inputW;
         inputW.init(input);
 
-        return m_server.handleMessage(inputW, cs::GenericPointerKeeper{}, output);
+        return m_server.handleMessage(inputW, ags_cs::GenericPointerKeeper{}, output);
     }
 
-    cs::csp::messaging::Server& m_server;
+    ags_cs::csp::messaging::Server& m_server;
     bool m_isValid{ true };
 };
 

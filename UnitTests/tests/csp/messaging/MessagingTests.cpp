@@ -63,19 +63,19 @@ TEST(MessagingTests, DataMessageHandling)
     RawVectorT<protocol_version_t> clientProtocolVersions;
     clientProtocolVersions.pushBack(getLatestProtocolVersion());
     RawVectorT<InterfaceVersion<>> clientInterfaces;
-    clientInterfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
+    clientInterfaces.pushBack(InterfaceVersion{ tests_csp_interface::properties });
     CspPartySettings clientSettings(clientProtocolVersions, {}, {}, clientInterfaces);
 
     dataClient.init(clientSettings);
 
-    interface_for_test::SimplyAssignableAlignedToOne<> input;
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
     fillingStruct(input);
-    interface_for_test::SimplyAssignableDescendant<> output;
+    tests_csp_interface::SimplyAssignableDescendant<> output;
 
     // Unicast test
-    EXPECT_EQ((dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output)), Status::NoError);
+    EXPECT_EQ((dataClient.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output)), Status::NoError);
 
-    interface_for_test::SimplyAssignableDescendant<> outputReference;
+    tests_csp_interface::SimplyAssignableDescendant<> outputReference;
     fillingStruct(outputReference);
 
     EXPECT_EQ(output, outputReference);
@@ -83,41 +83,41 @@ TEST(MessagingTests, DataMessageHandling)
     // Multicast test
     SecondCspService* pSecondCspService = new SecondCspService;
     pSecondCspService->registerHandlers(*commonServer.getDataHandlersRegistrar());
-    interface_for_test::SimplyAssignable<> input2;
+    tests_csp_interface::SimplyAssignable<> input2;
     fillingStruct(input2);
 
     ISerializableDummy outputDummy;
 
     ft_helpers::numberOfMultiEntrances = 0;
-    EXPECT_EQ((dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy)), Status::NoError);
+    EXPECT_EQ((dataClient.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy)), Status::NoError);
     EXPECT_EQ(ft_helpers::numberOfMultiEntrances, 2);
     
     /// Stress test
     std::thread test1([&]
         {
-            interface_for_test::Diamond<> d;
-            interface_for_test::DynamicPolymorphic<> d2;
+            tests_csp_interface::Diamond<> d;
+            tests_csp_interface::DynamicPolymorphic<> d2;
 
 
             for (size_t i = 0; i < 10000; ++i)
             {
-                dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
-                dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
-                dataClient.handleData<ClientHeapHandler<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
+                dataClient.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
+                dataClient.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output);
+                dataClient.handleData<ClientHeapHandler<tests_csp_interface::Diamond<>, tests_csp_interface::DynamicPolymorphic<>>>(d, d2);
             }
         });
 
     std::thread test2([&]
         {
-            interface_for_test::Diamond<> d;
-            interface_for_test::DynamicPolymorphic<> d2;
+            tests_csp_interface::Diamond<> d;
+            tests_csp_interface::DynamicPolymorphic<> d2;
 
 
             for (size_t i = 0; i < 10000; ++i)
             {
-                dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
-                dataClient.handleData<ClientHeapHandler<interface_for_test::Diamond<>, interface_for_test::DynamicPolymorphic<>>>(d, d2);
-                dataClient.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output);
+                dataClient.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
+                dataClient.handleData<ClientHeapHandler<tests_csp_interface::Diamond<>, tests_csp_interface::DynamicPolymorphic<>>>(d, d2);
+                dataClient.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output);
             }
         });
         
@@ -167,9 +167,9 @@ TEST(MessagingTests, DataMessageHandling)
 
     EXPECT_EQ(dataClient2.getInterfaceVersion(clientSettings.getInterfaces()[0].id), 1);
 
-    interface_for_test::SimplyAssignableDescendant<> output2;
+    tests_csp_interface::SimplyAssignableDescendant<> output2;
 
-    EXPECT_EQ((dataClient2.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output2)), Status::NoError);
+    EXPECT_EQ((dataClient2.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output2)), Status::NoError);
     EXPECT_EQ(output2, outputReference);
 
     // Struct handler not support interface version
@@ -181,9 +181,9 @@ TEST(MessagingTests, DataMessageHandling)
 
     EXPECT_EQ(dataClient3.getInterfaceVersion(clientSettings.getInterfaces()[0].id), 0);
 
-    interface_for_test::SimplyAssignableDescendant<> output3;
+    tests_csp_interface::SimplyAssignableDescendant<> output3;
 
-    EXPECT_EQ((dataClient3.handleData<ClientHeapHandler<interface_for_test::SimplyAssignableAlignedToOne<>, interface_for_test::SimplyAssignableDescendant<>>>(input, output3)), Status::ErrorNotSupportedInterfaceVersion);
+    EXPECT_EQ((dataClient3.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output3)), Status::ErrorNotSupportedInterfaceVersion);
     EXPECT_EQ(output3.m_d, 0); // struct wasn't changed
 }
 

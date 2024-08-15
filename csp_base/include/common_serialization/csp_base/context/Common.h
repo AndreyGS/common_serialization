@@ -24,7 +24,8 @@
 #pragma once
 
 #include <common_serialization/csp_base/Concepts.h>
-#include <common_serialization/csp_base/traits_.h>
+#include <common_serialization/csp_base/csp_base_config.h>
+#include <common_serialization/csp_base/traits.h>
 #include <common_serialization/csp_base/context/Message.h>
 #include <common_serialization/csp_base/context/CommonFlags.h>
 

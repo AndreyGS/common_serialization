@@ -29,7 +29,7 @@ namespace
 {
 
 using namespace common_serialization;
-using namespace with_std_included_interface;
+using namespace tests_csp_with_std_interface;
 using namespace ft_helpers;
 
 TEST(StdIncludedTests, MainT)

@@ -46,9 +46,9 @@ CspPartySettings<> getValidCspPartySettings()
     RawVectorT<protocol_version_t> protocolVersions;
     protocolVersions.pushBackN(traits::kProtocolVersions, traits::getProtocolVersionsCount());
     RawVectorT<InterfaceVersion<>> interfaces;
-    interfaces.pushBack(InterfaceVersion{ interface_for_test::properties });
-    interfaces.pushBack(InterfaceVersion{ descendant_interface::properties });
-    interfaces.pushBack(InterfaceVersion{ another_yet_interface::properties });
+    interfaces.pushBack(InterfaceVersion{ tests_csp_interface::properties });
+    interfaces.pushBack(InterfaceVersion{ tests_csp_descendant_interface::properties });
+    interfaces.pushBack(InterfaceVersion{ tests_csp_another_interface::properties });
 
     CspPartySettings settings(protocolVersions, {}, {}, interfaces);
 
@@ -108,7 +108,7 @@ CspPartySettings<> getInterfaceVersionZeroCspPartySettings()
     RawVectorT<protocol_version_t> protocolVersions;
     protocolVersions.pushBackN(traits::kProtocolVersions, traits::getProtocolVersionsCount());
     RawVectorT<InterfaceVersion<>> interfaces;
-    interfaces.pushBack(InterfaceVersion{ interface_for_test::properties.id, 0 } );
+    interfaces.pushBack(InterfaceVersion{ tests_csp_interface::properties.id, 0 } );
     CspPartySettings settings(protocolVersions, {}, {}, interfaces);
 
     return settings;

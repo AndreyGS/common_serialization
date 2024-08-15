@@ -29,9 +29,9 @@
 namespace common_serialization::csp::messaging::service_structs
 {
 
-namespace cs = common_serialization;
+namespace ags_cs = common_serialization;
 
-constexpr cs::csp::Interface properties(
+constexpr ags_cs::csp::Interface properties(
       Uuid{ 0xe47be322, 0x232e, 0x4d66, 0x9175, 0x06eed2110b4b }
     , 1
     , context::DataFlags{}
