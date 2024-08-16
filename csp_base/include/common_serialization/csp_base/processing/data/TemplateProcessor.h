@@ -28,21 +28,21 @@
 namespace common_serialization::csp::processing::data
 {
 
-template<template<typename...> typename _T, typename... _Ts>
+template<typename _T, typename... _Ts>
 class TemplateProcessor {};
 
 
 template<template<typename...> typename _T, typename... _Ts>
 CS_ALWAYS_INLINE Status templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx)
 {
-    return TemplateProcessor<_T, _Ts...>::serialize(value, ctx);
+    return TemplateProcessor<_T<_Ts...>, _Ts...>::serialize(value, ctx);
 }
 
 
 template<template<typename...> typename _T, typename... _Ts>
 CS_ALWAYS_INLINE Status templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value)
 {
-    return TemplateProcessor<_T, _Ts...>::deserialize(ctx, value);
+    return TemplateProcessor<_T<_Ts...>, _Ts...>::deserialize(ctx, value);
 }
 
 } // namespace common_serialization::csp::processing::data

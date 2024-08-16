@@ -30,7 +30,7 @@
 namespace common_serialization::csp::processing::data
 {
 
-template<template<typename...> typename _T, typename... _Ts>
+template<typename _T, typename... _Ts>
 class TemplateProcessor;
 
 }
@@ -472,7 +472,7 @@ private:
     // to have deserialization capability.
     // The only reason this is done is because it allows some optimizations in
     // processing when we have direct access to private fields.
-    friend csp::processing::data::TemplateProcessor<Vector, _T, _AllocationManager>;
+    friend csp::processing::data::TemplateProcessor<Vector<_T, _AllocationManager>, _T, _AllocationManager>;
 };
 
 template<typename _T, IAllocationManagerImpl _AllocationManager>

@@ -31,11 +31,11 @@
 namespace common_serialization::csp::processing::data
 {
 
-template<typename T, IAllocationManagerImpl A>
-class TemplateProcessor<Vector, T, A>
+template<typename _T, typename... _Ts>
+class TemplateProcessor<VectorT<_T, _Ts...>, _T, _Ts...>
 {
 public:
-    static Status serialize(const VectorT<T, A>& value, context::SData& ctx)
+    static Status serialize(const VectorT<_T, _Ts...>& value, context::SData& ctx)
     {
         CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
         CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
@@ -43,11 +43,11 @@ public:
         return Status::NoError;
     }
 
-    static Status deserialize(context::DData& ctx, VectorT<T, A>& value)
+    static Status deserialize(context::DData& ctx, VectorT<_T, _Ts...>& value)
     {
         value.clear();
 
-        typename VectorT<T, A>::size_type size = 0;
+        typename VectorT<_T, _Ts...>::size_type size = 0;
         CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
         CS_RUN(value.reserve(size));
         CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));

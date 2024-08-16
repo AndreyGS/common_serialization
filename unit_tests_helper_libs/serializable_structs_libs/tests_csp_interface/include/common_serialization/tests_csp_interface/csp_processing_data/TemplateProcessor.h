@@ -32,7 +32,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<typename _T>
-class TemplateProcessor<tests_csp_interface::BigStructs, _T>
+class TemplateProcessor<tests_csp_interface::BigStructs<_T>, _T>
 {
 public:
     static Status serialize(const tests_csp_interface::BigStructs<_T>& value, context::SData& ctx)

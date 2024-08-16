@@ -29,11 +29,11 @@
 namespace common_serialization::csp::processing::data
 {
 
-template<typename _T, typename traits_, typename _Allocator>
-class TemplateProcessor<std::basic_string, _T, traits_, _Allocator>
+template<typename _T, typename _traits, typename _Allocator>
+class TemplateProcessor<std::basic_string<_T, _traits, _Allocator>, _T, _traits, _Allocator>
 {
 public:
-    static Status serialize(const std::basic_string<_T, traits_, _Allocator>& value, context::SData& ctx)
+    static Status serialize(const std::basic_string<_T, _traits, _Allocator>& value, context::SData& ctx)
     {
         CS_RUN(BodyProcessor::serializeSizeT(value.length(), ctx));
         CS_RUN(BodyProcessor::serialize(value.c_str(), value.length() + 1, ctx));
@@ -43,7 +43,7 @@ public:
 
     static Status deserialize(context::DData& ctx, std::basic_string<_T, traits_, _Allocator>& value)
     {
-        using size_type = typename std::basic_string<_T, traits_, _Allocator>::size_type;
+        using size_type = typename std::basic_string<_T, _traits, _Allocator>::size_type;
 
         assert(sizeof(size_type) <= sizeof(size_t));
 
@@ -58,7 +58,7 @@ public:
 };
 
 template<typename _T, typename _Allocator>
-class TemplateProcessor<std::vector, _T, _Allocator>
+class TemplateProcessor<std::vector<_T, _Allocator>, _T, _Allocator>
 {
 public:
     static Status serialize(const std::vector<_T, _Allocator>& value, context::SData& ctx)
@@ -86,7 +86,7 @@ public:
 };
 
 template<typename _T1, typename _T2>
-class TemplateProcessor<std::pair, _T1, _T2>
+class TemplateProcessor<std::pair<_T1, _T2>, _T1, _T2>
 {
 public:
     static Status serialize(const std::pair<_T1, _T2>& value, context::SData& ctx)
@@ -107,7 +107,7 @@ public:
 };
 
 template<typename _K, typename _V, class Compare, class _Allocator>
-class TemplateProcessor<std::map, _K, _V, Compare, _Allocator>
+class TemplateProcessor<std::map<_K, _V, Compare, _Allocator>, _K, _V, Compare, _Allocator>
 {
 public:
     static Status serialize(const std::map<_K, _V, Compare, _Allocator>& value, context::SData& ctx)
@@ -142,7 +142,7 @@ public:
 };
 
 template<typename... _Ts>
-class TemplateProcessor<std::tuple, _Ts...>
+class TemplateProcessor<std::tuple<_Ts...>, _Ts...>
 {
 public:
     static Status serialize(const std::tuple<_Ts...>& value, context::SData& ctx)
