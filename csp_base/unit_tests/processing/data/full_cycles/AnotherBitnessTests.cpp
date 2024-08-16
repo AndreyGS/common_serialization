@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAlignmentMayBeNotEqualTests.cpp
+ * @file AnotherBitnessTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -31,69 +31,31 @@ namespace
 using namespace common_serialization;
 using namespace tests_csp_interface;
 
-using size_type = typename BinVectorT::size_type;
-
-template<typename T>
-void mainTest()
+TEST(AnotherBitnessTests, SpecialTBasicT)
 {
-    T input;
+    SpecialProcessingType input;
     input.fill();
 
     BinWalkerT bin;
-    csp::context::SData ctxIn(bin.getVector());
-    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual));
+    csp::context::SData ctxIn(bin.getVector()
+        , csp::context::CommonFlags{ helpers::isBitness64() ? csp::context::CommonFlags::kBitness32 : csp::context::CommonFlags::kNoFlagsMask }
+        , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });
 
     EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     csp::context::DData ctxOut(bin);
-    T output;
 
+    VectorT<GenericPointerKeeper> addedPointers;
+    ctxOut.setAddedPointers(&addedPointers);
+
+    SpecialProcessingType output;
     EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
-}
 
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableAlignedToOneT)
-{
-    mainTest<SimplyAssignableAlignedToOne<>>();
-}
-
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableT)
-{
-    mainTest<SimplyAssignable<>>();
-}
-
-TEST(ISerializableAlignmentMayBeNotEqualTests, AlwaysSimplyAssignableT)
-{
-    mainTest<AlwaysSimplyAssignable<>>();
-}
-
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableFixedSizeT)
-{
-    mainTest<SimplyAssignableFixedSize<>>();
-}
-
-TEST(ISerializableAlignmentMayBeNotEqualTests, SimplyAssignableDataSizeT)
-{
-    SimplyAssignable input;
-    input.fill();
-
-    BinWalkerT bin;
-    csp::context::SData ctxIn(bin.getVector());
-    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual));
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
-
-    size_type sizeWithFlag = ctxIn.getBinaryData().size();
-
-    ctxIn.clear();
-
-    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
-
-    size_type sizeWithoutFlag = ctxIn.getBinaryData().size();
-
-    EXPECT_NE(sizeWithFlag, sizeWithoutFlag);
+    for (auto& gpk : addedPointers)
+        gpk.release<void>();
 }
 
 } // namespace

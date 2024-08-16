@@ -1,5 +1,5 @@
 /**
- * @file ISerializableInterfaceVersionsNotMatchTests.cpp
+ * @file InterfaceVersionsNotMatchTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -31,7 +31,7 @@ namespace
 using namespace common_serialization;
 using namespace tests_csp_interface;
 
-TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
+TEST(InterfaceVersionsNotMatchTests, TopStruct)
 {
     SimplyAssignableAlignedToOne input;
     input.fill();
@@ -49,7 +49,7 @@ TEST(ISerializableInterfaceVersionsNotMatchTests, TopStruct)
     EXPECT_EQ(input, output);
 }
 
-TEST(ISerializableInterfaceVersionsNotMatchTests, MemberStruct)
+TEST(InterfaceVersionsNotMatchTests, MemberStruct)
 {
     SimplyAssignable input;
     input.fill();

@@ -1,5 +1,5 @@
 /**
- * @file ISerializableCheckRecursivePointersTests.cpp
+ * @file AlignmentMayBeNotEqualTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -41,40 +41,59 @@ void mainTest()
 
     BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector());
-    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kCheckRecursivePointers | csp::context::DataFlags::kAllowUnmanagedPointers));
-    csp::context::SPointersMap sMap;
-    ctxIn.setPointersMap(&sMap);
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual));
 
     EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
-    EXPECT_TRUE(ctxIn.getPointersMap()->size() > 0);
-
     csp::context::DData ctxOut(bin);
-    csp::context::DPointersMap dMap;
-    ctxOut.setPointersMap(&dMap);
-    VectorT<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(&addedPointers);
-
     T output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
-    EXPECT_TRUE(ctxOut.getPointersMap()->size() > 0);
-
     EXPECT_EQ(bin.tell(), bin.size());
+
     EXPECT_EQ(input, output);
-
-    for (auto& gpk : addedPointers)
-        gpk.release<void>();
 }
 
-TEST(ISerializableCheckRecursivePointersTests, SpecialProcessingTypeContainSerializableT)
+TEST(AlignmentMayBeNotEqualTests, SimplyAssignableAlignedToOneT)
 {
-    mainTest<SpecialProcessingType<>>();
+    mainTest<SimplyAssignableAlignedToOne<>>();
 }
 
-TEST(ISerializableCheckRecursivePointersTests, ManyPointersTypeT)
+TEST(AlignmentMayBeNotEqualTests, SimplyAssignableT)
 {
-    mainTest<ManyPointersType<>>();
+    mainTest<SimplyAssignable<>>();
+}
+
+TEST(AlignmentMayBeNotEqualTests, AlwaysSimplyAssignableT)
+{
+    mainTest<AlwaysSimplyAssignable<>>();
+}
+
+TEST(AlignmentMayBeNotEqualTests, SimplyAssignableFixedSizeT)
+{
+    mainTest<SimplyAssignableFixedSize<>>();
+}
+
+TEST(AlignmentMayBeNotEqualTests, SimplyAssignableDataSizeT)
+{
+    SimplyAssignable input;
+    input.fill();
+
+    BinWalkerT bin;
+    csp::context::SData ctxIn(bin.getVector());
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAlignmentMayBeNotEqual));
+
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
+
+    size_type sizeWithFlag = ctxIn.getBinaryData().size();
+
+    ctxIn.clear();
+
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
+
+    size_type sizeWithoutFlag = ctxIn.getBinaryData().size();
+
+    EXPECT_NE(sizeWithFlag, sizeWithoutFlag);
 }
 
 } // namespace

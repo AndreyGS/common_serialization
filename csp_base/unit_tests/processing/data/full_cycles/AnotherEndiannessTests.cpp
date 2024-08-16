@@ -1,5 +1,5 @@
 /**
- * @file ISerializableBasicModeTests.cpp
+ * @file AnotherEndiannessTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -31,66 +31,31 @@ namespace
 using namespace common_serialization;
 using namespace tests_csp_interface;
 
-template<typename T>
-void mainTest()
+TEST(AnotherEndiannessTests, SpecialTBasicT)
 {
-    T input;
+    SpecialProcessingType input;
     input.fill();
 
     BinWalkerT bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
+    csp::context::SData ctxIn(bin.getVector()
+        , csp::context::CommonFlags{ (helpers::isLittleEndianPlatform() ? csp::context::CommonFlags::kBigEndianFormat : csp::context::CommonFlags::kNoFlagsMask) | csp::context::CommonFlags::kEndiannessDifference }
+        , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });
 
-    T output;
-    EXPECT_EQ(output.deserialize(bin), Status::NoError);
+    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
+
+    csp::context::DData ctxOut(bin);
+
+    VectorT<GenericPointerKeeper> addedPointers;
+    ctxOut.setAddedPointers(&addedPointers);
+
+    SpecialProcessingType output;
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
-}
 
-TEST(ISerializableBasicModeTests, EmptyTypeT)
-{
-    EmptyType input;
-    BinWalkerT bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
-
-    EmptyType output;
-    EXPECT_EQ(output.deserialize(bin), Status::NoError);
-    EXPECT_EQ(bin.tell(), bin.size());
-}
-
-TEST(ISerializableBasicModeTests, SimplyAssignableAlignedToOneT)
-{
-    mainTest<SimplyAssignableAlignedToOne<>>();
-}
-
-TEST(ISerializableBasicModeTests, SimplyAssignableT)
-{
-    mainTest<SimplyAssignable<>>();
-}
-
-TEST(ISerializableBasicModeTests, SimplyAssignableDescendantT)
-{
-    mainTest<SimplyAssignableDescendant<>>();
-}
-
-TEST(ISerializableBasicModeTests, AlwaysSimplyAssignableT)
-{
-    mainTest<AlwaysSimplyAssignable<>>();
-}
-
-TEST(ISerializableBasicModeTests, SimplyAssignableFixedSizeT)
-{
-    mainTest<SimplyAssignableFixedSize<>>();
-}
-
-TEST(ISerializableBasicModeTests, DynamicPolymorphicT)
-{
-    mainTest<DynamicPolymorphic<>>();
-}
-
-TEST(ISerializableBasicModeTests, DiamondT)
-{
-    mainTest<Diamond<>>();
+    for (auto& gpk : addedPointers)
+        gpk.release<void>();
 }
 
 } // namespace

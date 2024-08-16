@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAnotherEndianness.cpp
+ * @file CheckRecursivePointersTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -31,31 +31,50 @@ namespace
 using namespace common_serialization;
 using namespace tests_csp_interface;
 
-TEST(ISerializableAnotherEndianness, SpecialTBasicT)
+using size_type = typename BinVectorT::size_type;
+
+template<typename T>
+void mainTest()
 {
-    SpecialProcessingType input;
+    T input;
     input.fill();
 
     BinWalkerT bin;
-    csp::context::SData ctxIn(bin.getVector()
-        , csp::context::CommonFlags{ (helpers::isLittleEndianPlatform() ? csp::context::CommonFlags::kBigEndianFormat : csp::context::CommonFlags::kNoFlagsMask) | csp::context::CommonFlags::kEndiannessDifference }
-        , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });
+    csp::context::SData ctxIn(bin.getVector());
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kCheckRecursivePointers | csp::context::DataFlags::kAllowUnmanagedPointers));
+    csp::context::SPointersMap sMap;
+    ctxIn.setPointersMap(&sMap);
 
     EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
-    csp::context::DData ctxOut(bin);
+    EXPECT_TRUE(ctxIn.getPointersMap()->size() > 0);
 
+    csp::context::DData ctxOut(bin);
+    csp::context::DPointersMap dMap;
+    ctxOut.setPointersMap(&dMap);
     VectorT<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(&addedPointers);
 
-    SpecialProcessingType output;
-    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
-    EXPECT_EQ(bin.tell(), bin.size());
+    T output;
 
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
+    EXPECT_TRUE(ctxOut.getPointersMap()->size() > 0);
+
+    EXPECT_EQ(bin.tell(), bin.size());
     EXPECT_EQ(input, output);
 
     for (auto& gpk : addedPointers)
         gpk.release<void>();
+}
+
+TEST(CheckRecursivePointersTests, SpecialProcessingTypeContainSerializableT)
+{
+    mainTest<SpecialProcessingType<>>();
+}
+
+TEST(CheckRecursivePointersTests, ManyPointersTypeT)
+{
+    mainTest<ManyPointersType<>>();
 }
 
 } // namespace

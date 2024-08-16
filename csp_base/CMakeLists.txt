@@ -76,21 +76,20 @@ function(ags_cs_create_csp_base_lib
     )
 
     set(QUALIFIED_LIB_NAME ${QUALIFIED_LIB_NAME} PARENT_SCOPE)
-    message(WARNING "ggg ${QUALIFIED_LIB_NAME}")
 
     if (BUILD_UNIT_TESTS)
         set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_tests")
         set(TESTS_SOURCES
-           "${TESTS_SOURCES_DIR}/ISerializableAlignmentMayBeNotEqualTests.cpp"
-           "${TESTS_SOURCES_DIR}/ISerializableAllowUnmanagedPointersTests.cpp"
-           "${TESTS_SOURCES_DIR}/ISerializableAnotherBitness.cpp"
-           "${TESTS_SOURCES_DIR}/ISerializableAnotherEndianness.cpp"
-           "${TESTS_SOURCES_DIR}/ISerializableBasicModeTests.cpp"
-           "${TESTS_SOURCES_DIR}/ISerializableCheckRecursivePointersTests.cpp"
-           "${TESTS_SOURCES_DIR}/ISerializableInterfaceVersionsNotMatchTests.cpp"
-           "${TESTS_SOURCES_DIR}/ISerializableMultiModesTests.cpp"
-           "${TESTS_SOURCES_DIR}/ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
-           "${TESTS_SOURCES_DIR}/ISerializableSizeOfPrimitivesMayBeNotEqualTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/AlignmentMayBeNotEqualTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/AllowUnmanagedPointersTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/AnotherBitnessTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/AnotherEndiannessTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/BasicModeTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/CheckRecursivePointersTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/InterfaceVersionsNotMatchTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/MultiModesTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/SimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/SizeOfPrimitivesMayBeNotEqualTests.cpp"
         )
 
         if (NOT TARGET ags_cs_tests_restricted_structs_included)

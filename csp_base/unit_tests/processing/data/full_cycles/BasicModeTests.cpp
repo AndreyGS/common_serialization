@@ -1,5 +1,5 @@
 /**
- * @file ISerializableAnotherBitness.cpp
+ * @file BasicModeTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -31,31 +31,66 @@ namespace
 using namespace common_serialization;
 using namespace tests_csp_interface;
 
-TEST(ISerializableAnotherBitness, SpecialTBasicT)
+template<typename T>
+void mainTest()
 {
-    SpecialProcessingType input;
+    T input;
     input.fill();
 
     BinWalkerT bin;
-    csp::context::SData ctxIn(bin.getVector()
-        , csp::context::CommonFlags{ helpers::isBitness64() ? csp::context::CommonFlags::kBitness32 : csp::context::CommonFlags::kNoFlagsMask }
-        , csp::context::DataFlags{ csp::context::DataFlags::kSizeOfIntegersMayBeNotEqual | csp::context::DataFlags::kAllowUnmanagedPointers });
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
 
-    EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
-
-    csp::context::DData ctxOut(bin);
-
-    VectorT<GenericPointerKeeper> addedPointers;
-    ctxOut.setAddedPointers(&addedPointers);
-
-    SpecialProcessingType output;
-    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
+    T output;
+    EXPECT_EQ(output.deserialize(bin), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
+}
 
-    for (auto& gpk : addedPointers)
-        gpk.release<void>();
+TEST(BasicModeTests, EmptyTypeT)
+{
+    EmptyType input;
+    BinWalkerT bin;
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
+
+    EmptyType output;
+    EXPECT_EQ(output.deserialize(bin), Status::NoError);
+    EXPECT_EQ(bin.tell(), bin.size());
+}
+
+TEST(BasicModeTests, SimplyAssignableAlignedToOneT)
+{
+    mainTest<SimplyAssignableAlignedToOne<>>();
+}
+
+TEST(BasicModeTests, SimplyAssignableT)
+{
+    mainTest<SimplyAssignable<>>();
+}
+
+TEST(BasicModeTests, SimplyAssignableDescendantT)
+{
+    mainTest<SimplyAssignableDescendant<>>();
+}
+
+TEST(BasicModeTests, AlwaysSimplyAssignableT)
+{
+    mainTest<AlwaysSimplyAssignable<>>();
+}
+
+TEST(BasicModeTests, SimplyAssignableFixedSizeT)
+{
+    mainTest<SimplyAssignableFixedSize<>>();
+}
+
+TEST(BasicModeTests, DynamicPolymorphicT)
+{
+    mainTest<DynamicPolymorphic<>>();
+}
+
+TEST(BasicModeTests, DiamondT)
+{
+    mainTest<Diamond<>>();
 }
 
 } // namespace

@@ -1,5 +1,5 @@
 /**
- * @file ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff.cpp
+ * @file AllowUnmanagedPointersTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -32,6 +32,7 @@ using namespace common_serialization;
 using namespace tests_csp_interface;
 
 template<typename T>
+
 void mainTest()
 {
     T input;
@@ -39,56 +40,28 @@ void mainTest()
 
     BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector());
-    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff));
+    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kAllowUnmanagedPointers));
+
     EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     T output;
-    EXPECT_EQ(output.deserialize(bin), Status::NoError);
-    EXPECT_EQ(bin.tell(), bin.size());
 
-    EXPECT_EQ(input, output);
-}
+    csp::context::DData ctxOut(bin);
+    VectorT<GenericPointerKeeper> addedPointers;
+    ctxOut.setAddedPointers(&addedPointers);
 
-TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, SimplyAssignableAlignedToOneT)
-{
-    mainTest<SimplyAssignableAlignedToOne<>>();
-}
-
-TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, SimplyAssignableT)
-{
-    mainTest<SimplyAssignable<>>();
-}
-
-TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, AlwaysSimplyAssignableT)
-{
-    mainTest<AlwaysSimplyAssignable<>>();
-}
-
-TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, SimplyAssignableFixedSizeT)
-{
-    mainTest<SimplyAssignableFixedSize<>>();
-}
-
-
-TEST(ISerializableSimplyAssignableTagsOptimizationsAreTurnedOff, ContainSimplyAssignableWithoutSerializationFunctionsT)
-{
-    ContainSimplyAssignableWithoutSerializationFunctions<> input;
-    input.fill();
-
-    BinWalkerT bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
-
-    ContainSimplyAssignableWithoutSerializationFunctions<> output;
-    EXPECT_EQ(output.deserialize(bin), Status::NoError);
+    EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 
     EXPECT_EQ(input, output);
 
-    bin.clear();
-    csp::context::SData ctxIn(bin.getVector());
-    ctxIn.setDataFlags(csp::context::DataFlags(csp::context::DataFlags::kSimplyAssignableTagsOptimizationsAreTurnedOff));
-    EXPECT_EQ(input.serialize(ctxIn), Status::ErrorNotSupportedSerializationSettingsForStruct);
+    for (auto& gpk : addedPointers)
+        gpk.release<void>();
 }
 
+TEST(AllowUnmanagedPointersTests, SpecialT)
+{
+    mainTest<SpecialProcessingType<>>();
+}
 
 } // namespace

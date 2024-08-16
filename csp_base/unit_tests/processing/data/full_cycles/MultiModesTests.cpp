@@ -1,5 +1,5 @@
 /**
- * @file ISerializableMultiModesTests.cpp
+ * @file MultiModesTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -104,27 +104,27 @@ void allFlags(uint32_t targetVersion)
 }
 
 // 0 to 3 if for interface versions serialization = 0, deserialization = 3
-TEST(ISerializableMultiModesTests, AllFlags0to3)
+TEST(MultiModesTests, AllFlags0to3)
 {
     allFlags<SForAllModesTests_Version0<>, DForAllModesTests<>>(SForAllModesTests_Version0<>::getLatestInterfaceVersion());
 }
 
-TEST(ISerializableMultiModesTests, AllFlags2to3)
+TEST(MultiModesTests, AllFlags2to3)
 {
     allFlags<SForAllModesTests_Version2<>, DForAllModesTests<>>(SForAllModesTests_Version2<>::getLatestInterfaceVersion());
 }
 
-TEST(ISerializableMultiModesTests, AllFlags3to3)
+TEST(MultiModesTests, AllFlags3to3)
 {
     allFlags<DForAllModesTests<>, DForAllModesTests<>>(DForAllModesTests<>::getLatestInterfaceVersion());
 }
 
-TEST(ISerializableMultiModesTests, AllFlags3to0)
+TEST(MultiModesTests, AllFlags3to0)
 {
     allFlags<DForAllModesTests<>, SForAllModesTests_Version0<>>(SForAllModesTests_Version0<>::getLatestInterfaceVersion());
 }
 
-TEST(ISerializableMultiModesTests, AllFlags3to2)
+TEST(MultiModesTests, AllFlags3to2)
 {
     allFlags<DForAllModesTests<>, SForAllModesTests_Version2<>>(SForAllModesTests_Version2<>::getLatestInterfaceVersion());
 }
