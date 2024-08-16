@@ -32,7 +32,7 @@
 #endif // #ifdef AGS_CS_NO_STD_LIB
 
 
-#include <common_serialization/common/Concepts.h>
+#include <common_serialization/common/concepts.h>
 
 namespace common_serialization
 {

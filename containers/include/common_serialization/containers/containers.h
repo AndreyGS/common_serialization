@@ -26,7 +26,7 @@
 #include <common_serialization/allocation_manager_interfaces/allocation_manager_interface.h>
 
 #include <common_serialization/containers/CompressedPair.h>
-#include <common_serialization/containers/Concepts.h>
+#include <common_serialization/containers/concepts.h>
 #include <common_serialization/containers/DefaultDeleter.h>
 #include <common_serialization/containers/GenericPointerKeeper.h>
 #include <common_serialization/containers/IteratorTagsDeclarations.h>

@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/Concepts.h>
 #include <common_serialization/csp_base/processing/common/ContextProcessor.h>
 #include <common_serialization/csp_base/processing/data/BodyProcessor.h>
 #include <common_serialization/csp_base/processing/data/ContextProcessor.h>

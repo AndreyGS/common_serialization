@@ -24,7 +24,7 @@
 #pragma once
 
 #include <common_serialization/common/traits.h>
-#include <common_serialization/common/Helpers.h>
+#include <common_serialization/common/helpers.h>
 
 namespace common_serialization
 {

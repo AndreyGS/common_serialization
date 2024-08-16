@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/Concepts.h>
-
 namespace common_serialization::csp::messaging
 {
 

@@ -5,7 +5,7 @@ add_library(common_serialization::concurrencylib ALIAS common_serialization_conc
 
 set(CONCURRENCY_INCLUDE_DIR "include/common_serialization/concurrency")
 set(CONCURRENCY_HEADERS
-    "${CONCURRENCY_INCLUDE_DIR}/Concepts.h"
+    "${CONCURRENCY_INCLUDE_DIR}/concepts.h"
     "${CONCURRENCY_INCLUDE_DIR}/typedefs.h"
     "${CONCURRENCY_INCLUDE_DIR}/platform_dependent/switch.h"
     "${CONCURRENCY_INCLUDE_DIR}/platform_dependent/user_mode.h"

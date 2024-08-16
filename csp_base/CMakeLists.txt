@@ -29,7 +29,6 @@ function(ags_cs_create_csp_base_lib
 
     set(LIB_HEADERS_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include/common_serialization/csp_base")
     set(LIB_HEADERS
-        "${LIB_HEADERS_DIR}/Concepts.h"
         "${LIB_HEADERS_DIR}/csp_base.h"
         "${LIB_HEADERS_DIR}/csp_base_config.h"
         "${LIB_HEADERS_DIR}/ISerializable.h"

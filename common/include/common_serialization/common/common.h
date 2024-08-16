@@ -37,8 +37,8 @@
 #include <list>
 #endif // !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
 
-#include <common_serialization/common/Concepts.h>
-#include <common_serialization/common/Helpers.h>
+#include <common_serialization/common/concepts.h>
+#include <common_serialization/common/helpers.h>
 #include <common_serialization/common/Status.h>
 #include <common_serialization/common/std_equivalents.h>
 #include <common_serialization/common/traits.h>
