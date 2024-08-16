@@ -29,14 +29,14 @@ function(ags_cs_create_containers_lib
 
     set(LIB_HEADERS_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include/common_serialization/containers")
     set(LIB_HEADERS
-        "${LIB_HEADERS_DIR}/CompressedPair.h"
         "${LIB_HEADERS_DIR}/concepts.h"
         "${LIB_HEADERS_DIR}/containers.h"
         "${LIB_HEADERS_DIR}/containers_config.h"
+        "${LIB_HEADERS_DIR}/typedefs.h"
+        "${LIB_HEADERS_DIR}/CompressedPair.h"
         "${LIB_HEADERS_DIR}/DefaultDeleter.h"
         "${LIB_HEADERS_DIR}/GenericPointerKeeper.h"
         "${LIB_HEADERS_DIR}/IteratorTagsDeclarations.h"
-        "${LIB_HEADERS_DIR}/typedefs.h"
         "${LIB_HEADERS_DIR}/UniquePtr.h"
         "${LIB_HEADERS_DIR}/Vector.h"
         "${LIB_HEADERS_DIR}/Walker.h"

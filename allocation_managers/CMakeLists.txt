@@ -31,9 +31,9 @@ function(ags_cs_create_allocation_managers_lib
     set(LIB_HEADERS
         "${LIB_HEADERS_DIR}/allocation_managers.h"
         "${LIB_HEADERS_DIR}/allocation_managers_config.h"
+        "${LIB_HEADERS_DIR}/typedefs.h"
         "${LIB_HEADERS_DIR}/GenericAllocationManager.h"
         "${LIB_HEADERS_DIR}/StrategicAllocationManager.h"
-        "${LIB_HEADERS_DIR}/typedefs.h"
     )
 
     set(LIBS_TO_LINK "ags_cs::allocation_manager_interfaces_lib;0.1.0")

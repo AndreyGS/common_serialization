@@ -6,10 +6,12 @@ option(AGS_CS_BUILD_COMMON "Build ags common serialization common project" ON)
 
 set(LIB_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/common")
 set(LIB_HEADERS
-    "${LIB_HEADERS_DIR}/Status.h"
+    "${LIB_HEADERS_DIR}/common.h"
     "${LIB_HEADERS_DIR}/concepts.h"
     "${LIB_HEADERS_DIR}/helpers.h"
     "${LIB_HEADERS_DIR}/std_equivalents.h"
+    "${LIB_HEADERS_DIR}/traits.h"
+    "${LIB_HEADERS_DIR}/Status.h"
     "${LIB_HEADERS_DIR}/Uuid.h"
     "${LIB_HEADERS_DIR}/interfaces/IIoProcessor.h"
 )

@@ -57,10 +57,10 @@ function(ags_cs_create_allocators_lib
     set(LIB_HEADERS
         "${LIB_HEADERS_DIR}/allocators.h"
         "${LIB_HEADERS_DIR}/allocators_config.h"
+        "${LIB_HEADERS_DIR}/typedefs.h"
         "${LIB_HEADERS_DIR}/ConstructorNoexceptAllocator.h"
         "${LIB_HEADERS_DIR}/RawKeeperAllocator.h"
         "${LIB_HEADERS_DIR}/RawNoexceptAllocator.h"
-        "${LIB_HEADERS_DIR}/typedefs.h"
     )
 
     set(LIBS_TO_LINK "ags_cs::allocator_interfaces_lib;0.1.0")
