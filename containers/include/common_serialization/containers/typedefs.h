@@ -25,6 +25,15 @@
 
 #ifndef CS_CUSTOM_CONTAINERS_TYPEDEFS
 
+#ifdef AGS_CS_NO_STD_LIB
+#include TODO
+#else // AGS_CS_NO_STD_LIB
+#include <map>
+#include <unordered_map> 
+#include <list>
+#endif // #ifdef AGS_CS_NO_STD_LIB
+
+
 #include <common_serialization/containers/GenericPointerKeeper.h>
 #include <common_serialization/containers/UniquePtr.h>
 #include <common_serialization/containers/Vector.h>

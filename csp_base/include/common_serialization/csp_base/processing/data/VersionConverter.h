@@ -196,7 +196,7 @@ protected:
     static constexpr interface_version_t privateVersion = traits::kInterfaceVersionUndefined;
 
     template<ISerializableImpl _To>
-    Status convertToUpperVersionOnHeap(const from_type& from, context::DData& ctx, _To& to) noexcept
+    Status convertToUpperVersionOnHeap(from_type&& from, context::DData& ctx, _To& to) noexcept
     {
         return Status::ErrorInternal;
     }
@@ -248,7 +248,7 @@ protected:
 
         CS_RUN(BodyProcessor::deserialize(ctx, *pointerKeeper.get<_From>()));
 
-        return convertToUpperVersionOnHeap(*pointerKeeper.get<_From>(), ctx, to);
+        return convertToUpperVersionOnHeap(std::move(*pointerKeeper.get<_From>()), ctx, to);
     }
 
     template<ISerializableImpl _To>
@@ -261,7 +261,7 @@ protected:
     }
 
     template<ISerializableImpl _To>
-    Status convertToUpperVersionOnHeap(const _From& from, context::DData& ctx, _To& to)
+    Status convertToUpperVersionOnHeap(_From&& from, context::DData& ctx, _To& to)
     {
         if (base_class::privateVersion != traits::kInterfaceVersionUndefined)
         {
@@ -270,14 +270,14 @@ protected:
                 return Status::ErrorNoMemory;
 
             if constexpr (InitableBySpecialClass<_To, base_from>)
-                CS_RUN(pointerKeeper.get<base_from>()->init(from))
+                CS_RUN(pointerKeeper.get<base_from>()->init(std::move(from)))
             else
                 return Status::ErrorNoSuchHandler;
 
-            return base_class::convertToUpperVersionOnHeap(*pointerKeeper.get<base_from>(), ctx, to);
+            return base_class::convertToUpperVersionOnHeap(std::move(*pointerKeeper.get<base_from>()), ctx, to);
         }
         else if constexpr (InitableBySpecialClass<_To, _From>)
-            return to.init(from);
+            return to.init(std::move(from));
         else
             return Status::ErrorNoSuchHandler;
     }

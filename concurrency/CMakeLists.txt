@@ -1,29 +1,21 @@
-project(common_serialization_concurrency)
+cmake_minimum_required(VERSION 3.28)
 
-add_library(common_serialization_concurrency_lib INTERFACE)
-add_library(common_serialization::concurrencylib ALIAS common_serialization_concurrency_lib)
+project(ags_cs_concurrency VERSION 0.1.0)
 
-set(CONCURRENCY_INCLUDE_DIR "include/common_serialization/concurrency")
-set(CONCURRENCY_HEADERS
-    "${CONCURRENCY_INCLUDE_DIR}/concepts.h"
-    "${CONCURRENCY_INCLUDE_DIR}/typedefs.h"
-    "${CONCURRENCY_INCLUDE_DIR}/platform_dependent/switch.h"
-    "${CONCURRENCY_INCLUDE_DIR}/platform_dependent/user_mode.h"
+option(AGS_CS_BUILD_CONCURRENCY "Build ags common serialization concurrency" ON)
+
+set(LIB_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/concurrency")
+set(LIB_HEADERS
+    "${LIB_HEADERS_DIR}/concurrency.h"
+    "${LIB_HEADERS_DIR}/typedefs.h"
+    "${LIB_HEADERS_DIR}/platform_dependent/switch.h"
+    "${LIB_HEADERS_DIR}/platform_dependent/user_mode.h"
 )
 
-target_sources(common_serialization_concurrency_lib
-    INTERFACE
-        ${CONCURRENCY_HEADERS}
-)
+set(LIBS_TO_LINK "ags_cs::concurrency_interfaces_lib;0.1.0")
 
-target_include_directories(common_serialization_concurrency_lib
-    INTERFACE 
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 
-target_link_libraries(common_serialization_concurrency_lib
-    INTERFACE
-        common_serialization::commonlib
-        common_serialization::concurrency_interfaceslib
-)
+ags_cs_add_interface_lib(concurrency_lib ${PROJECT_VERSION} "${LIB_HEADERS}" "${LIBS_TO_LINK}" ON "${CMAKE_CURRENT_SOURCE_DIR}" ON)
+
+set(QUALIFIED_LIB_NAME ${QUALIFIED_LIB_NAME} PARENT_SCOPE)

@@ -44,9 +44,9 @@ function(ags_cs_create_containers_lib
 
     set(LIBS_TO_LINK "ags_cs::allocation_manager_interfaces_lib;0.1.0")
     if ("${CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME}" STREQUAL "")
-        string(APPEND LIBS_TO_LINK ";ags_cs::allocation_managers;0.1.0")
+        list(APPEND LIBS_TO_LINK "ags_cs::allocation_managers;0.1.0")
     else()
-        string(APPEND LIBS_TO_LINK ";${CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME};${CUSTOM_ALLOCATOR_MANAGERS_LIB_VERSION}")
+        list(APPEND LIBS_TO_LINK "${CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME};${CUSTOM_ALLOCATOR_MANAGERS_LIB_VERSION}")
     endif()
 
     ags_cs_add_interface_lib(

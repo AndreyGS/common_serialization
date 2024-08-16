@@ -25,6 +25,16 @@
 
 #ifndef CS_CUSTOM_CONCURENCY_TYPEDEFS
 
+#ifdef AGS_CS_NO_STD_LIB
+#include TODO
+#else // AGS_CS_NO_STD_LIB
+#include <shared_mutex>
+#include <semaphore>
+#include <latch>
+#include <atomic>
+#endif // #ifdef AGS_CS_NO_STD_LIB
+
+
 namespace common_serialization
 {
 

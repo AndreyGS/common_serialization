@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/tests/csp/processing/ProfillingTests.cpp
+ * @file ProfillingTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,13 +24,15 @@
 // Should be moved in separate project later
 
 #include <chrono>
+#include <gtest/gtest.h>
+#include <common_serialization/tests_csp_interface/tests_csp_interface.h>
+#include <common_serialization/tests_restricted_structs/tests_restricted_structs.h>
 
 namespace
 {
 
 using namespace common_serialization;
 using namespace tests_csp_interface;
-using namespace ft_helpers;
 
 template<typename TS, typename TD>
 void mainTest(csp::context::DataFlags dataFlags)
@@ -98,25 +100,25 @@ TEST(ProfillingTests, ContainBigStructs1T)
     for (size_t i = 0; i < 100000; ++i)
     {
         SimplyAssignableAlignedToOne<> item1;
-        fillingStruct(item1);
+        item1.fill();
         input.m_big1.m_vector.pushBack(std::move(item1));
         SimplyAssignable<> item2;
-        fillingStruct(item2);
+        item2.fill();
         input.m_big2.m_vector.pushBack(std::move(item2));
         SimplyAssignableDescendant<> item3;
-        fillingStruct(item3);
+        item3.fill();
         input.m_big3.m_vector.pushBack(std::move(item3));
         AlwaysSimplyAssignable<> item4;
-        fillingStruct(item4);
+        item4.fill();
         input.m_big4.m_vector.pushBack(std::move(item4));
         SimplyAssignableFixedSize<> item5;
-        fillingStruct(item5);
+        item5.fill();
         input.m_big5.m_vector.pushBack(std::move(item5));
         DynamicPolymorphic<> item6;
-        fillingStruct(item6);
+        item6.fill();
         input.m_big6.m_vector.pushBack(std::move(item6));
         Diamond<> item7;
-        fillingStruct(item7);
+        item7.fill();
         input.m_big7.m_vector.pushBack(std::move(item7));
     }
 
@@ -135,17 +137,6 @@ TEST(ProfillingTests, ContainBigStructs1T)
     std::cout << "Deserialization Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(deserEnd - deserStart) << "\n";
 
     EXPECT_EQ(input, output);
-
-    for (size_t i = 0; i < 100000; ++i)
-    {
-        cleanAfterStruct(input.m_big1.m_vector[i]);
-        cleanAfterStruct(input.m_big2.m_vector[i]);
-        cleanAfterStruct(input.m_big3.m_vector[i]);
-        cleanAfterStruct(input.m_big4.m_vector[i]);
-        cleanAfterStruct(input.m_big5.m_vector[i]);
-        cleanAfterStruct(input.m_big6.m_vector[i]);
-        cleanAfterStruct(input.m_big7.m_vector[i]);
-    }
 }
 
 TEST(ProfillingTests, ContainBigStructs2T)
@@ -155,7 +146,7 @@ TEST(ProfillingTests, ContainBigStructs2T)
     for (size_t i = 0; i < 100000; ++i)
     {
         DForAllModesTests<> item;
-        fillingStruct(item);
+        item.fill();
         input.m_big.m_vector.pushBack(std::move(item));
     }
 
@@ -189,7 +180,7 @@ TEST(ProfillingTests, ContainBigStructs2T)
     std::cout << "Deserialization Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(deserEnd - deserStart) << "\n";
 
     for (size_t i = 0; i < 100000; ++i)
-        cleanAfterStruct(input.m_big.m_vector[i]);
+        input.m_big.m_vector[i].clean();
 }
 
 } // namespace

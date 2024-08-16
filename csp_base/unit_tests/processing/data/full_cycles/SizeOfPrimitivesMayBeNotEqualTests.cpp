@@ -106,8 +106,7 @@ TEST(SizeOfPrimitivesMayBeNotEqualTests, SpecialTBasicT)
 
     cleanAfterStruct(input);
 
-    for (auto& gpk : addedPointers)
-        gpk.release<void>();
+    input.clean();
 }
 
 } // namespace

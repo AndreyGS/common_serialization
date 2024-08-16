@@ -55,8 +55,7 @@ void mainTest()
 
     EXPECT_EQ(input, output);
 
-    for (auto& gpk : addedPointers)
-        gpk.release<void>();
+    input.clean();
 }
 
 TEST(AllowUnmanagedPointersTests, SpecialT)

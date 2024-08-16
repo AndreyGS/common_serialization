@@ -1,5 +1,5 @@
 /**
- * @file common_serialization/containers/containers_config.h
+ * @file common_serialization/csp_base/service_structs/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,19 @@
 
 #pragma once
 
-#ifndef AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH
-#include <common_serialization/allocation_managers/typedefs.h>
-#else
-#include AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH
-#endif // #ifndef AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH
+#include <common_serialization/csp_base/Interface.h>
+
+// Service structs is a mandatory part of CSP.
+// Set of structs is completely depend on protocol version. 
+
+namespace common_serialization::csp::messaging::service_structs
+{
+
+constexpr Interface properties(
+      Uuid{ 0xe47be322, 0x232e, 0x4d66, 0x9175, 0x06eed2110b4b }
+    , 1
+    , context::DataFlags{}
+    , context::DataFlags{ context::DataFlags::kSizeOfIntegersMayBeNotEqual | context::DataFlags::kAllowUnmanagedPointers | context::DataFlags::kCheckRecursivePointers }
+);
+
+} // namespace common_serialization::csp::messaging::service_structs

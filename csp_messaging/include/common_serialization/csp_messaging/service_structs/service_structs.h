@@ -1,5 +1,5 @@
 /**
- * @file common_serialization/containers/containers_config.h
+ * @file common_serialization/csp_base/service_structs/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,8 +23,7 @@
 
 #pragma once
 
-#ifndef AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH
-#include <common_serialization/allocation_managers/typedefs.h>
-#else
-#include AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH
-#endif // #ifndef AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH
+#include <common_serialization/csp_messaging/service_structs/structs.h>
+#include <common_serialization/csp_messaging/service_structs/Interface.h>
+#include <common_serialization/csp_messaging/service_structs/processing/Deserialize.h>
+#include <common_serialization/csp_messaging/service_structs/processing/Serialize.h>

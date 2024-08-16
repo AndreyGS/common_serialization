@@ -1,6 +1,6 @@
 
 /**
- * @file common_serialization/csp_base/service_structs/processing/Serialize.h
+ * @file common_serialization/csp_messaging/service_structs/csp_processing_data/BodyProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,45 +24,24 @@
 
 #pragma once
 
+#include <common_serialization/csp_messaging/service_structs/structs.h>
+
 namespace common_serialization::csp::processing::data
 {
 
 template<>
-constexpr Status BodyProcessor::serialize(const messaging::service_structs::OutGetInterface<>& value, context::SData& ctx)
-{
-    CSP_SERIALIZE_COMMON(value, ctx);
-
-    CS_RUN(serialize(value.properties, ctx));
-
-    return Status::NoError;
-}
+constexpr Status BodyProcessor::serialize(const messaging::service_structs::OutGetInterface<>& value, context::SData& ctx);
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::OutGetInterface<>& value);
 
 template<>
-constexpr Status BodyProcessor::serialize(const messaging::service_structs::GetInterface<>& value, context::SData& ctx)
-{
-    CSP_SERIALIZE_COMMON(value, ctx);
-
-    CS_RUN(serialize(value.id, ctx));
-
-    return Status::NoError;
-}
+constexpr Status BodyProcessor::serialize(const messaging::service_structs::GetInterface<>& value, context::SData& ctx);
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::GetInterface<>& value);
 
 template<>
-constexpr Status BodyProcessor::serialize(const messaging::service_structs::CspPartySettings<>& value, context::SData& ctx)
-{
-    CSP_SERIALIZE_COMMON(value, ctx);
-
-    // Here needs special handling to be compliant with CSP
-
-    CS_RUN(serialize(static_cast<protocol_version_t>(value.m_protocolVersions.size()), ctx));
-    CS_RUN(serialize(value.m_protocolVersions.data(), static_cast<protocol_version_t>(value.m_protocolVersions.size()), ctx));
-
-    CS_RUN(serialize(static_cast<uint32_t>(value.m_mandatoryCommonFlags), ctx));
-    CS_RUN(serialize(static_cast<uint32_t>(value.m_forbiddenCommonFlags), ctx));
-
-    CS_RUN(serialize(value.m_interfaces, ctx));
-
-    return Status::NoError;
-}
+constexpr Status BodyProcessor::serialize(const messaging::service_structs::CspPartySettings<>& value, context::SData& ctx);
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::CspPartySettings<>& value);
 
 } // namespace common_serialization::csp::processing::data

@@ -133,6 +133,19 @@ function(ags_cs_add_custom_typedef_header_paths LIB_NAME APPLICABILITY)
             )
         endif()
     endif()
+    if (NOT "${CUSTOM_CONCURRENCY_TYPEDEFS_HEADER_PATH}" STREQUAL "")
+        if ("${APPLICABILITY}" STREQUAL "INTERFACE")
+            target_compile_definitions(${LIB_NAME}
+                INTERFACE
+                    AGS_CS_CUSTOM_CONCURRENCY_TYPEDEFS_HEADER_PATH=<${CUSTOM_CONCURRENCY_TYPEDEFS_HEADER_PATH}>
+            )
+        else()
+            target_compile_definitions(${LIB_NAME}
+                PUBLIC
+                    AGS_CS_CUSTOM_CONCURRENCY_TYPEDEFS_HEADER_PATH=<${CUSTOM_CONCURRENCY_TYPEDEFS_HEADER_PATH}>
+            )
+        endif()
+    endif()
 endfunction()
 
 function(ags_cs_find_packages LIBS_TO_LINK)

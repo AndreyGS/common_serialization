@@ -63,8 +63,7 @@ void mainTest()
     EXPECT_EQ(bin.tell(), bin.size());
     EXPECT_EQ(input, output);
 
-    for (auto& gpk : addedPointers)
-        gpk.release<void>();
+    input.clean();
 }
 
 TEST(CheckRecursivePointersTests, SpecialProcessingTypeContainSerializableT)

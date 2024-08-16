@@ -3,65 +3,71 @@ cmake_minimum_required(VERSION 3.28)
 # We need a mark, that we already added project ags_cs_allocators.
 # Because this project is library factory and can be used from multiple places.
 # Unfortunately cmake doesn't have direct way to do that (cached vars are caching until cache deleted and this is inconvenient).
-add_library(ags_cs_csp_base_included INTERFACE)
+add_library(ags_cs_csp_messaging_included INTERFACE)
 
-option(AGS_CS_BUILD_CSP_BASE "Build ags common serialization csp base project" ON)
+option(AGS_CS_BUILD_CSP_MESSAGING "Build ags common serialization csp messaging project" ON)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 
 # Function description is similar to ags_cs_create_allocators_lib()
-function(ags_cs_create_csp_base_lib 
+function(ags_cs_create_csp_messaging_lib 
     EXPORT_AND_INSTALL_LIB
     BUILD_UNIT_TESTS
-    CUSTOM_CONTAINERS_LIB_NAME 
-    CUSTOM_CONTAINERS_LIB_VERSION
-    CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH 
-    CUSTOM_CONTAINERS_ALIAS 
+    CUSTOM_CSP_BASE_LIB_NAME 
+    CUSTOM_CSP_BASE_LIB_VERSION
+    CUSTOM_CSP_BASE_ALIAS 
+    CUSTOM_CONCURRENCY_LIB_NAME 
+    CUSTOM_CONCURRENCY_LIB_VERSION
+    CUSTOM_CONCURRENCY_TYPEDEFS_HEADER_PATH 
+    CUSTOM_CONCURRENCY_ALIAS 
 )
-    project(ags_cs_csp_base VERSION 0.1.0)
+    project(ags_cs_csp_messaging VERSION 0.1.0)
 
-    set(UNQUALIFIED_LIB_NAME "csp_base_lib")
+    set(UNQUALIFIED_LIB_NAME "csp_messaging_lib")
     ags_cs_update_lib_name_with_customized_name(
         "${UNQUALIFIED_LIB_NAME}"
-        "${CUSTOM_CONTAINERS_LIB_NAME}"
-        "${CUSTOM_CONTAINERS_ALIAS}"
+        "${CUSTOM_CSP_BASE_LIB_NAME}"
+        "${CUSTOM_CSP_BASE_ALIAS}"
+    )
+    ags_cs_update_lib_name_with_customized_name(
+        "${UNQUALIFIED_LIB_NAME}"
+        "${CUSTOM_CONCURRENCY_LIB_NAME}"
+        "${CUSTOM_CONCURRENCY_ALIAS}"
     )
 
-    set(LIB_HEADERS_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include/common_serialization/csp_base")
+    set(LIB_HEADERS_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include/common_serialization/csp_messaging")
     set(LIB_HEADERS
-        "${LIB_HEADERS_DIR}/csp_base.h"
-        "${LIB_HEADERS_DIR}/csp_base_config.h"
-        "${LIB_HEADERS_DIR}/traits.h"
-        "${LIB_HEADERS_DIR}/types.h"
-        "${LIB_HEADERS_DIR}/Interface.h"
-        "${LIB_HEADERS_DIR}/ISerializable.h"
-        "${LIB_HEADERS_DIR}/context/Common.h"
-        "${LIB_HEADERS_DIR}/context/CommonFlags.h"
-        "${LIB_HEADERS_DIR}/context/Data.h"
-        "${LIB_HEADERS_DIR}/context/DataFlags.h"
-        "${LIB_HEADERS_DIR}/context/Message.h"
-        "${LIB_HEADERS_DIR}/processing/rw.h"
-        "${LIB_HEADERS_DIR}/processing/common/ContextProcessor.h"
-        "${LIB_HEADERS_DIR}/processing/data/BodyProcessor.h"
-        "${LIB_HEADERS_DIR}/processing/data/ContextProcessor.h"
-        "${LIB_HEADERS_DIR}/processing/data/TemplateProcessor.h"
-        "${LIB_HEADERS_DIR}/processing/data/TemplateProcessorVector.h"
-        "${LIB_HEADERS_DIR}/processing/data/VersionConverter.h"
-        "${LIB_HEADERS_DIR}/processing/status/BodyProcessor.h"
-        "${LIB_HEADERS_DIR}/processing/status/ContextProcessor.h"
-        "${LIB_HEADERS_DIR}/processing/status/Helpers.h"
+        "${LIB_HEADERS_DIR}/csp_messaging.h"
+        "${LIB_HEADERS_DIR}/csp_messaging_config.h"
+        "${LIB_HEADERS_DIR}/Client.h"
+        "${LIB_HEADERS_DIR}/GenericServerDataHandlerRegistrar.h"
+        "${LIB_HEADERS_DIR}/IClientDataHandlerTraits.h"
+        "${LIB_HEADERS_DIR}/IServerDataHandler.h"
+        "${LIB_HEADERS_DIR}/IServerDataHandlerBase.h"
+        "${LIB_HEADERS_DIR}/IServerDataHandlerRegistrar.h"
+        "${LIB_HEADERS_DIR}/IServerDataHandlerTraits.h"
+        "${LIB_HEADERS_DIR}/Server.h"
+        "${LIB_HEADERS_DIR}/service_structs/service_structs.h"
+        "${LIB_HEADERS_DIR}/service_structs/structs.h"
+        "${LIB_HEADERS_DIR}/service_structs/Interface.h"
+        "${LIB_HEADERS_DIR}/service_structs/csp_processing_data/BodyProcessor.h"
     )
 
     set(LIB_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src")
     set(LIB_SOURCES
-        "${LIB_SOURCES_DIR}/processing/data/BodyProcessor.cpp"
+        "${LIB_SOURCES_DIR}/service_structs/csp_processing_data/BodyProcessor.cpp"
     )
 
-    set(LIBS_TO_LINK "ags_cs::common_lib;0.1.0")
-    if ("${CUSTOM_CONTAINERS_LIB_NAME}" STREQUAL "")
-        string(APPEND LIBS_TO_LINK ";ags_cs::containers;0.1.0")
+    if ("${CUSTOM_CSP_BASE_LIB_NAME}" STREQUAL "")
+        set(LIBS_TO_LINK "ags_cs::csp_base_lib;0.1.0")
     else()
-        string(APPEND LIBS_TO_LINK ";${CUSTOM_CONTAINERS_LIB_NAME};${CUSTOM_CONTAINERS_LIB_VERSION}")
+        set(LIBS_TO_LINK ";${CUSTOM_CSP_BASE_LIB_NAME};${CUSTOM_CSP_BASE_ALIAS}")
+    endif()
+
+    if ("${CUSTOM_CONCURRENCY_LIB_NAME}" STREQUAL "")
+        list(APPEND LIBS_TO_LINK "ags_cs::concurrency_lib;0.1.0")
+    else()
+        list(APPEND LIBS_TO_LINK "${CUSTOM_CONCURRENCY_LIB_NAME};${CUSTOM_CSP_BASE_LIB_VERSION}")
     endif()
 
     ags_cs_add_static_lib(
@@ -88,7 +94,6 @@ function(ags_cs_create_csp_base_lib
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/CheckRecursivePointersTests.cpp"
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/InterfaceVersionsNotMatchTests.cpp"
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/MultiModesTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/ProfillingTests.cpp"
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/SimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/SizeOfPrimitivesMayBeNotEqualTests.cpp"
         )

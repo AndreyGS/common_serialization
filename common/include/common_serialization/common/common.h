@@ -23,19 +23,6 @@
 
 #pragma once
 
-#if !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
-#include <cstdint>
-#include <cstdlib>
-#include <cassert>
-#include <shared_mutex>
-#include <map>
-#include <unordered_map> 
-#include <semaphore>
-#include <latch>
-#include <atomic>
-#include <list>
-#endif // !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
-
 #include <common_serialization/common/concepts.h>
 #include <common_serialization/common/helpers.h>
 #include <common_serialization/common/Status.h>

@@ -370,9 +370,8 @@ public:
         ValN = 8192058,
         ValN2 = 2309348230323
     };
-
+    /*
     SpecialProcessingType() = default;
-
 
     SpecialProcessingType(const SpecialProcessingType&)
     {
@@ -386,6 +385,36 @@ public:
 
         return *this;
     }
+
+    SpecialProcessingType(const SpecialProcessingType&& rhs)
+    {
+        *this = std::move(rhs);
+    }
+
+    SpecialProcessingType& operator=(SpecialProcessingType&& rhs) noexcept
+    {
+        m_vec = std::move(rhs.m_vec);
+        m_saaToNS = std::move(rhs.m_saaToNS);
+        m_saNS = std::move(rhs.m_saNS);
+        m_pVec = rhs.m_pVec;
+        rhs.m_pVec = nullptr;
+        m_pInt = rhs.m_pInt;
+        rhs.m_pInt = nullptr;
+        m_ppInt = rhs.m_ppInt;
+        rhs.m_ppInt = nullptr;
+        m_nullptrInt = rhs.m_nullptrInt; // must be set to nullptr at filling struct function
+        rhs.m_nullptrInt = nullptr;
+
+        m_c = rhs.m_c;
+        m_sh = rhs.m_sh;
+        m_m = rhs.m_m;
+        m_tEnum = rhs.m_tEnum;
+        m_ll = rhs.m_ll;
+        m_float = rhs.m_float;;
+        m_double = rhs.m_double;
+
+        return *this;
+    }*/
 
     void fill()
     {
@@ -437,7 +466,7 @@ public:
             && m_double == rhs.m_double;
     }
 
-    ~SpecialProcessingType()
+    void clean()
     {
         delete m_pVec;
         delete m_pInt;
@@ -762,7 +791,7 @@ public:
     static constexpr ags_cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr ags_cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const ags_cs::csp::Interface& getInterface() noexcept { return properties; }
-
+    /*
     ManyPointersType() = default;
 
     ManyPointersType(const ManyPointersType&)
@@ -774,9 +803,29 @@ public:
     {
         if (this != &rhs)
             fill();
-        
+
         return *this;
     }
+
+    ManyPointersType(const ManyPointersType&& rhs) noexcept
+    {
+        *this = std::move(rhs);
+    }
+
+    ManyPointersType& operator=(ManyPointersType&& rhs) noexcept
+    {
+        m_vec = std::move(rhs);
+        m_pInt = rhs.m_pInt;
+        rhs.m_pInt = nullptr;
+        m_vecRecursive = std::move(rhs.m_vecRecursive);
+        m_pVec = rhs.m_pVec;
+        m_rtSpec1 = rhs.m_rtSpec1;
+        m_rtSpec2 = rhs.m_rtSpec2;
+        memcpy(m_intArr, m_pInt, sizeof(m_intArr));
+        m_ppInt = &m_pInt;
+
+        return *this;
+    }*/
 
     void fill()
     {
@@ -828,12 +877,8 @@ public:
             && m_nullptrInt == nullptr;
     }
 
-    ~ManyPointersType()
+    void clean()
     {
-        m_vecRecursive[0] = nullptr;
-        for (auto& p : m_vec)
-            p = nullptr;
-
         delete[] m_pInt;
     }
 
@@ -884,6 +929,12 @@ public:
     }
 
     [[nodiscard]] auto operator<=>(const DForAllModesTests&) const = default;
+
+    void clean()
+    {
+        m_sptCs.clean();
+        m_mpt.clean();
+    }
 
     SimplyAssignableDescendant<> m_saDs;
     Diamond<> m_diamond;
@@ -974,6 +1025,11 @@ public:
     BigStructs<SimplyAssignableFixedSize<>> m_big5;
     BigStructs<DynamicPolymorphic<>> m_big6;
     BigStructs<Diamond<>> m_big7;
+
+    void clean()
+    {
+
+    }
 
     friend ags_cs::csp::processing::data::BodyProcessor;
 };

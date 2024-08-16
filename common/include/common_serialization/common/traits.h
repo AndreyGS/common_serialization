@@ -26,6 +26,7 @@
 #ifdef AGS_CS_NO_STD_LIB
 #include <common_serialization/common/std_equivalents.h>
 #else // AGS_CS_NO_STD_LIB
+#include <cassert>
 #include <concepts>
 #include <type_traits>
 #include <bit>

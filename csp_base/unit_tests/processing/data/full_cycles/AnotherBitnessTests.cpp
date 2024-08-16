@@ -54,8 +54,7 @@ TEST(AnotherBitnessTests, SpecialTBasicT)
 
     EXPECT_EQ(input, output);
 
-    for (auto& gpk : addedPointers)
-        gpk.release<void>();
+    input.clean();
 }
 
 } // namespace

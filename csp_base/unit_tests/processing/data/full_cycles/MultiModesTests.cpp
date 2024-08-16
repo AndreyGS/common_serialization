@@ -86,8 +86,7 @@ void mainTest(csp::context::DataFlags dataFlags, uint32_t targetVersion)
     EXPECT_EQ(output, reference);
     EXPECT_EQ(bin.tell(), bin.size());
 
-    for (auto& gpk : addedPointers)
-        gpk.release<void>();
+    input.clean();
 }
 
 template<typename TS, typename TD>

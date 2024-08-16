@@ -327,6 +327,12 @@ public:
 
     [[nodiscard]] auto operator<=>(const SForAllModesTests_Version0&) const = default;
 
+    void clean()
+    {
+        m_sptCs.clean();
+        m_mpt.clean();
+    }
+
     SimplyAssignableDescendant_Version0<> m_saDs;
     Diamond<> m_diamond;
     SpecialProcessingType<> m_sptCs;
@@ -493,6 +499,12 @@ public:
     }
 
     [[nodiscard]] auto operator<=>(const SForAllModesTests_Version2&) const = default;
+
+    void clean()
+    {
+        m_sptCs.clean();
+        m_mpt.clean();
+    }
 
     Diamond<> m_diamond;
     SpecialProcessingType<> m_sptCs;

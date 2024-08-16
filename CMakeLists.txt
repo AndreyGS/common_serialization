@@ -99,3 +99,31 @@ if (AGS_CS_BUILD_CSP_BASE)
 
     ags_cs_create_csp_base_lib(ON ON "" "" "" "")
 endif()
+
+# Concurrency
+
+option(AGS_CS_BUILD_CONCURRENCY_INTERFACES "Build ags common serialization concurrency interfaces" ON)
+
+if (AGS_CS_BUILD_CONCURRENCY_INTERFACES)
+    add_subdirectory(concurrency_interfaces)
+endif()
+
+# Concurrency Interfaces
+
+option(AGS_CS_BUILD_CONCURRENCY "Build ags common serialization concurrency" ON)
+
+if (AGS_CS_BUILD_CONCURRENCY)
+    add_subdirectory(concurrency)
+endif()
+
+# CSP Messaging
+
+option(AGS_CS_BUILD_CSP_MESSAGING "Build ags common serialization csp messaging project" ON)
+
+if (AGS_CS_BUILD_CSP_MESSAGING)
+    if (NOT TARGET ags_cs_csp_messaging_included)
+        add_subdirectory(csp_messaging)
+    endif()
+
+    ags_cs_create_csp_messaging_lib(ON OFF "" "" "" "" "" "" "")
+endif()

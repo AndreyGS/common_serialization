@@ -1,22 +1,18 @@
-project(common_serialization_concurrency_interfaces)
+cmake_minimum_required(VERSION 3.28)
 
-add_library(common_serialization_concurrency_interfaces_lib INTERFACE)
-add_library(common_serialization::concurrency_interfaceslib ALIAS common_serialization_concurrency_interfaces_lib)
+project(ags_cs_concurrency_interfaces VERSION 0.1.0)
 
-set(CONCURRENCY_INTERFACES_INCLUDE_DIR "include/common_serialization/concurrency_interfaces")
-set(CONCURRENCY_INTERFACES_HEADERS
-    "${CONCURRENCY_INTERFACES_INCLUDE_DIR}/concurrency_interfaces.h"
-    "${CONCURRENCY_INTERFACES_INCLUDE_DIR}/GuardRW.h"
-    "${CONCURRENCY_INTERFACES_INCLUDE_DIR}/ILockable.h"
+option(AGS_CS_BUILD_CONCURRENCY_INTERFACES "Build ags common serialization concurrency interfaces" ON)
+
+set(LIB_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/concurrency_interfaces")
+set(LIB_HEADERS
+    "${LIB_HEADERS_DIR}/concurrency_interfaces.h"
+    "${LIB_HEADERS_DIR}/GuardRW.h"
+    "${LIB_HEADERS_DIR}/ILockable.h"
 )
 
-target_sources(common_serialization_concurrency_interfaces_lib
-    INTERFACE
-        ${CONCURRENCY_INTERFACES_HEADERS}
-)
+set(LIBS_TO_LINK "ags_cs::common_lib;0.1.0")
 
-target_include_directories(common_serialization_concurrency_interfaces_lib
-    INTERFACE 
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
+
+ags_cs_add_interface_lib(concurrency_interfaces_lib ${PROJECT_VERSION} "${LIB_HEADERS}" "${LIBS_TO_LINK}" ON "${CMAKE_CURRENT_SOURCE_DIR}" ON)
