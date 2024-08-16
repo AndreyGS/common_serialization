@@ -277,16 +277,6 @@ template<typename _T>
     return getAddtionalForbiddenDataFlags() | getInterface().forbiddenDataFlags;
 }
 
-/// @brief Shortcut to get type interface version in template contexts
-/// @tparam _T Type for which interface version is requested
-/// @return Latest version of interface if _T implements ISerializable and 0 otherwise
-template<typename _T>
-consteval interface_version_t getLatestInterfaceVersion()
-{
-    if constexpr (ISerializableImpl<_T>)
-        return _T::getLatestInterfaceVersion();
-    else
-        return 0;
-}
+
 
 } // namespace common_serialization::csp

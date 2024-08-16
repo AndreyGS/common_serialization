@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/Macros.h>
-#include <common_serialization/csp_base/ISerializable.h>
 #include <common_serialization/csp_base/processing/data/BodyProcessor.h>
 
 namespace common_serialization::csp::processing::data
@@ -33,7 +31,7 @@ namespace common_serialization::csp::processing::data
 template<>
 constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
 {
-    CS_RUN(serialize(value.id, ctx));
+    CS_RUN(serialize(value.m_id, ctx));
 
     return Status::NoError;
 }
@@ -41,7 +39,7 @@ constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
 template<>
 constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
 {
-    CS_RUN(deserialize(ctx, value.id));
+    CS_RUN(deserialize(ctx, value.m_id));
 
     return Status::NoError;
 }

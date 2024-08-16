@@ -454,7 +454,7 @@ public:
     CS_ALWAYS_INLINE [[nodiscard]] constexpr const _AllocationManager& getAllocationManager() const noexcept;
 
     [[nodiscard]] constexpr bool operator==(const Vector& rhs) const
-        requires (IsNotPointer<_T> || IsNotPointer<std::remove_pointer_t<_T>>);
+        requires (NotPointer<_T> || NotPointer<std::remove_pointer_t<_T>>);
 
 private:
     [[nodiscard]] constexpr Status reserveInternal(size_type n, bool strict);
@@ -1088,18 +1088,18 @@ template<typename _T, IAllocationManagerImpl _AllocationManager>
 
 template<typename _T, IAllocationManagerImpl _AllocationManager>
 [[nodiscard]] constexpr bool Vector<_T, _AllocationManager>::operator==(const Vector& rhs) const
-    requires (IsNotPointer<_T> || IsNotPointer<std::remove_pointer_t<_T>>)
+    requires (NotPointer<_T> || NotPointer<std::remove_pointer_t<_T>>)
 {
     if (size() != rhs.size())
         return false;
 
     for (size_type i = 0; i < size(); ++i)
-        if constexpr (IsNotPointer<_T>)
+        if constexpr (NotPointer<_T>)
         {
             if (m_p[i] != rhs.m_p[i])
                 return false;
         }
-        else // if constexpr (IsNotPointer<std::remove_pointer_t<_T>>)
+        else // if constexpr (NotPointer<std::remove_pointer_t<_T>>)
         {
             if (m_p[i] == nullptr || rhs.m_p[i] == nullptr)
                 return m_p[i] == rhs.m_p[i];

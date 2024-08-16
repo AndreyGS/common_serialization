@@ -33,7 +33,6 @@ function(ags_cs_create_csp_base_lib
         "${LIB_HEADERS_DIR}/csp_base.h"
         "${LIB_HEADERS_DIR}/csp_base_config.h"
         "${LIB_HEADERS_DIR}/ISerializable.h"
-        "${LIB_HEADERS_DIR}/Macros.h"
         "${LIB_HEADERS_DIR}/traits.h"
         "${LIB_HEADERS_DIR}/context/Common.h"
         "${LIB_HEADERS_DIR}/context/CommonFlags.h"

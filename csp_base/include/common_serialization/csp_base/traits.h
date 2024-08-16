@@ -23,48 +23,14 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/Concepts.h>
+#include <common_serialization/csp_base/types.h>
 
-namespace common_serialization::csp
-{
-
-using Id = Uuid;
-using interface_version_t = uint32_t;
-using protocol_version_t = uint8_t;
-#ifdef X32_PLATFORM
-using csp_size_t = uint32_t;
-#else
-using csp_size_t = uint64_t;
-#endif // #ifdef X32_PLATFORM
-
-namespace traits
+namespace common_serialization::csp::traits
 {
 
 inline constexpr protocol_version_t kProtocolVersions[] = { 1 };
-inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;           // it always must be kind of UINTMAX
-inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;   // it always must be kind of UINTMAX
-
-} // namespace traits
-
-struct Interface
-{
-    using simply_assignable_fixed_size_tag = std::true_type;
-
-    Id id{ kNullUuid };
-
-    /// @brief The only field that allowed to change since interface publication
-    interface_version_t version{ traits::kInterfaceVersionUndefined };
-
-    context::DataFlags mandatoryDataFlags;
-    context::DataFlags forbiddenDataFlags;
-
-    [[nodiscard]] constexpr auto operator<=>(const Interface&) const = default;
-};
-
-namespace traits
-{
-
-constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined, {}, {} };
+inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;
+inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;
 
 [[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion() noexcept
 {
@@ -78,7 +44,7 @@ constexpr Interface kUndefinedInterface{ kNullUuid, kInterfaceVersionUndefined, 
 
 [[nodiscard]] constexpr protocol_version_t getProtocolVersionsCount() noexcept
 {
-    return std::size(kProtocolVersions);
+    return sizeof(kProtocolVersions);
 }
 
 [[nodiscard]] constexpr bool isProtocolVersionSupported(protocol_version_t foreignProtocolVersion) noexcept
@@ -122,6 +88,16 @@ template<typename T>
         return maxForeignVersion;
 }
 
-} // namespace traits
+/// @brief Shortcut to get type interface version in template contexts
+/// @tparam _T Type for which interface version is requested
+/// @return Latest version of interface if _T implements ISerializable and 0 otherwise
+template<typename _T>
+consteval interface_version_t getLatestInterfaceVersion()
+{
+    if constexpr (ISerializableImpl<_T>)
+        return _T::getLatestInterfaceVersion();
+    else
+        return 0;
+}
 
-} // namespace common_serialization::csp
+} // namespace common_serialization::csp::traits

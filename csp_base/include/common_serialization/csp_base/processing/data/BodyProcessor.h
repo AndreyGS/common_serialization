@@ -23,16 +23,9 @@
 
 #pragma once
 
+#include <common_serialization/csp_base/Interface.h>
 #include <common_serialization/csp_base/processing/data/TemplateProcessor.h>
 #include <common_serialization/csp_base/processing/Rw.h>
-
-namespace common_serialization::csp
-{
-
-template<typename _T>
-consteval interface_version_t getLatestInterfaceVersion();
-
-}
 
 namespace common_serialization::csp::processing::data
 {
@@ -98,6 +91,42 @@ private:
     static constexpr size_t kMaxSizeOfIntegral = 8;   // maximum allowed size of integral type
 };
 
+// can be copied with memcpy (if alignments are the same and no kSizeOfIntegersMayBeNotEqual flag is set)
+template<typename T>
+concept SimplyAssignable
+    =  requires(T t) { typename normalize_t<T>::simply_assignable_tag; };
+
+// can be copied with memcpy (if no kSizeOfIntegersMayBeNotEqual flag is set)
+template<typename T>
+concept SimplyAssignableAlignedToOne
+    = requires(T t) { typename normalize_t<T>::simply_assignable_aligned_to_one_tag; } && alignof(T) == 1;
+
+// all fields must be primitives an with strictly defined sizes regardless of execution environment
+// can be copied with memcpy (if alignments are the same)
+template<typename T>
+concept SimplyAssignableFixedSize
+    =  requires(T t) { typename normalize_t<T>::simply_assignable_fixed_size_tag; };
+
+// same as FixedSizeSimplyAssignableType but with alignment to 1 requirement (type must always have same size)
+// can be copied with memcpy
+template<typename T>
+concept AlwaysSimplyAssignable
+    =  requires(T t) { typename normalize_t<T>::always_simply_assignable_tag; } && alignof(T) == 1;
+
+template<typename T>
+concept AnySimplyAssignable = AlwaysSimplyAssignable<T> || SimplyAssignableFixedSize<T> || SimplyAssignableAlignedToOne<T> || SimplyAssignable<T>;
+
+template<typename T>
+concept EndiannessTolerant 
+    = requires(T t) { typename normalize_t<T>::endianness_tolerant_tag; } || sizeof(T) == 1;
+
+template<typename T>
+concept NotSimplyAssignable = !AnySimplyAssignable<T>;
+
+template<typename T>
+concept EmptyType 
+    =  requires(T t) { typename normalize_t<T>::empty_type_tag; };
+
 template<typename _T>
 constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SData& ctx)
 {
@@ -117,7 +146,7 @@ constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SD
         && (   std::is_arithmetic_v<_T>
             || std::is_enum_v<_T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-                && (!ISerializableImpl<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
+                && (!ISerializableImpl<_T> || traits::getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
                 && (   AlwaysSimplyAssignable<_T>
                     || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
                     || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()
@@ -235,7 +264,7 @@ constexpr Status BodyProcessor::serializeToAnotherSizeInternal(_T value, context
     if constexpr (sizeof(_T) == _targetTypeSize)
         return writePrimitive(value, ctx);
 
-    helpers::fixed_width_integer_t<_targetTypeSize, IsSigned<_T>> targetValue = 0;
+    helpers::fixed_width_integer_t<_targetTypeSize, Signed<_T>> targetValue = 0;
 
     if constexpr (sizeof(_T) < _targetTypeSize)
         helpers::castToBiggerType(value, targetValue);
@@ -264,7 +293,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _
         && (   std::is_arithmetic_v<_T>
             || std::is_enum_v<_T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-                && (!ISerializableImpl<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
+                && (!ISerializableImpl<_T> || traits::getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
                 && (   AlwaysSimplyAssignable<_T>
                     || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
                     || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()
@@ -416,7 +445,7 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
 
     Status status = Status::NoError;
 
-    helpers::fixed_width_integer_t<_originalTypeSize, IsSigned<_T>> originalValue = 0;
+    helpers::fixed_width_integer_t<_originalTypeSize, Signed<_T>> originalValue = 0;
     status = readPrimitive(ctx, originalValue);
 
     if (!statusSuccess(status))
@@ -426,7 +455,7 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
         return status;
     }
 
-    using sameSizedInteger = helpers::fixed_width_integer_t<sizeof(_T), IsSigned<_T>>;
+    using sameSizedInteger = helpers::fixed_width_integer_t<sizeof(_T), Signed<_T>>;
 
     if constexpr (sizeof(_T) < _originalTypeSize)
         CS_RUN(helpers::castToSmallerType<sizeof(_T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value)))))
@@ -557,7 +586,6 @@ constexpr Status BodyProcessor::getPointerFromMap(context::DData& ctx, _T& p, bo
     return Status::NoError;
 }
 
-
 template<>
 constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx);
 template<>
@@ -573,5 +601,82 @@ constexpr Status BodyProcessor::serialize(const Interface& value, context::SData
 template<>
 constexpr Status BodyProcessor::deserialize(context::DData& ctx, Interface& value);
 
-
 } // namespace common_serialization::csp::processing::data
+
+#define CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx)                                 \
+{                                                                                       \
+    if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
+    {                                                                                   \
+        Status status = serializeSimplyAssignable(value, ctx);                          \
+        if (status == Status::NoFurtherProcessingRequired)                              \
+            return Status::NoError;                                                     \
+        else if (                                                                       \
+                    !statusSuccess(status)                                              \
+                && status != Status::ErrorNotSupportedSerializationSettingsForStruct    \
+        )                                                                               \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::ErrorNotSupportedSerializationSettingsForStruct, */        \
+        /* than we should serialize it field-by-field */                                \
+    }                                                                                   \
+}
+
+#define CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)                               \
+{                                                                                       \
+    if constexpr (AnySimplyAssignable<decltype(value)>)                                 \
+    {                                                                                   \
+        Status status = deserializeSimplyAssignable(ctx, value);                        \
+        if (status == Status::NoFurtherProcessingRequired)                              \
+            return Status::NoError;                                                     \
+        else if (                                                                       \
+                    !statusSuccess(status)                                              \
+                && status != Status::ErrorNotSupportedSerializationSettingsForStruct    \
+        )                                                                               \
+            return status;                                                              \
+                                                                                        \
+        /* if we get Status::ErrorNotSupportedSerializationSettingsForStruct, */        \
+        /* than we should deserialize it field-by-field */                              \
+   }                                                                                    \
+}
+
+#define CSP_SERIALIZE_COMMON(value, ctx)                                                \
+{                                                                                       \
+    if (                                                                                \
+           ISerializableImpl<decltype(value)>                                           \
+        && ctx.isInterfaceVersionsNotMatch()                                            \
+    )                                                                                   \
+    {                                                                                   \
+        Status status = VersionConverter::toOldStructIfNeed(value, ctx);                \
+        if (status == Status::NoFurtherProcessingRequired)                              \
+            return Status::NoError;                                                     \
+        else if (!statusSuccess(status))                                                \
+            return status;                                                              \
+        else                                                                            \
+            CS_RUN(ContextProcessor::testDataFlagsCompatibility                         \
+                    <normalize_t<decltype(value)>>(ctx.getDataFlags()));                \
+    }                                                                                   \
+                                                                                        \
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx)                                     \
+}                                                                                       
+
+#define CSP_DESERIALIZE_COMMON(ctx, value)                                              \
+{                                                                                       \
+    if (                                                                                \
+           ISerializableImpl<decltype(value)>                                           \
+        && ctx.isInterfaceVersionsNotMatch()                                            \
+    )                                                                                   \
+    {                                                                                   \
+        Status status = VersionConverter::fromOldStructIfNeed(ctx, value);              \
+                                                                                        \
+        if (status == Status::NoFurtherProcessingRequired)                              \
+            return Status::NoError;                                                     \
+        else if (!statusSuccess(status))                                                \
+            return status;                                                              \
+        else                                                                            \
+            CS_RUN(ContextProcessor::testDataFlagsCompatibility                         \
+                    <normalize_t<decltype(value)>>(ctx.getDataFlags()));                \
+    }                                                                                   \
+                                                                                        \
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)                                   \
+}
+

@@ -23,11 +23,54 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/Concepts.h>
 #include <common_serialization/csp_base/csp_base_config.h>
 #include <common_serialization/csp_base/traits.h>
 #include <common_serialization/csp_base/context/Message.h>
 #include <common_serialization/csp_base/context/CommonFlags.h>
+
+namespace common_serialization::csp
+{
+
+template<typename Sbin>
+concept ISerializationBinContainer
+    =  requires(Sbin e)
+         {
+             typename Sbin::value_type;
+             typename Sbin::size_type;
+
+             { e.clear() };
+             { e.size() } -> std::same_as<typename Sbin::size_type>;
+
+             { e.reserve(1) } -> std::same_as<Status>;
+
+             { e.pushBackN(nullptr, static_cast<typename Sbin::size_type>(0)) } -> std::same_as<Status>;
+             { e.pushBackArithmeticValue(1ull) } -> std::same_as<Status>;
+         } 
+    && std::is_same_v<typename Sbin::value_type, uint8_t>;
+
+static_assert(ISerializationBinContainer<BinVectorT>, "BinVectorT must comply with ISerializationBinContainer concept");
+
+template<typename Dbin>
+concept IDeserializationBinContainer
+    =  requires(Dbin e, int i)
+         {
+             typename Dbin::value_type;
+             typename Dbin::size_type;
+
+             { e.clear() };
+             { e.size() } -> std::same_as<typename Dbin::size_type>;
+
+             { e.tell() } -> std::same_as<typename Dbin::size_type>;
+             { e.seek(0) } -> std::same_as<Status>;
+             
+             { e.read(nullptr, static_cast<typename Dbin::size_type>(0)) } -> std::same_as<Status>;
+             { e.readArithmeticValue(i) } -> std::same_as<Status>;
+         } 
+    && std::is_same_v<typename Dbin::value_type, uint8_t>;
+
+static_assert(IDeserializationBinContainer<BinWalkerT>, "BinWalkerT must comply with IDeserializationBinContainer concept");
+
+} // namespace common_serialization::csp
 
 namespace common_serialization::csp::context
 {

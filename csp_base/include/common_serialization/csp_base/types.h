@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/serializable_structs/tests_csp_interface/include/tests_csp_interface/Interface.h
+ * @file cslib/include/common_serialization/csp_base/traits_.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,18 +23,23 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/Interface.h>
+#include <common_serialization/common/Uuid.h>
 
-namespace tests_csp_interface
+namespace common_serialization::csp
 {
 
-namespace ags_cs = common_serialization;
+template<typename> class ISerializable;
 
-constexpr ags_cs::csp::Interface properties(
-      ags_cs::Uuid{ 0xa1cfd12a, 0x22b2, 0x49d3, 0x8575, 0x02342a630145 }
-    , 3
-    , ags_cs::csp::context::DataFlags{}
-    , ags_cs::csp::context::DataFlags{}
-);
+template<typename T>
+concept ISerializableImpl = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;
 
-} // namespace tests_csp_interface
+using Id = Uuid;
+using interface_version_t = uint32_t;
+using protocol_version_t = uint8_t;
+#ifdef X32_PLATFORM
+using csp_size_t = uint32_t;
+#else
+using csp_size_t = uint64_t;
+#endif // #ifdef X32_PLATFORM
+
+} // namespace common_serialization::csp

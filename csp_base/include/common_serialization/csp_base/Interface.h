@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_base/csp_base.h
+ * @file cslib/include/common_serialization/csp_base/traits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,24 +23,43 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/csp_base.h>
-#include <common_serialization/csp_base/csp_base_config.h>
-#include <common_serialization/csp_base/Interface.h>
-#include <common_serialization/csp_base/ISerializable.h>
 #include <common_serialization/csp_base/traits.h>
-#include <common_serialization/csp_base/types.h>
-#include <common_serialization/csp_base/context/Common.h>
-#include <common_serialization/csp_base/context/CommonFlags.h>
-#include <common_serialization/csp_base/context/Data.h>
 #include <common_serialization/csp_base/context/DataFlags.h>
-#include <common_serialization/csp_base/context/Message.h>
-#include <common_serialization/csp_base/processing/common/ContextProcessor.h>
-#include <common_serialization/csp_base/processing/data/BodyProcessor.h>
-#include <common_serialization/csp_base/processing/data/ContextProcessor.h>
-#include <common_serialization/csp_base/processing/data/TemplateProcessor.h>
-#include <common_serialization/csp_base/processing/data/TemplateProcessorVector.h>
-#include <common_serialization/csp_base/processing/data/VersionConverter.h>
-#include <common_serialization/csp_base/processing/status/BodyProcessor.h>
-#include <common_serialization/csp_base/processing/status/ContextProcessor.h>
-#include <common_serialization/csp_base/processing/status/Helpers.h>
-#include <common_serialization/csp_base/processing/Rw.h>
+
+namespace common_serialization::csp
+{
+
+struct Interface
+{
+    using simply_assignable_fixed_size_tag = std::true_type;
+
+    Id id{ kNullUuid };
+
+    /// @brief The only field that allowed to change since interface publication
+    interface_version_t version{ traits::kInterfaceVersionUndefined };
+
+    context::DataFlags mandatoryDataFlags;
+    context::DataFlags forbiddenDataFlags;
+
+    constexpr [[nodiscard]] bool operator<(const Interface& rhs) const noexcept;
+    constexpr [[nodiscard]] bool operator==(const Interface& rhs) const noexcept;
+};
+
+constexpr bool Interface::operator<(const Interface& rhs) const noexcept
+{
+    return id < rhs.id && version < rhs.version && mandatoryDataFlags < rhs.mandatoryDataFlags && forbiddenDataFlags < rhs.forbiddenDataFlags;
+}
+
+constexpr bool Interface::operator==(const Interface& rhs) const noexcept
+{
+    return id < rhs.id == version < rhs.version == mandatoryDataFlags < rhs.mandatoryDataFlags == forbiddenDataFlags < rhs.forbiddenDataFlags;
+}
+
+} // namespace common_serialization::csp
+
+namespace common_serialization::csp::traits
+{
+
+constexpr Interface kUndefinedInterface;
+
+} // namespace common_serialization::csp

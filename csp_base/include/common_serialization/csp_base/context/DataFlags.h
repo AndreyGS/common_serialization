@@ -47,7 +47,7 @@ public:
     ///     of size that this type have.
     /// 
     /// @note  The fact that size is strictly defined or not
-    ///     is checks by FixSizedArithmeticType and FixSizedEnumType concepts.
+    ///     is checked by FixSizedArithmeticType and FixSizedEnumType concepts.
     ///     Notice that most frequent used types are not strictly sized,
     ///     including uin32_t, uin64_t and others.
     ///         This flag has no influence on size_t processing (if it happens
@@ -101,7 +101,8 @@ public:
     [[nodiscard]] constexpr DataFlags operator|(uint32_t rhs) const noexcept;
     [[nodiscard]] constexpr DataFlags operator&(uint32_t rhs) const noexcept;
 
-    [[nodiscard]] constexpr auto operator<=>(const DataFlags&) const = default;
+    constexpr [[nodiscard]] bool operator<(const DataFlags& rhs) const noexcept;
+    constexpr [[nodiscard]] bool operator==(const DataFlags& rhs) const noexcept;
 
     [[nodiscard]] explicit constexpr operator uint32_t() const noexcept;
     [[nodiscard]] explicit constexpr operator bool() const noexcept;
@@ -175,6 +176,16 @@ constexpr void DataFlags::removeFlags(uint32_t value) noexcept
 [[nodiscard]] constexpr DataFlags DataFlags::operator&(uint32_t rhs) const noexcept
 {
     return *this & static_cast<DataFlags>(rhs);
+}
+
+constexpr [[nodiscard]] bool DataFlags::operator<(const DataFlags& rhs) const noexcept
+{
+    return m_flags < rhs.m_flags;
+}
+
+constexpr [[nodiscard]] bool DataFlags::operator==(const DataFlags& rhs) const noexcept
+{
+    return m_flags == rhs.m_flags;
 }
 
 [[nodiscard]] constexpr DataFlags::operator uint32_t() const noexcept

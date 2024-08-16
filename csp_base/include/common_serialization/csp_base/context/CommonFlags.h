@@ -63,7 +63,8 @@ public:
     [[nodiscard]] constexpr CommonFlags operator|(uint32_t rhs) const noexcept;
     [[nodiscard]] constexpr CommonFlags operator&(uint32_t rhs) const noexcept;
 
-    [[nodiscard]] constexpr auto operator<=>(const CommonFlags&) const = default;
+    constexpr [[nodiscard]] bool operator<(const CommonFlags& rhs) const noexcept;
+    constexpr [[nodiscard]] bool operator==(const CommonFlags& rhs) const noexcept;
 
     [[nodiscard]] explicit constexpr operator uint32_t() const noexcept;
     [[nodiscard]] explicit constexpr operator bool() const noexcept;
@@ -134,6 +135,16 @@ constexpr CommonFlags CommonFlags::removeFlags(uint32_t value) noexcept
 [[nodiscard]] constexpr CommonFlags CommonFlags::operator&(uint32_t rhs) const noexcept
 {
     return *this & static_cast<CommonFlags>(rhs);
+}
+
+constexpr [[nodiscard]] bool CommonFlags::operator<(const CommonFlags& rhs) const noexcept
+{
+    return m_flags < rhs.m_flags;
+}
+
+constexpr [[nodiscard]] bool CommonFlags::operator==(const CommonFlags& rhs) const noexcept
+{
+    return m_flags == rhs.m_flags;
 }
 
 [[nodiscard]] constexpr CommonFlags::operator uint32_t() const noexcept

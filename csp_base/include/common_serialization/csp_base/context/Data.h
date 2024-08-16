@@ -26,6 +26,46 @@
 #include <common_serialization/csp_base/context/Common.h>
 #include <common_serialization/csp_base/context/DataFlags.h>
 
+namespace common_serialization::csp
+{
+
+template<typename PM>
+concept ISerializationPointersMap
+    = requires(PM pm, typename PM::key_type key)
+        {
+            typename PM::key_type;
+            typename PM::mapped_type;
+            
+            { pm.find(nullptr) };
+            { pm.end() };
+            { pm[key] } -> std::same_as<typename PM::mapped_type&>;
+            { pm.clear() };
+        }
+    && std::is_same_v<typename PM::key_type, const void*> && std::is_same_v<typename PM::mapped_type, uint64_t>;
+
+static_assert(ISerializationPointersMap<HashMapT<const void*, uint64_t>>, "MapT<const void*, uint64_t> must comply with ISerializationPointersMap concept");
+
+template<typename PM>
+concept IDeserializationPointersMap
+    = requires(PM pm, typename PM::key_type key)
+        {
+            typename PM::key_type;
+            typename PM::mapped_type;
+            
+            { pm.find(1) };
+            { pm.end() };
+            { pm[key] } -> std::same_as<typename PM::mapped_type&>;
+            { pm.clear() };
+        }
+    && std::is_same_v<typename PM::key_type, uint64_t> && std::is_same_v<typename PM::mapped_type, void*>;
+
+static_assert(IDeserializationPointersMap<MapT<uint64_t, void*>>, "MapT<uint64_t, void*> must comply with IDeserializationPointersMap concept");
+
+template<typename PM>
+concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;
+
+} // namespace common_serialization::csp
+
 namespace common_serialization::csp::context
 {
 

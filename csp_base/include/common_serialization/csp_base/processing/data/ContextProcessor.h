@@ -23,12 +23,18 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/Concepts.h>
 #include <common_serialization/csp_base/context/Data.h>
 #include <common_serialization/csp_base/processing/Rw.h>
 
 namespace common_serialization::csp::processing::data
 {
+
+template<typename _T>
+concept StructHaveDataFlags = requires
+{
+    { _T::getEffectiveMandatoryDataFlags() } -> std::same_as<context::DataFlags>;
+    { _T::getEffectiveForbiddenDataFlags() } -> std::same_as<context::DataFlags>;
+};
 
 class ContextProcessor
 {

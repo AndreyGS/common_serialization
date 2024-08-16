@@ -21,9 +21,7 @@
  *
  */
 
-#include <common_serialization/csp_base/Macros.h>
 #include <common_serialization/csp_base/ISerializable.h>
-#include <common_serialization/csp_base/processing/data/BodyProcessor.h>
 #include <common_serialization/tests_restricted_structs/tests_restricted_structs.h>
 
 namespace common_serialization::csp::processing::data

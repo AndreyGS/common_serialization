@@ -23,81 +23,9 @@
 
 #pragma once
 
-#include <common_serialization/common/Concepts.h>
+#include <common_serialization/common/traits.h>
 
-namespace common_serialization
-{
-
-struct Dummy {};
-
-/// @brief Get most derived type in CRTP pattern
-/// @note If derived type is Dummy then this class is the most derived type.
-///     If not - derived type is the most derived type.
-/// @tparam X This class type
-/// @tparam T Derived type
-template<typename X, typename T>
-using GetCrtpMainType = std::conditional_t<std::is_same_v<T, common_serialization::Dummy>, X, T>;
-
-template<typename T>
-struct remove_member_pointer
-{
-    using type = T;
-};
-
-template<typename C, typename T>
-struct remove_member_pointer<T C::*>
-{
-    using type = T;
-};
-
-template<typename T>
-using remove_member_pointer_t = typename remove_member_pointer<T>::type;
-
-template<typename T, std::size_t L>
-struct pointer_level_traits_impl
-{
-    static const std::size_t value = L;
-    using from_ptr_to_const_to_ptr = std::remove_const_t<T>;
-};
-
-template<typename T, std::size_t L>
-    requires std::is_pointer_v<T>
-struct pointer_level_traits_impl<T, L> : pointer_level_traits_impl<std::remove_pointer_t<T>, L + 1>
-{
-    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<T>, L + 1>::from_ptr_to_const_to_ptr*;
-};
-
-template<typename T>
-    requires std::is_pointer_v<T>
-struct pointer_level_traits : pointer_level_traits_impl<std::remove_pointer_t<T>, 0>
-{
-    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<T>, 0>::from_ptr_to_const_to_ptr*;
-};
-
-/// @brief Erases all consts from pointer
-/// @note Works only with pointers
-/// @remark const int* const * const * const -> int***
-template<typename T>
-    requires std::is_pointer_v<T>
-using from_ptr_to_const_to_ptr_t = typename pointer_level_traits<T>::from_ptr_to_const_to_ptr;
-
-template<typename _T>
-using normalize_t = std::remove_cv_t<std::remove_reference_t<_T>>;
-
-template<typename _T>
-class is_template : public std::false_type
-{
-};
-
-template<template<typename...> typename _T, typename... _Ts>
-class is_template<_T<_Ts...>> : public std::true_type
-{
-};
-
-template<typename _T>
-constexpr bool is_template_v = is_template<_T>::value;
-
-namespace helpers
+namespace common_serialization::helpers
 {
 
 /// @brief Is current module compiled for 32 bitness
@@ -191,7 +119,7 @@ constexpr uint16_t reverseEndianessUInt16(uint16_t input)
 }
 
 template<typename T>
-    requires IsEndiannessReversable<T>
+    requires EndiannessReversable<T>
 CS_ALWAYS_INLINE constexpr T reverseEndianess(T input)
 {
     if constexpr (sizeof(T) == 2)
@@ -316,9 +244,9 @@ using fixed_width_integer_t = typename fixed_width_integer<targetSize, isSigned>
 
 template<size_t targetSize, typename T>
     requires (std::is_integral_v<T> && targetSize <= sizeof(T))
-constexpr Status castToSmallerType(T input, fixed_width_integer_t<targetSize, IsSigned<T>>& output)
+constexpr Status castToSmallerType(T input, fixed_width_integer_t<targetSize, Signed<T>>& output)
 {
-    using output_type = fixed_width_integer<targetSize, IsSigned<T>>;
+    using output_type = fixed_width_integer<targetSize, Signed<T>>;
 
     if (input > output_type::max || input < output_type::min)
         return Status::ErrorValueOverflow;
@@ -330,11 +258,9 @@ constexpr Status castToSmallerType(T input, fixed_width_integer_t<targetSize, Is
 
 template<size_t targetSize, typename T>
     requires (std::is_integral_v<T> && targetSize >= sizeof(T))
-CS_ALWAYS_INLINE constexpr void castToBiggerType(T input, fixed_width_integer_t<targetSize, IsSigned<T>>& output)
+CS_ALWAYS_INLINE constexpr void castToBiggerType(T input, fixed_width_integer_t<targetSize, Signed<T>>& output)
 {
-    output = static_cast<fixed_width_integer_t<targetSize, IsSigned<T>>>(input);
+    output = static_cast<fixed_width_integer_t<targetSize, Signed<T>>>(input);
 }
 
-} // namespace helpers
-
-} // namespace common_serialization
+} // namespace common_serialization::helpers

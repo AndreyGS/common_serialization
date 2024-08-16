@@ -23,6 +23,16 @@
 
 #pragma once
 
+#ifdef AGS_CS_NO_STD_LIB
+#include <common_serialization/common/std_equivalents.h>
+#else // AGS_CS_NO_STD_LIB
+#include <concepts>
+#include <type_traits>
+#include <new>
+#endif // #ifdef AGS_CS_NO_STD_LIB
+
+#include <common_serialization/common/Status.h>
+
 namespace common_serialization
 {
 
@@ -47,16 +57,28 @@ concept InitableBySpecialClass = requires(_T t, SpecClass sc)
 };
 
 template<typename _T>
-concept IsNotPointer = !(std::is_pointer_v<_T> || std::is_member_pointer_v<_T> || std::is_function_v<_T> || std::is_member_function_pointer_v<_T>);
+concept NotPointer = !(std::is_pointer_v<_T> || std::is_member_pointer_v<_T> || std::is_function_v<_T> || std::is_member_function_pointer_v<_T>);
 
 template<typename _T>
-concept IsEndiannessReversable = (std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && sizeof(_T) > 1  && sizeof(_T) <= 8;
+concept EndiannessReversable = (std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && sizeof(_T) > 1  && sizeof(_T) <= 8;
 
 template<typename _T>
-concept IsSigned
+concept Signed
         =      std::is_arithmetic_v<_T>
         && (   std::is_same_v<_T, signed char> || std::is_same_v<_T, short> || std::is_same_v<_T, int> || std::is_same_v<_T, long>
             || std::is_same_v<_T, long long> || std::is_same_v<_T, float> || std::is_same_v<_T, double> || std::is_same_v<_T, long double>);
+
+// FixSizedArithmeticType is type that can't be changed in its size
+// So long double is also match this criteria, despite its size is different
+// on one or another platforms. Because of this, care must be taken
+// to well-defined Interface with respect to long double size.
+template<typename T>
+concept FixSizedArithmeticType
+    =  std::is_same_v<std::remove_cv_t<T>, char8_t> || std::is_same_v<std::remove_cv_t<T>, char16_t> || std::is_same_v<std::remove_cv_t<T>, char32_t>
+    || std::is_floating_point_v<T>;
+
+template<typename T>
+concept FixSizedEnumType = std::is_enum_v<T> && FixSizedArithmeticType<std::underlying_type_t<T>>;
 
 template<typename _T>
 concept HasDestroyingDeleteOp = requires (_T t) { _T::operator delete(&t, std::destroying_delete_t{}); };
