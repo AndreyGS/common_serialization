@@ -140,9 +140,22 @@ public:
     /// @tparam T Type on which pointer points
     /// @return Stored pointer
     template<typename _T>
-    constexpr _T* get()
+    constexpr [[nodiscard]] _T* get()
     {
         return static_cast<_T*>(m_p);
+    }
+
+    /// @brief Relese stored pointer ownership
+    /// @tparam T Type on which pointer points
+    /// @return Released pointer
+    template<typename _T>
+    constexpr _T* release()
+    {
+        _T* p = static_cast<_T*>(m_p);
+        m_p = nullptr;
+        m_size = 0;
+        m_destroyAndDeallocate = nullptr;
+        return p;
     }
 
 private:

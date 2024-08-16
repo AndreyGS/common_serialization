@@ -29,12 +29,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<template<typename...> typename _T, typename... _Ts>
-class TemplateProcessor
-{
-public:
-    static Status serialize(const _T<_Ts...>& value, context::SData& ctx);
-    static Status deserialize(context::DData& ctx, _T<_Ts...>& value);
-};
+class TemplateProcessor {};
 
 
 template<template<typename...> typename _T, typename... _Ts>

@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(ags_common_serialization_tests_special_types)
+project(ags_cs_tests_special_types)
 
 add_library(ags_cs_tests_special_types_lib INTERFACE)
-add_library(ags_common_serialization::tests_special_types_lib ALIAS ags_cs_tests_special_types_lib)
+add_library(ags_cs::tests_special_types_lib ALIAS ags_cs_tests_special_types_lib)
 
 set(LIB_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/tests_special_types")
 set(LIB_HEADERS
@@ -23,5 +23,5 @@ target_include_directories(ags_cs_tests_special_types_lib
 
 target_link_libraries(${LIB_NAME}
     INTERFACE
-        ags_common_serialization::common_lib
+        ags_cs::common_lib
 )

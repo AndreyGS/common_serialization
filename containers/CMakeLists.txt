@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 
-# We need a mark, that we already added project ags_common_serialization_allocators.
+# We need a mark, that we already added project ags_cs_allocators.
 # Because this project is library factory and can be used from multiple places.
 # Unfortunately cmake doesn't have direct way to do that (cached vars are caching until cache deleted and this is inconvenient).
-add_library(ags_common_serialization_containers_included INTERFACE)
+add_library(ags_cs_containers_included INTERFACE)
 
 option(AGS_CS_BUILD_CONTAINERS "Build ags common serialization containers project" ON)
 
@@ -13,18 +13,18 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 function(ags_cs_create_containers_lib 
     EXPORT_AND_INSTALL_LIB
     BUILD_UNIT_TESTS
-    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME 
-    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_LIB_VERSION
-    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH 
-    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_ALIAS 
+    CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME 
+    CUSTOM_ALLOCATOR_MANAGERS_LIB_VERSION
+    CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH 
+    CUSTOM_ALLOCATOR_MANAGERS_ALIAS 
 )
-    project(ags_common_serialization_containers VERSION 0.1.0)
+    project(ags_cs_containers VERSION 0.1.0)
 
     set(UNQUALIFIED_LIB_NAME "containers")
     ags_cs_update_lib_name_with_customized_name(
         "${UNQUALIFIED_LIB_NAME}"
-        "${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME}"
-        "${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_ALIAS}"
+        "${CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME}"
+        "${CUSTOM_ALLOCATOR_MANAGERS_ALIAS}"
     )
 
     set(LIB_HEADERS_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include/common_serialization/containers")
@@ -42,11 +42,11 @@ function(ags_cs_create_containers_lib
         "${LIB_HEADERS_DIR}/Walker.h"
     )
 
-    set(LIBS_TO_LINK "ags_common_serialization::allocation_manager_interfaces_lib;0.1.0")
-    if ("${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME}" STREQUAL "")
-        string(APPEND LIBS_TO_LINK ";ags_common_serialization::allocation_managers;0.1.0")
+    set(LIBS_TO_LINK "ags_cs::allocation_manager_interfaces_lib;0.1.0")
+    if ("${CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME}" STREQUAL "")
+        string(APPEND LIBS_TO_LINK ";ags_cs::allocation_managers;0.1.0")
     else()
-        string(APPEND LIBS_TO_LINK ";${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME};${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_LIB_VERSION}")
+        string(APPEND LIBS_TO_LINK ";${CUSTOM_ALLOCATOR_MANAGERS_LIB_NAME};${CUSTOM_ALLOCATOR_MANAGERS_LIB_VERSION}")
     endif()
 
     ags_cs_add_interface_lib(
@@ -54,7 +54,7 @@ function(ags_cs_create_containers_lib
         ${PROJECT_VERSION}
         "${LIB_HEADERS}"
         "${LIBS_TO_LINK}"
-        "ON"
+        ON
         "${CMAKE_CURRENT_FUNCTION_LIST_DIR}"
         ${EXPORT_AND_INSTALL_LIB}
     )
@@ -69,7 +69,7 @@ function(ags_cs_create_containers_lib
             "${TESTS_SOURCES_DIR}/WalkerTests.cpp"
         )
 
-        set(TESTS_LIBS_TO_LINK "gtest_main;${LIB_NAME};ags_common_serialization::tests_special_types_lib")
+        set(TESTS_LIBS_TO_LINK "gtest_main;${LIB_NAME};ags_cs::tests_special_types_lib")
 
         ags_cs_add_unit_tests_to_lib(${LIB_NAME} "${TESTS_SOURCES}" "${TESTS_LIBS_TO_LINK}" "${CMAKE_CURRENT_FUNCTION_LIST_DIR}")
     endif()

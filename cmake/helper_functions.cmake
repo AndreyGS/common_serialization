@@ -81,55 +81,55 @@ function(ags_cs_update_lib_name_with_customized_name UNQUALIFIED_LIB_NAME CUSTOM
 endfunction()
 
 function(ags_cs_add_custom_typedef_header_paths LIB_NAME APPLICABILITY)
-    if (NOT "${AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}" STREQUAL "")
+    if (NOT "${CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}" STREQUAL "")
         if ("${APPLICABILITY}" STREQUAL "INTERFACE")
             target_compile_definitions(${LIB_NAME}
                 INTERFACE
-                    AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}>
+                    AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH=<${CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}>
             )
         else()
             target_compile_definitions(${LIB_NAME}
                 PUBLIC
-                    AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}>
+                    AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH=<${CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH}>
             )
         endif()
     endif()
-    if (NOT "${AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}" STREQUAL "")
+    if (NOT "${CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}" STREQUAL "")
         if ("${APPLICABILITY}" STREQUAL "INTERFACE")
             target_compile_definitions(${LIB_NAME}
                 INTERFACE
-                    AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}>
+                    AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH=<${CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}>
             )
         else()
             target_compile_definitions(${LIB_NAME}
                 PUBLIC
-                    AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}>
+                    AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH=<${CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH}>
             )
         endif()
     endif()
-    if (NOT "${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}" STREQUAL "")
+    if (NOT "${CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}" STREQUAL "")
         if ("${APPLICABILITY}" STREQUAL "INTERFACE")
             target_compile_definitions(${LIB_NAME}
                 INTERFACE
-                    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}>
+                    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH=<${CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}>
             )
         else()
             target_compile_definitions(${LIB_NAME}
                 PUBLIC
-                    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}>
+                    AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH=<${CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH}>
             )
         endif()
     endif()
-    if (NOT "${AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}" STREQUAL "")
+    if (NOT "${CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}" STREQUAL "")
         if ("${APPLICABILITY}" STREQUAL "INTERFACE")
             target_compile_definitions(${LIB_NAME}
                 INTERFACE
-                    AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}>
+                    AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH=<${CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}>
             )
         else()
             target_compile_definitions(${LIB_NAME}
                 PUBLIC
-                    AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH=<${AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}>
+                    AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH=<${CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH}>
             )
         endif()
     endif()
@@ -149,7 +149,7 @@ function(ags_cs_find_packages LIBS_TO_LINK)
         list(GET LIBS_TO_LINK ${VERSION_INDEX} LINK_LIB_VERSION)
 
         if (NOT TARGET "${LINK_LIB_NAME}")
-            string(REPLACE "ags_common_serialization::" "ags_cs_" LINK_LIB_NAME "${LINK_LIB_NAME}")
+            string(REPLACE "ags_cs::" "ags_cs_" LINK_LIB_NAME "${LINK_LIB_NAME}")
             # need to test when LINK_LIB_VERSION is an empty_string
             find_package(${LINK_LIB_NAME} ${LINK_LIB_VERSION} REQUIRED)
         endif()
@@ -166,7 +166,7 @@ endfunction()
 function(ags_cs_add_interface_lib UNQUALIFIED_LIB_NAME LIB_VERSION LIB_HEADERS LIBS_TO_LINK FIND_PACKAGES LIB_SOURCE_DIR EXPORT_AND_INSTALL_LIB)
     
     set(LIB_NAME "ags_cs_${UNQUALIFIED_LIB_NAME}")
-    set(QUALIFIED_LIB_NAME "ags_common_serialization::${UNQUALIFIED_LIB_NAME}")
+    set(QUALIFIED_LIB_NAME "ags_cs::${UNQUALIFIED_LIB_NAME}")
 
     set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
     set(QUALIFIED_LIB_NAME ${QUALIFIED_LIB_NAME} PARENT_SCOPE)
@@ -230,10 +230,11 @@ function(ags_cs_add_unit_test_libs_if_need TESTS_LIBS_TO_LINK)
             )
 
             FetchContent_MakeAvailable(googletest)
-        elseif(NOT TARGET ags_common_serialization::tests_special_types_lib AND ${LIB} STREQUAL "ags_common_serialization::tests_special_types_lib")
-            add_subdirectory("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../unit_tests_helper_libs/tests_special_types")
-        endif()
 
+        elseif (NOT TARGET ags_cs::tests_special_types_lib AND ${LIB} STREQUAL "ags_cs::tests_special_types_lib")
+            add_subdirectory("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../unit_tests_helper_libs/tests_special_types")
+
+        endif()
     endforeach()
 endfunction()
 
@@ -273,7 +274,7 @@ endfunction()
 function(ags_cs_add_static_lib UNQUALIFIED_LIB_NAME LIB_VERSION LIB_HEADERS LIB_SOURCES LIBS_TO_LINK FIND_PACKAGES LIB_SOURCE_DIR EXPORT_AND_INSTALL_LIB)
 
     set(LIB_NAME "ags_cs_${UNQUALIFIED_LIB_NAME}")
-    set(QUALIFIED_LIB_NAME "ags_common_serialization::${UNQUALIFIED_LIB_NAME}")
+    set(QUALIFIED_LIB_NAME "ags_cs::${UNQUALIFIED_LIB_NAME}")
 
     set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
     set(QUALIFIED_LIB_NAME ${QUALIFIED_LIB_NAME} PARENT_SCOPE)

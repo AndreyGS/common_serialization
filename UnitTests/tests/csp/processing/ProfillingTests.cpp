@@ -36,7 +36,7 @@ template<typename TS, typename TD>
 void mainTest(csp::context::DataFlags dataFlags)
 {
     TS input;
-    fillingStruct(input);
+    input.fill();
 
     BinWalkerT bin;
     csp::context::SData ctxIn(bin.getVector());

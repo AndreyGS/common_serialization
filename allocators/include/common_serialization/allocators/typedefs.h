@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifndef AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH
+#ifndef CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH
 
 #include <common_serialization/allocators/ConstructorNoexceptAllocator.h>
 #include <common_serialization/allocators/RawKeeperAllocator.h>
@@ -43,4 +43,4 @@ using RawNoexceptAllocatorT = RawNoexceptAllocator<_T>;
 
 } // namespace common_serialization
 
-#endif // #ifndef AGS_CS_CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH
+#endif // #ifndef CUSTOM_ALLOCATORS_TYPEDEFS_HEADER_PATH

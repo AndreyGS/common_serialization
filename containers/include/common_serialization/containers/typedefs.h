@@ -38,13 +38,16 @@ using GenericPointerKeeperT = GenericPointerKeeper;
 template<typename _T, typename... _Ts>
 using UniquePtrT = UniquePtr<_T, _Ts...>;
 
+template<typename _T, typename... _Ts>
+using VectorT = Vector<_T, _Ts...>;
+
 template<typename _T>
-using RawVectorT = Vector<_T, RawStratAllocationManagerT<_T>>;
+using RawVectorT = VectorT<_T, RawStratAllocationManagerT<_T>>;
 
 using BinVectorT = RawVectorT<uint8_t>;
 
 template<typename _T, typename... _Ts>
-using VectorT = Vector<_T, _Ts...>;
+using WalkerT = Walker<_T, _Ts...>;
 
 template<typename _T>
 using RawWalkerT = Walker<_T, RawStratAllocationManagerT<_T>>;

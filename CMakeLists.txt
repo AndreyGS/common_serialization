@@ -47,12 +47,12 @@ endif()
 option(AGS_CS_BUILD_ALLOCATORS "Build ags common serialization allocators project" ON)
 
 if (AGS_CS_BUILD_ALLOCATORS)
-    if (NOT TARGET ags_common_serialization_allocators_included)
+    if (NOT TARGET ags_cs_allocators_included)
         add_subdirectory(allocators)
     endif()
 
-    ags_cs_create_allocators_lib("ON" "ON" "" "" "" "")
-    ags_cs_create_allocators_lib("ON" "ON" "ags_common_serialization::memory_management_lib" "0.1.0" "common_serialization/memory_management/typedefs2.h" "mm")
+    ags_cs_create_allocators_lib(ON ON "" "" "" "")
+    ags_cs_create_allocators_lib(ON ON ags_cs::memory_management_lib 0.1.0 common_serialization/memory_management/typedefs2.h mm)
     message(WARNING ${QUALIFIED_LIB_NAME})
 endif()
 
@@ -69,11 +69,11 @@ endif()
 option(AGS_CS_BUILD_ALLOCATION_MANAGERS "Build ags common serialization allocation managers project" ON)
 
 if (AGS_CS_BUILD_ALLOCATION_MANAGERS)
-    if (NOT TARGET ags_common_serialization_allocation_managers_included)
+    if (NOT TARGET ags_cs_allocation_managers_included)
         add_subdirectory(allocation_managers)
     endif()
 
-    ags_cs_create_allocation_managers_lib("ON" "ON" "" "" "" "")
+    ags_cs_create_allocation_managers_lib(ON ON "" "" "" "")
 endif()
 
 # Containers
@@ -81,11 +81,11 @@ endif()
 option(AGS_CS_BUILD_CONTAINERS "Build ags common serialization containers project" ON)
 
 if (AGS_CS_BUILD_CONTAINERS)
-    if (NOT TARGET ags_common_serialization_containers_included)
+    if (NOT TARGET ags_cs_containers_included)
         add_subdirectory(containers)
     endif()
 
-    ags_cs_create_containers_lib("ON" "ON" "" "" "" "")
+    ags_cs_create_containers_lib(ON ON "" "" "" "")
 endif()
 
 # CSP base
@@ -93,9 +93,9 @@ endif()
 option(AGS_CS_BUILD_CSP_BASE "Build ags common serialization csp base project" ON)
 
 if (AGS_CS_BUILD_CSP_BASE)
-    if (NOT TARGET ags_common_serialization_csp_base_included)
+    if (NOT TARGET ags_cs_csp_base_included)
         add_subdirectory(csp_base)
     endif()
 
-    ags_cs_create_csp_base_lib("ON" "OFF" "" "" "" "")
+    ags_cs_create_csp_base_lib(ON ON "" "" "" "")
 endif()

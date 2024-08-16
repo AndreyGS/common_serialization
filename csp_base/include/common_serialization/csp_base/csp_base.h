@@ -36,6 +36,8 @@
 #include <common_serialization/csp_base/processing/common/ContextProcessor.h>
 #include <common_serialization/csp_base/processing/data/BodyProcessor.h>
 #include <common_serialization/csp_base/processing/data/ContextProcessor.h>
+#include <common_serialization/csp_base/processing/data/TemplateProcessor.h>
+#include <common_serialization/csp_base/processing/data/TemplateProcessorVector.h>
 #include <common_serialization/csp_base/processing/data/VersionConverter.h>
 #include <common_serialization/csp_base/processing/status/BodyProcessor.h>
 #include <common_serialization/csp_base/processing/status/ContextProcessor.h>

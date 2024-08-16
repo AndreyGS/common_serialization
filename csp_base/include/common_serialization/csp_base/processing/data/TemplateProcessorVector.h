@@ -25,16 +25,17 @@
 
 // This header should be moved to csp_restricted_structs_processing
 
+#include <common_serialization/csp_base/csp_base_config.h>
 #include <common_serialization/csp_base/processing/data/BodyProcessor.h>
 
 namespace common_serialization::csp::processing::data
 {
 
 template<typename T, IAllocationManagerImpl A>
-class TemplateProcessor<VectorT, T, A>
+class TemplateProcessor<Vector, T, A>
 {
 public:
-    static Status serialize(const Vector<T, A>& value, context::SData& ctx)
+    static Status serialize(const VectorT<T, A>& value, context::SData& ctx)
     {
         CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
         CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
@@ -46,7 +47,7 @@ public:
     {
         value.clear();
 
-        typename Vector<T, A>::size_type size = 0;
+        typename VectorT<T, A>::size_type size = 0;
         CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
         CS_RUN(value.reserve(size));
         CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));

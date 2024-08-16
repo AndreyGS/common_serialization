@@ -35,7 +35,7 @@ using namespace ft_helpers;
 TEST(StdIncludedTests, MainT)
 {
     OneBigType<> input;
-    fillingStruct(input);
+    input.fill();
 
     BinWalkerT bin;
     EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);

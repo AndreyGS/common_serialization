@@ -69,7 +69,7 @@ TEST(MessagingTests, DataMessageHandling)
     dataClient.init(clientSettings);
 
     tests_csp_interface::SimplyAssignableAlignedToOne<> input;
-    fillingStruct(input);
+    input.fill();
     tests_csp_interface::SimplyAssignableDescendant<> output;
 
     // Unicast test
