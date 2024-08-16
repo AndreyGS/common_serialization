@@ -1,6 +1,6 @@
 
 /**
- * @file cslib/include/common_serialization/csp_base/service_structs/processing/Serialize.h
+ * @file common_serialization/csp_base/service_structs/processing/Serialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

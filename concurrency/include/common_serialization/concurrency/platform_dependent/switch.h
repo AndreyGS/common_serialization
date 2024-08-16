@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/concurrency/platform_dependent/Common.h
+ * @file common_serialization/concurrency/platform_dependent/Common.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

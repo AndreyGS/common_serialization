@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_base/processing/status/Helpers.h
+ * @file common_serialization/csp_base/processing/status/Helpers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

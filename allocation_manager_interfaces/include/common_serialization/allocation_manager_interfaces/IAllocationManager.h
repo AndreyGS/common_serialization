@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/allocation_manager_interfaces/IAllocationManager.h
+ * @file common_serialization/allocation_manager_interfaces/IAllocationManager.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

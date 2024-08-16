@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/serializable_structs/tests_restricted_structs/include/tests_restricted_structs/NotInterface.h
+ * @file common_serialization/tests_restricted_structs/tests_restricted_structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

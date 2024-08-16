@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/concurrency/platform_dependent/UserModeConcurency.h
+ * @file common_serialization/concurrency/platform_dependent/user_mode.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

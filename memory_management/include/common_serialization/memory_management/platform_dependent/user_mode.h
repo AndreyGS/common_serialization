@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/memory_management/platform_dependent/user_mode.h
+ * @file common_serialization/memory_management/platform_dependent/user_mode.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

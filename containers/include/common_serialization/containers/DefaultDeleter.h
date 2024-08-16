@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/containers/DefaultDeleter.h
+ * @file common_serialization/containers/DefaultDeleter.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

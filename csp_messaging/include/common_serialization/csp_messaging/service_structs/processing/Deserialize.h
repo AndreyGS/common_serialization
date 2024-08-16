@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_messaging/service_structs/processing/Deserialize.h
+ * @file common_serialization/csp_messaging/service_structs/processing/Deserialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

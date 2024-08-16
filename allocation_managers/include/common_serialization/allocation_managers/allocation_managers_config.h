@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/allocation_managers/allocation_managers_config.h
+ * @file common_serialization/allocation_managers/allocation_managers_config.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

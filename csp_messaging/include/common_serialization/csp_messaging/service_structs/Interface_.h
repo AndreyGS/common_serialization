@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_base/service_structs/Interface.h
+ * @file common_serialization/csp_base/service_structs/Interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

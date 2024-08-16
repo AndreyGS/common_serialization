@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_messaging/csp_messaging.h
+ * @file common_serialization/csp_messaging/csp_messaging.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

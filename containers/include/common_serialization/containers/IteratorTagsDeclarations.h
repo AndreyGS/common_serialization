@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/containers/IteratorTagsDeclarations.h
+ * @file common_serialization/containers/IteratorTagsDeclarations.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

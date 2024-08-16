@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/std_equivalents/std_equivalents.h
+ * @file common_serialization/common/std_equivalents.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

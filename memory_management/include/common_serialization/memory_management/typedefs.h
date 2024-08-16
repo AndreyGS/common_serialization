@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/memory_management/typedefs.h
+ * @file common_serialization/memory_management/typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

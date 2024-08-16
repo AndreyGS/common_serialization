@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Interfaces/IIoProcessor.h
+ * @file common_serialization/Interfaces/IIoProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

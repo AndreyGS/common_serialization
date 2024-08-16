@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_base/csp_base.h
+ * @file common_serialization/csp_base/csp_base.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -43,4 +43,4 @@
 #include <common_serialization/csp_base/processing/status/BodyProcessor.h>
 #include <common_serialization/csp_base/processing/status/ContextProcessor.h>
 #include <common_serialization/csp_base/processing/status/Helpers.h>
-#include <common_serialization/csp_base/processing/Rw.h>
+#include <common_serialization/csp_base/processing/rw.h>

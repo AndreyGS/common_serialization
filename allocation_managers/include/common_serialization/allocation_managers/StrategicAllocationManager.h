@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/allocation_managers/StrategicAllocationManager.h
+ * @file common_serialization/allocation_managers/StrategicAllocationManager.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

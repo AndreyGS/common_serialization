@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/serializable_structs/tests_csp_descendant_interface/src/Generated/Serialize.cpp
+ * @file common_serialization/tests_csp_descendant_interface/src/csp_processing_data/generated/BodyProcessor.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

@@ -41,7 +41,7 @@ function(ags_cs_create_csp_restricted_structs_processing_lib
         "${LIB_HEADERS_DIR}/context/Message.h"
         "${LIB_HEADERS_DIR}/mandatory_structs/processing/Deserialize.h"
         "${LIB_HEADERS_DIR}/mandatory_structs/processing/Serialize.h"
-        "${LIB_HEADERS_DIR}/processing/Rw.h"
+        "${LIB_HEADERS_DIR}/processing/rw.h"
         "${LIB_HEADERS_DIR}/processing/common/ContextProcessor.h"
         "${LIB_HEADERS_DIR}/processing/data/BodyProcessor.h"
         "${LIB_HEADERS_DIR}/processing/data/ContextProcessor.h"

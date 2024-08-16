@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Status.h
+ * @file common_serialization/common/Status.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

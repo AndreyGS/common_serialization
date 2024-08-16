@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Concepts.h
+ * @file common_serialization/common/concepts.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

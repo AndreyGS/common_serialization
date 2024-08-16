@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/allocator_interfaces/allocator_interface.h
+ * @file common_serialization/allocator_interfaces/allocator_interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

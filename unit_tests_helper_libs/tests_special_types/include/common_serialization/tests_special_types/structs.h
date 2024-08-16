@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/for_tests_helpers/include/tests_special_types/structs.h
+ * @file common_serialization/tests_special_types/structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

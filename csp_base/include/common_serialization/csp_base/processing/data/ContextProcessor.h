@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_base/processing/data/ContextProcessor.h
+ * @file common_serialization/csp_base/processing/data/ContextProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,7 +24,7 @@
 #pragma once
 
 #include <common_serialization/csp_base/context/Data.h>
-#include <common_serialization/csp_base/processing/Rw.h>
+#include <common_serialization/csp_base/processing/rw.h>
 
 namespace common_serialization::csp::processing::data
 {

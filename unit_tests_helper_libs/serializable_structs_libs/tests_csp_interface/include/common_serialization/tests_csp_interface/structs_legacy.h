@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/serializable_structs/tests_csp_interface/include/tests_csp_interface/SpecialTypesSerializableLegacy.h
+ * @file common_serialization/tests_csp_interface/structs_legacy.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

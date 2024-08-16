@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Helpers.h
+ * @file common_serialization/common/helpers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

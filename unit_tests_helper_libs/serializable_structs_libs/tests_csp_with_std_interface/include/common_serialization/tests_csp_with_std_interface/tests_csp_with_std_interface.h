@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/serializable_structs/tests_csp_with_std_interface/include/tests_csp_with_std_interface/Interface.h
+ * @file common_serialization/tests_csp_with_std_interface/tests_csp_with_std_interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

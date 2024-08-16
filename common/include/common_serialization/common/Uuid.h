@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/Uuid.h
+ * @file common_serialization/common/Uuid.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

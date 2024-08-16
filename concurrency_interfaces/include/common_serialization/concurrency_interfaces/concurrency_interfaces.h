@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/concurrency_interfaces/concurrency_interfaces.h
+ * @file common_serialization/concurrency_interfaces/concurrency_interfaces.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

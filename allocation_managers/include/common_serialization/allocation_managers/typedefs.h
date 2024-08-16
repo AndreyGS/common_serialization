@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/allocation_managers/typedefs.h
+ * @file common_serialization/allocation_managers/typedefs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

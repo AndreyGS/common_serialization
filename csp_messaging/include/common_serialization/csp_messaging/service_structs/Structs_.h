@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_base/service_structs/Structs.h
+ * @file common_serialization/csp_base/service_structs/Structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_restricted_structs_processing/Templates/Serialize.h
+ * @file common_serialization/csp_restricted_structs_processing/csp_processing_data/TemplateProcessorStd.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

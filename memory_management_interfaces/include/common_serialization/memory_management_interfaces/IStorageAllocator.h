@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/memory_management_interfaces/IStorageAllocator.h
+ * @file common_serialization/memory_management_interfaces/IStorageAllocator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

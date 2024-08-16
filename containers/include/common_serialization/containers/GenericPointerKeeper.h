@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/containers/GenericPointerKeeper.h
+ * @file common_serialization/containers/GenericPointerKeeper.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

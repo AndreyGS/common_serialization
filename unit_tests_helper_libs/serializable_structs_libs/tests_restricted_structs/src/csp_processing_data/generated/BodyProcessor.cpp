@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/serializable_structs/tests_restricted_structs/src/processing/Generated/Serialize.cpp
+ * @file common_serialization/tests_restricted_structs/src/csp_processing_data/generated/BodyProcessor.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

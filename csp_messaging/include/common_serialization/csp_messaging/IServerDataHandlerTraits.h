@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_messaging/IServerDataHandlerTraits.h
+ * @file common_serialization/csp_messaging/IServerDataHandlerTraits.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_base/processing/status/BodyProcessor.h
+ * @file common_serialization/csp_base/processing/status/BodyProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,7 +24,7 @@
 #pragma once
 
 #include <common_serialization/csp_base/context/Common.h>
-#include <common_serialization/csp_base/processing/Rw.h>
+#include <common_serialization/csp_base/processing/rw.h>
 
 namespace common_serialization::csp::processing::status
 {

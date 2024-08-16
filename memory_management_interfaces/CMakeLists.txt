@@ -6,8 +6,8 @@ option(AGS_CS_BUILD_MEMORY_MANAGEMENT_INTERFACES "Build ags common serialization
 
 set(LIB_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/memory_management_interfaces")
 set(LIB_HEADERS
-    "${LIB_HEADERS_DIR}/IStorageAllocator.h"
     "${LIB_HEADERS_DIR}/memory_management_interfaces.h"
+    "${LIB_HEADERS_DIR}/IStorageAllocator.h"
 )
 set(LIBS_TO_LINK "ags_cs::common_lib;0.1.0")
 

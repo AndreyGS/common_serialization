@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/common/common.h
+ * @file common_serialization/common/common.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -24,7 +24,6 @@
 #pragma once
 
 #if !defined WINDOWS_KERNEL && !defined LINUX_KERNEL
-#include <string.h>
 #include <cstdint>
 #include <cstdlib>
 #include <cassert>

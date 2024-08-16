@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/serializable_structs/tests_csp_interface/include/tests_csp_interface/processing/Generated/ConvertToOldStruct.h
+ * @file common_serialization/tests_csp_interface/csp_processing_data/generated/VersionConverter.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

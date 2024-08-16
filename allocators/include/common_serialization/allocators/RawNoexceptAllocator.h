@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/allocators/RawNoexceptAllocator.h
+ * @file common_serialization/allocators/RawNoexceptAllocator.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

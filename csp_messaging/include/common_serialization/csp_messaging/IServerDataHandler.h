@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/csp_messaging/IServerDataHandler.h
+ * @file common_serialization/csp_messaging/IServerDataHandler.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

@@ -1,5 +1,5 @@
 /**
- * @file cslib/include/common_serialization/allocation_managers/allocation_managers.h
+ * @file common_serialization/allocation_managers/allocation_managers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,10 +23,7 @@
 
 #pragma once
 
-#include <common_serialization/allocation_manager_interfaces/allocation_manager_interface.h>
-
-#include <common_serialization/allocators/allocation_managers_config.h>
+#include <common_serialization/allocation_managers/allocation_managers_config.h>
+#include <common_serialization/allocation_managers/typedefs.h>
 #include <common_serialization/allocation_managers/GenericAllocationManager.h>
 #include <common_serialization/allocation_managers/StrategicAllocationManager.h>
-
-#include <common_serialization/allocation_managers/typedefs.h>

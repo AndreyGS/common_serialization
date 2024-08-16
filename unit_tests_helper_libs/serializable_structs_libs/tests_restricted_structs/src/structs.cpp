@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/serializable_structs/tests_restricted_structs/src/tests_restricted_structs/structs.cpp
+ * @file common_serialization/tests_restricted_structs/src/structs.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

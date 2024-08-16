@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/serializable_structs/tests_csp_interface/src/processing/Generated/SerializeLegacy.cpp
+ * @file common_serialization/tests_csp_interface/src/csp_processing_data/generated/BodyProcessorLegacy.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
