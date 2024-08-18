@@ -37,40 +37,26 @@ struct Uuid
     using always_simply_assignable_tag = std::true_type;
     using endianness_tolerant_tag = std::true_type;
 
-    union
-    {
-        uint8_t m_id[16] { 0 };
-
-        // Note that UUID is placed in BigEndian order, 
-        // so when using 'm_high' and/or 'm_low' logic or numbers itself must be reversed.
-        struct
-        {
-            uint64_t m_high;
-            uint64_t m_low;
-        };
-    };
+    // Note that UUID is placed in BigEndian order, 
+    uint64_t m_high{ 0 };
+    uint64_t m_low{ 0 };
 
     constexpr Uuid() = default;
-    constexpr Uuid(const Uuid& rhs) = default;
 
     constexpr Uuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth) noexcept
     {
-        m_id[0] = (first & 0xff000000) >> 24;
-        m_id[1] = (first & 0x00ff0000) >> 16;
-        m_id[2] = (first & 0x0000ff00) >> 8;
-        m_id[3] = first & 0x000000ff;
-        m_id[4] = (second & 0xff00) >> 8;
-        m_id[5] = second & 0x00ff;
-        m_id[6] = (third & 0xff00) >> 8;
-        m_id[7] = third & 0x00ff;
-        m_id[8] = (fourth & 0xff00) >> 8;
-        m_id[9] = fourth & 0x00ff;
-        m_id[10] = (fifth & 0xff0000000000) >> 40;
-        m_id[11] = (fifth & 0x00ff00000000) >> 32;
-        m_id[12] = (fifth & 0x0000ff000000) >> 24;
-        m_id[13] = (fifth & 0x000000ff0000) >> 16;
-        m_id[14] = (fifth & 0x00000000ff00) >> 8;
-        m_id[15] = fifth & 0x0000000000ff;
+        if constexpr (helpers::isLittleEndianPlatform())
+        {
+            m_high = helpers::reverseEndianess(first) 
+                | static_cast<uint64_t>(helpers::reverseEndianess(second)) << 32 
+                | static_cast<uint64_t>(helpers::reverseEndianess(third)) << 48;
+            m_low = helpers::reverseEndianess(fourth) | (helpers::reverseEndianess(fifth) & 0x00ffffffffffffff) << 16;
+        }
+        else
+        {
+            m_high = first | static_cast<uint64_t>(second) << 32 | static_cast<uint64_t>(third) << 48;
+            m_low = fourth | fifth << 16;
+        }
     }
    
     CS_ALWAYS_INLINE constexpr [[nodiscard]] bool operator<(const Uuid& rhs) const noexcept
@@ -98,11 +84,7 @@ struct std::hash<common_serialization::Uuid>
 {
     std::size_t operator()(const common_serialization::Uuid& id) const noexcept
     {
-        auto hashFunc = std::hash<uint8_t>{};
-        std::size_t result = 0;
-        for (size_t i = 0; i < sizeof(id.m_id); ++i)
-            result ^= hashFunc(id.m_id[i]);
-        
-        return result;
+        auto hashFunc = std::hash<uint64_t>{};
+        return hashFunc(id.m_high) ^ hashFunc(id.m_low);
     }
 };

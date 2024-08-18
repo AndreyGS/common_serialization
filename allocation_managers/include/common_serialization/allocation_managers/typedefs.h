@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifndef CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH
+#ifndef AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH
 
 #include <common_serialization/allocation_managers/GenericAllocationManager.h>
 #include <common_serialization/allocation_managers/StrategicAllocationManager.h>
@@ -55,4 +55,4 @@ using CtorStratAllocationManagerT = StrategicAllocationManager<ConstructorNoexce
 
 } // namespace common_serialization
 
-#endif // #ifndef CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH
+#endif // #ifndef AGS_CS_CUSTOM_ALLOCATOR_MANAGERS_TYPEDEFS_HEADER_PATH

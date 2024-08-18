@@ -125,5 +125,5 @@ if (AGS_CS_BUILD_CSP_MESSAGING)
         add_subdirectory(csp_messaging)
     endif()
 
-    ags_cs_create_csp_messaging_lib(ON OFF "" "" "" "" "" "" "")
+    ags_cs_create_csp_messaging_lib(ON ON "" "" "" "" "" "" "")
 endif()

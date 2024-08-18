@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifndef CS_CUSTOM_CONCURENCY_TYPEDEFS
+#ifndef AGS_CS_CS_CUSTOM_CONCURENCY_TYPEDEFS
 
 #ifdef AGS_CS_NO_STD_LIB
 #include TODO
@@ -34,6 +34,7 @@
 #include <atomic>
 #endif // #ifdef AGS_CS_NO_STD_LIB
 
+#include <common_serialization/concurrency/platform_dependent/switch.h>
 
 namespace common_serialization
 {
@@ -46,4 +47,4 @@ using AtomicBoolT = AtomicBool;
 
 } // namespace common_serialization
 
-#endif // #ifndef CS_CUSTOM_CONCURENCY_TYPEDEFS
+#endif // #ifndef AGS_CS_CS_CUSTOM_CONCURENCY_TYPEDEFS

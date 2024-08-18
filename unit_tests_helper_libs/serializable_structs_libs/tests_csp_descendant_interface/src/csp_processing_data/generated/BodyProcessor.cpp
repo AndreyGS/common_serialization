@@ -21,11 +21,12 @@
  *
  */
 
-#include <tests_csp_descendant_interface/Interface.h>
+#include <common_serialization/tests_csp_descendant_interface/csp_processing_data/generated/BodyProcessor.h>
+#include <common_serialization/tests_csp_interface/csp_processing_data/generated/BodyProcessor.h>
+#include <common_serialization/csp_base/processing/data/VersionConverter.h>
 
 namespace common_serialization::csp::processing::data
 {
-
 
 template<>
 Status BodyProcessor::serialize(const tests_csp_descendant_interface::SimpleStruct<>& value, context::SData& ctx)

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifndef CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH
+#ifndef AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH
 
 #include <common_serialization/memory_management/platform_dependent/switch.h>
 
@@ -34,4 +34,4 @@ using HeapAllocatorT = HeapAllocator;
 
 } // namespace common_serialization
 
-#endif // #ifndef CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH
+#endif // #ifndef AGS_CS_CUSTOM_MEMORY_MANAGEMENT_TYPEDEFS_HEADER_PATH

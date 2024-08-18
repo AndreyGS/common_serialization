@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <common_serialization/containers/concepts.h>
 #include <common_serialization/containers/CompressedPair.h>
 #include <common_serialization/containers/DefaultDeleter.h>
 

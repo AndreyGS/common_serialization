@@ -1,5 +1,5 @@
 /**
- * @file BasicModeTests.cpp
+ * @file common_serializaiton/csp_base/unit_tests/processing/data/full_cycles/BasicModeTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

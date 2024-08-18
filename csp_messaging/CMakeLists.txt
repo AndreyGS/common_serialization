@@ -86,39 +86,46 @@ function(ags_cs_create_csp_messaging_lib
     if (BUILD_UNIT_TESTS)
         set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_tests")
         set(TESTS_SOURCES
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/AlignmentMayBeNotEqualTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/AllowUnmanagedPointersTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/AnotherBitnessTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/AnotherEndiannessTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/BasicModeTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/CheckRecursivePointersTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/InterfaceVersionsNotMatchTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/MultiModesTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/SimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/SizeOfPrimitivesMayBeNotEqualTests.cpp"
+           "${TESTS_SOURCES_DIR}/ClientTests.cpp"
+           "${TESTS_SOURCES_DIR}/Helpers.h"
+           "${TESTS_SOURCES_DIR}/ServerTests.cpp"
+           "${TESTS_SOURCES_DIR}/ToRefactorTests.cpp"
         )
 
-        if (NOT TARGET ags_cs_tests_restricted_structs_included)
-            add_subdirectory("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../unit_tests_helper_libs/serializable_structs_libs/tests_restricted_structs")
-        endif()
+        set(TESTS_LIBS_TO_LINK "gtest_main;gmock_main;${QUALIFIED_LIB_NAME}")
 
-        if ("${CUSTOM_CONTAINERS_ALIAS}" STREQUAL "")
-            ags_cs_create_tests_restricted_structs_lib("" "")
-        else()
-            ags_cs_create_tests_restricted_structs_lib(${QUALIFIED_LIB_NAME} "${CUSTOM_CONTAINERS_ALIAS}")
-        endif()
-
-        if (NOT TARGET ags_cs_tests_csp_interface_included)
-            add_subdirectory("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../unit_tests_helper_libs/serializable_structs_libs/tests_csp_interface")
-        endif()
-
+        # Calling ags_cs_create_tests_csp_interface_lib only for getting QUALIFIED_TEST_LIB_NAME of tests_csp_interface_lib
         if ("${CUSTOM_CONTAINERS_ALIAS}" STREQUAL "")
             ags_cs_create_tests_csp_interface_lib("" "")
         else()
             ags_cs_create_tests_csp_interface_lib(${QUALIFIED_TEST_LIB_NAME} "${CUSTOM_CONTAINERS_ALIAS}")
         endif()
 
-        set(TESTS_LIBS_TO_LINK "gtest_main;${LIB_NAME};${QUALIFIED_TEST_LIB_NAME}")
+        list(APPEND TESTS_LIBS_TO_LINK ${QUALIFIED_TEST_LIB_NAME})
+
+        if (NOT TARGET ags_cs_tests_csp_descendant_interface_included)
+            add_subdirectory("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../unit_tests_helper_libs/serializable_structs_libs/tests_csp_descendant_interface")
+        endif()
+
+        if ("${CUSTOM_CONTAINERS_ALIAS}" STREQUAL "")
+            ags_cs_create_tests_csp_descendant_interface_lib("" "")
+        else()
+            ags_cs_create_tests_csp_descendant_interface_lib(${QUALIFIED_TEST_LIB_NAME} "${CUSTOM_CONTAINERS_ALIAS}")
+        endif()
+
+        list(APPEND TESTS_LIBS_TO_LINK "${QUALIFIED_TEST_LIB_NAME}")
+
+        if (NOT TARGET ags_cs_tests_csp_another_interface_included)
+            add_subdirectory("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../unit_tests_helper_libs/serializable_structs_libs/tests_csp_another_interface")
+        endif()
+
+        if ("${CUSTOM_CONTAINERS_ALIAS}" STREQUAL "")
+            ags_cs_create_tests_csp_another_interface_lib("" "")
+        else()
+            ags_cs_create_tests_csp_another_interface_lib(${CUSTOM_CSP_BASE_LIB_NAME} "${CUSTOM_CSP_BASE_ALIAS}")
+        endif()
+
+        list(APPEND TESTS_LIBS_TO_LINK "${QUALIFIED_TEST_LIB_NAME}")
 
         ags_cs_add_unit_tests_to_lib(${LIB_NAME} "${TESTS_SOURCES}" "${TESTS_LIBS_TO_LINK}" "${CMAKE_CURRENT_FUNCTION_LIST_DIR}")
     endif()

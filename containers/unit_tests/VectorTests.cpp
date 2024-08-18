@@ -1,5 +1,5 @@
 /**
- * @file VectorTests.cpp
+ * @file common_serializaiton/containers/unit_tests/VectorTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

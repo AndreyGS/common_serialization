@@ -88,7 +88,7 @@ function(ags_cs_create_csp_base_lib
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/CheckRecursivePointersTests.cpp"
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/InterfaceVersionsNotMatchTests.cpp"
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/MultiModesTests.cpp"
-           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/ProfillingTests.cpp"
+           "${TESTS_SOURCES_DIR}/processing/data/full_cycles/ProfillingTests.cpp" # placed here temporary (for convenience)
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/SimplyAssignableTagsOptimizationsAreTurnedOff.cpp"
            "${TESTS_SOURCES_DIR}/processing/data/full_cycles/SizeOfPrimitivesMayBeNotEqualTests.cpp"
         )

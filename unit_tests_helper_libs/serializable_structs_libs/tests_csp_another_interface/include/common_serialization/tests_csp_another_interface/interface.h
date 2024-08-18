@@ -1,5 +1,5 @@
 /**
- * @file common_serialization/tests_csp_interface/tests_csp_another_interface.h
+ * @file common_serialization/tests_csp_another_interface/interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/ISerializable.h>
+#include <common_serialization/csp_base/Interface.h>
 
 namespace tests_csp_another_interface
 {
@@ -38,6 +38,3 @@ constexpr ags_cs::csp::Interface properties(
 );
 
 } // namespace tests_csp_another_interface
-
-#include <common_serializaiton/tests_csp_another_interface/structs.h>
-#include <common_serializaiton/tests_csp_another_interface/csp_processing_data/generated/BodyProcessor.h>

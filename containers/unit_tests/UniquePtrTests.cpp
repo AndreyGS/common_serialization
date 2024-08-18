@@ -1,5 +1,5 @@
 /**
- * @file UniquePtrTests.cpp
+ * @file common_serializaiton/containers/unit_tests/UniquePtrTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

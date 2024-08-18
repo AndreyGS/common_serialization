@@ -1,5 +1,5 @@
 /**
- * @file RawKeeperAllocatorTests.cpp
+ * @file common_serializaiton/allocators/unit_tests/RawKeeperAllocatorTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

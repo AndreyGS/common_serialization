@@ -28,7 +28,7 @@
 #include <common_serialization/csp_base/processing/data/ContextProcessor.h>
 #include <common_serialization/csp_base/processing/status/Helpers.h>
 #include <common_serialization/csp_messaging/IClientDataHandlerTraits.h>
-#include <common_serialization/csp_messaging/service_structs/Interface.h>
+#include <common_serialization/csp_messaging/service_structs/structs.h>
 
 
 namespace common_serialization::csp::messaging

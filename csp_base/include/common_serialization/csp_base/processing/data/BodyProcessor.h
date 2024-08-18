@@ -225,7 +225,7 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
         return serializeSimplyAssignable(value, ctx);
     else if constexpr (EmptyType<_T>)
         return Status::NoError;
-    else if constexpr (is_template_v<_T>)
+    else if constexpr (!ISerializableImpl<_T> && is_template_v<_T>)
         return templateProcessorSerializationWrapper(value, ctx);
     else
         static_assert("Type has no applicable function for serialization");
@@ -404,7 +404,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
         return deserializeSimplyAssignable(ctx, value);
     else if constexpr (EmptyType<_T>)
         return Status::NoError;
-    else if constexpr (is_template_v<_T>)
+    else if constexpr (!ISerializableImpl<_T> && is_template_v<_T>)
         return templateProcessorDeserializationWrapper(ctx, value);
     else
         static_assert("Type has no applicable function for deserialization");

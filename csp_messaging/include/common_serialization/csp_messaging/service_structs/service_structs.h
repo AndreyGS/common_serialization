@@ -25,5 +25,5 @@
 
 #include <common_serialization/csp_messaging/service_structs/structs.h>
 #include <common_serialization/csp_messaging/service_structs/Interface.h>
-#include <common_serialization/csp_messaging/service_structs/processing/Deserialize.h>
-#include <common_serialization/csp_messaging/service_structs/processing/Serialize.h>
+#include <common_serialization/csp_messaging/service_structs/csp_processing_data/BodyProcessor.h>
+

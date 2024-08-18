@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/tests/csp/messaging/ClientToServerCommunicatorMock.h
+ * @file common_serialization/tests_csp_descendant_interface/interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,20 +23,18 @@
 
 #pragma once
 
-namespace
+#include <common_serialization/csp_base/Interface.h>
+
+namespace tests_csp_descendant_interface
 {
 
-using namespace common_serialization;
+namespace ags_cs = common_serialization;
 
-class ServerDataHandlerRegistrarMock : public csp::messaging::IServerDataHandlerRegistrar
-{
-public:
-    MOCK_METHOD(Status, registerHandler, (const Id&, bool, Service*, IServerDataHandlerBase&), (override));
-    MOCK_METHOD(void, unregisterHandler, (const Id&, IServerDataHandlerBase&), (noexcept, override));
-    MOCK_METHOD(void, unregisterService, (Service*), (noexcept, override));
-    MOCK_METHOD(Status, aquireHandlers, (const Id&, RawVectorT<IServerDataHandlerBase*>&), (override));
-    MOCK_METHOD(Status, aquireHandler, (const Id&, IServerDataHandlerBase*&), (noexcept, override));
-    MOCK_METHOD(void, releaseHandler, (IServerDataHandlerBase*), (noexcept, override));
-};
+constexpr ags_cs::csp::Interface properties(
+      ags_cs::Uuid{ 0x2335b43f, 0x0228, 0x411b, 0x814f, 0x3393a3e8ac3d }
+    , 1
+    , ags_cs::csp::context::DataFlags{}
+    , ags_cs::csp::context::DataFlags{}
+);
 
-} // namespace
+} // namespace tests_csp_descendant_interface

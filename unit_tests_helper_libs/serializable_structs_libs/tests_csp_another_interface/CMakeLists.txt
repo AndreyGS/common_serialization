@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 add_library(ags_cs_tests_csp_another_interface_included INTERFACE)
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/helper_functions.cmake")
 
 # Function description is similar (but simplified) to ags_cs_create_allocators_lib()
 function(ags_cs_create_tests_csp_another_interface_lib 
@@ -20,6 +20,7 @@ function(ags_cs_create_tests_csp_another_interface_lib
 
     set(LIB_HEADERS_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include/common_serialization/tests_csp_another_interface")
     set(LIB_HEADERS
+        "${LIB_HEADERS_DIR}/interface.h"
         "${LIB_HEADERS_DIR}/structs.h"
         "${LIB_HEADERS_DIR}/tests_csp_another_interface.h"
         "${LIB_HEADERS_DIR}/csp_processing_data/generated/BodyProcessor.h"
@@ -27,7 +28,6 @@ function(ags_cs_create_tests_csp_another_interface_lib
 
     set(LIB_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src")
     set(LIB_SOURCES
-        "${LIB_SOURCES_DIR}/structs.cpp"
         "${LIB_SOURCES_DIR}/csp_processing_data/generated/BodyProcessor.cpp"
     )
 

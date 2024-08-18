@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/tests/csp/messaging/Helpers.h
+ * @file common_serializaiton/csp_messaging/Helpers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -22,6 +22,11 @@
  */
 
 #pragma once
+
+#include <common_serialization/csp_messaging/service_structs/structs.h>
+#include <common_serialization/tests_csp_another_interface/structs.h>
+#include <common_serialization/tests_csp_descendant_interface/structs.h>
+#include <common_serialization/tests_csp_interface/structs.h>
 
 namespace
 {
@@ -49,6 +54,18 @@ CspPartySettings<> getValidCspPartySettings()
     interfaces.pushBack(InterfaceVersion{ tests_csp_interface::properties });
     interfaces.pushBack(InterfaceVersion{ tests_csp_descendant_interface::properties });
     interfaces.pushBack(InterfaceVersion{ tests_csp_another_interface::properties });
+
+    CspPartySettings settings(protocolVersions, {}, {}, interfaces);
+
+    return settings;
+}
+
+CspPartySettings<> getValidCspPartySettingsOneInterface()
+{
+    RawVectorT<protocol_version_t> protocolVersions;
+    protocolVersions.pushBackN(traits::kProtocolVersions, traits::getProtocolVersionsCount());
+    RawVectorT<InterfaceVersion<>> interfaces;
+    interfaces.pushBack(InterfaceVersion{ tests_csp_interface::properties });
 
     CspPartySettings settings(protocolVersions, {}, {}, interfaces);
 

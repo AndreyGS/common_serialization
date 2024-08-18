@@ -23,19 +23,6 @@
 
 #pragma once
 
-namespace tests_csp_descendant_interface
-{
-
-namespace ags_cs = common_serialization;
-
-constexpr ags_cs::csp::Interface properties(
-      ags_cs::Uuid{ 0x2335b43f, 0x0228, 0x411b, 0x814f, 0x3393a3e8ac3d }
-    , 1
-    , ags_cs::csp::context::DataFlags{}
-    , ags_cs::csp::context::DataFlags{}
-);
-
-} // namespace tests_csp_descendant_interface
-
+#include <common_serialization/tests_csp_descendant_interface/interface.h>
 #include <common_serialization/tests_csp_descendant_interface/structs.h>
 #include <common_serialization/tests_csp_descendant_interface/csp_processing_data/generated/BodyProcessor.h>

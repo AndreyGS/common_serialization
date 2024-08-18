@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/tests/csp/messaging/ServerDataHandlerBaseMock.h
+ * @file common_serialization/tests_csp_interface/structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,15 +23,33 @@
 
 #pragma once
 
-namespace
+#include <common_serialization/tests_csp_another_interface/interface.h>
+#include <common_serialization/csp_base/ISerializable.h>
+
+namespace tests_csp_another_interface
 {
 
-using namespace common_serialization;
-
-class ServerDataHandlerBaseMock : public csp::messaging::IServerDataHandlerBase
+template<typename T = ags_cs::Dummy>
+class SimpleStruct : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimpleStruct<>, T>>
 {
 public:
-    MOCK_METHOD(Status, handleDataCommon, (DData&, const GenericPointerKeeperT&, BinVectorT&), (override));
+    using instance_type = ags_cs::GetCrtpMainType<SimpleStruct<>, T>;
+
+    static constexpr ags_cs::csp::Id kId{ 0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd };
+    static constexpr ags_cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs
+    static constexpr ags_cs::csp::interface_version_t kPrivateVersions[] = { 0 };
+    static consteval const ags_cs::csp::Interface& getInterface() noexcept { return properties; }
+
+    uint32_t m_i{ 0 };
+
+    void fill()
+    {
+        m_i = 27838;
+    }
+
+    [[nodiscard]] auto operator<=>(const SimpleStruct&) const = default;
+
+    friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-} // namespace
+} // namespace tests_csp_another_interface

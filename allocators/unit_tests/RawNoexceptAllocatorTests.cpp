@@ -1,5 +1,5 @@
 /**
- * @file RawNoexceptAllocatorTests.cpp
+ * @file common_serializaiton/allocators/unit_tests/RawNoexceptAllocatorTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

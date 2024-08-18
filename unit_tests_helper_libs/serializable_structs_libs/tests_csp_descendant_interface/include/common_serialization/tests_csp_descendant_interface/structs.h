@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <common_serialization/tests_csp_descendant_interface/interface.h>
 #include <common_serialization/tests_csp_interface/Structs.h>
 
 namespace tests_csp_descendant_interface
@@ -82,7 +83,7 @@ public:
     {
         tests_csp_interface::Diamond<instance_type>::fill();
         m_sSt.fill();
-        output.m_ldouble = 0.982345792387523523l;
+        m_ldouble = 0.982345792387523523l;
     }
 
     [[nodiscard]] auto operator<=>(const DiamondDescendant&) const = default;

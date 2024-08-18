@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifndef CS_CUSTOM_CONTAINERS_TYPEDEFS
+#ifndef AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH
 
 #ifdef AGS_CS_NO_STD_LIB
 #include TODO
@@ -79,4 +79,4 @@ using ListT = std::list<_T, Ts...>;
 
 } // namespace common_serialization
 
-#endif // #ifndef CS_CUSTOM_CONTAINERS_TYPEDEFS
+#endif // #ifndef AGS_CS_CUSTOM_CONTAINERS_TYPEDEFS_HEADER_PATH

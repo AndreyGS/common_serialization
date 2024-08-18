@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/for_tests_helpers/include/ft_helpers/ft_helpers.h
+ * @file common_serialization/tests_csp_interface/tests_csp_another_interface.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,14 +23,6 @@
 
 #pragma once
 
-#include <common_serialization/common_serialization.h>
-
-#include <tests_restricted_structs/NotInterface.h>
-#include <tests_csp_interface/Interface.h>
-#include <tests_csp_descendant_interface/Interface.h>
-#include <tests_csp_another_interface/Interface.h>
-#include <tests_csp_with_std_interface/Interface.h>
-
-
-#include <ft_helpers/SimpleCspClientToServerCommunicator.h>
-#include <ft_helpers/SimpleCspServices.h>
+#include <common_serialization/tests_csp_another_interface/interface.h>
+#include <common_serialization/tests_csp_another_interface/structs.h>
+#include <common_serialization/tests_csp_another_interface/csp_processing_data/generated/BodyProcessor.h>

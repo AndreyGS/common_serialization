@@ -22,6 +22,7 @@
  */
 
 #include <common_serialization/tests_csp_another_interface/csp_processing_data/generated/BodyProcessor.h>
+#include <common_serialization/csp_base/processing/data/VersionConverter.h>
 
 namespace common_serialization::csp::processing::data
 {

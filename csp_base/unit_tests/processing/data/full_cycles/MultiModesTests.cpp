@@ -1,5 +1,5 @@
 /**
- * @file MultiModesTests.cpp
+ * @file common_serializaiton/csp_base/unit_tests/processing/data/full_cycles/MultiModesTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

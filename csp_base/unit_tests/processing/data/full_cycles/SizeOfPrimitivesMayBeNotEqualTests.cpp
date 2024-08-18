@@ -1,5 +1,5 @@
 /**
- * @file SizeOfPrimitivesMayBeNotEqualTests.cpp
+ * @file common_serializaiton/csp_base/unit_tests/processing/data/full_cycles/SizeOfPrimitivesMayBeNotEqualTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

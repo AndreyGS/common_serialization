@@ -29,7 +29,7 @@
 #include <common_serialization/csp_base/processing/status/Helpers.h>
 #include <common_serialization/csp_messaging/IServerDataHandlerRegistrar.h>
 #include <common_serialization/csp_messaging/IServerDataHandlerBase.h>
-#include <common_serialization/csp_messaging/service_structs/Interface.h>
+#include <common_serialization/csp_messaging/service_structs/structs.h>
 
 namespace common_serialization::csp::messaging
 {

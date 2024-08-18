@@ -31,7 +31,8 @@ namespace common_serialization::csp::processing::data
 template<>
 constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
 {
-    CS_RUN(serialize(value.m_id, ctx));
+    CS_RUN(serialize(value.m_high, ctx));
+    CS_RUN(serialize(value.m_low, ctx));
 
     return Status::NoError;
 }
@@ -39,7 +40,8 @@ constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
 template<>
 constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
 {
-    CS_RUN(deserialize(ctx, value.m_id));
+    CS_RUN(deserialize(ctx, value.m_high));
+    CS_RUN(deserialize(ctx, value.m_low));
 
     return Status::NoError;
 }

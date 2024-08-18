@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/tests/csp/messaging/ClientTests.cpp
+ * @file common_serializaiton/csp_messaging/ServerTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,9 +21,13 @@
  *
  */
 
-#include <tests/csp/messaging/Helpers.h>
-#include <tests/csp/messaging/ServerDataHandlerBaseMock.h>
-#include <tests/csp/messaging/ServerDataHandlerRegistrarMock.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <common_serialization/csp_messaging/service_structs/service_structs.h>
+#include <common_serialization/csp_messaging/Server.h>
+#include <common_serialization/tests_csp_another_interface/tests_csp_another_interface.h>
+#include <common_serialization/tests_csp_descendant_interface/tests_csp_descendant_interface.h>
+#include "Helpers.h"
 
 using ::testing::_;
 using ::testing::SetArgReferee;
@@ -35,7 +39,22 @@ using ::testing::Return;
 namespace
 {
 
-using namespace ft_helpers;
+class ServerDataHandlerRegistrarMock : public csp::messaging::IServerDataHandlerRegistrar
+{
+public:
+    MOCK_METHOD(Status, registerHandler, (const Id&, bool, Service*, IServerDataHandlerBase&), (override));
+    MOCK_METHOD(void, unregisterHandler, (const Id&, IServerDataHandlerBase&), (noexcept, override));
+    MOCK_METHOD(void, unregisterService, (Service*), (noexcept, override));
+    MOCK_METHOD(Status, aquireHandlers, (const Id&, RawVectorT<IServerDataHandlerBase*>&), (override));
+    MOCK_METHOD(Status, aquireHandler, (const Id&, IServerDataHandlerBase*&), (noexcept, override));
+    MOCK_METHOD(void, releaseHandler, (IServerDataHandlerBase*), (noexcept, override));
+};
+
+class ServerDataHandlerBaseMock : public csp::messaging::IServerDataHandlerBase
+{
+public:
+    MOCK_METHOD(Status, handleDataCommon, (DData&, const GenericPointerKeeperT&, BinVectorT&), (override));
+};
 
 class ServerTests : public ::testing::Test
 {

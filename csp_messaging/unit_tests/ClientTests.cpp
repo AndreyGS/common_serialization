@@ -1,5 +1,5 @@
 /**
- * @file UnitTests/tests/csp/messaging/ClientTests.cpp
+ * @file common_serializaiton/csp_messaging/ClientTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,8 +21,13 @@
  *
  */
 
-#include <tests/csp/messaging/Helpers.h>
-#include <tests/csp/messaging/ClientToServerCommunicatorMock.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <common_serialization/csp_messaging/Client.h>
+#include <common_serialization/csp_messaging/service_structs/service_structs.h>
+#include <common_serialization/tests_csp_another_interface/tests_csp_another_interface.h>
+#include <common_serialization/tests_csp_descendant_interface/tests_csp_descendant_interface.h>
+#include "Helpers.h"
 
 using ::testing::_;
 using ::testing::SetArgReferee;
@@ -34,7 +39,11 @@ using ::testing::Return;
 namespace
 {
 
-using namespace ft_helpers;
+class ClientToServerCommunicatorMock : public csp::messaging::IClientToServerCommunicator
+{
+public:
+    MOCK_METHOD(Status, process, (const BinVectorT& input, BinVectorT& output), (override));
+};
 
 class ClientTests : public ::testing::Test
 {
@@ -226,12 +235,12 @@ TEST_F(ClientTests, GetServerHandlerSettingsClientNotInited)
 // Try to get info about struct that is part of interface that isn't present in Client settings
 TEST_F(ClientTests, GetServerHandlerSettingsInterfaceNotSupported)
 {
-    m_client.init(getValidCspPartySettings());
+    m_client.init(getValidCspPartySettingsOneInterface());
 
     interface_version_t minimumInterfaceVersion{ 0 };
     Id outputTypeId;
 
-    EXPECT_EQ(m_client.getServerHandlerSettings<tests_csp_with_std_interface::OneBigType<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotSupportedInterface);
+    EXPECT_EQ(m_client.getServerHandlerSettings<tests_csp_descendant_interface::SimpleStruct<>>(minimumInterfaceVersion, outputTypeId), Status::ErrorNotSupportedInterface);
 }
 
 TEST_F(ClientTests, GetServerHandlerSettingsErrorFromSpeaker)
@@ -351,12 +360,12 @@ TEST_F(ClientTests, HandleDataClientNotInited)
 
 TEST_F(ClientTests, HandleDataClientNotSupportInterfaceVersionStruct)
 {
-    m_client.init(getValidCspPartySettings());
+    m_client.init(getValidCspPartySettingsOneInterface());
 
-    tests_csp_with_std_interface::OneBigType<> input;
+    tests_csp_descendant_interface::SimpleStruct<> input;
     service_structs::ISerializableDummy output;
 
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_with_std_interface::OneBigType<>, service_structs::ISerializableDummy>>(
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_descendant_interface::SimpleStruct<>, service_structs::ISerializableDummy>>(
         input, output)), Status::ErrorNotSupportedInterface);
 }
 
@@ -575,7 +584,7 @@ TEST_F(ClientTests, HandleDataGetValidDataFromServer)
     EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
         [&outputStruct = output](const BinVectorT& input, BinVectorT& output)
         {
-            fillingStruct(outputStruct);
+            outputStruct.fill();
             outputStruct.serialize(output);
             return Status::NoError;
         }
@@ -585,7 +594,7 @@ TEST_F(ClientTests, HandleDataGetValidDataFromServer)
         input, output)), Status::NoError);
     
     tests_csp_interface::SimplyAssignableDescendant<> reference;
-    fillingStruct(reference);
+    reference.fill();
     EXPECT_EQ(reference, output);
 }
 

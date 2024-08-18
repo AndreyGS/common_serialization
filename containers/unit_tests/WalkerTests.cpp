@@ -1,5 +1,5 @@
 /**
- * @file WalkerTests.cpp
+ * @file common_serializaiton/containers/unit_tests/WalkerTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

@@ -1,5 +1,5 @@
 /**
- * @file ConstructorNoexceptAllocatorTests.cpp
+ * @file common_serializaiton/allocators/unit_tests/ConstructorNoexceptAllocatorTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
