@@ -1,5 +1,5 @@
 /**
- * @file StdIncludedTests.cpp
+ * @file common_serialization/tests_csp_with_std_interface/src/structs.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,31 +21,19 @@
  *
  */
 
-// In most of this tests we are simulating difference in arithmetic sizes by using
-// distinct structs for serialization and deserialization
-// (to accomplish that we set their name hashes to the same value)
+#include <common_serialization/tests_csp_with_std_interface/structs.h>
 
-namespace
+namespace tests_csp_with_std_interface
 {
 
-using namespace common_serialization;
-using namespace tests_csp_with_std_interface;
-using namespace ft_helpers;
-
-TEST(StdIncludedTests, MainT)
+void fill(std::string& output)
 {
-    OneBigType<> input;
-    input.fill();
-
-    BinWalkerT bin;
-    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
-
-    OneBigType<> output;
-    EXPECT_EQ(output.deserialize(bin), Status::NoError);
-
-    EXPECT_EQ(input, output);
-
-    cleanAfterStruct(input);
+    output = "asdfg";
 }
 
-} // namespace
+void fill(std::wstring& output)
+{
+    output = L"asdfg";
+}
+
+} // namespace tests_csp_with_std_interface

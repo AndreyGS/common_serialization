@@ -1,5 +1,5 @@
 /**
- * @file pch.h
+ * @file common_serializaiton/csp_messaging/unit_tests/MultiTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,13 +21,26 @@
  *
  */
 
-#pragma once
-
-#include <string>
-#include <list>
-
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include <common_serialization/tests_csp_with_std_interface/csp_processing_data/generated/BodyProcessor.h>
 
-#include <common_serialization/common_serialization.h>
-#include <ft_helpers/ft_helpers.h>
+namespace
+{
+
+using namespace common_serialization;
+
+TEST(MultiTests, MainT)
+{
+    tests_csp_with_std_interface::OneBigType<> input;
+    input.fill();
+
+    BinWalkerT bin;
+    EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
+
+    tests_csp_with_std_interface::OneBigType<> output;
+    EXPECT_EQ(output.deserialize(bin), Status::NoError);
+
+    EXPECT_EQ(input, output);
+}
+
+} // namespace

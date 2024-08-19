@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/csp_base.h>
+#include <common_serialization/csp_messaging/csp_messaging_config.h>
 #include <common_serialization/csp_messaging/Client.h>
 #include <common_serialization/csp_messaging/IClientDataHandlerTraits.h>
 #include <common_serialization/csp_messaging/GenericServerDataHandlerRegistrar.h>
@@ -32,4 +32,4 @@
 #include <common_serialization/csp_messaging/IServerDataHandlerRegistrar.h>
 #include <common_serialization/csp_messaging/IServerDataHandlerTraits.h>
 #include <common_serialization/csp_messaging/Server.h>
-#include <common_serialization/csp_messaging/service_structs/Interface.h>
+#include <common_serialization/csp_messaging/service_structs/service_structs.h>

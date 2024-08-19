@@ -1,5 +1,5 @@
 /**
- * @file common_serialization/csp_restricted_structs_processing/Others/Serialize.h
+ * @file common_serialization/csp_std_structs_processing/Others/Serialize.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -29,7 +29,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
+Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
 {
     CS_RUN(serialize(value.m_high, ctx));
     CS_RUN(serialize(value.m_low, ctx));
@@ -38,7 +38,7 @@ constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
 }
 
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
+Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
 {
     CS_RUN(deserialize(ctx, value.m_high));
     CS_RUN(deserialize(ctx, value.m_low));
@@ -47,7 +47,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
 }
 
 template<>
-constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData& ctx)
+Status BodyProcessor::serialize(const context::DataFlags& value, context::SData& ctx)
 {
     CS_RUN(serialize(static_cast<uint32_t>(value), ctx));
 
@@ -55,7 +55,7 @@ constexpr Status BodyProcessor::serialize(const context::DataFlags& value, conte
 }
 
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, context::DataFlags& value)
+Status BodyProcessor::deserialize(context::DData& ctx, context::DataFlags& value)
 {
     uint32_t dataFlags{ 0 };
     CS_RUN(deserialize(ctx, dataFlags));
@@ -65,7 +65,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, context::DataFl
 }
 
 template<>
-constexpr Status BodyProcessor::serialize(const Interface& value, context::SData& ctx)
+Status BodyProcessor::serialize(const Interface& value, context::SData& ctx)
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
@@ -78,7 +78,7 @@ constexpr Status BodyProcessor::serialize(const Interface& value, context::SData
 }
 
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, Interface& value)
+Status BodyProcessor::deserialize(context::DData& ctx, Interface& value)
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)
 

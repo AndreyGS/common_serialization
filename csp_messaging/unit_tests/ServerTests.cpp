@@ -1,5 +1,5 @@
 /**
- * @file common_serializaiton/csp_messaging/ServerTests.cpp
+ * @file common_serializaiton/csp_messaging/unit_tests/ServerTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -27,6 +27,8 @@
 #include <common_serialization/csp_messaging/Server.h>
 #include <common_serialization/tests_csp_another_interface/tests_csp_another_interface.h>
 #include <common_serialization/tests_csp_descendant_interface/tests_csp_descendant_interface.h>
+#include <common_serialization/tests_csp_interface/tests_csp_interface.h>
+#include <common_serialization/tests_restricted_structs/tests_restricted_structs.h>
 #include "Helpers.h"
 
 using ::testing::_;

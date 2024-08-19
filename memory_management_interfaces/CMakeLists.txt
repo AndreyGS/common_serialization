@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.28)
 
 project(ags_cs_memory_management_interfaces VERSION 0.1.0)
 
-option(AGS_CS_BUILD_MEMORY_MANAGEMENT_INTERFACES "Build ags common serialization memory management interfaces project" ON)
-
 set(LIB_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/memory_management_interfaces")
 set(LIB_HEADERS
     "${LIB_HEADERS_DIR}/memory_management_interfaces.h"

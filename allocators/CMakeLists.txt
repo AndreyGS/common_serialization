@@ -5,8 +5,6 @@ cmake_minimum_required(VERSION 3.28)
 # Unfortunately cmake doesn't have direct way to do that (cached vars are caching until cache deleted and this is inconvenient).
 add_library(ags_cs_allocators_included INTERFACE)
 
-option(AGS_CS_BUILD_ALLOCATORS "Build ags common serialization allocators project" ON)
-
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 
 # Creates allocators library optionally customized with third-party memory management library and/or memory management typedefs.

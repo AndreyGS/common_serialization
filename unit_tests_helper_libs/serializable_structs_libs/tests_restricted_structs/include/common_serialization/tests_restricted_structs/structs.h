@@ -28,13 +28,6 @@
 namespace tests_restricted_structs
 {
 
-template<typename T>
-void fill(T& input);
-template<>
-void fill(std::string& output);
-template<>
-void fill(std::wstring& output);
-
 struct EmptyType
 {
     using empty_type_tag = std::true_type;

@@ -23,10 +23,18 @@
 
 #pragma once
 
-#include <common_serialization/csp_restricted_structs_processing/csp_processing_data/TemplateProcessorStd.h>
+#include <string>
+#include <vector>
+#include <map>
+#include <tuple>
+#include <common_serialization/csp_base/ISerializable.h>
+#include <common_serialization/tests_csp_with_std_interface/interface.h>
 
 namespace tests_csp_with_std_interface
 {
+
+void fill(std::string& output);
+void fill(std::wstring& output);
 
 template<typename T = ags_cs::Dummy>
 class OneBigType : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<OneBigType<>, T>>
@@ -41,8 +49,8 @@ public:
 
     void fill()
     {
-        fill(m_string1);
-        fill(m_string2);
+        tests_csp_with_std_interface::fill(m_string1);
+        tests_csp_with_std_interface::fill(m_string2);
         m_vector1.push_back(m_string1 + "123");
         m_vector1.push_back(m_string1 + "456");
         m_vector1.push_back(m_string1 + "789");

@@ -1,5 +1,5 @@
 /**
- * @file common_serialization/tests_csp_interface/csp_processing_data/generated/BodyProcessor.h
+ * @file common_serialization/tests_csp_another_interface/csp_processing_data/generated/BodyProcessor.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

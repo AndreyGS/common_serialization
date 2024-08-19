@@ -26,19 +26,6 @@
 namespace tests_restricted_structs
 {
 
-template<>
-void fill(std::string& output)
-{
-    output = "asdfg";
-}
-
-template<>
-void fill(std::wstring& output)
-{
-    output = L"asdfg";
-}
-
-
 void SimplyAssignableAlignedToOne::fill()
 {
     m_a = 1;

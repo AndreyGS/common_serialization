@@ -30,18 +30,18 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-constexpr Status BodyProcessor::serialize(const messaging::service_structs::OutGetInterface<>& value, context::SData& ctx);
+Status BodyProcessor::serialize(const messaging::service_structs::OutGetInterface<>& value, context::SData& ctx);
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::OutGetInterface<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::OutGetInterface<>& value);
 
 template<>
-constexpr Status BodyProcessor::serialize(const messaging::service_structs::GetInterface<>& value, context::SData& ctx);
+Status BodyProcessor::serialize(const messaging::service_structs::GetInterface<>& value, context::SData& ctx);
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::GetInterface<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::GetInterface<>& value);
 
 template<>
-constexpr Status BodyProcessor::serialize(const messaging::service_structs::CspPartySettings<>& value, context::SData& ctx);
+Status BodyProcessor::serialize(const messaging::service_structs::CspPartySettings<>& value, context::SData& ctx);
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::CspPartySettings<>& value);
+Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::CspPartySettings<>& value);
 
 } // namespace common_serialization::csp::processing::data

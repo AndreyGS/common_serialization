@@ -23,7 +23,7 @@
 
 #pragma once
 
-// This header should be moved to csp_restricted_structs_processing
+// This header should be moved to csp_std_structs_processing
 
 #include <common_serialization/csp_base/csp_base_config.h>
 #include <common_serialization/csp_base/processing/data/BodyProcessor.h>

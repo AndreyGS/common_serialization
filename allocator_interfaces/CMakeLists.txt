@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.28)
 
 project(ags_cs_allocator_interfaces VERSION 0.1.0)
 
-option(AGS_CS_BUILD_ALLOCATOR_INTERFACES "Build ags common serialization allocator interfaces project" ON)
-
 set(LIB_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/allocator_interfaces")
 set(LIB_HEADERS
     "${LIB_HEADERS_DIR}/allocator_interface.h"

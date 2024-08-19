@@ -1,5 +1,5 @@
 /**
- * @file common_serialization/csp_restricted_structs_processing/csp_processing_data/TemplateProcessorStd.h
+ * @file common_serialization/csp_std_structs_processing/csp_processing_data/TemplateProcessorStd.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -23,6 +23,10 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+#include <map>
+#include <tuple>
 #include <common_serialization/csp_base/processing/data/BodyProcessor.h>
 #include <common_serialization/csp_base/processing/data/TemplateProcessor.h>
 
@@ -41,7 +45,7 @@ public:
         return Status::NoError;
     }
 
-    static Status deserialize(context::DData& ctx, std::basic_string<_T, traits_, _Allocator>& value)
+    static Status deserialize(context::DData& ctx, std::basic_string<_T, _traits, _Allocator>& value)
     {
         using size_type = typename std::basic_string<_T, _traits, _Allocator>::size_type;
 

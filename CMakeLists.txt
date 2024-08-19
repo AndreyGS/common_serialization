@@ -52,8 +52,6 @@ if (AGS_CS_BUILD_ALLOCATORS)
     endif()
 
     ags_cs_create_allocators_lib(ON ON "" "" "" "")
-    ags_cs_create_allocators_lib(ON ON ags_cs::memory_management_lib 0.1.0 common_serialization/memory_management/typedefs2.h mm)
-    message(WARNING ${QUALIFIED_LIB_NAME})
 endif()
 
 # Allocation Manager Interfaces
@@ -98,6 +96,19 @@ if (AGS_CS_BUILD_CSP_BASE)
     endif()
 
     ags_cs_create_csp_base_lib(ON ON "" "" "" "")
+endif()
+
+
+# CSP restricted structs processing
+
+option(AGS_CS_BUILD_CSP_RESTRICTED_STRUCTS_PROCESSING "Build ags common serialization restricted structs processing project" ON)
+
+if (AGS_CS_BUILD_CSP_RESTRICTED_STRUCTS_PROCESSING)
+    if (NOT TARGET ags_cs_csp_std_structs_processing_included)
+        add_subdirectory(csp_std_structs_processing)
+    endif()
+
+    ags_cs_create_csp_std_structs_processing_lib(ON ON "" "" "" "")
 endif()
 
 # Concurrency

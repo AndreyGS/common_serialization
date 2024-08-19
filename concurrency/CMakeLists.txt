@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.28)
 
 project(ags_cs_concurrency VERSION 0.1.0)
 
-option(AGS_CS_BUILD_CONCURRENCY "Build ags common serialization concurrency" ON)
-
 set(LIB_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/common_serialization/concurrency")
 set(LIB_HEADERS
     "${LIB_HEADERS_DIR}/concurrency.h"

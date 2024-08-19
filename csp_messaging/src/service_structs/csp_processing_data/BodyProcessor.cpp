@@ -30,7 +30,7 @@ namespace common_serialization::csp::processing::data
 {
 
 template<>
-constexpr Status BodyProcessor::serialize(const messaging::service_structs::OutGetInterface<>& value, context::SData& ctx)
+Status BodyProcessor::serialize(const messaging::service_structs::OutGetInterface<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -40,7 +40,7 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::OutG
 }
 
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::OutGetInterface<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::OutGetInterface<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -50,7 +50,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::serv
 }
 
 template<>
-constexpr Status BodyProcessor::serialize(const messaging::service_structs::GetInterface<>& value, context::SData& ctx)
+Status BodyProcessor::serialize(const messaging::service_structs::GetInterface<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -60,7 +60,7 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::GetI
 }
 
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::GetInterface<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::GetInterface<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
@@ -70,7 +70,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::serv
 }
 
 template<>
-constexpr Status BodyProcessor::serialize(const messaging::service_structs::CspPartySettings<>& value, context::SData& ctx)
+Status BodyProcessor::serialize(const messaging::service_structs::CspPartySettings<>& value, context::SData& ctx)
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
@@ -88,7 +88,7 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::CspP
 }
 
 template<>
-constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::CspPartySettings<>& value)
+Status BodyProcessor::deserialize(context::DData& ctx, messaging::service_structs::CspPartySettings<>& value)
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 

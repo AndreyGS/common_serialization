@@ -23,6 +23,16 @@
 
 #pragma once
 
-#include <common_serialization/tests_csp_with_std_interface/interface.h>
-#include <common_serialization/tests_csp_with_std_interface/structs.h>
-#include <common_serialization/tests_csp_with_std_interface/csp_processing_data/generated/BodyProcessor.h>
+namespace tests_csp_with_std_interface
+{
+
+namespace ags_cs = common_serialization;
+
+constexpr ags_cs::csp::Interface properties(
+      ags_cs::Uuid{ 0x81ea8b21, 0xd3eb, 0x4e21, 0xa7f6, 0xab5f2449ce66 }
+    , 0
+    , ags_cs::csp::context::DataFlags{}
+    , ags_cs::csp::context::DataFlags{}
+);
+
+} // namespace tests_csp_with_std_interface

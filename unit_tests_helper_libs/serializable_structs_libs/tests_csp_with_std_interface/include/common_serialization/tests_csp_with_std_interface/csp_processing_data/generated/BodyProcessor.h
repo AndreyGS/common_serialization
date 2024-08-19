@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <common_serialization/csp_std_structs_processing/csp_processing_data/TemplateProcessorStd.h>
+#include <common_serialization/tests_csp_with_std_interface/structs.h>
+
 namespace common_serialization::csp::processing::data
 {
 

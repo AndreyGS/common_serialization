@@ -24,7 +24,7 @@
 #pragma once
 
 #include <common_serialization/tests_csp_descendant_interface/interface.h>
-#include <common_serialization/tests_csp_interface/Structs.h>
+#include <common_serialization/tests_csp_interface/structs.h>
 
 namespace tests_csp_descendant_interface
 {

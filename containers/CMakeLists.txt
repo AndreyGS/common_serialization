@@ -5,8 +5,6 @@ cmake_minimum_required(VERSION 3.28)
 # Unfortunately cmake doesn't have direct way to do that (cached vars are caching until cache deleted and this is inconvenient).
 add_library(ags_cs_containers_included INTERFACE)
 
-option(AGS_CS_BUILD_CONTAINERS "Build ags common serialization containers project" ON)
-
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 
 # Function description is similar to ags_cs_create_allocators_lib()

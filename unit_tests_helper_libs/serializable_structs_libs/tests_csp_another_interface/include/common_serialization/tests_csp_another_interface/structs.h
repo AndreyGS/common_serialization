@@ -1,5 +1,5 @@
 /**
- * @file common_serialization/tests_csp_interface/structs.h
+ * @file common_serialization/tests_csp_another_interface/structs.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE

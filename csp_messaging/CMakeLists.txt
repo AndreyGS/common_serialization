@@ -5,8 +5,6 @@ cmake_minimum_required(VERSION 3.28)
 # Unfortunately cmake doesn't have direct way to do that (cached vars are caching until cache deleted and this is inconvenient).
 add_library(ags_cs_csp_messaging_included INTERFACE)
 
-option(AGS_CS_BUILD_CSP_MESSAGING "Build ags common serialization csp messaging project" ON)
-
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 
 # Function description is similar to ags_cs_create_allocators_lib()
@@ -92,25 +90,22 @@ function(ags_cs_create_csp_messaging_lib
            "${TESTS_SOURCES_DIR}/ToRefactorTests.cpp"
         )
 
-        set(TESTS_LIBS_TO_LINK "gtest_main;gmock_main;${QUALIFIED_LIB_NAME}")
+        set(TESTS_LIBS_TO_LINK "gtest_main;gmock_main;${LIB_NAME}")
 
-        # Calling ags_cs_create_tests_csp_interface_lib only for getting QUALIFIED_TEST_LIB_NAME of tests_csp_interface_lib
-        if ("${CUSTOM_CONTAINERS_ALIAS}" STREQUAL "")
+        if ("${CUSTOM_CSP_BASE_ALIAS}" STREQUAL "")
             ags_cs_create_tests_csp_interface_lib("" "")
         else()
-            ags_cs_create_tests_csp_interface_lib(${QUALIFIED_TEST_LIB_NAME} "${CUSTOM_CONTAINERS_ALIAS}")
+            ags_cs_create_tests_csp_interface_lib(${CUSTOM_CSP_BASE_LIB_NAME} "${CUSTOM_CSP_BASE_ALIAS}")
         endif()
-
-        list(APPEND TESTS_LIBS_TO_LINK ${QUALIFIED_TEST_LIB_NAME})
 
         if (NOT TARGET ags_cs_tests_csp_descendant_interface_included)
             add_subdirectory("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../unit_tests_helper_libs/serializable_structs_libs/tests_csp_descendant_interface")
         endif()
 
-        if ("${CUSTOM_CONTAINERS_ALIAS}" STREQUAL "")
+        if ("${CUSTOM_CSP_BASE_ALIAS}" STREQUAL "")
             ags_cs_create_tests_csp_descendant_interface_lib("" "")
         else()
-            ags_cs_create_tests_csp_descendant_interface_lib(${QUALIFIED_TEST_LIB_NAME} "${CUSTOM_CONTAINERS_ALIAS}")
+            ags_cs_create_tests_csp_descendant_interface_lib(${QUALIFIED_TEST_LIB_NAME} "${CUSTOM_CSP_BASE_ALIAS}")
         endif()
 
         list(APPEND TESTS_LIBS_TO_LINK "${QUALIFIED_TEST_LIB_NAME}")
@@ -119,7 +114,7 @@ function(ags_cs_create_csp_messaging_lib
             add_subdirectory("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../unit_tests_helper_libs/serializable_structs_libs/tests_csp_another_interface")
         endif()
 
-        if ("${CUSTOM_CONTAINERS_ALIAS}" STREQUAL "")
+        if ("${CUSTOM_CSP_BASE_ALIAS}" STREQUAL "")
             ags_cs_create_tests_csp_another_interface_lib("" "")
         else()
             ags_cs_create_tests_csp_another_interface_lib(${CUSTOM_CSP_BASE_LIB_NAME} "${CUSTOM_CSP_BASE_ALIAS}")
