@@ -46,6 +46,10 @@ public:
 
     template<ISerializableImpl... _NextFrom>
     struct FromVersion;
+
+    // Using to find index of version in versions hierarchy of struct to which we must serialize/deserialize
+    template<typename T>
+    static constexpr [[nodiscard]] interface_version_t getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept;
 };
 
 template<typename _T>
@@ -67,7 +71,7 @@ constexpr Status VersionConverter::toOldStructIfNeed(const _T& value, context::S
         return Status::ErrorInvalidType;
     else
     {
-        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<_T>(ctx.getInterfaceVersion());
+        uint32_t targetVersion = getBestCompatInterfaceVersion<_T>(ctx.getInterfaceVersion());
 
         if (targetVersion == value.getLatestPrivateVersion())
             return Status::NoError;
@@ -86,7 +90,7 @@ constexpr Status VersionConverter::fromOldStructIfNeed(context::DData& ctx, _T& 
         return Status::ErrorInvalidType;
     else
     {
-        uint32_t targetVersion = traits::getBestCompatInterfaceVersion<_T>(ctx.getInterfaceVersion());
+        uint32_t targetVersion = getBestCompatInterfaceVersion<_T>(ctx.getInterfaceVersion());
 
         if (targetVersion == value.getLatestPrivateVersion())
             return Status::NoError;
@@ -302,5 +306,17 @@ protected:
             return Status::ErrorNoSuchHandler;
     }
 };
+
+template<typename T>
+[[nodiscard]] constexpr interface_version_t VersionConverter::getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept
+{
+    const interface_version_t* pPrivateVersions = T::getPrivateVersions();
+
+    for (interface_version_t i = 0; i < T::getPrivateVersionsCount(); ++i)
+        if (pPrivateVersions[i] <= compatInterfaceVersion)
+            return pPrivateVersions[i];
+
+    return traits::kInterfaceVersionUndefined;
+}
 
 } // namespace common_serialization::csp::processing::data

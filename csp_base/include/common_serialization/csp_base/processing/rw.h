@@ -33,7 +33,7 @@ template<typename _T>
 CS_ALWAYS_INLINE constexpr Status writePrimitive(_T value, context::SCommon& ctx)
 {
     if constexpr (EndiannessReversable<_T>)
-        if (ctx.isEndiannessNotMatch())
+        if (ctx.endiannessNotMatch())
         {
             if constexpr (std::is_same_v<std::remove_cv_t<_T>, long double>)
                 return Status::ErrorNotSupportedSerializationSettingsForStruct;
@@ -61,13 +61,13 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, _T& value
     Status status = Status::NoError;
 
     if constexpr (std::is_same_v<std::remove_cv_t<_T>, long double>)
-        if (ctx.isEndiannessNotMatch())
+        if (ctx.endiannessNotMatch())
             return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
     CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<_T>&>(value)));
 
     if constexpr (EndiannessReversable<_T>)
-        if (ctx.isEndiannessNotMatch())
+        if (ctx.endiannessNotMatch())
             (const_cast<std::remove_const_t<_T>&>(value)) = helpers::reverseEndianess(value);
     
     return Status::NoError;

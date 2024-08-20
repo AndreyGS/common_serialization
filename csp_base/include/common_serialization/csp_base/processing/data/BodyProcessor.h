@@ -127,6 +127,18 @@ template<typename T>
 concept EmptyType 
     =  requires(T t) { typename normalize_t<T>::empty_type_tag; };
 
+/// @brief Shortcut to get type interface version in template contexts
+/// @tparam _T Type for which interface version is requested
+/// @return Latest version of interface if _T implements ISerializable and 0 otherwise
+template<typename _T>
+consteval interface_version_t getLatestInterfaceVersion()
+{
+    if constexpr (ISerializableImpl<_T>)
+        return _T::getLatestInterfaceVersion();
+    else
+        return 0;
+}
+
 template<typename _T>
 constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SData& ctx)
 {
@@ -146,7 +158,7 @@ constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SD
         && (   std::is_arithmetic_v<_T>
             || std::is_enum_v<_T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-                && (!ISerializableImpl<_T> || traits::getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
+                && (!ISerializableImpl<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
                 && (   AlwaysSimplyAssignable<_T>
                     || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
                     || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()
@@ -293,7 +305,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _
         && (   std::is_arithmetic_v<_T>
             || std::is_enum_v<_T>
             || !ctx.simplyAssignableTagsOptimizationsAreTurnedOff()
-                && (!ISerializableImpl<_T> || traits::getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
+                && (!ISerializableImpl<_T> || getLatestInterfaceVersion<_T>() <= ctx.getInterfaceVersion())
                 && (   AlwaysSimplyAssignable<_T>
                     || SimplyAssignableFixedSize<_T> && !ctx.alignmentMayBeNotEqual()
                     || SimplyAssignableAlignedToOne<_T> && !ctx.sizeOfIntegersMayBeNotEqual()

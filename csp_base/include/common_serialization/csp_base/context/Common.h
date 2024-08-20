@@ -133,7 +133,7 @@ public:
 
     /// @brief Is target protocol version same as the latest our
     /// @return Flag indicating that protocol versions not match
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isProtocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool protocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
 
     /// @brief Is target endianness differs from current platform
     /// @note "Endianness not match" is not the same as "endianness difference". The first one is simply
@@ -141,7 +141,7 @@ public:
     ///     is the mode that drops off most of optimizations in processing so that there is an opportunity
     ///     to deserialize binary data on platform with any endianness.
     /// @return Flag indicating that endianness of current platform differs from target one
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isEndiannessNotMatch() const noexcept { return m_endiannessNotMatch; }
+    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool endiannessNotMatch() const noexcept { return m_endiannessNotMatch; }
 
     /// @brief Get Common Flags that are using in this context
     /// @return Common Flags

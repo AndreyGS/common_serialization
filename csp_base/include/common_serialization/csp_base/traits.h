@@ -32,22 +32,22 @@ inline constexpr protocol_version_t kProtocolVersions[] = { 1 };
 inline constexpr protocol_version_t kProtocolVersionUndefined = 0xff;
 inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;
 
-[[nodiscard]] constexpr protocol_version_t getLatestProtocolVersion() noexcept
+constexpr [[nodiscard]] protocol_version_t getLatestProtocolVersion() noexcept
 {
     return kProtocolVersions[0];
 }
 
-[[nodiscard]] constexpr bool isProtocolVersionSameAsLatestOur(protocol_version_t foreignProtocolVersion) noexcept
-{
-    return getLatestProtocolVersion() == foreignProtocolVersion;
-}
-
-[[nodiscard]] constexpr protocol_version_t getProtocolVersionsCount() noexcept
+constexpr [[nodiscard]] protocol_version_t getProtocolVersionsCount() noexcept
 {
     return sizeof(kProtocolVersions);
 }
 
-[[nodiscard]] constexpr bool isProtocolVersionSupported(protocol_version_t foreignProtocolVersion) noexcept
+constexpr [[nodiscard]] bool isProtocolVersionSameAsLatestOur(protocol_version_t foreignProtocolVersion) noexcept
+{
+    return getLatestProtocolVersion() == foreignProtocolVersion;
+}
+
+constexpr [[nodiscard]] bool isProtocolVersionSupported(protocol_version_t foreignProtocolVersion) noexcept
 {
     for (protocol_version_t i = 0; i < getProtocolVersionsCount(); ++i)
         if (foreignProtocolVersion == kProtocolVersions[i])
@@ -56,48 +56,9 @@ inline constexpr interface_version_t kInterfaceVersionUndefined = 0xffffffff;
     return false;
 }
 
-[[nodiscard]] constexpr bool isInterfaceVersionSupported(interface_version_t version, interface_version_t minVersion, interface_version_t maxVersion) noexcept
+constexpr [[nodiscard]] bool isInterfaceVersionSupported(interface_version_t version, interface_version_t minVersion, interface_version_t maxVersion) noexcept
 {
     return maxVersion >= version && version >= minVersion;
-}
-
-// Using to find index of version in versions hierarchy of struct to which we must serialize/deserialize
-template<typename T>
-[[nodiscard]] constexpr interface_version_t getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept
-{
-    const interface_version_t* pPrivateVersions = T::getPrivateVersions();
-
-    for (interface_version_t i = 0; i < T::getPrivateVersionsCount(); ++i)
-        if (pPrivateVersions[i] <= compatInterfaceVersion)
-            return pPrivateVersions[i];
-
-    return kInterfaceVersionUndefined;
-}
-
-template<typename T>
-[[nodiscard]] constexpr interface_version_t getBestSupportedInterfaceVersion(
-    interface_version_t minForeignVersion, interface_version_t maxForeignVersion, interface_version_t minCurrentVersion
-) noexcept
-{
-    if (minCurrentVersion > minForeignVersion || minForeignVersion > T::getLatestInterfaceVersion())
-        return kInterfaceVersionUndefined;
-
-    if (maxForeignVersion >= T::getLatestInterfaceVersion())
-        return T::getLatestInterfaceVersion();
-    else
-        return maxForeignVersion;
-}
-
-/// @brief Shortcut to get type interface version in template contexts
-/// @tparam _T Type for which interface version is requested
-/// @return Latest version of interface if _T implements ISerializable and 0 otherwise
-template<typename _T>
-consteval interface_version_t getLatestInterfaceVersion()
-{
-    if constexpr (ISerializableImpl<_T>)
-        return _T::getLatestInterfaceVersion();
-    else
-        return 0;
 }
 
 } // namespace common_serialization::csp::traits
