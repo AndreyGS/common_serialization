@@ -54,7 +54,7 @@ constexpr Status ContextProcessor::serialize(context::SCommon& ctx)
 {
     if (!traits::isProtocolVersionSupported(ctx.getProtocolVersion()))
         return Status::ErrorNotSupportedProtocolVersion;
-    else if (ctx.isEndiannessNotMatch() && !ctx.endiannessDifference())
+    else if (ctx.endiannessNotMatch() && !ctx.endiannessDifference())
         return Status::ErrorNotCompatibleCommonFlagsSettings;
 
     return serializeNoChecks(ctx);
@@ -97,7 +97,7 @@ constexpr Status ContextProcessor::deserialize(context::DCommon& ctx) noexcept
     CS_RUN(readPrimitive(commonContextSpecial, intFlags));
     context::CommonFlags commonFlags(intFlags);
     ctx.setCommonFlags(commonFlags);
-    if (ctx.isEndiannessNotMatch() && !ctx.endiannessDifference())
+    if (ctx.endiannessNotMatch() && !ctx.endiannessDifference())
         return Status::ErrorNotCompatibleCommonFlagsSettings;
 
     return Status::NoError;

@@ -23,26 +23,35 @@
 
 #pragma once
 
-#include <common_serialization/csp_base/context/Data.h>
+#include <common_serialization/csp_base/processing/data/BodyProcessor.h>
 
 namespace common_serialization::csp::processing::data
 {
 
 template<typename _T, typename... _Ts>
-class TemplateProcessor {};
-
-
-template<template<typename...> typename _T, typename... _Ts>
-CS_ALWAYS_INLINE Status templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx)
+class TemplateProcessor<VectorT<_T, _Ts...>, _T, _Ts...>
 {
-    return TemplateProcessor<_T<_Ts...>, _Ts...>::serialize(value, ctx);
-}
+public:
+    static Status serialize(const VectorT<_T, _Ts...>& value, context::SData& ctx)
+    {
+        CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
+        CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
 
+        return Status::NoError;
+    }
 
-template<template<typename...> typename _T, typename... _Ts>
-CS_ALWAYS_INLINE Status templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value)
-{
-    return TemplateProcessor<_T<_Ts...>, _Ts...>::deserialize(ctx, value);
-}
+    static Status deserialize(context::DData& ctx, VectorT<_T, _Ts...>& value)
+    {
+        value.clear();
+
+        typename VectorT<_T, _Ts...>::size_type size = 0;
+        CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
+        CS_RUN(value.reserve(size));
+        CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
+        value.m_dataSize = size;
+
+        return Status::NoError;
+    }
+};
 
 } // namespace common_serialization::csp::processing::data

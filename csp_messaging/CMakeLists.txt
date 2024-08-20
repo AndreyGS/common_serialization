@@ -51,11 +51,6 @@ function(ags_cs_create_csp_messaging_lib
         "${LIB_HEADERS_DIR}/service_structs/csp_processing_data/BodyProcessor.h"
     )
 
-    set(LIB_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src")
-    set(LIB_SOURCES
-        "${LIB_SOURCES_DIR}/service_structs/csp_processing_data/BodyProcessor.cpp"
-    )
-
     if ("${CUSTOM_CSP_BASE_LIB_NAME}" STREQUAL "")
         set(LIBS_TO_LINK "ags_cs::csp_base_lib;0.1.0")
     else()
@@ -68,11 +63,10 @@ function(ags_cs_create_csp_messaging_lib
         list(APPEND LIBS_TO_LINK "${CUSTOM_CONCURRENCY_LIB_NAME};${CUSTOM_CSP_BASE_LIB_VERSION}")
     endif()
 
-    ags_cs_add_static_lib(
+    ags_cs_add_interface_lib(
         "${UNQUALIFIED_LIB_NAME}"
         ${PROJECT_VERSION}
         "${LIB_HEADERS}"
-        "${LIB_SOURCES}"
         "${LIBS_TO_LINK}"
         ON
         "${CMAKE_CURRENT_FUNCTION_LIST_DIR}"

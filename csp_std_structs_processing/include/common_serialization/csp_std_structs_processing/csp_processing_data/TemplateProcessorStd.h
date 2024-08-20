@@ -119,7 +119,7 @@ public:
         CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
 
         for (auto& pair : value)
-            CS_RUN(templateProcessorSerializationWrapper(pair, ctx));
+            CS_RUN(BodyProcessor::serialize(pair, ctx));
 
         return Status::NoError;
     }

@@ -21,6 +21,7 @@
  *
  */
 
+#include <common_serialization/csp_base/processing/data/TemplateProcessor.h>
 #include <common_serialization/csp_base/processing/data/VersionConverter.h>
 #include <common_serialization/tests_csp_interface/tests_csp_interface.h>
 

@@ -43,16 +43,10 @@ function(ags_cs_create_csp_base_lib
         "${LIB_HEADERS_DIR}/processing/data/BodyProcessor.h"
         "${LIB_HEADERS_DIR}/processing/data/ContextProcessor.h"
         "${LIB_HEADERS_DIR}/processing/data/TemplateProcessor.h"
-        "${LIB_HEADERS_DIR}/processing/data/TemplateProcessorVector.h"
         "${LIB_HEADERS_DIR}/processing/data/VersionConverter.h"
         "${LIB_HEADERS_DIR}/processing/status/BodyProcessor.h"
         "${LIB_HEADERS_DIR}/processing/status/ContextProcessor.h"
         "${LIB_HEADERS_DIR}/processing/status/Helpers.h"
-    )
-
-    set(LIB_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src")
-    set(LIB_SOURCES
-        "${LIB_SOURCES_DIR}/processing/data/BodyProcessor.cpp"
     )
 
     set(LIBS_TO_LINK "ags_cs::common_lib;0.1.0")
@@ -62,11 +56,10 @@ function(ags_cs_create_csp_base_lib
         string(APPEND LIBS_TO_LINK ";${CUSTOM_CONTAINERS_LIB_NAME};${CUSTOM_CONTAINERS_LIB_VERSION}")
     endif()
 
-    ags_cs_add_static_lib(
+    ags_cs_add_interface_lib(
         "${UNQUALIFIED_LIB_NAME}"
         ${PROJECT_VERSION}
         "${LIB_HEADERS}"
-        "${LIB_SOURCES}"
         "${LIBS_TO_LINK}"
         ON
         "${CMAKE_CURRENT_FUNCTION_LIST_DIR}"

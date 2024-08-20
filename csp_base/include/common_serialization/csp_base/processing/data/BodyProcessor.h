@@ -24,11 +24,17 @@
 #pragma once
 
 #include <common_serialization/csp_base/Interface.h>
-#include <common_serialization/csp_base/processing/data/TemplateProcessor.h>
+#include <common_serialization/csp_base/context/Data.h>
 #include <common_serialization/csp_base/processing/rw.h>
+#include <common_serialization/csp_base/processing/data/ContextProcessor.h>
 
 namespace common_serialization::csp::processing::data
 {
+
+template<typename _T, typename... _Ts>
+class TemplateProcessor;
+
+class VersionConverter;
 
 class BodyProcessor
 {
@@ -86,6 +92,12 @@ protected:
     static CS_ALWAYS_INLINE constexpr Status addPointerToMap(const _T p, context::SData& ctx, bool& newPointer);
     template<typename _T>
     static CS_ALWAYS_INLINE constexpr Status getPointerFromMap(context::DData& ctx, _T& p, bool& newPointer);
+
+
+    template<template<typename...> typename _T, typename... _Ts>
+    static CS_ALWAYS_INLINE Status templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx);
+    template<template<typename...> typename _T, typename... _Ts>
+    static CS_ALWAYS_INLINE Status templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value);
 
 private:
     static constexpr size_t kMaxSizeOfIntegral = 8;   // maximum allowed size of integral type
@@ -480,8 +492,8 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
 template<typename _T>
 constexpr Status BodyProcessor::serializeSimplyAssignable(const _T& value, context::SData&ctx)
 {
-    if constexpr (NotSimplyAssignable<_T>)
-        return Status::ErrorInvalidType;
+    if constexpr (!AnySimplyAssignable<decltype(value)>)
+        return Status::NoError;
     else
     {
         if constexpr (ISerializableImpl<_T>)
@@ -598,20 +610,17 @@ constexpr Status BodyProcessor::getPointerFromMap(context::DData& ctx, _T& p, bo
     return Status::NoError;
 }
 
-template<>
-Status BodyProcessor::serialize(const Id& value, context::SData& ctx);
-template<>
-Status BodyProcessor::deserialize(context::DData& ctx, Id& value);
+template<template<typename...> typename _T, typename... _Ts>
+CS_ALWAYS_INLINE Status BodyProcessor::templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx)
+{
+    return TemplateProcessor<_T<_Ts...>, _Ts...>::serialize(value, ctx);
+}
 
-template<>
-Status BodyProcessor::serialize(const context::DataFlags& value, context::SData& ctx);
-template<>
-Status BodyProcessor::deserialize(context::DData& ctx, context::DataFlags& value);
-
-template<>
-Status BodyProcessor::serialize(const Interface& value, context::SData& ctx);
-template<>
-Status BodyProcessor::deserialize(context::DData& ctx, Interface& value);
+template<template<typename...> typename _T, typename... _Ts>
+CS_ALWAYS_INLINE Status BodyProcessor::templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value)
+{
+    return TemplateProcessor<_T<_Ts...>, _Ts...>::deserialize(ctx, value);
+}
 
 } // namespace common_serialization::csp::processing::data
 
@@ -649,7 +658,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, Interface& value);
         /* if we get Status::ErrorNotSupportedSerializationSettingsForStruct, */        \
         /* than we should deserialize it field-by-field */                              \
    }                                                                                    \
-}
+}                                                            
 
 #define CSP_SERIALIZE_COMMON(value, ctx)                                                \
 {                                                                                       \
@@ -692,3 +701,69 @@ Status BodyProcessor::deserialize(context::DData& ctx, Interface& value);
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)                                   \
 }
 
+namespace common_serialization::csp::processing::data
+{
+
+template<>
+constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
+{
+    CS_RUN(serialize(value.m_high, ctx));
+    CS_RUN(serialize(value.m_low, ctx));
+
+    return Status::NoError;
+}
+
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
+{
+    CS_RUN(deserialize(ctx, value.m_high));
+    CS_RUN(deserialize(ctx, value.m_low));
+
+    return Status::NoError;
+}
+
+template<>
+constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData& ctx)
+{
+    CS_RUN(serialize(static_cast<uint32_t>(value), ctx));
+
+    return Status::NoError;
+}
+
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, context::DataFlags& value)
+{
+    uint32_t dataFlags{ 0 };
+    CS_RUN(deserialize(ctx, dataFlags));
+    value = dataFlags;
+
+    return Status::NoError;
+}
+
+template<>
+constexpr Status BodyProcessor::serialize(const Interface& value, context::SData& ctx)
+{
+    CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
+
+    CS_RUN(serialize(value.id, ctx));
+    CS_RUN(serialize(value.version, ctx));
+    CS_RUN(serialize(value.mandatoryDataFlags, ctx));
+    CS_RUN(serialize(value.forbiddenDataFlags, ctx));
+
+    return Status::NoError;
+}
+
+template<>
+constexpr Status BodyProcessor::deserialize(context::DData& ctx, Interface& value)
+{
+    CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)
+
+    CS_RUN(deserialize(ctx, value.id));
+    CS_RUN(deserialize(ctx, value.version));
+    CS_RUN(deserialize(ctx, value.mandatoryDataFlags));
+    CS_RUN(deserialize(ctx, value.forbiddenDataFlags));
+
+    return Status::NoError;
+}
+
+} // namespace common_serialization::csp::processing::data
