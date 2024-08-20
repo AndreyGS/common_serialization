@@ -137,7 +137,7 @@ public:
     }
 
     /// @brief Get stored pointer
-    /// @tparam T Type on which pointer points
+    /// @tparam _T Type on which pointer points
     /// @return Stored pointer
     template<typename _T>
     constexpr [[nodiscard]] _T* get()
@@ -146,7 +146,7 @@ public:
     }
 
     /// @brief Relese stored pointer ownership
-    /// @tparam T Type on which pointer points
+    /// @tparam _T Type on which pointer points
     /// @return Released pointer
     template<typename _T>
     constexpr _T* release()

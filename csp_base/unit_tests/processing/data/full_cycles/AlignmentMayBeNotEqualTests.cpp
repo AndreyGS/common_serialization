@@ -33,10 +33,10 @@ using namespace tests_csp_interface;
 
 using size_type = typename BinVectorT::size_type;
 
-template<typename T>
+template<typename _T>
 void mainTest()
 {
-    T input;
+    _T input;
     input.fill();
 
     BinWalkerT bin;
@@ -46,7 +46,7 @@ void mainTest()
     EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
     csp::context::DData ctxOut(bin);
-    T output;
+    _T output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());

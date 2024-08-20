@@ -68,13 +68,13 @@ inline constexpr bool is_same_v = false;
 template<typename _T>
 inline constexpr bool is_same_v<_T, _T> = true;
 
-// std::is_same<X, Y>
-template<typename X, typename Y>
-struct is_same : bool_constant<is_same_v<X, Y>> {};
+// std::is_same<_X, _Y>
+template<typename _X, typename _Y>
+struct is_same : bool_constant<is_same_v<_X, _Y>> {};
 
-// std::same_as<X, Y>
-template<typename X, typename Y>
-concept same_as = is_same_v<X, Y> && is_same_v<Y, X>;
+// std::same_as<_X, _Y>
+template<typename _X, typename _Y>
+concept same_as = is_same_v<_X, _Y> && is_same_v<_Y, _X>;
 
 // std::true_type
 using true_type = bool_constant<true>;
@@ -380,8 +380,8 @@ inline constexpr bool is_pointer_v = is_pointer<_T>::value;
 template<typename _T>
 struct is_member_pointer_helper : std::false_type {};
 
-template<typename _T, typename U>
-struct is_member_pointer_helper<_T U::*> : std::true_type {};
+template<typename _T, typename _U>
+struct is_member_pointer_helper<_T _U::*> : std::true_type {};
 
 template<typename _T>
 struct is_member_pointer : is_member_pointer_helper<std::remove_cv_t<_T>> {};
@@ -394,8 +394,8 @@ inline constexpr bool is_member_pointer_v = is_member_pointer<_T>::value;
 template<typename _T>
 struct is_member_function_pointer_helper : std::false_type {};
 
-template<typename _T, typename U>
-struct is_member_function_pointer_helper<_T U::*> : std::is_function<_T> {};
+template<typename _T, typename _U>
+struct is_member_function_pointer_helper<_T _U::*> : std::is_function<_T> {};
 
 template<typename _T>
 struct is_member_function_pointer : is_member_function_pointer_helper<std::remove_cv_t<_T>> {};
@@ -437,18 +437,18 @@ template<typename _T>
 inline constexpr bool is_class_v = __is_class(_T);
 
 // std::conditional
-template<bool B, typename _T, typename F>
+template<bool _B, typename _T, typename _F>
 struct conditional { using type = _T; };
 
-template<typename _T, typename F>
-struct conditional<false, _T, F>
+template<typename _T, typename _F>
+struct conditional<false, _T, _F>
 {
-    using type = F;
+    using type = _F;
 };
 
 // std::conditional_t
-template<bool B, class _T, class F>
-using conditional_t = typename conditional<B, _T, F>::type;
+template<bool _B, class _T, class _F>
+using conditional_t = typename conditional<_B, _T, _F>::type;
 
 // std::underlying_type
 template<typename _T, bool = is_enum_v<_T>>

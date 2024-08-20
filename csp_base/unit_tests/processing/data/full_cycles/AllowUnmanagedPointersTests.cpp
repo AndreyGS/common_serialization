@@ -31,11 +31,11 @@ namespace
 using namespace common_serialization;
 using namespace tests_csp_interface;
 
-template<typename T>
+template<typename _T>
 
 void mainTest()
 {
-    T input;
+    _T input;
     input.fill();
 
     BinWalkerT bin;
@@ -44,7 +44,7 @@ void mainTest()
 
     EXPECT_EQ(input.serialize(ctxIn), Status::NoError);
 
-    T output;
+    _T output;
 
     csp::context::DData ctxOut(bin);
     VectorT<GenericPointerKeeper> addedPointers;

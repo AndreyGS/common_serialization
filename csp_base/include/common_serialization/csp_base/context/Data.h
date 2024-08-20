@@ -29,40 +29,40 @@
 namespace common_serialization::csp
 {
 
-template<typename PM>
+template<typename _PM>
 concept ISerializationPointersMap
-    = requires(PM pm, typename PM::key_type key)
+    = requires(_PM pm, typename _PM::key_type key)
         {
-            typename PM::key_type;
-            typename PM::mapped_type;
+            typename _PM::key_type;
+            typename _PM::mapped_type;
             
             { pm.find(nullptr) };
             { pm.end() };
-            { pm[key] } -> std::same_as<typename PM::mapped_type&>;
+            { pm[key] } -> std::same_as<typename _PM::mapped_type&>;
             { pm.clear() };
         }
-    && std::is_same_v<typename PM::key_type, const void*> && std::is_same_v<typename PM::mapped_type, uint64_t>;
+    && std::is_same_v<typename _PM::key_type, const void*> && std::is_same_v<typename _PM::mapped_type, uint64_t>;
 
 static_assert(ISerializationPointersMap<HashMapT<const void*, uint64_t>>, "MapT<const void*, uint64_t> must comply with ISerializationPointersMap concept");
 
-template<typename PM>
+template<typename _PM>
 concept IDeserializationPointersMap
-    = requires(PM pm, typename PM::key_type key)
+    = requires(_PM pm, typename _PM::key_type key)
         {
-            typename PM::key_type;
-            typename PM::mapped_type;
+            typename _PM::key_type;
+            typename _PM::mapped_type;
             
             { pm.find(1) };
             { pm.end() };
-            { pm[key] } -> std::same_as<typename PM::mapped_type&>;
+            { pm[key] } -> std::same_as<typename _PM::mapped_type&>;
             { pm.clear() };
         }
-    && std::is_same_v<typename PM::key_type, uint64_t> && std::is_same_v<typename PM::mapped_type, void*>;
+    && std::is_same_v<typename _PM::key_type, uint64_t> && std::is_same_v<typename _PM::mapped_type, void*>;
 
 static_assert(IDeserializationPointersMap<MapT<uint64_t, void*>>, "MapT<uint64_t, void*> must comply with IDeserializationPointersMap concept");
 
-template<typename PM>
-concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;
+template<typename _PM>
+concept IPointersMap = ISerializationPointersMap<_PM> || IDeserializationPointersMap<_PM>;
 
 } // namespace common_serialization::csp
 
@@ -154,18 +154,18 @@ public:
     /// @param pPointersMap Set pointer map to this
     constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
     
-    /// @brief Allocates memory for type T and costructs default T-object,
+    /// @brief Allocates memory for type _T and costructs default _T-object,
     ///     and then places it to container of added free pointers.
-    /// @tparam T Type of object to allocate and construct
+    /// @tparam _T Type of object to allocate and construct
     /// @return Pointer of costructed object
-    template<typename T>
-    [[nodiscard]] T* allocateAndDefaultConstruct()
+    template<typename _T>
+    [[nodiscard]] _T* allocateAndDefaultConstruct()
     {
         if (!m_pAddedPointers)
             assert(false); // this situation shall never exists
 
         GenericPointerKeeper pointerKeeper;
-        T* p = pointerKeeper.allocateAndConstructOne<T>();
+        _T* p = pointerKeeper.allocateAndConstructOne<_T>();
 
         if (p)
             if (!statusSuccess(m_pAddedPointers->pushBack(std::move(pointerKeeper))))
@@ -361,13 +361,13 @@ public:
     /// @param pAddedPointers Pointer to added free pointers container
     CS_ALWAYS_INLINE constexpr Data& setAddedPointers(VectorT<GenericPointerKeeperT>* pAddedPointers) noexcept requires (!serialize) { m_epp.setAddedPointers(pAddedPointers); return *this; }
 
-    /// @brief Allocates memory for type T and costructs default T-object,
+    /// @brief Allocates memory for type _T and costructs default _T-object,
     ///     and then places it to container of added free pointers.
     /// @remark availible only on deserialization mode
-    /// @tparam T Type of object to allocate and construct
+    /// @tparam _T Type of object to allocate and construct
     /// @return Pointer of costructed object
-    template<typename T>
-    [[nodiscard]] CS_ALWAYS_INLINE T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<T>(); }
+    template<typename _T>
+    [[nodiscard]] CS_ALWAYS_INLINE _T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<_T>(); }
 
     /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
     /// @note Flag of using heap allocation also not resets to false,

@@ -36,8 +36,8 @@ struct AnotherCustomDeleter
 {
     static int i;
 
-    template<typename T>
-    void operator()(T p)
+    template<typename _T>
+    void operator()(_T p)
     {
         i += 1;
         delete p;
@@ -50,8 +50,8 @@ struct AnotherCustomArrDeleter
 {
     static int i;
 
-    template<typename T>
-    void operator()(T p)
+    template<typename _T>
+    void operator()(_T p)
     {
         i += 1;
         delete[] p;

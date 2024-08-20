@@ -45,12 +45,12 @@ public:
 };
 
 /// @brief Struct for request of interface properties with specific Id
-/// @tparam T Derived class
-template<typename T = Dummy>
-struct GetInterface : public csp::ISerializable<GetCrtpMainType<GetInterface<T>, T>>
+/// @tparam _T Derived class
+template<typename _T = Dummy>
+struct GetInterface : public csp::ISerializable<GetCrtpMainType<GetInterface<_T>, _T>>
 {
 public:
-    using instance_type = GetCrtpMainType<GetInterface<T>, T>;
+    using instance_type = GetCrtpMainType<GetInterface<_T>, _T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr Id kId{ 0x08c68657, 0x4fa7, 0x4419, 0x8c13, 0x66aec2b06cb0 };
@@ -62,12 +62,12 @@ public:
 };
 
 /// @brief Struct for response on GetInterface
-/// @tparam T Derived class
-template<typename T = Dummy>
-struct OutGetInterface : public csp::ISerializable<GetCrtpMainType<OutGetInterface<T>, T>>
+/// @tparam _T Derived class
+template<typename _T = Dummy>
+struct OutGetInterface : public csp::ISerializable<GetCrtpMainType<OutGetInterface<_T>, _T>>
 {
 public:
-    using instance_type = GetCrtpMainType<OutGetInterface<T>, T>;
+    using instance_type = GetCrtpMainType<OutGetInterface<_T>, _T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr Id kId{ 0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1 };
@@ -81,12 +81,12 @@ public:
 #pragma pack(push, 1)
 
 /// @brief Interface Id and Version holder
-/// @tparam T Derived class
-template<typename T = Dummy>
-struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVersion<T>, T>>
+/// @tparam _T Derived class
+template<typename _T = Dummy>
+struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVersion<_T>, _T>>
 {
 public:
-    using instance_type = GetCrtpMainType<InterfaceVersion<T>, T>;
+    using instance_type = GetCrtpMainType<InterfaceVersion<_T>, _T>;
     using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr Id kId{ 0xdf1cb40c, 0x9a72, 0x426b, 0xa801, 0xb0993fe76a46 };
@@ -107,11 +107,11 @@ public:
 #pragma pack(pop)
 
 /// @brief Settings of a CSP party
-template<typename T = Dummy>
-class CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySettings<T>, T>>
+template<typename _T = Dummy>
+class CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySettings<_T>, _T>>
 {
 public:
-    using instance_type = GetCrtpMainType<CspPartySettings<T>, T>;
+    using instance_type = GetCrtpMainType<CspPartySettings<_T>, _T>;
 
     static constexpr Id kId{ 0xbf8c27e8, 0xfe6a, 0x4492, 0x91cb, 0xe4cf411e1236 };
     static constexpr interface_version_t kInterfaceVersion = 1;

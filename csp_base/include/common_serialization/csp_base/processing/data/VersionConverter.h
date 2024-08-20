@@ -48,7 +48,7 @@ public:
     struct FromVersion;
 
     // Using to find index of version in versions hierarchy of struct to which we must serialize/deserialize
-    template<typename T>
+    template<typename _T>
     static constexpr [[nodiscard]] interface_version_t getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept;
 };
 
@@ -307,12 +307,12 @@ protected:
     }
 };
 
-template<typename T>
+template<typename _T>
 [[nodiscard]] constexpr interface_version_t VersionConverter::getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept
 {
-    const interface_version_t* pPrivateVersions = T::getPrivateVersions();
+    const interface_version_t* pPrivateVersions = _T::getPrivateVersions();
 
-    for (interface_version_t i = 0; i < T::getPrivateVersionsCount(); ++i)
+    for (interface_version_t i = 0; i < _T::getPrivateVersionsCount(); ++i)
         if (pPrivateVersions[i] <= compatInterfaceVersion)
             return pPrivateVersions[i];
 

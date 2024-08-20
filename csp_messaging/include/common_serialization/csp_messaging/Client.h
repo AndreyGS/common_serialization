@@ -94,7 +94,7 @@ public:
     /// @param minimumInterfaceVersion Minimum supported interface version
     /// @param outputTypeId Handler output type
     /// @return Status of operation
-    template<ISerializableImpl InputType>
+    template<ISerializableImpl _InputType>
     Status getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
 
     /// @brief Get settings installed in current Client instance

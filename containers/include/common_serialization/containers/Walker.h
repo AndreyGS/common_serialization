@@ -28,63 +28,63 @@
 namespace common_serialization
 {
 
-template<typename T, IAllocationManagerImpl _AllocationManager = CtorStratAllocationManagerT<T>>
+template<typename _T, IAllocationManagerImpl _AllocationManager = CtorStratAllocationManagerT<_T>>
 class Walker
 {
 public:
-    using value_type = typename Vector<T, _AllocationManager>::value_type;
-    using size_type = typename Vector<T, _AllocationManager>::size_type;
+    using value_type = typename Vector<_T, _AllocationManager>::value_type;
+    using size_type = typename Vector<_T, _AllocationManager>::size_type;
 
-    using iterator = VectorIterator<Vector<T, _AllocationManager>>;
-    using const_iterator = ConstVectorIterator<Vector<T, _AllocationManager>>;
+    using iterator = VectorIterator<Vector<_T, _AllocationManager>>;
+    using const_iterator = ConstVectorIterator<Vector<_T, _AllocationManager>>;
 
     Walker() = default;
 
-    explicit constexpr Walker(const Vector<T, _AllocationManager>& rhs);
-    explicit constexpr Walker(Vector<T, _AllocationManager>&& rhs) noexcept;
+    explicit constexpr Walker(const Vector<_T, _AllocationManager>& rhs);
+    explicit constexpr Walker(Vector<_T, _AllocationManager>&& rhs) noexcept;
 
     constexpr Status init(const Walker& rhs);
     constexpr Status init(Walker&& rhs) noexcept;
-    constexpr Status init(const Vector<T, _AllocationManager>& rhs);
-    constexpr Status init(Vector<T, _AllocationManager>&& rhs) noexcept;
+    constexpr Status init(const Vector<_T, _AllocationManager>& rhs);
+    constexpr Status init(Vector<_T, _AllocationManager>&& rhs) noexcept;
 
     // only set data size, no default values are set
     constexpr Status setSize(size_type n) noexcept
-        requires std::is_trivially_copyable_v<T>;
+        requires std::is_trivially_copyable_v<_T>;
     
     constexpr Status reserve(size_type n);
     constexpr Status reserve_from_current_offset(size_type n);
 
-    constexpr Status pushBack(const T& value);
-    constexpr Status pushBack(T&& value);
-    constexpr Status pushBackN(const T* p, size_type n);
+    constexpr Status pushBack(const _T& value);
+    constexpr Status pushBack(_T&& value);
+    constexpr Status pushBackN(const _T* p, size_type n);
 
-    template<typename V>
-    constexpr Status pushBackArithmeticValue(V value)
-        requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
+    template<typename _V>
+    constexpr Status pushBackArithmeticValue(_V value)
+        requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<_V> || std::is_enum_v<_V>);
 
-    constexpr Status replace(const T* p, size_type n, size_type offset);
+    constexpr Status replace(const _T* p, size_type n, size_type offset);
 
-    constexpr Status insert(const T* p, size_type n, size_type offset);
+    constexpr Status insert(const _T* p, size_type n, size_type offset);
     template<typename ItSrc>
     constexpr Status insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd = nullptr);
 
     constexpr Status erase(size_type offset, size_type n);
     constexpr Status erase(iterator destBegin, iterator destEnd);
 
-    constexpr Status write(const T* p, size_type n);
+    constexpr Status write(const _T* p, size_type n);
     
     // destination (p) must be initialized (for non pod-types)
-    constexpr Status read(T* p, size_type n, size_type* pNRead = nullptr);
+    constexpr Status read(_T* p, size_type n, size_type* pNRead = nullptr);
 
-    template<typename V>
-    constexpr Status readArithmeticValue(V& value) noexcept
-        requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
+    template<typename _V>
+    constexpr Status readArithmeticValue(_V& value) noexcept
+        requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<_V> || std::is_enum_v<_V>);
 
-    [[nodiscard]] constexpr T* data() noexcept;
-    [[nodiscard]] constexpr const T* data() const noexcept;
-    [[nodiscard]] constexpr T& operator[](size_type offset);
-    [[nodiscard]] constexpr const T& operator[](size_type offset) const;
+    [[nodiscard]] constexpr _T* data() noexcept;
+    [[nodiscard]] constexpr const _T* data() const noexcept;
+    [[nodiscard]] constexpr _T& operator[](size_type offset);
+    [[nodiscard]] constexpr const _T& operator[](size_type offset) const;
 
     [[nodiscard]] constexpr size_type size() const noexcept;
     [[nodiscard]] constexpr size_type max_size() const noexcept;
@@ -94,13 +94,13 @@ public:
     constexpr void invalidate() noexcept;
 
     // you shall free memory returned by this method manually
-    [[nodiscard]] constexpr T* release() noexcept;
+    [[nodiscard]] constexpr _T* release() noexcept;
 
     [[nodiscard]] constexpr _AllocationManager& getAllocationManager() noexcept;
     [[nodiscard]] constexpr const _AllocationManager& getAllocationManager() const noexcept;
 
-    [[nodiscard]] constexpr Vector<T, _AllocationManager>& getVector() noexcept;
-    [[nodiscard]] constexpr const Vector<T, _AllocationManager>& getVector() const noexcept;
+    [[nodiscard]] constexpr Vector<_T, _AllocationManager>& getVector() noexcept;
+    [[nodiscard]] constexpr const Vector<_T, _AllocationManager>& getVector() const noexcept;
 
     [[nodiscard]] constexpr size_type tell() const noexcept;
     constexpr Status seek(size_type offset) noexcept;
@@ -108,24 +108,24 @@ public:
 private:
     void setValidOffset(size_type offset) noexcept;
 
-    Vector<T, _AllocationManager> m_vector;
+    Vector<_T, _AllocationManager> m_vector;
     size_type m_offset{ 0 };
 };
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Walker<T, _AllocationManager>::Walker(const Vector<T, _AllocationManager>& rhs)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Walker<_T, _AllocationManager>::Walker(const Vector<_T, _AllocationManager>& rhs)
 {
     init(rhs);
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Walker<T, _AllocationManager>::Walker(Vector<T, _AllocationManager>&& rhs) noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Walker<_T, _AllocationManager>::Walker(Vector<_T, _AllocationManager>&& rhs) noexcept
 {
     init(std::move(rhs));
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::init(const Walker& rhs)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::init(const Walker& rhs)
 {
     if (this != &rhs)
     {
@@ -136,8 +136,8 @@ constexpr Status Walker<T, _AllocationManager>::init(const Walker& rhs)
     return Status::NoError;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::init(Walker&& rhs) noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::init(Walker&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -149,8 +149,8 @@ constexpr Status Walker<T, _AllocationManager>::init(Walker&& rhs) noexcept
     return Status::NoError;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::init(const Vector<T, _AllocationManager>& rhs)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::init(const Vector<_T, _AllocationManager>& rhs)
 {
     if (&this->getVector() != &rhs)
     {
@@ -161,8 +161,8 @@ constexpr Status Walker<T, _AllocationManager>::init(const Vector<T, _Allocation
     return Status::NoError;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::init(Vector<T, _AllocationManager>&& rhs) noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::init(Vector<_T, _AllocationManager>&& rhs) noexcept
 {
     if (&this->getVector() != &rhs)
     {
@@ -173,23 +173,23 @@ constexpr Status Walker<T, _AllocationManager>::init(Vector<T, _AllocationManage
     return Status::NoError;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::setSize(size_type n) noexcept
-    requires std::is_trivially_copyable_v<T>
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::setSize(size_type n) noexcept
+    requires std::is_trivially_copyable_v<_T>
 {
     Status status = m_vector.setSize(n);
     m_offset = size();
     return status;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::reserve(size_type n)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::reserve(size_type n)
 {
     return m_vector.reserve(n);
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::reserve_from_current_offset(size_type n)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::reserve_from_current_offset(size_type n)
 {
     if (m_offset + n < m_offset)
         return Status::ErrorOverflow;
@@ -197,42 +197,42 @@ constexpr Status Walker<T, _AllocationManager>::reserve_from_current_offset(size
         return m_vector.reserve(m_offset + n);
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::pushBack(const T& value)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::pushBack(const _T& value)
 {
     Status status = m_vector.pushBack(value);
     m_offset = size();
     return status;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::pushBack(T&& value)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::pushBack(_T&& value)
 {
     Status status = m_vector.pushBack(std::move(value));
     m_offset = size();
     return status;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::pushBackN(const T* p, size_type n)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::pushBackN(const _T* p, size_type n)
 {
     Status status = m_vector.pushBackN(p, n);
     m_offset = size();
     return status;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-template<typename V>
-constexpr Status Walker<T, _AllocationManager>::pushBackArithmeticValue(V value)
-    requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+template<typename _V>
+constexpr Status Walker<_T, _AllocationManager>::pushBackArithmeticValue(_V value)
+    requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<_V> || std::is_enum_v<_V>)
 {
     Status status = m_vector.pushBackArithmeticValue(value);
     m_offset = size();
     return status;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::replace(const T* p, size_type n, size_type offset)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::replace(const _T* p, size_type n, size_type offset)
 {
     setValidOffset(offset);
     CS_RUN(m_vector.replace(p, n, offset));
@@ -241,23 +241,23 @@ constexpr Status Walker<T, _AllocationManager>::replace(const T* p, size_type n,
     return Status::NoError;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-template<typename V>
-constexpr Status Walker<T, _AllocationManager>::readArithmeticValue(V& value) noexcept
-    requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+template<typename _V>
+constexpr Status Walker<_T, _AllocationManager>::readArithmeticValue(_V& value) noexcept
+    requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<_V> || std::is_enum_v<_V>)
 {
-    if (sizeof(V) + m_offset <= size())
+    if (sizeof(_V) + m_offset <= size())
     {
-        value = *static_cast<const V*>(static_cast<const void*>(data() + m_offset));
-        m_offset += sizeof(V);
+        value = *static_cast<const _V*>(static_cast<const void*>(data() + m_offset));
+        m_offset += sizeof(_V);
         return Status::NoError;
     }
     else
         return Status::ErrorOverflow;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::insert(const T* p, size_type n, size_type offset)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::insert(const _T* p, size_type n, size_type offset)
 {
     size_type oldSize = size();
     setValidOffset(offset);
@@ -268,9 +268,9 @@ constexpr Status Walker<T, _AllocationManager>::insert(const T* p, size_type n, 
     return Status::NoError;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
+template<typename _T, IAllocationManagerImpl _AllocationManager>
 template<typename ItSrc>
-constexpr Status Walker<T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
+constexpr Status Walker<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
 {
     size_type oldSize = size();
     size_type newOffset = destBegin - m_vector.begin();
@@ -282,31 +282,31 @@ constexpr Status Walker<T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc src
     return Status::NoError;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::erase(size_type offset, size_type n)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::erase(size_type offset, size_type n)
 {
     setValidOffset(offset);
     return m_vector.erase(offset, n);
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::erase(iterator destBegin, iterator destEnd)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::erase(iterator destBegin, iterator destEnd)
 {
     size_type offset = destBegin - m_vector.begin();
     setValidOffset(offset);
     return m_vector.erase(destBegin, destEnd);
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::write(const T* p, size_type n)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::write(const _T* p, size_type n)
 {
     return replace(p, n, m_offset);
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::read(T* p, size_type n, size_type* pNRead)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::read(_T* p, size_type n, size_type* pNRead)
 {
-    T* pNew = nullptr;
+    _T* pNew = nullptr;
 
     CS_RUN(m_vector.copyN(m_offset, n, p, &pNew));
     
@@ -319,107 +319,107 @@ constexpr Status Walker<T, _AllocationManager>::read(T* p, size_type n, size_typ
     return Status::NoError;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr T* Walker<T, _AllocationManager>::data() noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr _T* Walker<_T, _AllocationManager>::data() noexcept
 {
     return m_vector.data();
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr const T* Walker<T, _AllocationManager>::data() const noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr const _T* Walker<_T, _AllocationManager>::data() const noexcept
 {
     return m_vector.data();
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr T& Walker<T, _AllocationManager>::operator[](size_type offset)
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr _T& Walker<_T, _AllocationManager>::operator[](size_type offset)
 { 
     setValidOffset(offset);
     return m_vector[offset];
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr const T& Walker<T, _AllocationManager>::operator[](size_type offset) const
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr const _T& Walker<_T, _AllocationManager>::operator[](size_type offset) const
 {
     setValidOffset(offset);
     return m_vector[offset];
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr typename Walker<T, _AllocationManager>::size_type Walker<T, _AllocationManager>::size() const noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr typename Walker<_T, _AllocationManager>::size_type Walker<_T, _AllocationManager>::size() const noexcept
 {
     return m_vector.size();
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr typename Walker<T, _AllocationManager>::size_type Walker<T, _AllocationManager>::max_size() const noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr typename Walker<_T, _AllocationManager>::size_type Walker<_T, _AllocationManager>::max_size() const noexcept
 {
     return m_vector.max_size();
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr typename Walker<T, _AllocationManager>::size_type Walker<T, _AllocationManager>::capacity() const noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr typename Walker<_T, _AllocationManager>::size_type Walker<_T, _AllocationManager>::capacity() const noexcept
 {
     return m_vector.capacity();
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr void Walker<T, _AllocationManager>::clear() noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr void Walker<_T, _AllocationManager>::clear() noexcept
 {
     m_vector.clear(), m_offset = 0;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr void Walker<T, _AllocationManager>::invalidate() noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr void Walker<_T, _AllocationManager>::invalidate() noexcept
 {
     m_vector.invalidate(), m_offset = 0;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr T* Walker<T, _AllocationManager>::release() noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr _T* Walker<_T, _AllocationManager>::release() noexcept
 {
     return m_offset = 0, m_vector.release();
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr _AllocationManager& Walker<T, _AllocationManager>::getAllocationManager() noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr _AllocationManager& Walker<_T, _AllocationManager>::getAllocationManager() noexcept
 {
     return m_vector.getAllocationManager();
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr const _AllocationManager& Walker<T, _AllocationManager>::getAllocationManager() const noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr const _AllocationManager& Walker<_T, _AllocationManager>::getAllocationManager() const noexcept
 {
     return m_vector.getAllocationManager();
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr Vector<T, _AllocationManager>& Walker<T, _AllocationManager>::getVector() noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr Vector<_T, _AllocationManager>& Walker<_T, _AllocationManager>::getVector() noexcept
 {
     return m_vector;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr const Vector<T, _AllocationManager>& Walker<T, _AllocationManager>::getVector() const noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr const Vector<_T, _AllocationManager>& Walker<_T, _AllocationManager>::getVector() const noexcept
 {
     return m_vector;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-[[nodiscard]] constexpr typename Walker<T, _AllocationManager>::size_type Walker<T, _AllocationManager>::tell() const noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+[[nodiscard]] constexpr typename Walker<_T, _AllocationManager>::size_type Walker<_T, _AllocationManager>::tell() const noexcept
 {
     return m_offset;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Walker<T, _AllocationManager>::seek(size_type offset) noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+constexpr Status Walker<_T, _AllocationManager>::seek(size_type offset) noexcept
 {
     setValidOffset(offset);
     return offset <= size() ? Status::NoError : Status::ErrorOverflow;
 }
 
-template<typename T, IAllocationManagerImpl _AllocationManager>
-void Walker<T, _AllocationManager>::setValidOffset(size_type offset) noexcept
+template<typename _T, IAllocationManagerImpl _AllocationManager>
+void Walker<_T, _AllocationManager>::setValidOffset(size_type offset) noexcept
 {
     m_offset = offset < size() ? offset : size();
 }

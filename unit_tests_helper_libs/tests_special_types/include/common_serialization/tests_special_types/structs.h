@@ -108,8 +108,8 @@ inline uint32_t ErrorProne::destructorCalledCounter = 0;
 
 struct CustomDeleter
 {
-    template<typename T>
-    void operator()(T* p)
+    template<typename _T>
+    void operator()(_T* p)
     {
         delete p;
     }
@@ -121,8 +121,8 @@ struct CustomDeleter2 : CustomDeleter
 
 struct CustomArrDeleter
 {
-    template<typename T>
-    void operator()(T* p)
+    template<typename _T>
+    void operator()(_T* p)
     {
         delete[] p;
     }

@@ -44,52 +44,52 @@ struct Dummy {};
 /// @note If derived type is Dummy then this class is the most derived type.
 ///     If not - derived type is the most derived type.
 /// @tparam X This class type
-/// @tparam T Derived type
-template<typename X, typename T>
-using GetCrtpMainType = std::conditional_t<std::is_same_v<T, Dummy>, X, T>;
+/// @tparam _T Derived type
+template<typename _X, typename _T>
+using GetCrtpMainType = std::conditional_t<std::is_same_v<_T, Dummy>, _X, _T>;
 
-template<typename T>
+template<typename _T>
 struct remove_member_pointer
 {
-    using type = T;
+    using type = _T;
 };
 
-template<typename C, typename T>
-struct remove_member_pointer<T C::*>
+template<typename _C, typename _T>
+struct remove_member_pointer<_T _C::*>
 {
-    using type = T;
+    using type = _T;
 };
 
-template<typename T>
-using remove_member_pointer_t = typename remove_member_pointer<T>::type;
+template<typename _T>
+using remove_member_pointer_t = typename remove_member_pointer<_T>::type;
 
-template<typename T, std::size_t L>
+template<typename _T, std::size_t L>
 struct pointer_level_traits_impl
 {
     static const std::size_t value = L;
-    using from_ptr_to_const_to_ptr = std::remove_const_t<T>;
+    using from_ptr_to_const_to_ptr = std::remove_const_t<_T>;
 };
 
-template<typename T, std::size_t L>
-    requires std::is_pointer_v<T>
-struct pointer_level_traits_impl<T, L> : pointer_level_traits_impl<std::remove_pointer_t<T>, L + 1>
+template<typename _T, std::size_t L>
+    requires std::is_pointer_v<_T>
+struct pointer_level_traits_impl<_T, L> : pointer_level_traits_impl<std::remove_pointer_t<_T>, L + 1>
 {
-    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<T>, L + 1>::from_ptr_to_const_to_ptr*;
+    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<_T>, L + 1>::from_ptr_to_const_to_ptr*;
 };
 
-template<typename T>
-    requires std::is_pointer_v<T>
-struct pointer_level_traits : pointer_level_traits_impl<std::remove_pointer_t<T>, 0>
+template<typename _T>
+    requires std::is_pointer_v<_T>
+struct pointer_level_traits : pointer_level_traits_impl<std::remove_pointer_t<_T>, 0>
 {
-    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<T>, 0>::from_ptr_to_const_to_ptr*;
+    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<_T>, 0>::from_ptr_to_const_to_ptr*;
 };
 
 /// @brief Erases all consts from pointer
 /// @note Works only with pointers
 /// @remark const int* const * const * const -> int***
-template<typename T>
-    requires std::is_pointer_v<T>
-using from_ptr_to_const_to_ptr_t = typename pointer_level_traits<T>::from_ptr_to_const_to_ptr;
+template<typename _T>
+    requires std::is_pointer_v<_T>
+using from_ptr_to_const_to_ptr_t = typename pointer_level_traits<_T>::from_ptr_to_const_to_ptr;
 
 template<typename _T>
 using normalize_t = std::remove_cv_t<std::remove_reference_t<_T>>;

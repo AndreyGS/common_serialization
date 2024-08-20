@@ -104,40 +104,40 @@ private:
 };
 
 // can be copied with memcpy (if alignments are the same and no kSizeOfIntegersMayBeNotEqual flag is set)
-template<typename T>
+template<typename _T>
 concept SimplyAssignable
-    =  requires(T t) { typename normalize_t<T>::simply_assignable_tag; };
+    =  requires(_T t) { typename normalize_t<_T>::simply_assignable_tag; };
 
 // can be copied with memcpy (if no kSizeOfIntegersMayBeNotEqual flag is set)
-template<typename T>
+template<typename _T>
 concept SimplyAssignableAlignedToOne
-    = requires(T t) { typename normalize_t<T>::simply_assignable_aligned_to_one_tag; } && alignof(T) == 1;
+    = requires(_T t) { typename normalize_t<_T>::simply_assignable_aligned_to_one_tag; } && alignof(_T) == 1;
 
 // all fields must be primitives an with strictly defined sizes regardless of execution environment
 // can be copied with memcpy (if alignments are the same)
-template<typename T>
+template<typename _T>
 concept SimplyAssignableFixedSize
-    =  requires(T t) { typename normalize_t<T>::simply_assignable_fixed_size_tag; };
+    =  requires(_T t) { typename normalize_t<_T>::simply_assignable_fixed_size_tag; };
 
 // same as FixedSizeSimplyAssignableType but with alignment to 1 requirement (type must always have same size)
 // can be copied with memcpy
-template<typename T>
+template<typename _T>
 concept AlwaysSimplyAssignable
-    =  requires(T t) { typename normalize_t<T>::always_simply_assignable_tag; } && alignof(T) == 1;
+    =  requires(_T t) { typename normalize_t<_T>::always_simply_assignable_tag; } && alignof(_T) == 1;
 
-template<typename T>
-concept AnySimplyAssignable = AlwaysSimplyAssignable<T> || SimplyAssignableFixedSize<T> || SimplyAssignableAlignedToOne<T> || SimplyAssignable<T>;
+template<typename _T>
+concept AnySimplyAssignable = AlwaysSimplyAssignable<_T> || SimplyAssignableFixedSize<_T> || SimplyAssignableAlignedToOne<_T> || SimplyAssignable<_T>;
 
-template<typename T>
+template<typename _T>
 concept EndiannessTolerant 
-    = requires(T t) { typename normalize_t<T>::endianness_tolerant_tag; } || sizeof(T) == 1;
+    = requires(_T t) { typename normalize_t<_T>::endianness_tolerant_tag; } || sizeof(_T) == 1;
 
-template<typename T>
-concept NotSimplyAssignable = !AnySimplyAssignable<T>;
+template<typename _T>
+concept NotSimplyAssignable = !AnySimplyAssignable<_T>;
 
-template<typename T>
+template<typename _T>
 concept EmptyType 
-    =  requires(T t) { typename normalize_t<T>::empty_type_tag; };
+    =  requires(_T t) { typename normalize_t<_T>::empty_type_tag; };
 
 /// @brief Shortcut to get type interface version in template contexts
 /// @tparam _T Type for which interface version is requested

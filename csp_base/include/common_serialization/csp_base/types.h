@@ -30,8 +30,8 @@ namespace common_serialization::csp
 
 template<typename> class ISerializable;
 
-template<typename T>
-concept ISerializableImpl = std::is_base_of_v<csp::ISerializable<normalize_t<T>>, normalize_t<T>>;
+template<typename _T>
+concept ISerializableImpl = std::is_base_of_v<csp::ISerializable<normalize_t<_T>>, normalize_t<_T>>;
 
 using Id = Uuid;
 using interface_version_t = uint32_t;

@@ -378,9 +378,9 @@ public:
     /// @tparam V Type of value that need to append
     /// @param value Value that need to append
     /// @return Status of operation
-    template<typename V>
-    constexpr Status pushBackArithmeticValue(V value)
-        requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
+    template<typename _V>
+    constexpr Status pushBackArithmeticValue(_V value)
+        requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<_V> || std::is_enum_v<_V>);
 
     template<typename... Ts>
     constexpr Status emplaceBack(Ts&&... ts);
@@ -604,16 +604,16 @@ constexpr Status Vector<_T, _AllocationManager>::pushBackN(const _T* p, size_typ
 }
 
 template<typename _T, IAllocationManagerImpl _AllocationManager>
-template<typename V>
-constexpr Status Vector<_T, _AllocationManager>::pushBackArithmeticValue(V value)
-    requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
+template<typename _V>
+constexpr Status Vector<_T, _AllocationManager>::pushBackArithmeticValue(_V value)
+    requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<_V> || std::is_enum_v<_V>)
 {
     Status status = Status::NoError;
 
-    CS_RUN(addSpaceIfNeed(sizeof(V)));
+    CS_RUN(addSpaceIfNeed(sizeof(_V)));
 
-    *static_cast<V*>(static_cast<void*>(m_p + m_dataSize)) = value;
-    m_dataSize += sizeof(V);
+    *static_cast<_V*>(static_cast<void*>(m_p + m_dataSize)) = value;
+    m_dataSize += sizeof(_V);
 
     return Status::NoError;
 }

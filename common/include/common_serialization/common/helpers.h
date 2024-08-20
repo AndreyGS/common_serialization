@@ -62,24 +62,24 @@ consteval bool isLittleEndianPlatform()
 }
 
 /// @brief Test for overlapping memory regions of same sized arrays
-/// @tparam T Type of arrays
+/// @tparam _T Type of arrays
 /// @param objs1 Start of first array
 /// @param objs2 Start of second array
 /// @param n Number of elements in each array
 /// @return True if there is overlap of memory regions
-template<typename T>
-constexpr bool areRegionsOverlap(const T* pObjs1, const T* pObjs2, size_t n)
+template<typename _T>
+constexpr bool areRegionsOverlap(const _T* pObjs1, const _T* pObjs2, size_t n)
 {
     return pObjs1 >= pObjs2 && pObjs1 < pObjs2 + n || pObjs1 <= pObjs2 && pObjs1 + n > pObjs2;
 }
 
 /// @brief Get array size
-/// @tparam T Array element type
+/// @tparam _T Array element type
 /// @tparam N Size of array
 /// @param arr Array which size we need to get
 /// @return Size of Array
-template<typename T, size_t N>
-consteval size_t countof(T(&arr)[N])
+template<typename _T, size_t N>
+consteval size_t countof(_T(&arr)[N])
 {
     return N;
 }
@@ -118,42 +118,42 @@ constexpr uint16_t reverseEndianessUInt16(uint16_t input)
     return input >> 8 | input << 8;
 }
 
-template<typename T>
-    requires EndiannessReversable<T>
-CS_ALWAYS_INLINE constexpr T reverseEndianess(T input)
+template<typename _T>
+    requires EndiannessReversable<_T>
+CS_ALWAYS_INLINE constexpr _T reverseEndianess(_T input)
 {
-    if constexpr (sizeof(T) == 2)
+    if constexpr (sizeof(_T) == 2)
     {
-        if constexpr (std::is_integral_v<T>)
+        if constexpr (std::is_integral_v<_T>)
             return reverseEndianessUInt16(input);
         else
         {
             uint16_t temp = reverseEndianessUInt16(*static_cast<uint16_t*>(static_cast<void*>(&input)));
-            return *static_cast<T*>(static_cast<void*>(&temp));
+            return *static_cast<_T*>(static_cast<void*>(&temp));
         }
     }
-    else if constexpr (sizeof(T) == 4)
+    else if constexpr (sizeof(_T) == 4)
     {
         
-        if constexpr (std::is_integral_v<T>)
+        if constexpr (std::is_integral_v<_T>)
             return reverseEndianessUInt32(input);
         else
         {
             uint32_t temp = reverseEndianessUInt32(*static_cast<uint32_t*>(static_cast<void*>(&input)));
-            return *static_cast<T*>(static_cast<void*>(&temp));
+            return *static_cast<_T*>(static_cast<void*>(&temp));
         }
     }
-    else if constexpr (sizeof(T) == 8)
+    else if constexpr (sizeof(_T) == 8)
     {
-        if constexpr (std::is_integral_v<T>)
+        if constexpr (std::is_integral_v<_T>)
             return reverseEndianessUInt64(input);
         else
         {
             uint64_t temp = reverseEndianessUInt64(*static_cast<uint64_t*>(static_cast<void*>(&input)));
-            return *static_cast<T*>(static_cast<void*>(&temp));
+            return *static_cast<_T*>(static_cast<void*>(&temp));
         }
     }
-    else if constexpr (sizeof(T) == 10)
+    else if constexpr (sizeof(_T) == 10)
     {
         uint16_t temp[5] = { 0 };
         temp[0] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 4));
@@ -161,14 +161,14 @@ CS_ALWAYS_INLINE constexpr T reverseEndianess(T input)
         temp[2] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 2));
         temp[3] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 1));
         temp[4] = reverseEndianessUInt16(*static_cast<uint16_t*>(static_cast<void*>(&input)));
-        return *static_cast<T*>(static_cast<void*>(temp));
+        return *static_cast<_T*>(static_cast<void*>(temp));
     }
     else
     {
         uint64_t temp[2] = { 0 };
         temp[0] = reverseEndianessUInt64(*(static_cast<uint64_t*>(static_cast<void*>(&input)) + 1));
         temp[1] = reverseEndianessUInt64(*static_cast<uint64_t*>(static_cast<void*>(&input)));
-        return *static_cast<T*>(static_cast<void*>(temp));
+        return *static_cast<_T*>(static_cast<void*>(temp));
     }
 }
 
@@ -242,11 +242,11 @@ struct fixed_width_integer<1, false>
 template<size_t targetSize, bool isSigned>
 using fixed_width_integer_t = typename fixed_width_integer<targetSize, isSigned>::type;
 
-template<size_t targetSize, typename T>
-    requires (std::is_integral_v<T> && targetSize <= sizeof(T))
-constexpr Status castToSmallerType(T input, fixed_width_integer_t<targetSize, Signed<T>>& output)
+template<size_t targetSize, typename _T>
+    requires (std::is_integral_v<_T> && targetSize <= sizeof(_T))
+constexpr Status castToSmallerType(_T input, fixed_width_integer_t<targetSize, Signed<_T>>& output)
 {
-    using output_type = fixed_width_integer<targetSize, Signed<T>>;
+    using output_type = fixed_width_integer<targetSize, Signed<_T>>;
 
     if (input > output_type::max || input < output_type::min)
         return Status::ErrorValueOverflow;
@@ -256,11 +256,11 @@ constexpr Status castToSmallerType(T input, fixed_width_integer_t<targetSize, Si
     return Status::NoError;
 }
 
-template<size_t targetSize, typename T>
-    requires (std::is_integral_v<T> && targetSize >= sizeof(T))
-CS_ALWAYS_INLINE constexpr void castToBiggerType(T input, fixed_width_integer_t<targetSize, Signed<T>>& output)
+template<size_t targetSize, typename _T>
+    requires (std::is_integral_v<_T> && targetSize >= sizeof(_T))
+CS_ALWAYS_INLINE constexpr void castToBiggerType(_T input, fixed_width_integer_t<targetSize, Signed<_T>>& output)
 {
-    output = static_cast<fixed_width_integer_t<targetSize, Signed<T>>>(input);
+    output = static_cast<fixed_width_integer_t<targetSize, Signed<_T>>>(input);
 }
 
 } // namespace common_serialization::helpers

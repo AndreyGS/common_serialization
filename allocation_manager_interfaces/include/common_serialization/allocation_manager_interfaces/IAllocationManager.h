@@ -59,7 +59,7 @@ public:
         return static_cast<const _AllocationManager*>(this)->allocateAndConstructImpl(requestedN, pAllocatedN, std::forward<Args>(args)...);
     }
 
-    /// @brief Allocate storage for n elements of type T with support to apply 
+    /// @brief Allocate storage for n elements of type _T with support to apply 
     ///     internal management (strategy) of allocating storage by actual implementation
     ///     of IAllocationManager
     /// @param requestedN Number of elements that storage should be capable to hold
@@ -70,7 +70,7 @@ public:
         return static_cast<const _AllocationManager*>(this)->allocateImpl(requestedN, pAllocatedN);
     }
 
-    /// @brief Allocate storage for n elements of type T
+    /// @brief Allocate storage for n elements of type _T
     /// @param n Number of elements that storage should be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateStrict(size_type n) const

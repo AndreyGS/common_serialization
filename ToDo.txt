@@ -15,7 +15,7 @@
 15. Add empty() method to Vector and Walker.
 16. Add unit-tests on AllocatorHelpers, especially for constructN and allocateAndConstruct.
 17. Add IDataHandler::checkPoliciesCompliance function realization.
-18. Add unit-tests on Vector::insert(const T& value, size_type offset).
+18. Add unit-tests on Vector::insert(const _T& value, size_type offset).
 19. Add unit-tests on Vector::erase(size_type offset).
 20. Add Vector::insert overload for rvalues.
 21. Add more tests on structs with simply_assignable_fixed_size_tag and always_simply_assignable_tag.

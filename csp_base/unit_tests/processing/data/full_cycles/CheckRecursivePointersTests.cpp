@@ -33,10 +33,10 @@ using namespace tests_csp_interface;
 
 using size_type = typename BinVectorT::size_type;
 
-template<typename T>
+template<typename _T>
 void mainTest()
 {
-    T input;
+    _T input;
     input.fill();
 
     BinWalkerT bin;
@@ -55,7 +55,7 @@ void mainTest()
     VectorT<GenericPointerKeeper> addedPointers;
     ctxOut.setAddedPointers(&addedPointers);
 
-    T output;
+    _T output;
 
     EXPECT_EQ(output.deserialize(ctxOut), Status::NoError);
     EXPECT_TRUE(ctxOut.getPointersMap()->size() > 0);

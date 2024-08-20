@@ -33,19 +33,19 @@ using namespace common_serialization;
 
 // Explicitly set default allocator helper so we wouldn't depend on 
 // possible future changes of default allocator helper of Vector
-template<typename T>
-using DefaultAllocationManager = CtorStratAllocationManagerT<T>;
+template<typename _T>
+using DefaultAllocationManager = CtorStratAllocationManagerT<_T>;
 
 using size_type = typename Vector<int, DefaultAllocationManager<int>>::size_type;
 
-template<typename T>
-T g_data_array[] = { "123", "456", "789" };
+template<typename _T>
+_T g_data_array[] = { "123", "456", "789" };
 
-template<typename T>
+template<typename _T>
 auto getStringsFilledContainer()
 {
-    Vector<T, DefaultAllocationManager<T>> vec;
-    vec.pushBackN(g_data_array<T>, 3);
+    Vector<_T, DefaultAllocationManager<_T>> vec;
+    vec.pushBackN(g_data_array<_T>, 3);
 
     EXPECT_EQ(vec.capacity(), 6); // check that nothing is changed in allocation strategy
 
@@ -72,10 +72,10 @@ TEST(VectorTest, Constructor)
     EXPECT_EQ(vec.data(), nullptr);
 }
 
-template<typename T>
+template<typename _T>
 void FCopyConstructor()
 {
-    auto vec1 = getStringsFilledContainer<T>();
+    auto vec1 = getStringsFilledContainer<_T>();
     auto vec2(vec1);
 
     EXPECT_EQ(vec1.size(), vec2.size());
@@ -99,10 +99,10 @@ TEST(VectorTest, CopyConstructorPod)
     FCopyConstructor<PodStruct>();
 }
 
-template<typename T>
+template<typename _T>
 void FMoveConstructor()
 {
-    auto vec1 = getStringsFilledContainer<T>();
+    auto vec1 = getStringsFilledContainer<_T>();
     auto vec2(std::move(vec1));
 
     EXPECT_EQ(vec1.size(), 0);
@@ -111,7 +111,7 @@ void FMoveConstructor()
 
     EXPECT_EQ(vec2.size(), 3);
     for (size_type i = 0; i < vec2.size(); ++i)
-        EXPECT_EQ(vec2[i], g_data_array<T>[i]);
+        EXPECT_EQ(vec2[i], g_data_array<_T>[i]);
 }
 
 TEST(VectorTest, MoveConstructor)
@@ -129,10 +129,10 @@ TEST(VectorTest, MoveConstructorPod)
     FMoveConstructor<PodStruct>();
 }
 
-template<typename T>
+template<typename _T>
 void FAssignmentCopyOperator()
 {
-    auto vec1 = getStringsFilledContainer<T>();
+    auto vec1 = getStringsFilledContainer<_T>();
     auto vec2 = vec1;
 
     EXPECT_EQ(vec1.size(), vec2.size());
@@ -156,10 +156,10 @@ TEST(VectorTest, AssignmentCopyOperatorPod)
     FAssignmentCopyOperator<PodStruct>();
 }
 
-template<typename T>
+template<typename _T>
 void FAssignmentMoveOperator()
 {
-    auto vec1 = getStringsFilledContainer<T>();
+    auto vec1 = getStringsFilledContainer<_T>();
     auto vec2 = std::move(vec1);
 
     EXPECT_EQ(vec1.size(), 0);
@@ -168,7 +168,7 @@ void FAssignmentMoveOperator()
 
     EXPECT_EQ(vec2.size(), 3);
     for (size_type i = 0; i < vec2.size(); ++i)
-        EXPECT_EQ(vec2[i], g_data_array<T>[i]);
+        EXPECT_EQ(vec2[i], g_data_array<_T>[i]);
 }
 
 TEST(VectorTest, AssignmentMoveOperator)
@@ -200,10 +200,10 @@ TEST(VectorTest, Destructor)
     EXPECT_EQ(vec.data(), nullptr);
 }
 
-template<typename T>
+template<typename _T>
 void FInit()
 {
-    auto vec1 = getStringsFilledContainer<T>();
+    auto vec1 = getStringsFilledContainer<_T>();
     decltype(vec1) vec2;
 
     EXPECT_EQ(vec2.init(vec1), Status::NoError);
@@ -257,10 +257,10 @@ TEST(VectorTest, InitErrorPropagation)
     EXPECT_EQ(vec2.init(vec1), Status::ErrorOverflow);
 }
 
-template<typename T>
+template<typename _T>
 void FInitMove()
 {
-    auto vec1 = getStringsFilledContainer<T>();
+    auto vec1 = getStringsFilledContainer<_T>();
     decltype(vec1) vec2;
 
     EXPECT_EQ(vec2.init(std::move(vec1)), Status::NoError);
@@ -271,7 +271,7 @@ void FInitMove()
 
     EXPECT_EQ(vec2.size(), 3);
     for (size_type i = 0; i < vec2.size(); ++i)
-        EXPECT_EQ(vec2[i], g_data_array<T>[i]);
+        EXPECT_EQ(vec2[i], g_data_array<_T>[i]);
 
     // init by empty Vector
     EXPECT_EQ(vec2.init(std::move(vec1)), Status::NoError);
@@ -431,29 +431,29 @@ TEST(VectorTest, PushBackPod)
     EXPECT_EQ(vec_pod2.size(), 0);
 }
 
-template<typename T>
+template<typename _T>
 void FPushBackN()
 {
-    auto vec = getStringsFilledContainer<T>();
+    auto vec = getStringsFilledContainer<_T>();
 
     EXPECT_EQ(vec.size(), 3);
 
     for (size_type i = 0; i < vec.size(); ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i]);
 
-    EXPECT_EQ(vec.pushBackN(g_data_array<T>, 3), Status::NoError);
+    EXPECT_EQ(vec.pushBackN(g_data_array<_T>, 3), Status::NoError);
     EXPECT_EQ(vec.size(), 6);
 
     for (size_type i = 0; i < vec.size(); ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i % 3]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i % 3]);
 
     // test with additional memory allocation
-    T another_data_array[] = { "abc", "def", "ghi" };
+    _T another_data_array[] = { "abc", "def", "ghi" };
     EXPECT_EQ(vec.pushBackN(another_data_array, 3), Status::NoError);
     EXPECT_EQ(vec.size(), 9);
 
     for (size_type i = 0; i < 6; ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i % 3]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i % 3]);
 
     for (size_type i = 6; i < vec.size(); ++i)
         EXPECT_EQ(vec[i], another_data_array[i - 6]);
@@ -465,7 +465,7 @@ void FPushBackN()
     EXPECT_EQ(vec.pushBackN(nullptr, 0), Status::NoError);
     EXPECT_EQ(vec.size(), 9);
 
-    EXPECT_EQ(vec.pushBackN(g_data_array<T>, static_cast<size_type>(-1)), Status::ErrorOverflow);
+    EXPECT_EQ(vec.pushBackN(g_data_array<_T>, static_cast<size_type>(-1)), Status::ErrorOverflow);
     EXPECT_EQ(vec.size(), 9);
 }
 
@@ -520,14 +520,14 @@ TEST(VectorTest, PushBackArithmeticValue)
     EXPECT_EQ(vec2.size(), 0);
 }
 
-template<typename T>
+template<typename _T>
 void FReplace()
 {
-    auto vec = getStringsFilledContainer<T>();
+    auto vec = getStringsFilledContainer<_T>();
     size_type newOffset = 0;
 
     // check that sparse construction is not allowed
-    EXPECT_EQ(vec.replace(g_data_array<T>, 3, 4, &newOffset), Status::ErrorOverflow);
+    EXPECT_EQ(vec.replace(g_data_array<_T>, 3, 4, &newOffset), Status::ErrorOverflow);
     EXPECT_EQ(newOffset, 0);
     EXPECT_EQ(vec.size(), 3);
 
@@ -541,7 +541,7 @@ void FReplace()
     EXPECT_EQ(newOffset, 3);
     EXPECT_EQ(vec.size(), 3);
 
-    T another_data_array[] = { "abc", "def", "ghi" };
+    _T another_data_array[] = { "abc", "def", "ghi" };
 
     
     EXPECT_EQ(vec.replace(another_data_array, 1, 1, &newOffset), Status::NoError);
@@ -600,16 +600,16 @@ TEST(VectorTest, ReplaceErrorPropagation)
     EXPECT_EQ(vec.replace(ep, 1, 0), Status::ErrorInvalidArgument);
 }
 
-template<typename T>
+template<typename _T>
 void FInsert()
 {
-    auto vec = getStringsFilledContainer<T>();
+    auto vec = getStringsFilledContainer<_T>();
 
     // check that sparse construction is not allowed
-    EXPECT_EQ(vec.insert(g_data_array<T>, 3, 5), Status::ErrorOverflow);
+    EXPECT_EQ(vec.insert(g_data_array<_T>, 3, 5), Status::ErrorOverflow);
     EXPECT_EQ(vec.size(), 3);
 
-    T another_data_array[] = { "abc", "def", "ghi" };
+    _T another_data_array[] = { "abc", "def", "ghi" };
 
     size_type newOffset = 0;
     EXPECT_EQ(vec.insert(another_data_array, 3, 0, &newOffset), Status::NoError);
@@ -619,10 +619,10 @@ void FInsert()
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     for (size_type i = 3; i < vec.size(); ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i - 3]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i - 3]);
 
     // test with additional memory allocation
-    T another_data_array2[] = { "###", "$$$", "%%%" };
+    _T another_data_array2[] = { "###", "$$$", "%%%" };
 
     EXPECT_EQ(vec.insert(another_data_array2, 3, 2, &newOffset), Status::NoError);
     EXPECT_EQ(newOffset, 5);
@@ -637,9 +637,9 @@ void FInsert()
     EXPECT_EQ(vec[5], another_data_array[2]);
 
     for (size_type i = 6; i < vec.size(); ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i - 6]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i - 6]);
 
-    T another_data_array3[] = { "+++", "---", "***" };
+    _T another_data_array3[] = { "+++", "---", "***" };
 
     EXPECT_EQ(vec.insert(another_data_array3, 3, 8, &newOffset), Status::NoError);
     EXPECT_EQ(newOffset, 11);
@@ -654,12 +654,12 @@ void FInsert()
     EXPECT_EQ(vec[5], another_data_array[2]);
 
     for (size_type i = 6; i < 8; ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i - 6]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i - 6]);
 
     for (size_type i = 8; i < 11; ++i)
         EXPECT_EQ(vec[i], another_data_array3[i - 8]);
 
-    EXPECT_EQ(vec[11], g_data_array<T>[2]);
+    EXPECT_EQ(vec[11], g_data_array<_T>[2]);
 
     // try to not pass optional arg
     EXPECT_EQ(vec.insert(another_data_array3, 0, 0), Status::NoError);
@@ -717,18 +717,18 @@ TEST(VectorTest, InsertErrorPropagation)
     EXPECT_EQ(vec.insert(ep, 1, 0), Status::ErrorInvalidArgument);
 }
 
-template<typename T>
+template<typename _T>
 void FInsertIt()
 {
-    auto vec = getStringsFilledContainer<T>();
+    auto vec = getStringsFilledContainer<_T>();
 
     // check that sparse construction is not allowed
-    EXPECT_EQ(vec.insert(g_data_array<T>, g_data_array<T> + 3, vec.begin() + 5), Status::ErrorOverflow);
+    EXPECT_EQ(vec.insert(g_data_array<_T>, g_data_array<_T> + 3, vec.begin() + 5), Status::ErrorOverflow);
     EXPECT_EQ(vec.size(), 3);
 
-    T another_data_array[] = { "abc", "def", "ghi" };
+    _T another_data_array[] = { "abc", "def", "ghi" };
 
-    std::list<T> l1;
+    std::list<_T> l1;
     l1.insert(l1.begin(), another_data_array, another_data_array + 3);
 
     auto it = vec.end();
@@ -739,11 +739,11 @@ void FInsertIt()
         EXPECT_EQ(vec[i], another_data_array[i]);
 
     for (size_type i = 3; i < vec.size(); ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i - 3]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i - 3]);
     
     // test with additional memory allocation
-    T another_data_array2[] = { "###", "$$$", "%%%" };
-    std::list<T> l2;
+    _T another_data_array2[] = { "###", "$$$", "%%%" };
+    std::list<_T> l2;
     l2.insert(l2.begin(), another_data_array2, another_data_array2 + 3);
 
     EXPECT_EQ(vec.insert(l2.begin(), l2.end(), vec.begin() + 2, &it), Status::NoError);
@@ -759,10 +759,10 @@ void FInsertIt()
     EXPECT_EQ(vec[5], another_data_array[2]);
 
     for (size_type i = 6; i < vec.size(); ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i - 6]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i - 6]);
 
-    T another_data_array3[] = { "+++", "---", "***" };
-    std::list<T> l3;
+    _T another_data_array3[] = { "+++", "---", "***" };
+    std::list<_T> l3;
     l3.insert(l3.begin(), another_data_array3, another_data_array3 + 3);
 
     EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.begin() + 8, &it), Status::NoError);
@@ -778,12 +778,12 @@ void FInsertIt()
     EXPECT_EQ(vec[5], another_data_array[2]);
 
     for (size_type i = 6; i < 8; ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i - 6]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i - 6]);
 
     for (size_type i = 8; i < 11; ++i)
         EXPECT_EQ(vec[i], another_data_array3[i - 8]);
 
-    EXPECT_EQ(vec[11], g_data_array<T>[2]);
+    EXPECT_EQ(vec[11], g_data_array<_T>[2]);
 
     // try to insert to the end
     EXPECT_EQ(vec.insert(l3.begin(), l3.end(), vec.end(), &it), Status::NoError);
@@ -848,12 +848,12 @@ TEST(VectorTest, InsertItErrorPropagation)
     EXPECT_EQ(vec.insert(list.begin(), list.end(), vec.begin()), Status::ErrorInvalidArgument);
 }
 
-template<typename T>
+template<typename _T>
 void FErase()
 {
-    auto vec = getStringsFilledContainer<T>();
+    auto vec = getStringsFilledContainer<_T>();
 
-    T another_data_array[] = { "abc", "def", "ghi" };
+    _T another_data_array[] = { "abc", "def", "ghi" };
     vec.pushBackN(another_data_array, 3);
 
     EXPECT_EQ(vec.size(), 6);
@@ -874,7 +874,7 @@ void FErase()
     EXPECT_EQ(vec.size(), 5);
 
     for (size_type i = 0; i < 3; ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i]);
 
     EXPECT_EQ(vec[3], another_data_array[0]);
     EXPECT_EQ(vec[4], another_data_array[2]);
@@ -882,21 +882,21 @@ void FErase()
     EXPECT_EQ(vec.erase(1, 2), Status::NoError);
     EXPECT_EQ(vec.size(), 3);
 
-    EXPECT_EQ(vec[0], g_data_array<T>[0]);
+    EXPECT_EQ(vec[0], g_data_array<_T>[0]);
     EXPECT_EQ(vec[1], another_data_array[0]);
     EXPECT_EQ(vec[2], another_data_array[2]);
 
     EXPECT_EQ(vec.erase(2, vec.size()), Status::NoError);
     EXPECT_EQ(vec.size(), 2);
 
-    EXPECT_EQ(vec[0], g_data_array<T>[0]);
+    EXPECT_EQ(vec[0], g_data_array<_T>[0]);
     EXPECT_EQ(vec[1], another_data_array[0]);
 
     // test that only right range is cut after last element
     EXPECT_EQ(vec.erase(1, 10), Status::NoError);
     EXPECT_EQ(vec.size(), 1);
 
-    EXPECT_EQ(vec[0], g_data_array<T>[0]);
+    EXPECT_EQ(vec[0], g_data_array<_T>[0]);
 
     // test extra big n
     EXPECT_EQ(vec.erase(0, static_cast<size_type>(-1)), Status::NoError);
@@ -932,12 +932,12 @@ TEST(VectorTest, EraseErrorPropagation)
     EXPECT_EQ(vec.erase(0, 1), Status::ErrorInvalidHash);
 }
 
-template<typename T>
+template<typename _T>
 void FEraseIt()
 {
-    auto vec = getStringsFilledContainer<T>();
+    auto vec = getStringsFilledContainer<_T>();
 
-    T another_data_array[] = { "abc", "def", "ghi" };
+    _T another_data_array[] = { "abc", "def", "ghi" };
     vec.pushBackN(another_data_array, 3);
 
     EXPECT_EQ(vec.size(), 6);
@@ -964,7 +964,7 @@ void FEraseIt()
     EXPECT_EQ(vec.size(), 5);
 
     for (size_type i = 0; i < 3; ++i)
-        EXPECT_EQ(vec[i], g_data_array<T>[i]);
+        EXPECT_EQ(vec[i], g_data_array<_T>[i]);
 
     EXPECT_EQ(vec[3], another_data_array[0]);
     EXPECT_EQ(vec[4], another_data_array[2]);
@@ -972,21 +972,21 @@ void FEraseIt()
     EXPECT_EQ(vec.erase(vec.begin() + 1, vec.begin() + 3), Status::NoError);
     EXPECT_EQ(vec.size(), 3);
 
-    EXPECT_EQ(vec[0], g_data_array<T>[0]);
+    EXPECT_EQ(vec[0], g_data_array<_T>[0]);
     EXPECT_EQ(vec[1], another_data_array[0]);
     EXPECT_EQ(vec[2], another_data_array[2]);
 
     EXPECT_EQ(vec.erase(vec.begin() + 2, vec.end()), Status::NoError);
     EXPECT_EQ(vec.size(), 2);
 
-    EXPECT_EQ(vec[0], g_data_array<T>[0]);
+    EXPECT_EQ(vec[0], g_data_array<_T>[0]);
     EXPECT_EQ(vec[1], another_data_array[0]);
 
     // test that only right range is cut after end()
     EXPECT_EQ(vec.erase(vec.begin() + 1, vec.end() + 10), Status::NoError);
     EXPECT_EQ(vec.size(), 1);
 
-    EXPECT_EQ(vec[0], g_data_array<T>[0]);
+    EXPECT_EQ(vec[0], g_data_array<_T>[0]);
 }
 
 TEST(VectorTest, EraseIt)
@@ -1018,14 +1018,14 @@ TEST(VectorTest, EraseItErrorPropagation)
     EXPECT_EQ(vec.erase(vec.begin(), vec.begin() + 1), Status::ErrorInvalidHash);
 }
 
-template<typename T>
+template<typename _T>
 void FCopyN()
 {
-    auto vec = getStringsFilledContainer<T>();
+    auto vec = getStringsFilledContainer<_T>();
 
-    auto another_data_array = std::make_unique_for_overwrite<T[]>(3);
+    auto another_data_array = std::make_unique_for_overwrite<_T[]>(3);
 
-    T* p = nullptr;
+    _T* p = nullptr;
     EXPECT_EQ(vec.copyN(0, 3, another_data_array.get(), &p), Status::NoError);
     EXPECT_EQ(p, another_data_array.get() + 3);
 
@@ -1055,7 +1055,7 @@ void FCopyN()
     for (size_type i = 0; i < 3; ++i)
         EXPECT_EQ(vec[i], another_data_array.get()[i]);
 
-    p = reinterpret_cast<T*>(1ll);
+    p = reinterpret_cast<_T*>(1ll);
     EXPECT_EQ(vec.copyN(1, 0, nullptr, &p), Status::NoError);
     EXPECT_EQ(p, nullptr);
 
@@ -1112,13 +1112,13 @@ TEST(VectorTest, CopyNErrorPropagation)
     EXPECT_EQ(vec.copyN(0, 1, ep), Status::ErrorInvalidHash);
 }
 
-template<typename T>
+template<typename _T>
 void FCopyNIt()
 {
-    auto vec = getStringsFilledContainer<T>();
+    auto vec = getStringsFilledContainer<_T>();
 
-    T another_data_array[3] = { T{}, T{}, T{} };
-    std::list<T> l(another_data_array, another_data_array + 3);
+    _T another_data_array[3] = { _T{}, _T{}, _T{} };
+    std::list<_T> l(another_data_array, another_data_array + 3);
 
     auto it = l.end();
 

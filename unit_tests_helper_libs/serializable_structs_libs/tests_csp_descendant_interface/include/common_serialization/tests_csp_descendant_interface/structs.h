@@ -29,11 +29,11 @@
 namespace tests_csp_descendant_interface
 {
 
-template<typename T = ags_cs::Dummy>
-class SimpleStruct : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimpleStruct<>, T>>
+template<typename _T = ags_cs::Dummy>
+class SimpleStruct : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimpleStruct<>, _T>>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<SimpleStruct<>, T>;
+    using instance_type = ags_cs::GetCrtpMainType<SimpleStruct<>, _T>;
 
     static constexpr ags_cs::csp::Id kId{ 0xa4073aa8, 0xd9eb, 0x49cf, 0xb9be, 0xfea84ba9f314 };
     static constexpr ags_cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
@@ -52,11 +52,11 @@ public:
     friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-template<typename T = ags_cs::Dummy>
-class DiamondDescendant : public tests_csp_interface::Diamond<ags_cs::GetCrtpMainType<DiamondDescendant<>, T>>
+template<typename _T = ags_cs::Dummy>
+class DiamondDescendant : public tests_csp_interface::Diamond<ags_cs::GetCrtpMainType<DiamondDescendant<>, _T>>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<DiamondDescendant<>, T>;
+    using instance_type = ags_cs::GetCrtpMainType<DiamondDescendant<>, _T>;
 
     static constexpr ags_cs::csp::Id kId{ 0x59a2dc70, 0x63eb, 0x434b, 0xbfe7, 0xad17dfad8e57 };
     static constexpr ags_cs::csp::interface_version_t kInterfaceVersion = 1;            // latest version among all dependable structs
