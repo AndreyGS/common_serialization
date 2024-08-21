@@ -125,7 +125,7 @@ CspPartySettings<> getInterfaceVersionZeroCspPartySettings()
     RawVectorT<protocol_version_t> protocolVersions;
     protocolVersions.pushBackN(traits::kProtocolVersions, traits::getProtocolVersionsCount());
     RawVectorT<InterfaceVersion<>> interfaces;
-    interfaces.pushBack(InterfaceVersion{ tests_csp_interface::properties.id, 0 } );
+    interfaces.pushBack(InterfaceVersion{ tests_csp_interface::properties.m_id, 0 } );
     CspPartySettings settings(protocolVersions, {}, {}, interfaces);
 
     return settings;

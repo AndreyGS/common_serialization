@@ -24,6 +24,7 @@
 #pragma once
 
 #include <common_serialization/concurrency_interfaces/GuardRW.h>
+#include <common_serialization/csp_base/context/Data.h>
 #include <common_serialization/csp_messaging/csp_messaging_config.h>
 #include <common_serialization/csp_messaging/IServerDataHandlerRegistrar.h>
 

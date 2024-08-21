@@ -35,7 +35,7 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::OutG
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.properties, ctx));
+    CS_RUN(serialize(value.m_properties, ctx));
 
     return Status::NoError;
 }
@@ -45,7 +45,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::serv
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.properties));
+    CS_RUN(deserialize(ctx, value.m_properties));
 
     return Status::NoError;
 }
@@ -55,7 +55,7 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::GetI
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.id, ctx));
+    CS_RUN(serialize(value.m_id, ctx));
 
     return Status::NoError;
 }
@@ -65,7 +65,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::serv
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.id));
+    CS_RUN(deserialize(ctx, value.m_id));
 
     return Status::NoError;
 }

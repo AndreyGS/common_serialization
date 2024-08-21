@@ -69,31 +69,31 @@ TEST(UniquePtrTest, Constructors)
     EXPECT_EQ(*uptr1.get(), 1);
 
     UniquePtr<CustomDeleterStruct> uptr2(new CustomDeleterStructDesc{ 2 });
-    EXPECT_EQ(uptr2.get()->i, 2);
+    EXPECT_EQ(uptr2.get()->m_i, 2);
 
     CustomDeleter customDeleter;
 
     UniquePtr<CustomDeleterStruct, CustomDeleter> uptr3(new CustomDeleterStructDesc{ 3 }, customDeleter);
-    EXPECT_EQ(uptr3.get()->i, 3);
+    EXPECT_EQ(uptr3.get()->m_i, 3);
 
     UniquePtr<CustomDeleterStruct, CustomDeleter> uptr4(new CustomDeleterStruct{ 4 }, CustomDeleter{});
-    EXPECT_EQ(uptr4.get()->i, 4);
+    EXPECT_EQ(uptr4.get()->m_i, 4);
 
     CustomDeleter2 customDeleter2;
 
     UniquePtr<CustomDeleterStruct, CustomDeleter> uptr5(new CustomDeleterStructDesc{ 5 }, customDeleter2);
-    EXPECT_EQ(uptr5.get()->i, 5);
+    EXPECT_EQ(uptr5.get()->m_i, 5);
 
     UniquePtr<CustomDeleterStruct, CustomDeleter> uptr6(new CustomDeleterStruct{ 6 }, CustomDeleter2{});
-    EXPECT_EQ(uptr6.get()->i, 6);
+    EXPECT_EQ(uptr6.get()->m_i, 6);
 
     UniquePtr<CustomDeleterStruct> uptr7(makeUnique<CustomDeleterStructDesc>(7));
-    EXPECT_EQ(uptr7.get()->i, 7);
+    EXPECT_EQ(uptr7.get()->m_i, 7);
 
     UniquePtr<CustomDeleterStructDesc, CustomDeleter2> uptr8a(new CustomDeleterStructDesc(8));
 
     UniquePtr<CustomDeleterStruct, CustomDeleter> uptr8(std::move(uptr8a));
-    EXPECT_EQ(uptr8.get()->i, 8);
+    EXPECT_EQ(uptr8.get()->m_i, 8);
 }
 
 TEST(UniquePtrTest, AssignmentOperators)
@@ -210,8 +210,8 @@ TEST(UniquePtrTest, VariousOperators)
 {
     UniquePtr<CustomDeleterStruct> uptr(makeUnique<CustomDeleterStruct>(5));
 
-    EXPECT_EQ(uptr->i, 5);
-    EXPECT_EQ((*uptr).i, 5);
+    EXPECT_EQ(uptr->m_i, 5);
+    EXPECT_EQ((*uptr).m_i, 5);
     EXPECT_TRUE(static_cast<bool>(uptr));
 
     uptr.reset();

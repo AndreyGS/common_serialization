@@ -58,7 +58,7 @@ public:
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
     static consteval const Interface& getInterface() noexcept { return properties; }
 
-    Id id;
+    Id m_id;
 };
 
 /// @brief Struct for response on GetInterface
@@ -75,7 +75,7 @@ public:
     static constexpr interface_version_t kPrivateVersions[] = { 1 };
     static consteval const Interface& getInterface() noexcept { return service_structs::properties; }
 
-    Interface properties;
+    Interface m_properties;
 };
 
 #pragma pack(push, 1)
@@ -95,13 +95,13 @@ public:
     static consteval const Interface& getInterface() noexcept { return properties; }
 
     InterfaceVersion() = default;
-    InterfaceVersion(const Id& id, interface_version_t version) noexcept : id(id), version(version) { }
-    explicit InterfaceVersion(const Interface& interface_) noexcept : id(interface_.id), version(interface_.version) { }
+    InterfaceVersion(const Id& id, interface_version_t version) noexcept : m_id(id), m_version(version) { }
+    explicit InterfaceVersion(const Interface& interface_) noexcept : m_id(interface_.m_id), m_version(interface_.m_version) { }
 
     [[nodiscard]] constexpr auto operator<=>(const InterfaceVersion&) const = default;
 
-    Id id{ kNullUuid };
-    interface_version_t version{ traits::kInterfaceVersionUndefined };
+    Id m_id{ kNullUuid };
+    interface_version_t m_version{ traits::kInterfaceVersionUndefined };
 };
 
 #pragma pack(pop)
@@ -222,9 +222,9 @@ public:
 
         for (const auto& lhsInterface : lhs.m_interfaces)
             for (const auto& rhsInterface : rhs.m_interfaces)
-                if (lhsInterface.id == rhsInterface.id)
+                if (lhsInterface.m_id == rhsInterface.m_id)
                 {
-                    CS_RUN(m_interfaces.pushBack({ lhsInterface.id, lhsInterface.version < rhsInterface.version ? lhsInterface.version : rhsInterface.version }));
+                    CS_RUN(m_interfaces.pushBack({ lhsInterface.m_id, lhsInterface.m_version < rhsInterface.m_version ? lhsInterface.m_version : rhsInterface.m_version }));
                     break;
                 }
 

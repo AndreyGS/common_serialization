@@ -54,15 +54,15 @@ public:
 
 struct PodStruct
 {
-    int i{ 0 };
+    int m_i{ 0 };
 
     PodStruct() = default;
 
-    explicit PodStruct(int i) : i(i) { }
+    explicit PodStruct(int i) : m_i(i) { }
 
     PodStruct(const char* p) noexcept
     {
-        i = *reinterpret_cast<const int*>(p);
+        m_i = *reinterpret_cast<const int*>(p);
     }
 
     [[nodiscard]] constexpr auto operator<=>(const PodStruct&) const = default;
@@ -134,19 +134,19 @@ struct CustomArrDeleter2 : CustomArrDeleter
 
 struct CustomDeleterStruct
 {
-    std::string name;
-    int i{ 0 };
+    std::string m_name;
+    int m_i{ 0 };
 
     CustomDeleterStruct() = default;
 
-    explicit CustomDeleterStruct(int i) : i(i), name("CustomDeleterStruct") { }
+    explicit CustomDeleterStruct(int i) : m_i(i), m_name("CustomDeleterStruct") { }
 
     [[nodiscard]] auto operator<=>(const CustomDeleterStruct&) const = default;
 
     static void operator delete(CustomDeleterStruct* p, std::destroying_delete_t) noexcept;
 
 protected:
-    CustomDeleterStruct(int i, const std::string& name) : i(i), name(name) { }
+    CustomDeleterStruct(int i, const std::string& name) : m_i(i), m_name(name) { }
 };
 
 struct CustomDeleterStructDesc : CustomDeleterStruct
@@ -160,7 +160,7 @@ inline void CustomDeleterStruct::operator delete(CustomDeleterStruct * p, std::d
     if (!p)
         return;
 
-    if (p->name == "CustomDeleterStruct")
+    if (p->m_name == "CustomDeleterStruct")
         ::delete p;
     else
         ::delete reinterpret_cast<CustomDeleterStructDesc*>(p);

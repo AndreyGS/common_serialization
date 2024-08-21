@@ -81,7 +81,7 @@ constexpr Status ContextProcessor::serialize(context::SData& ctx)
 
     CS_RUN(writeRawData(&id, 1, ctx));
 
-    constexpr interface_version_t interfaceVersion = _T::getInterface().version;
+    constexpr interface_version_t interfaceVersion = _T::getInterface().m_version;
 
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), _T::getOriginPrivateVersion(), interfaceVersion))
         return Status::ErrorNotSupportedInterfaceVersion;
@@ -149,7 +149,7 @@ constexpr Status ContextProcessor::deserializePostprocessId(const Id& id) noexce
 template<ISerializableImpl _T>
 constexpr Status ContextProcessor::deserializePostprocessRest(context::DData& ctx, interface_version_t minimumSupportedInterfaceVersion) noexcept
 {
-    constexpr interface_version_t interfaceVersion = _T::getInterface().version;
+    constexpr interface_version_t interfaceVersion = _T::getInterface().m_version;
 
     // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
     // however for some special cases you may override it by

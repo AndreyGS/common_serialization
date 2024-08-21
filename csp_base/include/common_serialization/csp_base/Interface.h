@@ -33,13 +33,13 @@ struct Interface
 {
     using simply_assignable_fixed_size_tag = std::true_type;
 
-    Id id{ kNullUuid };
+    Id m_id{ kNullUuid };
 
     /// @brief The only field that allowed to change since interface publication
-    interface_version_t version{ traits::kInterfaceVersionUndefined };
+    interface_version_t m_version{ traits::kInterfaceVersionUndefined };
 
-    context::DataFlags mandatoryDataFlags;
-    context::DataFlags forbiddenDataFlags;
+    context::DataFlags m_mandatoryDataFlags;
+    context::DataFlags m_forbiddenDataFlags;
 
     constexpr [[nodiscard]] bool operator<(const Interface& rhs) const noexcept;
     constexpr [[nodiscard]] bool operator==(const Interface& rhs) const noexcept;
@@ -47,12 +47,12 @@ struct Interface
 
 constexpr bool Interface::operator<(const Interface& rhs) const noexcept
 {
-    return id < rhs.id && version < rhs.version && mandatoryDataFlags < rhs.mandatoryDataFlags && forbiddenDataFlags < rhs.forbiddenDataFlags;
+    return m_id < rhs.m_id && m_version < rhs.m_version && m_mandatoryDataFlags < rhs.m_mandatoryDataFlags && m_forbiddenDataFlags < rhs.m_forbiddenDataFlags;
 }
 
 constexpr bool Interface::operator==(const Interface& rhs) const noexcept
 {
-    return id < rhs.id == version < rhs.version == mandatoryDataFlags < rhs.mandatoryDataFlags == forbiddenDataFlags < rhs.forbiddenDataFlags;
+    return m_id < rhs.m_id == m_version < rhs.m_version == m_mandatoryDataFlags < rhs.m_mandatoryDataFlags == m_forbiddenDataFlags < rhs.m_forbiddenDataFlags;
 }
 
 } // namespace common_serialization::csp

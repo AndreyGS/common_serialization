@@ -745,10 +745,10 @@ constexpr Status BodyProcessor::serialize(const Interface& value, context::SData
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(value.id, ctx));
-    CS_RUN(serialize(value.version, ctx));
-    CS_RUN(serialize(value.mandatoryDataFlags, ctx));
-    CS_RUN(serialize(value.forbiddenDataFlags, ctx));
+    CS_RUN(serialize(value.m_id, ctx));
+    CS_RUN(serialize(value.m_version, ctx));
+    CS_RUN(serialize(value.m_mandatoryDataFlags, ctx));
+    CS_RUN(serialize(value.m_forbiddenDataFlags, ctx));
 
     return Status::NoError;
 }
@@ -758,10 +758,10 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, Interface& valu
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)
 
-    CS_RUN(deserialize(ctx, value.id));
-    CS_RUN(deserialize(ctx, value.version));
-    CS_RUN(deserialize(ctx, value.mandatoryDataFlags));
-    CS_RUN(deserialize(ctx, value.forbiddenDataFlags));
+    CS_RUN(deserialize(ctx, value.m_id));
+    CS_RUN(deserialize(ctx, value.m_version));
+    CS_RUN(deserialize(ctx, value.m_mandatoryDataFlags));
+    CS_RUN(deserialize(ctx, value.m_forbiddenDataFlags));
 
     return Status::NoError;
 }

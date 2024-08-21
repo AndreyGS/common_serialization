@@ -268,13 +268,13 @@ template<typename _T>
 template<typename _T>
 [[nodiscard]] consteval context::DataFlags ISerializable<_T>::getEffectiveMandatoryDataFlags() noexcept
 {
-    return getAddtionalMandatoryDataFlags() | getInterface().mandatoryDataFlags;
+    return getAddtionalMandatoryDataFlags() | getInterface().m_mandatoryDataFlags;
 }
 
 template<typename _T>
 [[nodiscard]] consteval context::DataFlags ISerializable<_T>::getEffectiveForbiddenDataFlags() noexcept
 {
-    return getAddtionalForbiddenDataFlags() | getInterface().forbiddenDataFlags;
+    return getAddtionalForbiddenDataFlags() | getInterface().m_forbiddenDataFlags;
 }
 
 

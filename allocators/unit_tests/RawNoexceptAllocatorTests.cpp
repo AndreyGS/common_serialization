@@ -63,7 +63,7 @@ TEST(RawNoexceptAllocatorTests, ConstructT)
     RawNoexceptAllocator<PodStruct> rna2;
     PodStruct* p2 = rna2.allocate(1);
     EXPECT_EQ(rna2.construct(p2, 5), Status::NoError);
-    EXPECT_EQ(p2->i, 5);
+    EXPECT_EQ(p2->m_i, 5);
     rna2.deallocate(p2);
 }
 

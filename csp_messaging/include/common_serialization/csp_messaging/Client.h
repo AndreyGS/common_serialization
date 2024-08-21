@@ -285,7 +285,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
 
     const Interface& interface_ = _InputType::getInterface();
 
-    if (getInterfaceVersion(interface_.id) == traits::kInterfaceVersionUndefined)
+    if (getInterfaceVersion(interface_.m_id) == traits::kInterfaceVersionUndefined)
         return Status::ErrorNotSupportedInterface;
 
     BinVectorT binInput;
@@ -322,8 +322,8 @@ CS_ALWAYS_INLINE constexpr const service_structs::CspPartySettings<>& Client::ge
 constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const noexcept
 {
     for (const auto& interface_ : m_settings.getInterfaces())
-        if (id == interface_.id)
-            return interface_.version;
+        if (id == interface_.m_id)
+            return interface_.m_version;
 
     return traits::kInterfaceVersionUndefined;
 }
@@ -356,7 +356,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         return Status::ErrorNotInited;
 
     const Interface& interface_ = InputType::getInterface();
-    interface_version_t targetInterfaceVersion = getInterfaceVersion(interface_.id);
+    interface_version_t targetInterfaceVersion = getInterfaceVersion(interface_.m_id);
 
     if (targetInterfaceVersion == traits::kInterfaceVersionUndefined)
         return Status::ErrorNotSupportedInterface;

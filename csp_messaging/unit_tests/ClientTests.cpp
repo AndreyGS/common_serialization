@@ -342,13 +342,13 @@ TEST_F(ClientTests, GetSettingsClientInited)
 
 TEST_F(ClientTests, GetInterfaceClientNotInited)
 {
-    EXPECT_EQ(m_client.getInterfaceVersion(tests_csp_interface::properties.id), kInterfaceVersionUndefined);
+    EXPECT_EQ(m_client.getInterfaceVersion(tests_csp_interface::properties.m_id), kInterfaceVersionUndefined);
 }
 
 TEST_F(ClientTests, GetInterfaceClientInited)
 {
     m_client.init(getValidCspPartySettings());
-    EXPECT_EQ(m_client.getInterfaceVersion(tests_csp_interface::properties.id), tests_csp_interface::properties.version);
+    EXPECT_EQ(m_client.getInterfaceVersion(tests_csp_interface::properties.m_id), tests_csp_interface::properties.m_version);
 }
 
 TEST_F(ClientTests, HandleDataClientNotInited)
