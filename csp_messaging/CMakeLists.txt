@@ -79,9 +79,9 @@ function(ags_cs_create_csp_messaging_lib
         set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_tests")
         set(TESTS_SOURCES
            "${TESTS_SOURCES_DIR}/ClientTests.cpp"
+           "${TESTS_SOURCES_DIR}/ComplexTests.cpp"
            "${TESTS_SOURCES_DIR}/Helpers.h"
            "${TESTS_SOURCES_DIR}/ServerTests.cpp"
-           "${TESTS_SOURCES_DIR}/ToRefactorTests.cpp"
         )
 
         set(TESTS_LIBS_TO_LINK "gtest_main;gmock_main;${LIB_NAME}")

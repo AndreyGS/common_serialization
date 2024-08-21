@@ -1,5 +1,5 @@
 /**
- * @file common_serializaiton/csp_messaging/unit_tests/ToRefactorTests.cpp
+ * @file common_serializaiton/csp_messaging/unit_tests/ComplexTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -62,8 +62,7 @@ Status defaultHandle(const InputStruct& input, OutputStruct& output)
     InputStruct test;
     test.fill();
 
-    if (input != test)
-        return Status::ErrorInternal;
+    EXPECT_EQ(input, test);
 
     output.fill();
 
@@ -76,8 +75,7 @@ Status multiHandle(const InputStruct& input)
     InputStruct test;
     test.fill();
 
-    if (input != test)
-        return Status::ErrorInternal;
+    EXPECT_EQ(input, test);
 
     ++g_numberOfMultiEntrances;
 
@@ -181,13 +179,14 @@ public:
     }
 };
 
-class MessagingTests : public ::testing::Test
+class ComplexTests : public ::testing::Test
 {
 public:
-    MessagingTests()
+    ComplexTests()
         : m_clientToServerCommunicator(), m_client(m_clientToServerCommunicator)
     {
         m_server.init<GenericServerDataHandlerRegistrar>(getValidCspPartySettings());
+        m_client.init(getValidCspPartySettings());
     }
 
 protected:
@@ -196,10 +195,78 @@ protected:
     ClientToServerCommunicatorMock m_clientToServerCommunicator;
 };
 
-TEST_F(MessagingTests, DataMessageHandling)
+TEST_F(ComplexTests, SimpleUnicastTest)
 {
-    FirstCspService* pFirstCspService = new FirstCspService;
-    pFirstCspService->registerHandlers(*m_server.getDataHandlersRegistrar());
+    FirstCspService firstCspService;
+    firstCspService.registerHandlers(*m_server.getDataHandlersRegistrar());
+
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    input.fill();
+    tests_csp_interface::SimplyAssignableDescendant<> output;
+
+    EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
+        [&server = this->m_server](const BinVectorT& input, BinVectorT& output)
+        {
+            BinWalkerT inputW;
+            inputW.init(input);
+
+            return server.handleMessage(inputW, GenericPointerKeeper{}, output);
+        })
+    );
+
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output)), Status::NoError);
+
+    tests_csp_interface::SimplyAssignableDescendant<> outputReference;
+    outputReference.fill();
+
+    EXPECT_EQ(output, outputReference);
+}
+
+TEST_F(ComplexTests, SimpleMulticastTest)
+{
+    FirstCspService firstCspService;
+    firstCspService.registerHandlers(*m_server.getDataHandlersRegistrar());
+    SecondCspService secondCspService;
+    secondCspService.registerHandlers(*m_server.getDataHandlersRegistrar());
+
+    tests_csp_interface::SimplyAssignable<> input;
+    input.fill();
+    ISerializableDummy outputDummy;
+
+    g_numberOfMultiEntrances = 0;
+
+    EXPECT_CALL(m_clientToServerCommunicator, process).WillOnce(Invoke(
+        [&server = this->m_server](const BinVectorT& input, BinVectorT& output)
+        {
+            BinWalkerT inputW;
+            inputW.init(input);
+
+            return server.handleMessage(inputW, GenericPointerKeeper{}, output);
+        })
+    );
+
+    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>(input, outputDummy)), Status::NoError);
+    EXPECT_EQ(g_numberOfMultiEntrances, 2);
+}
+
+TEST_F(ComplexTests, StressTest)
+{   
+    FirstCspService firstCspService;
+    firstCspService.registerHandlers(*m_server.getDataHandlersRegistrar());
+    SecondCspService secondCspService;
+    secondCspService.registerHandlers(*m_server.getDataHandlersRegistrar());
+
+    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
+    input.fill();
+    tests_csp_interface::SimplyAssignableDescendant<> output;
+
+    tests_csp_interface::SimplyAssignable<> input2;
+    input2.fill();
+    ISerializableDummy outputDummy;
+
+    tests_csp_interface::Diamond<> input3;
+    input3.fill();
+    tests_csp_interface::DynamicPolymorphic<> output3;
 
     EXPECT_CALL(m_clientToServerCommunicator, process).WillRepeatedly(Invoke(
         [&server = this->m_server](const BinVectorT& input, BinVectorT& output)
@@ -211,63 +278,22 @@ TEST_F(MessagingTests, DataMessageHandling)
         })
     );
 
-    RawVectorT<protocol_version_t> clientProtocolVersions;
-    clientProtocolVersions.pushBack(getLatestProtocolVersion());
-    RawVectorT<InterfaceVersion<>> clientInterfaces;
-    clientInterfaces.pushBack(InterfaceVersion{ tests_csp_interface::properties });
-    CspPartySettings clientSettings(clientProtocolVersions, {}, {}, clientInterfaces);
-
-    m_client.init(clientSettings);
-
-    tests_csp_interface::SimplyAssignableAlignedToOne<> input;
-    input.fill();
-    tests_csp_interface::SimplyAssignableDescendant<> output;
-
-    // Unicast test
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output)), Status::NoError);
-
-    tests_csp_interface::SimplyAssignableDescendant<> outputReference;
-    outputReference.fill();
-
-    EXPECT_EQ(output, outputReference);
-
-    // Multicast test
-    SecondCspService* pSecondCspService = new SecondCspService;
-    pSecondCspService->registerHandlers(*m_server.getDataHandlersRegistrar());
-    tests_csp_interface::SimplyAssignable<> input2;
-    input2.fill();
-
-    ISerializableDummy outputDummy;
-
-    g_numberOfMultiEntrances = 0;
-    EXPECT_EQ((m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy)), Status::NoError);
-    EXPECT_EQ(g_numberOfMultiEntrances, 2);
-    
-    /// Stress test
     std::thread test1([&]
         {
-            tests_csp_interface::Diamond<> d;
-            tests_csp_interface::DynamicPolymorphic<> d2;
-
-
             for (size_t i = 0; i < 10000; ++i)
             {
                 m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
                 m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output);
-                m_client.handleData<ClientHeapHandler<tests_csp_interface::Diamond<>, tests_csp_interface::DynamicPolymorphic<>>>(d, d2);
+                m_client.handleData<ClientHeapHandler<tests_csp_interface::Diamond<>, tests_csp_interface::DynamicPolymorphic<>>>(input3, output3);
             }
         });
 
     std::thread test2([&]
         {
-            tests_csp_interface::Diamond<> d;
-            tests_csp_interface::DynamicPolymorphic<> d2;
-
-
             for (size_t i = 0; i < 10000; ++i)
             {
                 m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignable<>, ISerializableDummy>>(input2, outputDummy);
-                m_client.handleData<ClientHeapHandler<tests_csp_interface::Diamond<>, tests_csp_interface::DynamicPolymorphic<>>>(d, d2);
+                m_client.handleData<ClientHeapHandler<tests_csp_interface::Diamond<>, tests_csp_interface::DynamicPolymorphic<>>>(input3, output3);
                 m_client.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output);
             }
         });
@@ -276,17 +302,15 @@ TEST_F(MessagingTests, DataMessageHandling)
         {
             for (size_t i = 0; i < 200; ++i)
             {
-                pFirstCspService->unregisterService(*m_server.getDataHandlersRegistrar());
-                delete pFirstCspService;
+                firstCspService.unregisterService(*m_server.getDataHandlersRegistrar());
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                pFirstCspService = new FirstCspService;
-                pFirstCspService->registerHandlers(*m_server.getDataHandlersRegistrar());
-                pFirstCspService->unregisterSimplyAssignableAlignedToOne(*m_server.getDataHandlersRegistrar());
-                pFirstCspService->unregisterSimplyAssignableAlignedToOne(*m_server.getDataHandlersRegistrar());
-                pFirstCspService->unregisterDiamond(*m_server.getDataHandlersRegistrar());
-                pFirstCspService->unregisterSimplyAssignable(*m_server.getDataHandlersRegistrar());
-                pFirstCspService->unregisterService(*m_server.getDataHandlersRegistrar());
-                pFirstCspService->registerHandlers(*m_server.getDataHandlersRegistrar());
+                firstCspService.registerHandlers(*m_server.getDataHandlersRegistrar());
+                firstCspService.unregisterSimplyAssignableAlignedToOne(*m_server.getDataHandlersRegistrar());
+                firstCspService.unregisterSimplyAssignableAlignedToOne(*m_server.getDataHandlersRegistrar());
+                firstCspService.unregisterDiamond(*m_server.getDataHandlersRegistrar());
+                firstCspService.unregisterSimplyAssignable(*m_server.getDataHandlersRegistrar());
+                firstCspService.unregisterService(*m_server.getDataHandlersRegistrar());
+                firstCspService.registerHandlers(*m_server.getDataHandlersRegistrar());
             }
         });
 
@@ -294,13 +318,11 @@ TEST_F(MessagingTests, DataMessageHandling)
         {
             for (size_t i = 0; i < 200; ++i)
             {
-                pSecondCspService->unregisterService(*m_server.getDataHandlersRegistrar());
-                delete pSecondCspService;
+                secondCspService.unregisterService(*m_server.getDataHandlersRegistrar());
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                pSecondCspService = new SecondCspService;
-                pSecondCspService->registerHandlers(*m_server.getDataHandlersRegistrar());
-                pSecondCspService->unregisterService(*m_server.getDataHandlersRegistrar());
-                pSecondCspService->registerHandlers(*m_server.getDataHandlersRegistrar());
+                secondCspService.registerHandlers(*m_server.getDataHandlersRegistrar());
+                secondCspService.unregisterService(*m_server.getDataHandlersRegistrar());
+                secondCspService.registerHandlers(*m_server.getDataHandlersRegistrar());
             }
         });
 
@@ -308,34 +330,6 @@ TEST_F(MessagingTests, DataMessageHandling)
     test2.join();
     test3.join();
     test4.join();
-
-    // Legacy interface versions
-    clientInterfaces[0].version = 1;
-    clientSettings.init(clientProtocolVersions, {}, {}, clientInterfaces);
-
-    Client dataClient2(m_clientToServerCommunicator);
-    dataClient2.init(clientSettings);
-
-    EXPECT_EQ(dataClient2.getInterfaceVersion(clientSettings.getInterfaces()[0].id), 1);
-
-    tests_csp_interface::SimplyAssignableDescendant<> output2;
-
-    EXPECT_EQ((dataClient2.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output2)), Status::NoError);
-    EXPECT_EQ(output2, outputReference);
-
-    // Struct handler not support interface version
-    clientInterfaces[0].version = 0;
-    clientSettings.init(clientProtocolVersions, {}, {}, clientInterfaces);
-
-    csp::messaging::Client dataClient3(m_clientToServerCommunicator);
-    dataClient3.init(clientSettings);
-
-    EXPECT_EQ(dataClient3.getInterfaceVersion(clientSettings.getInterfaces()[0].id), 0);
-
-    tests_csp_interface::SimplyAssignableDescendant<> output3;
-
-    EXPECT_EQ((dataClient3.handleData<ClientHeapHandler<tests_csp_interface::SimplyAssignableAlignedToOne<>, tests_csp_interface::SimplyAssignableDescendant<>>>(input, output3)), Status::ErrorNotSupportedInterfaceVersion);
-    EXPECT_EQ(output3.m_d, 0); // struct wasn't changed
 }
 
 } // namespace

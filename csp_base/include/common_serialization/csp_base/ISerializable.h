@@ -238,7 +238,7 @@ template<typename _T>
 template<typename _T>
 [[nodiscard]] consteval interface_version_t ISerializable<_T>::getPrivateVersionsCount() noexcept
 {
-    return std::size(_T::kPrivateVersions);
+    return sizeof(_T::kPrivateVersions) / sizeof(interface_version_t);
 }
 
 template<typename _T>
