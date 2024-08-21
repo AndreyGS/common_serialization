@@ -36,7 +36,7 @@ public:
     /// @brief Allocate memory
     /// @param dataSizeInBytes Requested size
     /// @return Pointer to allocated storage
-    [[nodiscard]] CS_ALWAYS_INLINE void* allocate(size_t dataSizeInBytes) noexcept
+    CS_ALWAYS_INLINE [[nodiscard]] void* allocate(size_t dataSizeInBytes) noexcept
     {
         return static_cast<_StorageAllocator*>(this)->allocateImpl(dataSizeInBytes);
     }

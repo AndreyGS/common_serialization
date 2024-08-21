@@ -28,37 +28,37 @@
 #include <common_serialization/memory_management/platform_dependent/switch.h>
 
 // new
-[[nodiscard]] constexpr void* operator new(size_t dataSizeInBytes) noexcept
+constexpr [[nodiscard]] void* operator new(size_t dataSizeInBytes) noexcept
 {
     return common_serialization::memory_management::allocate(dataSizeInBytes);
 }
 
 // new[]
-[[nodiscard]] constexpr void* operator new[](size_t dataSizeInBytes) noexcept
+constexpr [[nodiscard]] void* operator new[](size_t dataSizeInBytes) noexcept
 {
     return common_serialization::memory_management::allocate(dataSizeInBytes);
 }
 
 // new nothrow
-[[nodiscard]] constexpr void* operator new(size_t dataSizeInBytes, const std::nothrow_t&) noexcept
+constexpr [[nodiscard]] void* operator new(size_t dataSizeInBytes, const std::nothrow_t&) noexcept
 {
     return common_serialization::memory_management::allocate(dataSizeInBytes);
 }
 
 // new[] nothrow
-[[nodiscard]] constexpr void* operator new[](size_t dataSizeInBytes, const std::nothrow_t&) noexcept
+constexpr [[nodiscard]] void* operator new[](size_t dataSizeInBytes, const std::nothrow_t&) noexcept
 {
     return common_serialization::memory_management::allocate(dataSizeInBytes);
 }
 
 // placement new
-[[nodiscard]] constexpr void* operator new(size_t, void* p) noexcept
+constexpr [[nodiscard]] void* operator new(size_t, void* p) noexcept
 {
     return p;
 }
 
 // placement new[]
-[[nodiscard]] constexpr void* operator new[](size_t, void* p) noexcept
+constexpr [[nodiscard]] void* operator new[](size_t, void* p) noexcept
 {
     return p;
 }

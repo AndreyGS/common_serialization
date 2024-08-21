@@ -54,7 +54,7 @@ public:
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     ///     or if object construction process return error.
     template<typename... Args>
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateAndConstruct(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateAndConstruct(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
     {
         return static_cast<const _AllocationManager*>(this)->allocateAndConstructImpl(requestedN, pAllocatedN, std::forward<Args>(args)...);
     }
@@ -65,7 +65,7 @@ public:
     /// @param requestedN Number of elements that storage should be capable to hold
     /// @param pAllocatedN Returned the actual number of elements that allocated storage can hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocate(size_type requestedN, size_type* pAllocatedN) const
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocate(size_type requestedN, size_type* pAllocatedN) const
     {
         return static_cast<const _AllocationManager*>(this)->allocateImpl(requestedN, pAllocatedN);
     }
@@ -73,7 +73,7 @@ public:
     /// @brief Allocate storage for n elements of type _T
     /// @param n Number of elements that storage should be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateStrict(size_type n) const
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateStrict(size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->allocateStrictImpl(n);
     }

@@ -51,7 +51,7 @@ struct integral_constant
         return value;
     }
 
-    [[nodiscard]] constexpr value_type operator()() const noexcept
+    constexpr [[nodiscard]] value_type operator()() const noexcept
     {
         return value;
     }
@@ -120,20 +120,20 @@ struct is_lvalue_reference : bool_constant<is_lvalue_reference_v<_T>>
 
 // std::move
 template<typename _T>
-[[nodiscard]] constexpr remove_reference_t<_T>&& move(_T&& t) noexcept
+constexpr [[nodiscard]] remove_reference_t<_T>&& move(_T&& t) noexcept
 {
     return static_cast<remove_reference_t<_T>&&>(t);
 }
 
 // std::forward
 template<typename _T>
-[[nodiscard]] constexpr _T&& forward(remove_reference_t<_T>& t) noexcept
+constexpr [[nodiscard]] _T&& forward(remove_reference_t<_T>& t) noexcept
 {
     return static_cast<_T&&>(t);
 }
 
 template <class _T>
-[[nodiscard]] constexpr _T&& forward(remove_reference_t<_T>&& t) noexcept
+constexpr [[nodiscard]] _T&& forward(remove_reference_t<_T>&& t) noexcept
 {
     static_assert(!is_lvalue_reference_v<_T>, "illegal use of std::forward");
     return static_cast<_T&&>(t);

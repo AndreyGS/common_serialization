@@ -64,7 +64,7 @@ protected:
     friend allocator_helper_interface_type;
     friend allocation_strategy_user_interface_type;
 
-    [[nodiscard]] constexpr pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
+    constexpr [[nodiscard]] pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
     {
         value_type* p = nullptr;
 
@@ -86,7 +86,7 @@ protected:
         return p;
     }
 
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr AllocationStrategy getAllocationStrategyImpl() const noexcept
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] AllocationStrategy getAllocationStrategyImpl() const noexcept
     {
         return m_allocation_strategy;
     }

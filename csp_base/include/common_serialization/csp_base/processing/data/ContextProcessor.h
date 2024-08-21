@@ -57,7 +57,7 @@ public:
 };
 
 template<typename _T>
-constexpr [[nodiscard]] Status ContextProcessor::testDataFlagsCompatibility(context::DataFlags dataFlags)
+constexpr Status ContextProcessor::testDataFlagsCompatibility(context::DataFlags dataFlags)
 {
     if constexpr (!StructHaveDataFlags<_T>)
         return Status::NoError;

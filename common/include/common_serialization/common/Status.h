@@ -96,7 +96,7 @@ enum class Status : int32_t
     ErrorAlreadyInited                              =      -24
 };
 
-[[nodiscard]] CS_ALWAYS_INLINE constexpr bool statusSuccess(Status status)
+CS_ALWAYS_INLINE constexpr [[nodiscard]] bool statusSuccess(Status status)
 {
     return static_cast<int32_t>(status) >= 0;
 }

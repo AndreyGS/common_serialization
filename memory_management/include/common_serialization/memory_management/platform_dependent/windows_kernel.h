@@ -38,12 +38,12 @@ public:
 protected:
     friend storage_allocator_interface_type;
 
-    [[nodiscard]] CS_ALWAYS_INLINE inline void* allocateImpl(size_t dataSizeInBytes) noexcept
+    CS_ALWAYS_INLINE [[nodiscard]] void* allocateImpl(size_t dataSizeInBytes) noexcept
     {
         return ExAllocatePool2(POOL_FLAG_NON_PAGED | POOL_FLAG_UNINITIALIZED, dataSizeInBytes, "s-ga");
     }
 
-    CS_ALWAYS_INLINE inline void deallocateImpl(void* p) noexcept
+    CS_ALWAYS_INLINE void deallocateImpl(void* p) noexcept
     {
         ExFreePool(p);
     }

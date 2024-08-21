@@ -107,12 +107,12 @@ public:
 
     /// @brief Get reference to container that holds processed data in binary
     /// @return Container with binary data
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr Bin& getBinaryData() noexcept { return m_binaryData; }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr const Bin& getBinaryData() const noexcept { return m_binaryData; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] Bin& getBinaryData() noexcept { return m_binaryData; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] const Bin& getBinaryData() const noexcept { return m_binaryData; }
 
     /// @brief Get type of CSP message that holds by this context
     /// @return Type of CSP message
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr Message getMessageType() const noexcept { return m_messageType; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] Message getMessageType() const noexcept { return m_messageType; }
 
     /// @brief Set CSP message type to current context
     /// @param messageType Type of CSP message
@@ -120,7 +120,7 @@ public:
 
     /// @brief Get CSP version that is using in this context
     /// @return CSP version
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr protocol_version_t getProtocolVersion() const noexcept { return m_protocolVersion; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] protocol_version_t getProtocolVersion() const noexcept { return m_protocolVersion; }
 
     /// @brief Set CSP version that will be used by this context
     /// @param protocolVersion CSP version
@@ -133,7 +133,7 @@ public:
 
     /// @brief Is target protocol version same as the latest our
     /// @return Flag indicating that protocol versions not match
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool protocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool protocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
 
     /// @brief Is target endianness differs from current platform
     /// @note "Endianness not match" is not the same as "endianness difference". The first one is simply
@@ -141,11 +141,11 @@ public:
     ///     is the mode that drops off most of optimizations in processing so that there is an opportunity
     ///     to deserialize binary data on platform with any endianness.
     /// @return Flag indicating that endianness of current platform differs from target one
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool endiannessNotMatch() const noexcept { return m_endiannessNotMatch; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool endiannessNotMatch() const noexcept { return m_endiannessNotMatch; }
 
     /// @brief Get Common Flags that are using in this context
     /// @return Common Flags
-    [[nodiscard]] constexpr CommonFlags getCommonFlags() const noexcept
+    constexpr [[nodiscard]] CommonFlags getCommonFlags() const noexcept
     { 
         return CommonFlags
             { 
@@ -171,9 +171,9 @@ public:
         return setCommonFlags(static_cast<CommonFlags>(commonFlags));
     }
 
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool bitness32() const noexcept { return m_bitness32; }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool bigEndianFormat() const noexcept { return m_bigEndianFormat; }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool endiannessDifference() const noexcept { return m_endiannessDifference; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool bitness32() const noexcept { return m_bitness32; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool bigEndianFormat() const noexcept { return m_bigEndianFormat; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool endiannessDifference() const noexcept { return m_endiannessDifference; }
 
     /// @brief Reset all fields to their default values, but leaves binary data and common flags unchanged
     /// @note Common flags are not resets to false because because they are 

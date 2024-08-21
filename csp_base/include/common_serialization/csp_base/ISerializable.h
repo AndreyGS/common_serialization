@@ -93,60 +93,61 @@ public:
 
     /// @brief Get instance ID
     /// @return Instance ID
-    [[nodiscard]] static consteval Id getId() noexcept;
+    static consteval [[nodiscard]] Id getId() noexcept;
 
     /// @brief Get latest private version
     /// @return Latest private version
-    [[nodiscard]] static consteval interface_version_t getLatestPrivateVersion() noexcept;
+    static consteval [[nodiscard]] interface_version_t getLatestPrivateVersion() noexcept;
 
     /// @brief Get latest interface version
     /// @return Latest interface version
-    [[nodiscard]] static consteval interface_version_t getLatestInterfaceVersion() noexcept;
+    static consteval [[nodiscard]] interface_version_t getLatestInterfaceVersion() noexcept;
 
     /// @brief Get origin private version.
     ///     This is the interface version that was when class was first time defined.
     /// @return Origin private version
-    [[nodiscard]] static consteval interface_version_t getOriginPrivateVersion() noexcept;
+    static consteval [[nodiscard]] interface_version_t getOriginPrivateVersion() noexcept;
 
     /// @brief Get private versions array
     /// @return All private versions
-   [[nodiscard]] CS_ALWAYS_INLINE static constexpr const interface_version_t* getPrivateVersions() noexcept;
+    static CS_ALWAYS_INLINE constexpr [[nodiscard]] const interface_version_t* getPrivateVersions() noexcept;
 
     /// @brief Get array size of private versions
     /// @return Array size of private versions
-    [[nodiscard]] static consteval interface_version_t getPrivateVersionsCount() noexcept;
+    static consteval [[nodiscard]] interface_version_t getPrivateVersionsCount() noexcept;
 
     /// @brief Get properties of interface to which current struct beholds
     /// @return Interface properties
-    [[nodiscard]] static consteval const Interface& getInterface() noexcept;
+    static consteval [[nodiscard]] const Interface& getInterface() noexcept;
 
     /// @brief Get additional (to interace defined) mandatory data flags with which
     ///     current struct must be serialized
     /// @return Addtional mandatory DataFlags
-    [[nodiscard]] static consteval context::DataFlags getAddtionalMandatoryDataFlags() noexcept;
+    static consteval [[nodiscard]] context::DataFlags getAddtionalMandatoryDataFlags() noexcept;
 
     /// @brief Get additional (to interace defined) forbidden data flags with which
     ///     current struct must be serialized
     /// @return Addtional forbidden DataFlags
-    [[nodiscard]] static consteval context::DataFlags getAddtionalForbiddenDataFlags() noexcept;
+    static consteval [[nodiscard]] context::DataFlags getAddtionalForbiddenDataFlags() noexcept;
 
     /// @brief Get effective (with interace defined) mandatory data flags with which
     ///     current struct must be serialized
     /// @return Effective mandatory DataFlags
-    [[nodiscard]] static consteval context::DataFlags getEffectiveMandatoryDataFlags() noexcept;
+    static consteval [[nodiscard]] context::DataFlags getEffectiveMandatoryDataFlags() noexcept;
 
     /// @brief Get effective (with interace defined) forbidden data flags with which
     ///     current struct must be serialized
     /// @return AddtioEffectivenal forbidden DataFlags
-    [[nodiscard]] static consteval context::DataFlags getEffectiveForbiddenDataFlags() noexcept;
+    static consteval [[nodiscard]] context::DataFlags getEffectiveForbiddenDataFlags() noexcept;
 
-    /// @brief Default comparison operator to allow classes 
-    ///     that implements ISerializable use it freely
-    [[nodiscard]] constexpr auto operator<=>(const ISerializable&) const = default;
+    /// @brief Next two comparison operators allow classes that implements ISerializable
+    ///     use default comparison operators freely 
+    constexpr bool operator<(const ISerializable&) const noexcept;
+    constexpr bool operator==(const ISerializable&) const noexcept;
 };
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status ISerializable<_T>::serialize(BinVectorT& output) const
+constexpr Status ISerializable<_T>::serialize(BinVectorT& output) const
 {
     context::SData ctx{ output, {}, {}, true, this->getLatestInterfaceVersion() };
 
@@ -175,7 +176,7 @@ constexpr Status ISerializable<_T>::serialize(context::SData& ctx) const
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status ISerializable<_T>::deserialize(BinWalkerT& input)
+constexpr Status ISerializable<_T>::deserialize(BinWalkerT& input)
 {
     context::DData ctx{ input, {}, {}, true, this->getOriginPrivateVersion() };
     return deserialize(ctx);
@@ -206,49 +207,49 @@ constexpr Status ISerializable<_T>::deserialize(context::DData& ctx)
 }
 
 template<typename _T>
-[[nodiscard]] consteval Id ISerializable<_T>::getId() noexcept
+consteval Id ISerializable<_T>::getId() noexcept
 {
     return _T::kId;
 }
 
 template<typename _T>
-[[nodiscard]] consteval interface_version_t ISerializable<_T>::getLatestPrivateVersion() noexcept
+consteval interface_version_t ISerializable<_T>::getLatestPrivateVersion() noexcept
 {
     return _T::kPrivateVersions[0];
 }
 
 template<typename _T>
-[[nodiscard]] consteval interface_version_t ISerializable<_T>::getLatestInterfaceVersion() noexcept
+consteval interface_version_t ISerializable<_T>::getLatestInterfaceVersion() noexcept
 {
     return _T::kInterfaceVersion;
 }
 
 template<typename _T>
-[[nodiscard]] consteval interface_version_t ISerializable<_T>::getOriginPrivateVersion() noexcept
+consteval interface_version_t ISerializable<_T>::getOriginPrivateVersion() noexcept
 {
     return getPrivateVersions()[getPrivateVersionsCount() - 1];
 }
 
 template<typename _T>
-[[nodiscard]] CS_ALWAYS_INLINE constexpr const interface_version_t* ISerializable<_T>::getPrivateVersions() noexcept
+constexpr const interface_version_t* ISerializable<_T>::getPrivateVersions() noexcept
 {
     return _T::kPrivateVersions;
 }
 
 template<typename _T>
-[[nodiscard]] consteval interface_version_t ISerializable<_T>::getPrivateVersionsCount() noexcept
+consteval interface_version_t ISerializable<_T>::getPrivateVersionsCount() noexcept
 {
     return sizeof(_T::kPrivateVersions) / sizeof(interface_version_t);
 }
 
 template<typename _T>
-[[nodiscard]] consteval const Interface& ISerializable<_T>::getInterface() noexcept
+consteval const Interface& ISerializable<_T>::getInterface() noexcept
 {
     return _T::getInterface();
 }
 
 template<typename _T>
-[[nodiscard]] consteval context::DataFlags ISerializable<_T>::getAddtionalMandatoryDataFlags() noexcept
+consteval context::DataFlags ISerializable<_T>::getAddtionalMandatoryDataFlags() noexcept
 {
     if constexpr (HasAddtionalMandatoryDataFlags<_T>)
         return _T::kAddtionalMandatoryDataFlags;
@@ -257,7 +258,7 @@ template<typename _T>
 }
 
 template<typename _T>
-[[nodiscard]] consteval context::DataFlags ISerializable<_T>::getAddtionalForbiddenDataFlags() noexcept
+consteval context::DataFlags ISerializable<_T>::getAddtionalForbiddenDataFlags() noexcept
 {
     if constexpr (HasAddtionalForbiddenDataFlags<_T>)
         return _T::kAddtionalForbiddenDataFlags;
@@ -266,17 +267,27 @@ template<typename _T>
 }
 
 template<typename _T>
-[[nodiscard]] consteval context::DataFlags ISerializable<_T>::getEffectiveMandatoryDataFlags() noexcept
+consteval context::DataFlags ISerializable<_T>::getEffectiveMandatoryDataFlags() noexcept
 {
     return getAddtionalMandatoryDataFlags() | getInterface().m_mandatoryDataFlags;
 }
 
 template<typename _T>
-[[nodiscard]] consteval context::DataFlags ISerializable<_T>::getEffectiveForbiddenDataFlags() noexcept
+consteval context::DataFlags ISerializable<_T>::getEffectiveForbiddenDataFlags() noexcept
 {
     return getAddtionalForbiddenDataFlags() | getInterface().m_forbiddenDataFlags;
 }
 
+template<typename _T>
+constexpr bool ISerializable<_T>::operator<(const ISerializable&) const noexcept
+{ 
+    return false;
+}
 
+template<typename _T>
+constexpr bool ISerializable<_T>::operator==(const ISerializable&) const noexcept
+{ 
+    return true;
+}
 
 } // namespace common_serialization::csp

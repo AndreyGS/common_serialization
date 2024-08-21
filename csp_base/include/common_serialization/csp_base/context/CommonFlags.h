@@ -54,20 +54,20 @@ public:
     constexpr CommonFlags addFlags(uint32_t value) noexcept;
     constexpr CommonFlags removeFlags(uint32_t value) noexcept;
 
-    [[nodiscard]] constexpr bool bitness32() const noexcept;
-    [[nodiscard]] constexpr bool bigEndianFormat() const noexcept;
-    [[nodiscard]] constexpr bool endiannessDifference() const noexcept;
+    constexpr [[nodiscard]] bool bitness32() const noexcept;
+    constexpr [[nodiscard]] bool bigEndianFormat() const noexcept;
+    constexpr [[nodiscard]] bool endiannessDifference() const noexcept;
 
-    [[nodiscard]] constexpr CommonFlags operator|(CommonFlags rhs) const noexcept;
-    [[nodiscard]] constexpr CommonFlags operator&(CommonFlags rhs) const noexcept;
-    [[nodiscard]] constexpr CommonFlags operator|(uint32_t rhs) const noexcept;
-    [[nodiscard]] constexpr CommonFlags operator&(uint32_t rhs) const noexcept;
+    constexpr [[nodiscard]] CommonFlags operator|(CommonFlags rhs) const noexcept;
+    constexpr [[nodiscard]] CommonFlags operator&(CommonFlags rhs) const noexcept;
+    constexpr [[nodiscard]] CommonFlags operator|(uint32_t rhs) const noexcept;
+    constexpr [[nodiscard]] CommonFlags operator&(uint32_t rhs) const noexcept;
 
     constexpr [[nodiscard]] bool operator<(const CommonFlags& rhs) const noexcept;
     constexpr [[nodiscard]] bool operator==(const CommonFlags& rhs) const noexcept;
 
-    [[nodiscard]] explicit constexpr operator uint32_t() const noexcept;
-    [[nodiscard]] explicit constexpr operator bool() const noexcept;
+    explicit constexpr [[nodiscard]] operator uint32_t() const noexcept;
+    explicit constexpr [[nodiscard]] operator bool() const noexcept;
 
 private:
     uint32_t m_flags{ 0 };
@@ -102,57 +102,57 @@ constexpr CommonFlags CommonFlags::removeFlags(uint32_t value) noexcept
     return *this;
 }
 
-[[nodiscard]] constexpr bool CommonFlags::bitness32() const noexcept
+constexpr bool CommonFlags::bitness32() const noexcept
 {
     return static_cast<bool>(m_flags & kBitness32);
 }
 
-[[nodiscard]] constexpr bool CommonFlags::bigEndianFormat() const noexcept
+constexpr bool CommonFlags::bigEndianFormat() const noexcept
 {
     return static_cast<bool>(m_flags & kBigEndianFormat);
 }
 
-[[nodiscard]] constexpr bool CommonFlags::endiannessDifference() const noexcept
+constexpr bool CommonFlags::endiannessDifference() const noexcept
 {
     return static_cast<bool>(m_flags & kEndiannessDifference);
 }
 
-[[nodiscard]] constexpr CommonFlags CommonFlags::operator|(CommonFlags rhs) const noexcept
+constexpr CommonFlags CommonFlags::operator|(CommonFlags rhs) const noexcept
 {
     return static_cast<CommonFlags>(m_flags | rhs.m_flags);
 }
 
-[[nodiscard]] constexpr CommonFlags CommonFlags::operator&(CommonFlags rhs) const noexcept
+constexpr CommonFlags CommonFlags::operator&(CommonFlags rhs) const noexcept
 {
     return static_cast<CommonFlags>(m_flags & rhs.m_flags);
 }
 
-[[nodiscard]] constexpr CommonFlags CommonFlags::operator|(uint32_t rhs) const noexcept
+constexpr CommonFlags CommonFlags::operator|(uint32_t rhs) const noexcept
 {
     return *this | static_cast<CommonFlags>(rhs);
 }
 
-[[nodiscard]] constexpr CommonFlags CommonFlags::operator&(uint32_t rhs) const noexcept
+constexpr CommonFlags CommonFlags::operator&(uint32_t rhs) const noexcept
 {
     return *this & static_cast<CommonFlags>(rhs);
 }
 
-constexpr [[nodiscard]] bool CommonFlags::operator<(const CommonFlags& rhs) const noexcept
+constexpr bool CommonFlags::operator<(const CommonFlags& rhs) const noexcept
 {
     return m_flags < rhs.m_flags;
 }
 
-constexpr [[nodiscard]] bool CommonFlags::operator==(const CommonFlags& rhs) const noexcept
+constexpr bool CommonFlags::operator==(const CommonFlags& rhs) const noexcept
 {
     return m_flags == rhs.m_flags;
 }
 
-[[nodiscard]] constexpr CommonFlags::operator uint32_t() const noexcept
+constexpr CommonFlags::operator uint32_t() const noexcept
 {
     return m_flags;
 }
 
-[[nodiscard]] constexpr CommonFlags::operator bool() const noexcept
+constexpr CommonFlags::operator bool() const noexcept
 {
     return m_flags != 0;
 }

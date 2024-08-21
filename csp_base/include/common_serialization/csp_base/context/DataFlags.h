@@ -90,22 +90,22 @@ public:
     constexpr void addFlags(uint32_t value) noexcept;
     constexpr void removeFlags(uint32_t value) noexcept;
 
-    [[nodiscard]] constexpr bool alignmentMayBeNotEqual() const noexcept;
-    [[nodiscard]] constexpr bool sizeOfIntegersMayBeNotEqual() const noexcept;
-    [[nodiscard]] constexpr bool allowUnmanagedPointers() const noexcept;
-    [[nodiscard]] constexpr bool checkRecursivePointers() const noexcept;
-    [[nodiscard]] constexpr bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept;
+    constexpr [[nodiscard]] bool alignmentMayBeNotEqual() const noexcept;
+    constexpr [[nodiscard]] bool sizeOfIntegersMayBeNotEqual() const noexcept;
+    constexpr [[nodiscard]] bool allowUnmanagedPointers() const noexcept;
+    constexpr [[nodiscard]] bool checkRecursivePointers() const noexcept;
+    constexpr [[nodiscard]] bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept;
 
-    [[nodiscard]] constexpr DataFlags operator|(DataFlags rhs) const noexcept;
-    [[nodiscard]] constexpr DataFlags operator&(DataFlags rhs) const noexcept;
-    [[nodiscard]] constexpr DataFlags operator|(uint32_t rhs) const noexcept;
-    [[nodiscard]] constexpr DataFlags operator&(uint32_t rhs) const noexcept;
+    constexpr [[nodiscard]] DataFlags operator|(DataFlags rhs) const noexcept;
+    constexpr [[nodiscard]] DataFlags operator&(DataFlags rhs) const noexcept;
+    constexpr [[nodiscard]] DataFlags operator|(uint32_t rhs) const noexcept;
+    constexpr [[nodiscard]] DataFlags operator&(uint32_t rhs) const noexcept;
 
     constexpr [[nodiscard]] bool operator<(const DataFlags& rhs) const noexcept;
     constexpr [[nodiscard]] bool operator==(const DataFlags& rhs) const noexcept;
 
-    [[nodiscard]] explicit constexpr operator uint32_t() const noexcept;
-    [[nodiscard]] explicit constexpr operator bool() const noexcept;
+    explicit constexpr [[nodiscard]] operator uint32_t() const noexcept;
+    explicit constexpr [[nodiscard]] operator bool() const noexcept;
 
 private:
     uint32_t m_flags{ 0 };
@@ -133,67 +133,67 @@ constexpr void DataFlags::removeFlags(uint32_t value) noexcept
     m_flags &= ~value;
 }
 
-[[nodiscard]] constexpr bool DataFlags::alignmentMayBeNotEqual() const noexcept
+constexpr bool DataFlags::alignmentMayBeNotEqual() const noexcept
 {
     return static_cast<bool>(m_flags & kAlignmentMayBeNotEqual);
 }
 
-[[nodiscard]] constexpr bool DataFlags::sizeOfIntegersMayBeNotEqual() const noexcept
+constexpr bool DataFlags::sizeOfIntegersMayBeNotEqual() const noexcept
 {
     return static_cast<bool>(m_flags & kSizeOfIntegersMayBeNotEqual);
 }
 
-[[nodiscard]] constexpr bool DataFlags::allowUnmanagedPointers() const noexcept
+constexpr bool DataFlags::allowUnmanagedPointers() const noexcept
 {
     return static_cast<bool>(m_flags & kAllowUnmanagedPointers);
 }
 
-[[nodiscard]] constexpr bool DataFlags::checkRecursivePointers() const noexcept
+constexpr bool DataFlags::checkRecursivePointers() const noexcept
 {
     return static_cast<bool>(m_flags & kCheckRecursivePointers);
 }
 
-[[nodiscard]] constexpr bool DataFlags::simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept
+constexpr bool DataFlags::simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept
 {
     return static_cast<bool>(m_flags & kSimplyAssignableTagsOptimizationsAreTurnedOff);
 }
 
-[[nodiscard]] constexpr DataFlags DataFlags::operator|(DataFlags rhs) const noexcept
+constexpr DataFlags DataFlags::operator|(DataFlags rhs) const noexcept
 {
     return static_cast<DataFlags>(m_flags | rhs.m_flags);
 }
 
-[[nodiscard]] constexpr DataFlags DataFlags::operator&(DataFlags rhs) const noexcept
+constexpr DataFlags DataFlags::operator&(DataFlags rhs) const noexcept
 {
     return static_cast<DataFlags>(m_flags & rhs.m_flags);
 }
 
-[[nodiscard]] constexpr DataFlags DataFlags::operator|(uint32_t rhs) const noexcept
+constexpr DataFlags DataFlags::operator|(uint32_t rhs) const noexcept
 {
     return *this | static_cast<DataFlags>(rhs);
 }
 
-[[nodiscard]] constexpr DataFlags DataFlags::operator&(uint32_t rhs) const noexcept
+constexpr DataFlags DataFlags::operator&(uint32_t rhs) const noexcept
 {
     return *this & static_cast<DataFlags>(rhs);
 }
 
-constexpr [[nodiscard]] bool DataFlags::operator<(const DataFlags& rhs) const noexcept
+constexpr bool DataFlags::operator<(const DataFlags& rhs) const noexcept
 {
     return m_flags < rhs.m_flags;
 }
 
-constexpr [[nodiscard]] bool DataFlags::operator==(const DataFlags& rhs) const noexcept
+constexpr bool DataFlags::operator==(const DataFlags& rhs) const noexcept
 {
     return m_flags == rhs.m_flags;
 }
 
-[[nodiscard]] constexpr DataFlags::operator uint32_t() const noexcept
+constexpr DataFlags::operator uint32_t() const noexcept
 {
     return m_flags;
 }
 
-[[nodiscard]] constexpr DataFlags::operator bool() const noexcept
+constexpr DataFlags::operator bool() const noexcept
 {
     return m_flags != 0;
 }

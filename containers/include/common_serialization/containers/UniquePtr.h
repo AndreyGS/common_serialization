@@ -100,7 +100,7 @@ public:
 
     /// @brief Get stored pointer
     /// @return Stored pointer
-    [[nodiscard]] constexpr pointer get() const noexcept
+    constexpr [[nodiscard]] pointer get() const noexcept
     { 
         return m_pair.value;
     }
@@ -149,12 +149,12 @@ public:
         return m_pair.getFirst();
     }
 
-    [[nodiscard]] constexpr pointer operator->() const noexcept
+    constexpr [[nodiscard]] pointer operator->() const noexcept
     { 
         return m_pair.value;
     }
 
-    [[nodiscard]] constexpr element_type& operator*() const noexcept
+    constexpr [[nodiscard]] element_type& operator*() const noexcept
     { 
         return *m_pair.value;
     }
@@ -235,7 +235,7 @@ public:
 
     /// @brief Get stored pointer
     /// @return Stored pointer
-    [[nodiscard]] constexpr pointer get() const noexcept
+    constexpr [[nodiscard]] pointer get() const noexcept
     { 
         return m_pair.value;
     }
@@ -284,12 +284,12 @@ public:
         return m_pair.getFirst();
     }
 
-    [[nodiscard]] constexpr pointer operator->() const noexcept
+    constexpr [[nodiscard]] pointer operator->() const noexcept
     { 
         return m_pair.value;
     }
 
-    [[nodiscard]] constexpr element_type& operator*() const noexcept
+    constexpr [[nodiscard]] element_type& operator*() const noexcept
     { 
         return *m_pair.value;
     }
@@ -306,14 +306,14 @@ private:
 
 template<typename _T, typename... _Ts>
     requires (!std::is_array_v<_T>)
-[[nodiscard]] constexpr UniquePtr<_T> makeUnique(_Ts&&... ts)
+constexpr [[nodiscard]] UniquePtr<_T> makeUnique(_Ts&&... ts)
 {
     return UniquePtr<_T>(new _T{ std::forward<_Ts>(ts)... });
 }
 
 template<typename _T, typename... _Ts>
     requires (std::is_unbounded_array_v<_T>)
-[[nodiscard]] constexpr UniquePtr<_T> makeUnique(size_t size, _Ts&&... ts)
+constexpr [[nodiscard]] UniquePtr<_T> makeUnique(size_t size, _Ts&&... ts)
 {
     using Type = std::remove_extent_t<_T>;
     return UniquePtr<_T>(new Type[size]{ std::forward<_Ts>(ts)... });
@@ -321,14 +321,14 @@ template<typename _T, typename... _Ts>
 
 template<typename _T, typename... _Ts>
     requires (!std::is_array_v<_T>)
-[[nodiscard]] constexpr UniquePtr<_T> makeUniqueNoThrow(_Ts&&... ts)
+constexpr [[nodiscard]] UniquePtr<_T> makeUniqueNoThrow(_Ts&&... ts)
 {
     return UniquePtr<_T>(new (std::nothrow) _T{ std::forward<_Ts>(ts)... });
 }
 
 template<typename _T, typename... _Ts>
     requires (std::is_unbounded_array_v<_T>)
-[[nodiscard]] constexpr UniquePtr<_T> makeUniqueNoThrow(size_t size, _Ts&&... ts)
+constexpr [[nodiscard]] UniquePtr<_T> makeUniqueNoThrow(size_t size, _Ts&&... ts)
 {
     using Type = std::remove_extent_t<_T>;
     return UniquePtr<_T>(new (std::nothrow) Type[size]{ std::forward<_Ts>(ts)... });
@@ -336,14 +336,14 @@ template<typename _T, typename... _Ts>
 
 template<typename _T>
     requires (!std::is_array_v<_T>)
-[[nodiscard]] constexpr UniquePtr<_T> makeUniqueForOverwrite()
+constexpr [[nodiscard]] UniquePtr<_T> makeUniqueForOverwrite()
 {
     return UniquePtr<_T>(new _T);
 }
 
 template<typename _T>
     requires (std::is_unbounded_array_v<_T>)
-[[nodiscard]] constexpr UniquePtr<_T> makeUniqueForOverwrite(size_t size)
+constexpr [[nodiscard]] UniquePtr<_T> makeUniqueForOverwrite(size_t size)
 {
     using Type = std::remove_extent_t<_T>;
     return UniquePtr<_T>(new Type[size]);
@@ -351,14 +351,14 @@ template<typename _T>
 
 template<typename _T>
     requires (!std::is_array_v<_T>)
-[[nodiscard]] constexpr UniquePtr<_T> makeUniqueNoThrowForOverwrite()
+constexpr [[nodiscard]] UniquePtr<_T> makeUniqueNoThrowForOverwrite()
 {
     return UniquePtr<_T>(new (std::nothrow) _T);
 }
 
 template<typename _T>
     requires (std::is_unbounded_array_v<_T>)
-[[nodiscard]] constexpr UniquePtr<_T> makeUniqueNoThrowForOverwrite(size_t size)
+constexpr [[nodiscard]] UniquePtr<_T> makeUniqueNoThrowForOverwrite(size_t size)
 {
     using Type = std::remove_extent_t<_T>;
     return UniquePtr<_T>(new (std::nothrow) Type[size]);

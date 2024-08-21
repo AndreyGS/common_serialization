@@ -56,7 +56,7 @@ public:
 protected:
     friend allocator_interface_type;
 
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateImpl(size_type n) const noexcept
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
     {
         return static_cast<_T*>(HeapAllocatorT().allocate(n * sizeof(_T)));
     }

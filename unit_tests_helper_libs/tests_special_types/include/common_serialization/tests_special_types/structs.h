@@ -65,7 +65,7 @@ struct PodStruct
         m_i = *reinterpret_cast<const int*>(p);
     }
 
-    [[nodiscard]] constexpr auto operator<=>(const PodStruct&) const = default;
+    constexpr [[nodiscard]] auto operator<=>(const PodStruct&) const = default;
 
     static void operator delete(PodStruct* p, std::destroying_delete_t)
     {

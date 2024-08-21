@@ -38,7 +38,7 @@ public:
 protected:
     friend storage_allocator_interface_type;
 
-    [[nodiscard]] CS_ALWAYS_INLINE void* allocateImpl(size_t dataSizeInBytes) noexcept
+    CS_ALWAYS_INLINE [[nodiscard]] void* allocateImpl(size_t dataSizeInBytes) noexcept
     {
         return std::malloc(dataSizeInBytes);
     }

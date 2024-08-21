@@ -44,7 +44,7 @@ public:
     /// @brief Allocate storage with bytes_size = n*sizeof(value_type)
     /// @param n Number of elements of type _T that storage must be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocate(size_type n) const noexcept
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocate(size_type n) const noexcept
     {
         return static_cast<const _Allocator*>(this)->allocateImpl(n);
     }

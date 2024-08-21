@@ -89,8 +89,8 @@ public:
 
     /// @brief Get pointer to holding pointers map
     /// @return Pointer to pointers map (could be nullptr)
-    [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
-    [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
+    constexpr [[nodiscard]] PM* getPointersMap() noexcept { return m_pPointersMap; }
+    constexpr [[nodiscard]] const PM* getPointersMap() const noexcept { return m_pPointersMap; }
 
     /// @brief Set map that holding pointers and their relative offsets in binary data.
     /// @note When we set map to ExtendedPointersProcessing 
@@ -133,8 +133,8 @@ public:
 
     /// @brief Get pointer to added free pointers container
     /// @return Pointer to added free pointers container
-    [[nodiscard]] constexpr VectorT<GenericPointerKeeperT>* getAddedPointers() noexcept { return m_pAddedPointers; }
-    [[nodiscard]] constexpr const VectorT<GenericPointerKeeperT>* getAddedPointers() const noexcept { return m_pAddedPointers; }
+    constexpr [[nodiscard]] VectorT<GenericPointerKeeperT>* getAddedPointers() noexcept { return m_pAddedPointers; }
+    constexpr [[nodiscard]] const VectorT<GenericPointerKeeperT>* getAddedPointers() const noexcept { return m_pAddedPointers; }
 
     /// @brief Set pointer to added pointers container
     /// @note When we set map to DeserializeExtendedPointersProcessing 
@@ -144,8 +144,8 @@ public:
 
     /// @brief Get pointer to holding pointers map
     /// @return Pointer to pointers map
-    [[nodiscard]] constexpr PM* getPointersMap() noexcept { return m_pPointersMap; }
-    [[nodiscard]] constexpr const PM* getPointersMap() const noexcept { return m_pPointersMap; }
+    constexpr [[nodiscard]] PM* getPointersMap() noexcept { return m_pPointersMap; }
+    constexpr [[nodiscard]] const PM* getPointersMap() const noexcept { return m_pPointersMap; }
 
     /// @brief Set map that holding pointers and their relative offsets in binary data.
     /// @note When we set map to DeserializeExtendedPointersProcessing 
@@ -286,7 +286,7 @@ public:
 
     /// @brief Get data processing flags
     /// @return Data processing flags
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr DataFlags getDataFlags() noexcept
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] DataFlags getDataFlags() noexcept
     {
         return m_dataFlags;
     }
@@ -309,20 +309,20 @@ public:
         return setDataFlags(static_cast<DataFlags>(dataFlags));
     }
 
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool sizeOfIntegersMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept { return m_simplyAssignableTagsOptimizationsAreTurnedOff; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool sizeOfIntegersMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept { return m_simplyAssignableTagsOptimizationsAreTurnedOff; }
 
     /// @brief Get target interface version
     /// @return Target interface version
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr interface_version_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] interface_version_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
     CS_ALWAYS_INLINE constexpr Data& setInterfaceVersion(interface_version_t interfaceVersion) { m_interfaceVersion = interfaceVersion; return *this; }
 
     /// @brief Is target interface version differs of latest version of top struct that is processed
     /// @return Flag indicating that interface versions are not match
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
 
     /// @brief If target interface version is differs from top struct interface version, true must be set.
     /// @note Should be used before start of data processing.
@@ -331,7 +331,7 @@ public:
 
     /// @brief Test if allocation of temp data would be used on heap instead of stack
     /// @return Is allocation of temp data would be used on heap instead of stack
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr bool isHeapUsedForTemp() const noexcept { return m_forTempUseHeap; }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool isHeapUsedForTemp() const noexcept { return m_forTempUseHeap; }
     
     /// @brief Set that allocation of temp data should use heap or stack
     /// @param forTempUseHeap Flag indicating type of temp allocation
@@ -339,8 +339,8 @@ public:
 
     /// @brief Get pointer to holding pointers map
     /// @return Pointer to pointers map
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr PM* getPointersMap() noexcept { return m_epp.getPointersMap(); }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr const PM* getPointersMap() const noexcept { return m_epp.getPointersMap(); }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] PM* getPointersMap() noexcept { return m_epp.getPointersMap(); }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] const PM* getPointersMap() const noexcept { return m_epp.getPointersMap(); }
 
     /// @brief Set holding pointers map.
     ///     You should notice that when we set map to Data 
@@ -351,8 +351,8 @@ public:
     /// @brief Get pointer to added free pointers container.
     /// @remark availible only on deserialization mode
     /// @return Pointer to added free pointers container
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr VectorT<GenericPointerKeeperT>* getAddedPointers() noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr const VectorT<GenericPointerKeeperT>* getAddedPointers() const noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] VectorT<GenericPointerKeeperT>* getAddedPointers() noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] const VectorT<GenericPointerKeeperT>* getAddedPointers() const noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
 
     /// @brief Set holding pointer to added pointers container
     /// @note When we set map to Data it will not owns it
@@ -367,7 +367,7 @@ public:
     /// @tparam _T Type of object to allocate and construct
     /// @return Pointer of costructed object
     template<typename _T>
-    [[nodiscard]] CS_ALWAYS_INLINE _T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<_T>(); }
+    CS_ALWAYS_INLINE [[nodiscard]] _T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<_T>(); }
 
     /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
     /// @note Flag of using heap allocation also not resets to false,

@@ -60,6 +60,12 @@ template<typename _T>
 concept NotPointer = !(std::is_pointer_v<_T> || std::is_member_pointer_v<_T> || std::is_function_v<_T> || std::is_member_function_pointer_v<_T>);
 
 template<typename _T>
+concept HasLessOperator = requires (_T t1, _T t2) { { t1 < t2 } -> std::same_as<bool>; };
+
+template<typename _T>
+concept HasEqualityOperator = requires (_T t1, _T t2) { { t1 == t2 } -> std::same_as<bool>; };
+
+template<typename _T>
 concept EndiannessReversable = (std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && sizeof(_T) > 1  && sizeof(_T) <= 8;
 
 template<typename _T>

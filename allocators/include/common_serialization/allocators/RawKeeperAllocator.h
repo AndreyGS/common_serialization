@@ -120,7 +120,7 @@ protected:
     /// @brief Get pointer on storage if n*value_type <= sizeof(storage)
     /// @param n Number of elements of type _T that storage must be capable to hold
     /// @return Pointer to storage, nullptr if current storage is not large enough
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateImpl(size_type n) const noexcept
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
     {
         return n <= m_memorySize && n != 0 ? m_p : nullptr;
     }

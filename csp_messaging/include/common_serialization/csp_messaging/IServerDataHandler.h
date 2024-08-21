@@ -97,7 +97,7 @@ CS_ALWAYS_INLINE void IServerDataHandler<_T>::unregisterHandler(IServerDataHandl
 }
 
 template<IServerDataHandlerTraitsImpl _T>
-[[nodiscard]] interface_version_t IServerDataHandler<_T>::getMinimumInterfaceVersion()
+interface_version_t IServerDataHandler<_T>::getMinimumInterfaceVersion()
 {
     return kMinimumInterfaceVersion;
 }

@@ -98,7 +98,17 @@ public:
     InterfaceVersion(const Id& id, interface_version_t version) noexcept : m_id(id), m_version(version) { }
     explicit InterfaceVersion(const Interface& interface_) noexcept : m_id(interface_.m_id), m_version(interface_.m_version) { }
 
-    [[nodiscard]] constexpr auto operator<=>(const InterfaceVersion&) const = default;
+    template<typename _T>
+    constexpr [[nodiscard]] bool operator<(const InterfaceVersion<_T>& rhs) const noexcept
+    {
+        return m_id < rhs.m_id || m_version < rhs.m_version;
+    }
+
+    template<typename _T>
+    constexpr [[nodiscard]] bool operator==(const InterfaceVersion<_T>& rhs) const noexcept
+    {
+        return m_id == rhs.m_id && m_version == rhs.m_version;;
+    }
 
     Id m_id{ kNullUuid };
     interface_version_t m_version{ traits::kInterfaceVersionUndefined };
@@ -120,7 +130,7 @@ public:
 
     CspPartySettings() = default;
 
-    CspPartySettings(const CspPartySettings& rhs)
+    CS_ALWAYS_INLINE CspPartySettings(const CspPartySettings& rhs)
     {
         init(rhs);
     }
@@ -191,7 +201,14 @@ public:
         return Status::NoError;
     }
 
-    [[nodiscard]] constexpr auto operator<=>(const CspPartySettings&) const = default;
+    template<typename _T>
+    constexpr [[nodiscard]] bool operator==(const CspPartySettings<_T>& rhs) const noexcept
+    {
+        return m_protocolVersions == rhs.m_protocolVersions
+            && m_mandatoryCommonFlags == rhs.m_mandatoryCommonFlags
+            && m_forbiddenCommonFlags == rhs.m_forbiddenCommonFlags
+            && m_interfaces == rhs.m_interfaces;
+    }
 
     constexpr bool isValid() const noexcept
     {
@@ -242,7 +259,7 @@ public:
         m_interfaces.clear();
     }
 
-    constexpr const RawVectorT<protocol_version_t>& getProtocolVersions() const
+    CS_ALWAYS_INLINE constexpr const RawVectorT<protocol_version_t>& getProtocolVersions() const
     {
         return m_protocolVersions;
     }
@@ -257,17 +274,17 @@ public:
         return m_protocolVersions.size() ? m_protocolVersions[m_protocolVersions.size() - 1] : traits::kProtocolVersionUndefined;
     }
 
-    constexpr context::CommonFlags getMandatoryCommonFlags() const
+    CS_ALWAYS_INLINE constexpr context::CommonFlags getMandatoryCommonFlags() const
     {
         return m_mandatoryCommonFlags;
     }
 
-    constexpr context::CommonFlags getForbiddenCommonFlags() const
+    CS_ALWAYS_INLINE context::CommonFlags getForbiddenCommonFlags() const
     {
         return m_forbiddenCommonFlags;
     }
 
-    constexpr const RawVectorT<InterfaceVersion<>>& getInterfaces() const
+    CS_ALWAYS_INLINE constexpr const RawVectorT<InterfaceVersion<>>& getInterfaces() const
     {
         return m_interfaces;
     }

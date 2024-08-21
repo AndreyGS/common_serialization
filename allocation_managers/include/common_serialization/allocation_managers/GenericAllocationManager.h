@@ -55,7 +55,7 @@ protected:
     friend allocator_helper_interface_type;
 
     template<typename... Args>
-    [[nodiscard]] constexpr pointer allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
+    constexpr [[nodiscard]] pointer allocateAndConstructImpl(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
     {
         size_type allocatedN = 0;
 
@@ -78,7 +78,7 @@ protected:
         return p;
     }
 
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
     {
         pointer p = this->getAllocator().allocate(requestedN);
 
@@ -88,7 +88,7 @@ protected:
         return p;
     }
 
-    [[nodiscard]] CS_ALWAYS_INLINE constexpr pointer allocateStrictImpl(size_type n) const
+    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateStrictImpl(size_type n) const
     {
         return this->getAllocator().allocate(n);
     }

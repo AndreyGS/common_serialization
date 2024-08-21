@@ -308,7 +308,7 @@ protected:
 };
 
 template<typename _T>
-[[nodiscard]] constexpr interface_version_t VersionConverter::getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept
+constexpr interface_version_t VersionConverter::getBestCompatInterfaceVersion(interface_version_t compatInterfaceVersion) noexcept
 {
     const interface_version_t* pPrivateVersions = _T::getPrivateVersions();
 
