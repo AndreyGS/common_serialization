@@ -29,7 +29,7 @@
 #include <common_serialization/tests_csp_descendant_interface/tests_csp_descendant_interface.h>
 #include <common_serialization/tests_csp_interface/tests_csp_interface.h>
 #include <common_serialization/tests_restricted_structs/tests_restricted_structs.h>
-#include "Helpers.h"
+#include "helpers.h"
 
 using ::testing::_;
 using ::testing::SetArgReferee;

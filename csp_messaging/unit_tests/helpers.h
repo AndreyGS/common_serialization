@@ -1,5 +1,5 @@
 /**
- * @file common_serializaiton/csp_messaging/Helpers.h
+ * @file common_serializaiton/csp_messaging/helpers.h
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
