@@ -25,30 +25,30 @@
 
 #ifdef CS_OPERATOR_DELETE_REPLACEMENT
 
-#include <common_serialization/memory_management/platform_dependent/switch.h>
+#include <common_serialization/memory_management/typedefs.h>
 
 // delete
 constexpr void operator delete(void* p) noexcept
 {
-    common_serialization::memory_management::deallocate(p);
+    HeapAllocatorT().deallocate(p);
 }
 
 // delete[]
 constexpr void operator delete[](void* p) noexcept
 {
-    common_serialization::memory_management::deallocate(p);
+    HeapAllocatorT().deallocate(p);
 }
 
 // delete nothrow
 constexpr void operator delete(void* p, const std::nothrow_t&) noexcept
 {
-    common_serialization::memory_management::deallocate(p);
+    HeapAllocatorT().deallocate(p);
 }
 
 // delete[] nothrow
 constexpr void operator delete[](void* p, const std::nothrow_t&) noexcept
 {
-    common_serialization::memory_management::deallocate(p);
+    HeapAllocatorT().deallocate(p);
 }
 
 // placement delete

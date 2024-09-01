@@ -334,6 +334,11 @@ function(ags_cs_add_static_lib UNQUALIFIED_LIB_NAME LIB_VERSION LIB_HEADERS LIB_
         )
     endif()
 
+    set_target_properties(${LIB_NAME} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+    )
+
     if (EXPORT_AND_INSTALL_LIB)
         ags_cs_export_and_install_lib(${LIB_NAME} ${LIB_VERSION})
     endif()

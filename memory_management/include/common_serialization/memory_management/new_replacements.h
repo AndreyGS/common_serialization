@@ -25,30 +25,30 @@
 
 #ifdef CS_OPERATOR_NEW_REPLACEMENT
 
-#include <common_serialization/memory_management/platform_dependent/switch.h>
+#include <common_serialization/memory_management/typedefs.h>
 
 // new
 constexpr [[nodiscard]] void* operator new(size_t dataSizeInBytes) noexcept
 {
-    return common_serialization::memory_management::allocate(dataSizeInBytes);
+    return HeapAllocatorT().allocate(dataSizeInBytes);
 }
 
 // new[]
 constexpr [[nodiscard]] void* operator new[](size_t dataSizeInBytes) noexcept
 {
-    return common_serialization::memory_management::allocate(dataSizeInBytes);
+    return HeapAllocatorT().allocate(dataSizeInBytes);
 }
 
 // new nothrow
 constexpr [[nodiscard]] void* operator new(size_t dataSizeInBytes, const std::nothrow_t&) noexcept
 {
-    return common_serialization::memory_management::allocate(dataSizeInBytes);
+    return HeapAllocatorT().allocate(dataSizeInBytes);
 }
 
 // new[] nothrow
 constexpr [[nodiscard]] void* operator new[](size_t dataSizeInBytes, const std::nothrow_t&) noexcept
 {
-    return common_serialization::memory_management::allocate(dataSizeInBytes);
+    return HeapAllocatorT().allocate(dataSizeInBytes);
 }
 
 // placement new
