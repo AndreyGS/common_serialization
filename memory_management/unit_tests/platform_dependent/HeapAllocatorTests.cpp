@@ -1,5 +1,5 @@
 /**
- * @file common_serialization/memory_management/new_replacements.h
+ * @file common_serializaiton/memory_management/unit_tests/platform_dependent/HeapAllocatorTests.cpp
  * @author Andrey Grabov-Smetankin <ukbpyh@gmail.com>
  *
  * @section LICENSE
@@ -21,34 +21,19 @@
  *
  */
 
-#pragma once
+#include <gtest/gtest.h>
 
-#ifdef AGS_CS_OPERATOR_NEW_REPLACEMENT
+#include <common_serialization/memory_management/platform_dependent/user_mode.h>
 
-#include <common_serialization/memory_management/typedefs.h>
-
-// new
-inline [[nodiscard]] void* operator new(size_t dataSizeInBytes) noexcept
+namespace
 {
-    return common_serialization::HeapAllocatorT().allocate(dataSizeInBytes);
+
+TEST(HeapAllocatorTests, NewSizeT)
+{
+    common_serialization::HeapAllocator heapAllocator;
+    
+    int* pI = reinterpret_cast<int*>(heapAllocator.allocate(sizeof(int)));
+    EXPECT_TRUE(pI != nullptr);
 }
 
-// new[]
-inline [[nodiscard]] void* operator new[](size_t dataSizeInBytes) noexcept
-{
-    return common_serialization::HeapAllocatorT().allocate(dataSizeInBytes);
-}
-
-// new nothrow
-inline [[nodiscard]] void* operator new(size_t dataSizeInBytes, const std::nothrow_t&) noexcept
-{
-    return common_serialization::HeapAllocatorT().allocate(dataSizeInBytes);
-}
-
-// new[] nothrow
-inline [[nodiscard]] void* operator new[](size_t dataSizeInBytes, const std::nothrow_t&) noexcept
-{
-    return common_serialization::HeapAllocatorT().allocate(dataSizeInBytes);
-}
-
-#endif // #ifdef AGS_CS_OPERATOR_NEW_REPLACEMENT
+} // namespace

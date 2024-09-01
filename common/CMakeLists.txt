@@ -17,3 +17,14 @@ set(LIB_HEADERS
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/helper_functions.cmake")
 
 ags_cs_add_interface_lib(common_lib ${PROJECT_VERSION} "${LIB_HEADERS}" "" "" "${CMAKE_CURRENT_SOURCE_DIR}" ON)
+
+if (AGS_CS_BUILD_UNIT_TESTS)
+    set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/unit_tests")
+    set(TESTS_SOURCES
+        "${TESTS_SOURCES_DIR}/HelpersTests.cpp"
+    )
+
+    set(TESTS_LIBS_TO_LINK "gtest_main;${LIB_NAME}")
+
+    ags_cs_add_unit_tests_to_lib(${LIB_NAME} "${TESTS_SOURCES}" "${TESTS_LIBS_TO_LINK}" "${CMAKE_CURRENT_SOURCE_DIR}")
+endif()

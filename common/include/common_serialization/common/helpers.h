@@ -143,8 +143,10 @@ AGS_CS_ALWAYS_INLINE constexpr _T reverseEndianess(_T input)
             return *static_cast<_T*>(static_cast<void*>(&temp));
         }
     }
-    else if constexpr (sizeof(_T) == 8)
+    else
     {
+        static_assert(sizeof(_T) == 8);
+
         if constexpr (std::is_integral_v<_T>)
             return reverseEndianessUInt64(input);
         else
@@ -152,23 +154,6 @@ AGS_CS_ALWAYS_INLINE constexpr _T reverseEndianess(_T input)
             uint64_t temp = reverseEndianessUInt64(*static_cast<uint64_t*>(static_cast<void*>(&input)));
             return *static_cast<_T*>(static_cast<void*>(&temp));
         }
-    }
-    else if constexpr (sizeof(_T) == 10)
-    {
-        uint16_t temp[5] = { 0 };
-        temp[0] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 4));
-        temp[1] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 3));
-        temp[2] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 2));
-        temp[3] = reverseEndianessUInt16(*(static_cast<uint16_t*>(static_cast<void*>(&input)) + 1));
-        temp[4] = reverseEndianessUInt16(*static_cast<uint16_t*>(static_cast<void*>(&input)));
-        return *static_cast<_T*>(static_cast<void*>(temp));
-    }
-    else
-    {
-        uint64_t temp[2] = { 0 };
-        temp[0] = reverseEndianessUInt64(*(static_cast<uint64_t*>(static_cast<void*>(&input)) + 1));
-        temp[1] = reverseEndianessUInt64(*static_cast<uint64_t*>(static_cast<void*>(&input)));
-        return *static_cast<_T*>(static_cast<void*>(temp));
     }
 }
 
@@ -242,11 +227,11 @@ struct fixed_width_integer<1, false>
 template<size_t targetSize, bool isSigned>
 using fixed_width_integer_t = typename fixed_width_integer<targetSize, isSigned>::type;
 
-template<size_t targetSize, typename _T>
-    requires (std::is_integral_v<_T> && targetSize <= sizeof(_T))
-constexpr Status castToSmallerType(_T input, fixed_width_integer_t<targetSize, Signed<_T>>& output)
+template<typename _T1, typename _T2>
+    requires (std::is_integral_v<_T1> && sizeof(_T2) <= sizeof(_T1) && std::is_same_v<_T2, fixed_width_integer_t<sizeof(_T2), Signed<_T2>>>)
+constexpr Status castToSmallerType(_T1 input, _T2& output)
 {
-    using output_type = fixed_width_integer<targetSize, Signed<_T>>;
+    using output_type = fixed_width_integer<sizeof(_T2), Signed<_T2>>;
 
     if (input > output_type::max || input < output_type::min)
         return Status::ErrorValueOverflow;
@@ -256,11 +241,11 @@ constexpr Status castToSmallerType(_T input, fixed_width_integer_t<targetSize, S
     return Status::NoError;
 }
 
-template<size_t targetSize, typename _T>
-    requires (std::is_integral_v<_T> && targetSize >= sizeof(_T))
-AGS_CS_ALWAYS_INLINE constexpr void castToBiggerType(_T input, fixed_width_integer_t<targetSize, Signed<_T>>& output)
+template<typename _T1, typename _T2>
+    requires (std::is_integral_v<_T1> && sizeof(_T2) >= sizeof(_T1) && std::is_same_v<_T2, fixed_width_integer_t<sizeof(_T2), Signed<_T2>>>)
+AGS_CS_ALWAYS_INLINE constexpr void castToBiggerType(_T1 input, _T2& output)
 {
-    output = static_cast<fixed_width_integer_t<targetSize, Signed<_T>>>(input);
+    output = static_cast<fixed_width_integer_t<sizeof(_T2), Signed<_T2>>>(input);
 }
 
 } // namespace common_serialization::helpers

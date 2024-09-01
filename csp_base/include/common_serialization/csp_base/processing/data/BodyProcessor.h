@@ -293,7 +293,7 @@ constexpr Status BodyProcessor::serializeToAnotherSizeInternal(_T value, context
     if constexpr (sizeof(_T) < _targetTypeSize)
         helpers::castToBiggerType(value, targetValue);
     else
-        AGS_CS_RUN(helpers::castToSmallerType<_targetTypeSize>(value, targetValue));
+        AGS_CS_RUN(helpers::castToSmallerType(value, targetValue));
 
     return writePrimitive(targetValue, ctx);
 }
@@ -482,9 +482,9 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
     using sameSizedInteger = helpers::fixed_width_integer_t<sizeof(_T), Signed<_T>>;
 
     if constexpr (sizeof(_T) < _originalTypeSize)
-        AGS_CS_RUN(helpers::castToSmallerType<sizeof(_T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value)))))
+        AGS_CS_RUN(helpers::castToSmallerType(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value)))))
     else
-        helpers::castToBiggerType<sizeof(_T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value))));
+        helpers::castToBiggerType(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value))));
 
     return Status::NoError;
 }

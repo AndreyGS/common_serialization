@@ -28,37 +28,27 @@
 #include <common_serialization/memory_management/typedefs.h>
 
 // delete
-constexpr void operator delete(void* p) noexcept
+inline void operator delete(void* p) noexcept
 {
-    HeapAllocatorT().deallocate(p);
+    common_serialization::HeapAllocatorT().deallocate(p);
 }
 
 // delete[]
-constexpr void operator delete[](void* p) noexcept
+inline void operator delete[](void* p) noexcept
 {
-    HeapAllocatorT().deallocate(p);
+    common_serialization::HeapAllocatorT().deallocate(p);
 }
 
 // delete nothrow
-constexpr void operator delete(void* p, const std::nothrow_t&) noexcept
+inline void operator delete(void* p, const std::nothrow_t&) noexcept
 {
-    HeapAllocatorT().deallocate(p);
+    common_serialization::HeapAllocatorT().deallocate(p);
 }
 
 // delete[] nothrow
-constexpr void operator delete[](void* p, const std::nothrow_t&) noexcept
+inline void operator delete[](void* p, const std::nothrow_t&) noexcept
 {
-    HeapAllocatorT().deallocate(p);
-}
-
-// placement delete
-constexpr void operator delete(void*, void* ) noexcept
-{
-}
-
-// placement delete[]
-constexpr void operator delete[](void*, void* ) noexcept
-{
+    common_serialization::HeapAllocatorT().deallocate(p);
 }
 
 #endif // #ifdef AGS_CS_OPERATOR_DELETE_REPLACEMENT

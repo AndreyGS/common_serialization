@@ -10,6 +10,8 @@ if (NOT DEFINED FORCE_INSTALL_GTESTS)
     set(INSTALL_GTEST OFF)
 endif()
 
+option(AGS_CS_BUILD_UNIT_TESTS "Build unit-tests for common serialization projects" ON)
+
 # Common
 
 option(AGS_CS_BUILD_COMMON "Build ags common serialization common project" ON)
@@ -51,7 +53,7 @@ if (AGS_CS_BUILD_ALLOCATORS)
         add_subdirectory(allocators)
     endif()
 
-    ags_cs_create_allocators_lib(ON ON "" "" "" "")
+    ags_cs_create_allocators_lib(ON ${AGS_CS_BUILD_UNIT_TESTS} "" "" "" "")
 endif()
 
 # Allocation Manager Interfaces
@@ -71,7 +73,7 @@ if (AGS_CS_BUILD_ALLOCATION_MANAGERS)
         add_subdirectory(allocation_managers)
     endif()
 
-    ags_cs_create_allocation_managers_lib(ON ON "" "" "" "")
+    ags_cs_create_allocation_managers_lib(ON ${AGS_CS_BUILD_UNIT_TESTS} "" "" "" "")
 endif()
 
 # Containers
@@ -83,7 +85,7 @@ if (AGS_CS_BUILD_CONTAINERS)
         add_subdirectory(containers)
     endif()
 
-    ags_cs_create_containers_lib(ON ON "" "" "" "")
+    ags_cs_create_containers_lib(ON ${AGS_CS_BUILD_UNIT_TESTS} "" "" "" "")
 endif()
 
 # CSP base
@@ -95,7 +97,7 @@ if (AGS_CS_BUILD_CSP_BASE)
         add_subdirectory(csp_base)
     endif()
 
-    ags_cs_create_csp_base_lib(ON ON "" "" "" "")
+    ags_cs_create_csp_base_lib(ON ${AGS_CS_BUILD_UNIT_TESTS} "" "" "" "")
 endif()
 
 
@@ -108,7 +110,7 @@ if (AGS_CS_BUILD_CSP_RESTRICTED_STRUCTS_PROCESSING)
         add_subdirectory(csp_std_structs_processing)
     endif()
 
-    ags_cs_create_csp_std_structs_processing_lib(ON ON "" "" "" "")
+    ags_cs_create_csp_std_structs_processing_lib(ON ${AGS_CS_BUILD_UNIT_TESTS} "" "" "" "")
 endif()
 
 # Concurrency
@@ -136,5 +138,5 @@ if (AGS_CS_BUILD_CSP_MESSAGING)
         add_subdirectory(csp_messaging)
     endif()
 
-    ags_cs_create_csp_messaging_lib(ON ON "" "" "" "" "" "" "")
+    ags_cs_create_csp_messaging_lib(ON ${AGS_CS_BUILD_UNIT_TESTS} "" "" "" "" "" "" "")
 endif()
