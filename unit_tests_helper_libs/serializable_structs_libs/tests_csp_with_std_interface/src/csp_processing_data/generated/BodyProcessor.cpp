@@ -32,14 +32,14 @@ Status BodyProcessor::serialize(const tests_csp_with_std_interface::OneBigType<>
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_string1, ctx));
-    CS_RUN(serialize(value.m_string2, ctx));
-    CS_RUN(serialize(value.m_vector1, ctx));
-    CS_RUN(serialize(value.m_vector2, ctx));
-    CS_RUN(serialize(value.m_map1, ctx));
-    CS_RUN(serialize(value.m_map2, ctx));
-    CS_RUN(serialize(value.m_tuple1, ctx));
-    CS_RUN(serialize(value.m_tuple2, ctx));
+    AGS_CS_RUN(serialize(value.m_string1, ctx));
+    AGS_CS_RUN(serialize(value.m_string2, ctx));
+    AGS_CS_RUN(serialize(value.m_vector1, ctx));
+    AGS_CS_RUN(serialize(value.m_vector2, ctx));
+    AGS_CS_RUN(serialize(value.m_map1, ctx));
+    AGS_CS_RUN(serialize(value.m_map2, ctx));
+    AGS_CS_RUN(serialize(value.m_tuple1, ctx));
+    AGS_CS_RUN(serialize(value.m_tuple2, ctx));
 
     return Status::NoError;
 }
@@ -49,14 +49,14 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_with_std_interf
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_string1));
-    CS_RUN(deserialize(ctx, value.m_string2));
-    CS_RUN(deserialize(ctx, value.m_vector1));
-    CS_RUN(deserialize(ctx, value.m_vector2));
-    CS_RUN(deserialize(ctx, value.m_map1));
-    CS_RUN(deserialize(ctx, value.m_map2));
-    CS_RUN(deserialize(ctx, value.m_tuple1));
-    CS_RUN(deserialize(ctx, value.m_tuple2));
+    AGS_CS_RUN(deserialize(ctx, value.m_string1));
+    AGS_CS_RUN(deserialize(ctx, value.m_string2));
+    AGS_CS_RUN(deserialize(ctx, value.m_vector1));
+    AGS_CS_RUN(deserialize(ctx, value.m_vector2));
+    AGS_CS_RUN(deserialize(ctx, value.m_map1));
+    AGS_CS_RUN(deserialize(ctx, value.m_map2));
+    AGS_CS_RUN(deserialize(ctx, value.m_tuple1));
+    AGS_CS_RUN(deserialize(ctx, value.m_tuple2));
 
     return Status::NoError;
 }

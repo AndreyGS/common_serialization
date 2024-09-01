@@ -36,14 +36,14 @@ public:
     /// @brief Allocate memory
     /// @param dataSizeInBytes Requested size
     /// @return Pointer to allocated storage
-    CS_ALWAYS_INLINE [[nodiscard]] void* allocate(size_t dataSizeInBytes) noexcept
+    AGS_CS_ALWAYS_INLINE [[nodiscard]] void* allocate(size_t dataSizeInBytes) noexcept
     {
         return static_cast<_StorageAllocator*>(this)->allocateImpl(dataSizeInBytes);
     }
 
     /// @brief Deallocate memory
     /// @param p Pointer to previously allocated storage
-    CS_ALWAYS_INLINE void deallocate(void* p) noexcept
+    AGS_CS_ALWAYS_INLINE void deallocate(void* p) noexcept
     {
         static_cast<_StorageAllocator*>(this)->deallocateImpl(p);
     }

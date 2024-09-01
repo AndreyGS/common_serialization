@@ -42,14 +42,14 @@ class IAllocationStrategyUser
 public:
     /// @brief Get current allocation strategy
     /// @return Current allocation strategy
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] AllocationStrategy getAllocationStrategy() const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] AllocationStrategy getAllocationStrategy() const noexcept
     {
         return static_cast<const _User*>(this)->getAllocationStrategyImpl();
     }
 
     /// @brief Set allocation strategy
     /// @param allocationStrategy Allocation strategy
-    CS_ALWAYS_INLINE constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
     {
         static_cast<_User*>(this)->setAllocationStrategyImpl(allocationStrategy);
     }

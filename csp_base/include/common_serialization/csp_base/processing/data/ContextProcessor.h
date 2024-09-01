@@ -40,7 +40,7 @@ class ContextProcessor
 {
 public:
     template<typename _T>
-    static CS_ALWAYS_INLINE constexpr [[nodiscard]] Status testDataFlagsCompatibility(context::DataFlags dataFlags);
+    static AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] Status testDataFlagsCompatibility(context::DataFlags dataFlags);
 
     // This function does not check presence of pointer map.
     // It is library code responsibility to provide it if it is absent.
@@ -51,7 +51,7 @@ public:
 
     static constexpr Status deserializeNoChecks(context::DData& ctx, Id& id) noexcept;
     template<ISerializableImpl _T>
-    static CS_ALWAYS_INLINE constexpr Status deserializePostprocessId(const Id& id) noexcept;
+    static AGS_CS_ALWAYS_INLINE constexpr Status deserializePostprocessId(const Id& id) noexcept;
     template<ISerializableImpl _T>
     static constexpr Status deserializePostprocessRest(context::DData& ctx, interface_version_t minimumSupportedInterfaceVersion) noexcept;
 };
@@ -79,14 +79,14 @@ constexpr Status ContextProcessor::serialize(context::SData& ctx)
 {
     Id id = _T::getId();
 
-    CS_RUN(writeRawData(&id, 1, ctx));
+    AGS_CS_RUN(writeRawData(&id, 1, ctx));
 
     constexpr interface_version_t interfaceVersion = _T::getInterface().m_version;
 
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), _T::getOriginPrivateVersion(), interfaceVersion))
         return Status::ErrorNotSupportedInterfaceVersion;
 
-    CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx));
+    AGS_CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx));
 
     // Only set interface versions not match when some conversion will be need
     if (ctx.getInterfaceVersion() < _T::getLatestInterfaceVersion())
@@ -97,9 +97,9 @@ constexpr Status ContextProcessor::serialize(context::SData& ctx)
 
     context::DataFlags dataFlags = ctx.getDataFlags();
 
-    CS_RUN(testDataFlagsCompatibility<_T>(dataFlags));
+    AGS_CS_RUN(testDataFlagsCompatibility<_T>(dataFlags));
 
-    CS_RUN(writePrimitive(static_cast<uint32_t>(dataFlags), ctx));
+    AGS_CS_RUN(writePrimitive(static_cast<uint32_t>(dataFlags), ctx));
 
     return Status::NoError;
 }
@@ -109,28 +109,28 @@ constexpr Status ContextProcessor::serializeNoChecks(context::SData& ctx)
 {
     Id id = _T::getId();
 
-    CS_RUN(writeRawData(&id, 1, ctx));
-    CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx));
+    AGS_CS_RUN(writeRawData(&id, 1, ctx));
+    AGS_CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx));
 
     // Only set interface versions not match when some conversion will be need
     if (ctx.getInterfaceVersion() < _T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
-    CS_RUN(writePrimitive(static_cast<uint32_t>(ctx.getDataFlags()), ctx));
+    AGS_CS_RUN(writePrimitive(static_cast<uint32_t>(ctx.getDataFlags()), ctx));
     
     return Status::NoError;
 }
 
 constexpr Status ContextProcessor::deserializeNoChecks(context::DData& ctx, Id& id) noexcept
 {
-    CS_RUN(readRawData(ctx, 1, &id));
+    AGS_CS_RUN(readRawData(ctx, 1, &id));
 
     interface_version_t inputInterfaceVersion = 0;
-    CS_RUN(readPrimitive(ctx, inputInterfaceVersion));
+    AGS_CS_RUN(readPrimitive(ctx, inputInterfaceVersion));
     ctx.setInterfaceVersion(inputInterfaceVersion);
 
     uint32_t intFlags = 0;
-    CS_RUN(readPrimitive(ctx, intFlags));
+    AGS_CS_RUN(readPrimitive(ctx, intFlags));
     context::DataFlags dataFlags(intFlags);
     ctx.setDataFlags(dataFlags);
 
@@ -159,7 +159,7 @@ constexpr Status ContextProcessor::deserializePostprocessRest(context::DData& ct
     else if (ctx.getInterfaceVersion() < _T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
-    CS_RUN(testDataFlagsCompatibility<_T>(ctx.getDataFlags()));
+    AGS_CS_RUN(testDataFlagsCompatibility<_T>(ctx.getDataFlags()));
 
     if (ctx.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)
         return Status::ErrorInvalidArgument;

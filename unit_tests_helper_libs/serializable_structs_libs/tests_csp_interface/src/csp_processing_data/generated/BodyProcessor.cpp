@@ -33,8 +33,8 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimplyAssignableAlign
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_x, ctx));
-    CS_RUN(serialize(value.m_y, ctx));
+    AGS_CS_RUN(serialize(value.m_x, ctx));
+    AGS_CS_RUN(serialize(value.m_y, ctx));
 
     return Status::NoError;
 }
@@ -44,8 +44,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simp
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_x));
-    CS_RUN(deserialize(ctx, value.m_y));
+    AGS_CS_RUN(deserialize(ctx, value.m_x));
+    AGS_CS_RUN(deserialize(ctx, value.m_y));
 
     return Status::NoError;
 }
@@ -55,22 +55,22 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimplyAssignable<>& v
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_i, ctx));
-    CS_RUN(serialize(value.m_j, ctx));
-    CS_RUN(serialize(value.m_et, ctx));
-    CS_RUN(serialize(value.m_et2, ctx));
-    CS_RUN(serialize(value.m_saaToS, ctx));
-    CS_RUN(serialize(value.m_saaToNS, ctx));
-    CS_RUN(serialize(value.m_saNS, ctx));
+    AGS_CS_RUN(serialize(value.m_i, ctx));
+    AGS_CS_RUN(serialize(value.m_j, ctx));
+    AGS_CS_RUN(serialize(value.m_et, ctx));
+    AGS_CS_RUN(serialize(value.m_et2, ctx));
+    AGS_CS_RUN(serialize(value.m_saaToS, ctx));
+    AGS_CS_RUN(serialize(value.m_saaToNS, ctx));
+    AGS_CS_RUN(serialize(value.m_saNS, ctx));
     
-    CS_RUN(serialize(value.m_arrI32, ctx));
-    CS_RUN(serialize(value.m_arrEtS, ctx));
-    CS_RUN(serialize(value.m_arrEtNS, ctx));
-    CS_RUN(serialize(value.m_arrSaaTos, ctx));
-    CS_RUN(serialize(value.m_arrSaaToNS, ctx));
-    CS_RUN(serialize(value.m_arrSaNS, ctx));
+    AGS_CS_RUN(serialize(value.m_arrI32, ctx));
+    AGS_CS_RUN(serialize(value.m_arrEtS, ctx));
+    AGS_CS_RUN(serialize(value.m_arrEtNS, ctx));
+    AGS_CS_RUN(serialize(value.m_arrSaaTos, ctx));
+    AGS_CS_RUN(serialize(value.m_arrSaaToNS, ctx));
+    AGS_CS_RUN(serialize(value.m_arrSaNS, ctx));
 
-    CS_RUN(serialize(value.m_vx, ctx));
+    AGS_CS_RUN(serialize(value.m_vx, ctx));
 
     return Status::NoError;
 }
@@ -80,22 +80,22 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simp
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_i));
-    CS_RUN(deserialize(ctx, value.m_j));
-    CS_RUN(deserialize(ctx, value.m_et));
-    CS_RUN(deserialize(ctx, value.m_et2));
-    CS_RUN(deserialize(ctx, value.m_saaToS));
-    CS_RUN(deserialize(ctx, value.m_saaToNS));
-    CS_RUN(deserialize(ctx, value.m_saNS));
+    AGS_CS_RUN(deserialize(ctx, value.m_i));
+    AGS_CS_RUN(deserialize(ctx, value.m_j));
+    AGS_CS_RUN(deserialize(ctx, value.m_et));
+    AGS_CS_RUN(deserialize(ctx, value.m_et2));
+    AGS_CS_RUN(deserialize(ctx, value.m_saaToS));
+    AGS_CS_RUN(deserialize(ctx, value.m_saaToNS));
+    AGS_CS_RUN(deserialize(ctx, value.m_saNS));
 
-    CS_RUN(deserialize(ctx, value.m_arrI32));
-    CS_RUN(deserialize(ctx, value.m_arrEtS));
-    CS_RUN(deserialize(ctx, value.m_arrEtNS));
-    CS_RUN(deserialize(ctx, value.m_arrSaaTos));
-    CS_RUN(deserialize(ctx, value.m_arrSaaToNS));
-    CS_RUN(deserialize(ctx, value.m_arrSaNS));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrI32));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrEtS));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrEtNS));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrSaaTos));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrSaaToNS));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrSaNS));
 
-    CS_RUN(deserialize(ctx, value.m_vx));
+    AGS_CS_RUN(deserialize(ctx, value.m_vx));
 
     return Status::NoError;
 }
@@ -105,9 +105,9 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimplyAssignableDesce
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(static_cast<const tests_csp_interface::SimplyAssignable<>&>(value), ctx));
+    AGS_CS_RUN(serialize(static_cast<const tests_csp_interface::SimplyAssignable<>&>(value), ctx));
 
-    CS_RUN(serialize(value.m_d, ctx));
+    AGS_CS_RUN(serialize(value.m_d, ctx));
 
     return Status::NoError;
 }
@@ -117,9 +117,9 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simp
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, static_cast<tests_csp_interface::SimplyAssignable<>&>(value)));
+    AGS_CS_RUN(deserialize(ctx, static_cast<tests_csp_interface::SimplyAssignable<>&>(value)));
 
-    CS_RUN(deserialize(ctx, value.m_d));
+    AGS_CS_RUN(deserialize(ctx, value.m_d));
 
     return Status::NoError;
 }
@@ -129,8 +129,8 @@ Status BodyProcessor::serialize(const tests_csp_interface::AlwaysSimplyAssignabl
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_x, ctx));
-    CS_RUN(serialize(value.m_y, ctx));
+    AGS_CS_RUN(serialize(value.m_x, ctx));
+    AGS_CS_RUN(serialize(value.m_y, ctx));
 
     return Status::NoError;
 }
@@ -140,8 +140,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Alwa
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_x));
-    CS_RUN(deserialize(ctx, value.m_y));
+    AGS_CS_RUN(deserialize(ctx, value.m_x));
+    AGS_CS_RUN(deserialize(ctx, value.m_y));
 
     return Status::NoError;
 }
@@ -151,9 +151,9 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimplyAssignableFixed
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_x, ctx));
-    CS_RUN(serialize(value.m_asa, ctx));
-    CS_RUN(serialize(value.m_arrAsa, ctx));
+    AGS_CS_RUN(serialize(value.m_x, ctx));
+    AGS_CS_RUN(serialize(value.m_asa, ctx));
+    AGS_CS_RUN(serialize(value.m_arrAsa, ctx));
 
     return Status::NoError;
 }
@@ -163,9 +163,9 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simp
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_x));
-    CS_RUN(deserialize(ctx, value.m_asa));
-    CS_RUN(deserialize(ctx, value.m_arrAsa));
+    AGS_CS_RUN(deserialize(ctx, value.m_x));
+    AGS_CS_RUN(deserialize(ctx, value.m_asa));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrAsa));
 
     return Status::NoError;
 }
@@ -175,11 +175,11 @@ Status BodyProcessor::serialize(const tests_csp_interface::DynamicPolymorphic<>&
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_o, ctx));
-    CS_RUN(serialize(value.m_dpNS, ctx));
+    AGS_CS_RUN(serialize(value.m_o, ctx));
+    AGS_CS_RUN(serialize(value.m_dpNS, ctx));
 
-    CS_RUN(serialize(value.m_arrO, ctx));
-    CS_RUN(serialize(value.m_arrDpNS, ctx));
+    AGS_CS_RUN(serialize(value.m_arrO, ctx));
+    AGS_CS_RUN(serialize(value.m_arrDpNS, ctx));
 
     return Status::NoError;
 }
@@ -189,11 +189,11 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Dyna
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_o));
-    CS_RUN(deserialize(ctx, value.m_dpNS));
+    AGS_CS_RUN(deserialize(ctx, value.m_o));
+    AGS_CS_RUN(deserialize(ctx, value.m_dpNS));
 
-    CS_RUN(deserialize(ctx, value.m_arrO));
-    CS_RUN(deserialize(ctx, value.m_arrDpNS));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrO));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrDpNS));
 
     return Status::NoError;
 }
@@ -203,8 +203,8 @@ Status BodyProcessor::serialize(const tests_csp_interface::Diamond<>& value, con
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(static_cast<const tests_restricted_structs::DiamondEdge1&>(value), ctx));
-    CS_RUN(serialize(static_cast<const tests_restricted_structs::DiamondEdge2&>(value), ctx));
+    AGS_CS_RUN(serialize(static_cast<const tests_restricted_structs::DiamondEdge1&>(value), ctx));
+    AGS_CS_RUN(serialize(static_cast<const tests_restricted_structs::DiamondEdge2&>(value), ctx));
 
     return Status::NoError;
 }
@@ -214,8 +214,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Diam
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, static_cast<tests_restricted_structs::DiamondEdge1&>(value)));
-    CS_RUN(deserialize(ctx, static_cast<tests_restricted_structs::DiamondEdge2&>(value)));
+    AGS_CS_RUN(deserialize(ctx, static_cast<tests_restricted_structs::DiamondEdge1&>(value)));
+    AGS_CS_RUN(deserialize(ctx, static_cast<tests_restricted_structs::DiamondEdge2&>(value)));
 
     return Status::NoError;
 }
@@ -225,21 +225,21 @@ Status BodyProcessor::serialize(const tests_csp_interface::SpecialProcessingType
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_vec, ctx));
-    CS_RUN(serialize(value.m_saaToNS, ctx));
-    CS_RUN(serialize(value.m_saNS, ctx));
-    CS_RUN(serialize(value.m_pVec, ctx));
-    CS_RUN(serialize(value.m_pInt, ctx));
-    CS_RUN(serialize(value.m_ppInt, ctx));
-    CS_RUN(serialize(value.m_nullptrInt, ctx));
+    AGS_CS_RUN(serialize(value.m_vec, ctx));
+    AGS_CS_RUN(serialize(value.m_saaToNS, ctx));
+    AGS_CS_RUN(serialize(value.m_saNS, ctx));
+    AGS_CS_RUN(serialize(value.m_pVec, ctx));
+    AGS_CS_RUN(serialize(value.m_pInt, ctx));
+    AGS_CS_RUN(serialize(value.m_ppInt, ctx));
+    AGS_CS_RUN(serialize(value.m_nullptrInt, ctx));
 
-    CS_RUN(serialize(value.m_c, ctx));
-    CS_RUN(serialize(value.m_sh, ctx));
-    CS_RUN(serialize(value.m_m, ctx));
-    CS_RUN(serialize(value.m_tEnum, ctx));
-    CS_RUN(serialize(value.m_ll, ctx));
-    CS_RUN(serialize(value.m_float, ctx));
-    CS_RUN(serialize(value.m_double, ctx));
+    AGS_CS_RUN(serialize(value.m_c, ctx));
+    AGS_CS_RUN(serialize(value.m_sh, ctx));
+    AGS_CS_RUN(serialize(value.m_m, ctx));
+    AGS_CS_RUN(serialize(value.m_tEnum, ctx));
+    AGS_CS_RUN(serialize(value.m_ll, ctx));
+    AGS_CS_RUN(serialize(value.m_float, ctx));
+    AGS_CS_RUN(serialize(value.m_double, ctx));
 
     return Status::NoError;
 }
@@ -249,21 +249,21 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Spec
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_vec));
-    CS_RUN(deserialize(ctx, value.m_saaToNS));
-    CS_RUN(deserialize(ctx, value.m_saNS));
-    CS_RUN(deserialize(ctx, value.m_pVec));
-    CS_RUN(deserialize(ctx, value.m_pInt));
-    CS_RUN(deserialize(ctx, value.m_ppInt));
-    CS_RUN(deserialize(ctx, value.m_nullptrInt));
+    AGS_CS_RUN(deserialize(ctx, value.m_vec));
+    AGS_CS_RUN(deserialize(ctx, value.m_saaToNS));
+    AGS_CS_RUN(deserialize(ctx, value.m_saNS));
+    AGS_CS_RUN(deserialize(ctx, value.m_pVec));
+    AGS_CS_RUN(deserialize(ctx, value.m_pInt));
+    AGS_CS_RUN(deserialize(ctx, value.m_ppInt));
+    AGS_CS_RUN(deserialize(ctx, value.m_nullptrInt));
 
-    CS_RUN(deserialize(ctx, value.m_c));
-    CS_RUN(deserialize(ctx, value.m_sh));
-    CS_RUN(deserialize(ctx, value.m_m));
-    CS_RUN(deserialize(ctx, value.m_tEnum));
-    CS_RUN(deserialize(ctx, value.m_ll));
-    CS_RUN(deserialize(ctx, value.m_float));
-    CS_RUN(deserialize(ctx, value.m_double));
+    AGS_CS_RUN(deserialize(ctx, value.m_c));
+    AGS_CS_RUN(deserialize(ctx, value.m_sh));
+    AGS_CS_RUN(deserialize(ctx, value.m_m));
+    AGS_CS_RUN(deserialize(ctx, value.m_tEnum));
+    AGS_CS_RUN(deserialize(ctx, value.m_ll));
+    AGS_CS_RUN(deserialize(ctx, value.m_float));
+    AGS_CS_RUN(deserialize(ctx, value.m_double));
 
     return Status::NoError;
 }
@@ -273,8 +273,8 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimplyAssignableAlign
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_j, ctx));
-    CS_RUN(serialize(value.m_k, ctx));
+    AGS_CS_RUN(serialize(value.m_j, ctx));
+    AGS_CS_RUN(serialize(value.m_k, ctx));
 
     return Status::NoError;
 }
@@ -284,8 +284,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simp
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_j));
-    CS_RUN(deserialize(ctx, value.m_k));
+    AGS_CS_RUN(deserialize(ctx, value.m_j));
+    AGS_CS_RUN(deserialize(ctx, value.m_k));
 
     return Status::NoError;
 }
@@ -295,8 +295,8 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimplyAssignableAlign
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_j, ctx));
-    CS_RUN(serialize(value.m_k, ctx));
+    AGS_CS_RUN(serialize(value.m_j, ctx));
+    AGS_CS_RUN(serialize(value.m_k, ctx));
 
     return Status::NoError;
 }
@@ -306,8 +306,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simp
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_j));
-    CS_RUN(deserialize(ctx, value.m_k));
+    AGS_CS_RUN(deserialize(ctx, value.m_j));
+    AGS_CS_RUN(deserialize(ctx, value.m_k));
 
     return Status::NoError;
 }
@@ -317,8 +317,8 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimplyAssignableSimil
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_j, ctx));
-    CS_RUN(serialize(value.m_k, ctx));
+    AGS_CS_RUN(serialize(value.m_j, ctx));
+    AGS_CS_RUN(serialize(value.m_k, ctx));
 
     return Status::NoError;
 }
@@ -328,8 +328,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simp
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_j));
-    CS_RUN(deserialize(ctx, value.m_k));
+    AGS_CS_RUN(deserialize(ctx, value.m_j));
+    AGS_CS_RUN(deserialize(ctx, value.m_k));
 
     return Status::NoError;
 }
@@ -339,8 +339,8 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimplyAssignableSimil
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_j, ctx));
-    CS_RUN(serialize(value.m_k, ctx));
+    AGS_CS_RUN(serialize(value.m_j, ctx));
+    AGS_CS_RUN(serialize(value.m_k, ctx));
 
     return Status::NoError;
 }
@@ -350,8 +350,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simp
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_j));
-    CS_RUN(deserialize(ctx, value.m_k));
+    AGS_CS_RUN(deserialize(ctx, value.m_j));
+    AGS_CS_RUN(deserialize(ctx, value.m_k));
 
     return Status::NoError;
 }
@@ -361,11 +361,11 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimilarType1<>& value
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_j, ctx));
-    CS_RUN(serialize(value.m_k, ctx));
-    CS_RUN(serialize(value.m_arrL, ctx));
-    CS_RUN(serialize(value.m_sasTs, ctx));
-    CS_RUN(serialize(value.m_saaToSts, ctx));
+    AGS_CS_RUN(serialize(value.m_j, ctx));
+    AGS_CS_RUN(serialize(value.m_k, ctx));
+    AGS_CS_RUN(serialize(value.m_arrL, ctx));
+    AGS_CS_RUN(serialize(value.m_sasTs, ctx));
+    AGS_CS_RUN(serialize(value.m_saaToSts, ctx));
 
     return Status::NoError;
 }
@@ -375,11 +375,11 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simi
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_j));
-    CS_RUN(deserialize(ctx, value.m_k));
-    CS_RUN(deserialize(ctx, value.m_arrL));
-    CS_RUN(deserialize(ctx, value.m_sasTs));
-    CS_RUN(deserialize(ctx, value.m_saaToSts));
+    AGS_CS_RUN(deserialize(ctx, value.m_j));
+    AGS_CS_RUN(deserialize(ctx, value.m_k));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrL));
+    AGS_CS_RUN(deserialize(ctx, value.m_sasTs));
+    AGS_CS_RUN(deserialize(ctx, value.m_saaToSts));
 
     return Status::NoError;
 }
@@ -389,11 +389,11 @@ Status BodyProcessor::serialize(const tests_csp_interface::SimilarType2<>& value
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_j, ctx));
-    CS_RUN(serialize(value.m_k, ctx));
-    CS_RUN(serialize(value.m_arrL, ctx));
-    CS_RUN(serialize(value.m_sasTs, ctx));
-    CS_RUN(serialize(value.m_saaToSts, ctx));
+    AGS_CS_RUN(serialize(value.m_j, ctx));
+    AGS_CS_RUN(serialize(value.m_k, ctx));
+    AGS_CS_RUN(serialize(value.m_arrL, ctx));
+    AGS_CS_RUN(serialize(value.m_sasTs, ctx));
+    AGS_CS_RUN(serialize(value.m_saaToSts, ctx));
 
     return Status::NoError;
 }
@@ -403,11 +403,11 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Simi
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_j));
-    CS_RUN(deserialize(ctx, value.m_k));
-    CS_RUN(deserialize(ctx, value.m_arrL));
-    CS_RUN(deserialize(ctx, value.m_sasTs));
-    CS_RUN(deserialize(ctx, value.m_saaToSts));
+    AGS_CS_RUN(deserialize(ctx, value.m_j));
+    AGS_CS_RUN(deserialize(ctx, value.m_k));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrL));
+    AGS_CS_RUN(deserialize(ctx, value.m_sasTs));
+    AGS_CS_RUN(deserialize(ctx, value.m_saaToSts));
 
     return Status::NoError;
 }
@@ -417,15 +417,15 @@ Status BodyProcessor::serialize(const tests_csp_interface::ManyPointersType<>& v
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_vec, ctx));
-    CS_RUN(serialize(value.m_vecRecursive, ctx));
-    CS_RUN(serialize(value.m_pVec, ctx));
-    CS_RUN(serialize(value.m_rtSpec1, ctx));
-    CS_RUN(serialize(value.m_rtSpec2, ctx));
-    CS_RUN(serialize(value.m_pInt, ctx));
-    CS_RUN(serialize(value.m_intArr, ctx));
-    CS_RUN(serialize(value.m_ppInt, ctx));
-    CS_RUN(serialize(value.m_nullptrInt, ctx));
+    AGS_CS_RUN(serialize(value.m_vec, ctx));
+    AGS_CS_RUN(serialize(value.m_vecRecursive, ctx));
+    AGS_CS_RUN(serialize(value.m_pVec, ctx));
+    AGS_CS_RUN(serialize(value.m_rtSpec1, ctx));
+    AGS_CS_RUN(serialize(value.m_rtSpec2, ctx));
+    AGS_CS_RUN(serialize(value.m_pInt, ctx));
+    AGS_CS_RUN(serialize(value.m_intArr, ctx));
+    AGS_CS_RUN(serialize(value.m_ppInt, ctx));
+    AGS_CS_RUN(serialize(value.m_nullptrInt, ctx));
 
     return Status::NoError;
 }
@@ -435,15 +435,15 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Many
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_vec));
-    CS_RUN(deserialize(ctx, value.m_vecRecursive));
-    CS_RUN(deserialize(ctx, value.m_pVec));
-    CS_RUN(deserialize(ctx, value.m_rtSpec1));
-    CS_RUN(deserialize(ctx, value.m_rtSpec2));
-    CS_RUN(deserialize(ctx, value.m_pInt));
-    CS_RUN(deserialize(ctx, value.m_intArr));
-    CS_RUN(deserialize(ctx, value.m_ppInt));
-    CS_RUN(deserialize(ctx, value.m_nullptrInt));
+    AGS_CS_RUN(deserialize(ctx, value.m_vec));
+    AGS_CS_RUN(deserialize(ctx, value.m_vecRecursive));
+    AGS_CS_RUN(deserialize(ctx, value.m_pVec));
+    AGS_CS_RUN(deserialize(ctx, value.m_rtSpec1));
+    AGS_CS_RUN(deserialize(ctx, value.m_rtSpec2));
+    AGS_CS_RUN(deserialize(ctx, value.m_pInt));
+    AGS_CS_RUN(deserialize(ctx, value.m_intArr));
+    AGS_CS_RUN(deserialize(ctx, value.m_ppInt));
+    AGS_CS_RUN(deserialize(ctx, value.m_nullptrInt));
 
     return Status::NoError;
 }
@@ -453,13 +453,13 @@ Status BodyProcessor::serialize(const tests_csp_interface::DForAllModesTests<>& 
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_saDs, ctx));
-    CS_RUN(serialize(value.m_diamond, ctx));
-    CS_RUN(serialize(value.m_sptCs, ctx));
-    CS_RUN(serialize(value.m_saaToStS, ctx));
-    CS_RUN(serialize(value.m_saStS, ctx));
-    CS_RUN(serialize(value.m_stS, ctx));
-    CS_RUN(serialize(value.m_mpt, ctx));
+    AGS_CS_RUN(serialize(value.m_saDs, ctx));
+    AGS_CS_RUN(serialize(value.m_diamond, ctx));
+    AGS_CS_RUN(serialize(value.m_sptCs, ctx));
+    AGS_CS_RUN(serialize(value.m_saaToStS, ctx));
+    AGS_CS_RUN(serialize(value.m_saStS, ctx));
+    AGS_CS_RUN(serialize(value.m_stS, ctx));
+    AGS_CS_RUN(serialize(value.m_mpt, ctx));
 
     return Status::NoError;
 }
@@ -469,13 +469,13 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::DFor
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_saDs));
-    CS_RUN(deserialize(ctx, value.m_diamond));
-    CS_RUN(deserialize(ctx, value.m_sptCs));
-    CS_RUN(deserialize(ctx, value.m_saaToStS));
-    CS_RUN(deserialize(ctx, value.m_saStS));
-    CS_RUN(deserialize(ctx, value.m_stS));
-    CS_RUN(deserialize(ctx, value.m_mpt));
+    AGS_CS_RUN(deserialize(ctx, value.m_saDs));
+    AGS_CS_RUN(deserialize(ctx, value.m_diamond));
+    AGS_CS_RUN(deserialize(ctx, value.m_sptCs));
+    AGS_CS_RUN(deserialize(ctx, value.m_saaToStS));
+    AGS_CS_RUN(deserialize(ctx, value.m_saStS));
+    AGS_CS_RUN(deserialize(ctx, value.m_stS));
+    AGS_CS_RUN(deserialize(ctx, value.m_mpt));
 
     return Status::NoError;
 }
@@ -485,8 +485,8 @@ Status BodyProcessor::serialize(const tests_csp_interface::ContainSimplyAssignab
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_sawsf, ctx));
-    CS_RUN(serialize(value.m_npfSawsf, ctx));
+    AGS_CS_RUN(serialize(value.m_sawsf, ctx));
+    AGS_CS_RUN(serialize(value.m_npfSawsf, ctx));
 
     return Status::NoError;
 }
@@ -496,8 +496,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Cont
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_sawsf));
-    CS_RUN(deserialize(ctx, value.m_npfSawsf));
+    AGS_CS_RUN(deserialize(ctx, value.m_sawsf));
+    AGS_CS_RUN(deserialize(ctx, value.m_npfSawsf));
 
     return Status::NoError;
 }
@@ -507,13 +507,13 @@ Status BodyProcessor::serialize(const tests_csp_interface::ContainBigStructs1<>&
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_big1, ctx));
-    CS_RUN(serialize(value.m_big2, ctx));
-    CS_RUN(serialize(value.m_big3, ctx));
-    CS_RUN(serialize(value.m_big4, ctx));
-    CS_RUN(serialize(value.m_big5, ctx));
-    CS_RUN(serialize(value.m_big6, ctx));
-    CS_RUN(serialize(value.m_big7, ctx));
+    AGS_CS_RUN(serialize(value.m_big1, ctx));
+    AGS_CS_RUN(serialize(value.m_big2, ctx));
+    AGS_CS_RUN(serialize(value.m_big3, ctx));
+    AGS_CS_RUN(serialize(value.m_big4, ctx));
+    AGS_CS_RUN(serialize(value.m_big5, ctx));
+    AGS_CS_RUN(serialize(value.m_big6, ctx));
+    AGS_CS_RUN(serialize(value.m_big7, ctx));
 
     return Status::NoError;
 }
@@ -523,13 +523,13 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Cont
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_big1));
-    CS_RUN(deserialize(ctx, value.m_big2));
-    CS_RUN(deserialize(ctx, value.m_big3));
-    CS_RUN(deserialize(ctx, value.m_big4));
-    CS_RUN(deserialize(ctx, value.m_big5));
-    CS_RUN(deserialize(ctx, value.m_big6));
-    CS_RUN(deserialize(ctx, value.m_big7));
+    AGS_CS_RUN(deserialize(ctx, value.m_big1));
+    AGS_CS_RUN(deserialize(ctx, value.m_big2));
+    AGS_CS_RUN(deserialize(ctx, value.m_big3));
+    AGS_CS_RUN(deserialize(ctx, value.m_big4));
+    AGS_CS_RUN(deserialize(ctx, value.m_big5));
+    AGS_CS_RUN(deserialize(ctx, value.m_big6));
+    AGS_CS_RUN(deserialize(ctx, value.m_big7));
 
     return Status::NoError;
 }
@@ -539,7 +539,7 @@ Status BodyProcessor::serialize(const tests_csp_interface::ContainBigStructs2For
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_big, ctx));
+    AGS_CS_RUN(serialize(value.m_big, ctx));
 
     return Status::NoError;
 }
@@ -549,7 +549,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_interface::Cont
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_big));
+    AGS_CS_RUN(deserialize(ctx, value.m_big));
 
     return Status::NoError;
 }

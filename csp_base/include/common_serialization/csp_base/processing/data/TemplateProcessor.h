@@ -34,8 +34,8 @@ class TemplateProcessor<VectorT<_T, _Ts...>, _T, _Ts...>
 public:
     static Status serialize(const VectorT<_T, _Ts...>& value, context::SData& ctx)
     {
-        CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
-        CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
+        AGS_CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
+        AGS_CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
 
         return Status::NoError;
     }
@@ -45,9 +45,9 @@ public:
         value.clear();
 
         typename VectorT<_T, _Ts...>::size_type size = 0;
-        CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
-        CS_RUN(value.reserve(size));
-        CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
+        AGS_CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
+        AGS_CS_RUN(value.reserve(size));
+        AGS_CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
         value.m_dataSize = size;
 
         return Status::NoError;

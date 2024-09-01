@@ -47,7 +47,7 @@ public:
     static constexpr Status serialize(const _T& value, context::SData& ctx);
 
     template<typename _T>
-    static CS_ALWAYS_INLINE constexpr Status serializeSizeT(_T value, context::SData& ctx);
+    static AGS_CS_ALWAYS_INLINE constexpr Status serializeSizeT(_T value, context::SData& ctx);
 
     /// @brief For now using for size_t serialization only
     /// @tparam _T size_t
@@ -56,7 +56,7 @@ public:
     /// @param ctx CSP Full Data Context
     /// @return Status of operation
     template<typename _T>
-    static CS_ALWAYS_INLINE constexpr Status serializeToAnotherSize(csp_size_t targetTypeSize, _T value, context::SData& ctx);
+    static AGS_CS_ALWAYS_INLINE constexpr Status serializeToAnotherSize(csp_size_t targetTypeSize, _T value, context::SData& ctx);
 
     template<typename _T>
     static constexpr Status deserialize(context::DData& ctx, csp_size_t n, _T* p);
@@ -66,7 +66,7 @@ public:
     static constexpr Status deserialize(context::DData& ctx, _T& value);
 
     template<typename _T>
-    static CS_ALWAYS_INLINE constexpr Status deserializeSizeT(context::DData& ctx, _T& value);
+    static AGS_CS_ALWAYS_INLINE constexpr Status deserializeSizeT(context::DData& ctx, _T& value);
 
     /// @brief Using for sizeOfIntegersMayBeNotEqual mode and size_t deserialization
     /// @tparam _T Integral type or enum
@@ -75,7 +75,7 @@ public:
     /// @param value Output value
     /// @return Status of operation
     template<typename _T>
-    static CS_ALWAYS_INLINE constexpr Status deserializeFromAnotherSize(csp_size_t originalTypeSize, context::DData& ctx, _T& value);
+    static AGS_CS_ALWAYS_INLINE constexpr Status deserializeFromAnotherSize(csp_size_t originalTypeSize, context::DData& ctx, _T& value);
 
 protected:
     template<csp_size_t _targetTypeSize, typename _T>
@@ -84,20 +84,20 @@ protected:
     static constexpr Status deserializeFromAnotherSizeInternal(context::DData& ctx, _T& value);
 
     template<typename _T>
-    static CS_ALWAYS_INLINE constexpr Status serializeSimplyAssignable(const _T& value, context::SData& ctx);
+    static AGS_CS_ALWAYS_INLINE constexpr Status serializeSimplyAssignable(const _T& value, context::SData& ctx);
     template<typename _T>
-    static CS_ALWAYS_INLINE constexpr Status deserializeSimplyAssignable(context::DData& ctx, _T& value);
+    static AGS_CS_ALWAYS_INLINE constexpr Status deserializeSimplyAssignable(context::DData& ctx, _T& value);
 
     template<typename _T>
-    static CS_ALWAYS_INLINE constexpr Status addPointerToMap(const _T p, context::SData& ctx, bool& newPointer);
+    static AGS_CS_ALWAYS_INLINE constexpr Status addPointerToMap(const _T p, context::SData& ctx, bool& newPointer);
     template<typename _T>
-    static CS_ALWAYS_INLINE constexpr Status getPointerFromMap(context::DData& ctx, _T& p, bool& newPointer);
+    static AGS_CS_ALWAYS_INLINE constexpr Status getPointerFromMap(context::DData& ctx, _T& p, bool& newPointer);
 
 
     template<template<typename...> typename _T, typename... _Ts>
-    static CS_ALWAYS_INLINE Status templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx);
+    static AGS_CS_ALWAYS_INLINE Status templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx);
     template<template<typename...> typename _T, typename... _Ts>
-    static CS_ALWAYS_INLINE Status templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value);
+    static AGS_CS_ALWAYS_INLINE Status templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value);
 
 private:
     static constexpr size_t kMaxSizeOfIntegral = 8;   // maximum allowed size of integral type
@@ -180,7 +180,7 @@ constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SD
     {   
         if constexpr ((std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
-                CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(_T)), ctx));
+                AGS_CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(_T)), ctx));
 
         return writeRawData(p, n, ctx);
     }
@@ -191,7 +191,7 @@ constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SD
             if (ctx.checkRecursivePointers())
                 (*ctx.getPointersMap())[&p[i]] = ctx.getBinaryData().size();
 
-            CS_RUN(serialize(p[i], ctx));
+            AGS_CS_RUN(serialize(p[i], ctx));
         }
 
         return Status::NoError;
@@ -218,7 +218,7 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
     {
         if constexpr (!FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
-                CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(_T)), ctx));
+                AGS_CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(_T)), ctx));
 
         return writePrimitive(value, ctx);
     }
@@ -230,7 +230,7 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
         if (ctx.checkRecursivePointers())
         {
             bool newPointer = false;
-            CS_RUN(addPointerToMap(value, ctx, newPointer));
+            AGS_CS_RUN(addPointerToMap(value, ctx, newPointer));
 
             if (!newPointer)
                 return Status::NoError;
@@ -240,7 +240,7 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
             if (value == nullptr)
                 return writePrimitive(uint8_t(0), ctx);
             else
-                CS_RUN(writePrimitive(uint8_t(1), ctx));
+                AGS_CS_RUN(writePrimitive(uint8_t(1), ctx));
         }
 
         return serialize(*value, ctx);
@@ -293,7 +293,7 @@ constexpr Status BodyProcessor::serializeToAnotherSizeInternal(_T value, context
     if constexpr (sizeof(_T) < _targetTypeSize)
         helpers::castToBiggerType(value, targetValue);
     else
-        CS_RUN(helpers::castToSmallerType<_targetTypeSize>(value, targetValue));
+        AGS_CS_RUN(helpers::castToSmallerType<_targetTypeSize>(value, targetValue));
 
     return writePrimitive(targetValue, ctx);
 }
@@ -331,11 +331,11 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _
             if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
-                CS_RUN(readPrimitive(ctx, originalTypeSize));
+                AGS_CS_RUN(readPrimitive(ctx, originalTypeSize));
                 if (originalTypeSize != sizeof(_T))
                 {
                     for (csp_size_t i = 0; i < n; ++i)
-                        CS_RUN(deserializeFromAnotherSize(originalTypeSize, ctx, p[i]));
+                        AGS_CS_RUN(deserializeFromAnotherSize(originalTypeSize, ctx, p[i]));
 
                     return Status::NoError;
                 }
@@ -354,7 +354,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _
             if (ctx.checkRecursivePointers())
                 (*ctx.getPointersMap())[ctx.getBinaryData().tell()] = const_cast<from_ptr_to_const_to_ptr_t<_T*>>(pItem);
 
-            CS_RUN(deserialize(ctx, *pItem));
+            AGS_CS_RUN(deserialize(ctx, *pItem));
         }
 
         return Status::NoError;
@@ -385,7 +385,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
             if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
-                CS_RUN(readPrimitive(ctx, originalTypeSize));
+                AGS_CS_RUN(readPrimitive(ctx, originalTypeSize));
                 return deserializeFromAnotherSize(originalTypeSize, ctx, value);
             }
 
@@ -399,7 +399,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
         if (ctx.checkRecursivePointers())
         {
             bool newPointer = false;
-            CS_RUN(getPointerFromMap(ctx, value, newPointer));
+            AGS_CS_RUN(getPointerFromMap(ctx, value, newPointer));
 
             if (!newPointer)
                 return Status::NoError;
@@ -407,7 +407,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
         else
         {
             uint8_t isValidPtr = 0;
-            CS_RUN(readPrimitive(ctx, isValidPtr));
+            AGS_CS_RUN(readPrimitive(ctx, isValidPtr));
             if (!isValidPtr)
             {
                 value = nullptr;
@@ -482,7 +482,7 @@ constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DDat
     using sameSizedInteger = helpers::fixed_width_integer_t<sizeof(_T), Signed<_T>>;
 
     if constexpr (sizeof(_T) < _originalTypeSize)
-        CS_RUN(helpers::castToSmallerType<sizeof(_T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value)))))
+        AGS_CS_RUN(helpers::castToSmallerType<sizeof(_T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value)))))
     else
         helpers::castToBiggerType<sizeof(_T)>(originalValue, *static_cast<sameSizedInteger*>(static_cast<void*>(&const_cast<std::remove_const_t<_T>&>(value))));
 
@@ -513,7 +513,7 @@ constexpr Status BodyProcessor::serializeSimplyAssignable(const _T& value, conte
         )
         {
             // for simple assignable types it is preferable to get a whole struct at a time
-            CS_RUN(writeRawData(&value, 1, ctx));
+            AGS_CS_RUN(writeRawData(&value, 1, ctx));
 
             return Status::NoFurtherProcessingRequired;
         }
@@ -546,7 +546,7 @@ constexpr Status BodyProcessor::deserializeSimplyAssignable(context::DData& ctx,
         )
         {
             // for simple assignable types it is preferable to get a whole struct at a time
-            CS_RUN(readRawData(ctx, 1, &value));
+            AGS_CS_RUN(readRawData(ctx, 1, &value));
 
             return Status::NoFurtherProcessingRequired;
         }
@@ -570,7 +570,7 @@ constexpr Status BodyProcessor::addPointerToMap(const _T p, context::SData& ctx,
         if (auto it = pointersMap.find(p); it == pointersMap.end())
         {
             newPointer = true;
-            CS_RUN(serializeSizeT(static_cast<csp_size_t>(1), ctx));
+            AGS_CS_RUN(serializeSizeT(static_cast<csp_size_t>(1), ctx));
             pointersMap[p] = ctx.getBinaryData().size();
             return Status::NoError;
         }
@@ -587,7 +587,7 @@ constexpr Status BodyProcessor::getPointerFromMap(context::DData& ctx, _T& p, bo
 {
     csp_size_t offset = 0;
 
-    CS_RUN(deserializeSizeT(ctx, offset));
+    AGS_CS_RUN(deserializeSizeT(ctx, offset));
 
     if (!offset)
     {
@@ -611,13 +611,13 @@ constexpr Status BodyProcessor::getPointerFromMap(context::DData& ctx, _T& p, bo
 }
 
 template<template<typename...> typename _T, typename... _Ts>
-CS_ALWAYS_INLINE Status BodyProcessor::templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx)
+AGS_CS_ALWAYS_INLINE Status BodyProcessor::templateProcessorSerializationWrapper(const _T<_Ts...>& value, context::SData& ctx)
 {
     return TemplateProcessor<_T<_Ts...>, _Ts...>::serialize(value, ctx);
 }
 
 template<template<typename...> typename _T, typename... _Ts>
-CS_ALWAYS_INLINE Status BodyProcessor::templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value)
+AGS_CS_ALWAYS_INLINE Status BodyProcessor::templateProcessorDeserializationWrapper(context::DData& ctx, _T<_Ts...>& value)
 {
     return TemplateProcessor<_T<_Ts...>, _Ts...>::deserialize(ctx, value);
 }
@@ -673,7 +673,7 @@ CS_ALWAYS_INLINE Status BodyProcessor::templateProcessorDeserializationWrapper(c
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
         else                                                                            \
-            CS_RUN(ContextProcessor::testDataFlagsCompatibility                         \
+            AGS_CS_RUN(ContextProcessor::testDataFlagsCompatibility                     \
                     <normalize_t<decltype(value)>>(ctx.getDataFlags()));                \
     }                                                                                   \
                                                                                         \
@@ -694,7 +694,7 @@ CS_ALWAYS_INLINE Status BodyProcessor::templateProcessorDeserializationWrapper(c
         else if (!statusSuccess(status))                                                \
             return status;                                                              \
         else                                                                            \
-            CS_RUN(ContextProcessor::testDataFlagsCompatibility                         \
+            AGS_CS_RUN(ContextProcessor::testDataFlagsCompatibility                     \
                     <normalize_t<decltype(value)>>(ctx.getDataFlags()));                \
     }                                                                                   \
                                                                                         \
@@ -707,8 +707,8 @@ namespace common_serialization::csp::processing::data
 template<>
 constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
 {
-    CS_RUN(serialize(value.m_high, ctx));
-    CS_RUN(serialize(value.m_low, ctx));
+    AGS_CS_RUN(serialize(value.m_high, ctx));
+    AGS_CS_RUN(serialize(value.m_low, ctx));
 
     return Status::NoError;
 }
@@ -716,8 +716,8 @@ constexpr Status BodyProcessor::serialize(const Id& value, context::SData& ctx)
 template<>
 constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
 {
-    CS_RUN(deserialize(ctx, value.m_high));
-    CS_RUN(deserialize(ctx, value.m_low));
+    AGS_CS_RUN(deserialize(ctx, value.m_high));
+    AGS_CS_RUN(deserialize(ctx, value.m_low));
 
     return Status::NoError;
 }
@@ -725,7 +725,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, Id& value)
 template<>
 constexpr Status BodyProcessor::serialize(const context::DataFlags& value, context::SData& ctx)
 {
-    CS_RUN(serialize(static_cast<uint32_t>(value), ctx));
+    AGS_CS_RUN(serialize(static_cast<uint32_t>(value), ctx));
 
     return Status::NoError;
 }
@@ -734,7 +734,7 @@ template<>
 constexpr Status BodyProcessor::deserialize(context::DData& ctx, context::DataFlags& value)
 {
     uint32_t dataFlags{ 0 };
-    CS_RUN(deserialize(ctx, dataFlags));
+    AGS_CS_RUN(deserialize(ctx, dataFlags));
     value = dataFlags;
 
     return Status::NoError;
@@ -745,10 +745,10 @@ constexpr Status BodyProcessor::serialize(const Interface& value, context::SData
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(value.m_id, ctx));
-    CS_RUN(serialize(value.m_version, ctx));
-    CS_RUN(serialize(value.m_mandatoryDataFlags, ctx));
-    CS_RUN(serialize(value.m_forbiddenDataFlags, ctx));
+    AGS_CS_RUN(serialize(value.m_id, ctx));
+    AGS_CS_RUN(serialize(value.m_version, ctx));
+    AGS_CS_RUN(serialize(value.m_mandatoryDataFlags, ctx));
+    AGS_CS_RUN(serialize(value.m_forbiddenDataFlags, ctx));
 
     return Status::NoError;
 }
@@ -758,10 +758,10 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, Interface& valu
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value)
 
-    CS_RUN(deserialize(ctx, value.m_id));
-    CS_RUN(deserialize(ctx, value.m_version));
-    CS_RUN(deserialize(ctx, value.m_mandatoryDataFlags));
-    CS_RUN(deserialize(ctx, value.m_forbiddenDataFlags));
+    AGS_CS_RUN(deserialize(ctx, value.m_id));
+    AGS_CS_RUN(deserialize(ctx, value.m_version));
+    AGS_CS_RUN(deserialize(ctx, value.m_mandatoryDataFlags));
+    AGS_CS_RUN(deserialize(ctx, value.m_forbiddenDataFlags));
 
     return Status::NoError;
 }

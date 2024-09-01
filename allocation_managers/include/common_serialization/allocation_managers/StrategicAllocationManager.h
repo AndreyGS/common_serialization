@@ -86,12 +86,12 @@ protected:
         return p;
     }
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] AllocationStrategy getAllocationStrategyImpl() const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] AllocationStrategy getAllocationStrategyImpl() const noexcept
     {
         return m_allocation_strategy;
     }
 
-    CS_ALWAYS_INLINE constexpr void setAllocationStrategyImpl(AllocationStrategy allocationStrategy) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void setAllocationStrategyImpl(AllocationStrategy allocationStrategy) noexcept
     {
         m_allocation_strategy = allocationStrategy;
     }

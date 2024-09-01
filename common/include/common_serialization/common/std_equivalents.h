@@ -24,8 +24,8 @@
 #pragma once
 
  // if implementation wants to define own std shadowing functions
- // it should define CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION macro
-#if !defined CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
+ // it should define AGS_CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION macro
+#if !defined AGS_CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION && (defined WINDOWS_KERNEL || defined LINUX_KERNEL)
 
 namespace std
 {
@@ -566,4 +566,4 @@ inline constexpr bool is_constructible_v = __is_constructible(_T, Ts...);
 
 } // namespace std
 
-#endif // #ifndef CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION
+#endif // #ifndef AGS_CS_NO_STD_META_FUNCS_CUSTOM_DEFINITION

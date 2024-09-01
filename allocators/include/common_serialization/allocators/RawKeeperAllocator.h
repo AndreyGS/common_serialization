@@ -49,12 +49,12 @@ public:
     using allocator_interface_type = IAllocator<RawAllocatorTraits<_T>, RawKeeperAllocator<_T>>;
     using storage_setter_interface_type = IStorageSetter<RawKeeperAllocator<_T>>;
 
-    CS_ALWAYS_INLINE constexpr RawKeeperAllocator() = default;
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator() = default;
 
     /// @brief Init ctor
     /// @param p Pointer on storage
     /// @param memorySize Size of storage in value_type units
-    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(pointer p, size_type memorySize) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator(pointer p, size_type memorySize) noexcept
         : m_p(p), m_memorySize(memorySize)
     {
     }
@@ -62,23 +62,23 @@ public:
     /// @brief Copy ctor
     /// @remark This overload only for compatibility and does not copying anything
     template <class _R>
-    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(const RawKeeperAllocator<_R>& rhs) noexcept 
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator(const RawKeeperAllocator<_R>& rhs) noexcept 
     { 
         operator=(rhs); 
     }
 
-    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs)
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator(const RawKeeperAllocator& rhs)
     {
         operator=<value_type>(rhs);
     }
 
     template <class _R>
-    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(RawKeeperAllocator<_R>&& rhs) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator(RawKeeperAllocator<_R>&& rhs) noexcept
     {
         operator=(std::move(rhs));
     }
 
-    CS_ALWAYS_INLINE constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator(RawKeeperAllocator&& rhs) noexcept
     {
         operator=<value_type>(std::move(rhs));
     }
@@ -86,14 +86,14 @@ public:
     /// @brief Copy assignment operator
     /// @remark Present only for compatibility and does not copying anything
     template <class _R>
-    CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<_R>& rhs) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<_R>& rhs) noexcept
     {
         return *this;
     }
 
     /// @brief Copy assignment operator
     /// @remark Present only for compatibility and does not copying anything
-    CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator& rhs) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator& rhs) noexcept
     {
         return operator=<value_type>(rhs);
     }
@@ -108,7 +108,7 @@ public:
         return *this;
     }
 
-    CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(RawKeeperAllocator&& rhs) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(RawKeeperAllocator&& rhs) noexcept
     {
         return operator=<value_type>(std::move(rhs));
     }
@@ -120,20 +120,20 @@ protected:
     /// @brief Get pointer on storage if n*value_type <= sizeof(storage)
     /// @param n Number of elements of type _T that storage must be capable to hold
     /// @return Pointer to storage, nullptr if current storage is not large enough
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
     {
         return n <= m_memorySize && n != 0 ? m_p : nullptr;
     }
 
     /// @brief Does nothing
     /// @remark Present only for compatibility
-    CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
     {
     }
 
     /// @brief Does nothing
     /// @remark Present only for compatibility
-    CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p, size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p, size_type n) const noexcept
     {
 
     }
@@ -161,13 +161,13 @@ protected:
 
     /// @brief Does nothing
     /// @remark Present only for compatibility
-    CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept
     {
     }
 
     /// @brief Get size of storage in value_type units
     /// @return Size of storage in value_type units
-    CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
     {
         return m_memorySize;
     }

@@ -67,9 +67,9 @@ constexpr Status ContextProcessor::serializeNoChecks(context::SCommon& ctx)
     context::SCommon commonContextSpecial(ctx.getBinaryData());
     commonContextSpecial.setCommonFlags(context::CommonFlags::kNoFlagsMask);
 
-    CS_RUN(writePrimitive(static_cast<uint16_t>(ctx.getProtocolVersion()), commonContextSpecial));
-    CS_RUN(writePrimitive(ctx.getMessageType(), commonContextSpecial));
-    CS_RUN(writePrimitive(static_cast<uint32_t>(ctx.getCommonFlags()), commonContextSpecial));
+    AGS_CS_RUN(writePrimitive(static_cast<uint16_t>(ctx.getProtocolVersion()), commonContextSpecial));
+    AGS_CS_RUN(writePrimitive(ctx.getMessageType(), commonContextSpecial));
+    AGS_CS_RUN(writePrimitive(static_cast<uint32_t>(ctx.getCommonFlags()), commonContextSpecial));
 
     return Status::NoError;
 }
@@ -82,7 +82,7 @@ constexpr Status ContextProcessor::deserialize(context::DCommon& ctx) noexcept
     commonContextSpecial.setCommonFlags(context::CommonFlags::kNoFlagsMask);
 
     uint16_t version = 0;
-    CS_RUN(readPrimitive(commonContextSpecial, version));
+    AGS_CS_RUN(readPrimitive(commonContextSpecial, version));
     protocol_version_t minimumSupportedVersion = ctx.getProtocolVersion();
     ctx.setProtocolVersion(static_cast<protocol_version_t>(version));
 
@@ -90,11 +90,11 @@ constexpr Status ContextProcessor::deserialize(context::DCommon& ctx) noexcept
         return Status::ErrorNotSupportedProtocolVersion;
 
     context::Message messageType = context::Message::Data;
-    CS_RUN(readPrimitive(commonContextSpecial, messageType));
+    AGS_CS_RUN(readPrimitive(commonContextSpecial, messageType));
     ctx.setMessageType(messageType);
 
     uint32_t intFlags = 0;
-    CS_RUN(readPrimitive(commonContextSpecial, intFlags));
+    AGS_CS_RUN(readPrimitive(commonContextSpecial, intFlags));
     context::CommonFlags commonFlags(intFlags);
     ctx.setCommonFlags(commonFlags);
     if (ctx.endiannessNotMatch() && !ctx.endiannessDifference())
@@ -111,17 +111,17 @@ constexpr Status ContextProcessor::deserializeNoChecks(context::DCommon& ctx) no
         , ctx.getMessageType(), context::CommonFlags{ context::CommonFlags::kNoFlagsMask });
 
     uint16_t version = 0;
-    CS_RUN(readPrimitive(commonContextSpecial, version));
+    AGS_CS_RUN(readPrimitive(commonContextSpecial, version));
     protocol_version_t minimumSupportedVersion = ctx.getProtocolVersion();
     ctx.setProtocolVersion(static_cast<protocol_version_t>(version));
 
     context::Message messageType = context::Message::Data;
-    CS_RUN(readPrimitive(commonContextSpecial, messageType));
+    AGS_CS_RUN(readPrimitive(commonContextSpecial, messageType));
 
     ctx.setMessageType(messageType);
 
     uint32_t intFlags = 0;
-    CS_RUN(readPrimitive(commonContextSpecial, intFlags));
+    AGS_CS_RUN(readPrimitive(commonContextSpecial, intFlags));
     context::CommonFlags commonFlags(intFlags);
     ctx.setCommonFlags(commonFlags);
 

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifdef CS_OPERATOR_NEW_REPLACEMENT
+#ifdef AGS_CS_OPERATOR_NEW_REPLACEMENT
 
 #include <common_serialization/memory_management/typedefs.h>
 
@@ -63,4 +63,4 @@ constexpr [[nodiscard]] void* operator new[](size_t, void* p) noexcept
     return p;
 }
 
-#endif // #ifdef CS_OPERATOR_NEW_REPLACEMENT
+#endif // #ifdef AGS_CS_OPERATOR_NEW_REPLACEMENT

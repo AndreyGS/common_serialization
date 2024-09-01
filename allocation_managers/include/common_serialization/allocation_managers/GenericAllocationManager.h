@@ -78,7 +78,7 @@ protected:
         return p;
     }
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type requestedN, size_type* pAllocatedN) const
     {
         pointer p = this->getAllocator().allocate(requestedN);
 
@@ -88,13 +88,13 @@ protected:
         return p;
     }
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateStrictImpl(size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateStrictImpl(size_type n) const
     {
         return this->getAllocator().allocate(n);
     }
 
     template<typename... Args>
-    CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, Args&&... args) const
+    AGS_CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, Args&&... args) const
     {
         return this->getAllocator().construct(p++, std::forward<Args>(args)...);
     }
@@ -144,7 +144,7 @@ protected:
                     if (pDest < pDirtyMemoryFinish)
                         this->getAllocator().destroy(pDest);
 
-                    CS_RUN(this->getAllocator().construct(pDest--, *pSrc--));
+                    AGS_CS_RUN(this->getAllocator().construct(pDest--, *pSrc--));
                 }
             }
             else
@@ -169,7 +169,7 @@ protected:
                 if (pDest < pDirtyMemoryFinish)
                     this->getAllocator().destroy(pDest);
 
-                CS_RUN(this->getAllocator().construct(pDest++, *pSrc++));
+                AGS_CS_RUN(this->getAllocator().construct(pDest++, *pSrc++));
             }
         else
             memcpy(pDest, pSrc, n * sizeof(value_type));
@@ -250,26 +250,26 @@ protected:
         return Status::NoError;
     }
 
-    CS_ALWAYS_INLINE constexpr void destroyAndDeallocateImpl(pointer p, size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void destroyAndDeallocateImpl(pointer p, size_type n) const noexcept
     {
         if constexpr (constructor_allocator::value)
             this->destroyN(p, n);
         this->deallocate(p);
     }
 
-    CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
     {
         this->getAllocator().deallocate(p);
     }
 
-    CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept
     {
         if constexpr (constructor_allocator::value)
             if (p)
                 this->getAllocator().destroy(p);
     }
 
-    CS_ALWAYS_INLINE constexpr void destroyNImpl(pointer p, size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void destroyNImpl(pointer p, size_type n) const noexcept
     {
         if constexpr (constructor_allocator::value)
             if (p)
@@ -277,7 +277,7 @@ protected:
                     this->getAllocator().destroy(p + i);
     }
 
-    CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
     {
         return this->getAllocator().max_size();
     }

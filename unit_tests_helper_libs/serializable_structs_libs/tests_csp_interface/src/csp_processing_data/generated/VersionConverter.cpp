@@ -38,7 +38,7 @@ Status VersionConverter::toOldStruct(const tests_csp_interface::SimplyAssignable
               , tests_csp_interface::SimplyAssignableAlignedToOne_Version0<>
     > convertTo(targetVersion);
 
-    CS_RUN(convertTo.convert(value, ctx));
+    AGS_CS_RUN(convertTo.convert(value, ctx));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -54,7 +54,7 @@ Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersi
               , tests_csp_interface::SimplyAssignableAlignedToOne_Version1<>
     > convertFrom(targetVersion);
 
-    CS_RUN(convertFrom.convert(ctx, value));
+    AGS_CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -69,7 +69,7 @@ Status VersionConverter::toOldStruct(const tests_csp_interface::SimplyAssignable
                 tests_csp_interface::SimplyAssignable_Version0<>
     > convertTo(targetVersion);
 
-    CS_RUN(convertTo.convert(value, ctx));
+    AGS_CS_RUN(convertTo.convert(value, ctx));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -84,7 +84,7 @@ Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersi
                 tests_csp_interface::SimplyAssignable_Version0<>
     > convertFrom(targetVersion);
 
-    CS_RUN(convertFrom.convert(ctx, value));
+    AGS_CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -99,7 +99,7 @@ Status VersionConverter::toOldStruct(const tests_csp_interface::SimplyAssignable
                 tests_csp_interface::SimplyAssignableDescendant_Version0<>
     > convertTo(targetVersion);
 
-    CS_RUN(convertTo.convert(value, ctx));
+    AGS_CS_RUN(convertTo.convert(value, ctx));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -114,7 +114,7 @@ Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersi
                 tests_csp_interface::SimplyAssignableDescendant_Version0<>
     > convertFrom(targetVersion);
 
-    CS_RUN(convertFrom.convert(ctx, value));
+    AGS_CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -129,7 +129,7 @@ Status VersionConverter::toOldStruct(const tests_csp_interface::AlwaysSimplyAssi
                 tests_csp_interface::AlwaysSimplyAssignable_Version0<>
     > convertTo(targetVersion);
 
-    CS_RUN(convertTo.convert(value, ctx));
+    AGS_CS_RUN(convertTo.convert(value, ctx));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -144,7 +144,7 @@ Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersi
                 tests_csp_interface::AlwaysSimplyAssignable_Version0<>
     > convertFrom(targetVersion);
 
-    CS_RUN(convertFrom.convert(ctx, value));
+    AGS_CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -159,7 +159,7 @@ Status VersionConverter::toOldStruct(const tests_csp_interface::SimplyAssignable
                 tests_csp_interface::SimplyAssignableFixedSize_Version1<>
     > convertTo(targetVersion);
 
-    CS_RUN(convertTo.convert(value, ctx));
+    AGS_CS_RUN(convertTo.convert(value, ctx));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -174,7 +174,7 @@ Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersi
                 tests_csp_interface::SimplyAssignableFixedSize_Version1<>
     > convertFrom(targetVersion);
 
-    CS_RUN(convertFrom.convert(ctx, value));
+    AGS_CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -190,7 +190,7 @@ Status VersionConverter::toOldStruct(const tests_csp_interface::DForAllModesTest
               , tests_csp_interface::SForAllModesTests_Version0<>
     > convertTo(targetVersion);
 
-    CS_RUN(convertTo.convert(value, ctx));
+    AGS_CS_RUN(convertTo.convert(value, ctx));
 
     return Status::NoFurtherProcessingRequired;
 }
@@ -206,7 +206,7 @@ Status VersionConverter::fromOldStruct(context::DData& ctx, uint32_t targetVersi
               , tests_csp_interface::SForAllModesTests_Version2<>
     > convertFrom(targetVersion);
 
-    CS_RUN(convertFrom.convert(ctx, value));
+    AGS_CS_RUN(convertFrom.convert(ctx, value));
 
     return Status::NoFurtherProcessingRequired;
 }

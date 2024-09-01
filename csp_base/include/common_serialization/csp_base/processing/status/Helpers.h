@@ -34,7 +34,7 @@ class Helpers
 {
 public:
     static constexpr Status serializeFullContext(context::SCommon& ctx, Status statusOut, bool noChecks = false);
-    static CS_ALWAYS_INLINE Status serializeFullContext(BinVectorT& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut);
+    static AGS_CS_ALWAYS_INLINE Status serializeFullContext(BinVectorT& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut);
 
     static constexpr Status serializeErrorNotSupportedProtocolVersion(BinVectorT& output, const RawVectorT<protocol_version_t>& supportedProtocolVersions, context::CommonFlags commonFlags);
     static constexpr Status serializeErrorNotSupportedInterfaceVersion(protocol_version_t protocolVersion, context::CommonFlags commonFlags
@@ -44,16 +44,16 @@ public:
 constexpr Status Helpers::serializeFullContext(context::SCommon& ctx, Status statusOut, bool noChecks)
 {
     if (!noChecks)
-        CS_RUN(common::ContextProcessor::serialize(ctx))
+        AGS_CS_RUN(common::ContextProcessor::serialize(ctx))
     else
-        CS_RUN(common::ContextProcessor::serializeNoChecks(ctx));
+        AGS_CS_RUN(common::ContextProcessor::serializeNoChecks(ctx));
         
-    CS_RUN(status::ContextProcessor::serialize(ctx, statusOut));
+    AGS_CS_RUN(status::ContextProcessor::serialize(ctx, statusOut));
 
     return Status::NoError;
 }
 
-CS_ALWAYS_INLINE Status Helpers::serializeFullContext(BinVectorT& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut)
+AGS_CS_ALWAYS_INLINE Status Helpers::serializeFullContext(BinVectorT& output, protocol_version_t protocolVersion, context::CommonFlags commonFlags, Status statusOut)
 {
     context::SCommon ctx{ output, protocolVersion, context::Message::Status, commonFlags };
     return serializeFullContext(ctx, statusOut);
@@ -63,7 +63,7 @@ constexpr Status Helpers::serializeErrorNotSupportedProtocolVersion(BinVectorT& 
 {
     // For unsupported protocol version always using kProtocolVersionUndefined in response context
     context::SCommon ctx{ output, traits::kProtocolVersionUndefined, context::Message::Status, commonFlags };
-    CS_RUN(serializeFullContext(ctx, Status::ErrorNotSupportedProtocolVersion, true));
+    AGS_CS_RUN(serializeFullContext(ctx, Status::ErrorNotSupportedProtocolVersion, true));
     return status::BodyProcessor::serializeErrorNotSupportedProtocolVersion(ctx, supportedProtocolVersions);
 }
 
@@ -71,7 +71,7 @@ constexpr Status Helpers::serializeErrorNotSupportedInterfaceVersion(protocol_ve
     , interface_version_t minimumInterfaceVersion, const Id& outputTypeId, BinVectorT& output)
 {
     context::SCommon ctx(output, protocolVersion, context::Message::Status, commonFlags);
-    CS_RUN(serializeFullContext(ctx, Status::ErrorNotSupportedInterfaceVersion));
+    AGS_CS_RUN(serializeFullContext(ctx, Status::ErrorNotSupportedInterfaceVersion));
     return status::BodyProcessor::serializeErrorNotSupportedInterfaceVersion(ctx, minimumInterfaceVersion, outputTypeId);
 }
 } // namespace common_serialization::csp::processing::status

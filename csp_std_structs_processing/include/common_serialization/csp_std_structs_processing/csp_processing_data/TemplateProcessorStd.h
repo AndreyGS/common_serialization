@@ -39,8 +39,8 @@ class TemplateProcessor<std::basic_string<_T, _traits, _Allocator>, _T, _traits,
 public:
     static Status serialize(const std::basic_string<_T, _traits, _Allocator>& value, context::SData& ctx)
     {
-        CS_RUN(BodyProcessor::serializeSizeT(value.length(), ctx));
-        CS_RUN(BodyProcessor::serialize(value.c_str(), value.length() + 1, ctx));
+        AGS_CS_RUN(BodyProcessor::serializeSizeT(value.length(), ctx));
+        AGS_CS_RUN(BodyProcessor::serialize(value.c_str(), value.length() + 1, ctx));
 
         return Status::NoError;
     }
@@ -53,9 +53,9 @@ public:
 
         value.clear();
         size_type size = 0;
-        CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
+        AGS_CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
         value.resize(size);
-        CS_RUN(BodyProcessor::deserialize(ctx, size + 1, value.data()));
+        AGS_CS_RUN(BodyProcessor::deserialize(ctx, size + 1, value.data()));
 
         return Status::NoError;
     }
@@ -67,8 +67,8 @@ class TemplateProcessor<std::vector<_T, _Allocator>, _T, _Allocator>
 public:
     static Status serialize(const std::vector<_T, _Allocator>& value, context::SData& ctx)
     {
-        CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
-        CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
+        AGS_CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
+        AGS_CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
 
         return Status::NoError;
     }
@@ -81,9 +81,9 @@ public:
 
         value.clear();
         size_type size = 0;
-        CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
+        AGS_CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
         value.resize(size);
-        CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
+        AGS_CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));
 
         return Status::NoError;
     }
@@ -95,16 +95,16 @@ class TemplateProcessor<std::pair<_T1, _T2>, _T1, _T2>
 public:
     static Status serialize(const std::pair<_T1, _T2>& value, context::SData& ctx)
     {
-        CS_RUN(BodyProcessor::serialize(value.first, ctx));
-        CS_RUN(BodyProcessor::serialize(value.second, ctx));
+        AGS_CS_RUN(BodyProcessor::serialize(value.first, ctx));
+        AGS_CS_RUN(BodyProcessor::serialize(value.second, ctx));
 
         return Status::NoError;
     }
 
     static Status deserialize(context::DData& ctx, std::pair<_T1, _T2>& value)
     {
-        CS_RUN(BodyProcessor::deserialize(ctx, value.first));
-        CS_RUN(BodyProcessor::deserialize(ctx, value.second));
+        AGS_CS_RUN(BodyProcessor::deserialize(ctx, value.first));
+        AGS_CS_RUN(BodyProcessor::deserialize(ctx, value.second));
 
         return Status::NoError;
     }
@@ -116,10 +116,10 @@ class TemplateProcessor<std::map<_K, _V, Compare, _Allocator>, _K, _V, Compare, 
 public:
     static Status serialize(const std::map<_K, _V, Compare, _Allocator>& value, context::SData& ctx)
     {
-        CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
+        AGS_CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
 
         for (auto& pair : value)
-            CS_RUN(BodyProcessor::serialize(pair, ctx));
+            AGS_CS_RUN(BodyProcessor::serialize(pair, ctx));
 
         return Status::NoError;
     }
@@ -132,12 +132,12 @@ public:
 
         value.clear();
         size_type size = 0;
-        CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
+        AGS_CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
 
         for (size_type i = 0; i < size; ++i)
         {
             std::pair<_K, _V> element;
-            CS_RUN(BodyProcessor::deserialize(ctx, element));
+            AGS_CS_RUN(BodyProcessor::deserialize(ctx, element));
             value.insert(std::move(element));
         }
 

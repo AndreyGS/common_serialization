@@ -130,7 +130,7 @@ public:
 
     CspPartySettings() = default;
 
-    CS_ALWAYS_INLINE CspPartySettings(const CspPartySettings& rhs)
+    AGS_CS_ALWAYS_INLINE CspPartySettings(const CspPartySettings& rhs)
     {
         init(rhs);
     }
@@ -166,10 +166,10 @@ public:
         if (this == &rhs)
             return Status::NoError;
 
-        CS_RUN(m_protocolVersions.init(rhs.m_protocolVersions));
+        AGS_CS_RUN(m_protocolVersions.init(rhs.m_protocolVersions));
         m_mandatoryCommonFlags = rhs.m_mandatoryCommonFlags;
         m_forbiddenCommonFlags = rhs.m_forbiddenCommonFlags;
-        CS_RUN(m_interfaces.init(rhs.m_interfaces));
+        AGS_CS_RUN(m_interfaces.init(rhs.m_interfaces));
 
         return Status::NoError;
     }
@@ -179,10 +179,10 @@ public:
         if (this == &rhs)
             return Status::NoError;
 
-        CS_RUN(m_protocolVersions.init(std::move(rhs.m_protocolVersions)));
+        AGS_CS_RUN(m_protocolVersions.init(std::move(rhs.m_protocolVersions)));
         m_mandatoryCommonFlags = rhs.m_mandatoryCommonFlags;
         m_forbiddenCommonFlags = rhs.m_forbiddenCommonFlags;
-        CS_RUN(m_interfaces.init(std::move(rhs.m_interfaces)));
+        AGS_CS_RUN(m_interfaces.init(std::move(rhs.m_interfaces)));
 
         return Status::NoError;
     }
@@ -193,10 +193,10 @@ public:
         , context::CommonFlags forbiddenCommonFlags
         , const RawVectorT<InterfaceVersion<>>& interfaces)
     {
-        CS_RUN(m_protocolVersions.init(protocolVersions));
+        AGS_CS_RUN(m_protocolVersions.init(protocolVersions));
         m_mandatoryCommonFlags = mandatoryCommonFlags;
         m_forbiddenCommonFlags = forbiddenCommonFlags;
-        CS_RUN(m_interfaces.init(interfaces));
+        AGS_CS_RUN(m_interfaces.init(interfaces));
 
         return Status::NoError;
     }
@@ -224,7 +224,7 @@ public:
             for (auto rhsVersion : rhs.m_protocolVersions)
                 if (lhsVersion == rhsVersion)
                 {
-                    CS_RUN(m_protocolVersions.pushBack(lhsVersion));
+                    AGS_CS_RUN(m_protocolVersions.pushBack(lhsVersion));
                     break;
                 }
 
@@ -241,7 +241,7 @@ public:
             for (const auto& rhsInterface : rhs.m_interfaces)
                 if (lhsInterface.m_id == rhsInterface.m_id)
                 {
-                    CS_RUN(m_interfaces.pushBack({ lhsInterface.m_id, lhsInterface.m_version < rhsInterface.m_version ? lhsInterface.m_version : rhsInterface.m_version }));
+                    AGS_CS_RUN(m_interfaces.pushBack({ lhsInterface.m_id, lhsInterface.m_version < rhsInterface.m_version ? lhsInterface.m_version : rhsInterface.m_version }));
                     break;
                 }
 
@@ -259,7 +259,7 @@ public:
         m_interfaces.clear();
     }
 
-    CS_ALWAYS_INLINE constexpr const RawVectorT<protocol_version_t>& getProtocolVersions() const
+    AGS_CS_ALWAYS_INLINE constexpr const RawVectorT<protocol_version_t>& getProtocolVersions() const
     {
         return m_protocolVersions;
     }
@@ -274,17 +274,17 @@ public:
         return m_protocolVersions.size() ? m_protocolVersions[m_protocolVersions.size() - 1] : traits::kProtocolVersionUndefined;
     }
 
-    CS_ALWAYS_INLINE constexpr context::CommonFlags getMandatoryCommonFlags() const
+    AGS_CS_ALWAYS_INLINE constexpr context::CommonFlags getMandatoryCommonFlags() const
     {
         return m_mandatoryCommonFlags;
     }
 
-    CS_ALWAYS_INLINE context::CommonFlags getForbiddenCommonFlags() const
+    AGS_CS_ALWAYS_INLINE context::CommonFlags getForbiddenCommonFlags() const
     {
         return m_forbiddenCommonFlags;
     }
 
-    CS_ALWAYS_INLINE constexpr const RawVectorT<InterfaceVersion<>>& getInterfaces() const
+    AGS_CS_ALWAYS_INLINE constexpr const RawVectorT<InterfaceVersion<>>& getInterfaces() const
     {
         return m_interfaces;
     }

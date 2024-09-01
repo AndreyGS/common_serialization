@@ -74,7 +74,7 @@ public:
     /// @remark Use it when no context::DataFlags is need.
     /// @param output Output container
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status serialize(BinVectorT& output) const;
+    AGS_CS_ALWAYS_INLINE constexpr Status serialize(BinVectorT& output) const;
     
     /// @brief It is a shortcut method for serialize this struct using custom context
     /// @param ctx Context that will be using in serialization process
@@ -84,7 +84,7 @@ public:
     /// @brief It is a shortcut method for deserialize in this struct from input binary data
     /// @param input Input container
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status deserialize(BinWalkerT& input);
+    AGS_CS_ALWAYS_INLINE constexpr Status deserialize(BinWalkerT& input);
 
     /// @brief It is a shortcut method for deserialize in this struct from input binary data using custom context
     /// @param ctx Context that will be using in deserialization process
@@ -110,7 +110,7 @@ public:
 
     /// @brief Get private versions array
     /// @return All private versions
-    static CS_ALWAYS_INLINE constexpr [[nodiscard]] const interface_version_t* getPrivateVersions() noexcept;
+    static AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const interface_version_t* getPrivateVersions() noexcept;
 
     /// @brief Get array size of private versions
     /// @return Array size of private versions
@@ -160,8 +160,8 @@ constexpr Status ISerializable<_T>::serialize(context::SData& ctx) const
     if (ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined)
         ctx.setInterfaceVersion(this->getLatestInterfaceVersion());
 
-    CS_RUN(processing::common::ContextProcessor::serialize(ctx));
-    CS_RUN(processing::data::ContextProcessor::serialize<_T>(ctx));
+    AGS_CS_RUN(processing::common::ContextProcessor::serialize(ctx));
+    AGS_CS_RUN(processing::data::ContextProcessor::serialize<_T>(ctx));
 
     // If user is not supplied pointers map we need to use temporary one
     if (ctx.checkRecursivePointers() && !ctx.getPointersMap())
@@ -185,14 +185,14 @@ constexpr Status ISerializable<_T>::deserialize(BinWalkerT& input)
 template<typename _T>
 constexpr Status ISerializable<_T>::deserialize(context::DData& ctx)
 {
-    CS_RUN(processing::common::ContextProcessor::deserialize(ctx));
+    AGS_CS_RUN(processing::common::ContextProcessor::deserialize(ctx));
 
     Id id;
     uint32_t minimumInterfaceVersion = ctx.getInterfaceVersion() == traits::kInterfaceVersionUndefined ? this->getOriginPrivateVersion() : ctx.getInterfaceVersion();
 
-    CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctx, id));
-    CS_RUN(processing::data::ContextProcessor::deserializePostprocessId<_T>(id));
-    CS_RUN(processing::data::ContextProcessor::deserializePostprocessRest<_T>(ctx, minimumInterfaceVersion));
+    AGS_CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctx, id));
+    AGS_CS_RUN(processing::data::ContextProcessor::deserializePostprocessId<_T>(id));
+    AGS_CS_RUN(processing::data::ContextProcessor::deserializePostprocessRest<_T>(ctx, minimumInterfaceVersion));
     
     // If user is not supplied pointers map we need to use temporary one
     if (ctx.checkRecursivePointers() && !ctx.getPointersMap())

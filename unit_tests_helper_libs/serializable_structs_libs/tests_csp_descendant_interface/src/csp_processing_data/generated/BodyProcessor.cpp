@@ -33,7 +33,7 @@ Status BodyProcessor::serialize(const tests_csp_descendant_interface::SimpleStru
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_i, ctx));
+    AGS_CS_RUN(serialize(value.m_i, ctx));
 
 
     return Status::NoError;
@@ -44,7 +44,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_descendant_inte
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_i));
+    AGS_CS_RUN(deserialize(ctx, value.m_i));
 
     return Status::NoError;
 }
@@ -54,10 +54,10 @@ Status BodyProcessor::serialize(const tests_csp_descendant_interface::DiamondDes
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(static_cast<const tests_csp_interface::Diamond<>&>(value), ctx));
+    AGS_CS_RUN(serialize(static_cast<const tests_csp_interface::Diamond<>&>(value), ctx));
 
-    CS_RUN(serialize(value.m_sSt, ctx));
-    CS_RUN(serialize(value.m_ldouble, ctx));
+    AGS_CS_RUN(serialize(value.m_sSt, ctx));
+    AGS_CS_RUN(serialize(value.m_ldouble, ctx));
 
     return Status::NoError;
 }
@@ -67,10 +67,10 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_descendant_inte
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, static_cast<tests_csp_interface::Diamond<>&>(value)));
+    AGS_CS_RUN(deserialize(ctx, static_cast<tests_csp_interface::Diamond<>&>(value)));
 
-    CS_RUN(deserialize(ctx, value.m_sSt));
-    CS_RUN(deserialize(ctx, value.m_ldouble));
+    AGS_CS_RUN(deserialize(ctx, value.m_sSt));
+    AGS_CS_RUN(deserialize(ctx, value.m_ldouble));
 
     return Status::NoError;
 }

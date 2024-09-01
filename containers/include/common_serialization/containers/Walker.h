@@ -40,8 +40,8 @@ public:
 
     Walker() = default;
 
-    explicit CS_ALWAYS_INLINE constexpr Walker(const Vector<_T, _AllocationManager>& rhs);
-    explicit CS_ALWAYS_INLINE constexpr Walker(Vector<_T, _AllocationManager>&& rhs) noexcept;
+    explicit AGS_CS_ALWAYS_INLINE constexpr Walker(const Vector<_T, _AllocationManager>& rhs);
+    explicit AGS_CS_ALWAYS_INLINE constexpr Walker(Vector<_T, _AllocationManager>&& rhs) noexcept;
 
     constexpr Status init(const Walker& rhs);
     constexpr Status init(Walker&& rhs) noexcept;
@@ -52,7 +52,7 @@ public:
     constexpr Status setSize(size_type n) noexcept
         requires std::is_trivially_copyable_v<_T>;
     
-    CS_ALWAYS_INLINE constexpr Status reserve(size_type n);
+    AGS_CS_ALWAYS_INLINE constexpr Status reserve(size_type n);
     constexpr Status reserve_from_current_offset(size_type n);
 
     constexpr Status pushBack(const _T& value);
@@ -72,7 +72,7 @@ public:
     constexpr Status erase(size_type offset, size_type n);
     constexpr Status erase(iterator destBegin, iterator destEnd);
 
-    CS_ALWAYS_INLINE constexpr Status write(const _T* p, size_type n);
+    AGS_CS_ALWAYS_INLINE constexpr Status write(const _T* p, size_type n);
     
     // destination (p) must be initialized (for non pod-types)
     constexpr Status read(_T* p, size_type n, size_type* pNRead = nullptr);
@@ -81,28 +81,28 @@ public:
     constexpr Status readArithmeticValue(_V& value) noexcept
         requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<_V> || std::is_enum_v<_V>);
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] _T* data() noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T* data() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T* data() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T* data() const noexcept;
     constexpr [[nodiscard]] _T& operator[](size_type offset);
     constexpr [[nodiscard]] const _T& operator[](size_type offset) const;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type size() const noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type max_size() const noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type capacity() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type size() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type max_size() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type capacity() const noexcept;
 
-    CS_ALWAYS_INLINE constexpr void clear() noexcept;
-    CS_ALWAYS_INLINE constexpr void invalidate() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr void clear() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr void invalidate() noexcept;
 
     // you shall free memory returned by this method manually
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] _T* release() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T* release() noexcept;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] _AllocationManager& getAllocationManager() noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const _AllocationManager& getAllocationManager() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _AllocationManager& getAllocationManager() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _AllocationManager& getAllocationManager() const noexcept;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] Vector<_T, _AllocationManager>& getVector() noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const Vector<_T, _AllocationManager>& getVector() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] Vector<_T, _AllocationManager>& getVector() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const Vector<_T, _AllocationManager>& getVector() const noexcept;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type tell() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type tell() const noexcept;
     constexpr Status seek(size_type offset) noexcept;
 
 private:
@@ -129,7 +129,7 @@ constexpr Status Walker<_T, _AllocationManager>::init(const Walker& rhs)
 {
     if (this != &rhs)
     {
-        CS_RUN(m_vector.init(rhs.m_vector));
+        AGS_CS_RUN(m_vector.init(rhs.m_vector));
         m_offset = rhs.m_offset;
     }
 
@@ -141,7 +141,7 @@ constexpr Status Walker<_T, _AllocationManager>::init(Walker&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        CS_RUN(m_vector.init(std::move(rhs.m_vector)));
+        AGS_CS_RUN(m_vector.init(std::move(rhs.m_vector)));
         m_offset = rhs.m_offset;
         rhs.m_offset = 0;
     }
@@ -154,7 +154,7 @@ constexpr Status Walker<_T, _AllocationManager>::init(const Vector<_T, _Allocati
 {
     if (&this->getVector() != &rhs)
     {
-        CS_RUN(m_vector.init(rhs));
+        AGS_CS_RUN(m_vector.init(rhs));
         m_offset = 0;
     }
 
@@ -166,7 +166,7 @@ constexpr Status Walker<_T, _AllocationManager>::init(Vector<_T, _AllocationMana
 {
     if (&this->getVector() != &rhs)
     {
-        CS_RUN(m_vector.init(std::move(rhs)));
+        AGS_CS_RUN(m_vector.init(std::move(rhs)));
         m_offset = 0;
     }
 
@@ -235,7 +235,7 @@ template<typename _T, IAllocationManagerImpl _AllocationManager>
 constexpr Status Walker<_T, _AllocationManager>::replace(const _T* p, size_type n, size_type offset)
 {
     setValidOffset(offset);
-    CS_RUN(m_vector.replace(p, n, offset));
+    AGS_CS_RUN(m_vector.replace(p, n, offset));
     m_offset += n;
 
     return Status::NoError;
@@ -262,7 +262,7 @@ constexpr Status Walker<_T, _AllocationManager>::insert(const _T* p, size_type n
     size_type oldSize = size();
     setValidOffset(offset);
 
-    CS_RUN(m_vector.insert(p, n, offset));
+    AGS_CS_RUN(m_vector.insert(p, n, offset));
     m_offset += size() - oldSize;
 
     return Status::NoError;
@@ -276,7 +276,7 @@ constexpr Status Walker<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc sr
     size_type newOffset = destBegin - m_vector.begin();
     setValidOffset(newOffset);
 
-    CS_RUN(m_vector.insert(srcBegin, srcEnd, destBegin, pDestEnd));
+    AGS_CS_RUN(m_vector.insert(srcBegin, srcEnd, destBegin, pDestEnd));
     m_offset += size() - oldSize;
 
     return Status::NoError;
@@ -308,7 +308,7 @@ constexpr Status Walker<_T, _AllocationManager>::read(_T* p, size_type n, size_t
 {
     _T* pNew = nullptr;
 
-    CS_RUN(m_vector.copyN(m_offset, n, p, &pNew));
+    AGS_CS_RUN(m_vector.copyN(m_offset, n, p, &pNew));
     
     size_type nReal = pNew - p;
     m_offset += nReal;

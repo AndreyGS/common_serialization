@@ -56,23 +56,23 @@ public:
 protected:
     friend allocator_interface_type;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
     {
         return static_cast<_T*>(HeapAllocatorT().allocate(n * sizeof(_T)));
     }
 
-    CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
     {
         HeapAllocatorT().deallocate(p);
     }
 
-    CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p, size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p, size_type n) const noexcept
     {
         deallocate(p);
     }
 
     template<typename... _Args>
-    CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, _Args&&... args) const
+    AGS_CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, _Args&&... args) const
     {
         assert(p);
 
@@ -81,7 +81,7 @@ protected:
     }
 
     template<typename... _Args>
-    CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, _Args&&... args) const
+    AGS_CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, _Args&&... args) const
         requires Initable<value_type>
     {
         assert(p);
@@ -94,12 +94,12 @@ protected:
             return Status::NoError;
     }
 
-    CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept
     {
         p->~value_type();
     }
 
-    CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
     {
         return max_size_v;
     }

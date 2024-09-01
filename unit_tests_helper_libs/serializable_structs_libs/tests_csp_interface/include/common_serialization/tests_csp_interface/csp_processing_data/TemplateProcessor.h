@@ -37,14 +37,14 @@ class TemplateProcessor<tests_csp_interface::BigStructs<_T>, _T>
 public:
     static Status serialize(const tests_csp_interface::BigStructs<_T>& value, context::SData& ctx)
     {
-        CS_RUN(BodyProcessor::serialize(value.m_vector, ctx));
+        AGS_CS_RUN(BodyProcessor::serialize(value.m_vector, ctx));
 
         return Status::NoError;
     }
 
     static Status deserialize(context::DData& ctx, tests_csp_interface::BigStructs<_T>& value)
     {
-        CS_RUN(BodyProcessor::deserialize(ctx, value.m_vector));
+        AGS_CS_RUN(BodyProcessor::deserialize(ctx, value.m_vector));
 
         return Status::NoError;
     }

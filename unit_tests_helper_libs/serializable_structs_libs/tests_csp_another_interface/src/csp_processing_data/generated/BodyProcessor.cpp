@@ -32,7 +32,7 @@ Status BodyProcessor::serialize(const tests_csp_another_interface::SimpleStruct<
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_i, ctx));
+    AGS_CS_RUN(serialize(value.m_i, ctx));
 
     return Status::NoError;
 }
@@ -43,7 +43,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_csp_another_interfa
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_i));
+    AGS_CS_RUN(deserialize(ctx, value.m_i));
 
     return Status::NoError;
 }

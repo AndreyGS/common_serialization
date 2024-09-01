@@ -155,7 +155,7 @@ protected:
         if (!pointerKeeper.allocateAndConstruct<CtorGenAllocationManagerT<_To>>(1))
             return Status::ErrorNoMemory;
 
-        CS_RUN(pointerKeeper.get<_To>()->init(from));
+        AGS_CS_RUN(pointerKeeper.get<_To>()->init(from));
 
         if (privateVersion > getTargetVersion())
             return base_class::convertOnHeap(*pointerKeeper.get<_To>(), ctx);
@@ -167,7 +167,7 @@ protected:
     Status convertOnStack(const _From& from, context::SData& ctx)
     {
         _To to;
-        CS_RUN(to.init(from));
+        AGS_CS_RUN(to.init(from));
 
         if (privateVersion > getTargetVersion())
             return base_class::convertOnStack(to, ctx);
@@ -250,7 +250,7 @@ protected:
         if (!pointerKeeper.allocateAndConstruct<CtorGenAllocationManagerT<_From>>(1))
             return Status::ErrorNoMemory;
 
-        CS_RUN(BodyProcessor::deserialize(ctx, *pointerKeeper.get<_From>()));
+        AGS_CS_RUN(BodyProcessor::deserialize(ctx, *pointerKeeper.get<_From>()));
 
         return convertToUpperVersionOnHeap(std::move(*pointerKeeper.get<_From>()), ctx, to);
     }
@@ -259,7 +259,7 @@ protected:
     Status convertOnStack(context::DData& ctx, _To& to)
     {
         _From from;
-        CS_RUN(BodyProcessor::deserialize(ctx, from));
+        AGS_CS_RUN(BodyProcessor::deserialize(ctx, from));
 
         return convertToUpperVersionOnStack(from, ctx, to);
     }
@@ -274,7 +274,7 @@ protected:
                 return Status::ErrorNoMemory;
 
             if constexpr (InitableBySpecialClass<_To, base_from>)
-                CS_RUN(pointerKeeper.get<base_from>()->init(std::move(from)))
+                AGS_CS_RUN(pointerKeeper.get<base_from>()->init(std::move(from)))
             else
                 return Status::ErrorNoSuchHandler;
 
@@ -294,7 +294,7 @@ protected:
             base_from bFrom;
 
             if constexpr (InitableBySpecialClass<_To, base_from>)
-                CS_RUN(bFrom.init(from))
+                AGS_CS_RUN(bFrom.init(from))
             else
                 return Status::ErrorNoSuchHandler;
 

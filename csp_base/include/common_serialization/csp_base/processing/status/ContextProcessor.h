@@ -32,8 +32,8 @@ namespace common_serialization::csp::processing::status
 class ContextProcessor
 {
 public:
-    static CS_ALWAYS_INLINE constexpr Status serialize(context::SCommon& ctx, Status statusOut);
-    static CS_ALWAYS_INLINE constexpr Status deserialize(context::DCommon& ctx, Status& statusOut) noexcept;
+    static AGS_CS_ALWAYS_INLINE constexpr Status serialize(context::SCommon& ctx, Status statusOut);
+    static AGS_CS_ALWAYS_INLINE constexpr Status deserialize(context::DCommon& ctx, Status& statusOut) noexcept;
 };
 
 constexpr Status ContextProcessor::serialize(context::SCommon& ctx, Status statusOut)

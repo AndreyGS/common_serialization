@@ -32,22 +32,22 @@ namespace common_serialization::csp::processing::status
 class BodyProcessor
 {
 public:
-    static CS_ALWAYS_INLINE constexpr Status serializeErrorNotSupportedProtocolVersion(context::SCommon& ctx, const RawVectorT<protocol_version_t>& supportedProtocolVersions);
-    static CS_ALWAYS_INLINE constexpr Status serializeErrorNotSupportedInterfaceVersion(context::SCommon& ctx, interface_version_t minimumInterfaceVersion, const Id& outputTypeId);
+    static AGS_CS_ALWAYS_INLINE constexpr Status serializeErrorNotSupportedProtocolVersion(context::SCommon& ctx, const RawVectorT<protocol_version_t>& supportedProtocolVersions);
+    static AGS_CS_ALWAYS_INLINE constexpr Status serializeErrorNotSupportedInterfaceVersion(context::SCommon& ctx, interface_version_t minimumInterfaceVersion, const Id& outputTypeId);
 
     static constexpr Status deserializeErrorNotSupportedProtocolVersion(context::DCommon& ctx, RawVectorT<protocol_version_t>& value);
-    static CS_ALWAYS_INLINE constexpr Status deserializeErrorNotSupportedInterfaceVersion(context::DCommon& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId);
+    static AGS_CS_ALWAYS_INLINE constexpr Status deserializeErrorNotSupportedInterfaceVersion(context::DCommon& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId);
 };
 
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeErrorNotSupportedProtocolVersion(context::SCommon& ctx, const RawVectorT<protocol_version_t>& supportedProtocolVersions)
+AGS_CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeErrorNotSupportedProtocolVersion(context::SCommon& ctx, const RawVectorT<protocol_version_t>& supportedProtocolVersions)
 {
-    CS_RUN(writePrimitive(static_cast<protocol_version_t>(supportedProtocolVersions.size()), ctx));
+    AGS_CS_RUN(writePrimitive(static_cast<protocol_version_t>(supportedProtocolVersions.size()), ctx));
     return writeRawData(supportedProtocolVersions.data(), supportedProtocolVersions.size(), ctx);
 }
 
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeErrorNotSupportedInterfaceVersion(context::SCommon& ctx, interface_version_t minimumInterfaceVersion, const Id& outputTypeId)
+AGS_CS_ALWAYS_INLINE constexpr Status BodyProcessor::serializeErrorNotSupportedInterfaceVersion(context::SCommon& ctx, interface_version_t minimumInterfaceVersion, const Id& outputTypeId)
 {
-    CS_RUN(writePrimitive(minimumInterfaceVersion, ctx));
+    AGS_CS_RUN(writePrimitive(minimumInterfaceVersion, ctx));
     return writeRawData(&outputTypeId, 1, ctx);
 }
 
@@ -56,18 +56,18 @@ constexpr Status BodyProcessor::deserializeErrorNotSupportedProtocolVersion(cont
     value.clear();
 
     protocol_version_t protocolVersionsSize = 0;
-    CS_RUN(readPrimitive(ctx, protocolVersionsSize));
+    AGS_CS_RUN(readPrimitive(ctx, protocolVersionsSize));
 
-    CS_RUN(value.reserve(protocolVersionsSize));
-    CS_RUN(readRawData(ctx, protocolVersionsSize, value.data()));
+    AGS_CS_RUN(value.reserve(protocolVersionsSize));
+    AGS_CS_RUN(readRawData(ctx, protocolVersionsSize, value.data()));
     value.setSize(protocolVersionsSize);
 
     return Status::NoError;
 }
 
-CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeErrorNotSupportedInterfaceVersion(context::DCommon& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId)
+AGS_CS_ALWAYS_INLINE constexpr Status BodyProcessor::deserializeErrorNotSupportedInterfaceVersion(context::DCommon& ctx, interface_version_t& minimumInterfaceVersion, Id& outputTypeId)
 {
-    CS_RUN(readPrimitive(ctx, minimumInterfaceVersion));
+    AGS_CS_RUN(readPrimitive(ctx, minimumInterfaceVersion));
     return readRawData(ctx, 1, &outputTypeId);
 }
 

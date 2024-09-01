@@ -32,8 +32,8 @@ Status BodyProcessor::serialize(const tests_restricted_structs::SimplyAssignable
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(value.m_a, ctx));
-    CS_RUN(serialize(value.m_s, ctx));
+    AGS_CS_RUN(serialize(value.m_a, ctx));
+    AGS_CS_RUN(serialize(value.m_s, ctx));
 
     return Status::NoError;
 }
@@ -43,8 +43,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_restricted_structs:
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_a));
-    CS_RUN(deserialize(ctx, value.m_s));
+    AGS_CS_RUN(deserialize(ctx, value.m_a));
+    AGS_CS_RUN(deserialize(ctx, value.m_s));
 
     return Status::NoError;
 }
@@ -54,8 +54,8 @@ Status BodyProcessor::serialize(const tests_restricted_structs::SimplyAssignable
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(value.m_q, ctx));
-    CS_RUN(serialize(value.m_w, ctx));
+    AGS_CS_RUN(serialize(value.m_q, ctx));
+    AGS_CS_RUN(serialize(value.m_w, ctx));
 
     return Status::NoError;
 }
@@ -65,8 +65,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_restricted_structs:
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_q));
-    CS_RUN(deserialize(ctx, value.m_w));
+    AGS_CS_RUN(deserialize(ctx, value.m_q));
+    AGS_CS_RUN(deserialize(ctx, value.m_w));
 
     return Status::NoError;
 }
@@ -76,8 +76,8 @@ Status BodyProcessor::serialize(const tests_restricted_structs::DynamicPolymorph
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(value.m_r, ctx));
-    CS_RUN(serialize(value.m_arrR, ctx));
+    AGS_CS_RUN(serialize(value.m_r, ctx));
+    AGS_CS_RUN(serialize(value.m_arrR, ctx));
 
     return Status::NoError;
 }
@@ -87,8 +87,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_restricted_structs:
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_r));
-    CS_RUN(deserialize(ctx, value.m_arrR));
+    AGS_CS_RUN(deserialize(ctx, value.m_r));
+    AGS_CS_RUN(deserialize(ctx, value.m_arrR));
 
     return Status::NoError;
 }
@@ -98,7 +98,7 @@ Status BodyProcessor::serialize(const tests_restricted_structs::DiamondBase& val
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(value.m_d0, ctx));
+    AGS_CS_RUN(serialize(value.m_d0, ctx));
 
     return Status::NoError;
 }
@@ -108,7 +108,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_restricted_structs:
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_d0));
+    AGS_CS_RUN(deserialize(ctx, value.m_d0));
 
     return Status::NoError;
 }
@@ -118,8 +118,8 @@ Status BodyProcessor::serialize(const tests_restricted_structs::DiamondEdge1& va
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(static_cast<const tests_restricted_structs::DiamondBase&>(value), ctx));
-    CS_RUN(serialize(value.m_d1, ctx));
+    AGS_CS_RUN(serialize(static_cast<const tests_restricted_structs::DiamondBase&>(value), ctx));
+    AGS_CS_RUN(serialize(value.m_d1, ctx));
 
     return Status::NoError;
 }
@@ -129,8 +129,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_restricted_structs:
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    CS_RUN(deserialize(ctx, static_cast<tests_restricted_structs::DiamondBase&>(value)));
-    CS_RUN(deserialize(ctx, value.m_d1));
+    AGS_CS_RUN(deserialize(ctx, static_cast<tests_restricted_structs::DiamondBase&>(value)));
+    AGS_CS_RUN(deserialize(ctx, value.m_d1));
 
     return Status::NoError;
 }
@@ -140,8 +140,8 @@ Status BodyProcessor::serialize(const tests_restricted_structs::DiamondEdge2& va
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(static_cast<const tests_restricted_structs::DiamondBase&>(value), ctx));
-    CS_RUN(serialize(value.m_d2, ctx));
+    AGS_CS_RUN(serialize(static_cast<const tests_restricted_structs::DiamondBase&>(value), ctx));
+    AGS_CS_RUN(serialize(value.m_d2, ctx));
 
     return Status::NoError;
 }
@@ -151,8 +151,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_restricted_structs:
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    CS_RUN(deserialize(ctx, static_cast<tests_restricted_structs::DiamondBase&>(value)));
-    CS_RUN(deserialize(ctx, value.m_d2));
+    AGS_CS_RUN(deserialize(ctx, static_cast<tests_restricted_structs::DiamondBase&>(value)));
+    AGS_CS_RUN(deserialize(ctx, value.m_d2));
 
     return Status::NoError;
 }
@@ -162,8 +162,8 @@ Status BodyProcessor::serialize(const tests_restricted_structs::TwoInts& value, 
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(value.m_x, ctx));
-    CS_RUN(serialize(value.m_y, ctx));
+    AGS_CS_RUN(serialize(value.m_x, ctx));
+    AGS_CS_RUN(serialize(value.m_y, ctx));
 
     return Status::NoError;
 }
@@ -173,8 +173,8 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_restricted_structs:
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_x));
-    CS_RUN(deserialize(ctx, value.m_y));
+    AGS_CS_RUN(deserialize(ctx, value.m_x));
+    AGS_CS_RUN(deserialize(ctx, value.m_y));
 
     return Status::NoError;
 }
@@ -184,7 +184,7 @@ Status BodyProcessor::serialize(const tests_restricted_structs::RecursiveTestSpe
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(value.m_pAny, ctx));
+    AGS_CS_RUN(serialize(value.m_pAny, ctx));
 
     return Status::NoError;
 }
@@ -194,7 +194,7 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_restricted_structs:
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_pAny));
+    AGS_CS_RUN(deserialize(ctx, value.m_pAny));
 
     return Status::NoError;
 }
@@ -204,9 +204,9 @@ Status BodyProcessor::serialize(const tests_restricted_structs::RecursiveTestSpe
 {
     CSP_SERIALIZE_ANY_SIMPLY_ASSIGNABLE(value, ctx);
 
-    CS_RUN(serialize(value.m_pI, ctx));
-    CS_RUN(serialize(value.m_pNext, ctx));
-    CS_RUN(serialize(value.m_pAny, ctx));
+    AGS_CS_RUN(serialize(value.m_pI, ctx));
+    AGS_CS_RUN(serialize(value.m_pNext, ctx));
+    AGS_CS_RUN(serialize(value.m_pAny, ctx));
 
     return Status::NoError;
 }
@@ -216,9 +216,9 @@ Status BodyProcessor::deserialize(context::DData& ctx, tests_restricted_structs:
 {
     CSP_DESERIALIZE_ANY_SIMPLY_ASSIGNABLE(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_pI));
-    CS_RUN(deserialize(ctx, value.m_pNext));
-    CS_RUN(deserialize(ctx, value.m_pAny));
+    AGS_CS_RUN(deserialize(ctx, value.m_pI));
+    AGS_CS_RUN(deserialize(ctx, value.m_pNext));
+    AGS_CS_RUN(deserialize(ctx, value.m_pAny));
 
     return Status::NoError;
 }

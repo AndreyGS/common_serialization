@@ -59,7 +59,7 @@ struct Uuid
         }
     }
    
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool operator<(const Uuid& rhs) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool operator<(const Uuid& rhs) const noexcept
     {
         if constexpr (helpers::isLittleEndianPlatform())
             return m_low < rhs.m_low || m_low == rhs.m_low && m_high < rhs.m_high;
@@ -67,7 +67,7 @@ struct Uuid
             return m_high < rhs.m_high || m_high == rhs.m_high && m_low < rhs.m_low;
     }
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool operator==(const Uuid& rhs) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool operator==(const Uuid& rhs) const noexcept
     {
         return m_low == rhs.m_low && m_high == rhs.m_high;
     }

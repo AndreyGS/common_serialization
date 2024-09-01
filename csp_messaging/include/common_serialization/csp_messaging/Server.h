@@ -63,8 +63,8 @@ public:
     template<typename _T, typename... _Ts>
     Status init(const service_structs::CspPartySettings<>& settings, _Ts&&... ts) noexcept;
 
-    CS_ALWAYS_INLINE constexpr bool isValid() const noexcept;
-    CS_ALWAYS_INLINE const UniquePtrT<IServerDataHandlerRegistrar>& getDataHandlersRegistrar() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr bool isValid() const noexcept;
+    AGS_CS_ALWAYS_INLINE const UniquePtrT<IServerDataHandlerRegistrar>& getDataHandlersRegistrar() const noexcept;
 
     /// @brief Get settings installed in current Server instance
     /// @return Server settings
@@ -77,13 +77,13 @@ public:
     Status handleMessage(BinWalkerT& binInput, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const;
 
 private:
-    CS_ALWAYS_INLINE Status handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept;
+    AGS_CS_ALWAYS_INLINE Status handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept;
 
     /// @brief Common entry point on data messages handling
     /// @param ctxCommon Deserialized from input common context
     /// @param binOutput Binary data output
     /// @return Status of operation
-    CS_ALWAYS_INLINE Status handleData(context::DCommon& ctxCommon, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const;
+    AGS_CS_ALWAYS_INLINE Status handleData(context::DCommon& ctxCommon, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const;
 
     service_structs::CspPartySettings<> m_settings;
     UniquePtrT<IServerDataHandlerRegistrar> m_dataHandlersRegistrar;
@@ -114,24 +114,24 @@ inline Status Server::init(const service_structs::CspPartySettings<>& settings, 
     if (!settings.isValid())
         return Status::ErrorInvalidArgument;
 
-    CS_RUN(m_settings.init(settings));
+    AGS_CS_RUN(m_settings.init(settings));
 
     m_isInited = true;
 
     return Status::NoError;
 }
 
-CS_ALWAYS_INLINE constexpr bool Server::isValid() const noexcept
+AGS_CS_ALWAYS_INLINE constexpr bool Server::isValid() const noexcept
 {
     return m_isInited;
 }
 
-CS_ALWAYS_INLINE const UniquePtr<IServerDataHandlerRegistrar>& Server::getDataHandlersRegistrar() const noexcept
+AGS_CS_ALWAYS_INLINE const UniquePtr<IServerDataHandlerRegistrar>& Server::getDataHandlersRegistrar() const noexcept
 {
     return m_dataHandlersRegistrar;
 }
 
-CS_ALWAYS_INLINE constexpr const service_structs::CspPartySettings<>& Server::getSettings() const noexcept
+AGS_CS_ALWAYS_INLINE constexpr const service_structs::CspPartySettings<>& Server::getSettings() const noexcept
 {
     return m_settings;
 }
@@ -165,24 +165,24 @@ inline Status Server::handleMessage(BinWalkerT& binInput, const GenericPointerKe
         status = processing::status::Helpers::serializeErrorNotSupportedProtocolVersion(binOutput, m_settings.getProtocolVersions(), m_settings.getMandatoryCommonFlags());
 
     if (binOutput.size() == 0)
-        CS_SET_NEW_ERROR(processing::status::Helpers::serializeFullContext(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), status));
+        AGS_CS_SET_NEW_ERROR(processing::status::Helpers::serializeFullContext(binOutput, ctx.getProtocolVersion(), ctx.getCommonFlags(), status));
 
     return status;
 }
 
-CS_ALWAYS_INLINE Status Server::handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept
+AGS_CS_ALWAYS_INLINE Status Server::handleGetSettings(protocol_version_t cspVersion, BinVectorT& binOutput) const noexcept
 {
     context::SData ctxOut(binOutput, cspVersion, m_settings.getMandatoryCommonFlags(), {}, true, cspVersion);
 
     return m_settings.serialize(ctxOut);
 }
 
-CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const
+AGS_CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) const
 {
     context::DData ctx(ctxCommon);
     Id id;
 
-    CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctx, id));
+    AGS_CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctx, id));
 
     VectorT<GenericPointerKeeperT> addedPointers;
     if (ctx.allowUnmanagedPointers())
@@ -203,7 +203,7 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
     else if (status == Status::ErrorMoreEntires) // if we have more than one DataHandler
     {
         RawVectorT<IServerDataHandlerBase*> handlers;
-        CS_RUN(m_dataHandlersRegistrar->aquireHandlers(id, handlers));
+        AGS_CS_RUN(m_dataHandlersRegistrar->aquireHandlers(id, handlers));
 
         status = Status::NoError;
 
@@ -211,7 +211,7 @@ CS_ALWAYS_INLINE Status Server::handleData(context::DCommon& ctxCommon, const Ge
 
         for (auto pHandlerM : handlers)
         {
-            CS_SET_NEW_ERROR(pHandlerM->handleDataCommon(ctx, clientId, binOutput));
+            AGS_CS_SET_NEW_ERROR(pHandlerM->handleDataCommon(ctx, clientId, binOutput));
             m_dataHandlersRegistrar->releaseHandler(pHandlerM);
             ctx.getBinaryData().seek(bodyPosition);
         }

@@ -120,7 +120,7 @@ constexpr uint16_t reverseEndianessUInt16(uint16_t input)
 
 template<typename _T>
     requires EndiannessReversable<_T>
-CS_ALWAYS_INLINE constexpr _T reverseEndianess(_T input)
+AGS_CS_ALWAYS_INLINE constexpr _T reverseEndianess(_T input)
 {
     if constexpr (sizeof(_T) == 2)
     {
@@ -258,7 +258,7 @@ constexpr Status castToSmallerType(_T input, fixed_width_integer_t<targetSize, S
 
 template<size_t targetSize, typename _T>
     requires (std::is_integral_v<_T> && targetSize >= sizeof(_T))
-CS_ALWAYS_INLINE constexpr void castToBiggerType(_T input, fixed_width_integer_t<targetSize, Signed<_T>>& output)
+AGS_CS_ALWAYS_INLINE constexpr void castToBiggerType(_T input, fixed_width_integer_t<targetSize, Signed<_T>>& output)
 {
     output = static_cast<fixed_width_integer_t<targetSize, Signed<_T>>>(input);
 }

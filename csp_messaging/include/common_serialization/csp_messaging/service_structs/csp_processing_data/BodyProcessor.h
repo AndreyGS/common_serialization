@@ -35,7 +35,7 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::OutG
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_properties, ctx));
+    AGS_CS_RUN(serialize(value.m_properties, ctx));
 
     return Status::NoError;
 }
@@ -45,7 +45,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::serv
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_properties));
+    AGS_CS_RUN(deserialize(ctx, value.m_properties));
 
     return Status::NoError;
 }
@@ -55,7 +55,7 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::GetI
 {
     CSP_SERIALIZE_COMMON(value, ctx);
 
-    CS_RUN(serialize(value.m_id, ctx));
+    AGS_CS_RUN(serialize(value.m_id, ctx));
 
     return Status::NoError;
 }
@@ -65,7 +65,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::serv
 {
     CSP_DESERIALIZE_COMMON(ctx, value);
 
-    CS_RUN(deserialize(ctx, value.m_id));
+    AGS_CS_RUN(deserialize(ctx, value.m_id));
 
     return Status::NoError;
 }
@@ -77,13 +77,13 @@ constexpr Status BodyProcessor::serialize(const messaging::service_structs::CspP
 
     // Here needs special handling to be compliant with CSP
 
-    CS_RUN(serialize(static_cast<protocol_version_t>(value.m_protocolVersions.size()), ctx));
-    CS_RUN(serialize(value.m_protocolVersions.data(), static_cast<protocol_version_t>(value.m_protocolVersions.size()), ctx));
+    AGS_CS_RUN(serialize(static_cast<protocol_version_t>(value.m_protocolVersions.size()), ctx));
+    AGS_CS_RUN(serialize(value.m_protocolVersions.data(), static_cast<protocol_version_t>(value.m_protocolVersions.size()), ctx));
 
-    CS_RUN(serialize(static_cast<uint32_t>(value.m_mandatoryCommonFlags), ctx));
-    CS_RUN(serialize(static_cast<uint32_t>(value.m_forbiddenCommonFlags), ctx));
+    AGS_CS_RUN(serialize(static_cast<uint32_t>(value.m_mandatoryCommonFlags), ctx));
+    AGS_CS_RUN(serialize(static_cast<uint32_t>(value.m_forbiddenCommonFlags), ctx));
 
-    CS_RUN(serialize(value.m_interfaces, ctx));
+    AGS_CS_RUN(serialize(value.m_interfaces, ctx));
 
     return Status::NoError;
 }
@@ -96,19 +96,19 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, messaging::serv
     // Here needs special handling to be compliant with CSP
 
     protocol_version_t cspVersionsSize{ 0 };
-    CS_RUN(deserialize(ctx, cspVersionsSize));
+    AGS_CS_RUN(deserialize(ctx, cspVersionsSize));
     value.m_protocolVersions.setSize(cspVersionsSize);
-    CS_RUN(deserialize(ctx, cspVersionsSize, value.m_protocolVersions.data()));
+    AGS_CS_RUN(deserialize(ctx, cspVersionsSize, value.m_protocolVersions.data()));
 
     uint32_t mandatoryCommonFlags{ 0 };
-    CS_RUN(deserialize(ctx, mandatoryCommonFlags));
+    AGS_CS_RUN(deserialize(ctx, mandatoryCommonFlags));
     value.m_mandatoryCommonFlags = mandatoryCommonFlags;
 
     uint32_t forbiddenCommonFlags{ 0 };;
-    CS_RUN(deserialize(ctx, forbiddenCommonFlags));
+    AGS_CS_RUN(deserialize(ctx, forbiddenCommonFlags));
     value.m_forbiddenCommonFlags = forbiddenCommonFlags;
 
-    CS_RUN(deserialize(ctx, value.m_interfaces));
+    AGS_CS_RUN(deserialize(ctx, value.m_interfaces));
 
     return Status::NoError;
 }

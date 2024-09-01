@@ -30,7 +30,7 @@ namespace common_serialization::csp::processing
 {
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status writePrimitive(_T value, context::SCommon& ctx)
+AGS_CS_ALWAYS_INLINE constexpr Status writePrimitive(_T value, context::SCommon& ctx)
 {
     if constexpr (EndiannessReversable<_T>)
         if (ctx.endiannessNotMatch())
@@ -45,7 +45,7 @@ CS_ALWAYS_INLINE constexpr Status writePrimitive(_T value, context::SCommon& ctx
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status writeRawData(const _T* p, csp_size_t n, context::SCommon& ctx)
+AGS_CS_ALWAYS_INLINE constexpr Status writeRawData(const _T* p, csp_size_t n, context::SCommon& ctx)
 {
     assert(p && n > 0 || n == 0);
     const csp_size_t bytesSize = sizeof(_T) * n;
@@ -55,7 +55,7 @@ CS_ALWAYS_INLINE constexpr Status writeRawData(const _T* p, csp_size_t n, contex
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, _T& value)
+AGS_CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, _T& value)
 {
     csp_size_t sizeRead{ 0 };
     Status status = Status::NoError;
@@ -64,7 +64,7 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, _T& value
         if (ctx.endiannessNotMatch())
             return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
-    CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<_T>&>(value)));
+    AGS_CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<_T>&>(value)));
 
     if constexpr (EndiannessReversable<_T>)
         if (ctx.endiannessNotMatch())
@@ -74,14 +74,14 @@ CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, _T& value
 }
 
 template<typename _T>
-CS_ALWAYS_INLINE constexpr Status readRawData(context::DCommon& ctx, csp_size_t n, _T* p)
+AGS_CS_ALWAYS_INLINE constexpr Status readRawData(context::DCommon& ctx, csp_size_t n, _T* p)
 {
     assert(p && n > 0 || n == 0);
     const csp_size_t bytesSize = sizeof(_T) * n;
     assert(n == bytesSize / sizeof(_T));
     csp_size_t readSize = 0;
 
-    CS_RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
+    AGS_CS_RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));
 
     return readSize == bytesSize ? Status::NoError : Status::ErrorOverflow;
 }

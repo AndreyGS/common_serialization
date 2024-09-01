@@ -173,7 +173,7 @@ inline Status Client::init(const service_structs::CspPartySettings<>& settings) 
 
     m_settings.clear();
 
-    CS_RUN(m_settings.init(settings));
+    AGS_CS_RUN(m_settings.init(settings));
 
     m_isValid = m_settings.isValid();
 
@@ -191,7 +191,7 @@ inline Status Client::init(const service_structs::CspPartySettings<>& clientSett
     m_settings.clear();
 
     RawVectorT<protocol_version_t> serverCspVersions;
-    CS_RUN(getServerProtocolVersions(serverCspVersions));
+    AGS_CS_RUN(getServerProtocolVersions(serverCspVersions));
 
     protocol_version_t tempServerProtocolVersion = traits::kProtocolVersionUndefined;
 
@@ -214,29 +214,29 @@ inline Status Client::init(const service_structs::CspPartySettings<>& clientSett
 
     if (tempServerProtocolVersion == traits::kProtocolVersionUndefined)
     {
-        CS_RUN(serverSettings.init(std::move(serverCspVersions), {}, {}, {}));
+        AGS_CS_RUN(serverSettings.init(std::move(serverCspVersions), {}, {}, {}));
         return Status::ErrorNotSupportedProtocolVersion;
     }
 
-    CS_RUN(getServerSettings(tempServerProtocolVersion, serverSettings));
-    CS_RUN(m_settings.getCompatibleSettings(clientSettings, serverSettings));
+    AGS_CS_RUN(getServerSettings(tempServerProtocolVersion, serverSettings));
+    AGS_CS_RUN(m_settings.getCompatibleSettings(clientSettings, serverSettings));
 
     m_isValid = m_settings.isValid();
 
     return m_isValid ? Status::NoError : Status::ErrorNotInited;
 }
 
-CS_ALWAYS_INLINE bool Client::isValid() const noexcept
+AGS_CS_ALWAYS_INLINE bool Client::isValid() const noexcept
 {
     return m_isValid;
 }
 
-CS_ALWAYS_INLINE IClientToServerCommunicator& Client::getClientToServerCommunicator() noexcept
+AGS_CS_ALWAYS_INLINE IClientToServerCommunicator& Client::getClientToServerCommunicator() noexcept
 {
     return m_clientToServerCommunicator;
 }
 
-CS_ALWAYS_INLINE const IClientToServerCommunicator& Client::getClientToServerCommunicator() const noexcept
+AGS_CS_ALWAYS_INLINE const IClientToServerCommunicator& Client::getClientToServerCommunicator() const noexcept
 {
     return m_clientToServerCommunicator;
 }
@@ -245,19 +245,19 @@ inline Status Client::getServerProtocolVersions(RawVectorT<protocol_version_t>& 
 {
     BinVectorT binInput;
     context::SCommon ctxIn(binInput, traits::kProtocolVersionUndefined);
-    CS_RUN(processing::common::ContextProcessor::serializeNoChecks(ctxIn));
+    AGS_CS_RUN(processing::common::ContextProcessor::serializeNoChecks(ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
+    AGS_CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOut(binOutput);
-    CS_RUN(processing::common::ContextProcessor::deserializeNoChecks(ctxOut));
+    AGS_CS_RUN(processing::common::ContextProcessor::deserializeNoChecks(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::Status)
         return Status::ErrorDataCorrupted;
 
     Status statusOut = Status::NoError;
-    CS_RUN(processing::status::ContextProcessor::deserialize(ctxOut, statusOut));
+    AGS_CS_RUN(processing::status::ContextProcessor::deserialize(ctxOut, statusOut));
 
     if (statusOut != Status::ErrorNotSupportedProtocolVersion)
         return Status::ErrorDataCorrupted;
@@ -269,10 +269,10 @@ inline Status Client::getServerSettings(protocol_version_t serverCspVersion, ser
 {
     BinVectorT binInput;
     context::SCommon ctxIn(binInput, serverCspVersion, context::Message::GetSettings, {});
-    CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
+    AGS_CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
+    AGS_CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     return cspPartySettings.deserialize(binOutput);
 }
@@ -291,20 +291,20 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     BinVectorT binInput;
     context::SData ctxIn(binInput, m_settings.getLatestProtocolVersion(), m_settings.getMandatoryCommonFlags());
 
-    CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
-    CS_RUN(processing::data::ContextProcessor::serializeNoChecks<_InputType>(ctxIn));
+    AGS_CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
+    AGS_CS_RUN(processing::data::ContextProcessor::serializeNoChecks<_InputType>(ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
+    AGS_CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOut(binOutput);
-    CS_RUN(processing::common::ContextProcessor::deserialize(ctxOut));
+    AGS_CS_RUN(processing::common::ContextProcessor::deserialize(ctxOut));
 
     if (ctxOut.getMessageType() != context::Message::Status)
         return Status::ErrorDataCorrupted;
 
     Status statusOut = Status::NoError;
-    CS_RUN(processing::status::ContextProcessor::deserialize(ctxOut, statusOut));
+    AGS_CS_RUN(processing::status::ContextProcessor::deserialize(ctxOut, statusOut));
 
     if (statusSuccess(statusOut))
         return Status::ErrorDataCorrupted;
@@ -314,7 +314,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     return processing::status::BodyProcessor::deserializeErrorNotSupportedInterfaceVersion(ctxOut, minimumInterfaceVersion, outputTypeId);
 }
 
-CS_ALWAYS_INLINE constexpr const service_structs::CspPartySettings<>& Client::getSettings() const noexcept
+AGS_CS_ALWAYS_INLINE constexpr const service_structs::CspPartySettings<>& Client::getSettings() const noexcept
 {
     return m_settings;
 }
@@ -376,8 +376,8 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
         , targetInterfaceVersion
         , nullptr);
 
-    CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
-    CS_RUN(processing::data::ContextProcessor::serialize<InputType>(ctxIn));
+    AGS_CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
+    AGS_CS_RUN(processing::data::ContextProcessor::serialize<InputType>(ctxIn));
 
     if (ctxIn.allowUnmanagedPointers() && pUnmanagedPointers == nullptr)
         return Status::ErrorInvalidArgument;
@@ -385,16 +385,16 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     if (ctxIn.checkRecursivePointers())
     {
         context::SPointersMap pointersMap;
-        CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn.setPointersMap(&pointersMap)));
+        AGS_CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn.setPointersMap(&pointersMap)));
     }
     else
-        CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn));
+        AGS_CS_RUN(processing::data::BodyProcessor::serialize(input, ctxIn));
 
     BinWalkerT binOutput;
-    CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
+    AGS_CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
 
     context::DCommon ctxOutCommon(binOutput);
-    CS_RUN(processing::common::ContextProcessor::deserialize(ctxOutCommon));
+    AGS_CS_RUN(processing::common::ContextProcessor::deserialize(ctxOutCommon));
 
     if (ctxIn.getCommonFlags() != ctxOutCommon.getCommonFlags())
         return Status::ErrorNotCompatibleCommonFlagsSettings;
@@ -405,7 +405,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     {
         Id outId;
         context::DData ctxOut(ctxOutCommon);
-        CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctxOut, outId));
+        AGS_CS_RUN(processing::data::ContextProcessor::deserializeNoChecks(ctxOut, outId));
 
         if (ctxIn.getDataFlags() != ctxOut.getDataFlags())
             return Status::ErrorNotCompatibleDataFlagsSettings;
@@ -414,8 +414,8 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
 
         ctxOut.setAddedPointers(pUnmanagedPointers);
 
-        CS_RUN(processing::data::ContextProcessor::deserializePostprocessId<OutputType>(outId));
-        CS_RUN(processing::data::ContextProcessor::deserializePostprocessRest<OutputType>(ctxOut, OutputType::getOriginPrivateVersion()));
+        AGS_CS_RUN(processing::data::ContextProcessor::deserializePostprocessId<OutputType>(outId));
+        AGS_CS_RUN(processing::data::ContextProcessor::deserializePostprocessRest<OutputType>(ctxOut, OutputType::getOriginPrivateVersion()));
 
         if (ctxOut.getInterfaceVersion() != targetInterfaceVersion)
             return Status::ErrorMismatchOfInterfaceVersions;
@@ -433,7 +433,7 @@ Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::
     case context::Message::Status:
     {
         Status statusOut = Status::NoError;
-        CS_RUN(processing::status::ContextProcessor::deserialize(ctxOutCommon, statusOut));
+        AGS_CS_RUN(processing::status::ContextProcessor::deserialize(ctxOutCommon, statusOut));
         return statusOut;
     }
     default:

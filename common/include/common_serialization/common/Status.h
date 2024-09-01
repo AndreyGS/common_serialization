@@ -23,13 +23,13 @@
 
 #pragma once
 
-#ifdef CS_ALWAYS_INLINE
-#undef CS_ALWAYS_INLINE
-#endif // #ifdef CS_ALWAYS_INLINE
+#ifdef AGS_CS_ALWAYS_INLINE
+#undef AGS_CS_ALWAYS_INLINE
+#endif // #ifdef AGS_CS_ALWAYS_INLINE
 #if defined(_MSC_VER) && !defined(__clang__)
-#define CS_ALWAYS_INLINE __forceinline
+#define AGS_CS_ALWAYS_INLINE __forceinline
 #else
-#define CS_ALWAYS_INLINE __attribute__((always_inline)) inline
+#define AGS_CS_ALWAYS_INLINE __attribute__((always_inline)) inline
 #endif // #if defined(_MSC_VER) && !defined(__clang__)
 
 // header for fixed size integers for non-std environments is not ready yet
@@ -37,19 +37,19 @@
 #include <cstdint>
 #endif // USER_MODE
 
-#ifdef CS_RUN
-#undef CS_RUN
-#endif // CS_RUN
-#define CS_RUN(x)                                                                   \
+#ifdef AGS_CS_RUN
+#undef AGS_CS_RUN
+#endif // AGS_CS_RUN
+#define AGS_CS_RUN(x)                                                               \
 {                                                                                   \
     if (Status status = (x); !statusSuccess(status))                                \
         return status;                                                              \
 }
 
-#ifdef CS_SET_NEW_ERROR
-#undef CS_SET_NEW_ERROR
-#endif // CS_SET_NEW_ERROR
-#define CS_SET_NEW_ERROR(x)                                                         \
+#ifdef AGS_CS_SET_NEW_ERROR
+#undef AGS_CS_SET_NEW_ERROR
+#endif // AGS_CS_SET_NEW_ERROR
+#define AGS_CS_SET_NEW_ERROR(x)                                                     \
 {                                                                                   \
     if (Status newStatus = (x); !statusSuccess(newStatus) && statusSuccess(status)) \
         status = newStatus;                                                         \
@@ -96,7 +96,7 @@ enum class Status : int32_t
     ErrorAlreadyInited                              =      -24
 };
 
-CS_ALWAYS_INLINE constexpr [[nodiscard]] bool statusSuccess(Status status)
+AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool statusSuccess(Status status)
 {
     return static_cast<int32_t>(status) >= 0;
 }

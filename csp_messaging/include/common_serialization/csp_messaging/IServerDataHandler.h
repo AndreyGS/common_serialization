@@ -60,8 +60,8 @@ public:
     virtual Status handleData(const InputType& input, VectorT<GenericPointerKeeperT>* pUnmanagedPointers, const GenericPointerKeeperT& clientId, OutputType& output) = 0;
     virtual Status checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId);
 
-    CS_ALWAYS_INLINE Status registerHandler(IServerDataHandlerRegistrar& handlerRegistrar, void* pService);
-    CS_ALWAYS_INLINE void unregisterHandler(IServerDataHandlerRegistrar& handlerRegistrar);
+    AGS_CS_ALWAYS_INLINE Status registerHandler(IServerDataHandlerRegistrar& handlerRegistrar, void* pService);
+    AGS_CS_ALWAYS_INLINE void unregisterHandler(IServerDataHandlerRegistrar& handlerRegistrar);
     [[nodiscard]] interface_version_t getMinimumInterfaceVersion();
 
 protected:
@@ -72,10 +72,10 @@ protected:
 private:
     Status handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput) override;
 
-    CS_ALWAYS_INLINE Status handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput);
-    CS_ALWAYS_INLINE Status handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput);
+    AGS_CS_ALWAYS_INLINE Status handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput);
+    AGS_CS_ALWAYS_INLINE Status handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput);
     // This is the common code between handleDataOnStack and handleDataOnHeap
-    CS_ALWAYS_INLINE Status handleDataMain(InputType& input, context::DData& ctx, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput);
+    AGS_CS_ALWAYS_INLINE Status handleDataMain(InputType& input, context::DData& ctx, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput);
 };
 
 template<IServerDataHandlerTraitsImpl _T>
@@ -85,13 +85,13 @@ Status IServerDataHandler<_T>::checkPoliciesCompliance(const InputType* input, c
 }
 
 template<IServerDataHandlerTraitsImpl _T>
-CS_ALWAYS_INLINE Status IServerDataHandler<_T>::registerHandler(IServerDataHandlerRegistrar& handlerRegistrar, void* pService)
+AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::registerHandler(IServerDataHandlerRegistrar& handlerRegistrar, void* pService)
 {
     return handlerRegistrar.registerHandler(InputType::getId(), kMulticast, pService, *this);
 }
 
 template<IServerDataHandlerTraitsImpl _T>
-CS_ALWAYS_INLINE void IServerDataHandler<_T>::unregisterHandler(IServerDataHandlerRegistrar& handlerRegistrar)
+AGS_CS_ALWAYS_INLINE void IServerDataHandler<_T>::unregisterHandler(IServerDataHandlerRegistrar& handlerRegistrar)
 {
     handlerRegistrar.unregisterHandler(InputType::getId(), *this);
 }
@@ -105,7 +105,7 @@ interface_version_t IServerDataHandler<_T>::getMinimumInterfaceVersion()
 template<IServerDataHandlerTraitsImpl _T>
 Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
 {
-    CS_RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
+    AGS_CS_RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
 
     // We already checked equality of ID in context and in subscriber
     // so here it is only placeholder
@@ -114,7 +114,7 @@ Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const Gener
     if (Status status = processing::data::ContextProcessor::deserializePostprocessRest<InputType>(ctx, getMinimumInterfaceVersion()); !statusSuccess(status))
     {
         if (status == Status::ErrorNotSupportedInterfaceVersion)
-            CS_RUN(processing::status::Helpers::serializeErrorNotSupportedInterfaceVersion(ctx.getProtocolVersion(), ctx.getCommonFlags()
+            AGS_CS_RUN(processing::status::Helpers::serializeErrorNotSupportedInterfaceVersion(ctx.getProtocolVersion(), ctx.getCommonFlags()
                 , getMinimumInterfaceVersion(), OutputType::getId(), binOutput));
         
         return status;
@@ -129,7 +129,7 @@ Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const Gener
 }
 
 template<IServerDataHandlerTraitsImpl _T>
-CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
+AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
 {
     InputType input;
     OutputType output;
@@ -138,7 +138,7 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnStack(context::DData
 }
 
 template<IServerDataHandlerTraitsImpl _T>
-CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
+AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
 {
     GenericPointerKeeperT input;
     if (!input.allocateAndConstructOne<InputType>())
@@ -157,11 +157,11 @@ CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData&
 }
 
 template<IServerDataHandlerTraitsImpl _T>
-CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataMain(InputType& input, context::DData& ctxIn, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput)
+AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataMain(InputType& input, context::DData& ctxIn, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput)
 {
-    CS_RUN(processing::data::BodyProcessor::deserialize(ctxIn, input));
+    AGS_CS_RUN(processing::data::BodyProcessor::deserialize(ctxIn, input));
     
-    CS_RUN(this->handleData(input, ctxIn.getAddedPointers(), clientId, output))
+    AGS_CS_RUN(this->handleData(input, ctxIn.getAddedPointers(), clientId, output))
 
     if constexpr (!std::is_same_v<OutputType, service_structs::ISerializableDummy>)
     {

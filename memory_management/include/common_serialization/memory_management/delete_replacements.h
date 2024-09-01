@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifdef CS_OPERATOR_DELETE_REPLACEMENT
+#ifdef AGS_CS_OPERATOR_DELETE_REPLACEMENT
 
 #include <common_serialization/memory_management/typedefs.h>
 
@@ -61,4 +61,4 @@ constexpr void operator delete[](void*, void* ) noexcept
 {
 }
 
-#endif // #ifdef CS_OPERATOR_DELETE_REPLACEMENT
+#endif // #ifdef AGS_CS_OPERATOR_DELETE_REPLACEMENT

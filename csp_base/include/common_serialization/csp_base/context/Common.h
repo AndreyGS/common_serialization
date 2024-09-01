@@ -107,24 +107,24 @@ public:
 
     /// @brief Get reference to container that holds processed data in binary
     /// @return Container with binary data
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] Bin& getBinaryData() noexcept { return m_binaryData; }
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const Bin& getBinaryData() const noexcept { return m_binaryData; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] Bin& getBinaryData() noexcept { return m_binaryData; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const Bin& getBinaryData() const noexcept { return m_binaryData; }
 
     /// @brief Get type of CSP message that holds by this context
     /// @return Type of CSP message
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] Message getMessageType() const noexcept { return m_messageType; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] Message getMessageType() const noexcept { return m_messageType; }
 
     /// @brief Set CSP message type to current context
     /// @param messageType Type of CSP message
-    CS_ALWAYS_INLINE constexpr Common& setMessageType(Message messageType) noexcept { m_messageType = messageType; return *this; }
+    AGS_CS_ALWAYS_INLINE constexpr Common& setMessageType(Message messageType) noexcept { m_messageType = messageType; return *this; }
 
     /// @brief Get CSP version that is using in this context
     /// @return CSP version
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] protocol_version_t getProtocolVersion() const noexcept { return m_protocolVersion; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] protocol_version_t getProtocolVersion() const noexcept { return m_protocolVersion; }
 
     /// @brief Set CSP version that will be used by this context
     /// @param protocolVersion CSP version
-    CS_ALWAYS_INLINE constexpr Common& setProtocolVersion(protocol_version_t protocolVersion) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr Common& setProtocolVersion(protocol_version_t protocolVersion) noexcept
     { 
         m_protocolVersion = protocolVersion; 
         m_protocolVersionsNotMatch = traits::isProtocolVersionSameAsLatestOur(m_protocolVersion);
@@ -133,7 +133,7 @@ public:
 
     /// @brief Is target protocol version same as the latest our
     /// @return Flag indicating that protocol versions not match
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool protocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool protocolVersionsNotMatch() const noexcept { return m_protocolVersionsNotMatch; }
 
     /// @brief Is target endianness differs from current platform
     /// @note "Endianness not match" is not the same as "endianness difference". The first one is simply
@@ -141,7 +141,7 @@ public:
     ///     is the mode that drops off most of optimizations in processing so that there is an opportunity
     ///     to deserialize binary data on platform with any endianness.
     /// @return Flag indicating that endianness of current platform differs from target one
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool endiannessNotMatch() const noexcept { return m_endiannessNotMatch; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool endiannessNotMatch() const noexcept { return m_endiannessNotMatch; }
 
     /// @brief Get Common Flags that are using in this context
     /// @return Common Flags
@@ -166,14 +166,14 @@ public:
         return *this;
     }
 
-    CS_ALWAYS_INLINE constexpr Common& setCommonFlags(uint32_t commonFlags) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr Common& setCommonFlags(uint32_t commonFlags) noexcept
     {
         return setCommonFlags(static_cast<CommonFlags>(commonFlags));
     }
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool bitness32() const noexcept { return m_bitness32; }
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool bigEndianFormat() const noexcept { return m_bigEndianFormat; }
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool endiannessDifference() const noexcept { return m_endiannessDifference; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool bitness32() const noexcept { return m_bitness32; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool bigEndianFormat() const noexcept { return m_bigEndianFormat; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool endiannessDifference() const noexcept { return m_endiannessDifference; }
 
     /// @brief Reset all fields to their default values, but leaves binary data and common flags unchanged
     /// @note Common flags are not resets to false because because they are 

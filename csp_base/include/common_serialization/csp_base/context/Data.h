@@ -286,7 +286,7 @@ public:
 
     /// @brief Get data processing flags
     /// @return Data processing flags
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] DataFlags getDataFlags() noexcept
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] DataFlags getDataFlags() noexcept
     {
         return m_dataFlags;
     }
@@ -304,62 +304,62 @@ public:
         return *this;
     }
 
-    CS_ALWAYS_INLINE constexpr Data& setDataFlags(uint32_t dataFlags)
+    AGS_CS_ALWAYS_INLINE constexpr Data& setDataFlags(uint32_t dataFlags)
     {
         return setDataFlags(static_cast<DataFlags>(dataFlags));
     }
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool sizeOfIntegersMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept { return m_simplyAssignableTagsOptimizationsAreTurnedOff; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool alignmentMayBeNotEqual() const noexcept { return m_alignmentMayBeNotEqual; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool sizeOfIntegersMayBeNotEqual() const noexcept { return m_sizeOfPrimitivesMayBeNotEqual; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool allowUnmanagedPointers() const noexcept { return m_allowUnmanagedPointers; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool checkRecursivePointers() const noexcept { return m_checkRecursivePointers; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool simplyAssignableTagsOptimizationsAreTurnedOff() const noexcept { return m_simplyAssignableTagsOptimizationsAreTurnedOff; }
 
     /// @brief Get target interface version
     /// @return Target interface version
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] interface_version_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
-    CS_ALWAYS_INLINE constexpr Data& setInterfaceVersion(interface_version_t interfaceVersion) { m_interfaceVersion = interfaceVersion; return *this; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] interface_version_t getInterfaceVersion() const noexcept { return m_interfaceVersion; }
+    AGS_CS_ALWAYS_INLINE constexpr Data& setInterfaceVersion(interface_version_t interfaceVersion) { m_interfaceVersion = interfaceVersion; return *this; }
 
     /// @brief Is target interface version differs of latest version of top struct that is processed
     /// @return Flag indicating that interface versions are not match
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool isInterfaceVersionsNotMatch() const noexcept { return m_interfaceVersionsNotMatch; }
 
     /// @brief If target interface version is differs from top struct interface version, true must be set.
     /// @note Should be used before start of data processing.
     /// @param interfaceVersionsNotMatch Flag indicating that interface versions are not match
-    CS_ALWAYS_INLINE constexpr Data& setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; return *this; }
+    AGS_CS_ALWAYS_INLINE constexpr Data& setInterfaceVersionsNotMatch(bool interfaceVersionsNotMatch) { m_interfaceVersionsNotMatch = interfaceVersionsNotMatch; return *this; }
 
     /// @brief Test if allocation of temp data would be used on heap instead of stack
     /// @return Is allocation of temp data would be used on heap instead of stack
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] bool isHeapUsedForTemp() const noexcept { return m_forTempUseHeap; }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] bool isHeapUsedForTemp() const noexcept { return m_forTempUseHeap; }
     
     /// @brief Set that allocation of temp data should use heap or stack
     /// @param forTempUseHeap Flag indicating type of temp allocation
-    CS_ALWAYS_INLINE constexpr Data& setHeapUseForTemp(bool forTempUseHeap) { m_forTempUseHeap = forTempUseHeap; return *this; }
+    AGS_CS_ALWAYS_INLINE constexpr Data& setHeapUseForTemp(bool forTempUseHeap) { m_forTempUseHeap = forTempUseHeap; return *this; }
 
     /// @brief Get pointer to holding pointers map
     /// @return Pointer to pointers map
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] PM* getPointersMap() noexcept { return m_epp.getPointersMap(); }
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const PM* getPointersMap() const noexcept { return m_epp.getPointersMap(); }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] PM* getPointersMap() noexcept { return m_epp.getPointersMap(); }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const PM* getPointersMap() const noexcept { return m_epp.getPointersMap(); }
 
     /// @brief Set holding pointers map.
     ///     You should notice that when we set map to Data 
     ///     it will not owns this map and does not clears its contents on destruction.
     /// @param pPointersMap Set pointer map to this
-    CS_ALWAYS_INLINE constexpr Data& setPointersMap(PM* pPointersMap) noexcept { m_epp.setPointersMap(pPointersMap); return *this; }
+    AGS_CS_ALWAYS_INLINE constexpr Data& setPointersMap(PM* pPointersMap) noexcept { m_epp.setPointersMap(pPointersMap); return *this; }
 
     /// @brief Get pointer to added free pointers container.
     /// @remark availible only on deserialization mode
     /// @return Pointer to added free pointers container
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] VectorT<GenericPointerKeeperT>* getAddedPointers() noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const VectorT<GenericPointerKeeperT>* getAddedPointers() const noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] VectorT<GenericPointerKeeperT>* getAddedPointers() noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const VectorT<GenericPointerKeeperT>* getAddedPointers() const noexcept requires (!serialize) { return m_epp.getAddedPointers(); }
 
     /// @brief Set holding pointer to added pointers container
     /// @note When we set map to Data it will not owns it
     ///     and does not clears its contents on destruction.
     /// @remark availible only on deserialization mode
     /// @param pAddedPointers Pointer to added free pointers container
-    CS_ALWAYS_INLINE constexpr Data& setAddedPointers(VectorT<GenericPointerKeeperT>* pAddedPointers) noexcept requires (!serialize) { m_epp.setAddedPointers(pAddedPointers); return *this; }
+    AGS_CS_ALWAYS_INLINE constexpr Data& setAddedPointers(VectorT<GenericPointerKeeperT>* pAddedPointers) noexcept requires (!serialize) { m_epp.setAddedPointers(pAddedPointers); return *this; }
 
     /// @brief Allocates memory for type _T and costructs default _T-object,
     ///     and then places it to container of added free pointers.
@@ -367,7 +367,7 @@ public:
     /// @tparam _T Type of object to allocate and construct
     /// @return Pointer of costructed object
     template<typename _T>
-    CS_ALWAYS_INLINE [[nodiscard]] _T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<_T>(); }
+    AGS_CS_ALWAYS_INLINE [[nodiscard]] _T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<_T>(); }
 
     /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
     /// @note Flag of using heap allocation also not resets to false,

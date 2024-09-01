@@ -43,34 +43,34 @@ public:
 
     using allocator_interface_type = IAllocator<RawAllocatorTraits<_T>, RawNoexceptAllocator<_T>>;
 
-    CS_ALWAYS_INLINE constexpr RawNoexceptAllocator() = default;
+    AGS_CS_ALWAYS_INLINE constexpr RawNoexceptAllocator() = default;
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility
     /// @tparam _T2 Type of ojects that rhs allocator would allocate
     template <class _T2>
-    explicit CS_ALWAYS_INLINE constexpr RawNoexceptAllocator(const RawNoexceptAllocator<_T2>&) noexcept {}
+    explicit AGS_CS_ALWAYS_INLINE constexpr RawNoexceptAllocator(const RawNoexceptAllocator<_T2>&) noexcept {}
 
 protected:
     friend allocator_interface_type;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
     {
         return reinterpret_cast<pointer>(HeapAllocatorT().allocate(n * sizeof(value_type)));
     }
 
-    CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
     {
         HeapAllocatorT().deallocate(p);
     }
 
-    CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p, size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p, size_type n) const noexcept
     {
         deallocate(p);
     }
 
     template<typename... _Args>
-    CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, _Args&&... args) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, _Args&&... args) const noexcept
     {
         assert(p);
 
@@ -78,9 +78,9 @@ protected:
         return Status::NoError;
     }
 
-    CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept {}
+    AGS_CS_ALWAYS_INLINE constexpr void destroyImpl(pointer p) const noexcept {}
 
-    CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr size_type max_size_impl() const noexcept
     {
         return max_size_v;
     }

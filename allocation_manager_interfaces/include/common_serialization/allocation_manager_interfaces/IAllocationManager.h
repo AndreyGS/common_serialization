@@ -54,7 +54,7 @@ public:
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     ///     or if object construction process return error.
     template<typename... Args>
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateAndConstruct(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateAndConstruct(size_type requestedN, size_type* pAllocatedN, Args&&... args) const
     {
         return static_cast<const _AllocationManager*>(this)->allocateAndConstructImpl(requestedN, pAllocatedN, std::forward<Args>(args)...);
     }
@@ -65,7 +65,7 @@ public:
     /// @param requestedN Number of elements that storage should be capable to hold
     /// @param pAllocatedN Returned the actual number of elements that allocated storage can hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocate(size_type requestedN, size_type* pAllocatedN) const
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocate(size_type requestedN, size_type* pAllocatedN) const
     {
         return static_cast<const _AllocationManager*>(this)->allocateImpl(requestedN, pAllocatedN);
     }
@@ -73,7 +73,7 @@ public:
     /// @brief Allocate storage for n elements of type _T
     /// @param n Number of elements that storage should be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateStrict(size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateStrict(size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->allocateStrictImpl(n);
     }
@@ -84,7 +84,7 @@ public:
     /// @param ...args Parameters that are go to ctors
     /// @return Status of operation
     template<typename... Args>
-    CS_ALWAYS_INLINE constexpr Status construct(pointer p, Args&&... args) const
+    AGS_CS_ALWAYS_INLINE constexpr Status construct(pointer p, Args&&... args) const
     {
         return static_cast<const _AllocationManager*>(this)->constructImpl(p, std::forward<Args>(args)...);
     }
@@ -98,7 +98,7 @@ public:
     /// @param ...args Parameters that go to ctors
     /// @return Status of operation
     template<typename... Args>
-    CS_ALWAYS_INLINE constexpr Status constructN(pointer p, pointer* pNError, size_type n, Args&&... args) const
+    AGS_CS_ALWAYS_INLINE constexpr Status constructN(pointer p, pointer* pNError, size_type n, Args&&... args) const
     {
         return static_cast<const _AllocationManager*>(this)->constructNImpl(p, pNError, n, std::forward<Args>(args)...);
     }
@@ -108,7 +108,7 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status copy(pointer pDest, const_pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status copy(pointer pDest, const_pointer pSrc, size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->copyDirtyImpl(pDest, pDest, pSrc, n);
     }
@@ -119,7 +119,7 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status copyNoOverlap(pointer pDest, const_pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status copyNoOverlap(pointer pDest, const_pointer pSrc, size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->copyDirtyNoOverlapImpl(pDest, pDest, pSrc, n);
     }
@@ -132,7 +132,7 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status copyDirty(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status copyDirty(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->copyDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
@@ -146,7 +146,7 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status copyDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status copyDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
@@ -156,7 +156,7 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status move(pointer pDest, pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status move(pointer pDest, pointer pSrc, size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->moveImpl(pDest, pDest, pSrc, n);
     }
@@ -167,7 +167,7 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status moveNoOverlap(pointer pDest, pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status moveNoOverlap(pointer pDest, pointer pSrc, size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->moveNoOverlapImpl(pDest, pDest, pSrc, n);
     }
@@ -180,7 +180,7 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status moveDirty(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status moveDirty(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->moveImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
@@ -194,7 +194,7 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status moveDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status moveDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
@@ -202,21 +202,21 @@ public:
     /// @brief Shortcut for destroying and subsequent deallocating operations 
     /// @param p Pointer to storage of elements which must be deallocated
     /// @param n Number of elements to destroy
-    CS_ALWAYS_INLINE constexpr void destroyAndDeallocate(pointer p, size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void destroyAndDeallocate(pointer p, size_type n) const noexcept
     {
         return static_cast<const _AllocationManager*>(this)->destroyAndDeallocateImpl(p, n);
     }
 
     /// @brief Deallocate storage
     /// @param p Pointer to storage
-    CS_ALWAYS_INLINE constexpr void deallocate(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocate(pointer p) const noexcept
     {
         return static_cast<const _AllocationManager*>(this)->deallocateImpl(p);
     }
 
     /// @brief Destroy object
     /// @param p Pointer to object
-    CS_ALWAYS_INLINE constexpr void destroy(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void destroy(pointer p) const noexcept
     {
         return static_cast<const _AllocationManager*>(this)->destroyImpl(p);
     }
@@ -224,26 +224,26 @@ public:
     /// @brief Destroy n objects
     /// @param p Pointer to objects
     /// @param n Number of objects
-    CS_ALWAYS_INLINE constexpr void destroyN(pointer p, size_t n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void destroyN(pointer p, size_t n) const noexcept
     {
         return static_cast<const _AllocationManager*>(this)->destroyNImpl(p, n);
     }
 
     /// @brief Get number of elements that can be allocated
     /// @return Number of elements that can be allocated
-    CS_ALWAYS_INLINE constexpr size_t max_size() const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr size_t max_size() const noexcept
     {
         return static_cast<const _AllocationManager*>(this)->max_size_impl();
     }
 
     /// @brief Get managed allocator
     /// @return Managed allocator
-    CS_ALWAYS_INLINE constexpr allocator_type& getAllocator() noexcept
+    AGS_CS_ALWAYS_INLINE constexpr allocator_type& getAllocator() noexcept
     {
         return m_allocator;
     }
 
-    CS_ALWAYS_INLINE constexpr const allocator_type& getAllocator() const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr const allocator_type& getAllocator() const noexcept
     {
         return m_allocator;
     }

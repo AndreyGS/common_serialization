@@ -326,11 +326,11 @@ public:
     using const_iterator = ConstVectorIterator<Vector<value_type, _AllocationManager>>;
 
     constexpr Vector() = default;
-    CS_ALWAYS_INLINE constexpr Vector(const Vector& rhs);
-    CS_ALWAYS_INLINE constexpr Vector(Vector&& rhs) noexcept;
-    CS_ALWAYS_INLINE constexpr Vector& operator=(const Vector& rhs);
-    CS_ALWAYS_INLINE constexpr Vector& operator=(Vector&& rhs) noexcept;
-    CS_ALWAYS_INLINE constexpr ~Vector() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr Vector(const Vector& rhs);
+    AGS_CS_ALWAYS_INLINE constexpr Vector(Vector&& rhs) noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr Vector& operator=(const Vector& rhs);
+    AGS_CS_ALWAYS_INLINE constexpr Vector& operator=(Vector&& rhs) noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr ~Vector() noexcept;
 
     /// @brief Copy init method
     /// @param rhs Another instance
@@ -347,7 +347,7 @@ public:
     ///     Only set data size, no default values are set.
     /// @param n New size
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status setSize(size_type n) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr Status setSize(size_type n) noexcept
         requires std::is_trivially_copyable_v<_T>;
 
     /// @brief Preallocate at least that much memory that
@@ -355,7 +355,7 @@ public:
     /// @param n Number of elements that underlying storage
     ///     must be capable to hold
     /// @return Status of operation
-    CS_ALWAYS_INLINE constexpr Status reserve(size_type n);
+    AGS_CS_ALWAYS_INLINE constexpr Status reserve(size_type n);
     
     /// @brief Append element to tail of the storage
     /// @param value Value that need to append
@@ -421,21 +421,21 @@ public:
     template<typename ItDest>
     constexpr Status copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd = nullptr);
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] _T* data() noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T* data() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T* data() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T* data() const noexcept;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] _T& operator[](size_type offset);
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T& operator[](size_type offset) const;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T& operator[](size_type offset);
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T& operator[](size_type offset) const;
     
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] _T& back();
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T& back() const;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T& back();
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T& back() const;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] _T& front();
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T& front() const;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T& front();
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T& front() const;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type size() const noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type max_size() const noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type capacity() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type size() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type max_size() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type capacity() const noexcept;
 
     constexpr void clear() noexcept;
     constexpr void invalidate() noexcept;
@@ -443,15 +443,15 @@ public:
     // you shall free memory returned by this method manually
     constexpr [[nodiscard]] _T* release() noexcept;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] iterator begin() noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator begin() const noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] iterator end() noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator end() const noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator cbegin() const noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator cend() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] iterator begin() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator begin() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] iterator end() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator end() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator cbegin() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator cend() const noexcept;
 
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] _AllocationManager& getAllocationManager() noexcept;
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] const _AllocationManager& getAllocationManager() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _AllocationManager& getAllocationManager() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _AllocationManager& getAllocationManager() const noexcept;
 
     constexpr [[nodiscard]] bool operator==(const Vector& rhs) const noexcept
         requires (NotPointer<_T>&& HasEqualityOperator<_T> || NotPointer<std::remove_pointer_t<_T>> && HasEqualityOperator<std::remove_pointer_t<_T>>);
@@ -530,7 +530,7 @@ constexpr Status Vector<_T, _AllocationManager>::init(const Vector& rhs)
                 return Status::ErrorNoMemory;
         }
 
-        CS_RUN(m_AllocationManager.copyNoOverlap(m_p, rhs.m_p, rhs.m_dataSize));
+        AGS_CS_RUN(m_AllocationManager.copyNoOverlap(m_p, rhs.m_p, rhs.m_dataSize));
         m_dataSize = rhs.m_dataSize;
     }
 
@@ -558,7 +558,7 @@ template<typename _T, IAllocationManagerImpl _AllocationManager>
 constexpr Status Vector<_T, _AllocationManager>::setSize(size_type n) noexcept
     requires std::is_trivially_copyable_v<_T>
 {
-    CS_RUN(reserveInternal(n, false));
+    AGS_CS_RUN(reserveInternal(n, false));
     m_dataSize = n;
     return Status::NoError;
 }
@@ -572,8 +572,8 @@ constexpr Status Vector<_T, _AllocationManager>::reserve(size_type n)
 template<typename _T, IAllocationManagerImpl _AllocationManager>
 constexpr Status Vector<_T, _AllocationManager>::pushBack(const _T& value)
 {
-    CS_RUN(addSpaceIfNeed(1));
-    CS_RUN(m_AllocationManager.construct(m_p + m_dataSize, value));
+    AGS_CS_RUN(addSpaceIfNeed(1));
+    AGS_CS_RUN(m_AllocationManager.construct(m_p + m_dataSize, value));
     ++m_dataSize;
 
     return Status::NoError;
@@ -582,8 +582,8 @@ constexpr Status Vector<_T, _AllocationManager>::pushBack(const _T& value)
 template<typename _T, IAllocationManagerImpl _AllocationManager>
 constexpr Status Vector<_T, _AllocationManager>::pushBack(_T&& value)
 {
-    CS_RUN(addSpaceIfNeed(1));
-    CS_RUN(m_AllocationManager.moveNoOverlap(m_p + m_dataSize, &value, 1));
+    AGS_CS_RUN(addSpaceIfNeed(1));
+    AGS_CS_RUN(m_AllocationManager.moveNoOverlap(m_p + m_dataSize, &value, 1));
     ++m_dataSize;
 
     return Status::NoError;
@@ -595,9 +595,9 @@ constexpr Status Vector<_T, _AllocationManager>::pushBackN(const _T* p, size_typ
     if (p == nullptr && n != 0)
         return Status::ErrorInvalidArgument;
 
-    CS_RUN(addSpaceIfNeed(n));
+    AGS_CS_RUN(addSpaceIfNeed(n));
 
-    CS_RUN(m_AllocationManager.copyNoOverlap(m_p + m_dataSize, p, n));
+    AGS_CS_RUN(m_AllocationManager.copyNoOverlap(m_p + m_dataSize, p, n));
     m_dataSize += n;
 
     return Status::NoError;
@@ -610,7 +610,7 @@ constexpr Status Vector<_T, _AllocationManager>::pushBackArithmeticValue(_V valu
 {
     Status status = Status::NoError;
 
-    CS_RUN(addSpaceIfNeed(sizeof(_V)));
+    AGS_CS_RUN(addSpaceIfNeed(sizeof(_V)));
 
     *static_cast<_V*>(static_cast<void*>(m_p + m_dataSize)) = value;
     m_dataSize += sizeof(_V);
@@ -624,8 +624,8 @@ constexpr Status Vector<_T, _AllocationManager>::emplaceBack(Ts&&... ts)
 {
     Status status = Status::NoError;
 
-    CS_RUN(addSpaceIfNeed(1));
-    CS_RUN(m_AllocationManager.construct(m_p + m_dataSize, std::forward<Ts>(ts)...));
+    AGS_CS_RUN(addSpaceIfNeed(1));
+    AGS_CS_RUN(m_AllocationManager.construct(m_p + m_dataSize, std::forward<Ts>(ts)...));
     ++m_dataSize;
 
     return Status::NoError;
@@ -652,8 +652,8 @@ constexpr Status Vector<_T, _AllocationManager>::replace(const _T* p, size_type 
         if (newMp)
         {
             m_allocatedSize = newAllocatedSize;
-            CS_RUN(m_AllocationManager.moveNoOverlap(newMp, m_p, offset));
-            CS_RUN(m_AllocationManager.copyNoOverlap(newMp + offset, p, n));
+            AGS_CS_RUN(m_AllocationManager.moveNoOverlap(newMp, m_p, offset));
+            AGS_CS_RUN(m_AllocationManager.copyNoOverlap(newMp + offset, p, n));
             m_AllocationManager.destroyAndDeallocate(m_p, m_dataSize);
 
             m_p = newMp;
@@ -666,7 +666,7 @@ constexpr Status Vector<_T, _AllocationManager>::replace(const _T* p, size_type 
         if constexpr (constructor_allocator::value)
             m_AllocationManager.destroyN(m_p + offset, n >= m_dataSize - offset ? m_dataSize - offset : n);
 
-        CS_RUN(m_AllocationManager.copyNoOverlap(m_p + offset, p, n));
+        AGS_CS_RUN(m_AllocationManager.copyNoOverlap(m_p + offset, p, n));
     }
 
     m_dataSize = newDataSize;
@@ -699,11 +699,11 @@ constexpr Status Vector<_T, _AllocationManager>::insert(const _T* p, size_type n
         if (newMp)
         {
             m_allocatedSize = newAllocatedSize;
-            CS_RUN(m_AllocationManager.moveNoOverlap(newMp, m_p, offset));
-            CS_RUN(m_AllocationManager.copyNoOverlap(newMp + offset, p, n));
+            AGS_CS_RUN(m_AllocationManager.moveNoOverlap(newMp, m_p, offset));
+            AGS_CS_RUN(m_AllocationManager.copyNoOverlap(newMp + offset, p, n));
 
             if (offset != m_dataSize) // if we do not push back
-                CS_RUN(m_AllocationManager.moveNoOverlap(newMp + offsetPlusN, m_p + offset, rightDataPartSize));
+                AGS_CS_RUN(m_AllocationManager.moveNoOverlap(newMp + offsetPlusN, m_p + offset, rightDataPartSize));
 
             m_AllocationManager.destroyAndDeallocate(m_p, m_dataSize);
 
@@ -715,9 +715,9 @@ constexpr Status Vector<_T, _AllocationManager>::insert(const _T* p, size_type n
     else if (newDataSize > m_dataSize)
     {
         if (offset != m_dataSize)
-            CS_RUN(m_AllocationManager.moveDirty(m_p + offsetPlusN, m_p + m_dataSize, m_p + offset, rightDataPartSize));
+            AGS_CS_RUN(m_AllocationManager.moveDirty(m_p + offsetPlusN, m_p + m_dataSize, m_p + offset, rightDataPartSize));
 
-        CS_RUN(m_AllocationManager.copyNoOverlap(m_p + offset, p, n));
+        AGS_CS_RUN(m_AllocationManager.copyNoOverlap(m_p + offset, p, n));
     }
     else if (newDataSize < m_dataSize)
         return Status::ErrorOverflow;
@@ -754,17 +754,17 @@ constexpr Status Vector<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc sr
             pointer pCurrent = m_p + currentOffset;
             if (m_dataSize > currentOffset)
             {
-                CS_RUN(temp.pushBack(std::move(*pCurrent)));
+                AGS_CS_RUN(temp.pushBack(std::move(*pCurrent)));
                 m_AllocationManager.destroy(pCurrent); // if _T is not moveable we should destroying its objects explicitly
                 ++currentOffset;
             }
             else
                 m_dataSize = ++currentOffset;
 
-            CS_RUN(m_AllocationManager.copyNoOverlap(pCurrent, &*srcBegin++, 1));
+            AGS_CS_RUN(m_AllocationManager.copyNoOverlap(pCurrent, &*srcBegin++, 1));
         }
         else
-            CS_RUN(reserveInternal(currentOffset + 1, false));
+            AGS_CS_RUN(reserveInternal(currentOffset + 1, false));
     }
 
     if (temp.size())
@@ -774,17 +774,17 @@ constexpr Status Vector<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc sr
             if constexpr (constructor_allocator::value)
                 for (size_type i = currentOffset; i < oldDataSize; ++i)
                 {
-                    CS_RUN(temp.pushBack(std::move(*(m_p + i))));
+                    AGS_CS_RUN(temp.pushBack(std::move(*(m_p + i))));
                     m_AllocationManager.destroy(m_p + i); // if _T is not moveable we should destroying its objects explicitly
                 }
             else
-                CS_RUN(temp.pushBackN(m_p + currentOffset, oldDataSize - currentOffset));
+                AGS_CS_RUN(temp.pushBackN(m_p + currentOffset, oldDataSize - currentOffset));
         }
 
         m_dataSize = currentOffset;
-        CS_RUN(addSpaceIfNeed(temp.size()));
+        AGS_CS_RUN(addSpaceIfNeed(temp.size()));
 
-        CS_RUN(m_AllocationManager.moveNoOverlap(m_p + currentOffset, temp.data(), temp.size()));
+        AGS_CS_RUN(m_AllocationManager.moveNoOverlap(m_p + currentOffset, temp.data(), temp.size()));
         m_dataSize = currentOffset + temp.size();
     }
 
@@ -816,7 +816,7 @@ constexpr Status Vector<_T, _AllocationManager>::erase(size_type offset, size_ty
     difference_type rightNStart = offset + n;
     difference_type rightN = m_dataSize - rightNStart;
 
-    CS_RUN(m_AllocationManager.move(m_p + offset, m_p + rightNStart, rightN));
+    AGS_CS_RUN(m_AllocationManager.move(m_p + offset, m_p + rightNStart, rightN));
     m_AllocationManager.destroyN(m_p + rightNStart, rightN); // if _T is not moveable we should destroying its objects explicitly
 
     m_dataSize = offset + rightN;
@@ -850,7 +850,7 @@ constexpr Status Vector<_T, _AllocationManager>::erase(iterator destBegin, itera
     difference_type leftN = destBegin - begin();
     difference_type rightN = m_dataSize - n - leftN;
 
-    CS_RUN(m_AllocationManager.move(destBegin.getPointer(), destEnd.getPointer(), rightN));
+    AGS_CS_RUN(m_AllocationManager.move(destBegin.getPointer(), destEnd.getPointer(), rightN));
     m_AllocationManager.destroyN(destEnd.getPointer(), rightN); // if _T is not moveable we should destroying its objects explicitly
 
     m_dataSize = leftN + rightN;
@@ -869,7 +869,7 @@ constexpr Status Vector<_T, _AllocationManager>::copyN(size_type offset, size_ty
 
     difference_type nReal = offset + n > m_dataSize ? m_dataSize - offset : n;
 
-    CS_RUN(m_AllocationManager.copyDirty(p, p + offset, m_p + offset, nReal));
+    AGS_CS_RUN(m_AllocationManager.copyDirty(p, p + offset, m_p + offset, nReal));
 
     if (ppNew)
         *ppNew = p + nReal;
@@ -892,7 +892,7 @@ constexpr Status Vector<_T, _AllocationManager>::copyN(iterator srcBegin, iterat
 
     while (srcBegin != srcEnd)
     {
-        CS_RUN(m_AllocationManager.copyDirty(&*destBegin, &*destBegin + 1, srcBegin++.getPointer(), 1));
+        AGS_CS_RUN(m_AllocationManager.copyDirty(&*destBegin, &*destBegin + 1, srcBegin++.getPointer(), 1));
         ++destBegin;
     }
 

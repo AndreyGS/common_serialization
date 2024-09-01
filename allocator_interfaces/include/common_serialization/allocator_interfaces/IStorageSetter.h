@@ -40,7 +40,7 @@ public:
     /// @returns True if successful, false otherwise
     template<typename _P>
         requires (std::is_pointer_v<_P> || std::is_same_v<_P, decltype(nullptr)>)
-    CS_ALWAYS_INLINE constexpr bool setStorage(_P p, size_t size) noexcept
+    AGS_CS_ALWAYS_INLINE constexpr bool setStorage(_P p, size_t size) noexcept
     {
         return static_cast<_Setter*>(this)->setStorageImpl(p, size);
     }

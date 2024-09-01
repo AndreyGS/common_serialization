@@ -44,14 +44,14 @@ public:
     /// @brief Allocate storage with bytes_size = n*sizeof(value_type)
     /// @param n Number of elements of type _T that storage must be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
-    CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocate(size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocate(size_type n) const noexcept
     {
         return static_cast<const _Allocator*>(this)->allocateImpl(n);
     }
 
     /// @brief Frees storage pointed by p
     /// @param p Pointer to memory that shall be freed
-    CS_ALWAYS_INLINE constexpr void deallocate(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocate(pointer p) const noexcept
     {
         return static_cast<const _Allocator*>(this)->deallocateImpl(p);
     }
@@ -60,7 +60,7 @@ public:
     /// @remark This overload only for compatibility
     /// @param p Pointer to memory that shall be freed
     /// @param n Size of storage (not used)
-    CS_ALWAYS_INLINE constexpr void deallocate(pointer p, size_type n) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void deallocate(pointer p, size_type n) const noexcept
     {
         return static_cast<const _Allocator*>(this)->deallocateImpl(p, n);
     }
@@ -72,21 +72,21 @@ public:
     /// @param ...args Parameters that go to ctor
     /// @return Status of operation
     template<typename... _Args>
-    CS_ALWAYS_INLINE constexpr Status construct(pointer p, _Args&&... args) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr Status construct(pointer p, _Args&&... args) const noexcept
     {
         return static_cast<const _Allocator*>(this)->constructImpl(p, std::forward<_Args>(args)...);
     }
 
     /// @brief Call destructor on object pointed by p
     /// @param p Pointer to object that shall be destroyed
-    CS_ALWAYS_INLINE constexpr void destroy(pointer p) const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr void destroy(pointer p) const noexcept
     {
         return static_cast<const _Allocator*>(this)->destroyImpl(p);
     }
 
     /// @brief Get maximum number of objects of value_type that allocator can allocate
     /// @return Maximum number of objects
-    CS_ALWAYS_INLINE constexpr size_type max_size() const noexcept
+    AGS_CS_ALWAYS_INLINE constexpr size_type max_size() const noexcept
     {
         return static_cast<const _Allocator*>(this)->max_size_impl();
     }
