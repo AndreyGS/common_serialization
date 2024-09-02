@@ -22,6 +22,8 @@ if (AGS_CS_BUILD_UNIT_TESTS)
     set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/unit_tests")
     set(TESTS_SOURCES
         "${TESTS_SOURCES_DIR}/HelpersTests.cpp"
+        "${TESTS_SOURCES_DIR}/StatusTests.cpp"
+        "${TESTS_SOURCES_DIR}/UuidTests.cpp"
     )
 
     set(TESTS_LIBS_TO_LINK "gtest_main;${LIB_NAME}")

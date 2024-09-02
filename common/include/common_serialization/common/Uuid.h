@@ -43,19 +43,33 @@ struct Uuid
 
     constexpr Uuid() = default;
 
+    constexpr Uuid(uint64_t high, uint64_t low)
+    {
+        if constexpr (helpers::isLittleEndianPlatform())
+        {
+            m_high = helpers::reverseEndianess(high);
+            m_low = helpers::reverseEndianess(low);
+        }
+        else
+        {
+            m_high = high;
+            m_low = low;
+        }
+    }
+
     constexpr Uuid(uint32_t first, uint16_t second, uint16_t third, uint16_t fourth, uint64_t fifth) noexcept
     {
         if constexpr (helpers::isLittleEndianPlatform())
         {
-            m_high = helpers::reverseEndianess(first) 
+            m_high = helpers::reverseEndianess(first)
                 | static_cast<uint64_t>(helpers::reverseEndianess(second)) << 32 
                 | static_cast<uint64_t>(helpers::reverseEndianess(third)) << 48;
-            m_low = helpers::reverseEndianess(fourth) | (helpers::reverseEndianess(fifth) & 0x00ffffffffffffff) << 16;
+            m_low = helpers::reverseEndianess(fourth) | (helpers::reverseEndianess(fifth) & 0xffffffffffff0000);
         }
         else
         {
-            m_high = first | static_cast<uint64_t>(second) << 32 | static_cast<uint64_t>(third) << 48;
-            m_low = fourth | fifth << 16;
+            m_high = static_cast<uint64_t>(first) << 32 | static_cast<uint64_t>(second) << 16 | third;
+            m_low = static_cast<uint64_t>(fourth) << 48 | fifth;
         }
     }
    
@@ -84,7 +98,12 @@ struct std::hash<common_serialization::Uuid>
 {
     std::size_t operator()(const common_serialization::Uuid& id) const noexcept
     {
-        auto hashFunc = std::hash<uint64_t>{};
-        return hashFunc(id.m_high) ^ hashFunc(id.m_low);
+        auto hashFunc = std::hash<uint8_t>{};
+        const uint8_t* pIdBytes = reinterpret_cast<const uint8_t*>(&id);
+        size_t result{ 0 };
+        for (size_t i = 0; i < 16; ++i)
+            result ^= hashFunc(pIdBytes[i]);
+
+        return result;
     }
 };

@@ -107,12 +107,105 @@ TEST(HelpersTests, ReverseEndianess)
 
 TEST(HelpersTests, CastToSmallerType)
 {
-    uint64_t i1{ 0xffffffffffffffff };
-    uint32_t i2{ 0 };
-    int32_t _i2{ 0 };
+    uint64_t ref64{ 0xffffffffffffffff };
+    int64_t _ref64 = static_cast<int64_t>(0x8000000000000000);
 
-    EXPECT_EQ(castToSmallerType(i1, i2), Status::ErrorValueOverflow);
-    EXPECT_EQ(castToSmallerType(i1, _i2), Status::ErrorValueOverflow);
+    uint64_t i64{ 0 };
+    int64_t _i64{ 0 };
+
+    EXPECT_EQ(castToSmallerType(ref64, i64), Status::NoError);
+    EXPECT_EQ(ref64, i64);
+    EXPECT_EQ(castToSmallerType(_ref64, _i64), Status::NoError);
+    EXPECT_EQ(_ref64, _i64);
+
+    uint32_t ref32{ 0xffffffff };
+    int32_t _ref32 = static_cast<int32_t>(0x80000000);
+
+    uint32_t i32{ 0 };
+    int32_t _i32{ 0 };
+
+    EXPECT_EQ(castToSmallerType(ref64, i32), Status::ErrorValueOverflow);
+    EXPECT_EQ(castToSmallerType(_ref64, _i32), Status::ErrorValueOverflow);
+
+    EXPECT_EQ(castToSmallerType(ref32, i32), Status::NoError);
+    EXPECT_EQ(ref32, i32);
+    EXPECT_EQ(castToSmallerType(_ref32, _i32), Status::NoError);
+    EXPECT_EQ(_ref32, _i32);
+
+    uint16_t ref16{ 0xffff };
+    int16_t _ref16 = static_cast<int16_t>(0x8000);
+
+    uint16_t i16{ 0 };
+    int16_t _i16{ 0 };
+
+    EXPECT_EQ(castToSmallerType(ref64, i16), Status::ErrorValueOverflow);
+    EXPECT_EQ(castToSmallerType(_ref64, _i16), Status::ErrorValueOverflow);
+
+    EXPECT_EQ(castToSmallerType(ref16, i16), Status::NoError);
+    EXPECT_EQ(ref16, i16);
+    EXPECT_EQ(castToSmallerType(_ref16, _i16), Status::NoError);
+    EXPECT_EQ(_ref16, _i16);
+
+    uint8_t ref8{ 0xff };
+    int8_t _ref8 = static_cast<int8_t>(0x80);
+
+    uint8_t i8{ 0 };
+    int8_t _i8{ 0 };
+
+    EXPECT_EQ(castToSmallerType(ref64, i8), Status::ErrorValueOverflow);
+    EXPECT_EQ(castToSmallerType(_ref64, _i8), Status::ErrorValueOverflow);
+
+    EXPECT_EQ(castToSmallerType(ref8, i8), Status::NoError);
+    EXPECT_EQ(ref8, i8);
+    EXPECT_EQ(castToSmallerType(_ref8, _i8), Status::NoError);
+    EXPECT_EQ(_ref8, _i8);
+}
+
+TEST(HelpersTests, CastToBiggerType)
+{
+    uint8_t ref8{ 0xff };
+    int8_t _ref8 = static_cast<int8_t>(0x80);
+
+    uint8_t i8{ 0 };
+    int8_t _i8{ 0 };
+
+    castToBiggerType(ref8, i8);
+    EXPECT_EQ(ref8, i8);
+    castToBiggerType(_ref8, _i8);
+    EXPECT_EQ(_ref8, _i8);
+
+    uint16_t ref16{ 0xffff };
+    int16_t _ref16 = static_cast<int16_t>(0x8000);
+
+    uint16_t i16{ 0 };
+    int16_t _i16{ 0 };
+
+    castToBiggerType(ref16, i16);
+    EXPECT_EQ(ref16, i16);
+    castToBiggerType(_ref16, _i16);
+    EXPECT_EQ(_ref16, _i16);
+
+    uint32_t ref32{ 0xffffffff };
+    int32_t _ref32 = static_cast<int32_t>(0x80000000);
+
+    uint32_t i32{ 0 };
+    int32_t _i32{ 0 };
+
+    castToBiggerType(ref32, i32);
+    EXPECT_EQ(ref32, i32);
+    castToBiggerType(_ref32, _i32);
+    EXPECT_EQ(_ref32, _i32);
+
+    uint64_t ref64{ 0xffffffffffffffff };
+    int64_t _ref64 = static_cast<int64_t>(0x8000000000000000);
+
+    uint64_t i64{ 0 };
+    int64_t _i64{ 0 };
+
+    castToBiggerType(ref64, i64);
+    EXPECT_EQ(ref64, i64);
+    castToBiggerType(_ref64, _i64);
+    EXPECT_EQ(_ref64, _i64);
 }
 
 } // namespace

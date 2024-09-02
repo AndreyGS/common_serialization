@@ -228,7 +228,7 @@ template<size_t targetSize, bool isSigned>
 using fixed_width_integer_t = typename fixed_width_integer<targetSize, isSigned>::type;
 
 template<typename _T1, typename _T2>
-    requires (std::is_integral_v<_T1> && sizeof(_T2) <= sizeof(_T1) && std::is_same_v<_T2, fixed_width_integer_t<sizeof(_T2), Signed<_T2>>>)
+    requires (Signed<_T1> == Signed<_T2> && std::is_integral_v<_T1> && sizeof(_T2) <= sizeof(_T1) && std::is_same_v<_T2, fixed_width_integer_t<sizeof(_T2), Signed<_T2>>>)
 constexpr Status castToSmallerType(_T1 input, _T2& output)
 {
     using output_type = fixed_width_integer<sizeof(_T2), Signed<_T2>>;
@@ -242,7 +242,7 @@ constexpr Status castToSmallerType(_T1 input, _T2& output)
 }
 
 template<typename _T1, typename _T2>
-    requires (std::is_integral_v<_T1> && sizeof(_T2) >= sizeof(_T1) && std::is_same_v<_T2, fixed_width_integer_t<sizeof(_T2), Signed<_T2>>>)
+    requires (Signed<_T1> == Signed<_T2> && std::is_integral_v<_T1> && sizeof(_T2) >= sizeof(_T1) && std::is_same_v<_T2, fixed_width_integer_t<sizeof(_T2), Signed<_T2>>>)
 AGS_CS_ALWAYS_INLINE constexpr void castToBiggerType(_T1 input, _T2& output)
 {
     output = static_cast<fixed_width_integer_t<sizeof(_T2), Signed<_T2>>>(input);
