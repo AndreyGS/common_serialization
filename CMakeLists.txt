@@ -18,6 +18,7 @@ option(AGS_CS_BUILD_COMMON "Build ags common serialization common project" ON)
 
 if (AGS_CS_BUILD_COMMON)
    add_subdirectory(common)
+   ags_cs_create_common_lib(ON ${AGS_CS_BUILD_UNIT_TESTS})
 endif()
 
 # Memory Management Interfaces
@@ -26,6 +27,7 @@ option(AGS_CS_BUILD_MEMORY_MANAGEMENT_INTERFACES "Build ags common serialization
 
 if (AGS_CS_BUILD_MEMORY_MANAGEMENT_INTERFACES)
    add_subdirectory(memory_management_interfaces)
+   ags_cs_create_memory_management_interfaces_lib(ON)
 endif()
 
 # Memory Management
@@ -34,6 +36,7 @@ option(AGS_CS_BUILD_MEMORY_MANAGEMENT "Build ags common serialization memory man
 
 if (AGS_CS_BUILD_MEMORY_MANAGEMENT)
     add_subdirectory(memory_management)
+    ags_cs_create_memory_management_lib(ON ${AGS_CS_BUILD_UNIT_TESTS})
 endif()
 
 # Allocator Interfaces
@@ -42,6 +45,7 @@ option(AGS_CS_BUILD_ALLOCATOR_INTERFACES "Build ags common serialization allocat
 
 if (AGS_CS_BUILD_ALLOCATOR_INTERFACES)
     add_subdirectory(allocator_interfaces)
+    ags_cs_create_allocator_interfaces_lib(ON)
 endif()
 
 # Allocators
@@ -62,6 +66,7 @@ option(AGS_CS_BUILD_ALLOCATION_MANAGER_INTERFACES "Build ags common serializatio
 
 if (AGS_CS_BUILD_ALLOCATION_MANAGER_INTERFACES)
     add_subdirectory(allocation_manager_interfaces)
+    ags_cs_create_allocation_manager_interfaces_lib(ON)
 endif()
 
 # Allocation Managers
@@ -119,6 +124,7 @@ option(AGS_CS_BUILD_CONCURRENCY_INTERFACES "Build ags common serialization concu
 
 if (AGS_CS_BUILD_CONCURRENCY_INTERFACES)
     add_subdirectory(concurrency_interfaces)
+    ags_cs_create_concurrency_interfaces_lib(ON)
 endif()
 
 # Concurrency Interfaces
@@ -127,6 +133,7 @@ option(AGS_CS_BUILD_CONCURRENCY "Build ags common serialization concurrency" ON)
 
 if (AGS_CS_BUILD_CONCURRENCY)
     add_subdirectory(concurrency)
+    ags_cs_create_concurrency_lib(ON)
 endif()
 
 # CSP Messaging
