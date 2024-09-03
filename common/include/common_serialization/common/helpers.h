@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <common_serialization/common/concepts.h>
 #include <common_serialization/common/traits.h>
 
 namespace common_serialization::helpers

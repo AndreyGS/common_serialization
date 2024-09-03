@@ -70,9 +70,13 @@ concept EndiannessReversable = (std::is_arithmetic_v<_T> || std::is_enum_v<_T>) 
 
 template<typename _T>
 concept Signed
-        =      std::is_arithmetic_v<_T>
-        && (   std::is_same_v<_T, signed char> || std::is_same_v<_T, short> || std::is_same_v<_T, int> || std::is_same_v<_T, long>
-            || std::is_same_v<_T, long long> || std::is_same_v<_T, float> || std::is_same_v<_T, double> || std::is_same_v<_T, long double>);
+        =  std::is_arithmetic_v<_T>
+                &&    (std::is_same_v<_T, char> || std::is_same_v<_T, signed char> || std::is_same_v<_T, short> || std::is_same_v<_T, int> || std::is_same_v<_T, long>
+                    || std::is_same_v<_T, long long> || std::is_same_v<_T, float> || std::is_same_v<_T, double> || std::is_same_v<_T, long double>)
+        || std::is_enum_v<_T>
+                &&    (std::is_same_v<std::underlying_type_t<_T>, char> || std::is_same_v<std::underlying_type_t<_T>, signed char> 
+                    || std::is_same_v<std::underlying_type_t<_T>, short> || std::is_same_v<std::underlying_type_t<_T>, int>
+                    || std::is_same_v<std::underlying_type_t<_T>, long> || std::is_same_v<std::underlying_type_t<_T>, long long>);
 
 // FixSizedArithmeticType is type that can't be changed in its size
 // So long double is also match this criteria, despite its size is different
