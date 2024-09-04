@@ -114,7 +114,7 @@ protected:
 
                 if (!statusSuccess(status))
                 {
-                    *pNError = p + i;
+                    *pNError = p - 1;
                     return status;
                 }
             }

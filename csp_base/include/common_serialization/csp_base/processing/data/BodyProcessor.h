@@ -178,7 +178,7 @@ constexpr Status BodyProcessor::serialize(const _T* p, csp_size_t n, context::SD
             )
     )
     {   
-        if constexpr ((std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
+        if constexpr ((std::is_integral_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticOrEnumType<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
                 AGS_CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(_T)), ctx));
 
@@ -216,7 +216,7 @@ constexpr Status BodyProcessor::serialize(const _T& value, context::SData& ctx)
 
     if constexpr (std::is_arithmetic_v<_T> || std::is_enum_v<_T>)
     {
-        if constexpr (!FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
+        if constexpr (!FixSizedArithmeticOrEnumType<_T> && !std::is_floating_point_v<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
                 AGS_CS_RUN(writePrimitive(static_cast<uint8_t>(sizeof(_T)), ctx));
 
@@ -279,7 +279,7 @@ constexpr Status BodyProcessor::serializeToAnotherSize(csp_size_t targetTypeSize
 template<size_t _targetTypeSize, typename _T>
 constexpr Status BodyProcessor::serializeToAnotherSizeInternal(_T value, context::SData& ctx)
 {
-    static_assert((std::is_integral_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>
+    static_assert((std::is_integral_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticOrEnumType<_T>
         , "Current serialize function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
 
     if constexpr (kMaxSizeOfIntegral < _targetTypeSize)
@@ -327,7 +327,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, csp_size_t n, _
     {
         // In fact ctx.sizeOfIntegersMayBeNotEqual() can be true only if (std::is_arithmetic_v<_T> || std::is_enum_v<_T>) is true,
         // but if we do not wrap this in constexpr statement, all SimplyAssignable types would be forced to have deserialize functions
-        if constexpr ((std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
+        if constexpr ((std::is_integral_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticOrEnumType<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
@@ -381,7 +381,7 @@ constexpr Status BodyProcessor::deserialize(context::DData& ctx, _T& value)
 
     if constexpr (std::is_arithmetic_v<_T> || std::is_enum_v<_T>)
     {
-        if constexpr (!FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>)
+        if constexpr (!FixSizedArithmeticOrEnumType<_T> && !std::is_floating_point_v<_T>)
             if (ctx.sizeOfIntegersMayBeNotEqual())
             {
                 uint8_t originalTypeSize = 0;
@@ -458,7 +458,7 @@ constexpr Status BodyProcessor::deserializeFromAnotherSize(csp_size_t originalTy
 template<size_t _originalTypeSize, typename _T>
 constexpr Status BodyProcessor::deserializeFromAnotherSizeInternal(context::DData& ctx, _T& value)
 {
-    static_assert((std::is_integral_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticType<_T> && !FixSizedEnumType<_T>
+    static_assert((std::is_integral_v<_T> || std::is_enum_v<_T>) && !FixSizedArithmeticOrEnumType<_T>
         , "Current deserialize function overload is only for variable length arithmetic types and enums. You shouldn't be here.");
 
     if constexpr (kMaxSizeOfIntegral < _originalTypeSize)

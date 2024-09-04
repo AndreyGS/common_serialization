@@ -86,25 +86,34 @@ public:
     static uint32_t errorOnCounter;
     static ags_cs::Status currentError;
     static uint32_t destructorCalledCounter;
+    static uint32_t sumOfDeletedIndexes;
 
     ags_cs::Status init(const ErrorProne&)
     {
         if (errorOnCounter == counter++)
             return currentError;
         else
+        {
+            m_i = counter - 1;
             return ags_cs::Status::NoError;
+        }
     }
 
     ~ErrorProne()
     {
         ++destructorCalledCounter;
+        sumOfDeletedIndexes += m_i;
     }
+
+private:
+    uint32_t m_i{ 0 };
 };
 
 inline uint32_t ErrorProne::counter = 0;
 inline uint32_t ErrorProne::errorOnCounter = 0;
 inline ags_cs::Status ErrorProne::currentError = ags_cs::Status::NoError;
 inline uint32_t ErrorProne::destructorCalledCounter = 0;
+inline uint32_t ErrorProne::sumOfDeletedIndexes = 0;
 
 struct CustomDeleter
 {

@@ -78,17 +78,16 @@ concept Signed
                     || std::is_same_v<std::underlying_type_t<_T>, short> || std::is_same_v<std::underlying_type_t<_T>, int>
                     || std::is_same_v<std::underlying_type_t<_T>, long> || std::is_same_v<std::underlying_type_t<_T>, long long>);
 
-// FixSizedArithmeticType is type that can't be changed in its size
-// So long double is also match this criteria, despite its size is different
-// on one or another platforms. Because of this, care must be taken
-// to well-defined Interface with respect to long double size.
 template<typename _T>
 concept FixSizedArithmeticType
     =  std::is_same_v<std::remove_cv_t<_T>, char8_t> || std::is_same_v<std::remove_cv_t<_T>, char16_t> || std::is_same_v<std::remove_cv_t<_T>, char32_t>
-    || std::is_floating_point_v<_T>;
+    || std::is_same_v<_T, float> || std::is_same_v<_T, double>;
 
 template<typename _T>
 concept FixSizedEnumType = std::is_enum_v<_T> && FixSizedArithmeticType<std::underlying_type_t<_T>>;
+
+template<typename _T>
+concept FixSizedArithmeticOrEnumType = FixSizedArithmeticType<_T> || FixSizedEnumType<_T>;
 
 template<typename _T>
 concept HasDestroyingDeleteOp = requires (_T t) { _T::operator delete(&t, std::destroying_delete_t{}); };

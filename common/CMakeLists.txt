@@ -27,6 +27,7 @@ function(ags_cs_create_common_lib
     if (AGS_CS_BUILD_UNIT_TESTS)
         set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_tests")
         set(TESTS_SOURCES
+            "${TESTS_SOURCES_DIR}/TraitsTests.cpp"
             "${TESTS_SOURCES_DIR}/ConceptsTests.cpp"
             "${TESTS_SOURCES_DIR}/HelpersTests.cpp"
             "${TESTS_SOURCES_DIR}/StatusTests.cpp"

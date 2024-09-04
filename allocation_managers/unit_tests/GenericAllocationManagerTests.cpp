@@ -22,7 +22,9 @@
  */
 
 #include <gtest/gtest.h>
+#include <string>
 #include <common_serialization/allocation_managers/GenericAllocationManager.h>
+#include <common_serialization/allocation_managers/typedefs.h>
 #include <common_serialization/tests_special_types/structs.h>
 
 using namespace tests_special_types;
@@ -31,6 +33,73 @@ using namespace common_serialization;
 namespace
 {
 
+TEST(GenericAllocationManagerTests, AllocateAndConstructRaw)
+{
+    GenericAllocationManager<RawNoexceptAllocatorT<int>> manager;
+    size_t requestedN{ 3 };
+    size_t allocatedN{ 0 };
 
+    int* p = manager.allocateAndConstruct(requestedN, &allocatedN);
+    EXPECT_TRUE(p != nullptr);
+    EXPECT_EQ(requestedN, allocatedN);
+
+    manager.deallocate(p);
+    constexpr int kArg{ 7 };
+    allocatedN = 0;
+    p = manager.allocateAndConstruct(requestedN, &allocatedN, kArg);
+
+    EXPECT_EQ(requestedN, allocatedN);
+    EXPECT_EQ(p[0], kArg);
+    EXPECT_EQ(p[1], kArg);
+    EXPECT_EQ(p[2], kArg);
+
+    manager.deallocate(p);
+}
+
+TEST(GenericAllocationManagerTests, AllocateAndConstructCtor)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<std::string>> manager;
+    size_t requestedN{ 3 };
+    size_t allocatedN{ 0 };
+
+    std::string* p = manager.allocateAndConstruct(requestedN, &allocatedN);
+    EXPECT_TRUE(p != nullptr);
+    EXPECT_EQ(requestedN, allocatedN);
+
+    manager.deallocate(p);
+    const std::string kArg{ "123" };
+    allocatedN = 0;
+    p = manager.allocateAndConstruct(requestedN, &allocatedN, kArg);
+
+    EXPECT_EQ(requestedN, allocatedN);
+    EXPECT_EQ(p[0], kArg);
+    EXPECT_EQ(p[1], kArg);
+    EXPECT_EQ(p[2], kArg);
+
+    manager.deallocate(p);
+}
+
+TEST(GenericAllocationManagerTests, AllocateAndConstructErrorInProcess)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    size_t requestedN{ 3 };
+    size_t allocatedN{ 0 };
+
+    // Check that if there was an error in construction process, objects that were already constructed are destroyed properly
+    
+    // Let third object construction will fail
+    tests_special_types::ErrorProne::errorOnCounter = 2;
+    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
+    tests_special_types::ErrorProne::destructorCalledCounter = 0;
+    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    tests_special_types::ErrorProne arg;
+    tests_special_types::ErrorProne* p = manager.allocateAndConstruct(requestedN, &allocatedN, arg);
+    EXPECT_TRUE(p == nullptr);
+    EXPECT_EQ(allocatedN, 0);
+    // Check that two desctructors were called
+    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2);
+    // Check that those destructors were from first and second item (indexes 0 + 1)
+    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 1);
+}
 
 } // namespace

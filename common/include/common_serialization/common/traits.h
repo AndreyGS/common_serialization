@@ -61,7 +61,7 @@ template<typename _T>
 using remove_member_pointer_t = typename remove_member_pointer<_T>::type;
 
 template<typename _T, std::size_t L>
-struct pointer_level_traits_impl
+struct _pointer_level_traits_impl
 {
     static const std::size_t value = L;
     using from_ptr_to_const_to_ptr = std::remove_const_t<_T>;
@@ -69,16 +69,16 @@ struct pointer_level_traits_impl
 
 template<typename _T, std::size_t L>
     requires std::is_pointer_v<_T>
-struct pointer_level_traits_impl<_T, L> : pointer_level_traits_impl<std::remove_pointer_t<_T>, L + 1>
+struct _pointer_level_traits_impl<_T, L> : _pointer_level_traits_impl<std::remove_pointer_t<_T>, L + 1>
 {
-    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<_T>, L + 1>::from_ptr_to_const_to_ptr*;
+    using from_ptr_to_const_to_ptr = typename _pointer_level_traits_impl<std::remove_pointer_t<_T>, L + 1>::from_ptr_to_const_to_ptr*;
 };
 
 template<typename _T>
     requires std::is_pointer_v<_T>
-struct pointer_level_traits : pointer_level_traits_impl<std::remove_pointer_t<_T>, 0>
+struct _pointer_level_traits : _pointer_level_traits_impl<std::remove_pointer_t<_T>, 0>
 {
-    using from_ptr_to_const_to_ptr = typename pointer_level_traits_impl<std::remove_pointer_t<_T>, 0>::from_ptr_to_const_to_ptr*;
+    using from_ptr_to_const_to_ptr = typename _pointer_level_traits_impl<std::remove_pointer_t<_T>, 0>::from_ptr_to_const_to_ptr*;
 };
 
 /// @brief Erases all consts from pointer
@@ -86,7 +86,7 @@ struct pointer_level_traits : pointer_level_traits_impl<std::remove_pointer_t<_T
 /// @remark const int* const * const * const -> int***
 template<typename _T>
     requires std::is_pointer_v<_T>
-using from_ptr_to_const_to_ptr_t = typename pointer_level_traits<_T>::from_ptr_to_const_to_ptr;
+using from_ptr_to_const_to_ptr_t = typename _pointer_level_traits<_T>::from_ptr_to_const_to_ptr;
 
 template<typename _T>
 using normalize_t = std::remove_cv_t<std::remove_reference_t<_T>>;
