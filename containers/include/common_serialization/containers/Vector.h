@@ -530,7 +530,7 @@ constexpr Status Vector<_T, _AllocationManager>::init(const Vector& rhs)
                 return Status::ErrorNoMemory;
         }
 
-        AGS_CS_RUN(m_AllocationManager.copyNoOverlap(m_p, rhs.m_p, rhs.m_dataSize));
+        AGS_CS_RUN(m_AllocationManager.copyToRaw(m_p, rhs.m_p, rhs.m_dataSize));
         m_dataSize = rhs.m_dataSize;
     }
 
@@ -583,7 +583,7 @@ template<typename _T, IAllocationManagerImpl _AllocationManager>
 constexpr Status Vector<_T, _AllocationManager>::pushBack(_T&& value)
 {
     AGS_CS_RUN(addSpaceIfNeed(1));
-    AGS_CS_RUN(m_AllocationManager.moveNoOverlap(m_p + m_dataSize, &value, 1));
+    AGS_CS_RUN(m_AllocationManager.moveToRaw(m_p + m_dataSize, &value, 1));
     ++m_dataSize;
 
     return Status::NoError;
@@ -597,7 +597,7 @@ constexpr Status Vector<_T, _AllocationManager>::pushBackN(const _T* p, size_typ
 
     AGS_CS_RUN(addSpaceIfNeed(n));
 
-    AGS_CS_RUN(m_AllocationManager.copyNoOverlap(m_p + m_dataSize, p, n));
+    AGS_CS_RUN(m_AllocationManager.copyToRaw(m_p + m_dataSize, p, n));
     m_dataSize += n;
 
     return Status::NoError;
@@ -652,8 +652,8 @@ constexpr Status Vector<_T, _AllocationManager>::replace(const _T* p, size_type 
         if (newMp)
         {
             m_allocatedSize = newAllocatedSize;
-            AGS_CS_RUN(m_AllocationManager.moveNoOverlap(newMp, m_p, offset));
-            AGS_CS_RUN(m_AllocationManager.copyNoOverlap(newMp + offset, p, n));
+            AGS_CS_RUN(m_AllocationManager.moveToRaw(newMp, m_p, offset));
+            AGS_CS_RUN(m_AllocationManager.copyToRaw(newMp + offset, p, n));
             m_AllocationManager.destroyAndDeallocate(m_p, m_dataSize);
 
             m_p = newMp;
@@ -666,7 +666,7 @@ constexpr Status Vector<_T, _AllocationManager>::replace(const _T* p, size_type 
         if constexpr (constructor_allocator::value)
             m_AllocationManager.destroyN(m_p + offset, n >= m_dataSize - offset ? m_dataSize - offset : n);
 
-        AGS_CS_RUN(m_AllocationManager.copyNoOverlap(m_p + offset, p, n));
+        AGS_CS_RUN(m_AllocationManager.copyToRaw(m_p + offset, p, n));
     }
 
     m_dataSize = newDataSize;
@@ -699,11 +699,11 @@ constexpr Status Vector<_T, _AllocationManager>::insert(const _T* p, size_type n
         if (newMp)
         {
             m_allocatedSize = newAllocatedSize;
-            AGS_CS_RUN(m_AllocationManager.moveNoOverlap(newMp, m_p, offset));
-            AGS_CS_RUN(m_AllocationManager.copyNoOverlap(newMp + offset, p, n));
+            AGS_CS_RUN(m_AllocationManager.moveToRaw(newMp, m_p, offset));
+            AGS_CS_RUN(m_AllocationManager.copyToRaw(newMp + offset, p, n));
 
             if (offset != m_dataSize) // if we do not push back
-                AGS_CS_RUN(m_AllocationManager.moveNoOverlap(newMp + offsetPlusN, m_p + offset, rightDataPartSize));
+                AGS_CS_RUN(m_AllocationManager.moveToRaw(newMp + offsetPlusN, m_p + offset, rightDataPartSize));
 
             m_AllocationManager.destroyAndDeallocate(m_p, m_dataSize);
 
@@ -715,9 +715,9 @@ constexpr Status Vector<_T, _AllocationManager>::insert(const _T* p, size_type n
     else if (newDataSize > m_dataSize)
     {
         if (offset != m_dataSize)
-            AGS_CS_RUN(m_AllocationManager.moveDirty(m_p + offsetPlusN, m_p + m_dataSize, m_p + offset, rightDataPartSize));
+            AGS_CS_RUN(m_AllocationManager.moveToDirty(m_p + offsetPlusN, m_p + m_dataSize, m_p + offset, rightDataPartSize));
 
-        AGS_CS_RUN(m_AllocationManager.copyNoOverlap(m_p + offset, p, n));
+        AGS_CS_RUN(m_AllocationManager.copyToRaw(m_p + offset, p, n));
     }
     else if (newDataSize < m_dataSize)
         return Status::ErrorOverflow;
@@ -761,7 +761,7 @@ constexpr Status Vector<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc sr
             else
                 m_dataSize = ++currentOffset;
 
-            AGS_CS_RUN(m_AllocationManager.copyNoOverlap(pCurrent, &*srcBegin++, 1));
+            AGS_CS_RUN(m_AllocationManager.copyToRaw(pCurrent, &*srcBegin++, 1));
         }
         else
             AGS_CS_RUN(reserveInternal(currentOffset + 1, false));
@@ -784,7 +784,7 @@ constexpr Status Vector<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc sr
         m_dataSize = currentOffset;
         AGS_CS_RUN(addSpaceIfNeed(temp.size()));
 
-        AGS_CS_RUN(m_AllocationManager.moveNoOverlap(m_p + currentOffset, temp.data(), temp.size()));
+        AGS_CS_RUN(m_AllocationManager.moveToRaw(m_p + currentOffset, temp.data(), temp.size()));
         m_dataSize = currentOffset + temp.size();
     }
 
@@ -816,7 +816,7 @@ constexpr Status Vector<_T, _AllocationManager>::erase(size_type offset, size_ty
     difference_type rightNStart = offset + n;
     difference_type rightN = m_dataSize - rightNStart;
 
-    AGS_CS_RUN(m_AllocationManager.move(m_p + offset, m_p + rightNStart, rightN));
+    AGS_CS_RUN(m_AllocationManager.moveToRaw(m_p + offset, m_p + rightNStart, rightN));
     m_AllocationManager.destroyN(m_p + rightNStart, rightN); // if _T is not moveable we should destroying its objects explicitly
 
     m_dataSize = offset + rightN;
@@ -850,7 +850,7 @@ constexpr Status Vector<_T, _AllocationManager>::erase(iterator destBegin, itera
     difference_type leftN = destBegin - begin();
     difference_type rightN = m_dataSize - n - leftN;
 
-    AGS_CS_RUN(m_AllocationManager.move(destBegin.getPointer(), destEnd.getPointer(), rightN));
+    AGS_CS_RUN(m_AllocationManager.moveToRaw(destBegin.getPointer(), destEnd.getPointer(), rightN));
     m_AllocationManager.destroyN(destEnd.getPointer(), rightN); // if _T is not moveable we should destroying its objects explicitly
 
     m_dataSize = leftN + rightN;
@@ -869,7 +869,7 @@ constexpr Status Vector<_T, _AllocationManager>::copyN(size_type offset, size_ty
 
     difference_type nReal = offset + n > m_dataSize ? m_dataSize - offset : n;
 
-    AGS_CS_RUN(m_AllocationManager.copyDirty(p, p + offset, m_p + offset, nReal));
+    AGS_CS_RUN(m_AllocationManager.copyToDirty(p, p + nReal, m_p + offset, nReal));
 
     if (ppNew)
         *ppNew = p + nReal;
@@ -892,7 +892,7 @@ constexpr Status Vector<_T, _AllocationManager>::copyN(iterator srcBegin, iterat
 
     while (srcBegin != srcEnd)
     {
-        AGS_CS_RUN(m_AllocationManager.copyDirty(&*destBegin, &*destBegin + 1, srcBegin++.getPointer(), 1));
+        AGS_CS_RUN(m_AllocationManager.copyToDirty(&*destBegin, &*destBegin + 1, srcBegin++.getPointer(), 1));
         ++destBegin;
     }
 
@@ -1052,7 +1052,7 @@ constexpr Status Vector<_T, _AllocationManager>::reserveInternal(size_type n, bo
         {
             m_allocatedSize = n;
 
-            if (Status status = m_AllocationManager.moveNoOverlap(pNewMp, m_p, m_dataSize); !statusSuccess(status))
+            if (Status status = m_AllocationManager.moveToRaw(pNewMp, m_p, m_dataSize); !statusSuccess(status))
             {
                 m_dataSize = 0;
                 m_AllocationManager.deallocate(pNewMp);

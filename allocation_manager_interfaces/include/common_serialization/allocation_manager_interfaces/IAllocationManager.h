@@ -98,30 +98,19 @@ public:
     /// @param ...args Parameters that go to ctors
     /// @return Status of operation
     template<typename... Args>
-    AGS_CS_ALWAYS_INLINE constexpr Status constructN(pointer p, pointer* pNError, size_type n, Args&&... args) const
+    AGS_CS_ALWAYS_INLINE constexpr Status constructN(pointer p, size_type n, Args&&... args) const
     {
-        return static_cast<const _AllocationManager*>(this)->constructNImpl(p, pNError, n, std::forward<Args>(args)...);
+        return static_cast<const _AllocationManager*>(this)->constructNImpl(p, n, std::forward<Args>(args)...);
     }
 
     /// @brief Copy elements using copy ctors
-    /// @param pDest Pointer to destination array of elements
+    /// @param pDest Pointer to raw memory
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status copy(pointer pDest, const_pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status copyToRaw(pointer pDest, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocationManager*>(this)->copyDirtyImpl(pDest, pDest, pSrc, n);
-    }
-
-    /// @brief Copy elements using copy ctors when
-    ///     there is guaranteed no overlapping in memory regions
-    /// @param pDest Pointer to destination array of elements
-    /// @param pSrc Pointer to source array of elements
-    /// @param n Number of elements to copy
-    /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status copyNoOverlap(pointer pDest, const_pointer pSrc, size_type n) const
-    {
-        return static_cast<const _AllocationManager*>(this)->copyDirtyNoOverlapImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->copyToRawImpl(pDest, pSrc, n);
     }
 
     /// @brief Copy elements using copy ctors when
@@ -132,9 +121,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status copyDirty(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status copyToDirty(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocationManager*>(this)->copyDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->copyToDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Copy elements using copy ctors when
@@ -146,9 +135,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status copyDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status copyToDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocationManager*>(this)->copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->copyToDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Move elements using move ctors
@@ -156,20 +145,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status move(pointer pDest, pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status moveToRaw(pointer pDest, pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocationManager*>(this)->moveImpl(pDest, pDest, pSrc, n);
-    }
-
-    /// @brief Move elements using move ctors when
-    ///     there is guaranteed no overlapping in memory regions
-    /// @param pDest Pointer to destination array of elements
-    /// @param pSrc Pointer to source array of elements
-    /// @param n Number of elements to move
-    /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status moveNoOverlap(pointer pDest, pointer pSrc, size_type n) const
-    {
-        return static_cast<const _AllocationManager*>(this)->moveNoOverlapImpl(pDest, pDest, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->moveToRawImpl(pDest, pSrc, n);
     }
 
     /// @brief Move elements using move ctors when
@@ -180,9 +158,9 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status moveDirty(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status moveToDirty(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocationManager*>(this)->moveImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->moveToDirtyImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Move elements using move ctors when
@@ -196,7 +174,7 @@ public:
     /// @return Status of operation
     AGS_CS_ALWAYS_INLINE constexpr Status moveDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocationManager*>(this)->moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->moveToDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }
 
     /// @brief Shortcut for destroying and subsequent deallocating operations 

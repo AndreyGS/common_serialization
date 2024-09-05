@@ -63,10 +63,9 @@ protected:
 
         if (p)
         {
-            pointer pNError = nullptr;
-            if (Status status = this->constructN(p, &pNError, allocatedN, std::forward<Args>(args)...); !statusSuccess(status))
+            if (Status status = this->constructN(p, allocatedN, std::forward<Args>(args)...); !statusSuccess(status))
             {
-                this->destroyAndDeallocateImpl(p, pNError - p);
+                this->deallocate(p);
                 allocatedN = 0;
                 p = nullptr;
             }
@@ -100,9 +99,11 @@ protected:
     }
 
     template<typename... Args>
-    constexpr Status constructNImpl(pointer p, pointer* pNError, size_type n, Args&&... args) const
+    constexpr Status constructNImpl(pointer p, size_type n, Args&&... args) const
     {
         if (p)
+        {
+            pointer pStart = p;
             for (size_type i = 0, lastElement = n - 1; i < n; ++i)
             {
                 Status status = Status::NoError;
@@ -114,17 +115,39 @@ protected:
 
                 if (!statusSuccess(status))
                 {
-                    *pNError = p - 1;
+                    this->destroyN(pStart, p - pStart - 1);
                     return status;
                 }
             }
+
+            return Status::NoError;
+        }
         else
             return Status::ErrorInvalidArgument;
+    }
 
+    constexpr Status copyToRawImpl(pointer pDest, const_pointer pSrc, size_type n) const
+    {
+        assert(!n || pDest && pSrc);
+
+        if (pDest == pSrc)
+            return Status::NoError;
+
+        if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
+            return Status::ErrorInvalidArgument;
+
+        if constexpr (constructor_allocator::value)
+        {
+            for (size_type i = 0; i < n; ++i)
+                AGS_CS_RUN(this->getAllocator().construct(pDest++, *pSrc++));
+        }
+        else
+            memcpy(pDest, pSrc, n * sizeof(value_type));
+        
         return Status::NoError;
     }
 
-    constexpr Status copyDirtyImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
+    constexpr Status copyToDirtyImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
         assert(!n || pDest && pSrc);
 
@@ -151,12 +174,12 @@ protected:
                 memmove(pDest, pSrc, n * sizeof(value_type));
         }
         else
-            return copyDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+            return this->copyToDirtyNoOverlap(pDest, pDirtyMemoryFinish, pSrc, n);
 
         return Status::NoError;
     }
 
-    constexpr Status copyDirtyNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
+    constexpr Status copyToDirtyNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, const_pointer pSrc, size_type n) const
     {
         assert(!n || pDest && pSrc);
 
@@ -177,7 +200,38 @@ protected:
         return Status::NoError;
     }
 
-    constexpr Status moveImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
+    constexpr Status moveToRawImpl(pointer pDest, pointer pSrc, size_type n) const
+    {
+        assert(!n || pDest && pSrc);
+
+        if (pDest == pSrc)
+            return Status::NoError;
+
+        if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
+            return Status::ErrorInvalidArgument;
+
+        if constexpr (constructor_allocator::value)
+        {
+            for (size_type i = 0; i < n; ++i)
+                if (Status status = this->getAllocator().construct(pDest++, std::move(*pSrc++)); !statusSuccess(status))
+                {
+                    --pDest;
+                    for (pointer pDestDone = pDest - i; pDestDone != pDest;)
+                        this->getAllocator().destroy(pDestDone++);
+
+                    for (value_type* pSrcBegin = pSrc - i - 1, *pSrcEnd = pSrc - i + n; pSrcBegin != pSrcEnd;)
+                        this->getAllocator().destroy(pSrcBegin++);
+
+                    return status;
+                }
+        }
+        else
+            memcpy(pDest, pSrc, n * sizeof(value_type));
+
+        return Status::NoError;
+    }
+
+    constexpr Status moveToDirtyImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
         assert(!n || pDest && pSrc);
 
@@ -209,12 +263,12 @@ protected:
                 memmove(pDest, pSrc, n * sizeof(value_type));
         }
         else
-            return moveNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+            return this->moveToDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
 
         return Status::NoError;
     }
 
-    constexpr Status moveNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
+    constexpr Status moveToDirtyNoOverlapImpl(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
         assert(!n || pDest && pSrc);
 
