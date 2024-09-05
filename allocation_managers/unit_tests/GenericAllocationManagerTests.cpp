@@ -252,7 +252,7 @@ TEST(GenericAllocationManagerTests, ConstructNErrorInProcess)
     EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 1);
 }
 
-TEST(GenericAllocationManagerTests, CopyRaw)
+TEST(GenericAllocationManagerTests, CopyToRaw)
 {
     GenericAllocationManager<RawNoexceptAllocatorT<int>> manager;
     size_t requestedN{ 3 };
@@ -263,7 +263,7 @@ TEST(GenericAllocationManagerTests, CopyRaw)
     pSrc[2] = 3;
     int* pDest = manager.allocateStrict(requestedN);
 
-    EXPECT_EQ(manager.copy(pDest, pSrc, requestedN), Status::NoError);
+    EXPECT_EQ(manager.copyToRaw(pDest, pSrc, requestedN), Status::NoError);
     EXPECT_EQ(pDest[0], 1);
     EXPECT_EQ(pDest[1], 2);
     EXPECT_EQ(pDest[2], 3);
@@ -272,7 +272,7 @@ TEST(GenericAllocationManagerTests, CopyRaw)
     manager.deallocate(pDest);
 }
 
-TEST(GenericAllocationManagerTests, CopyCtor)
+TEST(GenericAllocationManagerTests, CopyToRawCtor)
 {
     GenericAllocationManager<ConstructorNoexceptAllocatorT<std::string>> manager;
     size_t requestedN{ 3 };
