@@ -31,6 +31,7 @@
 #include <new>
 #endif // #ifdef AGS_CS_NO_STD_LIB
 
+#include <common_serialization/common/traits.h>
 #include <common_serialization/common/Status.h>
 
 namespace common_serialization
@@ -43,17 +44,21 @@ namespace common_serialization
 ///     Primary for avoid exceptions and consequently 
 ///     init function should not throw.
 template<typename _T>
-concept Initable = requires(_T t)
+concept Initable = requires(normalize_t<_T>& lhs, _T&& rhs)
 {
-    { t.init(t) } -> std::same_as<Status>;
+    { lhs.init(std::forward<_T>(rhs)) } -> std::same_as<Status>;
 };
 
 /// @brief Test for possibility to init object of type _T
-///     by another instance of type SpecClass.
-template<typename _T, typename SpecClass>
-concept InitableBySpecialClass = requires(_T t, SpecClass sc)
+///     by special arguments
+/// @remark Using to figure out can initialization of object be
+///     replaced from copy-ctor to init function.
+///     Primary for avoid exceptions and consequently 
+///     init function should not throw.
+template<typename _T, typename... _Args>
+concept InitableBySpecialArgs = requires(_T t, _Args&&... args)
 {
-    { t.init(sc) } -> std::same_as<Status>;
+    { t.init(std::forward<_Args>(args)...) } -> std::same_as<Status>;
 };
 
 template<typename _T>

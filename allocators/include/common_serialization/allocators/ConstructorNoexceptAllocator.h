@@ -82,7 +82,7 @@ protected:
 
     template<typename... _Args>
     AGS_CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, _Args&&... args) const
-        requires Initable<value_type>
+        requires (InitableBySpecialArgs<value_type, _Args...> && value_type::prefer_init_against_ctor::value)
     {
         assert(p);
 

@@ -273,14 +273,14 @@ protected:
             if (!pointerKeeper.allocateAndConstruct<CtorGenAllocationManagerT<base_from>>(1))
                 return Status::ErrorNoMemory;
 
-            if constexpr (InitableBySpecialClass<_To, base_from>)
+            if constexpr (InitableBySpecialArgs<_To, base_from>)
                 AGS_CS_RUN(pointerKeeper.get<base_from>()->init(std::move(from)))
             else
                 return Status::ErrorNoSuchHandler;
 
             return base_class::convertToUpperVersionOnHeap(std::move(*pointerKeeper.get<base_from>()), ctx, to);
         }
-        else if constexpr (InitableBySpecialClass<_To, _From>)
+        else if constexpr (InitableBySpecialArgs<_To, _From>)
             return to.init(std::move(from));
         else
             return Status::ErrorNoSuchHandler;
@@ -293,14 +293,14 @@ protected:
         {
             base_from bFrom;
 
-            if constexpr (InitableBySpecialClass<_To, base_from>)
+            if constexpr (InitableBySpecialArgs<_To, base_from>)
                 AGS_CS_RUN(bFrom.init(from))
             else
                 return Status::ErrorNoSuchHandler;
 
             return base_class::convertToUpperVersionOnStack(bFrom, ctx, to);
         }
-        else if constexpr (InitableBySpecialClass<_To, _From>)
+        else if constexpr (InitableBySpecialArgs<_To, _From>)
             return to.init(from);
         else
             return Status::ErrorNoSuchHandler;

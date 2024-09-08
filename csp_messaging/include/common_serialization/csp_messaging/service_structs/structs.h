@@ -122,6 +122,7 @@ class CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySetti
 {
 public:
     using instance_type = GetCrtpMainType<CspPartySettings<_T>, _T>;
+    using prefer_init_against_ctor = std::true_type;
 
     static constexpr Id kId{ 0xbf8c27e8, 0xfe6a, 0x4492, 0x91cb, 0xe4cf411e1236 };
     static constexpr interface_version_t kInterfaceVersion = 1;

@@ -38,6 +38,8 @@ public:
     using iterator = VectorIterator<Vector<_T, _AllocationManager>>;
     using const_iterator = ConstVectorIterator<Vector<_T, _AllocationManager>>;
 
+    using prefer_init_against_ctor = std::true_type;
+
     Walker() = default;
 
     explicit AGS_CS_ALWAYS_INLINE constexpr Walker(const Vector<_T, _AllocationManager>& rhs);

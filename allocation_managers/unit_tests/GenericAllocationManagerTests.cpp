@@ -84,7 +84,7 @@ TEST(GenericAllocationManagerTests, AllocateAndConstructCtor)
     manager.destroyAndDeallocate(p, 3);
 }
 
-TEST(GenericAllocationManagerTests, AllocateAndConstructErrorInProcess)
+TEST(GenericAllocationManagerTests, AllocateAndConstructErrorOnConstruction)
 {
     GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
     size_t requestedN{ 3 };
@@ -168,7 +168,7 @@ TEST(GenericAllocationManagerTests, ConstructCtor)
     manager.destroyAndDeallocate(p, 1);
 }
 
-TEST(GenericAllocationManagerTests, ConstructError)
+TEST(GenericAllocationManagerTests, ConstructErrorOnConstruction)
 {
     GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
     size_t requestedN{ 1 };
@@ -229,7 +229,7 @@ TEST(GenericAllocationManagerTests, ConstructNCtor)
     manager.destroyAndDeallocate(p, 3);
 }
 
-TEST(GenericAllocationManagerTests, ConstructNErrorInProcess)
+TEST(GenericAllocationManagerTests, ConstructNErrorOnConstruction)
 {
     GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
     size_t requestedN{ 3 };
@@ -252,7 +252,7 @@ TEST(GenericAllocationManagerTests, ConstructNErrorInProcess)
     EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 1);
 }
 
-TEST(GenericAllocationManagerTests, CopyToRaw)
+TEST(GenericAllocationManagerTests, CopyToRawNoOverlap)
 {
     GenericAllocationManager<RawNoexceptAllocatorT<int>> manager;
     size_t requestedN{ 3 };
@@ -263,7 +263,7 @@ TEST(GenericAllocationManagerTests, CopyToRaw)
     pSrc[2] = 3;
     int* pDest = manager.allocateStrict(requestedN);
 
-    EXPECT_EQ(manager.copyToRaw(pDest, pSrc, requestedN), Status::NoError);
+    EXPECT_EQ(manager.copyToRawNoOverlap(pDest, pSrc, requestedN), Status::NoError);
     EXPECT_EQ(pDest[0], 1);
     EXPECT_EQ(pDest[1], 2);
     EXPECT_EQ(pDest[2], 3);
@@ -272,16 +272,257 @@ TEST(GenericAllocationManagerTests, CopyToRaw)
     manager.deallocate(pDest);
 }
 
-TEST(GenericAllocationManagerTests, CopyToRawCtor)
+TEST(GenericAllocationManagerTests, CopyToRawNoOverlapCtor)
 {
     GenericAllocationManager<ConstructorNoexceptAllocatorT<std::string>> manager;
     size_t requestedN{ 3 };
 
     std::string* pSrc = manager.allocateStrict(requestedN);
+    const std::string kArg{ "123" };
+    manager.constructN(pSrc, requestedN, kArg);
+
+    std::string* pDest = manager.allocateStrict(requestedN);
+    EXPECT_EQ(manager.copyToRawNoOverlap(pDest, pSrc, requestedN), Status::NoError);
+    EXPECT_EQ(pDest[0], "123");
+    EXPECT_EQ(pDest[1], "123");
+    EXPECT_EQ(pDest[2], "123");
+
+    manager.destroyAndDeallocate(pSrc, 3);
+    manager.destroyAndDeallocate(pDest, 3);
+}
+
+TEST(GenericAllocationManagerTests, CopyToRawNoOverlapErrorOnConstruction)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    size_t requestedN{ 3 };
+
+    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    tests_special_types::ErrorProne::currentError = Status::NoError;
+    tests_special_types::ErrorProne arg;
+    manager.constructN(pSrc, 3, arg);
+
+    tests_special_types::ErrorProne* pDest = manager.allocateStrict(requestedN);
+    // Let third object copying will fail
+    tests_special_types::ErrorProne::counter = 0;
+    tests_special_types::ErrorProne::errorOnCounter = 2;
+    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
+    tests_special_types::ErrorProne::destructorCalledCounter = 0;
+    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    EXPECT_EQ(manager.copyToRawNoOverlap(pDest, pSrc, requestedN), Status::ErrorDataCorrupted);
+    // Check that two desctructors were called
+    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2);
+    // Check that those destructors were from first and second item (indexes 0 + 1)
+    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 1);
+
+    manager.destroyAndDeallocate(pSrc, 3);
+    manager.deallocate(pDest);
+}
+
+TEST(GenericAllocationManagerTests, CopyToDirty)
+{
+    GenericAllocationManager<RawNoexceptAllocatorT<int>> manager;
+    size_t requestedN{ 3 };
+
+    int* pSrc = manager.allocateStrict(requestedN);
     pSrc[0] = 1;
     pSrc[1] = 2;
     pSrc[2] = 3;
-    
+    int* pDest = pSrc;
+
+    EXPECT_EQ(manager.copyToDirty(pDest, pDest + 3, pSrc, requestedN), Status::NoError);
+    EXPECT_EQ(pDest[0], 1);
+    EXPECT_EQ(pDest[1], 2);
+    EXPECT_EQ(pDest[2], 3);
+
+    manager.deallocate(pSrc);
+}
+
+TEST(GenericAllocationManagerTests, CopyToDirtyCtor)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<std::string>> manager;
+    size_t requestedN{ 3 };
+
+    std::string* pSrc = manager.allocateStrict(requestedN);
+    const std::string kArg{ "123" };
+    manager.constructN(pSrc, requestedN - 1, kArg);
+
+    std::string* pDest = pSrc + 1;
+    EXPECT_EQ(manager.copyToDirty(pDest, pDest + 1, pSrc, requestedN - 1), Status::NoError);
+    EXPECT_EQ(pDest[0], "123");
+    EXPECT_EQ(pDest[1], "123");
+
+    // Check that pSrc[0] element was keeped safe
+    EXPECT_EQ(pSrc[0], "123");
+
+    manager.destroyAndDeallocate(pSrc, 3);
+}
+
+TEST(GenericAllocationManagerTests, CopyToDirtyErrorOnConstruction)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    size_t requestedN{ 4 };
+
+    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    tests_special_types::ErrorProne::currentError = Status::NoError;
+    tests_special_types::ErrorProne::counter = 0;
+    // Let third object copying will fail (3 objects would be constructed in pSrc, and 2 will be copied before fail)
+    tests_special_types::ErrorProne::errorOnCounter = 5;
+    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
+    tests_special_types::ErrorProne arg;
+    manager.constructN(pSrc, requestedN - 1, arg);
+
+    tests_special_types::ErrorProne* pDest = pSrc + 1;
+    tests_special_types::ErrorProne::destructorCalledCounter = 0;
+    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    EXPECT_EQ(manager.copyToDirty(pDest, pDest + 2, pSrc, requestedN - 1), Status::ErrorDataCorrupted);
+    // Check that two desctructors were called
+    // 2 times destructor called on overlapping regions and 2 times after error on already copied objects
+    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2 + 2);
+    // Check that those destructors were called for items 
+    // pSrc[2] sum += 2, pSrc[1] sum += 1, pDest[2] sum += 3, pDest[1] sum +=4
+    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 10);
+
+    manager.destroyAndDeallocate(pSrc, 1);
+}
+
+TEST(GenericAllocationManagerTests, CopyToDirtyNoOverlap)
+{
+    GenericAllocationManager<RawNoexceptAllocatorT<int>> manager;
+    size_t requestedN{ 3 };
+
+    int* pSrc = manager.allocateStrict(requestedN);
+    pSrc[0] = 1;
+    pSrc[1] = 2;
+    pSrc[2] = 3;
+    int* pDest = manager.allocateStrict(requestedN);
+
+    EXPECT_EQ(manager.copyToDirtyNoOverlap(pDest, pDest + 3, pSrc, requestedN), Status::NoError);
+    EXPECT_EQ(pDest[0], 1);
+    EXPECT_EQ(pDest[1], 2);
+    EXPECT_EQ(pDest[2], 3);
+
+    manager.deallocate(pSrc);
+    manager.deallocate(pDest);
+}
+
+TEST(GenericAllocationManagerTests, CopyToDirtyNoOverlapCtor)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<std::string>> manager;
+    size_t requestedN{ 3 };
+
+    std::string* pSrc = manager.allocateStrict(requestedN);
+    const std::string kArg{ "123" };
+    manager.constructN(pSrc, requestedN, kArg);
+
+    std::string* pDest = manager.allocateStrict(requestedN);
+    manager.constructN(pDest, requestedN - 1, kArg);
+
+    EXPECT_EQ(manager.copyToDirtyNoOverlap(pDest, pDest + 2, pSrc, requestedN), Status::NoError);
+    EXPECT_EQ(pDest[0], "123");
+    EXPECT_EQ(pDest[1], "123");
+    EXPECT_EQ(pDest[2], "123");
+
+    manager.destroyAndDeallocate(pSrc, 3);
+    manager.destroyAndDeallocate(pDest, 3);
+}
+
+TEST(GenericAllocationManagerTests, CopyToDirtyNoOverlapErrorOnConstruction)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    size_t requestedN{ 3 };
+
+    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    tests_special_types::ErrorProne::currentError = Status::NoError;
+    tests_special_types::ErrorProne arg;
+    manager.constructN(pSrc, requestedN, arg);
+    tests_special_types::ErrorProne* pDest = manager.allocateStrict(requestedN);
+
+    // Let third object copying will fail
+    tests_special_types::ErrorProne::counter = 0;
+    tests_special_types::ErrorProne::errorOnCounter = 4;
+    manager.constructN(pDest, requestedN - 1, arg);
+
+    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
+    tests_special_types::ErrorProne::destructorCalledCounter = 0;
+    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    EXPECT_EQ(manager.copyToDirtyNoOverlap(pDest, pDest + 2, pSrc, requestedN), Status::ErrorDataCorrupted);
+    // Check that two desctructors were called
+    // 2 times destructor called on inited before regions and 2 times after error on already copied objects
+    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2 + 2);
+    // Check that those destructors were called for items 
+    // pDest[0] sum += 0, pDest[1] sum += 1, pDest[0] sum += 2, pDest[1] sum +=3
+    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 6);
+
+    manager.destroyAndDeallocate(pSrc, 1);
+    manager.deallocate(pDest);
+}
+
+TEST(GenericAllocationManagerTests, MoveToRawNoOverlap)
+{
+    GenericAllocationManager<RawNoexceptAllocatorT<int>> manager;
+    size_t requestedN{ 3 };
+
+    int* pSrc = manager.allocateStrict(requestedN);
+    pSrc[0] = 1;
+    pSrc[1] = 2;
+    pSrc[2] = 3;
+    int* pDest = manager.allocateStrict(requestedN);
+
+    EXPECT_EQ(manager.moveToRawNoOverlap(pDest, pSrc, requestedN), Status::NoError);
+    EXPECT_EQ(pDest[0], 1);
+    EXPECT_EQ(pDest[1], 2);
+    EXPECT_EQ(pDest[2], 3);
+
+    manager.deallocate(pSrc);
+    manager.deallocate(pDest);
+}
+
+TEST(GenericAllocationManagerTests, MoveToRawNoOverlapCtor)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<std::string>> manager;
+    size_t requestedN{ 3 };
+
+    std::string* pSrc = manager.allocateStrict(requestedN);
+    const std::string kArg{ "123" };
+    manager.constructN(pSrc, requestedN, kArg);
+
+    std::string* pDest = manager.allocateStrict(requestedN);
+    EXPECT_EQ(manager.moveToRawNoOverlap(pDest, pSrc, requestedN), Status::NoError);
+    EXPECT_EQ(pDest[0], "123");
+    EXPECT_EQ(pDest[1], "123");
+    EXPECT_EQ(pDest[2], "123");
+
+    manager.deallocate(pSrc);
+    manager.destroyAndDeallocate(pDest, 3);
+}
+
+TEST(GenericAllocationManagerTests, MoveToRawNoOverlapErrorOnConstruction)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    size_t requestedN{ 3 };
+
+    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    tests_special_types::ErrorProne::counter = 0;
+    tests_special_types::ErrorProne::errorOnCounter = 111111;
+    tests_special_types::ErrorProne::currentError = Status::NoError;
+    tests_special_types::ErrorProne arg;
+    manager.constructN(pSrc, 3, arg);
+
+    tests_special_types::ErrorProne* pDest = manager.allocateStrict(requestedN);
+    // Let third object copying will fail
+    tests_special_types::ErrorProne::counter = 0;
+    tests_special_types::ErrorProne::errorOnCounter = 2;
+    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
+    tests_special_types::ErrorProne::destructorCalledCounter = 0;
+    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    EXPECT_EQ(manager.moveToRawNoOverlap(pDest, pSrc, requestedN), Status::ErrorDataCorrupted);
+    // Check that two desctructors were called
+    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2);
+    // pDest[0] sum += 0 pDest[1] += 1
+    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 1);
+
+    manager.deallocate(pSrc);
+    manager.deallocate(pDest);
 }
 
 } // namespace

@@ -90,6 +90,7 @@ public:
     }
 
     /// @brief Call ctor for n elements with args on memory pointed by p
+    /// @note On error other previously constructed elements will be destroyed
     /// @tparam ...Args Parameters types that go to ctors
     /// @param p Pointer to memory where object must be created
     /// @param pNError Pointer on pointer to memory where an error was occurred.
@@ -104,17 +105,21 @@ public:
     }
 
     /// @brief Copy elements using copy ctors
+    /// @note Regions must be not overlapped otherwise behavior will be undefined
+    /// @note On error other previously copied elements will be destroyed
     /// @param pDest Pointer to raw memory
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to copy
     /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status copyToRaw(pointer pDest, const_pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status copyToRawNoOverlap(pointer pDest, const_pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocationManager*>(this)->copyToRawImpl(pDest, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->copyToRawNoOverlapImpl(pDest, pSrc, n);
     }
 
     /// @brief Copy elements using copy ctors when
     ///     some part of destination memory already has initialized objects
+    /// @note Regions can be overlapped
+    /// @note On error other previously copied elements will be destroyed
     /// @param pDest Pointer to destination array of elements
     /// @param pDirtyMemoryFinish Pointer to one of the elements of the destination array
     ///     from which memory is not initialized
@@ -127,8 +132,9 @@ public:
     }
 
     /// @brief Copy elements using copy ctors when
-    ///     there is guaranteed no overlapping in memory regions,
-    ///     but some part of destination memory already has initialized objects
+    ///     some part of destination memory already has initialized objects
+    /// @note Regions must be not overlapped otherwise behavior will be undefined
+    /// @note On error other previously copied elements will be destroyed
     /// @param pDest Pointer to destination array of elements
     /// @param pDirtyMemoryFinish Pointer to one of the elements of the destination array
     ///     from which memory is not initialized
@@ -141,13 +147,15 @@ public:
     }
 
     /// @brief Move elements using move ctors
+    /// @note Regions must be not overlapped otherwise behavior will be undefined
+    /// @note On error other previously moved elements will be destroyed 
     /// @param pDest Pointer to destination array of elements
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status moveToRaw(pointer pDest, pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status moveToRawNoOverlap(pointer pDest, pointer pSrc, size_type n) const
     {
-        return static_cast<const _AllocationManager*>(this)->moveToRawImpl(pDest, pSrc, n);
+        return static_cast<const _AllocationManager*>(this)->moveToRawNoOverlapImpl(pDest, pSrc, n);
     }
 
     /// @brief Move elements using move ctors when

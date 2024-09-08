@@ -32,6 +32,7 @@ namespace
 
 struct InitableTest
 {
+    InitableTest() = default;
     InitableTest(const InitableTest&) {}
     Status init(const InitableTest&) { return Status::NoError; }
     Status init(int) { return Status::NoError; }
@@ -39,22 +40,50 @@ struct InitableTest
 
 struct InitableTest2
 {
+    InitableTest2() = default;
     InitableTest2(const InitableTest2&) {}
     Status init(const InitableTest&) { return Status::NoError; }
 };
 
+struct InitableTest3
+{
+    Status init(InitableTest3&&) { return Status::NoError; }
+    Status init(InitableTest3&&, int) { return Status::NoError; }
+};
+
 TEST(ConceptsTests, Initable_)
 {
+    InitableTest initableTestLhs, initableTestRhs;
+    initableTestLhs.init(initableTestRhs);
+    EXPECT_TRUE(Initable<const InitableTest&>);
     EXPECT_TRUE(Initable<InitableTest>);
+
+    initableTestLhs.init(std::move(initableTestRhs));
+    EXPECT_TRUE(Initable<InitableTest&&>);
+
     EXPECT_FALSE(Initable<InitableTest2>);
+
+    InitableTest3 initableTest3Lhs, initableTest3Rhs;
+    initableTest3Lhs.init(std::move(initableTest3Rhs));
+    EXPECT_TRUE(Initable<InitableTest3&&>);
+    EXPECT_TRUE(Initable<InitableTest3>);
+
+    EXPECT_FALSE(Initable<const InitableTest3&>);
 }
 
-TEST(ConceptsTests, InitableBySpecialClass_)
+TEST(ConceptsTests, InitableBySpecialArgs_)
 {
-    EXPECT_FALSE((InitableBySpecialClass<InitableTest, InitableTest2>));
-    EXPECT_TRUE((InitableBySpecialClass<InitableTest2, InitableTest>));
-    EXPECT_TRUE((InitableBySpecialClass<InitableTest, int>));
-    EXPECT_FALSE((InitableBySpecialClass<InitableTest2, int>));
+    EXPECT_TRUE((InitableBySpecialArgs<InitableTest, InitableTest>));
+    EXPECT_FALSE((InitableBySpecialArgs<const InitableTest&, const InitableTest&>));
+    EXPECT_TRUE((InitableBySpecialArgs<InitableTest&, const InitableTest&>));
+    EXPECT_TRUE((InitableBySpecialArgs<InitableTest&, InitableTest&&>));
+
+    EXPECT_FALSE((InitableBySpecialArgs<InitableTest, InitableTest2>));
+    EXPECT_TRUE((InitableBySpecialArgs<InitableTest2, InitableTest>));
+    EXPECT_TRUE((InitableBySpecialArgs<InitableTest, int>));
+    EXPECT_FALSE((InitableBySpecialArgs<InitableTest2, int>));
+
+    EXPECT_TRUE((InitableBySpecialArgs<InitableTest3&, InitableTest3, int>));
 }
 
 struct NotPointerTest

@@ -126,20 +126,24 @@ protected:
             return Status::ErrorInvalidArgument;
     }
 
-    constexpr Status copyToRawImpl(pointer pDest, const_pointer pSrc, size_type n) const
+    constexpr Status copyToRawNoOverlapImpl(pointer pDest, const_pointer pSrc, size_type n) const
     {
         assert(!n || pDest && pSrc);
 
-        if (pDest == pSrc)
-            return Status::NoError;
-
-        if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
-            return Status::ErrorInvalidArgument;
-
         if constexpr (constructor_allocator::value)
         {
+            pointer pStart = pDest;
+
             for (size_type i = 0; i < n; ++i)
-                AGS_CS_RUN(this->getAllocator().construct(pDest++, *pSrc++));
+            {
+                Status status = this->getAllocator().construct(pDest++, *pSrc++);
+
+                if (!statusSuccess(status))
+                {
+                    this->destroyN(pStart, pDest - pStart - 1);
+                    return status;
+                }
+            }
         }
         else
             memcpy(pDest, pSrc, n * sizeof(value_type));
@@ -154,20 +158,29 @@ protected:
         if (pDest == pSrc)
             return Status::NoError;
 
-        if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
+        if (helpers::areRegionsOverlap(pDest, pSrc, n))
         {
             if constexpr (constructor_allocator::value)
             {
-                size_type lastElementOffset = n - 1;
-                pDest += lastElementOffset;
-                pSrc += lastElementOffset;
-
-                for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
+                if (pDest < pSrc)
+                    return this->copyToDirtyNoOverlap(pDest, pDirtyMemoryFinish, pSrc, n);
+                else
                 {
-                    if (pDest < pDirtyMemoryFinish)
-                        this->getAllocator().destroy(pDest);
+                    size_type lastElementOffset = n - 1;
 
-                    AGS_CS_RUN(this->getAllocator().construct(pDest--, *pSrc--));
+                    for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
+                    {
+                        if (&pDest[i] < pDirtyMemoryFinish)
+                            this->getAllocator().destroy(&pDest[i]);
+
+                        Status status = this->getAllocator().construct(&pDest[i], pSrc[i]);
+
+                        if (!statusSuccess(status))
+                        {
+                            this->destroyN(&pDest[i] + 1, &pDest[lastElementOffset] - &pDest[i]);
+                            return status;
+                        }
+                    }
                 }
             }
             else
@@ -183,48 +196,46 @@ protected:
     {
         assert(!n || pDest && pSrc);
 
-        if (pDest == pSrc)
-            return Status::NoError;
-
         if constexpr (constructor_allocator::value)
+        {
+            pointer pStart = pDest;
             for (size_type i = 0; i < n; ++i)
             {
                 if (pDest < pDirtyMemoryFinish)
                     this->getAllocator().destroy(pDest);
 
-                AGS_CS_RUN(this->getAllocator().construct(pDest++, *pSrc++));
+                Status status = this->getAllocator().construct(pDest++, *pSrc++);
+
+                if (!statusSuccess(status))
+                {
+                    this->destroyN(pStart, pDest - pStart - 1);
+                    return status;
+                }
             }
+        }
         else
             memcpy(pDest, pSrc, n * sizeof(value_type));
 
         return Status::NoError;
     }
 
-    constexpr Status moveToRawImpl(pointer pDest, pointer pSrc, size_type n) const
+    constexpr Status moveToRawNoOverlapImpl(pointer pDest, pointer pSrc, size_type n) const
     {
         assert(!n || pDest && pSrc);
 
-        if (pDest == pSrc)
-            return Status::NoError;
-
-        if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
-            return Status::ErrorInvalidArgument;
-
         if constexpr (constructor_allocator::value)
-        {
             for (size_type i = 0; i < n; ++i)
-                if (Status status = this->getAllocator().construct(pDest++, std::move(*pSrc++)); !statusSuccess(status))
-                {
-                    --pDest;
-                    for (pointer pDestDone = pDest - i; pDestDone != pDest;)
-                        this->getAllocator().destroy(pDestDone++);
+            {
+                Status status = this->getAllocator().construct(pDest++, std::move(*pSrc++));
 
-                    for (value_type* pSrcBegin = pSrc - i - 1, *pSrcEnd = pSrc - i + n; pSrcBegin != pSrcEnd;)
-                        this->getAllocator().destroy(pSrcBegin++);
+                if (!statusSuccess(status))
+                {
+                    for (pointer pDestBegin = pDest - i - 1; pDestBegin != pDest - 1;)
+                        this->getAllocator().destroy(pDestBegin++);
 
                     return status;
                 }
-        }
+            }
         else
             memcpy(pDest, pSrc, n * sizeof(value_type));
 

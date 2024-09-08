@@ -1,32 +1,31 @@
-1. Unit-tests on Vector operator==.
-2. Add init Vector and Walker by pointer, size, allocatedSize[, offset].
-3. More unit tests on extendedPointerProcessing modes.
-4. Add tests on GenericPointerKeeper.
-5. Add structs and tests for AllModesTests without pointers related flags.
-6. Make replacement for std::unordered_map, std::unordered_multimap which would also include replacement of linked list.
-7. Write scripts for generating ISerializable data, serialization and conversion source files.
-8. Add synchronization not std platform dependent rw mutexes.
-9. Add testing modules for Windows and Linux kernels.
-10. Add unit-tests for mutexes.
-11. Add unit-tests for Walker init by Vector functions.
-12. Add unit-tests on Walker::setSize.
-13. Add Walker emplace() methods.
-14. Add crc32 of serialization flag to CSP. (?)
-15. Add empty() method to Vector and Walker.
-16. Add unit-tests on AllocatorHelpers, especially for constructN and allocateAndConstruct.
-17. Add IDataHandler::checkPoliciesCompliance function realization.
-18. Add unit-tests on Vector::insert(const _T& value, size_type offset).
-19. Add unit-tests on Vector::erase(size_type offset).
-20. Add Vector::insert overload for rvalues.
-21. Add more tests on structs with simply_assignable_fixed_size_tag and always_simply_assignable_tag.
-22. Add tests on not compatible CSP data flags settings, including interface version not match situation.
-23. Add Experemental field in CSP Common context (?).
-24. Write tests on this situation: CSP Interface is 3, Context Interface is 1, struct private version is 0 (or 1) and struct latest interface version is 2.
-25. Add tests on Status::ErrorValueOverflow.
-26. Add posibility to set additional data flags to not interface struct.
-27. Think about adding precalculated effective data flags with dependencies of interface struct.
-28. Add tests on endianness tolerant tag.
-29. Add reallocate method to IAllocator.
-30. Add more tests on UniquePtr.
-31. Add tests on makeUniquexxx functions.
-32. Add Vector emplace and emplaceFront methods.
+- Unit-tests on Vector operator==.
+- Add init Vector and Walker by pointer, size, allocatedSize[, offset].
+- More unit tests on extendedPointerProcessing modes.
+- Add tests on GenericPointerKeeper.
+- Add structs and tests for AllModesTests without pointers related flags.
+- Make replacement for std::unordered_map, std::unordered_multimap which would also include replacement of linked list.
+- Write scripts for generating ISerializable data, serialization and conversion source files.
+- Add synchronization not std platform dependent rw mutexes.
+- Add testing modules for Windows and Linux kernels.
+- Add unit-tests for mutexes.
+- Add unit-tests for Walker init by Vector functions.
+- Add unit-tests on Walker::setSize.
+- Add Walker emplace() methods.
+- Add crc32 of serialization flag to CSP. (?)
+- Add empty() method to Vector and Walker.
+- Add IDataHandler::checkPoliciesCompliance function realization.
+- Add unit-tests on Vector::insert(const _T& value, size_type offset).
+- Add unit-tests on Vector::erase(size_type offset).
+- Add Vector::insert overload for rvalues.
+- Add more tests on structs with simply_assignable_fixed_size_tag and always_simply_assignable_tag.
+- Add tests on not compatible CSP data flags settings, including interface version not match situation.
+- Add Experemental field in CSP Common context (?).
+- Write tests on this situation: CSP Interface is 3, Context Interface is 1, struct private version is 0 (or 1) and struct latest interface version is 2.
+- Add tests on Status::ErrorValueOverflow.
+- Add capability to set additional data flags to not interface struct.
+- Think about adding precalculated effective data flags with dependencies of interface struct.
+- Add tests on endianness tolerant tag.
+- Add reallocate method to IAllocator.
+- Add more tests on UniquePtr.
+- Add tests on makeUniquexxx functions.
+- Add Vector emplace and emplaceFront methods.

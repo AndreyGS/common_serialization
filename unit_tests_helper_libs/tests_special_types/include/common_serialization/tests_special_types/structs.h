@@ -82,6 +82,8 @@ struct PodStructDesc : PodStruct
 class ErrorProne
 {
 public:
+    using prefer_init_against_ctor = std::true_type;
+
     static uint32_t counter;
     static uint32_t errorOnCounter;
     static ags_cs::Status currentError;
