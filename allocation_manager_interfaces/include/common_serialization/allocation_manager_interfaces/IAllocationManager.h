@@ -180,7 +180,7 @@ public:
     /// @param pSrc Pointer to source array of elements
     /// @param n Number of elements to move
     /// @return Status of operation
-    AGS_CS_ALWAYS_INLINE constexpr Status moveDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
+    AGS_CS_ALWAYS_INLINE constexpr Status moveToDirtyNoOverlap(pointer pDest, pointer pDirtyMemoryFinish, pointer pSrc, size_type n) const
     {
         return static_cast<const _AllocationManager*>(this)->moveToDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
     }

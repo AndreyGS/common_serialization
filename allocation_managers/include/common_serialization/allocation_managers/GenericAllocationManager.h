@@ -249,32 +249,36 @@ protected:
         if (pDest == pSrc)
             return Status::NoError;
 
-        if (helpers::areRegionsOverlap(pDest, pSrc, n) && pDest > pSrc)
+        if (helpers::areRegionsOverlap(pDest, pSrc, n))
         {
             if constexpr (constructor_allocator::value)
             {
-                size_type lastElementOffset = n - 1;
-                pDest += lastElementOffset;
-                pSrc += lastElementOffset;
-
-                for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
+                if (pDest < pSrc)
+                    return this->moveToDirtyNoOverlap(pDest, pDirtyMemoryFinish, pSrc, n);
+                else
                 {
-                    if (pDest < pDirtyMemoryFinish)
-                        this->getAllocator().destroy(pDest);
-                    /*
-                    if (Status status = this->getAllocator().construct(pDest--, std::move(*pSrc--)); !statusSuccess(status))
+                    size_type lastElementOffset = n - 1;
+
+                    for (size_type i = lastElementOffset; i != static_cast<size_type>(-1); --i)
                     {
-                        ++pDest;
-                        for (pointer pDestDone = pDest - i; pDestDone != pDest;)
-                            this->getAllocator().destroy(pDestDone++);
-                    }*/
+                        if (&pDest[i] < pDirtyMemoryFinish)
+                            this->getAllocator().destroy(&pDest[i]);
+
+                        Status status = this->getAllocator().construct(&pDest[i], std::move(pSrc[i]));
+
+                        if (!statusSuccess(status))
+                        {
+                            this->destroyN(&pDest[i] + 1, &pDest[lastElementOffset] - &pDest[i]);
+                            return status;
+                        }
+                    }
                 }
             }
             else
                 memmove(pDest, pSrc, n * sizeof(value_type));
         }
         else
-            return this->moveToDirtyNoOverlapImpl(pDest, pDirtyMemoryFinish, pSrc, n);
+            return this->moveToDirtyNoOverlap(pDest, pDirtyMemoryFinish, pSrc, n);
 
         return Status::NoError;
     }
@@ -283,32 +287,23 @@ protected:
     {
         assert(!n || pDest && pSrc);
 
-        if (pDest == pSrc)
-            return Status::NoError;
-
         if constexpr (constructor_allocator::value)
+        {
+            pointer pStart = pDest;
             for (size_type i = 0; i < n; ++i)
             {
                 if (pDest < pDirtyMemoryFinish)
                     this->getAllocator().destroy(pDest);
 
-                if (Status status = this->getAllocator().construct(pDest++, std::move(*pSrc++)); !statusSuccess(status))
+                Status status = this->getAllocator().construct(pDest++, std::move(*pSrc++));
+
+                if (!statusSuccess(status))
                 {
-                    // need to apply logic for overlapping case!
-                    --pDest;
-                    for (pointer pDestDone = pDest - i; pDestDone != pDest;)
-                        this->getAllocator().destroy(pDestDone++);
-                
-                    while (++pDest < pDirtyMemoryFinish)
-                        this->getAllocator().destroy(pDest);
-
-                    for (value_type* pSrcBegin = pSrc - i - 1, *pSrcEnd = pSrc - i + n; pSrcBegin != pSrcEnd;)
-                        this->getAllocator().destroy(pSrcBegin++);
-
+                    this->destroyN(pStart, pDest - pStart - 1);
                     return status;
                 }
-
             }
+        }
         else
             memcpy(pDest, pSrc, n * sizeof(value_type));
 
