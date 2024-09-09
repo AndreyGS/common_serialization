@@ -60,7 +60,7 @@ struct AnotherCustomArrDeleter
 
 inline int AnotherCustomArrDeleter::i = 0;
 
-TEST(UniquePtrTest, Constructors)
+TEST(UniquePtrTest, Ctors)
 {
     UniquePtr<int> uptr;
     EXPECT_EQ(uptr.get(), nullptr);

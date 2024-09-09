@@ -24,8 +24,8 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <tuple>
+#include <common_serialization/allocation_managers/allocation_managers_config.h>
 #include <common_serialization/allocation_managers/GenericAllocationManager.h>
-#include <common_serialization/allocation_managers/typedefs.h>
 #include <common_serialization/tests_special_types/structs.h>
 
 using namespace tests_special_types;
@@ -86,26 +86,26 @@ TEST(GenericAllocationManagerTests, AllocateAndConstructCtor)
 
 TEST(GenericAllocationManagerTests, AllocateAndConstructErrorOnConstruction)
 {
-    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
     size_t requestedN{ 3 };
     size_t allocatedN{ 0 };
 
     // Check that if there was an error in construction process, objects that were already constructed are destroyed properly
     
     // Let third object construction will fail
-    tests_special_types::ErrorProne::counter = 0;
-    tests_special_types::ErrorProne::errorOnCounter = 2;
-    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
-    tests_special_types::ErrorProne::destructorCalledCounter = 0;
-    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
-    tests_special_types::ErrorProne arg;
-    tests_special_types::ErrorProne* p = manager.allocateAndConstruct(requestedN, &allocatedN, arg);
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 2;
+    ErrorProne::currentError = Status::ErrorDataCorrupted;
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
+    ErrorProne arg;
+    ErrorProne* p = manager.allocateAndConstruct(requestedN, &allocatedN, arg);
     EXPECT_TRUE(p == nullptr);
     EXPECT_EQ(allocatedN, 0);
     // Check that two desctructors were called
-    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2);
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 2);
     // Check that those destructors were from first and second item (indexes 0 + 1)
-    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 1);
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 1);
 }
 
 TEST(GenericAllocationManagerTests, Allocate)
@@ -170,15 +170,15 @@ TEST(GenericAllocationManagerTests, ConstructCtor)
 
 TEST(GenericAllocationManagerTests, ConstructErrorOnConstruction)
 {
-    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
     size_t requestedN{ 1 };
-    tests_special_types::ErrorProne* p = manager.allocateStrict(requestedN);
+    ErrorProne* p = manager.allocateStrict(requestedN);
 
     // Let object construction will fail
-    tests_special_types::ErrorProne::counter = 0;
-    tests_special_types::ErrorProne::errorOnCounter = 0;
-    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
-    tests_special_types::ErrorProne arg;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 0;
+    ErrorProne::currentError = Status::ErrorDataCorrupted;
+    ErrorProne arg;
     EXPECT_EQ(manager.construct(p, arg), Status::ErrorDataCorrupted);
 
     manager.deallocate(p);
@@ -231,25 +231,25 @@ TEST(GenericAllocationManagerTests, ConstructNCtor)
 
 TEST(GenericAllocationManagerTests, ConstructNErrorOnConstruction)
 {
-    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
     size_t requestedN{ 3 };
 
     // Check that if there was an error in construction process, objects that were already constructed are destroyed properly
 
     // Let third object construction will fail
-    tests_special_types::ErrorProne::counter = 0;
-    tests_special_types::ErrorProne::errorOnCounter = 2;
-    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
-    tests_special_types::ErrorProne::destructorCalledCounter = 0;
-    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
-    tests_special_types::ErrorProne arg;
-    tests_special_types::ErrorProne* p = manager.allocateStrict(requestedN);
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 2;
+    ErrorProne::currentError = Status::ErrorDataCorrupted;
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
+    ErrorProne arg;
+    ErrorProne* p = manager.allocateStrict(requestedN);
 
     EXPECT_EQ(manager.constructN(p, 3, arg), Status::ErrorDataCorrupted);
     // Check that two desctructors were called
-    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2);
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 2);
     // Check that those destructors were from first and second item (indexes 0 + 1)
-    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 1);
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 1);
 }
 
 TEST(GenericAllocationManagerTests, CopyToRawNoOverlap)
@@ -293,26 +293,26 @@ TEST(GenericAllocationManagerTests, CopyToRawNoOverlapCtor)
 
 TEST(GenericAllocationManagerTests, CopyToRawNoOverlapErrorOnConstruction)
 {
-    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
     size_t requestedN{ 3 };
 
-    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
-    tests_special_types::ErrorProne::currentError = Status::NoError;
-    tests_special_types::ErrorProne arg;
+    ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    ErrorProne::currentError = Status::NoError;
+    ErrorProne arg;
     manager.constructN(pSrc, 3, arg);
 
-    tests_special_types::ErrorProne* pDest = manager.allocateStrict(requestedN);
+    ErrorProne* pDest = manager.allocateStrict(requestedN);
     // Let third object copying will fail
-    tests_special_types::ErrorProne::counter = 0;
-    tests_special_types::ErrorProne::errorOnCounter = 2;
-    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
-    tests_special_types::ErrorProne::destructorCalledCounter = 0;
-    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 2;
+    ErrorProne::currentError = Status::ErrorDataCorrupted;
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
     EXPECT_EQ(manager.copyToRawNoOverlap(pDest, pSrc, requestedN), Status::ErrorDataCorrupted);
     // Check that two desctructors were called
-    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2);
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 2);
     // Check that those destructors were from first and second item (indexes 0 + 1)
-    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 1);
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 1);
 
     manager.destroyAndDeallocate(pSrc, requestedN);
     manager.deallocate(pDest);
@@ -359,28 +359,28 @@ TEST(GenericAllocationManagerTests, CopyToDirtyCtor)
 
 TEST(GenericAllocationManagerTests, CopyToDirtyErrorOnConstruction)
 {
-    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
     size_t requestedN{ 4 };
 
-    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
-    tests_special_types::ErrorProne::currentError = Status::NoError;
-    tests_special_types::ErrorProne::counter = 0;
+    ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    ErrorProne::currentError = Status::NoError;
+    ErrorProne::counter = 0;
     // Let third object copying will fail (3 objects would be constructed in pSrc, and 2 will be copied before fail)
-    tests_special_types::ErrorProne::errorOnCounter = 5;
-    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
-    tests_special_types::ErrorProne arg;
+    ErrorProne::errorOnCounter = 5;
+    ErrorProne::currentError = Status::ErrorDataCorrupted;
+    ErrorProne arg;
     manager.constructN(pSrc, requestedN - 1, arg);
 
-    tests_special_types::ErrorProne* pDest = pSrc + 1;
-    tests_special_types::ErrorProne::destructorCalledCounter = 0;
-    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    ErrorProne* pDest = pSrc + 1;
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
     EXPECT_EQ(manager.copyToDirty(pDest, pDest + 2, pSrc, requestedN - 1), Status::ErrorDataCorrupted);
     // Check that two desctructors were called
     // 2 times destructor called on overlapping regions and 2 times after error on already copied objects
-    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2 + 2);
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 2 + 2);
     // Check that those destructors were called for items 
     // pSrc[2] sum += 2, pSrc[1] sum += 1, pDest[2] sum += 3, pDest[1] sum +=4
-    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 10);
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 10);
 
     manager.destroyAndDeallocate(pSrc, 1);
 }
@@ -428,30 +428,30 @@ TEST(GenericAllocationManagerTests, CopyToDirtyNoOverlapCtor)
 
 TEST(GenericAllocationManagerTests, CopyToDirtyNoOverlapErrorOnConstruction)
 {
-    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
     size_t requestedN{ 3 };
 
-    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
-    tests_special_types::ErrorProne::currentError = Status::NoError;
-    tests_special_types::ErrorProne arg;
+    ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    ErrorProne::currentError = Status::NoError;
+    ErrorProne arg;
     manager.constructN(pSrc, requestedN, arg);
-    tests_special_types::ErrorProne* pDest = manager.allocateStrict(requestedN);
+    ErrorProne* pDest = manager.allocateStrict(requestedN);
 
     // Let third object copying will fail
-    tests_special_types::ErrorProne::counter = 0;
-    tests_special_types::ErrorProne::errorOnCounter = 4;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 4;
     manager.constructN(pDest, requestedN - 1, arg);
 
-    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
-    tests_special_types::ErrorProne::destructorCalledCounter = 0;
-    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    ErrorProne::currentError = Status::ErrorDataCorrupted;
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
     EXPECT_EQ(manager.copyToDirtyNoOverlap(pDest, pDest + 2, pSrc, requestedN), Status::ErrorDataCorrupted);
     // Check that two desctructors were called
     // 2 times destructor called on inited before regions and 2 times after error on already copied objects
-    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2 + 2);
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 2 + 2);
     // Check that those destructors were called for items 
     // pDest[0] sum += 0, pDest[1] sum += 1, pDest[0] sum += 2, pDest[1] sum += 3
-    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 6);
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 6);
 
     manager.destroyAndDeallocate(pSrc, requestedN);
     manager.deallocate(pDest);
@@ -498,28 +498,28 @@ TEST(GenericAllocationManagerTests, MoveToRawNoOverlapCtor)
 
 TEST(GenericAllocationManagerTests, MoveToRawNoOverlapErrorOnConstruction)
 {
-    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
     size_t requestedN{ 3 };
 
-    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
-    tests_special_types::ErrorProne::counter = 0;
-    tests_special_types::ErrorProne::errorOnCounter = 111111;
-    tests_special_types::ErrorProne::currentError = Status::NoError;
-    tests_special_types::ErrorProne arg;
+    ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 111111;
+    ErrorProne::currentError = Status::NoError;
+    ErrorProne arg;
     manager.constructN(pSrc, 3, arg);
 
-    tests_special_types::ErrorProne* pDest = manager.allocateStrict(requestedN);
+    ErrorProne* pDest = manager.allocateStrict(requestedN);
     // Let third object copying will fail
-    tests_special_types::ErrorProne::counter = 0;
-    tests_special_types::ErrorProne::errorOnCounter = 2;
-    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
-    tests_special_types::ErrorProne::destructorCalledCounter = 0;
-    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 2;
+    ErrorProne::currentError = Status::ErrorDataCorrupted;
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
     EXPECT_EQ(manager.moveToRawNoOverlap(pDest, pSrc, requestedN), Status::ErrorDataCorrupted);
     // Check that two desctructors were called
-    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2);
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 2);
     // pDest[0] sum += 0 pDest[1] += 1
-    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 1);
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 1);
 
     manager.deallocate(pSrc);
     manager.deallocate(pDest);
@@ -565,28 +565,28 @@ TEST(GenericAllocationManagerTests, MoveToDirtyCtor)
 
 TEST(GenericAllocationManagerTests, MoveToDirtyErrorOnConstruction)
 {
-    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
     size_t requestedN{ 6 };
 
-    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
-    tests_special_types::ErrorProne::currentError = Status::NoError;
-    tests_special_types::ErrorProne::counter = 0;
+    ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    ErrorProne::currentError = Status::NoError;
+    ErrorProne::counter = 0;
     // Let forth object moving will fail (5 objects would be constructed in pSrc, and 3 will be moved before fail)
-    tests_special_types::ErrorProne::errorOnCounter = 8;
-    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
-    tests_special_types::ErrorProne arg;
+    ErrorProne::errorOnCounter = 8;
+    ErrorProne::currentError = Status::ErrorDataCorrupted;
+    ErrorProne arg;
     manager.constructN(pSrc, 5, arg);
 
-    tests_special_types::ErrorProne* pDest = pSrc + 2;
-    tests_special_types::ErrorProne::destructorCalledCounter = 0;
-    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    ErrorProne* pDest = pSrc + 2;
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
     EXPECT_EQ(manager.moveToDirty(pDest, pDest + 3, pSrc, 4), Status::ErrorDataCorrupted);
     // Check that two desctructors were called
     // 3 times destructor called on overlapping regions and 3 times after error on already moved objects
-    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 3 + 3);
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 3 + 3);
     // Check that those destructors were called for items 
     // pSrc[4] sum += 4, pSrc[3] sum += 3, pSrc[2] sum += 2, pDest[4] sum += 5, pDest[3] sum += 6, pDest[2] sum += 7
-    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 27);
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 27);
 
     manager.destroyAndDeallocate(pSrc, 2);
 }
@@ -634,34 +634,107 @@ TEST(GenericAllocationManagerTests, MoveToDirtyNoOverlapCtor)
 
 TEST(GenericAllocationManagerTests, MoveToDirtyNoOverlapErrorOnConstruction)
 {
-    GenericAllocationManager<ConstructorNoexceptAllocatorT<tests_special_types::ErrorProne>> manager;
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
     size_t requestedN{ 3 };
 
-    tests_special_types::ErrorProne* pSrc = manager.allocateStrict(requestedN);
-    tests_special_types::ErrorProne::currentError = Status::NoError;
-    tests_special_types::ErrorProne arg;
+    ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    ErrorProne::currentError = Status::NoError;
+    ErrorProne arg;
     manager.constructN(pSrc, requestedN, arg);
-    tests_special_types::ErrorProne* pDest = manager.allocateStrict(requestedN);
+    ErrorProne* pDest = manager.allocateStrict(requestedN);
 
     // Let third object moving will fail
-    tests_special_types::ErrorProne::counter = 0;
-    tests_special_types::ErrorProne::errorOnCounter = 4;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 4;
     manager.constructN(pDest, requestedN - 1, arg);
 
-    tests_special_types::ErrorProne::currentError = Status::ErrorDataCorrupted;
-    tests_special_types::ErrorProne::destructorCalledCounter = 0;
-    tests_special_types::ErrorProne::sumOfDeletedIndexes = 0;
+    ErrorProne::currentError = Status::ErrorDataCorrupted;
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
     EXPECT_EQ(manager.moveToDirtyNoOverlap(pDest, pDest + 2, pSrc, requestedN), Status::ErrorDataCorrupted);
     // Check that two desctructors were called
     // 2 times destructor called on inited before regions and 2 times after error on already copied objects
-    EXPECT_EQ(tests_special_types::ErrorProne::destructorCalledCounter, 2 + 2);
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 2 + 2);
     // Check that those destructors were called for items 
     // pDest[0] sum += 0, pDest[1] sum += 1, pDest[0] sum += 2, pDest[1] sum += 3
-    EXPECT_EQ(tests_special_types::ErrorProne::sumOfDeletedIndexes, 6);
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 6);
 
     manager.destroyN(pSrc + 2, 1);
     manager.deallocate(pSrc);
     manager.deallocate(pDest);
+}
+
+TEST(GenericAllocationManagerTests, DestroyAndDeallocate)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
+    size_t requestedN{ 3 };
+
+    ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    ErrorProne::currentError = Status::NoError;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 1111111;
+    ErrorProne arg;
+    manager.constructN(pSrc, requestedN, arg);
+
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
+    manager.destroyAndDeallocate(pSrc, requestedN);
+
+    // Check that destructor called three times
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 3);
+    // Check that those destructors were called for items 
+    // pSrc[0] sum += 0, pSrc[1] sum += 1, pSrc[2] sum += 2
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 3);
+}
+
+TEST(GenericAllocationManagerTests, Destroy)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
+    size_t requestedN{ 1 };
+
+    ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    ErrorProne::currentError = Status::NoError;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 1111111;
+    ErrorProne arg;
+    manager.construct(pSrc, arg);
+
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
+    manager.destroy(pSrc);
+
+    // Check that destructor called three times
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 1);
+    // Check that those destructors were called for items 
+    // pSrc[0] sum += 0 2
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 0);
+
+    manager.deallocate(pSrc);
+}
+
+TEST(GenericAllocationManagerTests, DestroyN)
+{
+    GenericAllocationManager<ConstructorNoexceptAllocatorT<ErrorProne>> manager;
+    size_t requestedN{ 3 };
+
+    ErrorProne* pSrc = manager.allocateStrict(requestedN);
+    ErrorProne::currentError = Status::NoError;
+    ErrorProne::counter = 0;
+    ErrorProne::errorOnCounter = 1111111;
+    ErrorProne arg;
+    manager.constructN(pSrc, requestedN, arg);
+
+    ErrorProne::destructorCalledCounter = 0;
+    ErrorProne::sumOfDeletedIndexes = 0;
+    manager.destroyN(pSrc, requestedN);
+
+    // Check that destructor called three times
+    EXPECT_EQ(ErrorProne::destructorCalledCounter, 3);
+    // Check that those destructors were called for items 
+    // pSrc[0] sum += 0, pSrc[1] sum += 1, pSrc[2] sum += 2
+    EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 3);
+
+    manager.deallocate(pSrc);
 }
 
 } // namespace

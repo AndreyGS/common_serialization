@@ -62,6 +62,7 @@ function(ags_cs_create_containers_lib
     if (BUILD_UNIT_TESTS)
         set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_tests")
         set(TESTS_SOURCES
+            "${TESTS_SOURCES_DIR}/GenericPointerKeeperTests.cpp"
             "${TESTS_SOURCES_DIR}/UniquePtrTests.cpp"
             "${TESTS_SOURCES_DIR}/VectorTests.cpp"
             "${TESTS_SOURCES_DIR}/WalkerTests.cpp"

@@ -107,11 +107,12 @@ public:
         if (n > AllocationManager.getAllocator().max_size())
             return nullptr;
 
-        pointer p = AllocationManager.allocateAndConstruct(n, nullptr, std::forward<_Args>(args)...);
+        size_t allocatedN{ 0 };
+        pointer p = AllocationManager.allocateAndConstruct(n, &allocatedN, std::forward<_Args>(args)...);
         if (p)
         {
             m_p = p;
-            m_size = n;
+            m_size = allocatedN;
             m_destroyAndDeallocate = reinterpret_cast<DestroyAndDeallocateFunc>(&destroyAndDeallocateHelper<_AllocationManager>);
         }
 
@@ -145,6 +146,20 @@ public:
         return static_cast<_T*>(m_p);
     }
 
+    /// @brief Get allocated size in items
+    /// @return Allocated size
+    constexpr [[nodiscard]] size_t size() const
+    {
+        return m_size;
+    }
+
+    /// @brief Get saved deleter
+    /// @return Deleter
+    constexpr [[nodiscard]] DestroyAndDeallocateFunc destroyer() const
+    {
+        return m_destroyAndDeallocate;
+    }
+
     /// @brief Relese stored pointer ownership
     /// @tparam _T Type on which pointer points
     /// @return Released pointer
@@ -158,13 +173,13 @@ public:
         return p;
     }
 
-private:
     template<IAllocationManagerImpl _AllocationManager>
     static void destroyAndDeallocateHelper(typename _AllocationManager::pointer p, size_t n)
     {
         _AllocationManager().destroyAndDeallocate(p, n);
     }
 
+private:
     void* m_p{ nullptr };
     size_t m_size{ 0 };
     DestroyAndDeallocateFunc m_destroyAndDeallocate{ nullptr };

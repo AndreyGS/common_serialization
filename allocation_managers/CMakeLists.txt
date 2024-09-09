@@ -57,6 +57,7 @@ function(ags_cs_create_allocation_managers_lib
         set(TESTS_SOURCES_DIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_tests")
         set(TESTS_SOURCES
             "${TESTS_SOURCES_DIR}/GenericAllocationManagerTests.cpp"
+            "${TESTS_SOURCES_DIR}/StrategicAllocationManagerTests.cpp"
         )
 
         set(TESTS_LIBS_TO_LINK "gtest_main;${LIB_NAME};ags_cs::tests_special_types_lib")
