@@ -38,8 +38,8 @@ struct CrtpTest2 {};
 
 TEST(ConceptsTests, GetCrtpMainType_)
 {
-    EXPECT_TRUE((std::is_same_v<CrtpTest<Dummy>, GetCrtpMainType<CrtpTest<Dummy>, Dummy>>));
-    EXPECT_FALSE((std::is_same_v<CrtpTest<Dummy>, GetCrtpMainType<CrtpTest<CrtpTest2<Dummy>>, Dummy>>));
+    EXPECT_TRUE((std::is_same_v<CrtpTest<void>, GetCrtpMainType<CrtpTest<void>, void>>));
+    EXPECT_FALSE((std::is_same_v<CrtpTest<void>, GetCrtpMainType<CrtpTest<CrtpTest2<void>>, void>>));
 }
 
 struct TestMemberPointer

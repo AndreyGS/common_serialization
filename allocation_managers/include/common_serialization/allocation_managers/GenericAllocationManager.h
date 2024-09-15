@@ -32,8 +32,8 @@ namespace common_serialization
 /// @brief Generic stateless class for allocation helping
 /// @tparam _Allocator Class that implement IAllocatorImpl interface
 /// @tparam _MostDerivedClass Instance type. But if type of current instance 
-///     is GenericAllocationManager it must be Dummy.
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass = Dummy>
+///     is GenericAllocationManager it must be void.
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass = void>
 class GenericAllocationManager : public IAllocationManager<_Allocator, GetCrtpMainType<GenericAllocationManager<_Allocator>, _MostDerivedClass>>
 {
 public:

@@ -46,7 +46,7 @@ public:
 
 /// @brief Struct for request of interface properties with specific Id
 /// @tparam _T Derived class
-template<typename _T = Dummy>
+template<typename _T = void>
 struct GetInterface : public csp::ISerializable<GetCrtpMainType<GetInterface<_T>, _T>>
 {
 public:
@@ -63,7 +63,7 @@ public:
 
 /// @brief Struct for response on GetInterface
 /// @tparam _T Derived class
-template<typename _T = Dummy>
+template<typename _T = void>
 struct OutGetInterface : public csp::ISerializable<GetCrtpMainType<OutGetInterface<_T>, _T>>
 {
 public:
@@ -82,7 +82,7 @@ public:
 
 /// @brief Interface Id and Version holder
 /// @tparam _T Derived class
-template<typename _T = Dummy>
+template<typename _T = void>
 struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVersion<_T>, _T>>
 {
 public:
@@ -117,7 +117,7 @@ public:
 #pragma pack(pop)
 
 /// @brief Settings of a CSP party
-template<typename _T = Dummy>
+template<typename _T = void>
 class CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySettings<_T>, _T>>
 {
 public:

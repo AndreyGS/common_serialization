@@ -34,7 +34,7 @@ template<typename _T>
 constexpr void cleanAfterStruct(_T& output)
 { }
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class EmptyType : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<EmptyType<>, _T>>
 {
 public:
@@ -54,7 +54,7 @@ public:
 template<typename>
 class SimplyAssignableAlignedToOne_Version1;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableAlignedToOne : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne<>, _T>>
 {
 public:
@@ -89,7 +89,7 @@ public:
 template<typename>
 class SimplyAssignable_Version0;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignable : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignable<>, _T>>
 {
 public:
@@ -165,7 +165,7 @@ public:
 template<typename>
 class SimplyAssignableDescendant_Version0;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 struct SimplyAssignableDescendant : public SimplyAssignable<ags_cs::GetCrtpMainType<SimplyAssignableDescendant<>, _T>>
 {
     using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableDescendant<>, _T>;
@@ -212,7 +212,7 @@ struct SimplyAssignableDescendant : public SimplyAssignable<ags_cs::GetCrtpMainT
 template<typename>
 class AlwaysSimplyAssignable_Version0;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class AlwaysSimplyAssignable : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<AlwaysSimplyAssignable<>, _T>>
 {
 public:
@@ -247,7 +247,7 @@ public:
 template<typename>
 class SimplyAssignableFixedSize_Version1;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableFixedSize : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableFixedSize<>, _T>>
 {
 public:
@@ -284,7 +284,7 @@ public:
     friend SimplyAssignableFixedSize_Version1<_T>;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class DynamicPolymorphic : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<DynamicPolymorphic<>, _T>>
 {
 public:
@@ -323,7 +323,7 @@ public:
     friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class Diamond 
     : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<Diamond<_T>, _T >>
     , public tests_restricted_structs::DiamondEdge1
@@ -353,7 +353,7 @@ public:
     friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SpecialProcessingType : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SpecialProcessingType<>, _T >>
 {
 public:
@@ -498,7 +498,7 @@ public:
 template<typename>
 class SimplyAssignableAlignedToOneSimilarType2;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableAlignedToOneSimilarType1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOneSimilarType1<>, _T >>
 {
 public:
@@ -526,7 +526,7 @@ public:
     friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableAlignedToOneSimilarType2 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOneSimilarType2<>, _T >>
 {
 public:
@@ -574,7 +574,7 @@ SimplyAssignableAlignedToOneSimilarType1<_T>& SimplyAssignableAlignedToOneSimila
 template<typename>
 class SimplyAssignableSimilarType2;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableSimilarType1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableSimilarType1<>, _T >>
 {
 public:
@@ -602,7 +602,7 @@ public:
     friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableSimilarType2 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableSimilarType2<>, _T >>
 {
 public:
@@ -648,7 +648,7 @@ SimplyAssignableSimilarType1<_T>& SimplyAssignableSimilarType1<_T>::operator=(co
 template<typename>
 class SimilarType2;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimilarType1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimilarType1<>, _T >>
 {
 public:
@@ -698,7 +698,7 @@ public:
     friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimilarType2 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimilarType2<>, _T >>
 {
 public:
@@ -781,7 +781,7 @@ SimilarType1<_T>& SimilarType1<_T>::operator=(const SimilarType2<_T>& rhs) noexc
     return *this;
 }
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class ManyPointersType : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<ManyPointersType<>, _T >>
 {
 public:
@@ -901,7 +901,7 @@ template<typename>
 class SForAllModesTests_Version2;
 
 // DForAllModesTests shall be used in deserialization of SForAllModesTests, but only with sizeOfIntegersMayBeNotEqual flag set
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class DForAllModesTests : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<DForAllModesTests<>, _T >>
 {
 public:
@@ -948,7 +948,7 @@ public:
     friend SForAllModesTests_Version2<_T>;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableWithoutSerializationFunctions : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableWithoutSerializationFunctions<>, _T>>
 {
 public:
@@ -972,7 +972,7 @@ public:
     friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class ContainSimplyAssignableWithoutSerializationFunctions : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<ContainSimplyAssignableWithoutSerializationFunctions<>, _T>>
 {
 public:
@@ -1005,7 +1005,7 @@ struct BigStructs
     ags_cs::VectorT<_T> m_vector;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class ContainBigStructs1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<ContainBigStructs1<>, _T>>
 {
 public:
@@ -1034,7 +1034,7 @@ public:
     friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class ContainBigStructs2ForAllModes : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<ContainBigStructs2ForAllModes<>, _T>>
 {
 public:

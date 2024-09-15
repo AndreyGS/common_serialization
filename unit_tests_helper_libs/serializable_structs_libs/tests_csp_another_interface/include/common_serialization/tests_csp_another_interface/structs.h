@@ -29,7 +29,7 @@
 namespace tests_csp_another_interface
 {
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimpleStruct : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimpleStruct<>, _T>>
 {
 public:

@@ -30,7 +30,7 @@ namespace tests_csp_interface
 
 namespace ags_cs = common_serialization;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableAlignedToOne_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version0<_T>, _T>>
 {
 public:
@@ -58,7 +58,7 @@ public:
     friend SimplyAssignableAlignedToOne_Version1<_T>;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignable_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignable_Version0<>, _T>>
 {
 public:
@@ -179,7 +179,7 @@ ags_cs::Status SimplyAssignable<_T1>::init(const SimplyAssignable_Version0<_T2>&
     return ags_cs::Status::NoError;
 }
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 struct SimplyAssignableDescendant_Version0 : public SimplyAssignable_Version0<ags_cs::GetCrtpMainType<SimplyAssignableDescendant_Version0<>, _T>>
 {
     using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableDescendant_Version0<>, _T>;
@@ -244,7 +244,7 @@ ags_cs::Status SimplyAssignableDescendant<_T1>::init(const SimplyAssignableDesce
 
 #pragma pack(push, 1)
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class AlwaysSimplyAssignable_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<AlwaysSimplyAssignable_Version0<_T>, _T>>
 {
 public:
@@ -299,7 +299,7 @@ ags_cs::Status AlwaysSimplyAssignable<_T1>::init(const AlwaysSimplyAssignable_Ve
 template<typename>
 class SForAllModesTests_Version2;
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SForAllModesTests_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SForAllModesTests_Version0<_T>, _T >>
 {
 public:
@@ -345,7 +345,7 @@ public:
     friend SForAllModesTests_Version2<_T>;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableAlignedToOne_Version1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version1<>, _T>>
 {
 public:
@@ -405,7 +405,7 @@ ags_cs::Status SimplyAssignableAlignedToOne<_T1>::init(const SimplyAssignableAli
     return ags_cs::Status::NoError;
 }
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimplyAssignableFixedSize_Version1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableFixedSize_Version1<_T>, _T>>
 {
 public:
@@ -468,7 +468,7 @@ ags_cs::Status SimplyAssignableFixedSize<_T1>::init(const SimplyAssignableFixedS
     return ags_cs::Status::NoError;
 }
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SForAllModesTests_Version2 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SForAllModesTests_Version2<>, _T >>
 {
 public:

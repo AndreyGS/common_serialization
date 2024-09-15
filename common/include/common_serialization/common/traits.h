@@ -38,12 +38,12 @@ namespace common_serialization
 struct Dummy {};
 
 /// @brief Get most derived type in CRTP pattern
-/// @note If derived type is Dummy then this class is the most derived type.
+/// @note If derived type is void then this class is the most derived type.
 ///     If not - derived type is the most derived type.
 /// @tparam X This class type
 /// @tparam _T Derived type
 template<typename _X, typename _T>
-using GetCrtpMainType = std::conditional_t<std::is_same_v<_T, Dummy>, _X, _T>;
+using GetCrtpMainType = std::conditional_t<std::is_same_v<_T, void>, _X, _T>;
 
 template<typename _T>
 struct remove_member_pointer

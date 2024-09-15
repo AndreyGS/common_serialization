@@ -36,7 +36,7 @@ namespace tests_csp_with_std_interface
 void fill(std::string& output);
 void fill(std::wstring& output);
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class OneBigType : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<OneBigType<>, _T>>
 {
 public:

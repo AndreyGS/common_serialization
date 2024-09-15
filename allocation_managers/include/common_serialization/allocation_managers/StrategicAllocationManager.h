@@ -33,8 +33,8 @@ namespace common_serialization
 ///     using allocation strategy
 /// @tparam _Allocator Class that implement IAllocatorImpl interface
 /// @tparam _MostDerivedClass Instance type. But if type of current instance 
-///     is GenericAllocationManager it must be Dummy.
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass = Dummy>
+///     is GenericAllocationManager it must be void.
+template<IAllocatorImpl _Allocator, typename _MostDerivedClass = void>
 class StrategicAllocationManager 
     : public GenericAllocationManager<_Allocator, GetCrtpMainType<StrategicAllocationManager<_Allocator>, _MostDerivedClass>>
     , public IAllocationStrategyUser<GetCrtpMainType<StrategicAllocationManager<_Allocator>, _MostDerivedClass>>

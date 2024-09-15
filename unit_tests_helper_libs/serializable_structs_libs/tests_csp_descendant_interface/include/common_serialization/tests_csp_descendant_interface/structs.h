@@ -29,7 +29,7 @@
 namespace tests_csp_descendant_interface
 {
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class SimpleStruct : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimpleStruct<>, _T>>
 {
 public:
@@ -52,7 +52,7 @@ public:
     friend ags_cs::csp::processing::data::BodyProcessor;
 };
 
-template<typename _T = ags_cs::Dummy>
+template<typename _T = void>
 class DiamondDescendant : public tests_csp_interface::Diamond<ags_cs::GetCrtpMainType<DiamondDescendant<>, _T>>
 {
 public:
