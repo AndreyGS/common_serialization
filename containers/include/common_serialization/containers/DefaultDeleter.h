@@ -28,36 +28,36 @@
 namespace common_serialization
 {
 
-template<typename _T>
+template<typename T>
 struct DefaultDeleter
 {
     constexpr DefaultDeleter() noexcept = default;
 
-    template<typename _T2>
-        requires std::is_convertible_v<_T2*, _T*>
-    constexpr DefaultDeleter(const DefaultDeleter<_T2>&) noexcept {}
+    template<typename T2>
+        requires std::is_convertible_v<T2*, T*>
+    constexpr DefaultDeleter(const DefaultDeleter<T2>&) noexcept {}
 
-    constexpr void operator()(_T* p) const noexcept
+    constexpr void operator()(T* p) const noexcept
     {
-        static_assert(0 < sizeof(_T), "Incomplete types are not allowed to be deleted");
+        static_assert(0 < sizeof(T), "Incomplete types are not allowed to be deleted");
         delete p;
     }
 };
 
-template<typename _T>
-struct DefaultDeleter<_T[]>
+template<typename T>
+struct DefaultDeleter<T[]>
 {
     constexpr DefaultDeleter() noexcept = default;
 
-    template<typename _T2>
-        requires std::is_convertible_v<_T2*, _T*>
-    constexpr DefaultDeleter(const DefaultDeleter<_T2[]>&) noexcept {}
+    template<typename T2>
+        requires std::is_convertible_v<T2*, T*>
+    constexpr DefaultDeleter(const DefaultDeleter<T2[]>&) noexcept {}
 
-    template<typename _T2>
-        requires std::is_convertible_v<_T2*, _T*>
-    constexpr void operator()(_T2* p) const noexcept
+    template<typename T2>
+        requires std::is_convertible_v<T2*, T*>
+    constexpr void operator()(T2* p) const noexcept
     {
-        static_assert(0 < sizeof(_T2), "Incomplete types are not allowed to be deleted");
+        static_assert(0 < sizeof(T2), "Incomplete types are not allowed to be deleted");
         delete[] p;
     }
 };

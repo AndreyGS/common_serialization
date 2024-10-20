@@ -94,7 +94,7 @@ public:
     /// @param minimumInterfaceVersion Minimum supported interface version
     /// @param outputTypeId Handler output type
     /// @return Status of operation
-    template<ISerializableImpl _InputType>
+    template<ISerializableImpl InputType>
     Status getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept;
 
     /// @brief Get settings installed in current Client instance
@@ -109,8 +109,8 @@ public:
     /// @param output Struct that is returned from server 
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<IClientDataHandlerTraitsImpl _Cht>
-    Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
+    template<IClientDataHandlerTraitsImpl Cht>
+    Status handleData(const typename Cht::InputType& input, typename Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details See another handleData() overloading
@@ -119,8 +119,8 @@ public:
     /// @param dataFlags Data flags that must be applied to current operation
     /// @param unmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<IClientDataHandlerTraitsImpl _Cht>
-    Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags dataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
+    template<IClientDataHandlerTraitsImpl Cht>
+    Status handleData(const typename Cht::InputType& input, typename Cht::OutputType& output, context::DataFlags dataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
     /// @brief Send input data to server(s) and get output data on response
     /// @details Input data serialized according to arguments of function 
@@ -142,8 +142,8 @@ public:
     /// @param additionalDataFlags Data flags that must be applied to current operation
     /// @param pUnmanagedPointers Pointer on unmanaged pointers that were received on output struct deserialization
     /// @return Status of operation
-    template<IClientDataHandlerTraitsImpl _Cht>
-    Status handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
+    template<IClientDataHandlerTraitsImpl Cht>
+    Status handleData(const typename Cht::InputType& input, typename Cht::OutputType& output, context::CommonFlags additionalCommonFlags
         , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers = nullptr);
 
 private:
@@ -277,13 +277,13 @@ inline Status Client::getServerSettings(protocol_version_t serverCspVersion, ser
     return cspPartySettings.deserialize(binOutput);
 }
 
-template<ISerializableImpl _InputType>
+template<ISerializableImpl InputType>
 Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVersion, Id& outputTypeId) const noexcept
 {
     if (!isValid())
         return Status::ErrorNotInited;
 
-    const Interface& interface_ = _InputType::getInterface();
+    const Interface& interface_ = InputType::getInterface();
 
     if (getInterfaceVersion(interface_.m_id) == traits::kInterfaceVersionUndefined)
         return Status::ErrorNotSupportedInterface;
@@ -292,7 +292,7 @@ Status Client::getServerHandlerSettings(interface_version_t& minimumInterfaceVer
     context::SData ctxIn(binInput, m_settings.getLatestProtocolVersion(), m_settings.getMandatoryCommonFlags());
 
     AGS_CS_RUN(processing::common::ContextProcessor::serialize(ctxIn));
-    AGS_CS_RUN(processing::data::ContextProcessor::serializeNoChecks<_InputType>(ctxIn));
+    AGS_CS_RUN(processing::data::ContextProcessor::serializeNoChecks<InputType>(ctxIn));
 
     BinWalkerT binOutput;
     AGS_CS_RUN(m_clientToServerCommunicator.process(binInput, binOutput.getVector()));
@@ -328,26 +328,26 @@ constexpr interface_version_t Client::getInterfaceVersion(const Id& id) const no
     return traits::kInterfaceVersionUndefined;
 }
 
-template<IClientDataHandlerTraitsImpl _Cht>
-Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
+template<IClientDataHandlerTraitsImpl Cht>
+Status Client::handleData(const typename Cht::InputType& input, typename Cht::OutputType& output, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
-    return handleData<_Cht>(input, output, {}, {}, pUnmanagedPointers);
+    return handleData<Cht>(input, output, {}, {}, pUnmanagedPointers);
 }
 
-template<IClientDataHandlerTraitsImpl _Cht>
-Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::DataFlags additionalDataFlags
+template<IClientDataHandlerTraitsImpl Cht>
+Status Client::handleData(const typename Cht::InputType& input, typename Cht::OutputType& output, context::DataFlags additionalDataFlags
     , VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
-    return handleData<_Cht>(input, output, {}, additionalDataFlags, pUnmanagedPointers);
+    return handleData<Cht>(input, output, {}, additionalDataFlags, pUnmanagedPointers);
 }
 
-template<IClientDataHandlerTraitsImpl _Cht>
-Status Client::handleData(const typename _Cht::InputType& input, typename _Cht::OutputType& output, context::CommonFlags additionalCommonFlags
+template<IClientDataHandlerTraitsImpl Cht>
+Status Client::handleData(const typename Cht::InputType& input, typename Cht::OutputType& output, context::CommonFlags additionalCommonFlags
     , context::DataFlags additionalDataFlags, VectorT<GenericPointerKeeperT>* pUnmanagedPointers)
 {
-    using InputType = typename _Cht::InputType;
-    using OutputType = typename _Cht::OutputType;
-    constexpr bool kForTempUseHeap = _Cht::kForTempUseHeap;
+    using InputType = typename Cht::InputType;
+    using OutputType = typename Cht::OutputType;
+    constexpr bool kForTempUseHeap = Cht::kForTempUseHeap;
 
     static_assert(std::is_same_v<OutputType, service_structs::ISerializableDummy> || InputType::getInterface() == OutputType::getInterface(),
         "Input type and output type must have the same interface!");

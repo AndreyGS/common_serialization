@@ -31,16 +31,16 @@ namespace
 using namespace common_serialization;
 using namespace tests_csp_interface;
 
-template<typename _T>
+template<typename T>
 void mainTest()
 {
-    _T input;
+    T input;
     input.fill();
 
     BinWalkerT bin;
     EXPECT_EQ(input.serialize(bin.getVector()), Status::NoError);
 
-    _T output;
+    T output;
     EXPECT_EQ(output.deserialize(bin), Status::NoError);
     EXPECT_EQ(bin.tell(), bin.size());
 

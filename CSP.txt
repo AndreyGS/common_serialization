@@ -1320,7 +1320,7 @@ CSP Interfaces Versioning
     |                                                             |
     |     Q q                                                     |
     |                                                             |
-    |   Struct _T inherits R and S                                 |
+    |   Struct T inherits R and S                                 |
     |     interface_version 0                                     |
     |     private_versions [0]                                    |
     |                                                             |
@@ -1330,13 +1330,13 @@ CSP Interfaces Versioning
     |     interface_version 0                                     |
     |     private_versions [0]                                    |
     |                                                             |
-    |     _T t                                                     |
+    |     T t                                                     |
     |                                                             |
     |   Struct V                                                  |
     |     interface_version 0                                     |
     |     private_versions [0]                                    |
     |                                                             |
-    |     array of _T t[3]                                         |
+    |     array of T t[3]                                         |
     +-------------------------------------------------------------+
       
                                 Scheme 8
@@ -1369,7 +1369,7 @@ CSP Interfaces Versioning
     |     Q q                                                     |
     |     pointer to integer pi                                   |
     |                                                             |
-    |   Struct _T inherits R and S                                 |
+    |   Struct T inherits R and S                                 |
     |     interface_version 1                                     |
     |     private_versions [1, 0]                                 |
     |                                                             |
@@ -1379,13 +1379,13 @@ CSP Interfaces Versioning
     |     interface_version 1                                     |
     |     private_versions [0]                                    |
     |                                                             |
-    |     _T t                                                     |
+    |     T t                                                     |
     |                                                             |
     |   Struct V                                                  |
     |     interface_version 1                                     |
     |     private_versions [1, 0]                                 |
     |                                                             |
-    |     array of _T t[3]                                         |
+    |     array of T t[3]                                         |
     |     integer i                                               |
     |                                                             |
     |   Struct W                                                  |
@@ -1419,13 +1419,13 @@ CSP Interfaces Versioning
       
                                 Scheme 9
                                 
-  As you can see private_versions arrays fields of structs S, _T and V
+  As you can see private_versions arrays fields of structs S, T and V
   are additionally populated with 1.  This is because S and V have added
-  fields and _T is inherited from S.
+  fields and T is inherited from S.
   
-  Interface_version fields of structs S, _T, U and V are changed from 0
-  to 1.  Structs S, _T and V have added fields (or their parents) and
-  struct U have dependency as field with type _T.  Since type _T has
+  Interface_version fields of structs S, T, U and V are changed from 0
+  to 1.  Structs S, T and V have added fields (or their parents) and
+  struct U have dependency as field with type T.  Since type T has
   interface_version of 1, struct U interface_version is also must to
   be that large.
   
@@ -1436,7 +1436,7 @@ CSP Interfaces Versioning
   
   To implement backward compatibility we must save previous versions of
   changed structs.  These are the structs that changed their fields
-  composition - structs S, _T and V (again _T is here as it inherited from
+  composition - structs S, T and V (again T is here as it inherited from
   S).  This structs are postfixed with _version0, where '0' is private
   version.  They all placed to Legacy section.
   
@@ -1463,7 +1463,7 @@ CSP Interfaces Versioning
     |     Q q                                                     |
     |     pointer to integer pi                                   |
     |                                                             |
-    |   Struct _T inherits R and S                                 |
+    |   Struct T inherits R and S                                 |
     |     interface_version 1                                     |
     |     private_versions [1, 0]                                 |
     |                                                             |
@@ -1482,7 +1482,7 @@ CSP Interfaces Versioning
     |     interface_version 1                                     |
     |     private_versions [1, 0]                                 |
     |                                                             |
-    |     array of _T t[3]                                         |
+    |     array of T t[3]                                         |
     |     integer i                                               |
     |                                                             |
     |   Struct W                                                  |
@@ -1518,7 +1518,7 @@ CSP Interfaces Versioning
     |     interface_version 1                                     |
     |     private_versions [0]                                    |
     |                                                             |
-    |     _T t                                                     |
+    |     T t                                                     |
     |                                                             |
     |   Struct V_version0                                         |
     |     interface_version 0                                     |
@@ -1542,10 +1542,10 @@ CSP Interfaces Versioning
   Since struct R most recent version is changed and previous one is
   placed to Legacy section as R_version0, then we need to replace the
   names of all fields or parent structs that had type R in Legacy
-  structs.  In our example this is struct _T, that inherited R and now
+  structs.  In our example this is struct T, that inherited R and now
   is inherits R_version0.
   
-  Struct U_version0 have field of type _T. Struct _T is not changed since
+  Struct U_version0 have field of type T. Struct T is not changed since
   version 1 and here it implicitly using exact this one.
   
   Struct W_version1 had field of type R, but because it is changed in

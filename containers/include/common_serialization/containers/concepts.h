@@ -28,14 +28,14 @@
 namespace common_serialization
 {
 
-template<typename _T1, typename _D1, typename _T2, typename _D2>
-concept SmartPtrArrConvertible =std::is_convertible_v<_T2*, _T1*>
-                            && (std::is_reference_v<_D1> && std::is_same_v<_D2, _D1> || !std::is_reference_v<_D1> && std::is_convertible_v<_D2, _D1>)
-                            && (std::is_same_v<_T2, _T1> || std::has_virtual_destructor_v<_T1>);
+template<typename T1, typename D1, typename T2, typename D2>
+concept SmartPtrArrConvertible =std::is_convertible_v<T2*, T1*>
+                            && (std::is_reference_v<D1> && std::is_same_v<D2, D1> || !std::is_reference_v<D1> && std::is_convertible_v<D2, D1>)
+                            && (std::is_same_v<T2, T1> || std::has_virtual_destructor_v<T1>);
 
-template<typename _T1, typename _D1, typename _T2, typename _D2>
-concept SmartPtrConvertible =   std::is_convertible_v<_T2*, _T1*>
-                            && (std::is_reference_v<_D1> && std::is_same_v<_D2, _D1> || !std::is_reference_v<_D1> && std::is_convertible_v<_D2, _D1>)
-                            && (std::is_same_v<_T2, _T1> || std::has_virtual_destructor_v<_T1> || HasDestroyingDeleteOp<_T1>);
+template<typename T1, typename D1, typename T2, typename D2>
+concept SmartPtrConvertible =   std::is_convertible_v<T2*, T1*>
+                            && (std::is_reference_v<D1> && std::is_same_v<D2, D1> || !std::is_reference_v<D1> && std::is_convertible_v<D2, D1>)
+                            && (std::is_same_v<T2, T1> || std::has_virtual_destructor_v<T1> || HasDestroyingDeleteOp<T1>);
 
 } // namespace common_serialization

@@ -51,7 +51,7 @@ struct InitableTest3
     Status init(InitableTest3&&, int) { return Status::NoError; }
 };
 
-TEST(ConceptsTests, Initable_)
+TEST(ConceptsTests, Initable)
 {
     InitableTest initableTestLhs, initableTestRhs;
     initableTestLhs.init(initableTestRhs);
@@ -71,7 +71,7 @@ TEST(ConceptsTests, Initable_)
     EXPECT_FALSE(Initable<const InitableTest3&>);
 }
 
-TEST(ConceptsTests, InitableBySpecialArgs_)
+TEST(ConceptsTests, InitableBySpecialArgs)
 {
     EXPECT_TRUE((InitableBySpecialArgs<InitableTest, InitableTest>));
     EXPECT_FALSE((InitableBySpecialArgs<const InitableTest&, const InitableTest&>));
@@ -99,7 +99,7 @@ struct NotPointerTest
 
 void fTest() {}
 
-TEST(ConceptsTests, NotPointer_)
+TEST(ConceptsTests, NotPointer)
 {
     NotPointerTest nptest;
 
@@ -135,7 +135,7 @@ struct WithoutLessOp2
 {
 };
 
-TEST(ConceptsTests, HasLessOperator_)
+TEST(ConceptsTests, HasLessOperator)
 {
     EXPECT_TRUE(HasLessOperator<WithLessOp>);
     EXPECT_TRUE(HasLessOperator<WithoutLessOp>);
@@ -157,7 +157,7 @@ struct WithoutEqOp2
 {
 };
 
-TEST(ConceptsTests, HasEqualityOperator_)
+TEST(ConceptsTests, HasEqualityOperator)
 {
     EXPECT_TRUE(HasEqualityOperator<WithEqOp>);
     EXPECT_TRUE(HasEqualityOperator<WithoutEqOp>);
@@ -196,7 +196,7 @@ enum class TestEnumClassChar8 : char8_t { test11 };
 enum class TestEnumClassChar16 : char16_t { test12 };
 enum class TestEnumClassChar32 : char32_t { test13 };
 
-TEST(ConceptsTests, EndiannessReversable_)
+TEST(ConceptsTests, EndiannessReversable)
 {
     EXPECT_FALSE(EndiannessReversable<char>);
     EXPECT_FALSE(EndiannessReversable<signed char>);
@@ -255,7 +255,7 @@ TEST(ConceptsTests, EndiannessReversable_)
     EXPECT_TRUE(EndiannessReversable<TestEnumClassChar32>);
 }
 
-TEST(ConceptsTests, Signed_)
+TEST(ConceptsTests, Signed)
 {
     EXPECT_TRUE(Signed<char>);
     EXPECT_TRUE(Signed<signed char>);
@@ -310,7 +310,7 @@ TEST(ConceptsTests, Signed_)
     EXPECT_FALSE(Signed<TestEnumClassChar32>);
 }
 
-TEST(ConceptsTests, FixSizedArithmeticType_)
+TEST(ConceptsTests, FixSizedArithmeticType)
 {
     EXPECT_FALSE(FixSizedArithmeticType<char>);
     EXPECT_FALSE(FixSizedArithmeticType<signed char>);
@@ -365,7 +365,7 @@ TEST(ConceptsTests, FixSizedArithmeticType_)
     EXPECT_FALSE(FixSizedArithmeticType<TestEnumClassChar32>);
 }
 
-TEST(ConceptsTests, FixSizedEnumType_)
+TEST(ConceptsTests, FixSizedEnumType)
 {
     EXPECT_FALSE(FixSizedEnumType<char>);
     EXPECT_FALSE(FixSizedEnumType<signed char>);
@@ -420,7 +420,7 @@ TEST(ConceptsTests, FixSizedEnumType_)
     EXPECT_TRUE(FixSizedEnumType<TestEnumClassChar32>);
 }
 
-TEST(ConceptsTests, FixSizedArithmeticOrEnumType_)
+TEST(ConceptsTests, FixSizedArithmeticOrEnumType)
 {
     EXPECT_FALSE(FixSizedArithmeticOrEnumType<char>);
     EXPECT_FALSE(FixSizedArithmeticOrEnumType<signed char>);
@@ -475,7 +475,7 @@ TEST(ConceptsTests, FixSizedArithmeticOrEnumType_)
     EXPECT_TRUE(FixSizedArithmeticOrEnumType<TestEnumClassChar32>);
 }
 
-TEST(ConceptsTests, HasDestroyingDeleteOp_)
+TEST(ConceptsTests, HasDestroyingDeleteOp)
 {
     // CustomDeleterStruct has destroying delete op
     EXPECT_TRUE(HasDestroyingDeleteOp<tests_special_types::CustomDeleterStruct>);

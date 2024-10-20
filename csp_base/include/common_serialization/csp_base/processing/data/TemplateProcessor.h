@@ -28,11 +28,11 @@
 namespace common_serialization::csp::processing::data
 {
 
-template<typename _T, typename... _Ts>
-class TemplateProcessor<VectorT<_T, _Ts...>, _T, _Ts...>
+template<typename T, typename... Ts>
+class TemplateProcessor<VectorT<T, Ts...>, T, Ts...>
 {
 public:
-    static Status serialize(const VectorT<_T, _Ts...>& value, context::SData& ctx)
+    static Status serialize(const VectorT<T, Ts...>& value, context::SData& ctx)
     {
         AGS_CS_RUN(BodyProcessor::serializeSizeT(value.size(), ctx));
         AGS_CS_RUN(BodyProcessor::serialize(value.data(), value.size(), ctx));
@@ -40,11 +40,11 @@ public:
         return Status::NoError;
     }
 
-    static Status deserialize(context::DData& ctx, VectorT<_T, _Ts...>& value)
+    static Status deserialize(context::DData& ctx, VectorT<T, Ts...>& value)
     {
         value.clear();
 
-        typename VectorT<_T, _Ts...>::size_type size = 0;
+        typename VectorT<T, Ts...>::size_type size = 0;
         AGS_CS_RUN(BodyProcessor::deserializeSizeT(ctx, size));
         AGS_CS_RUN(value.reserve(size));
         AGS_CS_RUN(BodyProcessor::deserialize(ctx, size, value.data()));

@@ -29,40 +29,40 @@
 namespace common_serialization::csp
 {
 
-template<typename _PM>
+template<typename PM>
 concept ISerializationPointersMap
-    = requires(_PM pm, typename _PM::key_type key)
+    = requires(PM pm, typename PM::key_type key)
         {
-            typename _PM::key_type;
-            typename _PM::mapped_type;
+            typename PM::key_type;
+            typename PM::mapped_type;
             
             { pm.find(nullptr) };
             { pm.end() };
-            { pm[key] } -> std::same_as<typename _PM::mapped_type&>;
+            { pm[key] } -> std::same_as<typename PM::mapped_type&>;
             { pm.clear() };
         }
-    && std::is_same_v<typename _PM::key_type, const void*> && std::is_same_v<typename _PM::mapped_type, uint64_t>;
+    && std::is_same_v<typename PM::key_type, const void*> && std::is_same_v<typename PM::mapped_type, uint64_t>;
 
 static_assert(ISerializationPointersMap<HashMapT<const void*, uint64_t>>, "MapT<const void*, uint64_t> must comply with ISerializationPointersMap concept");
 
-template<typename _PM>
+template<typename PM>
 concept IDeserializationPointersMap
-    = requires(_PM pm, typename _PM::key_type key)
+    = requires(PM pm, typename PM::key_type key)
         {
-            typename _PM::key_type;
-            typename _PM::mapped_type;
+            typename PM::key_type;
+            typename PM::mapped_type;
             
             { pm.find(1) };
             { pm.end() };
-            { pm[key] } -> std::same_as<typename _PM::mapped_type&>;
+            { pm[key] } -> std::same_as<typename PM::mapped_type&>;
             { pm.clear() };
         }
-    && std::is_same_v<typename _PM::key_type, uint64_t> && std::is_same_v<typename _PM::mapped_type, void*>;
+    && std::is_same_v<typename PM::key_type, uint64_t> && std::is_same_v<typename PM::mapped_type, void*>;
 
 static_assert(IDeserializationPointersMap<MapT<uint64_t, void*>>, "MapT<uint64_t, void*> must comply with IDeserializationPointersMap concept");
 
-template<typename _PM>
-concept IPointersMap = ISerializationPointersMap<_PM> || IDeserializationPointersMap<_PM>;
+template<typename PM>
+concept IPointersMap = ISerializationPointersMap<PM> || IDeserializationPointersMap<PM>;
 
 } // namespace common_serialization::csp
 
@@ -154,18 +154,18 @@ public:
     /// @param pPointersMap Set pointer map to this
     constexpr void setPointersMap(PM* pPointersMap) noexcept { m_pPointersMap = pPointersMap; }
     
-    /// @brief Allocates memory for type _T and costructs default _T-object,
+    /// @brief Allocates memory for type T and costructs default T-object,
     ///     and then places it to container of added free pointers.
-    /// @tparam _T Type of object to allocate and construct
+    /// @tparam T Type of object to allocate and construct
     /// @return Pointer of costructed object
-    template<typename _T>
-    [[nodiscard]] _T* allocateAndDefaultConstruct()
+    template<typename T>
+    [[nodiscard]] T* allocateAndDefaultConstruct()
     {
         if (!m_pAddedPointers)
             assert(false); // this situation shall never exists
 
         GenericPointerKeeper pointerKeeper;
-        _T* p = pointerKeeper.allocateAndConstructOne<_T>();
+        T* p = pointerKeeper.allocateAndConstructOne<T>();
 
         if (p)
             if (!statusSuccess(m_pAddedPointers->pushBack(std::move(pointerKeeper))))
@@ -190,12 +190,12 @@ private:
 };
 
 /// @brief Full context of CSP Data Message
-/// @tparam _serialize Context will be used for serialization (if false to deserialization)
-template<bool _serialize>
-class Data : public Common<_serialize>
+/// @tparam serialize Context will be used for serialization (if false to deserialization)
+template<bool serialize>
+class Data : public Common<serialize>
 {
 public:
-    static constexpr bool serialize = _serialize;
+    static constexpr bool kSerialize = serialize;
 
     using Bin = std::conditional_t<serialize, BinVectorT, BinWalkerT>;
     using PM = std::conditional_t<serialize, SPointersMap, DPointersMap>;
@@ -252,7 +252,7 @@ public:
         , PM* pPointersMap = nullptr
     ) noexcept
         requires serialize
-            : Common<serialize>(binaryData, protocolVersion, Message::Data, commonFlags)
+            : Common<true>(binaryData, protocolVersion, Message::Data, commonFlags)
             , m_epp(pPointersMap), m_interfaceVersion(interfaceVersion), m_forTempUseHeap(forTempUseHeap)
     { 
        setDataFlags(dataFlags);
@@ -278,7 +278,7 @@ public:
         , PM* pPointersMap = nullptr
     ) noexcept
         requires (!serialize)
-            : Common<serialize>(binaryData, protocolVersion, Message::Data, commonFlags)
+            : Common<false>(binaryData, protocolVersion, Message::Data, commonFlags)
             , m_epp(pAddedPointers, pPointersMap), m_interfaceVersion(interfaceVersion), m_forTempUseHeap(forTempUseHeap)
     { 
        setDataFlags(dataFlags);
@@ -361,13 +361,13 @@ public:
     /// @param pAddedPointers Pointer to added free pointers container
     AGS_CS_ALWAYS_INLINE constexpr Data& setAddedPointers(VectorT<GenericPointerKeeperT>* pAddedPointers) noexcept requires (!serialize) { m_epp.setAddedPointers(pAddedPointers); return *this; }
 
-    /// @brief Allocates memory for type _T and costructs default _T-object,
+    /// @brief Allocates memory for type T and costructs default T-object,
     ///     and then places it to container of added free pointers.
     /// @remark availible only on deserialization mode
-    /// @tparam _T Type of object to allocate and construct
+    /// @tparam T Type of object to allocate and construct
     /// @return Pointer of costructed object
-    template<typename _T>
-    AGS_CS_ALWAYS_INLINE [[nodiscard]] _T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<_T>(); }
+    template<typename T>
+    AGS_CS_ALWAYS_INLINE [[nodiscard]] T* allocateAndDefaultConstruct() noexcept requires (!serialize) { return m_epp.template allocateAndDefaultConstruct<T>(); }
 
     /// @brief Reset all fields to their default values, but leaves processed binary data unchanged.
     /// @note Flag of using heap allocation also not resets to false,

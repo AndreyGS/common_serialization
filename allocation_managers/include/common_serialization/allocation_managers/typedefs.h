@@ -31,27 +31,27 @@
 namespace common_serialization
 {
 
-template<IAllocatorImpl _Allocator>
-using GenericAllocationManagerT = GenericAllocationManager<_Allocator>;
+template<IAllocatorImpl Allocator>
+using GenericAllocationManagerT = GenericAllocationManager<Allocator>;
 
-template<IAllocatorImpl _Allocator>
-using StrategicAllocationManagerT = StrategicAllocationManager<_Allocator>;
+template<IAllocatorImpl Allocator>
+using StrategicAllocationManagerT = StrategicAllocationManager<Allocator>;
 
 
-template<typename _T>
-using RawGenAllocationManagerT = GenericAllocationManager<RawNoexceptAllocatorT<_T>>;
+template<typename T>
+using RawGenAllocationManagerT = GenericAllocationManager<RawNoexceptAllocatorT<T>>;
 
-template<typename _T>
-using RawKeeperGenAllocationManagerT = GenericAllocationManager<RawKeeperAllocatorT<_T>>;
+template<typename T>
+using RawKeeperGenAllocationManagerT = GenericAllocationManager<RawKeeperAllocatorT<T>>;
 
-template<typename _T>
-using CtorGenAllocationManagerT = GenericAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
+template<typename T>
+using CtorGenAllocationManagerT = GenericAllocationManager<ConstructorNoexceptAllocatorT<T>>;
 
-template<typename _T>
-using RawStratAllocationManagerT = StrategicAllocationManager<RawNoexceptAllocatorT<_T>>;
+template<typename T>
+using RawStratAllocationManagerT = StrategicAllocationManager<RawNoexceptAllocatorT<T>>;
 
-template<typename _T>
-using CtorStratAllocationManagerT = StrategicAllocationManager<ConstructorNoexceptAllocatorT<_T>>;
+template<typename T>
+using CtorStratAllocationManagerT = StrategicAllocationManager<ConstructorNoexceptAllocatorT<T>>;
 
 } // namespace common_serialization
 

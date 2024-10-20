@@ -119,8 +119,8 @@ inline uint32_t ErrorProne::sumOfDeletedIndexes = 0;
 
 struct CustomDeleter
 {
-    template<typename _T>
-    void operator()(_T* p)
+    template<typename T>
+    void operator()(T* p)
     {
         delete p;
     }
@@ -132,8 +132,8 @@ struct CustomDeleter2 : CustomDeleter
 
 struct CustomArrDeleter
 {
-    template<typename _T>
-    void operator()(_T* p)
+    template<typename T>
+    void operator()(T* p)
     {
         delete[] p;
     }

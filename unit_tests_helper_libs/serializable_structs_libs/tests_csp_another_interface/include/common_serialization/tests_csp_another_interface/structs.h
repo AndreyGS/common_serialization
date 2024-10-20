@@ -29,11 +29,11 @@
 namespace tests_csp_another_interface
 {
 
-template<typename _T = void>
-class SimpleStruct : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimpleStruct<>, _T>>
+template<typename T = void>
+class SimpleStruct : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimpleStruct<>, T>>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<SimpleStruct<>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<SimpleStruct<>, T>;
 
     static constexpr ags_cs::csp::Id kId{ 0xfb2215a8, 0x9050, 0x4e5a, 0x8e1c, 0x7c836dba50bd };
     static constexpr ags_cs::csp::interface_version_t kInterfaceVersion = 0;            // latest version among all dependable structs

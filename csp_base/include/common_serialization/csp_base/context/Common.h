@@ -76,11 +76,11 @@ namespace common_serialization::csp::context
 {
 
 /// @brief Common context of CSP Messages
-template<bool _serialize>
+template<bool serialize>
 class Common
 {
 public:
-    static constexpr bool kSerialize = _serialize;
+    static constexpr bool kSerialize = serialize;
 
     using Bin = std::conditional_t<kSerialize, BinVectorT, BinWalkerT>;
 
@@ -103,7 +103,7 @@ public:
             m_binaryData.reserve(256);
     }
 
-    virtual ~Common() {}
+    virtual ~Common() = default;
 
     /// @brief Get reference to container that holds processed data in binary
     /// @return Container with binary data
@@ -180,7 +180,7 @@ public:
     ///     rather environment tool option instead of struct/operation specific.
     virtual Common& resetToDefaultsExceptDataContents() noexcept
     {
-        if constexpr (!_serialize)
+        if constexpr (!serialize)
             m_binaryData.seek(0);
         m_protocolVersion = traits::getLatestProtocolVersion();
         m_messageType = Message::Data;

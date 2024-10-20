@@ -35,8 +35,8 @@ enum class AllocationStrategy
 };
 
 /// @brief Interface of user of allocation strategy (CRTP)
-/// @tparam _User Most derived class (instance type)
-template<typename _User>
+/// @tparam User Most derived class (instance type)
+template<typename User>
 class IAllocationStrategyUser
 {
 public:
@@ -44,18 +44,18 @@ public:
     /// @return Current allocation strategy
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] AllocationStrategy getAllocationStrategy() const noexcept
     {
-        return static_cast<const _User*>(this)->getAllocationStrategyImpl();
+        return static_cast<const User*>(this)->getAllocationStrategyImpl();
     }
 
     /// @brief Set allocation strategy
     /// @param allocationStrategy Allocation strategy
     AGS_CS_ALWAYS_INLINE constexpr void setAllocationStrategy(AllocationStrategy allocationStrategy) noexcept
     {
-        static_cast<_User*>(this)->setAllocationStrategyImpl(allocationStrategy);
+        static_cast<User*>(this)->setAllocationStrategyImpl(allocationStrategy);
     }
 };
 
-template<typename _User>
-concept IAllocationStrategyUserImpl = std::is_base_of_v<IAllocationStrategyUser<normalize_t<_User>>, normalize_t<_User>>;
+template<typename User>
+concept IAllocationStrategyUserImpl = std::is_base_of_v<IAllocationStrategyUser<normalize_t<User>>, normalize_t<User>>;
 
 } // namespace common_serialization

@@ -37,64 +37,64 @@
 namespace common_serialization
 {
 
-/// @brief Test for possibility to init object of type _T
+/// @brief Test for possibility to init object of type T
 ///     by another instance of the same type.
 /// @remark Using to figure out can initialization of object be
 ///     replaced from copy-ctor to init function.
 ///     Primary for avoid exceptions and consequently 
 ///     init function should not throw.
-template<typename _T>
-concept Initable = requires(normalize_t<_T>& lhs, _T&& rhs)
+template<typename T>
+concept Initable = requires(normalize_t<T>& lhs, T&& rhs)
 {
-    { lhs.init(std::forward<_T>(rhs)) } -> std::same_as<Status>;
+    { lhs.init(std::forward<T>(rhs)) } -> std::same_as<Status>;
 };
 
-/// @brief Test for possibility to init object of type _T
+/// @brief Test for possibility to init object of type T
 ///     by special arguments
 /// @remark Using to figure out can initialization of object be
 ///     replaced from copy-ctor to init function.
 ///     Primary for avoid exceptions and consequently 
 ///     init function should not throw.
-template<typename _T, typename... _Args>
-concept InitableBySpecialArgs = requires(_T t, _Args&&... args)
+template<typename T, typename... Args>
+concept InitableBySpecialArgs = requires(T t, Args&&... args)
 {
-    { t.init(std::forward<_Args>(args)...) } -> std::same_as<Status>;
+    { t.init(std::forward<Args>(args)...) } -> std::same_as<Status>;
 };
 
-template<typename _T>
-concept NotPointer = !(std::is_pointer_v<_T> || std::is_member_pointer_v<_T> || std::is_function_v<_T> || std::is_member_function_pointer_v<_T>);
+template<typename T>
+concept NotPointer = !(std::is_pointer_v<T> || std::is_member_pointer_v<T> || std::is_function_v<T> || std::is_member_function_pointer_v<T>);
 
-template<typename _T>
-concept HasLessOperator = requires (_T t1, _T t2) { { t1 < t2 } -> std::same_as<bool>; };
+template<typename T>
+concept HasLessOperator = requires (T t1, T t2) { { t1 < t2 } -> std::same_as<bool>; };
 
-template<typename _T>
-concept HasEqualityOperator = requires (_T t1, _T t2) { { t1 == t2 } -> std::same_as<bool>; };
+template<typename T>
+concept HasEqualityOperator = requires (T t1, T t2) { { t1 == t2 } -> std::same_as<bool>; };
 
-template<typename _T>
-concept EndiannessReversable = (std::is_arithmetic_v<_T> || std::is_enum_v<_T>) && sizeof(_T) > 1  && sizeof(_T) <= 8;
+template<typename T>
+concept EndiannessReversable = (std::is_arithmetic_v<T> || std::is_enum_v<T>) && sizeof(T) > 1  && sizeof(T) <= 8;
 
-template<typename _T>
+template<typename T>
 concept Signed
-        =  std::is_arithmetic_v<_T>
-                &&    (std::is_same_v<_T, char> || std::is_same_v<_T, signed char> || std::is_same_v<_T, short> || std::is_same_v<_T, int> || std::is_same_v<_T, long>
-                    || std::is_same_v<_T, long long> || std::is_same_v<_T, float> || std::is_same_v<_T, double> || std::is_same_v<_T, long double>)
-        || std::is_enum_v<_T>
-                &&    (std::is_same_v<std::underlying_type_t<_T>, char> || std::is_same_v<std::underlying_type_t<_T>, signed char> 
-                    || std::is_same_v<std::underlying_type_t<_T>, short> || std::is_same_v<std::underlying_type_t<_T>, int>
-                    || std::is_same_v<std::underlying_type_t<_T>, long> || std::is_same_v<std::underlying_type_t<_T>, long long>);
+        =  std::is_arithmetic_v<T>
+                &&    (std::is_same_v<T, char> || std::is_same_v<T, signed char> || std::is_same_v<T, short> || std::is_same_v<T, int> || std::is_same_v<T, long>
+                    || std::is_same_v<T, long long> || std::is_same_v<T, float> || std::is_same_v<T, double> || std::is_same_v<T, long double>)
+        || std::is_enum_v<T>
+                &&    (std::is_same_v<std::underlying_type_t<T>, char> || std::is_same_v<std::underlying_type_t<T>, signed char> 
+                    || std::is_same_v<std::underlying_type_t<T>, short> || std::is_same_v<std::underlying_type_t<T>, int>
+                    || std::is_same_v<std::underlying_type_t<T>, long> || std::is_same_v<std::underlying_type_t<T>, long long>);
 
-template<typename _T>
+template<typename T>
 concept FixSizedArithmeticType
-    =  std::is_same_v<std::remove_cv_t<_T>, char8_t> || std::is_same_v<std::remove_cv_t<_T>, char16_t> || std::is_same_v<std::remove_cv_t<_T>, char32_t>
-    || std::is_same_v<_T, float> || std::is_same_v<_T, double>;
+    =  std::is_same_v<std::remove_cv_t<T>, char8_t> || std::is_same_v<std::remove_cv_t<T>, char16_t> || std::is_same_v<std::remove_cv_t<T>, char32_t>
+    || std::is_same_v<T, float> || std::is_same_v<T, double>;
 
-template<typename _T>
-concept FixSizedEnumType = std::is_enum_v<_T> && FixSizedArithmeticType<std::underlying_type_t<_T>>;
+template<typename T>
+concept FixSizedEnumType = std::is_enum_v<T> && FixSizedArithmeticType<std::underlying_type_t<T>>;
 
-template<typename _T>
-concept FixSizedArithmeticOrEnumType = FixSizedArithmeticType<_T> || FixSizedEnumType<_T>;
+template<typename T>
+concept FixSizedArithmeticOrEnumType = FixSizedArithmeticType<T> || FixSizedEnumType<T>;
 
-template<typename _T>
-concept HasDestroyingDeleteOp = requires (_T t) { _T::operator delete(&t, std::destroying_delete_t{}); };
+template<typename T>
+concept HasDestroyingDeleteOp = requires (T t) { T::operator delete(&t, std::destroying_delete_t{}); };
 
 } // namespace common_serialization

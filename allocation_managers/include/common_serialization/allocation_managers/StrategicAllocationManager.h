@@ -31,16 +31,16 @@ namespace common_serialization
 
 /// @brief Stateful allocator helper which allocates storage
 ///     using allocation strategy
-/// @tparam _Allocator Class that implement IAllocatorImpl interface
-/// @tparam _MostDerivedClass Instance type. But if type of current instance 
+/// @tparam Allocator Class that implement IAllocatorImpl interface
+/// @tparam MostDerivedClass Instance type. But if type of current instance 
 ///     is GenericAllocationManager it must be void.
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass = void>
+template<IAllocatorImpl Allocator, typename MostDerivedClass = void>
 class StrategicAllocationManager 
-    : public GenericAllocationManager<_Allocator, GetCrtpMainType<StrategicAllocationManager<_Allocator>, _MostDerivedClass>>
-    , public IAllocationStrategyUser<GetCrtpMainType<StrategicAllocationManager<_Allocator>, _MostDerivedClass>>
+    : public GenericAllocationManager<Allocator, GetCrtpMainType<StrategicAllocationManager<Allocator>, MostDerivedClass>>
+    , public IAllocationStrategyUser<GetCrtpMainType<StrategicAllocationManager<Allocator>, MostDerivedClass>>
 {
 public:
-    using allocator_type = _Allocator;
+    using allocator_type = Allocator;
     using value_type = typename allocator_type::value_type;
     using pointer = typename allocator_type::pointer;
     using const_pointer = const value_type*;
@@ -49,7 +49,7 @@ public:
     using constructor_allocator = typename allocator_type::constructor_allocator;
 
     /// @brief Real most derived class
-    using instance_type = GetCrtpMainType<StrategicAllocationManager<allocator_type>, _MostDerivedClass>;
+    using instance_type = GetCrtpMainType<StrategicAllocationManager<allocator_type>, MostDerivedClass>;
 
     /// @brief IAllocationManager interface
     using allocator_helper_interface_type = IAllocationManager<allocator_type, instance_type>;

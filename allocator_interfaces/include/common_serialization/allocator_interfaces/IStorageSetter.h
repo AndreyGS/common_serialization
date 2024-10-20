@@ -28,25 +28,25 @@ namespace common_serialization
 {
 
 /// @brief Interface of Allocator
-/// @tparam _Setter Most derived class (instance type)
-template<typename _Setter>
+/// @tparam Setter Most derived class (instance type)
+template<typename Setter>
 class IStorageSetter
 {
 public:
     /// @brief Set storage
-    /// @tparam _P Ponter type of storage
+    /// @tparam P Ponter type of storage
     /// @param p Pointer to storage
     /// @param size Size of storage in type units
     /// @returns True if successful, false otherwise
-    template<typename _P>
-        requires (std::is_pointer_v<_P> || std::is_same_v<_P, decltype(nullptr)>)
-    AGS_CS_ALWAYS_INLINE constexpr bool setStorage(_P p, size_t size) noexcept
+    template<typename P>
+        requires (std::is_pointer_v<P> || std::is_same_v<P, decltype(nullptr)>)
+    AGS_CS_ALWAYS_INLINE constexpr bool setStorage(P p, size_t size) noexcept
     {
-        return static_cast<_Setter*>(this)->setStorageImpl(p, size);
+        return static_cast<Setter*>(this)->setStorageImpl(p, size);
     }
 };
 
-template<typename _Setter>
-concept IStorageSetterImpl = std::is_base_of_v<IStorageSetter<normalize_t<_Setter>>, normalize_t<_Setter>>;
+template<typename Setter>
+concept IStorageSetterImpl = std::is_base_of_v<IStorageSetter<normalize_t<Setter>>, normalize_t<Setter>>;
 
 } // namespace common_serialization

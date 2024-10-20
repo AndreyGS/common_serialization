@@ -36,11 +36,11 @@ namespace tests_csp_with_std_interface
 void fill(std::string& output);
 void fill(std::wstring& output);
 
-template<typename _T = void>
-class OneBigType : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<OneBigType<>, _T>>
+template<typename T = void>
+class OneBigType : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<OneBigType<>, T>>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<OneBigType<>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<OneBigType<>, T>;
 
     static constexpr ags_cs::csp::Id kId{ 0x93f1547d, 0xeebd, 0x4281, 0x9f64, 0xd23008e2c0b3 };
     static constexpr ags_cs::csp::interface_version_t kInterfaceVersion = 0;

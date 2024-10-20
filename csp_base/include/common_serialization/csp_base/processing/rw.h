@@ -29,13 +29,13 @@
 namespace common_serialization::csp::processing
 {
 
-template<typename _T>
-AGS_CS_ALWAYS_INLINE constexpr Status writePrimitive(_T value, context::SCommon& ctx)
+template<typename T>
+AGS_CS_ALWAYS_INLINE constexpr Status writePrimitive(T value, context::SCommon& ctx)
 {
-    if constexpr (EndiannessReversable<_T>)
+    if constexpr (EndiannessReversable<T>)
         if (ctx.endiannessNotMatch())
         {
-            if constexpr (std::is_same_v<std::remove_cv_t<_T>, long double>)
+            if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
                 return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
             value = helpers::reverseEndianess(value);
@@ -44,41 +44,41 @@ AGS_CS_ALWAYS_INLINE constexpr Status writePrimitive(_T value, context::SCommon&
     return ctx.getBinaryData().pushBackArithmeticValue(value);
 }
 
-template<typename _T>
-AGS_CS_ALWAYS_INLINE constexpr Status writeRawData(const _T* p, csp_size_t n, context::SCommon& ctx)
+template<typename T>
+AGS_CS_ALWAYS_INLINE constexpr Status writeRawData(const T* p, csp_size_t n, context::SCommon& ctx)
 {
     assert(p && n > 0 || n == 0);
-    const csp_size_t bytesSize = sizeof(_T) * n;
-    assert(n == bytesSize / sizeof(_T));
+    const csp_size_t bytesSize = sizeof(T) * n;
+    assert(n == bytesSize / sizeof(T));
 
     return ctx.getBinaryData().pushBackN(static_cast<const uint8_t*>(static_cast<const void*>(p)), bytesSize);
 }
 
-template<typename _T>
-AGS_CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, _T& value)
+template<typename T>
+AGS_CS_ALWAYS_INLINE constexpr Status readPrimitive(context::DCommon& ctx, T& value)
 {
     csp_size_t sizeRead{ 0 };
     Status status = Status::NoError;
 
-    if constexpr (std::is_same_v<std::remove_cv_t<_T>, long double>)
+    if constexpr (std::is_same_v<std::remove_cv_t<T>, long double>)
         if (ctx.endiannessNotMatch())
             return Status::ErrorNotSupportedSerializationSettingsForStruct;
 
-    AGS_CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<_T>&>(value)));
+    AGS_CS_RUN(ctx.getBinaryData().readArithmeticValue(const_cast<std::remove_const_t<T>&>(value)));
 
-    if constexpr (EndiannessReversable<_T>)
+    if constexpr (EndiannessReversable<T>)
         if (ctx.endiannessNotMatch())
-            (const_cast<std::remove_const_t<_T>&>(value)) = helpers::reverseEndianess(value);
+            (const_cast<std::remove_const_t<T>&>(value)) = helpers::reverseEndianess(value);
     
     return Status::NoError;
 }
 
-template<typename _T>
-AGS_CS_ALWAYS_INLINE constexpr Status readRawData(context::DCommon& ctx, csp_size_t n, _T* p)
+template<typename T>
+AGS_CS_ALWAYS_INLINE constexpr Status readRawData(context::DCommon& ctx, csp_size_t n, T* p)
 {
     assert(p && n > 0 || n == 0);
-    const csp_size_t bytesSize = sizeof(_T) * n;
-    assert(n == bytesSize / sizeof(_T));
+    const csp_size_t bytesSize = sizeof(T) * n;
+    assert(n == bytesSize / sizeof(T));
     csp_size_t readSize = 0;
 
     AGS_CS_RUN(ctx.getBinaryData().read(static_cast<uint8_t*>(static_cast<void*>(p)), bytesSize, &readSize));

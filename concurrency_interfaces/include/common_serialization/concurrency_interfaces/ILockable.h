@@ -27,16 +27,16 @@ namespace common_serialization
 {
 
 /// @brief Interface that exclusive lockable type must implement
-template<typename _T>
-concept IExclusiveLockableImpl = requires(_T t)
+template<typename T>
+concept IExclusiveLockableImpl = requires(T t)
 {
     { t.lock() };
     { t.unlock() };
 };
 
 /// @brief Interface that shared lockable type must implement
-template<typename _T>
-concept ISharedLockableImpl = IExclusiveLockableImpl<_T> && requires(_T t)
+template<typename T>
+concept ISharedLockableImpl = IExclusiveLockableImpl<T> && requires(T t)
 {
     { t.lock_shared() };
     { t.unlock_shared() };

@@ -44,38 +44,38 @@ namespace common_serialization
 
 using GenericPointerKeeperT = GenericPointerKeeper;
 
-template<typename _T, typename... _Ts>
-using UniquePtrT = UniquePtr<_T, _Ts...>;
+template<typename T, typename... Ts>
+using UniquePtrT = UniquePtr<T, Ts...>;
 
-template<typename _T, typename... _Ts>
-using VectorT = Vector<_T, _Ts...>;
+template<typename T, typename... Ts>
+using VectorT = Vector<T, Ts...>;
 
-template<typename _T>
-using RawVectorT = VectorT<_T, RawStratAllocationManagerT<_T>>;
+template<typename T>
+using RawVectorT = VectorT<T, RawStratAllocationManagerT<T>>;
 
 using BinVectorT = RawVectorT<uint8_t>;
 
-template<typename _T, typename... _Ts>
-using WalkerT = Walker<_T, _Ts...>;
+template<typename T, typename... Ts>
+using WalkerT = Walker<T, Ts...>;
 
-template<typename _T>
-using RawWalkerT = Walker<_T, RawStratAllocationManagerT<_T>>;
+template<typename T>
+using RawWalkerT = Walker<T, RawStratAllocationManagerT<T>>;
 
 using BinWalkerT = RawWalkerT<uint8_t>;
 
 // Next 3 typedefs are temporary solutions before embedded added
 
-template<typename _K, typename _V, typename... _Ts>
-using MapT = std::map<_K, _V, _Ts...>;
+template<typename K, typename V, typename... Ts>
+using MapT = std::map<K, V, Ts...>;
 
-template<typename _K, typename _V, typename... _Ts>
-using HashMapT = std::unordered_map<_K, _V, _Ts...>;
+template<typename K, typename V, typename... Ts>
+using HashMapT = std::unordered_map<K, V, Ts...>;
 
-template<typename _K, typename _V, typename... _Ts>
-using HashMultiMapT = std::unordered_multimap<_K, _V, _Ts...>;
+template<typename K, typename V, typename... Ts>
+using HashMultiMapT = std::unordered_multimap<K, V, Ts...>;
 
-template<typename _T, typename... Ts>
-using ListT = std::list<_T, Ts...>;
+template<typename T, typename... Ts>
+using ListT = std::list<T, Ts...>;
 
 } // namespace common_serialization
 

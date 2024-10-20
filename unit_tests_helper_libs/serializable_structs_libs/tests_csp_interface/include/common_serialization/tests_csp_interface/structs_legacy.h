@@ -30,11 +30,11 @@ namespace tests_csp_interface
 
 namespace ags_cs = common_serialization;
 
-template<typename _T = void>
-class SimplyAssignableAlignedToOne_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version0<_T>, _T>>
+template<typename T = void>
+class SimplyAssignableAlignedToOne_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version0<T>, T>>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version0<_T>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version0<T>, T>;
     using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr ags_cs::csp::Id kId = SimplyAssignableAlignedToOne<>::getId();
@@ -42,8 +42,8 @@ public:
     static constexpr ags_cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const ags_cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    template<typename _T2>
-    ags_cs::Status init(const SimplyAssignableAlignedToOne_Version1<_T2>& rhs);
+    template<typename T2>
+    ags_cs::Status init(const SimplyAssignableAlignedToOne_Version1<T2>& rhs);
 
     void fill()
     {
@@ -55,14 +55,14 @@ public:
     tests_restricted_structs::TwoInts m_ti{ 0 };
 
     friend ags_cs::csp::processing::data::BodyProcessor;
-    friend SimplyAssignableAlignedToOne_Version1<_T>;
+    friend SimplyAssignableAlignedToOne_Version1<T>;
 };
 
-template<typename _T = void>
-class SimplyAssignable_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignable_Version0<>, _T>>
+template<typename T = void>
+class SimplyAssignable_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignable_Version0<>, T>>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignable_Version0<>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignable_Version0<>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr ags_cs::csp::Id kId = SimplyAssignable<>::getId();
@@ -70,8 +70,8 @@ public:
     static constexpr ags_cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const ags_cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    template<typename _T2>
-    ags_cs::Status init(const SimplyAssignable<_T2>& rhs);
+    template<typename T2>
+    ags_cs::Status init(const SimplyAssignable<T2>& rhs);
 
     void fill()
     {
@@ -127,12 +127,12 @@ public:
     uint32_t m_vt{ 0 };
 
     friend ags_cs::csp::processing::data::BodyProcessor;
-    friend SimplyAssignable<_T>;
+    friend SimplyAssignable<T>;
 };
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SimplyAssignable_Version0<_T1>::init(const SimplyAssignable<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SimplyAssignable_Version0<T1>::init(const SimplyAssignable<T2>& rhs)
 {
     m_i = rhs.m_i;
     m_j = rhs.m_j;
@@ -154,9 +154,9 @@ ags_cs::Status SimplyAssignable_Version0<_T1>::init(const SimplyAssignable<_T2>&
     return ags_cs::Status::NoError;
 }
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SimplyAssignable<_T1>::init(const SimplyAssignable_Version0<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SimplyAssignable<T1>::init(const SimplyAssignable_Version0<T2>& rhs)
 {
     m_i = rhs.m_i;
     m_j = rhs.m_j;
@@ -179,10 +179,10 @@ ags_cs::Status SimplyAssignable<_T1>::init(const SimplyAssignable_Version0<_T2>&
     return ags_cs::Status::NoError;
 }
 
-template<typename _T = void>
-struct SimplyAssignableDescendant_Version0 : public SimplyAssignable_Version0<ags_cs::GetCrtpMainType<SimplyAssignableDescendant_Version0<>, _T>>
+template<typename T = void>
+struct SimplyAssignableDescendant_Version0 : public SimplyAssignable_Version0<ags_cs::GetCrtpMainType<SimplyAssignableDescendant_Version0<>, T>>
 {
-    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableDescendant_Version0<>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableDescendant_Version0<>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr ags_cs::csp::Id kId = SimplyAssignableDescendant<>::getId();
@@ -192,8 +192,8 @@ struct SimplyAssignableDescendant_Version0 : public SimplyAssignable_Version0<ag
 
     uint32_t m_d{ 0 };
 
-    template<typename _T2>
-    ags_cs::Status init(const SimplyAssignableDescendant<_T2>& rhs);
+    template<typename T2>
+    ags_cs::Status init(const SimplyAssignableDescendant<T2>& rhs);
 
     [[nodiscard]] operator SimplyAssignable_Version0<>& () noexcept
     {
@@ -218,25 +218,25 @@ struct SimplyAssignableDescendant_Version0 : public SimplyAssignable_Version0<ag
     [[nodiscard]] auto operator<=>(const SimplyAssignableDescendant_Version0&) const = default;
 
     friend ags_cs::csp::processing::data::BodyProcessor;
-    friend SimplyAssignableDescendant<_T>;
+    friend SimplyAssignableDescendant<T>;
 };
 
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SimplyAssignableDescendant_Version0<_T1>::init(const SimplyAssignableDescendant<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SimplyAssignableDescendant_Version0<T1>::init(const SimplyAssignableDescendant<T2>& rhs)
 {
-    static_cast<SimplyAssignable_Version0<_T1>&>(*this).init(rhs);
+    static_cast<SimplyAssignable_Version0<T1>&>(*this).init(rhs);
     m_d = rhs.m_d;
 
     return ags_cs::Status::NoError;
 }
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SimplyAssignableDescendant<_T1>::init(const SimplyAssignableDescendant_Version0<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SimplyAssignableDescendant<T1>::init(const SimplyAssignableDescendant_Version0<T2>& rhs)
 {
-    static_cast<SimplyAssignable<_T2>&>(*this).init(rhs);
+    static_cast<SimplyAssignable<T2>&>(*this).init(rhs);
     m_d = rhs.m_d;
 
     return ags_cs::Status::NoError;
@@ -244,11 +244,11 @@ ags_cs::Status SimplyAssignableDescendant<_T1>::init(const SimplyAssignableDesce
 
 #pragma pack(push, 1)
 
-template<typename _T = void>
-class AlwaysSimplyAssignable_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<AlwaysSimplyAssignable_Version0<_T>, _T>>
+template<typename T = void>
+class AlwaysSimplyAssignable_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<AlwaysSimplyAssignable_Version0<T>, T>>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<AlwaysSimplyAssignable_Version0<_T>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<AlwaysSimplyAssignable_Version0<T>, T>;
     using always_simply_assignable_tag = std::true_type;
 
     static constexpr ags_cs::csp::Id kId = AlwaysSimplyAssignable<>::getId();
@@ -256,8 +256,8 @@ public:
     static constexpr ags_cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const ags_cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    template<typename _T2>
-    ags_cs::Status init(const AlwaysSimplyAssignable<_T2>& rhs);
+    template<typename T2>
+    ags_cs::Status init(const AlwaysSimplyAssignable<T2>& rhs);
 
     void fill()
     {
@@ -271,14 +271,14 @@ public:
     uint16_t m_yy{ 0 };
 
     friend ags_cs::csp::processing::data::BodyProcessor;
-    friend SimplyAssignableAlignedToOne<_T>;
+    friend SimplyAssignableAlignedToOne<T>;
 };
 
 #pragma pack(pop)
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status AlwaysSimplyAssignable_Version0<_T1>::init(const AlwaysSimplyAssignable<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status AlwaysSimplyAssignable_Version0<T1>::init(const AlwaysSimplyAssignable<T2>& rhs)
 {
     m_xx = rhs.m_x + 1;
     m_yy = rhs.m_y + 2;
@@ -286,9 +286,9 @@ ags_cs::Status AlwaysSimplyAssignable_Version0<_T1>::init(const AlwaysSimplyAssi
     return ags_cs::Status::NoError;
 }
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status AlwaysSimplyAssignable<_T1>::init(const AlwaysSimplyAssignable_Version0<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status AlwaysSimplyAssignable<T1>::init(const AlwaysSimplyAssignable_Version0<T2>& rhs)
 {
     m_x = rhs.m_xx - 1;
     m_y = rhs.m_yy - 2;
@@ -299,19 +299,19 @@ ags_cs::Status AlwaysSimplyAssignable<_T1>::init(const AlwaysSimplyAssignable_Ve
 template<typename>
 class SForAllModesTests_Version2;
 
-template<typename _T = void>
-class SForAllModesTests_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SForAllModesTests_Version0<_T>, _T >>
+template<typename T = void>
+class SForAllModesTests_Version0 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SForAllModesTests_Version0<T>, T >>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<SForAllModesTests_Version0<_T>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<SForAllModesTests_Version0<T>, T>;
 
     static constexpr ags_cs::csp::Id kId = DForAllModesTests<>::getId();
     static constexpr ags_cs::csp::interface_version_t kInterfaceVersion = 0;
     static constexpr ags_cs::csp::interface_version_t kPrivateVersions[] = { 0 };
     static consteval const ags_cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    template<typename _T2>
-    ags_cs::Status init(const SForAllModesTests_Version2<_T2>& rhs);
+    template<typename T2>
+    ags_cs::Status init(const SForAllModesTests_Version2<T2>& rhs);
 
     void fill()
     {
@@ -342,14 +342,14 @@ public:
     ManyPointersType<> m_mpt;
 
     friend ags_cs::csp::processing::data::BodyProcessor;
-    friend SForAllModesTests_Version2<_T>;
+    friend SForAllModesTests_Version2<T>;
 };
 
-template<typename _T = void>
-class SimplyAssignableAlignedToOne_Version1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version1<>, _T>>
+template<typename T = void>
+class SimplyAssignableAlignedToOne_Version1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version1<>, T>>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version1<>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableAlignedToOne_Version1<>, T>;
     using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr ags_cs::csp::Id kId = SimplyAssignableAlignedToOne<>::getId();
@@ -357,8 +357,8 @@ public:
     static constexpr ags_cs::csp::interface_version_t kPrivateVersions[] = { 1, 0 };
     static consteval const ags_cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    template<typename _T2>
-    ags_cs::Status init(const SimplyAssignableAlignedToOne_Version0<_T2>& rhs)
+    template<typename T2>
+    ags_cs::Status init(const SimplyAssignableAlignedToOne_Version0<T2>& rhs)
     {
         m_x = rhs.m_ti.m_x;
         m_y = rhs.m_ti.m_y;
@@ -366,8 +366,8 @@ public:
         return ags_cs::Status::NoError;
     }
 
-    template<typename _T2>
-    ags_cs::Status init(const SimplyAssignableAlignedToOne<_T2>& rhs)
+    template<typename T2>
+    ags_cs::Status init(const SimplyAssignableAlignedToOne<T2>& rhs)
     {
         m_x = rhs.m_x;
         m_y = rhs.m_y;
@@ -381,13 +381,13 @@ public:
     uint16_t m_y{ 0 };
 
     friend ags_cs::csp::processing::data::BodyProcessor;
-    friend SimplyAssignableAlignedToOne_Version0<_T>;
-    friend SimplyAssignableAlignedToOne<_T>;
+    friend SimplyAssignableAlignedToOne_Version0<T>;
+    friend SimplyAssignableAlignedToOne<T>;
 };
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SimplyAssignableAlignedToOne_Version0<_T1>::init(const SimplyAssignableAlignedToOne_Version1<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SimplyAssignableAlignedToOne_Version0<T1>::init(const SimplyAssignableAlignedToOne_Version1<T2>& rhs)
 {
     m_ti.m_x = rhs.m_x;
     m_ti.m_y = rhs.m_y;
@@ -395,9 +395,9 @@ ags_cs::Status SimplyAssignableAlignedToOne_Version0<_T1>::init(const SimplyAssi
     return ags_cs::Status::NoError;
 }
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SimplyAssignableAlignedToOne<_T1>::init(const SimplyAssignableAlignedToOne_Version1<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SimplyAssignableAlignedToOne<T1>::init(const SimplyAssignableAlignedToOne_Version1<T2>& rhs)
 {
     m_x = rhs.m_x;
     m_y = rhs.m_y;
@@ -405,11 +405,11 @@ ags_cs::Status SimplyAssignableAlignedToOne<_T1>::init(const SimplyAssignableAli
     return ags_cs::Status::NoError;
 }
 
-template<typename _T = void>
-class SimplyAssignableFixedSize_Version1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableFixedSize_Version1<_T>, _T>>
+template<typename T = void>
+class SimplyAssignableFixedSize_Version1 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SimplyAssignableFixedSize_Version1<T>, T>>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableFixedSize_Version1<_T>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<SimplyAssignableFixedSize_Version1<T>, T>;
     using simply_assignable_fixed_size_tag = std::true_type;
 
     static constexpr ags_cs::csp::Id kId = SimplyAssignableFixedSize<>::getId();
@@ -417,8 +417,8 @@ public:
     static constexpr ags_cs::csp::interface_version_t kPrivateVersions[] = { 1 };
     static consteval const ags_cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    template<typename _T2>
-    ags_cs::Status init(const SimplyAssignableFixedSize<_T2>& rhs);
+    template<typename T2>
+    ags_cs::Status init(const SimplyAssignableFixedSize<T2>& rhs);
 
     void fill()
     {
@@ -439,12 +439,12 @@ public:
     AlwaysSimplyAssignable_Version0<> m_arrAsa[3];
 
     friend ags_cs::csp::processing::data::BodyProcessor;
-    friend SimplyAssignableFixedSize<_T>;
+    friend SimplyAssignableFixedSize<T>;
 };
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SimplyAssignableFixedSize_Version1<_T1>::init(const SimplyAssignableFixedSize<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SimplyAssignableFixedSize_Version1<T1>::init(const SimplyAssignableFixedSize<T2>& rhs)
 {
     m_xx = rhs.m_x + 1;
     m_asa.init(rhs.m_asa);
@@ -455,9 +455,9 @@ ags_cs::Status SimplyAssignableFixedSize_Version1<_T1>::init(const SimplyAssigna
     return ags_cs::Status::NoError;
 }
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SimplyAssignableFixedSize<_T1>::init(const SimplyAssignableFixedSize_Version1<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SimplyAssignableFixedSize<T1>::init(const SimplyAssignableFixedSize_Version1<T2>& rhs)
 {
     m_x = rhs.m_xx - 1;
     m_asa.init(rhs.m_asa);
@@ -468,21 +468,21 @@ ags_cs::Status SimplyAssignableFixedSize<_T1>::init(const SimplyAssignableFixedS
     return ags_cs::Status::NoError;
 }
 
-template<typename _T = void>
-class SForAllModesTests_Version2 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SForAllModesTests_Version2<>, _T >>
+template<typename T = void>
+class SForAllModesTests_Version2 : public ags_cs::csp::ISerializable<ags_cs::GetCrtpMainType<SForAllModesTests_Version2<>, T >>
 {
 public:
-    using instance_type = ags_cs::GetCrtpMainType<SForAllModesTests_Version2<>, _T>;
+    using instance_type = ags_cs::GetCrtpMainType<SForAllModesTests_Version2<>, T>;
 
     static constexpr ags_cs::csp::Id kId = DForAllModesTests<>::getId();
     static constexpr ags_cs::csp::interface_version_t kInterfaceVersion = 2;
     static constexpr ags_cs::csp::interface_version_t kPrivateVersions[] = { 2, 0 };
     static consteval const ags_cs::csp::Interface& getInterface() noexcept { return properties; }
 
-    template<typename _T2>
-    ags_cs::Status init(const SForAllModesTests_Version0<_T2>& rhs);
-    template<typename _T2>
-    ags_cs::Status init(const DForAllModesTests<_T2>& rhs);
+    template<typename T2>
+    ags_cs::Status init(const SForAllModesTests_Version0<T2>& rhs);
+    template<typename T2>
+    ags_cs::Status init(const DForAllModesTests<T2>& rhs);
 
     void fill()
     {
@@ -517,13 +517,13 @@ public:
     int m_i{ 0 }; // duplicated m_saDs.m_i
 
     friend ags_cs::csp::processing::data::BodyProcessor;
-    friend SForAllModesTests_Version0<_T>;
-    friend DForAllModesTests<_T>;
+    friend SForAllModesTests_Version0<T>;
+    friend DForAllModesTests<T>;
 };
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SForAllModesTests_Version0<_T1>::init(const SForAllModesTests_Version2<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SForAllModesTests_Version0<T1>::init(const SForAllModesTests_Version2<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -539,9 +539,9 @@ ags_cs::Status SForAllModesTests_Version0<_T1>::init(const SForAllModesTests_Ver
     return ags_cs::Status::NoError;
 }
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SForAllModesTests_Version2<_T1>::init(const SForAllModesTests_Version0<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SForAllModesTests_Version2<T1>::init(const SForAllModesTests_Version0<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -557,9 +557,9 @@ ags_cs::Status SForAllModesTests_Version2<_T1>::init(const SForAllModesTests_Ver
     return ags_cs::Status::NoError;
 }
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status SForAllModesTests_Version2<_T1>::init(const DForAllModesTests<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status SForAllModesTests_Version2<T1>::init(const DForAllModesTests<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;
@@ -575,9 +575,9 @@ ags_cs::Status SForAllModesTests_Version2<_T1>::init(const DForAllModesTests<_T2
     return ags_cs::Status::NoError;
 }
 
-template<typename _T1>
-template<typename _T2>
-ags_cs::Status DForAllModesTests<_T1>::init(const SForAllModesTests_Version2<_T2>& rhs)
+template<typename T1>
+template<typename T2>
+ags_cs::Status DForAllModesTests<T1>::init(const SForAllModesTests_Version2<T2>& rhs)
 {
     m_diamond = rhs.m_diamond;
     m_sptCs = rhs.m_sptCs;

@@ -32,22 +32,22 @@ namespace common_serialization
 /// @brief Stateful allocator that using user supplied storage
 /// @note This allocator is single threaded.
 ///     Any synchronization if need shall be used additionally.
-/// @tparam _T Type of objects that allocator would allocate and construct
-template<typename _T>
+/// @tparam T Type of objects that allocator would allocate and construct
+template<typename T>
 class RawKeeperAllocator 
-    : public IAllocator<RawAllocatorTraits<_T>, RawKeeperAllocator<_T>>
-    , public IStorageSetter<RawKeeperAllocator<_T>>
+    : public IAllocator<RawAllocatorTraits<T>, RawKeeperAllocator<T>>
+    , public IStorageSetter<RawKeeperAllocator<T>>
 {
 public:
-    using allocator_traits = RawAllocatorTraits<_T>;
+    using allocator_traits = RawAllocatorTraits<T>;
     using value_type = typename allocator_traits::value_type;
     using pointer = typename allocator_traits::pointer;
     using size_type = typename allocator_traits::size_type;
     using difference_type = typename allocator_traits::difference_type;
     using constructor_allocator = typename allocator_traits::constructor_allocator;
 
-    using allocator_interface_type = IAllocator<RawAllocatorTraits<_T>, RawKeeperAllocator<_T>>;
-    using storage_setter_interface_type = IStorageSetter<RawKeeperAllocator<_T>>;
+    using allocator_interface_type = IAllocator<RawAllocatorTraits<T>, RawKeeperAllocator<T>>;
+    using storage_setter_interface_type = IStorageSetter<RawKeeperAllocator<T>>;
 
     AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator() = default;
 
@@ -61,8 +61,8 @@ public:
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility and does not copying anything
-    template <class _R>
-    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator(const RawKeeperAllocator<_R>& rhs) noexcept 
+    template <class R>
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator(const RawKeeperAllocator<R>& rhs) noexcept 
     { 
         operator=(rhs); 
     }
@@ -72,8 +72,8 @@ public:
         operator=<value_type>(rhs);
     }
 
-    template <class _R>
-    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator(RawKeeperAllocator<_R>&& rhs) noexcept
+    template <class R>
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator(RawKeeperAllocator<R>&& rhs) noexcept
     {
         operator=(std::move(rhs));
     }
@@ -85,8 +85,8 @@ public:
 
     /// @brief Copy assignment operator
     /// @remark Present only for compatibility and does not copying anything
-    template <class _R>
-    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<_R>& rhs) noexcept
+    template <class R>
+    AGS_CS_ALWAYS_INLINE constexpr RawKeeperAllocator& operator=(const RawKeeperAllocator<R>& rhs) noexcept
     {
         return *this;
     }
@@ -98,11 +98,11 @@ public:
         return operator=<value_type>(rhs);
     }
 
-    template <class _R>
-    constexpr RawKeeperAllocator& operator=(RawKeeperAllocator<_R>&& rhs) noexcept
+    template <class R>
+    constexpr RawKeeperAllocator& operator=(RawKeeperAllocator<R>&& rhs) noexcept
     {
-        m_p = static_cast<_T*>(static_cast<void*>(rhs.allocate(rhs.max_size())));
-        m_memorySize = rhs.max_size() * sizeof(_R) / sizeof(_T);
+        m_p = static_cast<T*>(static_cast<void*>(rhs.allocate(rhs.max_size())));
+        m_memorySize = rhs.max_size() * sizeof(R) / sizeof(T);
         rhs.setStorage(nullptr, 0);
 
         return *this;
@@ -118,7 +118,7 @@ protected:
     friend storage_setter_interface_type;
 
     /// @brief Get pointer on storage if n*value_type <= sizeof(storage)
-    /// @param n Number of elements of type _T that storage must be capable to hold
+    /// @param n Number of elements of type T that storage must be capable to hold
     /// @return Pointer to storage, nullptr if current storage is not large enough
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
     {
@@ -141,12 +141,12 @@ protected:
     /// @brief Call ctor in range of internal storage
     /// @note If p is out of storage memory range or if it does not
     ///     aligned to sizeof(value_type) unit boundaries, returns error.
-    /// @tparam ..._Args Parameters types that go to ctor
+    /// @tparam ...Args Parameters types that go to ctor
     /// @param p Pointer to memory where object shall be created
     /// @param ...args Parameters that go to ctor
     /// @return Status of operation
-    template<typename... _Args>
-    constexpr Status constructImpl(pointer p, _Args&&... args) const noexcept
+    template<typename... Args>
+    constexpr Status constructImpl(pointer p, Args&&... args) const noexcept
     {
         if (   
                p < m_p 
@@ -155,7 +155,7 @@ protected:
         )
             return Status::ErrorInvalidArgument;
 
-        new ((void*)p) value_type(std::forward<_Args>(args)...);
+        new ((void*)p) value_type(std::forward<Args>(args)...);
         return Status::NoError;
     }
 

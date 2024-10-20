@@ -82,8 +82,8 @@ Status multiHandle(const InputStruct& input)
     return Status::NoError;
 }
 
-template<typename _T>
-using IServerDataHandler = csp::messaging::IServerDataHandler<_T>;
+template<typename T>
+using IServerDataHandler = csp::messaging::IServerDataHandler<T>;
 
 namespace csm = csp::messaging;
 

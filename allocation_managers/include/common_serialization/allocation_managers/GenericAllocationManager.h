@@ -30,14 +30,14 @@ namespace common_serialization
 {
 
 /// @brief Generic stateless class for allocation helping
-/// @tparam _Allocator Class that implement IAllocatorImpl interface
-/// @tparam _MostDerivedClass Instance type. But if type of current instance 
+/// @tparam Allocator Class that implement IAllocatorImpl interface
+/// @tparam MostDerivedClass Instance type. But if type of current instance 
 ///     is GenericAllocationManager it must be void.
-template<IAllocatorImpl _Allocator, typename _MostDerivedClass = void>
-class GenericAllocationManager : public IAllocationManager<_Allocator, GetCrtpMainType<GenericAllocationManager<_Allocator>, _MostDerivedClass>>
+template<IAllocatorImpl Allocator, typename MostDerivedClass = void>
+class GenericAllocationManager : public IAllocationManager<Allocator, GetCrtpMainType<GenericAllocationManager<Allocator>, MostDerivedClass>>
 {
 public:
-    using allocator_type = _Allocator;
+    using allocator_type = Allocator;
     using value_type = typename allocator_type::value_type;
     using pointer = typename allocator_type::pointer;
     using const_pointer = const value_type*;
@@ -46,10 +46,10 @@ public:
     using constructor_allocator = typename allocator_type::constructor_allocator;
 
     /// @brief Real most derived class
-    using instance_type = GetCrtpMainType<GenericAllocationManager<allocator_type>, _MostDerivedClass>;
+    using instance_type = GetCrtpMainType<GenericAllocationManager<allocator_type>, MostDerivedClass>;
 
     /// @brief IAllocationManager interface
-    using allocator_helper_interface_type = IAllocationManager<_Allocator, instance_type>;
+    using allocator_helper_interface_type = IAllocationManager<Allocator, instance_type>;
 
 protected:
     friend allocator_helper_interface_type;

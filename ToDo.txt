@@ -14,7 +14,7 @@
 - Add crc32 of serialization flag to CSP. (?)
 - Add empty() method to Vector and Walker.
 - Add IDataHandler::checkPoliciesCompliance function realization.
-- Add unit-tests on Vector::insert(const _T& value, size_type offset).
+- Add unit-tests on Vector::insert(const T& value, size_type offset).
 - Add unit-tests on Vector::erase(size_type offset).
 - Add Vector::insert overload for rvalues.
 - Add more tests on structs with simply_assignable_fixed_size_tag and always_simply_assignable_tag.

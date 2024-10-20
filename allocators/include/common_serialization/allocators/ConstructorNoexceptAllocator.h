@@ -31,34 +31,34 @@ namespace common_serialization
 
 /// @brief Constructor Allocator that not throwing
 ///     (as long as constructed objects don't do it)
-/// @tparam _T Type of objects that allocator would allocate and construct
-template<typename _T>
-class ConstructorNoexceptAllocator : public IAllocator<ConstructorAllocatorTraits<_T>, ConstructorNoexceptAllocator<_T>>
+/// @tparam T Type of objects that allocator would allocate and construct
+template<typename T>
+class ConstructorNoexceptAllocator : public IAllocator<ConstructorAllocatorTraits<T>, ConstructorNoexceptAllocator<T>>
 {
 public:
-    using allocator_traits = ConstructorAllocatorTraits<_T>;
+    using allocator_traits = ConstructorAllocatorTraits<T>;
     using value_type = typename allocator_traits::value_type;
     using pointer = typename allocator_traits::pointer;
     using size_type = typename allocator_traits::size_type;
     using difference_type = typename allocator_traits::difference_type;
     using constructor_allocator = typename allocator_traits::constructor_allocator;
 
-    using allocator_interface_type = IAllocator<ConstructorAllocatorTraits<_T>, ConstructorNoexceptAllocator<_T>>;
+    using allocator_interface_type = IAllocator<ConstructorAllocatorTraits<T>, ConstructorNoexceptAllocator<T>>;
 
     constexpr ConstructorNoexceptAllocator() = default;
 
     /// @brief Copy ctor
     /// @remark This overload only for compatibility
-    /// @tparam _T2 Type of ojects that rhs allocator would allocate
-    template <class _T2>
-    explicit constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator<_T2>&) noexcept {}
+    /// @tparam T2 Type of ojects that rhs allocator would allocate
+    template <class T2>
+    explicit constexpr ConstructorNoexceptAllocator(const ConstructorNoexceptAllocator<T2>&) noexcept {}
 
 protected:
     friend allocator_interface_type;
 
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocateImpl(size_type n) const noexcept
     {
-        return static_cast<_T*>(HeapAllocatorT().allocate(n * sizeof(_T)));
+        return static_cast<T*>(HeapAllocatorT().allocate(n * sizeof(T)));
     }
 
     AGS_CS_ALWAYS_INLINE constexpr void deallocateImpl(pointer p) const noexcept
@@ -71,25 +71,25 @@ protected:
         deallocate(p);
     }
 
-    template<typename... _Args>
-    AGS_CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, _Args&&... args) const
+    template<typename... Args>
+    AGS_CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, Args&&... args) const
     {
         assert(p);
 
-        new ((void*)p) value_type(std::forward<_Args>(args)...);
+        new ((void*)p) value_type(std::forward<Args>(args)...);
         return Status::NoError;
     }
 
-    template<typename... _Args>
-    AGS_CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, _Args&&... args) const
-        requires (InitableBySpecialArgs<value_type, _Args...> && value_type::prefer_init_against_ctor::value)
+    template<typename... Args>
+    AGS_CS_ALWAYS_INLINE constexpr Status constructImpl(pointer p, Args&&... args) const
+        requires (InitableBySpecialArgs<value_type, Args...> && value_type::prefer_init_against_ctor::value)
     {
         assert(p);
 
         new ((void*)p) value_type;
 
-        if constexpr (sizeof...(_Args))
-            return p->init(std::forward<_Args>(args)...);
+        if constexpr (sizeof...(Args))
+            return p->init(std::forward<Args>(args)...);
         else
             return Status::NoError;
     }
@@ -105,7 +105,7 @@ protected:
     }
 
 private:
-    static constexpr size_type max_size_v = static_cast<size_type>(-1) / sizeof(_T);
+    static constexpr size_type max_size_v = static_cast<size_type>(-1) / sizeof(T);
 };
 
 } // namespace common_serialization

@@ -45,12 +45,12 @@ public:
 };
 
 /// @brief Struct for request of interface properties with specific Id
-/// @tparam _T Derived class
-template<typename _T = void>
-struct GetInterface : public csp::ISerializable<GetCrtpMainType<GetInterface<_T>, _T>>
+/// @tparam T Derived class
+template<typename T = void>
+struct GetInterface : public csp::ISerializable<GetCrtpMainType<GetInterface<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<GetInterface<_T>, _T>;
+    using instance_type = GetCrtpMainType<GetInterface<T>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr Id kId{ 0x08c68657, 0x4fa7, 0x4419, 0x8c13, 0x66aec2b06cb0 };
@@ -62,12 +62,12 @@ public:
 };
 
 /// @brief Struct for response on GetInterface
-/// @tparam _T Derived class
-template<typename _T = void>
-struct OutGetInterface : public csp::ISerializable<GetCrtpMainType<OutGetInterface<_T>, _T>>
+/// @tparam T Derived class
+template<typename T = void>
+struct OutGetInterface : public csp::ISerializable<GetCrtpMainType<OutGetInterface<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<OutGetInterface<_T>, _T>;
+    using instance_type = GetCrtpMainType<OutGetInterface<T>, T>;
     using simply_assignable_tag = std::true_type;
 
     static constexpr Id kId{ 0x22bd67db, 0x65a0, 0x42f4, 0xb28b, 0x63c6181aebe1 };
@@ -81,12 +81,12 @@ public:
 #pragma pack(push, 1)
 
 /// @brief Interface Id and Version holder
-/// @tparam _T Derived class
-template<typename _T = void>
-struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVersion<_T>, _T>>
+/// @tparam T Derived class
+template<typename T = void>
+struct InterfaceVersion : public csp::ISerializable<GetCrtpMainType<InterfaceVersion<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<InterfaceVersion<_T>, _T>;
+    using instance_type = GetCrtpMainType<InterfaceVersion<T>, T>;
     using simply_assignable_aligned_to_one_tag = std::true_type;
 
     static constexpr Id kId{ 0xdf1cb40c, 0x9a72, 0x426b, 0xa801, 0xb0993fe76a46 };
@@ -98,14 +98,14 @@ public:
     InterfaceVersion(const Id& id, interface_version_t version) noexcept : m_id(id), m_version(version) { }
     explicit InterfaceVersion(const Interface& interface_) noexcept : m_id(interface_.m_id), m_version(interface_.m_version) { }
 
-    template<typename _T>
-    constexpr [[nodiscard]] bool operator<(const InterfaceVersion<_T>& rhs) const noexcept
+    template<typename T>
+    constexpr [[nodiscard]] bool operator<(const InterfaceVersion<T>& rhs) const noexcept
     {
         return m_id < rhs.m_id || m_version < rhs.m_version;
     }
 
-    template<typename _T>
-    constexpr [[nodiscard]] bool operator==(const InterfaceVersion<_T>& rhs) const noexcept
+    template<typename T>
+    constexpr [[nodiscard]] bool operator==(const InterfaceVersion<T>& rhs) const noexcept
     {
         return m_id == rhs.m_id && m_version == rhs.m_version;;
     }
@@ -117,11 +117,11 @@ public:
 #pragma pack(pop)
 
 /// @brief Settings of a CSP party
-template<typename _T = void>
-class CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySettings<_T>, _T>>
+template<typename T = void>
+class CspPartySettings : public csp::ISerializable<GetCrtpMainType<CspPartySettings<T>, T>>
 {
 public:
-    using instance_type = GetCrtpMainType<CspPartySettings<_T>, _T>;
+    using instance_type = GetCrtpMainType<CspPartySettings<T>, T>;
     using prefer_init_against_ctor = std::true_type;
 
     static constexpr Id kId{ 0xbf8c27e8, 0xfe6a, 0x4492, 0x91cb, 0xe4cf411e1236 };
@@ -202,8 +202,8 @@ public:
         return Status::NoError;
     }
 
-    template<typename _T>
-    constexpr [[nodiscard]] bool operator==(const CspPartySettings<_T>& rhs) const noexcept
+    template<typename T>
+    constexpr [[nodiscard]] bool operator==(const CspPartySettings<T>& rhs) const noexcept
     {
         return m_protocolVersions == rhs.m_protocolVersions
             && m_mandatoryCommonFlags == rhs.m_mandatoryCommonFlags

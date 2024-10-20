@@ -27,7 +27,7 @@ namespace common_serialization
 {
 
 /// @brief Generic interface fot input-output operations
-template<typename _InputType, typename _OutputType>
+template<typename InputType, typename OutputType>
 class IIoProcessor
 {
 public:
@@ -37,7 +37,7 @@ public:
     /// @param input Input data
     /// @param output Output data
     /// @return Status of operation
-    virtual Status process(const _InputType& input, _OutputType& output) = 0;
+    virtual Status process(const InputType& input, OutputType& output) = 0;
 };
 
 } // namespace common_serialization

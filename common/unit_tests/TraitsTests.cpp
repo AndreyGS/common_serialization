@@ -30,10 +30,10 @@ using namespace common_serialization;
 namespace
 {
 
-template<typename _T>
+template<typename T>
 struct CrtpTest {};
 
-template<typename _T>
+template<typename T>
 struct CrtpTest2 {};
 
 TEST(ConceptsTests, GetCrtpMainType_)
@@ -88,8 +88,8 @@ TEST(ConceptsTests, NormalizeT)
     EXPECT_TRUE((std::is_same_v<normalize_t<decltype(std::move(test))>, Test>));
 }
 
-template<typename _T> struct TestTempl {};
-template<typename... _Ts> struct TestTempl2 {};
+template<typename T> struct TestTempl {};
+template<typename... Ts> struct TestTempl2 {};
 
 TEST(ConceptsTests, IsTemplateV)
 {

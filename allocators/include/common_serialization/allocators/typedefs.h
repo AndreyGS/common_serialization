@@ -32,14 +32,14 @@
 namespace common_serialization
 {
 
-template<typename _T>
-using ConstructorNoexceptAllocatorT = ConstructorNoexceptAllocator<_T>;
+template<typename T>
+using ConstructorNoexceptAllocatorT = ConstructorNoexceptAllocator<T>;
 
-template<typename _T>
-using RawKeeperAllocatorT = RawKeeperAllocator<_T>;
+template<typename T>
+using RawKeeperAllocatorT = RawKeeperAllocator<T>;
 
-template<typename _T>
-using RawNoexceptAllocatorT = RawNoexceptAllocator<_T>;
+template<typename T>
+using RawNoexceptAllocatorT = RawNoexceptAllocator<T>;
 
 } // namespace common_serialization
 

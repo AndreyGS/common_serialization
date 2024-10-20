@@ -37,13 +37,13 @@ using nullptr_t = decltype(nullptr);
 struct nothrow_t { };
 inline constexpr nothrow_t nothrow;
 
-// std::integral_constant<_T, v>
-template<typename _T, _T v>
+// std::integral_constant<T, v>
+template<typename T, T v>
 struct integral_constant
 {
-    static constexpr _T value = v;
+    static constexpr T value = v;
 
-    using value_type = _T;
+    using value_type = T;
     using type = integral_constant;
 
     constexpr operator value_type() const noexcept
@@ -57,24 +57,24 @@ struct integral_constant
     }
 };
 
-// std::bool_constant<_Val>
-template <bool _Val>
-using bool_constant = integral_constant<bool, _Val>;
+// std::bool_constant<Val>
+template <bool Val>
+using bool_constant = integral_constant<bool, Val>;
 
 // std::is_same_v
 template<typename, typename>
 inline constexpr bool is_same_v = false;
 
-template<typename _T>
-inline constexpr bool is_same_v<_T, _T> = true;
+template<typename T>
+inline constexpr bool is_same_v<T, T> = true;
 
-// std::is_same<_X, _Y>
-template<typename _X, typename _Y>
-struct is_same : bool_constant<is_same_v<_X, _Y>> {};
+// std::is_same<X, Y>
+template<typename X, typename Y>
+struct is_same : bool_constant<is_same_v<X, Y>> {};
 
-// std::same_as<_X, _Y>
-template<typename _X, typename _Y>
-concept same_as = is_same_v<_X, _Y> && is_same_v<_Y, _X>;
+// std::same_as<X, Y>
+template<typename X, typename Y>
+concept same_as = is_same_v<X, Y> && is_same_v<Y, X>;
 
 // std::true_type
 using true_type = bool_constant<true>;
@@ -84,423 +84,423 @@ using false_type = bool_constant<false>;
 
 
 // std::remove_reference
-template<typename _T>
+template<typename T>
 struct remove_reference
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_reference<_T&>
+template<typename T>
+struct remove_reference<T&>
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_reference<_T&&>
+template<typename T>
+struct remove_reference<T&&>
 {
-    using type = _T;
+    using type = T;
 };
 
-// std::remove_reference_t<_T>
-template<typename _T>
-using remove_reference_t = typename remove_reference<_T>::type;
+// std::remove_reference_t<T>
+template<typename T>
+using remove_reference_t = typename remove_reference<T>::type;
 
-// std::is_lvalue_reference_v<_T>
+// std::is_lvalue_reference_v<T>
 template<typename>
 inline constexpr bool is_lvalue_reference_v = false;
 
-template<typename _T>
-inline constexpr bool is_lvalue_reference_v<_T&> = true;
+template<typename T>
+inline constexpr bool is_lvalue_reference_v<T&> = true;
 
-template<typename _T>
-struct is_lvalue_reference : bool_constant<is_lvalue_reference_v<_T>>
+template<typename T>
+struct is_lvalue_reference : bool_constant<is_lvalue_reference_v<T>>
 {
 };
 
 // std::move
-template<typename _T>
-constexpr [[nodiscard]] remove_reference_t<_T>&& move(_T&& t) noexcept
+template<typename T>
+constexpr [[nodiscard]] remove_reference_t<T>&& move(T&& t) noexcept
 {
-    return static_cast<remove_reference_t<_T>&&>(t);
+    return static_cast<remove_reference_t<T>&&>(t);
 }
 
 // std::forward
-template<typename _T>
-constexpr [[nodiscard]] _T&& forward(remove_reference_t<_T>& t) noexcept
+template<typename T>
+constexpr [[nodiscard]] T&& forward(remove_reference_t<T>& t) noexcept
 {
-    return static_cast<_T&&>(t);
+    return static_cast<T&&>(t);
 }
 
-template <class _T>
-constexpr [[nodiscard]] _T&& forward(remove_reference_t<_T>&& t) noexcept
+template <class T>
+constexpr [[nodiscard]] T&& forward(remove_reference_t<T>&& t) noexcept
 {
-    static_assert(!is_lvalue_reference_v<_T>, "illegal use of std::forward");
-    return static_cast<_T&&>(t);
+    static_assert(!is_lvalue_reference_v<T>, "illegal use of std::forward");
+    return static_cast<T&&>(t);
 }
 
 // std::remove_volatile
-template<typename _T>
+template<typename T>
 struct remove_volatile
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_volatile<volatile _T>
+template<typename T>
+struct remove_volatile<volatile T>
 {
-    using type = _T;
+    using type = T;
 };
 
 // std::remove_volatile_t
-template<typename _T>
-using remove_volatile_t = typename remove_volatile<_T>::type;
+template<typename T>
+using remove_volatile_t = typename remove_volatile<T>::type;
 
 // std::remove_const
-template<typename _T>
+template<typename T>
 struct remove_const
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_const<const _T>
+template<typename T>
+struct remove_const<const T>
 {
-    using type = _T;
+    using type = T;
 };
 
 // std::remove_const_t
-template<typename _T>
-using remove_const_t = typename remove_const<_T>::type;
+template<typename T>
+using remove_const_t = typename remove_const<T>::type;
 
 // std::remove_cv
-template<typename _T>
+template<typename T>
 struct remove_cv
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_cv<const _T>
+template<typename T>
+struct remove_cv<const T>
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_cv<volatile _T>
+template<typename T>
+struct remove_cv<volatile T>
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_cv<const volatile _T>
+template<typename T>
+struct remove_cv<const volatile T>
 {
-    using type = _T;
+    using type = T;
 };
 
 // std::remove_cv_t
-template<typename _T>
-using remove_cv_t = typename remove_cv<_T>::type;
+template<typename T>
+using remove_cv_t = typename remove_cv<T>::type;
 
 // std::is_integral_v
-template<typename _T>
-inline constexpr bool is_integral_v = is_same_v<remove_cv_t<_T>, bool> || is_same_v<remove_cv_t<_T>, char> || is_same_v<remove_cv_t<_T>, signed char>
-    || is_same_v<remove_cv_t<_T>, unsigned char> || is_same_v<remove_cv_t<_T>, short> || is_same_v<remove_cv_t<_T>, unsigned short> || is_same_v<remove_cv_t<_T>, int>
-    || is_same_v<remove_cv_t<_T>, unsigned int> || is_same_v<remove_cv_t<_T>, long> || is_same_v<remove_cv_t<_T>, unsigned long> || is_same_v<remove_cv_t<_T>, long long>
-    || is_same_v<remove_cv_t<_T>, unsigned long long> || is_same_v<remove_cv_t<_T>, wchar_t> || is_same_v<remove_cv_t<_T>, char8_t> || is_same_v<remove_cv_t<_T>, char16_t>
-    || is_same_v<remove_cv_t<_T>, char32_t>;
+template<typename T>
+inline constexpr bool is_integral_v = is_same_v<remove_cv_t<T>, bool> || is_same_v<remove_cv_t<T>, char> || is_same_v<remove_cv_t<T>, signed char>
+    || is_same_v<remove_cv_t<T>, unsigned char> || is_same_v<remove_cv_t<T>, short> || is_same_v<remove_cv_t<T>, unsigned short> || is_same_v<remove_cv_t<T>, int>
+    || is_same_v<remove_cv_t<T>, unsigned int> || is_same_v<remove_cv_t<T>, long> || is_same_v<remove_cv_t<T>, unsigned long> || is_same_v<remove_cv_t<T>, long long>
+    || is_same_v<remove_cv_t<T>, unsigned long long> || is_same_v<remove_cv_t<T>, wchar_t> || is_same_v<remove_cv_t<T>, char8_t> || is_same_v<remove_cv_t<T>, char16_t>
+    || is_same_v<remove_cv_t<T>, char32_t>;
 
-template<typename _T>
-inline constexpr bool is_floating_point_v = is_same_v<remove_cv_t<_T>, float> || is_same_v<remove_cv_t<_T>, double> || is_same_v<remove_cv_t<_T>, long double>;
+template<typename T>
+inline constexpr bool is_floating_point_v = is_same_v<remove_cv_t<T>, float> || is_same_v<remove_cv_t<T>, double> || is_same_v<remove_cv_t<T>, long double>;
 
-template<typename _T>
-inline constexpr bool is_arithmetic_v = is_integral_v<_T> || is_floating_point_v<_T>;
+template<typename T>
+inline constexpr bool is_arithmetic_v = is_integral_v<T> || is_floating_point_v<T>;
 
 // std::remove_pointer
-template<typename _T>
+template<typename T>
 struct remove_pointer
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_pointer<_T*>
+template<typename T>
+struct remove_pointer<T*>
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_pointer<_T* const>
+template<typename T>
+struct remove_pointer<T* const>
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_pointer<_T* volatile>
+template<typename T>
+struct remove_pointer<T* volatile>
 {
-    using type = _T;
+    using type = T;
 };
 
-template<typename _T>
-struct remove_pointer<_T* const volatile>
+template<typename T>
+struct remove_pointer<T* const volatile>
 {
-    using type = _T;
+    using type = T;
 };
 
 // std::remove_pointer_t
-template<typename _T>
-using remove_pointer_t = typename remove_pointer<_T>::type;
+template<typename T>
+using remove_pointer_t = typename remove_pointer<T>::type;
 
 // std::is_array
-template<typename _T>
+template<typename T>
 struct is_array : std::false_type {};
 
-template<typename _T>
-struct is_array<_T[]> : std::true_type {};
+template<typename T>
+struct is_array<T[]> : std::true_type {};
 
-template<typename _T, size_t N>
-struct is_array<_T[N]> : std::true_type {};
+template<typename T, size_t N>
+struct is_array<T[N]> : std::true_type {};
 
 // std::is_array_v
-template<typename _T>
-inline constexpr bool is_array_v = is_array<_T>::value;
+template<typename T>
+inline constexpr bool is_array_v = is_array<T>::value;
 
 // std::is_bounded_array
-template<typename _T>
+template<typename T>
 struct is_bounded_array : std::false_type {};
 
-template<typename _T, size_t N>
-struct is_bounded_array<_T[N]> : std::true_type {};
+template<typename T, size_t N>
+struct is_bounded_array<T[N]> : std::true_type {};
 
 // std::is_bounded_array_v
-template<typename _T>
-inline constexpr bool is_bounded_array_v = is_bounded_array<_T>::value;
+template<typename T>
+inline constexpr bool is_bounded_array_v = is_bounded_array<T>::value;
 
 // std::is_unbounded_array
-template<typename _T>
+template<typename T>
 struct is_unbounded_array : std::false_type {};
 
-template<typename _T>
-struct is_unbounded_array<_T[]> : std::true_type {};
+template<typename T>
+struct is_unbounded_array<T[]> : std::true_type {};
 
 // std::is_unbounded_array_v
-template<typename _T>
-inline constexpr bool is_unbounded_array_v = is_unbounded_array<_T>::value;
+template<typename T>
+inline constexpr bool is_unbounded_array_v = is_unbounded_array<T>::value;
 
 // std::remove_extent
-template <typename _T>
+template <typename T>
 struct remove_extent
 {
-    using type = _T;
+    using type = T;
 };
 
-template <typename _T, size_t N>
-struct remove_extent<_T[N]>
+template <typename T, size_t N>
+struct remove_extent<T[N]>
 {
-    using type = _T;
+    using type = T;
 };
 
-template <typename _T>
-struct remove_extent<_T[]>
+template <typename T>
+struct remove_extent<T[]>
 {
-    using type = _T;
+    using type = T;
 };
 
 // std::remove_extent_t
-template <typename _T>
-using remove_extent_t = typename remove_extent<_T>::type;
+template <typename T>
+using remove_extent_t = typename remove_extent<T>::type;
 
 // std::is_reference
-template<typename _T>
+template<typename T>
 struct is_reference : std::false_type {};
 
-template<typename _T>
-struct is_reference<_T&> : std::true_type {};
+template<typename T>
+struct is_reference<T&> : std::true_type {};
 
-template<typename _T>
-struct is_reference<_T&&> : std::true_type {};
+template<typename T>
+struct is_reference<T&&> : std::true_type {};
 
 // std::is_reference_v
-template<typename _T>
-inline constexpr bool is_reference_v = is_reference<_T>::value;
+template<typename T>
+inline constexpr bool is_reference_v = is_reference<T>::value;
 
 // std::is_const
-template<typename _T>
+template<typename T>
 struct is_const : std::false_type {};
 
-template<typename _T>
-struct is_const<const _T> : std::true_type {};
+template<typename T>
+struct is_const<const T> : std::true_type {};
 
 // std::is_const_v
-template<typename _T>
-inline constexpr bool is_const_v = is_const<_T>::value;
+template<typename T>
+inline constexpr bool is_const_v = is_const<T>::value;
 
 // std::is_function
-template<typename _T>
-struct is_function : std::integral_constant<bool, !std::is_const<const _T>::value && !std::is_reference<_T>::value> {};
+template<typename T>
+struct is_function : std::integral_constant<bool, !std::is_const<const T>::value && !std::is_reference<T>::value> {};
 
 // std::is_function_v
-template<typename _T>
-inline constexpr bool is_function_v = is_function<_T>::value;
+template<typename T>
+inline constexpr bool is_function_v = is_function<T>::value;
 
 // std::is_array
-template<class _T>
+template<class T>
 struct is_array : std::false_type {};
 
-template<class _T>
-struct is_array<_T[]> : std::true_type {};
+template<class T>
+struct is_array<T[]> : std::true_type {};
 
-template<class _T, std::size_t N>
-struct is_array<_T[N]> : std::true_type {};
+template<class T, std::size_t N>
+struct is_array<T[N]> : std::true_type {};
 
-template< class _T >
-inline constexpr bool is_array_v = is_array<_T>::value;
+template< class T >
+inline constexpr bool is_array_v = is_array<T>::value;
 
 // std::is_pointer
-template<typename _T>
+template<typename T>
 struct is_pointer : std::false_type {};
 
-template<typename _T>
-struct is_pointer<_T*> : std::true_type {};
+template<typename T>
+struct is_pointer<T*> : std::true_type {};
 
-template<typename _T>
-struct is_pointer<_T* const> : std::true_type {};
+template<typename T>
+struct is_pointer<T* const> : std::true_type {};
 
-template<typename _T>
-struct is_pointer<_T* volatile> : std::true_type {};
+template<typename T>
+struct is_pointer<T* volatile> : std::true_type {};
 
-template<typename _T>
-struct is_pointer<_T* const volatile> : std::true_type {};
+template<typename T>
+struct is_pointer<T* const volatile> : std::true_type {};
 
 // std::is_pointer_v
-template<typename _T>
-inline constexpr bool is_pointer_v = is_pointer<_T>::value;
+template<typename T>
+inline constexpr bool is_pointer_v = is_pointer<T>::value;
 
 // std::is_member_pointer
-template<typename _T>
+template<typename T>
 struct is_member_pointer_helper : std::false_type {};
 
-template<typename _T, typename _U>
-struct is_member_pointer_helper<_T _U::*> : std::true_type {};
+template<typename T, typename U>
+struct is_member_pointer_helper<T U::*> : std::true_type {};
 
-template<typename _T>
-struct is_member_pointer : is_member_pointer_helper<std::remove_cv_t<_T>> {};
+template<typename T>
+struct is_member_pointer : is_member_pointer_helper<std::remove_cv_t<T>> {};
 
 // std::is_member_pointer_v
-template<typename _T>
-inline constexpr bool is_member_pointer_v = is_member_pointer<_T>::value;
+template<typename T>
+inline constexpr bool is_member_pointer_v = is_member_pointer<T>::value;
 
 // std::is_member_function_pointer
-template<typename _T>
+template<typename T>
 struct is_member_function_pointer_helper : std::false_type {};
 
-template<typename _T, typename _U>
-struct is_member_function_pointer_helper<_T _U::*> : std::is_function<_T> {};
+template<typename T, typename U>
+struct is_member_function_pointer_helper<T U::*> : std::is_function<T> {};
 
-template<typename _T>
-struct is_member_function_pointer : is_member_function_pointer_helper<std::remove_cv_t<_T>> {};
+template<typename T>
+struct is_member_function_pointer : is_member_function_pointer_helper<std::remove_cv_t<T>> {};
 
 // std::is_member_function_pointer_v
-template<typename _T>
-inline constexpr bool is_member_function_pointer_v = is_member_function_pointer<_T>::value;
+template<typename T>
+inline constexpr bool is_member_function_pointer_v = is_member_function_pointer<T>::value;
 
 // std::is_enum
-template<typename _T>
-struct is_enum : bool_constant<__is_enum(_T)> {};
+template<typename T>
+struct is_enum : bool_constant<__is_enum(T)> {};
 
 // std::is_enum_v
-template<typename _T>
-inline constexpr bool is_enum_v = __is_enum(_T);
+template<typename T>
+inline constexpr bool is_enum_v = __is_enum(T);
 
 // std::is_base_of
-template<typename _Base, typename _Derived>
-struct is_base_of : bool_constant<__is_base_of(_Base, _Derived)> {};
+template<typename Base, typename Derived>
+struct is_base_of : bool_constant<__is_base_of(Base, Derived)> {};
 
 // std::is_base_of_v
-template<typename _Base, typename _Derived>
-inline constexpr bool is_base_of_v = __is_base_of(_Base, _Derived);
+template<typename Base, typename Derived>
+inline constexpr bool is_base_of_v = __is_base_of(Base, Derived);
 
 // std::is_union
-template<typename _T>
-struct is_union : bool_constant<__is_union(_T)> {};
+template<typename T>
+struct is_union : bool_constant<__is_union(T)> {};
 
 // std::is_union_v
-template<typename _T>
-inline constexpr bool is_union_v = __is_union(_T);
+template<typename T>
+inline constexpr bool is_union_v = __is_union(T);
 
 // std::is_class
-template<typename _T>
-struct is_class : bool_constant<__is_class(_T)> {};
+template<typename T>
+struct is_class : bool_constant<__is_class(T)> {};
 
 // std::is_class_v
-template<typename _T>
-inline constexpr bool is_class_v = __is_class(_T);
+template<typename T>
+inline constexpr bool is_class_v = __is_class(T);
 
 // std::conditional
-template<bool _B, typename _T, typename _F>
-struct conditional { using type = _T; };
+template<bool B, typename T, typename F>
+struct conditional { using type = T; };
 
-template<typename _T, typename _F>
-struct conditional<false, _T, _F>
+template<typename T, typename F>
+struct conditional<false, T, F>
 {
-    using type = _F;
+    using type = F;
 };
 
 // std::conditional_t
-template<bool _B, class _T, class _F>
-using conditional_t = typename conditional<_B, _T, _F>::type;
+template<bool B, class T, class F>
+using conditional_t = typename conditional<B, T, F>::type;
 
 // std::underlying_type
-template<typename _T, bool = is_enum_v<_T>>
+template<typename T, bool = is_enum_v<T>>
 struct underlying_type
 {
-    using type = __underlying_type(_T);
+    using type = __underlying_type(T);
 };
 
-template<typename _T>
-struct underlying_type<_T, false> {};
+template<typename T>
+struct underlying_type<T, false> {};
 
 // std::underlying_type_t
-template<typename _T>
-using underlying_type_t = typename underlying_type<_T>::type;
+template<typename T>
+using underlying_type_t = typename underlying_type<T>::type;
 
 // std::is_trivially_copyable
-template<typename _T>
-struct is_trivially_copyable : bool_constant<__is_trivially_copyable(_T)> {};
+template<typename T>
+struct is_trivially_copyable : bool_constant<__is_trivially_copyable(T)> {};
 
 // std::is_trivially_copyable_v
-template<typename _T>
-inline constexpr bool is_trivially_copyable_v = __is_trivially_copyable(_T);
+template<typename T>
+inline constexpr bool is_trivially_copyable_v = __is_trivially_copyable(T);
 
 // std::is_trivial
-template<typename _T>
-struct is_trivial : bool_constant<__is_trivially_constructible(_T) && __is_trivially_copyable(_T)> {};
+template<typename T>
+struct is_trivial : bool_constant<__is_trivially_constructible(T) && __is_trivially_copyable(T)> {};
 
 // std::is_trivial_v
-template<typename _T>
-inline constexpr bool is_trivial_v = __is_trivially_constructible(_T) && __is_trivially_copyable(_T);
+template<typename T>
+inline constexpr bool is_trivial_v = __is_trivially_constructible(T) && __is_trivially_copyable(T);
 
 // std::size
-template <typename _T, size_t N>
-size_t size(_T(&)[N])
+template <typename T, size_t N>
+size_t size(T(&)[N])
 {
     return N;
 }
 
-template <bool _Test, class _T1, class _T2>
+template <bool Test, class T1, class T2>
 struct conditional
 {
-    using type = _T1;
+    using type = T1;
 };
 
-template <class _T1, class _T2>
-struct conditional<false, _T1, _T2>
+template <class T1, class T2>
+struct conditional<false, T1, T2>
 {
-    using type = _T2;
+    using type = T2;
 };
 
-template<bool _Test, class _T1, class _T2>
-using conditional_t = typename conditional<_Test, _T1, _T2>::type;
+template<bool Test, class T1, class T2>
+using conditional_t = typename conditional<Test, T1, T2>::type;
 
 enum class endian
 {
@@ -516,53 +516,53 @@ enum class endian
 };
 
 // std::is_convertible
-template<typename _From, typename _To>
-struct is_convertible : bool_constant<__is_convertible_to(_From, _To)>
+template<typename From, typename To>
+struct is_convertible : bool_constant<__is_convertible_to(From, To)>
 {
 };
 
 // std::is_convertible_v
-template<typename _From, typename _To>
-inline constexpr bool is_convertible_v = __is_convertible_to(_From, _To);
+template<typename From, typename To>
+inline constexpr bool is_convertible_v = __is_convertible_to(From, To);
 
 // std::is_empty
-template<typename _T>
-struct is_empty : bool_constant<__is_empty(_T)> {};
+template<typename T>
+struct is_empty : bool_constant<__is_empty(T)> {};
 
 // std::is_empty_v
-template<typename _T>
-inline constexpr bool is_empty_v = __is_empty(_T);
+template<typename T>
+inline constexpr bool is_empty_v = __is_empty(T);
 
 // std::is_final
-template<typename _T>
-struct is_final : bool_constant<__is_final(_T)> {};
+template<typename T>
+struct is_final : bool_constant<__is_final(T)> {};
 
 // std::is_final_v
-template<typename _T>
-inline constexpr bool is_final_v = __is_final(_T);
+template<typename T>
+inline constexpr bool is_final_v = __is_final(T);
 
 // std::has_virtual_destructor
-template<typename _T>
-struct has_virtual_destructor : bool_constant<__has_virtual_destructor(_T)>
+template<typename T>
+struct has_virtual_destructor : bool_constant<__has_virtual_destructor(T)>
 {
 };
 
 // std::has_virtual_destructor_v
-template<typename _T>
-inline constexpr bool has_virtual_destructor_v = __has_virtual_destructor(_T);
+template<typename T>
+inline constexpr bool has_virtual_destructor_v = __has_virtual_destructor(T);
 
 // std::destroying_delete_t
 struct destroying_delete_t {};
 
 // std::is_constructible
-template<typename _T, typename... Ts>
-struct is_constructible : bool_constant<__is_constructible(_T, Ts...)> 
+template<typename T, typename... Ts>
+struct is_constructible : bool_constant<__is_constructible(T, Ts...)> 
 {
 };
 
 // std::is_constructible_v
-template<typename _T, typename... Ts>
-inline constexpr bool is_constructible_v = __is_constructible(_T, Ts...);
+template<typename T, typename... Ts>
+inline constexpr bool is_constructible_v = __is_constructible(T, Ts...);
 
 } // namespace std
 

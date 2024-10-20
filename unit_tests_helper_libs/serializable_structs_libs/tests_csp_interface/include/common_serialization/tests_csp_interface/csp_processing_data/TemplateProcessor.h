@@ -31,18 +31,18 @@
 namespace common_serialization::csp::processing::data
 {
 
-template<typename _T>
-class TemplateProcessor<tests_csp_interface::BigStructs<_T>, _T>
+template<typename T>
+class TemplateProcessor<tests_csp_interface::BigStructs<T>, T>
 {
 public:
-    static Status serialize(const tests_csp_interface::BigStructs<_T>& value, context::SData& ctx)
+    static Status serialize(const tests_csp_interface::BigStructs<T>& value, context::SData& ctx)
     {
         AGS_CS_RUN(BodyProcessor::serialize(value.m_vector, ctx));
 
         return Status::NoError;
     }
 
-    static Status deserialize(context::DData& ctx, tests_csp_interface::BigStructs<_T>& value)
+    static Status deserialize(context::DData& ctx, tests_csp_interface::BigStructs<T>& value)
     {
         AGS_CS_RUN(BodyProcessor::deserialize(ctx, value.m_vector));
 

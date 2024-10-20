@@ -33,16 +33,16 @@ namespace common_serialization::csp::messaging
 {
 
 /// @brief Interface of concrete CSP Data handlers
-template<IServerDataHandlerTraitsImpl _T>
+template<IServerDataHandlerTraitsImpl T>
 class IServerDataHandler : public IServerDataHandlerBase
 {
 public:
-    using InputType = typename _T::InputType;
-    using OutputType = typename _T::OutputType;
+    using InputType = typename T::InputType;
+    using OutputType = typename T::OutputType;
 
-    static constexpr bool kForTempUseHeap = _T::kForTempUseHeap;
-    static constexpr bool kMulticast = _T::kMulticast;
-    static constexpr interface_version_t kMinimumInterfaceVersion  = _T::kMinimumInterfaceVersion;
+    static constexpr bool kForTempUseHeap = T::kForTempUseHeap;
+    static constexpr bool kMulticast = T::kMulticast;
+    static constexpr interface_version_t kMinimumInterfaceVersion  = T::kMinimumInterfaceVersion;
     
     /// @brief This method must be overriden in concrete class.
     /// @details It receives deserialized input data and returns output data
@@ -78,32 +78,32 @@ private:
     AGS_CS_ALWAYS_INLINE Status handleDataMain(InputType& input, context::DData& ctx, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput);
 };
 
-template<IServerDataHandlerTraitsImpl _T>
-Status IServerDataHandler<_T>::checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId)
+template<IServerDataHandlerTraitsImpl T>
+Status IServerDataHandler<T>::checkPoliciesCompliance(const InputType* input, const context::DData& ctx, const GenericPointerKeeperT& clientId)
 {
     return Status::NoError;
 }
 
-template<IServerDataHandlerTraitsImpl _T>
-AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::registerHandler(IServerDataHandlerRegistrar& handlerRegistrar, void* pService)
+template<IServerDataHandlerTraitsImpl T>
+AGS_CS_ALWAYS_INLINE Status IServerDataHandler<T>::registerHandler(IServerDataHandlerRegistrar& handlerRegistrar, void* pService)
 {
     return handlerRegistrar.registerHandler(InputType::getId(), kMulticast, pService, *this);
 }
 
-template<IServerDataHandlerTraitsImpl _T>
-AGS_CS_ALWAYS_INLINE void IServerDataHandler<_T>::unregisterHandler(IServerDataHandlerRegistrar& handlerRegistrar)
+template<IServerDataHandlerTraitsImpl T>
+AGS_CS_ALWAYS_INLINE void IServerDataHandler<T>::unregisterHandler(IServerDataHandlerRegistrar& handlerRegistrar)
 {
     handlerRegistrar.unregisterHandler(InputType::getId(), *this);
 }
 
-template<IServerDataHandlerTraitsImpl _T>
-interface_version_t IServerDataHandler<_T>::getMinimumInterfaceVersion()
+template<IServerDataHandlerTraitsImpl T>
+interface_version_t IServerDataHandler<T>::getMinimumInterfaceVersion()
 {
     return kMinimumInterfaceVersion;
 }
 
-template<IServerDataHandlerTraitsImpl _T>
-Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
+template<IServerDataHandlerTraitsImpl T>
+Status IServerDataHandler<T>::handleDataCommon(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
 {
     AGS_CS_RUN(this->checkPoliciesCompliance(static_cast<const InputType*>(nullptr), ctx, clientId));
 
@@ -128,8 +128,8 @@ Status IServerDataHandler<_T>::handleDataCommon(context::DData& ctx, const Gener
         return handleDataOnStack(ctx, clientId, binOutput);
 }
 
-template<IServerDataHandlerTraitsImpl _T>
-AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
+template<IServerDataHandlerTraitsImpl T>
+AGS_CS_ALWAYS_INLINE Status IServerDataHandler<T>::handleDataOnStack(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
 {
     InputType input;
     OutputType output;
@@ -137,8 +137,8 @@ AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnStack(context::D
     return handleDataMain(input, ctx, clientId, output, binOutput);
 }
 
-template<IServerDataHandlerTraitsImpl _T>
-AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
+template<IServerDataHandlerTraitsImpl T>
+AGS_CS_ALWAYS_INLINE Status IServerDataHandler<T>::handleDataOnHeap(context::DData& ctx, const GenericPointerKeeperT& clientId, BinVectorT& binOutput)
 {
     GenericPointerKeeperT input;
     if (!input.allocateAndConstructOne<InputType>())
@@ -156,8 +156,8 @@ AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataOnHeap(context::DD
     }
 }
 
-template<IServerDataHandlerTraitsImpl _T>
-AGS_CS_ALWAYS_INLINE Status IServerDataHandler<_T>::handleDataMain(InputType& input, context::DData& ctxIn, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput)
+template<IServerDataHandlerTraitsImpl T>
+AGS_CS_ALWAYS_INLINE Status IServerDataHandler<T>::handleDataMain(InputType& input, context::DData& ctxIn, const GenericPointerKeeperT& clientId, OutputType& output, BinVectorT& binOutput)
 {
     AGS_CS_RUN(processing::data::BodyProcessor::deserialize(ctxIn, input));
     

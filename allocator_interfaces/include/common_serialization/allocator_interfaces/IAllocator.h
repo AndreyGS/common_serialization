@@ -28,13 +28,13 @@ namespace common_serialization
 {
 
 /// @brief Interface of Allocator
-/// @tparam _AllocatorTraits Allocator traits
-/// @tparam _Allocator Most derived class (instance type)
-template<IAllocatorTraitsImpl _AllocatorTraits, typename _Allocator>
+/// @tparam AllocatorTraits Allocator traits
+/// @tparam Allocator Most derived class (instance type)
+template<IAllocatorTraitsImpl AllocatorTraits, typename Allocator>
 class IAllocator
 {
 public:
-    using allocator_traits = _AllocatorTraits;
+    using allocator_traits = AllocatorTraits;
     using value_type = typename allocator_traits::value_type;
     using pointer = typename allocator_traits::pointer;
     using size_type = typename allocator_traits::size_type;
@@ -42,18 +42,18 @@ public:
     using constructor_allocator = typename allocator_traits::constructor_allocator;
 
     /// @brief Allocate storage with bytes_size = n*sizeof(value_type)
-    /// @param n Number of elements of type _T that storage must be capable to hold
+    /// @param n Number of elements of type T that storage must be capable to hold
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] pointer allocate(size_type n) const noexcept
     {
-        return static_cast<const _Allocator*>(this)->allocateImpl(n);
+        return static_cast<const Allocator*>(this)->allocateImpl(n);
     }
 
     /// @brief Frees storage pointed by p
     /// @param p Pointer to memory that shall be freed
     AGS_CS_ALWAYS_INLINE constexpr void deallocate(pointer p) const noexcept
     {
-        return static_cast<const _Allocator*>(this)->deallocateImpl(p);
+        return static_cast<const Allocator*>(this)->deallocateImpl(p);
     }
 
     /// @brief Frees storage pointed by p
@@ -62,7 +62,7 @@ public:
     /// @param n Size of storage (not used)
     AGS_CS_ALWAYS_INLINE constexpr void deallocate(pointer p, size_type n) const noexcept
     {
-        return static_cast<const _Allocator*>(this)->deallocateImpl(p, n);
+        return static_cast<const Allocator*>(this)->deallocateImpl(p, n);
     }
 
     /// @brief Call ctor with args on memory pointed by p
@@ -71,28 +71,28 @@ public:
     /// @param p Pointer to memory where object shall be created
     /// @param ...args Parameters that go to ctor
     /// @return Status of operation
-    template<typename... _Args>
-    AGS_CS_ALWAYS_INLINE constexpr Status construct(pointer p, _Args&&... args) const noexcept
+    template<typename... Args>
+    AGS_CS_ALWAYS_INLINE constexpr Status construct(pointer p, Args&&... args) const noexcept
     {
-        return static_cast<const _Allocator*>(this)->constructImpl(p, std::forward<_Args>(args)...);
+        return static_cast<const Allocator*>(this)->constructImpl(p, std::forward<Args>(args)...);
     }
 
     /// @brief Call destructor on object pointed by p
     /// @param p Pointer to object that shall be destroyed
     AGS_CS_ALWAYS_INLINE constexpr void destroy(pointer p) const noexcept
     {
-        return static_cast<const _Allocator*>(this)->destroyImpl(p);
+        return static_cast<const Allocator*>(this)->destroyImpl(p);
     }
 
     /// @brief Get maximum number of objects of value_type that allocator can allocate
     /// @return Maximum number of objects
     AGS_CS_ALWAYS_INLINE constexpr size_type max_size() const noexcept
     {
-        return static_cast<const _Allocator*>(this)->max_size_impl();
+        return static_cast<const Allocator*>(this)->max_size_impl();
     }
 };
 
-template<typename _T>
-concept IAllocatorImpl = std::is_base_of_v<IAllocator<typename _T::allocator_traits, normalize_t<_T>>, normalize_t<_T>>;
+template<typename T>
+concept IAllocatorImpl = std::is_base_of_v<IAllocator<typename T::allocator_traits, normalize_t<T>>, normalize_t<T>>;
 
 } // namespace common_serialization

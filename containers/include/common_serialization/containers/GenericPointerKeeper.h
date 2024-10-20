@@ -79,6 +79,8 @@ public:
         rhs.m_p = nullptr;
         rhs.m_size = 0;
         rhs.m_destroyAndDeallocate = nullptr;
+
+        return *this;
     }
 
     ~GenericPointerKeeper()
@@ -94,35 +96,35 @@ public:
     /// @param ...args Parameters that go to ctor of every element
     /// @return Pointer to allocated storage, nullptr if there is not enough memory
     ///     or if object construction process return error.
-    template<IAllocationManagerImpl _AllocationManager, typename... _Args>
-    _AllocationManager::pointer allocateAndConstruct(size_t n, _Args&&... args)
+    template<IAllocationManagerImpl AllocationManager, typename... Args>
+    typename AllocationManager::pointer allocateAndConstruct(size_t n, Args&&... args)
     {
         if (m_p)
             destroyAndDeallocate();
 
-        using pointer = typename _AllocationManager::pointer;
+        using pointer = typename AllocationManager::pointer;
 
-        _AllocationManager AllocationManager{};
+        AllocationManager allocationManager{};
 
-        if (n > AllocationManager.getAllocator().max_size())
+        if (n > allocationManager.getAllocator().max_size())
             return nullptr;
 
         size_t allocatedN{ 0 };
-        pointer p = AllocationManager.allocateAndConstruct(n, &allocatedN, std::forward<_Args>(args)...);
+        pointer p = allocationManager.allocateAndConstruct(n, &allocatedN, std::forward<Args>(args)...);
         if (p)
         {
             m_p = p;
             m_size = allocatedN;
-            m_destroyAndDeallocate = reinterpret_cast<DestroyAndDeallocateFunc>(&destroyAndDeallocateHelper<_AllocationManager>);
+            m_destroyAndDeallocate = reinterpret_cast<DestroyAndDeallocateFunc>(&destroyAndDeallocateHelper<AllocationManager>);
         }
 
         return p;
     }
 
-    template<typename _T, typename... _Args>
-    _T* allocateAndConstructOne(_Args&&... args)
+    template<typename T, typename... Args>
+    T* allocateAndConstructOne(Args&&... args)
     {
-        return allocateAndConstruct<CtorGenAllocationManagerT<_T>, _Args...>(1, std::forward<_Args>(args)...);
+        return allocateAndConstruct<CtorGenAllocationManagerT<T>, Args...>(1, std::forward<Args>(args)...);
     }
 
     /// @brief Destroys holding objects 
@@ -138,12 +140,12 @@ public:
     }
 
     /// @brief Get stored pointer
-    /// @tparam _T Type on which pointer points
+    /// @tparam T Type on which pointer points
     /// @return Stored pointer
-    template<typename _T>
-    constexpr [[nodiscard]] _T* get()
+    template<typename T>
+    constexpr [[nodiscard]] T* get()
     {
-        return static_cast<_T*>(m_p);
+        return static_cast<T*>(m_p);
     }
 
     /// @brief Get allocated size in items
@@ -161,22 +163,22 @@ public:
     }
 
     /// @brief Relese stored pointer ownership
-    /// @tparam _T Type on which pointer points
+    /// @tparam T Type on which pointer points
     /// @return Released pointer
-    template<typename _T>
-    constexpr _T* release()
+    template<typename T>
+    constexpr T* release()
     {
-        _T* p = static_cast<_T*>(m_p);
+        T* p = static_cast<T*>(m_p);
         m_p = nullptr;
         m_size = 0;
         m_destroyAndDeallocate = nullptr;
         return p;
     }
 
-    template<IAllocationManagerImpl _AllocationManager>
-    static void destroyAndDeallocateHelper(typename _AllocationManager::pointer p, size_t n)
+    template<IAllocationManagerImpl AllocationManager>
+    static void destroyAndDeallocateHelper(typename AllocationManager::pointer p, size_t n)
     {
-        _AllocationManager().destroyAndDeallocate(p, n);
+        AllocationManager().destroyAndDeallocate(p, n);
     }
 
 private:

@@ -30,60 +30,60 @@ namespace common_serialization::csp::messaging
 
 /// @brief traits_ of CSP Server data handler
 template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , bool _forTempUseHeap
-    , bool _multicast
-    , interface_version_t _minimumInterfaceVersion
+      ISerializableImpl InputType_
+    , ISerializableImpl OutputType_
+    , bool forTempUseHeap_
+    , bool multicast_
+    , interface_version_t minimumInterfaceVersion_
 >
 struct IServerDataHandlerTraits
 {
-    using InputType = _InputType;
-    using OutputType = _OutputType;
+    using InputType = InputType_;
+    using OutputType = OutputType_;
 
-    static constexpr bool kForTempUseHeap = _forTempUseHeap;
-    static constexpr bool kMulticast = _multicast;
-    static constexpr interface_version_t kMinimumInterfaceVersion = _minimumInterfaceVersion;
+    static constexpr bool kForTempUseHeap = forTempUseHeap_;
+    static constexpr bool kMulticast = multicast_;
+    static constexpr interface_version_t kMinimumInterfaceVersion = minimumInterfaceVersion_;
 };
 
-template<typename _T>
-concept IServerDataHandlerTraitsImpl = std::is_base_of_v<IServerDataHandlerTraits<typename _T::InputType, typename _T::OutputType, _T::kForTempUseHeap, _T::kMulticast, _T::kMinimumInterfaceVersion>, normalize_t<_T>>;
+template<typename T>
+concept IServerDataHandlerTraitsImpl = std::is_base_of_v<IServerDataHandlerTraits<typename T::InputType, typename T::OutputType, T::kForTempUseHeap, T::kMulticast, T::kMinimumInterfaceVersion>, normalize_t<T>>;
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
+template<ISerializableImpl InputType, ISerializableImpl OutputType>
 struct MinimumInterfaceVersion
 {
     static constexpr interface_version_t value
-        = _InputType::getOriginPrivateVersion() < _OutputType::getOriginPrivateVersion()
-            ? _InputType::getOriginPrivateVersion()
-            : _OutputType::getOriginPrivateVersion();
+        = InputType::getOriginPrivateVersion() < OutputType::getOriginPrivateVersion()
+            ? InputType::getOriginPrivateVersion()
+            : OutputType::getOriginPrivateVersion();
 };
 
 template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
+      ISerializableImpl InputType
+    , ISerializableImpl OutputType
+    , interface_version_t minimumInterfaceVersion = MinimumInterfaceVersion< InputType, OutputType>::value
 >
-using ServerStackHandler = IServerDataHandlerTraits<_InputType, _OutputType, false, false, _minimumInterfaceVersion>;
+using ServerStackHandler = IServerDataHandlerTraits<InputType, OutputType, false, false, minimumInterfaceVersion>;
 
 template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
+      ISerializableImpl InputType
+    , ISerializableImpl OutputType
+    , interface_version_t minimumInterfaceVersion = MinimumInterfaceVersion< InputType, OutputType>::value
 >
-using ServerStackMultiHandler = IServerDataHandlerTraits<_InputType, _OutputType, false, true, _minimumInterfaceVersion>;
+using ServerStackMultiHandler = IServerDataHandlerTraits<InputType, OutputType, false, true, minimumInterfaceVersion>;
 
 template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
+      ISerializableImpl InputType
+    , ISerializableImpl OutputType
+    , interface_version_t minimumInterfaceVersion = MinimumInterfaceVersion< InputType, OutputType>::value
 >
-using ServerHeapHandler = IServerDataHandlerTraits<_InputType, _OutputType, true, false, _minimumInterfaceVersion>;
+using ServerHeapHandler = IServerDataHandlerTraits<InputType, OutputType, true, false, minimumInterfaceVersion>;
 
 template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , interface_version_t _minimumInterfaceVersion = MinimumInterfaceVersion< _InputType, _OutputType>::value
+      ISerializableImpl InputType
+    , ISerializableImpl OutputType
+    , interface_version_t minimumInterfaceVersion = MinimumInterfaceVersion< InputType, OutputType>::value
 >
-using ServerHeapMultiHandler = IServerDataHandlerTraits<_InputType, _OutputType, true, true, _minimumInterfaceVersion>;
+using ServerHeapMultiHandler = IServerDataHandlerTraits<InputType, OutputType, true, true, minimumInterfaceVersion>;
 
 } // namespace common_serialization::csp::messaging

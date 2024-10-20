@@ -29,19 +29,19 @@ namespace common_serialization
 {
     
 /// @brief Simple RAII guard for shared or unique lockable type
-/// @tparam _T Lockable
-template<IExclusiveLockableImpl _T, bool exclusive = true>
+/// @tparam T Lockable
+template<IExclusiveLockableImpl T, bool exclusive = true>
 class Guard
 {
 public:
     // For some reason I've got compiler internal error 
-    // when using requires clause with (exclusive || ISharedLockableImpl<_T>)
-    static_assert(exclusive || ISharedLockableImpl<_T>);
+    // when using requires clause with (exclusive || ISharedLockableImpl<T>)
+    static_assert(exclusive || ISharedLockableImpl<T>);
 
     /// @brief Init ctor
     /// @param lockable Lockable
     /// @param deferred Should be locked later
-    explicit Guard(_T& lockable, bool deferred = false)
+    explicit Guard(T& lockable, bool deferred = false)
         : m_lockable(lockable), m_locked(false)
     {
         if (!deferred)
@@ -85,14 +85,14 @@ public:
     }
 
 private:
-    _T& m_lockable;
+    T& m_lockable;
     bool m_locked{ false };
 };
 
-template<ISharedLockableImpl _T>
-using RGuard = Guard<_T, false>;
+template<ISharedLockableImpl T>
+using RGuard = Guard<T, false>;
 
-template<IExclusiveLockableImpl _T>
-using WGuard = Guard<_T, true>;
+template<IExclusiveLockableImpl T>
+using WGuard = Guard<T, true>;
 
 } // namespace common_serialization

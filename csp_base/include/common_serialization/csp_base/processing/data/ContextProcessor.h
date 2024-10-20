@@ -29,42 +29,42 @@
 namespace common_serialization::csp::processing::data
 {
 
-template<typename _T>
+template<typename T>
 concept StructHaveDataFlags = requires
 {
-    { _T::getEffectiveMandatoryDataFlags() } -> std::same_as<context::DataFlags>;
-    { _T::getEffectiveForbiddenDataFlags() } -> std::same_as<context::DataFlags>;
+    { T::getEffectiveMandatoryDataFlags() } -> std::same_as<context::DataFlags>;
+    { T::getEffectiveForbiddenDataFlags() } -> std::same_as<context::DataFlags>;
 };
 
 class ContextProcessor
 {
 public:
-    template<typename _T>
+    template<typename T>
     static AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] Status testDataFlagsCompatibility(context::DataFlags dataFlags);
 
     // This function does not check presence of pointer map.
     // It is library code responsibility to provide it if it is absent.
-    template<ISerializableImpl _T>
+    template<ISerializableImpl T>
     static constexpr Status serialize(context::SData& ctx);
-    template<ISerializableImpl _T>
+    template<ISerializableImpl T>
     static constexpr Status serializeNoChecks(context::SData& ctx);
 
     static constexpr Status deserializeNoChecks(context::DData& ctx, Id& id) noexcept;
-    template<ISerializableImpl _T>
+    template<ISerializableImpl T>
     static AGS_CS_ALWAYS_INLINE constexpr Status deserializePostprocessId(const Id& id) noexcept;
-    template<ISerializableImpl _T>
+    template<ISerializableImpl T>
     static constexpr Status deserializePostprocessRest(context::DData& ctx, interface_version_t minimumSupportedInterfaceVersion) noexcept;
 };
 
-template<typename _T>
+template<typename T>
 constexpr Status ContextProcessor::testDataFlagsCompatibility(context::DataFlags dataFlags)
 {
-    if constexpr (!StructHaveDataFlags<_T>)
+    if constexpr (!StructHaveDataFlags<T>)
         return Status::NoError;
     else
     {
-        constexpr context::DataFlags effectiveMandatoryDataFlags = _T::getEffectiveMandatoryDataFlags();
-        constexpr context::DataFlags forbiddenDataFlags = _T::getEffectiveForbiddenDataFlags() | context::DataFlags::kForbiddenFlagsMask;
+        constexpr context::DataFlags effectiveMandatoryDataFlags = T::getEffectiveMandatoryDataFlags();
+        constexpr context::DataFlags forbiddenDataFlags = T::getEffectiveForbiddenDataFlags() | context::DataFlags::kForbiddenFlagsMask;
 
         return !(dataFlags & forbiddenDataFlags) && (dataFlags & effectiveMandatoryDataFlags) == effectiveMandatoryDataFlags
             ? Status::NoError
@@ -74,22 +74,22 @@ constexpr Status ContextProcessor::testDataFlagsCompatibility(context::DataFlags
 
 // This function does not check presence of pointer map.
 // It is library code responsibility to provide it if it's absent.
-template<ISerializableImpl _T>
+template<ISerializableImpl T>
 constexpr Status ContextProcessor::serialize(context::SData& ctx)
 {
-    Id id = _T::getId();
+    Id id = T::getId();
 
     AGS_CS_RUN(writeRawData(&id, 1, ctx));
 
-    constexpr interface_version_t interfaceVersion = _T::getInterface().m_version;
+    constexpr interface_version_t interfaceVersion = T::getInterface().m_version;
 
-    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), _T::getOriginPrivateVersion(), interfaceVersion))
+    if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), T::getOriginPrivateVersion(), interfaceVersion))
         return Status::ErrorNotSupportedInterfaceVersion;
 
     AGS_CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx));
 
     // Only set interface versions not match when some conversion will be need
-    if (ctx.getInterfaceVersion() < _T::getLatestInterfaceVersion())
+    if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
     
     if (ctx.checkRecursivePointers() && !ctx.allowUnmanagedPointers())
@@ -97,23 +97,23 @@ constexpr Status ContextProcessor::serialize(context::SData& ctx)
 
     context::DataFlags dataFlags = ctx.getDataFlags();
 
-    AGS_CS_RUN(testDataFlagsCompatibility<_T>(dataFlags));
+    AGS_CS_RUN(testDataFlagsCompatibility<T>(dataFlags));
 
     AGS_CS_RUN(writePrimitive(static_cast<uint32_t>(dataFlags), ctx));
 
     return Status::NoError;
 }
 
-template<ISerializableImpl _T>
+template<ISerializableImpl T>
 constexpr Status ContextProcessor::serializeNoChecks(context::SData& ctx)
 {
-    Id id = _T::getId();
+    Id id = T::getId();
 
     AGS_CS_RUN(writeRawData(&id, 1, ctx));
     AGS_CS_RUN(writePrimitive(ctx.getInterfaceVersion(), ctx));
 
     // Only set interface versions not match when some conversion will be need
-    if (ctx.getInterfaceVersion() < _T::getLatestInterfaceVersion())
+    if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
     AGS_CS_RUN(writePrimitive(static_cast<uint32_t>(ctx.getDataFlags()), ctx));
@@ -137,29 +137,29 @@ constexpr Status ContextProcessor::deserializeNoChecks(context::DData& ctx, Id& 
     return Status::NoError;
 }
 
-template<ISerializableImpl _T>
+template<ISerializableImpl T>
 constexpr Status ContextProcessor::deserializePostprocessId(const Id& id) noexcept
 {
-    Id tUuid = _T::getId();
+    Id tUuid = T::getId();
     return tUuid == id ? Status::NoError : Status::ErrorMismatchOfStructId;
 }
 
 // This function does not check presence of pointer map.
 // It is library code responsibility to provide it if it's absent.
-template<ISerializableImpl _T>
+template<ISerializableImpl T>
 constexpr Status ContextProcessor::deserializePostprocessRest(context::DData& ctx, interface_version_t minimumSupportedInterfaceVersion) noexcept
 {
-    constexpr interface_version_t interfaceVersion = _T::getInterface().m_version;
+    constexpr interface_version_t interfaceVersion = T::getInterface().m_version;
 
     // minimumSupportedInterfaceVersion should be getOriginPrivateVersion value by default
     // however for some special cases you may override it by
     // value that is higher than minimum defined in interface version
     if (!traits::isInterfaceVersionSupported(ctx.getInterfaceVersion(), minimumSupportedInterfaceVersion, interfaceVersion))
         return Status::ErrorNotSupportedInterfaceVersion;
-    else if (ctx.getInterfaceVersion() < _T::getLatestInterfaceVersion())
+    else if (ctx.getInterfaceVersion() < T::getLatestInterfaceVersion())
         ctx.setInterfaceVersionsNotMatch(true);
 
-    AGS_CS_RUN(testDataFlagsCompatibility<_T>(ctx.getDataFlags()));
+    AGS_CS_RUN(testDataFlagsCompatibility<T>(ctx.getDataFlags()));
 
     if (ctx.allowUnmanagedPointers() && ctx.getAddedPointers() == nullptr)
         return Status::ErrorInvalidArgument;

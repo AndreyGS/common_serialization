@@ -30,7 +30,7 @@
 namespace common_serialization::csp::processing::data
 {
 
-template<typename _T, typename... _Ts>
+template<typename T, typename... Ts>
 class TemplateProcessor;
 
 }
@@ -300,21 +300,21 @@ constexpr typename VectorIterator<Vec>::pointer VectorIterator<Vec>::getPointer(
 }
 
 /// @brief Container of elements stored contiguously
-/// @tparam _T Type of elements
-/// @tparam _AllocationManager Allocator Helper using for storage management
+/// @tparam T Type of elements
+/// @tparam AllocationManager Allocator Helper using for storage management
 ///     and objects creation/deletion
-template<typename _T, IAllocationManagerImpl _AllocationManager = CtorStratAllocationManagerT<_T>>
+template<typename T, IAllocationManagerImpl AllocationManager = CtorStratAllocationManagerT<T>>
 class Vector
 {
 public:
-    static_assert(std::is_same_v<_T, typename _AllocationManager::value_type>, "Types _T and _AllocationManager::value_type are not the same");
+    static_assert(std::is_same_v<T, typename AllocationManager::value_type>, "Types T and AllocationManager::value_type are not the same");
 
     using TestType = char;
 
-    using allocator_type = typename _AllocationManager::allocator_type;
+    using allocator_type = typename AllocationManager::allocator_type;
     using value_type = typename allocator_type::value_type;
     using pointer = typename allocator_type::pointer;
-    using const_pointer = const _T*;
+    using const_pointer = const T*;
     using size_type = typename allocator_type::size_type;
     using difference_type = typename allocator_type::difference_type;
     using constructor_allocator = typename allocator_type::constructor_allocator;
@@ -322,8 +322,8 @@ public:
     using reference = value_type&;
     using const_reference = const value_type&;
 
-    using iterator = VectorIterator<Vector<value_type, _AllocationManager>>;
-    using const_iterator = ConstVectorIterator<Vector<value_type, _AllocationManager>>;
+    using iterator = VectorIterator<Vector<value_type, AllocationManager>>;
+    using const_iterator = ConstVectorIterator<Vector<value_type, AllocationManager>>;
 
     using prefer_init_against_ctor = std::true_type;
 
@@ -350,10 +350,10 @@ public:
     /// @param n New size
     /// @return Status of operation
     AGS_CS_ALWAYS_INLINE constexpr Status setSize(size_type n) noexcept
-        requires std::is_trivially_copyable_v<_T>;
+        requires std::is_trivially_copyable_v<T>;
 
     /// @brief Preallocate at least that much memory that
-    ///     is enough to hold N elements of _T
+    ///     is enough to hold N elements of T
     /// @param n Number of elements that underlying storage
     ///     must be capable to hold
     /// @return Status of operation
@@ -362,27 +362,27 @@ public:
     /// @brief Append element to tail of the storage
     /// @param value Value that need to append
     /// @return Status of operation
-    constexpr Status pushBack(const _T& value);
+    constexpr Status pushBack(const T& value);
 
     /// @brief Append element to tail of the storage
     /// @param value Value that need to move to storage
     /// @return Status of operation
-    constexpr Status pushBack(_T&& value);
+    constexpr Status pushBack(T&& value);
 
     /// @brief Append N elements to tail of the storage
     /// @param p Pointer to array of elements
     /// @param n Number of elements that need to append
     /// @return Status of operation
-    constexpr Status pushBackN(const _T* p, size_type n);
+    constexpr Status pushBackN(const T* p, size_type n);
 
     /// @brief Append arithmetic or enum value to tail of container
     /// @remark Using for eliminating redundant overhead on raw arrays
     /// @tparam V Type of value that need to append
     /// @param value Value that need to append
     /// @return Status of operation
-    template<typename _V>
-    constexpr Status pushBackArithmeticValue(_V value)
-        requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<_V> || std::is_enum_v<_V>);
+    template<typename V>
+    constexpr Status pushBackArithmeticValue(V value)
+        requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>);
 
     template<typename... Ts>
     constexpr Status emplaceBack(Ts&&... ts);
@@ -397,7 +397,7 @@ public:
     /// @param offset Offset from which replace is started
     /// @param pNewOffset Offset + N if there is no error
     /// @return Status of operation
-    constexpr Status replace(const _T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
+    constexpr Status replace(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
 
     /// @brief Insert N elements from offset
     /// @note  
@@ -406,8 +406,8 @@ public:
     /// @param offset 
     /// @param pNewOffset 
     /// @return 
-    constexpr Status insert(const _T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
-    constexpr Status insert(const _T& value, size_type offset);
+    constexpr Status insert(const T* p, size_type n, size_type offset, size_type* pNewOffset = nullptr);
+    constexpr Status insert(const T& value, size_type offset);
     template<typename ItSrc>
     constexpr Status insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd = nullptr);
 
@@ -417,23 +417,23 @@ public:
     constexpr Status erase(iterator destBegin, iterator destEnd);
 
     // copy from Vector to p (destination must be initialized (for non pod-types))
-    constexpr Status copyN(size_type offset, size_type n, _T* p, _T** ppNew = nullptr);
+    constexpr Status copyN(size_type offset, size_type n, T* p, T** ppNew = nullptr);
 
     // copy from Vector to destBegin... (destination must be initialized (for non pod-types))
     template<typename ItDest>
     constexpr Status copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd = nullptr);
 
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T* data() noexcept;
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T* data() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] T* data() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const T* data() const noexcept;
 
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T& operator[](size_type offset);
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T& operator[](size_type offset) const;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] T& operator[](size_type offset);
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const T& operator[](size_type offset) const;
     
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T& back();
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T& back() const;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] T& back();
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const T& back() const;
 
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _T& front();
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _T& front() const;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] T& front();
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const T& front() const;
 
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type size() const noexcept;
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] size_type max_size() const noexcept;
@@ -443,7 +443,7 @@ public:
     constexpr void invalidate() noexcept;
 
     // you shall free memory returned by this method manually
-    constexpr [[nodiscard]] _T* release() noexcept;
+    constexpr [[nodiscard]] T* release() noexcept;
 
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] iterator begin() noexcept;
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator begin() const noexcept;
@@ -452,67 +452,67 @@ public:
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator cbegin() const noexcept;
     AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const_iterator cend() const noexcept;
 
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] _AllocationManager& getAllocationManager() noexcept;
-    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const _AllocationManager& getAllocationManager() const noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] AllocationManager& getAllocationManager() noexcept;
+    AGS_CS_ALWAYS_INLINE constexpr [[nodiscard]] const AllocationManager& getAllocationManager() const noexcept;
 
     constexpr [[nodiscard]] bool operator==(const Vector& rhs) const noexcept
-        requires (NotPointer<_T>&& HasEqualityOperator<_T> || NotPointer<std::remove_pointer_t<_T>> && HasEqualityOperator<std::remove_pointer_t<_T>>);
+        requires (NotPointer<T>&& HasEqualityOperator<T> || NotPointer<std::remove_pointer_t<T>> && HasEqualityOperator<std::remove_pointer_t<T>>);
 
 private:
     constexpr [[nodiscard]] Status reserveInternal(size_type n, bool strict);
     constexpr [[nodiscard]] Status addSpaceIfNeed(size_type n);
     constexpr [[nodiscard]] bool isIteratorNotDereferenceable(iterator it) const noexcept;
 
-    _T* m_p{ nullptr };
+    T* m_p{ nullptr };
     size_type m_dataSize{ 0 };
     size_type m_allocatedSize{ 0 };
 
-    _AllocationManager m_AllocationManager;
+    AllocationManager m_AllocationManager;
 
 private:
     // It's not mandatory to have friend csp::processing::TemplateProcessor class 
     // to have deserialization capability.
     // The only reason this is done is because it allows some optimizations in
     // processing when we have direct access to private fields.
-    friend csp::processing::data::TemplateProcessor<Vector<_T, _AllocationManager>, _T, _AllocationManager>;
+    friend csp::processing::data::TemplateProcessor<Vector<T, AllocationManager>, T, AllocationManager>;
 };
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Vector<_T, _AllocationManager>::Vector(const Vector& rhs)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Vector<T, AllocationManager>::Vector(const Vector& rhs)
 {
     init(rhs);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Vector<_T, _AllocationManager>::Vector(Vector&& rhs) noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Vector<T, AllocationManager>::Vector(Vector&& rhs) noexcept
 {
     init(std::move(rhs));
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Vector<_T, _AllocationManager>& Vector<_T, _AllocationManager>::operator=(const Vector& rhs)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Vector<T, AllocationManager>& Vector<T, AllocationManager>::operator=(const Vector& rhs)
 {
     init(rhs);
 
     return *this;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Vector<_T, _AllocationManager>& Vector<_T, _AllocationManager>::operator=(Vector&& rhs) noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Vector<T, AllocationManager>& Vector<T, AllocationManager>::operator=(Vector&& rhs) noexcept
 {
     init(std::move(rhs));
 
     return *this;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Vector<_T, _AllocationManager>::~Vector() noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Vector<T, AllocationManager>::~Vector() noexcept
 {
     invalidate();
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::init(const Vector& rhs)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::init(const Vector& rhs)
 {
     if (this != &rhs)
     {
@@ -539,8 +539,8 @@ constexpr Status Vector<_T, _AllocationManager>::init(const Vector& rhs)
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::init(Vector&& rhs) noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::init(Vector&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -556,23 +556,23 @@ constexpr Status Vector<_T, _AllocationManager>::init(Vector&& rhs) noexcept
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::setSize(size_type n) noexcept
-    requires std::is_trivially_copyable_v<_T>
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::setSize(size_type n) noexcept
+    requires std::is_trivially_copyable_v<T>
 {
     AGS_CS_RUN(reserveInternal(n, false));
     m_dataSize = n;
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::reserve(size_type n)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::reserve(size_type n)
 {
     return reserveInternal(n, true);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::pushBack(const _T& value)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::pushBack(const T& value)
 {
     AGS_CS_RUN(addSpaceIfNeed(1));
     AGS_CS_RUN(m_AllocationManager.construct(m_p + m_dataSize, value));
@@ -581,8 +581,8 @@ constexpr Status Vector<_T, _AllocationManager>::pushBack(const _T& value)
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::pushBack(_T&& value)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::pushBack(T&& value)
 {
     AGS_CS_RUN(addSpaceIfNeed(1));
     AGS_CS_RUN(m_AllocationManager.moveToRawNoOverlap(m_p + m_dataSize, &value, 1));
@@ -591,8 +591,8 @@ constexpr Status Vector<_T, _AllocationManager>::pushBack(_T&& value)
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::pushBackN(const _T* p, size_type n)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::pushBackN(const T* p, size_type n)
 {
     if (p == nullptr && n != 0)
         return Status::ErrorInvalidArgument;
@@ -605,24 +605,24 @@ constexpr Status Vector<_T, _AllocationManager>::pushBackN(const _T* p, size_typ
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-template<typename _V>
-constexpr Status Vector<_T, _AllocationManager>::pushBackArithmeticValue(_V value)
-    requires std::is_same_v<_T, uint8_t> && (std::is_arithmetic_v<_V> || std::is_enum_v<_V>)
+template<typename T, IAllocationManagerImpl AllocationManager>
+template<typename V>
+constexpr Status Vector<T, AllocationManager>::pushBackArithmeticValue(V value)
+    requires std::is_same_v<T, uint8_t> && (std::is_arithmetic_v<V> || std::is_enum_v<V>)
 {
     Status status = Status::NoError;
 
-    AGS_CS_RUN(addSpaceIfNeed(sizeof(_V)));
+    AGS_CS_RUN(addSpaceIfNeed(sizeof(V)));
 
-    *static_cast<_V*>(static_cast<void*>(m_p + m_dataSize)) = value;
-    m_dataSize += sizeof(_V);
+    *static_cast<V*>(static_cast<void*>(m_p + m_dataSize)) = value;
+    m_dataSize += sizeof(V);
 
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
+template<typename T, IAllocationManagerImpl AllocationManager>
 template<typename... Ts>
-constexpr Status Vector<_T, _AllocationManager>::emplaceBack(Ts&&... ts)
+constexpr Status Vector<T, AllocationManager>::emplaceBack(Ts&&... ts)
 {
     Status status = Status::NoError;
 
@@ -633,8 +633,8 @@ constexpr Status Vector<_T, _AllocationManager>::emplaceBack(Ts&&... ts)
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::replace(const _T* p, size_type n, size_type offset, size_type* pNewOffset)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::replace(const T* p, size_type n, size_type offset, size_type* pNewOffset)
 {
     if (p == nullptr && n != 0)
         return Status::ErrorInvalidArgument;
@@ -679,8 +679,8 @@ constexpr Status Vector<_T, _AllocationManager>::replace(const _T* p, size_type 
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::insert(const _T* p, size_type n, size_type offset, size_type* pNewOffset)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::insert(const T* p, size_type n, size_type offset, size_type* pNewOffset)
 {
     if (p == nullptr && n != 0)
         return Status::ErrorInvalidArgument;
@@ -732,20 +732,20 @@ constexpr Status Vector<_T, _AllocationManager>::insert(const _T* p, size_type n
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::insert(const _T& value, size_type offset)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::insert(const T& value, size_type offset)
 {
     return insert(&value, 1, offset);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
+template<typename T, IAllocationManagerImpl AllocationManager>
 template<typename ItSrc>
-constexpr Status Vector<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
+constexpr Status Vector<T, AllocationManager>::insert(ItSrc srcBegin, ItSrc srcEnd, iterator destBegin, iterator* pDestEnd)
 {
     if (isIteratorNotDereferenceable(destBegin) && destBegin != end())
         return Status::ErrorOverflow;
 
-    Vector<_T, _AllocationManager> temp;
+    Vector<T, AllocationManager> temp;
     size_type oldDataSize = m_dataSize;
     size_type currentOffset = destBegin.getPointer() - m_p;
 
@@ -757,7 +757,7 @@ constexpr Status Vector<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc sr
             if (m_dataSize > currentOffset)
             {
                 AGS_CS_RUN(temp.pushBack(std::move(*pCurrent)));
-                m_AllocationManager.destroy(pCurrent); // if _T is not moveable we should destroying its objects explicitly
+                m_AllocationManager.destroy(pCurrent); // if T is not moveable we should destroying its objects explicitly
                 ++currentOffset;
             }
             else
@@ -777,7 +777,7 @@ constexpr Status Vector<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc sr
                 for (size_type i = currentOffset; i < oldDataSize; ++i)
                 {
                     AGS_CS_RUN(temp.pushBack(std::move(*(m_p + i))));
-                    m_AllocationManager.destroy(m_p + i); // if _T is not moveable we should destroying its objects explicitly
+                    m_AllocationManager.destroy(m_p + i); // if T is not moveable we should destroying its objects explicitly
                 }
             else
                 AGS_CS_RUN(temp.pushBackN(m_p + currentOffset, oldDataSize - currentOffset));
@@ -796,14 +796,14 @@ constexpr Status Vector<_T, _AllocationManager>::insert(ItSrc srcBegin, ItSrc sr
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::erase(size_type offset)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::erase(size_type offset)
 {
     return erase(offset, 1);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::erase(size_type offset, size_type n)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::erase(size_type offset, size_type n)
 {
     if (offset > m_dataSize || offset == m_dataSize && n != 0)
         return Status::ErrorOverflow;
@@ -819,21 +819,21 @@ constexpr Status Vector<_T, _AllocationManager>::erase(size_type offset, size_ty
     difference_type rightN = m_dataSize - rightNStart;
 
     AGS_CS_RUN(m_AllocationManager.moveToRawNoOverlap(m_p + offset, m_p + rightNStart, rightN));
-    m_AllocationManager.destroyN(m_p + rightNStart, rightN); // if _T is not moveable we should destroying its objects explicitly
+    m_AllocationManager.destroyN(m_p + rightNStart, rightN); // if T is not moveable we should destroying its objects explicitly
 
     m_dataSize = offset + rightN;
 
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::erase(iterator pos)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::erase(iterator pos)
 {
     return erase(pos, pos + 1);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::erase(iterator destBegin, iterator destEnd)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::erase(iterator destBegin, iterator destEnd)
 {
     if (destBegin > destEnd)
         return Status::ErrorOverflow;
@@ -853,15 +853,15 @@ constexpr Status Vector<_T, _AllocationManager>::erase(iterator destBegin, itera
     difference_type rightN = m_dataSize - n - leftN;
 
     AGS_CS_RUN(m_AllocationManager.moveToRawNoOverlap(destBegin.getPointer(), destEnd.getPointer(), rightN));
-    m_AllocationManager.destroyN(destEnd.getPointer(), rightN); // if _T is not moveable we should destroying its objects explicitly
+    m_AllocationManager.destroyN(destEnd.getPointer(), rightN); // if T is not moveable we should destroying its objects explicitly
 
     m_dataSize = leftN + rightN;
 
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::copyN(size_type offset, size_type n, _T* p, _T** ppNew)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::copyN(size_type offset, size_type n, T* p, T** ppNew)
 {
     if (p == nullptr && n != 0)
         return Status::ErrorInvalidArgument;
@@ -879,9 +879,9 @@ constexpr Status Vector<_T, _AllocationManager>::copyN(size_type offset, size_ty
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
+template<typename T, IAllocationManagerImpl AllocationManager>
 template<typename ItDest>
-constexpr Status Vector<_T, _AllocationManager>::copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd)
+constexpr Status Vector<T, AllocationManager>::copyN(iterator srcBegin, iterator srcEnd, ItDest destBegin, ItDest* pDestEnd)
 {
     if (isIteratorNotDereferenceable(srcBegin))
         return Status::ErrorInvalidArgument;
@@ -904,81 +904,81 @@ constexpr Status Vector<_T, _AllocationManager>::copyN(iterator srcBegin, iterat
     return Status::NoError;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr _T* Vector<_T, _AllocationManager>::data() noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr T* Vector<T, AllocationManager>::data() noexcept
 {
     return m_p;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr const _T* Vector<_T, _AllocationManager>::data() const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr const T* Vector<T, AllocationManager>::data() const noexcept
 {
     return m_p;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr _T& Vector<_T, _AllocationManager>::operator[](size_type offset)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr T& Vector<T, AllocationManager>::operator[](size_type offset)
 {
     return *(m_p + offset);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr const _T& Vector<_T, _AllocationManager>::operator[](size_type offset) const
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr const T& Vector<T, AllocationManager>::operator[](size_type offset) const
 {
     return *(m_p + offset);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr _T& Vector<_T, _AllocationManager>::back()
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr T& Vector<T, AllocationManager>::back()
 {
     return *(m_p + size() - 1);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr const _T& Vector<_T, _AllocationManager>::back() const
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr const T& Vector<T, AllocationManager>::back() const
 {
     return *(m_p + size() - 1);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr _T& Vector<_T, _AllocationManager>::front()
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr T& Vector<T, AllocationManager>::front()
 {
     return *m_p;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr const _T& Vector<_T, _AllocationManager>::front() const
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr const T& Vector<T, AllocationManager>::front() const
 {
     return *m_p;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr typename Vector<_T, _AllocationManager>::size_type Vector<_T, _AllocationManager>::size() const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr typename Vector<T, AllocationManager>::size_type Vector<T, AllocationManager>::size() const noexcept
 {
     return m_dataSize;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr typename Vector<_T, _AllocationManager>::size_type Vector<_T, _AllocationManager>::max_size() const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr typename Vector<T, AllocationManager>::size_type Vector<T, AllocationManager>::max_size() const noexcept
 {
     return m_AllocationManager.max_size();
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr typename Vector<_T, _AllocationManager>::size_type Vector<_T, _AllocationManager>::capacity() const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr typename Vector<T, AllocationManager>::size_type Vector<T, AllocationManager>::capacity() const noexcept
 {
     return m_allocatedSize;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr void Vector<_T, _AllocationManager>::clear() noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr void Vector<T, AllocationManager>::clear() noexcept
 {
     m_AllocationManager.destroyN(m_p, m_dataSize);
     m_dataSize = 0;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr void Vector<_T, _AllocationManager>::invalidate() noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr void Vector<T, AllocationManager>::invalidate() noexcept
 {
     clear();
     m_AllocationManager.deallocate(m_p);
@@ -986,70 +986,70 @@ constexpr void Vector<_T, _AllocationManager>::invalidate() noexcept
     m_allocatedSize = 0;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr _T* Vector<_T, _AllocationManager>::release() noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr T* Vector<T, AllocationManager>::release() noexcept
 {
-    _T* s = m_p;
+    T* s = m_p;
     m_p = 0;
     m_dataSize = 0;
     m_allocatedSize = 0;
     return s;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr typename Vector<_T, _AllocationManager>::iterator Vector<_T, _AllocationManager>::begin() noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr typename Vector<T, AllocationManager>::iterator Vector<T, AllocationManager>::begin() noexcept
 {
     return iterator(m_p);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr typename Vector<_T, _AllocationManager>::const_iterator Vector<_T, _AllocationManager>::begin() const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr typename Vector<T, AllocationManager>::const_iterator Vector<T, AllocationManager>::begin() const noexcept
 {
     return const_iterator(m_p);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr typename Vector<_T, _AllocationManager>::iterator Vector<_T, _AllocationManager>::end() noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr typename Vector<T, AllocationManager>::iterator Vector<T, AllocationManager>::end() noexcept
 {
     return iterator(m_p + m_dataSize);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr typename Vector<_T, _AllocationManager>::const_iterator Vector<_T, _AllocationManager>::end() const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr typename Vector<T, AllocationManager>::const_iterator Vector<T, AllocationManager>::end() const noexcept
 {
     return const_iterator(m_p + m_dataSize);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr typename Vector<_T, _AllocationManager>::const_iterator Vector<_T, _AllocationManager>::cbegin() const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr typename Vector<T, AllocationManager>::const_iterator Vector<T, AllocationManager>::cbegin() const noexcept
 {
     return const_iterator(m_p);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr typename Vector<_T, _AllocationManager>::const_iterator Vector<_T, _AllocationManager>::cend() const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr typename Vector<T, AllocationManager>::const_iterator Vector<T, AllocationManager>::cend() const noexcept
 {
     return const_iterator(m_p + m_dataSize);
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr _AllocationManager& Vector<_T, _AllocationManager>::getAllocationManager() noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr AllocationManager& Vector<T, AllocationManager>::getAllocationManager() noexcept
 {
     return m_AllocationManager;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr const _AllocationManager& Vector<_T, _AllocationManager>::getAllocationManager() const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr const AllocationManager& Vector<T, AllocationManager>::getAllocationManager() const noexcept
 {
     return m_AllocationManager;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::reserveInternal(size_type n, bool strict)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::reserveInternal(size_type n, bool strict)
 {
     if (n > m_allocatedSize)
     {
-        _T* pNewMp = strict ? m_AllocationManager.allocateStrict(n) : m_AllocationManager.allocate(n, &n);
+        T* pNewMp = strict ? m_AllocationManager.allocateStrict(n) : m_AllocationManager.allocate(n, &n);
         if (pNewMp)
         {
             m_allocatedSize = n;
@@ -1072,8 +1072,8 @@ constexpr Status Vector<_T, _AllocationManager>::reserveInternal(size_type n, bo
 }
 
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr Status Vector<_T, _AllocationManager>::addSpaceIfNeed(size_type n)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr Status Vector<T, AllocationManager>::addSpaceIfNeed(size_type n)
 {
     return m_dataSize + n >= m_dataSize
         ? m_dataSize + n > m_allocatedSize
@@ -1082,26 +1082,26 @@ constexpr Status Vector<_T, _AllocationManager>::addSpaceIfNeed(size_type n)
         : Status::ErrorOverflow;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr bool Vector<_T, _AllocationManager>::isIteratorNotDereferenceable(iterator it) const noexcept
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr bool Vector<T, AllocationManager>::isIteratorNotDereferenceable(iterator it) const noexcept
 {
     return &*it < m_p || &*it >= m_p + m_dataSize;
 }
 
-template<typename _T, IAllocationManagerImpl _AllocationManager>
-constexpr bool Vector<_T, _AllocationManager>::operator==(const Vector& rhs) const noexcept
-    requires (NotPointer<_T> && HasEqualityOperator<_T> || NotPointer<std::remove_pointer_t<_T>> && HasEqualityOperator<std::remove_pointer_t<_T>>)
+template<typename T, IAllocationManagerImpl AllocationManager>
+constexpr bool Vector<T, AllocationManager>::operator==(const Vector& rhs) const noexcept
+    requires (NotPointer<T> && HasEqualityOperator<T> || NotPointer<std::remove_pointer_t<T>> && HasEqualityOperator<std::remove_pointer_t<T>>)
 {
     if (size() != rhs.size())
         return false;
 
     for (size_type i = 0; i < size(); ++i)
-        if constexpr (NotPointer<_T>)
+        if constexpr (NotPointer<T>)
         {
             if (m_p[i] != rhs.m_p[i])
                 return false;
         }
-        else // if constexpr (NotPointer<std::remove_pointer_t<_T>>)
+        else // if constexpr (NotPointer<std::remove_pointer_t<T>>)
         {
             if (m_p[i] == nullptr || rhs.m_p[i] == nullptr)
                 return m_p[i] == rhs.m_p[i];

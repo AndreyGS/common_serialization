@@ -28,8 +28,8 @@ namespace common_serialization
 {
 
 /// @brief Interface for allocation of raw storage
-/// @tparam _PsAllocator Most derived class (instance type)
-template<typename _StorageAllocator>
+/// @tparam PsAllocator Most derived class (instance type)
+template<typename StorageAllocator>
 class IStorageAllocator
 {
 public:
@@ -38,18 +38,18 @@ public:
     /// @return Pointer to allocated storage
     AGS_CS_ALWAYS_INLINE [[nodiscard]] void* allocate(size_t dataSizeInBytes) noexcept
     {
-        return static_cast<_StorageAllocator*>(this)->allocateImpl(dataSizeInBytes);
+        return static_cast<StorageAllocator*>(this)->allocateImpl(dataSizeInBytes);
     }
 
     /// @brief Deallocate memory
     /// @param p Pointer to previously allocated storage
     AGS_CS_ALWAYS_INLINE void deallocate(void* p) noexcept
     {
-        static_cast<_StorageAllocator*>(this)->deallocateImpl(p);
+        static_cast<StorageAllocator*>(this)->deallocateImpl(p);
     }
 };
 
-template<typename _StorageAllocator>
-concept IStorageAllocatorImpl = std::is_base_of_v<IStorageAllocator<normalize_t<_StorageAllocator>>, normalize_t<_StorageAllocator>>;
+template<typename StorageAllocator>
+concept IStorageAllocatorImpl = std::is_base_of_v<IStorageAllocator<normalize_t<StorageAllocator>>, normalize_t<StorageAllocator>>;
 
 } // namespace common_serialization

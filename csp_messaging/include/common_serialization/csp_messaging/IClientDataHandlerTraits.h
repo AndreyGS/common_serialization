@@ -28,25 +28,25 @@ namespace common_serialization::csp::messaging
 
 /// @brief traits_ of CSP Client data handler
 template<
-      ISerializableImpl _InputType
-    , ISerializableImpl _OutputType
-    , bool _forTempUseHeap
+      ISerializableImpl InputType_
+    , ISerializableImpl OutputType_
+    , bool forTempUseHeap
 >
 struct IClientDataHandlerTraits
 {
-    using InputType = _InputType;
-    using OutputType = _OutputType;
+    using InputType = InputType_;
+    using OutputType = OutputType_;
 
-    static constexpr bool kForTempUseHeap = _forTempUseHeap;
+    static constexpr bool kForTempUseHeap = forTempUseHeap;
 };
 
-template<typename _T>
-concept IClientDataHandlerTraitsImpl = std::is_base_of_v<IClientDataHandlerTraits<typename _T::InputType, typename _T::OutputType, _T::kForTempUseHeap>, normalize_t<_T>>;
+template<typename T>
+concept IClientDataHandlerTraitsImpl = std::is_base_of_v<IClientDataHandlerTraits<typename T::InputType, typename T::OutputType, T::kForTempUseHeap>, normalize_t<T>>;
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using ClientStackHandler = IClientDataHandlerTraits<_InputType, _OutputType, false>;
+template<ISerializableImpl InputType, ISerializableImpl OutputType>
+using ClientStackHandler = IClientDataHandlerTraits<InputType, OutputType, false>;
 
-template<ISerializableImpl _InputType, ISerializableImpl _OutputType>
-using ClientHeapHandler = IClientDataHandlerTraits<_InputType, _OutputType, true>;
+template<ISerializableImpl InputType, ISerializableImpl OutputType>
+using ClientHeapHandler = IClientDataHandlerTraits<InputType, OutputType, true>;
 
 } // namespace common_serialization::csp::messaging

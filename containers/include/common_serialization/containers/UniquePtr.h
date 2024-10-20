@@ -32,38 +32,38 @@ namespace common_serialization
 
 /// @brief Something like std::unique_ptr
 /// @note Should have more unit-tests
-/// @tparam _T Type that internal pointer points to
-/// @tparam _D Deleter
-template<typename _T, typename _D = DefaultDeleter<_T>>
+/// @tparam T Type that internal pointer points to
+/// @tparam D Deleter
+template<typename T, typename D = DefaultDeleter<T>>
 class UniquePtr
 {
 public:
-    using element_type = _T;
+    using element_type = T;
     using pointer = element_type*;
-    using deleter_type = _D;
+    using deleter_type = D;
 
     UniquePtr()
         : m_pair(zero_then_variadic_args_t{})
     {
     }
 
-    template<typename _T2>
-        requires SmartPtrConvertible<element_type, deleter_type, _T2, deleter_type>
-    explicit constexpr UniquePtr(_T2* p) noexcept 
+    template<typename T2>
+        requires SmartPtrConvertible<element_type, deleter_type, T2, deleter_type>
+    explicit constexpr UniquePtr(T2* p) noexcept 
         : m_pair(zero_then_variadic_args_t{}, p)
     {
     }
 
-    template<typename _T2, typename _D2>
-        requires (SmartPtrConvertible<element_type, deleter_type, _T2, _D2> && std::is_constructible_v<deleter_type, _D2>)
-    explicit constexpr UniquePtr(_T2* p, const _D2& d) noexcept
+    template<typename T2, typename D2>
+        requires (SmartPtrConvertible<element_type, deleter_type, T2, D2> && std::is_constructible_v<deleter_type, D2>)
+    explicit constexpr UniquePtr(T2* p, const D2& d) noexcept
         : m_pair(one_then_variadic_args_t{}, d, p)
     {
     }
 
-    template<typename _T2, typename _D2>
-        requires (SmartPtrConvertible<element_type, deleter_type, _T2, _D2> && !std::is_reference_v<_D2> && std::is_constructible_v<deleter_type, _D2>)
-    explicit constexpr UniquePtr(_T2* p, _D2&& d) noexcept
+    template<typename T2, typename D2>
+        requires (SmartPtrConvertible<element_type, deleter_type, T2, D2> && !std::is_reference_v<D2> && std::is_constructible_v<deleter_type, D2>)
+    explicit constexpr UniquePtr(T2* p, D2&& d) noexcept
         : m_pair(one_then_variadic_args_t{}, std::move(d), p)
     {
     }
@@ -71,19 +71,19 @@ public:
     UniquePtr(const UniquePtr&) = delete;
     UniquePtr& operator=(const UniquePtr&) = delete;
 
-    template<typename _T2, typename _D2>
-        requires SmartPtrConvertible<element_type, deleter_type, _T2, _D2>
-    constexpr UniquePtr(UniquePtr<_T2, _D2>&& rhs) noexcept
+    template<typename T2, typename D2>
+        requires SmartPtrConvertible<element_type, deleter_type, T2, D2>
+    constexpr UniquePtr(UniquePtr<T2, D2>&& rhs) noexcept
         : m_pair(one_then_variadic_args_t{}, rhs.getDeleter(), rhs.release())
     {
     }
 
-    template<typename _T2, typename _D2>
-        requires SmartPtrConvertible<element_type, deleter_type, _T2, _D2>
-    constexpr UniquePtr& operator=(UniquePtr<_T2, _D2>&& rhs) noexcept
+    template<typename T2, typename D2>
+        requires SmartPtrConvertible<element_type, deleter_type, T2, D2>
+    constexpr UniquePtr& operator=(UniquePtr<T2, D2>&& rhs) noexcept
     {
         reset(rhs.release());
-        m_pair.getFirst() = std::forward<_D2>(rhs.getDeleter());
+        m_pair.getFirst() = std::forward<D2>(rhs.getDeleter());
         return *this;
     }
 
@@ -127,9 +127,9 @@ public:
         m_pair.value = p;
     }
 
-    template<typename _D2>
-        requires SmartPtrConvertible<element_type, deleter_type, element_type, _D2>
-    void swap(UniquePtr<element_type, _D2>& rhs) noexcept
+    template<typename D2>
+        requires SmartPtrConvertible<element_type, deleter_type, element_type, D2>
+    void swap(UniquePtr<element_type, D2>& rhs) noexcept
     {
         pointer pTemp = m_pair.value;
         m_pair.value = rhs.m_pair.value;
@@ -168,37 +168,37 @@ private:
     CompressedPair<deleter_type, pointer> m_pair;
 };
 
-template<typename _T, typename _D>
-class UniquePtr<_T[], _D>
+template<typename T, typename D>
+class UniquePtr<T[], D>
 {
 public:
-    using element_type = _T;
+    using element_type = T;
     using pointer = element_type*;
-    using deleter_type = _D;
+    using deleter_type = D;
 
-    template<typename _D2 = DefaultDeleter<element_type>>
+    template<typename D2 = DefaultDeleter<element_type>>
     UniquePtr()
         : m_pair(zero_then_variadic_args_t{})
     {
     }
 
-    template<typename _T2>
-        requires SmartPtrArrConvertible<element_type, deleter_type, _T2, deleter_type>
-    explicit constexpr UniquePtr(_T2* p) noexcept 
+    template<typename T2>
+        requires SmartPtrArrConvertible<element_type, deleter_type, T2, deleter_type>
+    explicit constexpr UniquePtr(T2* p) noexcept 
         : m_pair(zero_then_variadic_args_t{}, p)
     {
     }
 
-    template<typename _T2, typename _D2>
-        requires (SmartPtrArrConvertible<element_type, deleter_type, _T2, _D2> && std::is_constructible_v<deleter_type, _D2>)
-    explicit constexpr UniquePtr(_T2* p, const _D2& d) noexcept
+    template<typename T2, typename D2>
+        requires (SmartPtrArrConvertible<element_type, deleter_type, T2, D2> && std::is_constructible_v<deleter_type, D2>)
+    explicit constexpr UniquePtr(T2* p, const D2& d) noexcept
         : m_pair(one_then_variadic_args_t{}, d, p)
     {
     }
 
-    template<typename _T2, typename _D2>
-        requires (SmartPtrArrConvertible<element_type, deleter_type, _T2, _D2> && !std::is_reference_v<_D2> && std::is_constructible_v<deleter_type, _D2>)
-    explicit constexpr UniquePtr(_T2* p, _D2&& d) noexcept
+    template<typename T2, typename D2>
+        requires (SmartPtrArrConvertible<element_type, deleter_type, T2, D2> && !std::is_reference_v<D2> && std::is_constructible_v<deleter_type, D2>)
+    explicit constexpr UniquePtr(T2* p, D2&& d) noexcept
         : m_pair(one_then_variadic_args_t{}, std::move(d), p)
     {
     }
@@ -206,19 +206,19 @@ public:
     UniquePtr(const UniquePtr&) = delete;
     UniquePtr& operator=(const UniquePtr&) = delete;
 
-    template<typename _T2, typename _D2>
-        requires SmartPtrArrConvertible<element_type, deleter_type, _T2, _D2>
-    constexpr UniquePtr(UniquePtr<_T2[], _D2>&& rhs) noexcept
+    template<typename T2, typename D2>
+        requires SmartPtrArrConvertible<element_type, deleter_type, T2, D2>
+    constexpr UniquePtr(UniquePtr<T2[], D2>&& rhs) noexcept
         : m_pair(one_then_variadic_args_t{}, rhs.getDeleter(), rhs.release())
     {
     }
 
-    template<typename _T2, typename _D2>
-        requires SmartPtrArrConvertible<element_type, deleter_type, _T2, _D2>
-    constexpr UniquePtr& operator=(UniquePtr<_T2[], _D2>&& rhs) noexcept
+    template<typename T2, typename D2>
+        requires SmartPtrArrConvertible<element_type, deleter_type, T2, D2>
+    constexpr UniquePtr& operator=(UniquePtr<T2[], D2>&& rhs) noexcept
     {
         reset(rhs.release());
-        m_pair.getFirst() = std::forward<_D2>(rhs.getDeleter());
+        m_pair.getFirst() = std::forward<D2>(rhs.getDeleter());
         return *this;
     }
 
@@ -262,9 +262,9 @@ public:
         m_pair.value = p;
     }
 
-    template<typename _D2>
-        requires SmartPtrConvertible<element_type, deleter_type, element_type, _D2>
-    void swap(UniquePtr<element_type[], _D2> & rhs) noexcept
+    template<typename D2>
+        requires SmartPtrConvertible<element_type, deleter_type, element_type, D2>
+    void swap(UniquePtr<element_type[], D2> & rhs) noexcept
     {
         pointer pTemp = m_pair.value;
         m_pair.value = rhs.m_pair.value;
@@ -304,64 +304,64 @@ private:
 };
 
 
-template<typename _T, typename... _Ts>
-    requires (!std::is_array_v<_T>)
-constexpr [[nodiscard]] UniquePtr<_T> makeUnique(_Ts&&... ts)
+template<typename T, typename... Ts>
+    requires (!std::is_array_v<T>)
+constexpr [[nodiscard]] UniquePtr<T> makeUnique(Ts&&... ts)
 {
-    return UniquePtr<_T>(new _T{ std::forward<_Ts>(ts)... });
+    return UniquePtr<T>(new T{ std::forward<Ts>(ts)... });
 }
 
-template<typename _T, typename... _Ts>
-    requires (std::is_unbounded_array_v<_T>)
-constexpr [[nodiscard]] UniquePtr<_T> makeUnique(size_t size, _Ts&&... ts)
+template<typename T, typename... Ts>
+    requires (std::is_unbounded_array_v<T>)
+constexpr [[nodiscard]] UniquePtr<T> makeUnique(size_t size, Ts&&... ts)
 {
-    using Type = std::remove_extent_t<_T>;
-    return UniquePtr<_T>(new Type[size]{ std::forward<_Ts>(ts)... });
+    using Type = std::remove_extent_t<T>;
+    return UniquePtr<T>(new Type[size]{ std::forward<Ts>(ts)... });
 }
 
-template<typename _T, typename... _Ts>
-    requires (!std::is_array_v<_T>)
-constexpr [[nodiscard]] UniquePtr<_T> makeUniqueNoThrow(_Ts&&... ts)
+template<typename T, typename... Ts>
+    requires (!std::is_array_v<T>)
+constexpr [[nodiscard]] UniquePtr<T> makeUniqueNoThrow(Ts&&... ts)
 {
-    return UniquePtr<_T>(new (std::nothrow) _T{ std::forward<_Ts>(ts)... });
+    return UniquePtr<T>(new (std::nothrow) T{ std::forward<Ts>(ts)... });
 }
 
-template<typename _T, typename... _Ts>
-    requires (std::is_unbounded_array_v<_T>)
-constexpr [[nodiscard]] UniquePtr<_T> makeUniqueNoThrow(size_t size, _Ts&&... ts)
+template<typename T, typename... Ts>
+    requires (std::is_unbounded_array_v<T>)
+constexpr [[nodiscard]] UniquePtr<T> makeUniqueNoThrow(size_t size, Ts&&... ts)
 {
-    using Type = std::remove_extent_t<_T>;
-    return UniquePtr<_T>(new (std::nothrow) Type[size]{ std::forward<_Ts>(ts)... });
+    using Type = std::remove_extent_t<T>;
+    return UniquePtr<T>(new (std::nothrow) Type[size]{ std::forward<Ts>(ts)... });
 }
 
-template<typename _T>
-    requires (!std::is_array_v<_T>)
-constexpr [[nodiscard]] UniquePtr<_T> makeUniqueForOverwrite()
+template<typename T>
+    requires (!std::is_array_v<T>)
+constexpr [[nodiscard]] UniquePtr<T> makeUniqueForOverwrite()
 {
-    return UniquePtr<_T>(new _T);
+    return UniquePtr<T>(new T);
 }
 
-template<typename _T>
-    requires (std::is_unbounded_array_v<_T>)
-constexpr [[nodiscard]] UniquePtr<_T> makeUniqueForOverwrite(size_t size)
+template<typename T>
+    requires (std::is_unbounded_array_v<T>)
+constexpr [[nodiscard]] UniquePtr<T> makeUniqueForOverwrite(size_t size)
 {
-    using Type = std::remove_extent_t<_T>;
-    return UniquePtr<_T>(new Type[size]);
+    using Type = std::remove_extent_t<T>;
+    return UniquePtr<T>(new Type[size]);
 }
 
-template<typename _T>
-    requires (!std::is_array_v<_T>)
-constexpr [[nodiscard]] UniquePtr<_T> makeUniqueNoThrowForOverwrite()
+template<typename T>
+    requires (!std::is_array_v<T>)
+constexpr [[nodiscard]] UniquePtr<T> makeUniqueNoThrowForOverwrite()
 {
-    return UniquePtr<_T>(new (std::nothrow) _T);
+    return UniquePtr<T>(new (std::nothrow) T);
 }
 
-template<typename _T>
-    requires (std::is_unbounded_array_v<_T>)
-constexpr [[nodiscard]] UniquePtr<_T> makeUniqueNoThrowForOverwrite(size_t size)
+template<typename T>
+    requires (std::is_unbounded_array_v<T>)
+constexpr [[nodiscard]] UniquePtr<T> makeUniqueNoThrowForOverwrite(size_t size)
 {
-    using Type = std::remove_extent_t<_T>;
-    return UniquePtr<_T>(new (std::nothrow) Type[size]);
+    using Type = std::remove_extent_t<T>;
+    return UniquePtr<T>(new (std::nothrow) Type[size]);
 }
 
 } // namespace common_serialization
