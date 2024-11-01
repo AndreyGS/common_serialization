@@ -84,11 +84,11 @@ class ErrorProne
 public:
     using prefer_init_against_ctor = std::true_type;
 
-    static uint32_t counter;
-    static uint32_t errorOnCounter;
-    static ags_cs::Status currentError;
-    static uint32_t destructorCalledCounter;
-    static uint32_t sumOfDeletedIndexes;
+    static inline uint32_t counter{ 0 };
+    static inline uint32_t errorOnCounter{ 0 };
+    static inline ags_cs::Status currentError{ ags_cs::Status::NoError };
+    static inline uint32_t destructorCalledCounter{ 0 };
+    static inline uint32_t sumOfDeletedIndexes{ 0 };
 
     ags_cs::Status init(const ErrorProne&)
     {
@@ -110,12 +110,6 @@ public:
 private:
     uint32_t m_i{ 0 };
 };
-
-inline uint32_t ErrorProne::counter = 0;
-inline uint32_t ErrorProne::errorOnCounter = 0;
-inline ags_cs::Status ErrorProne::currentError = ags_cs::Status::NoError;
-inline uint32_t ErrorProne::destructorCalledCounter = 0;
-inline uint32_t ErrorProne::sumOfDeletedIndexes = 0;
 
 struct CustomDeleter
 {

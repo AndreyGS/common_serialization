@@ -66,7 +66,7 @@ namespace
 template<typename T, std::size_t L>
 struct pointer_level_traits_impl
 {
-    static const std::size_t value = L;
+    static constexpr std::size_t value = L;
     using from_ptr_to_const_to_ptr = std::remove_const_t<T>;
 };
 

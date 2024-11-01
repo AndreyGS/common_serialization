@@ -34,7 +34,7 @@ using namespace common_serialization;
 
 struct AnotherCustomDeleter
 {
-    static int i;
+    static inline int i{ 0 };
 
     template<typename T>
     void operator()(T p)
@@ -44,11 +44,9 @@ struct AnotherCustomDeleter
     }
 };
 
-inline int AnotherCustomDeleter::i = 0;
-
 struct AnotherCustomArrDeleter
 {
-    static int i;
+    static inline int i{ 0 };
 
     template<typename T>
     void operator()(T p)
@@ -57,8 +55,6 @@ struct AnotherCustomArrDeleter
         delete[] p;
     }
 };
-
-inline int AnotherCustomArrDeleter::i = 0;
 
 TEST(UniquePtrTest, Ctors)
 {
