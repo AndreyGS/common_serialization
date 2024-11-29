@@ -71,7 +71,7 @@ TEST(GenericPointerKeeperTests, Dtor)
     ErrorProne* p1 = gpk1.allocateAndConstructOne<ErrorProne>();
     ErrorProne::destructorCalledCounter = 0;
     ErrorProne::sumOfDeletedIndexes = 0;
-    gpk1.~gpk1();
+    gpk1.~GenericPointerKeeper();
 
     EXPECT_EQ(ErrorProne::destructorCalledCounter, 1);
     EXPECT_EQ(ErrorProne::sumOfDeletedIndexes, 0);

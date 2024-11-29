@@ -30,6 +30,9 @@ some header files that I have to manually enter for now, I'll take care of remai
 At this time all main modules of CSP are ready. For most of its parts unit-tests are defined
 (but more must be done there). And I polish individual components.
 
+It is being built in Visual Studio 2022 with MSVC version 19.41.34123.
+At the moment, work with other compilers has not yet been fully tested and is not guaranteed.
+
 Under development.
 
 ## License
